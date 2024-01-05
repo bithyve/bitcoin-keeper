@@ -22,7 +22,7 @@ function SignWithTapsigner() {
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
 
-  const { params = { signTransaction: () => {}, signer: null } as any } = useRoute();
+  const { params = { signTransaction: () => {} } as any } = useRoute();
   const { signTransaction, textRef } = params;
 
   const onPressHandler = (digit) => {

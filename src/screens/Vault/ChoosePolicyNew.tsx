@@ -39,7 +39,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const isUpdate = route.params.update;
+  const { isUpdate, addSignerFlow } = route.params;
   const existingRestrictions: SignerRestriction = route.params.restrictions;
   const existingMaxTransactionRestriction = idx(
     existingRestrictions,
@@ -82,7 +82,7 @@ function ChoosePolicyNew({ navigation, route }) {
       };
 
       navigation.dispatch(
-        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy, addSignerFlow } })
       );
     }
   };

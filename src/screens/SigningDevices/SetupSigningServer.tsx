@@ -36,9 +36,9 @@ function SetupSigningServer({ route }: { route }) {
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
+  const { policy, addSignerFlow = false } = route.params;
 
   const registerSigningServer = async () => {
-    const { policy } = route.params;
     try {
       const { setupData } = await SigningServer.register(policy);
       setSetupData(setupData);
@@ -66,10 +66,10 @@ function SetupSigningServer({ route }: { route }) {
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
     const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
-    const signingServerKey = generateSignerFromMetaData({
+    const { signer: signingServerKey, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
@@ -77,10 +77,11 @@ function SetupSigningServer({ route }: { route }) {
       signerPolicy: policy,
     });
 
-    dispatch(addSigningDevice(signingServerKey));
-    navigation.dispatch(
-      CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-    );
+    dispatch(addSigningDevice([signingServerKey], [key], addSignerFlow));
+    const navigationState = addSignerFlow
+      ? { name: 'Home' }
+      : { name: 'AddSigningDevice', merge: true, params: {} };
+    navigation.dispatch(CommonActions.navigate(navigationState));
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 

@@ -17,11 +17,7 @@ const useVault = (collaborativeWalletId?: string) => {
       .filter((vault: Vault) => !vault.archived && vault.type !== VaultType.COLLABORATIVE)[0] ||
     null;
 
-  const vaults: Vault[] = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault: Vault) => vault.type !== VaultType.COLLABORATIVE);
-
-  return { activeVault, vaults };
+  return { activeVault };
 };
 
 export default useVault;

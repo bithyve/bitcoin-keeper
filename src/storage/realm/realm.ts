@@ -2,13 +2,14 @@ import Realm from 'realm';
 import { captureError } from 'src/services/sentry';
 import { RealmSchema } from './enum';
 import schema from './schema';
+import { runRealmMigrations } from './migrations';
 
 export class RealmDatabase {
   private realm: Realm;
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 62;
+  public static schemaVersion = 63;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -25,7 +26,9 @@ export class RealmDatabase {
         schema,
         schemaVersion: RealmDatabase.schemaVersion,
         encryptionKey: key,
-        migration: () => {},
+        onMigration: (oldRealm, newRealm) => {
+          runRealmMigrations({ oldRealm, newRealm });
+        },
       };
       this.realm = await Realm.open(realmConfig);
       return true;
@@ -82,12 +85,13 @@ export class RealmDatabase {
    * creates an object corresponding to the provided schema
    * @param  {RealmSchema} schema
    * @param  {any} object
+   * @param  {Realm.UpdateMode} updateMode
    */
-  public create = (schema: RealmSchema, object: any) => {
+  public create = (schema: RealmSchema, object: any, updateMode) => {
     const realm = this.getDatabase();
     try {
       this.writeTransaction(realm, () => {
-        realm.create(schema, object, Realm.UpdateMode.All);
+        realm.create(schema, object, updateMode);
       });
       return true;
     } catch (err) {
@@ -100,13 +104,14 @@ export class RealmDatabase {
    * creates an object corresponding to the provided schema
    * @param  {RealmSchema} schema
    * @param  {any[]} object
+   * @param  {Realm.UpdateMode} updateMode
    */
-  public createBulk = (schema: RealmSchema, objects: any[]) => {
+  public createBulk = (schema: RealmSchema, objects: any[], updateMode) => {
     const realm = this.getDatabase();
     try {
       for (const object of objects) {
         this.writeTransaction(realm, () => {
-          realm.create(schema, object, Realm.UpdateMode.All);
+          realm.create(schema, object, updateMode);
         });
       }
 

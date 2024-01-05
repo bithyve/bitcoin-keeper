@@ -32,7 +32,6 @@ import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
@@ -83,6 +82,7 @@ function ConnectChannel() {
     signer,
     mode,
     isMultisig,
+    addSignerFlow = false,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -107,14 +107,14 @@ function ConnectChannel() {
     channel.on(BITBOX_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, xfp, xpubDetails } = getBitbox02Details(
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getBitbox02Details(
           decrypted,
           isMultisig
         );
-        const bitbox02 = generateSignerFromMetaData({
+        const { signer: bitbox02, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.BITBOX02,
           storageType: SignerStorage.COLD,
@@ -127,16 +127,14 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(bitbox02));
-          navigation.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice([bitbox02], [key], addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(bitbox02.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -148,11 +146,14 @@ function ConnectChannel() {
     channel.on(TREZOR_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(decrypted, isMultisig);
-        const trezor = generateSignerFromMetaData({
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getTrezorDetails(
+          decrypted,
+          isMultisig
+        );
+        const { signer: trezor, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.TREZOR,
           storageType: SignerStorage.COLD,
@@ -164,15 +165,13 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(trezor));
-          navigation.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice([trezor], [key], addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(trezor.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -184,14 +183,12 @@ function ConnectChannel() {
     channel.on(LEDGER_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
-          decrypted,
-          isMultisig
-        );
-        const ledger = generateSignerFromMetaData({
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } =
+          getLedgerDetailsFromChannel(decrypted, isMultisig);
+        const { signer: ledger, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.LEDGER,
           storageType: SignerStorage.COLD,
@@ -203,16 +200,14 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(ledger));
-          navigation.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice([ledger], [key], addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(ledger.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -290,7 +285,7 @@ function ConnectChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={signerType}>
+      <MockWrapper signerType={signerType} addSignerFlow={addSignerFlow}>
         <KeeperHeader title={title} subtitle={subtitle} />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
           <ScanAndInstruct onBarCodeRead={onBarCodeRead} mode={mode} />

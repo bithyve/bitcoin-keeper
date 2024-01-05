@@ -30,7 +30,6 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
@@ -197,16 +196,13 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signerId = null } = route.params;
+  const { signer, vaultKey } = route.params;
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
   const { activeVault } = useVault();
-  const signer: VaultSigner = activeVault.signers.filter(
-    (signer) => signer?.signerId === signerId
-  )[0];
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -293,7 +289,7 @@ function SigningDeviceDetails({ route }) {
       text: 'Advance Options',
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
-        navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
+        navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey }));
       },
     },
   ];

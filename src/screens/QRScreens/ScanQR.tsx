@@ -40,6 +40,7 @@ function ScanQR() {
     isHealthcheck = false,
     signer,
     disableMockFlow = false,
+    addSignerFlow = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -113,7 +114,11 @@ function ScanQR() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={type} enable={setup && type && !disableMockFlow}>
+      <MockWrapper
+        signerType={type}
+        enable={setup && type && !disableMockFlow}
+        addSignerFlow={addSignerFlow}
+      >
         <KeeperHeader title={title} subtitle={subtitle} />
         <VStack style={globalStyles.centerColumn}>
           <Box style={styles.qrcontainer}>

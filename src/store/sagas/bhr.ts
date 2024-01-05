@@ -142,25 +142,12 @@ export function* updateVaultImageWorker({
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
-    signerIdXpubMap[signer.signerId] = signer.xpub;
+    signerIdXpubMap[signer.xfp] = signer.xpub;
     signersData.push({
-      signerId: signer.signerId,
+      signerId: signer.xfp,
       xfpHash: hash256(signer.masterFingerprint),
     });
   }
-  // updating signerIdXpubMap if the signer was created through automated mock flow
-  // const signerIdsToFilter = [];
-  // for (const signer of vault.signers) {
-  //   if (signer.amfData && signer.amfData.xpub) {
-  //     signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
-  //     signersData.push({
-  //       signerId: signer.amfData.signerId,
-  //       xfpHash: hash256(signer.xpubInfo.xfp),
-  //     });
-  //     signerIdsToFilter.push(signer.signerId);
-  //   }
-  // }
-  // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
   // TO-DO to be removed
   const subscriptionStrings = JSON.stringify(subscription);
@@ -365,10 +352,10 @@ function* recoverApp(
         if (parsedText) {
           const signers: VaultSigner[] = [];
           parsedText.signersDetails.forEach((config) => {
-            const signer = generateSignerFromMetaData({
+            const { signer } = generateSignerFromMetaData({
               xpub: config.xpub,
               derivationPath: config.path,
-              xfp: config.masterFingerprint,
+              masterFingerprint: config.masterFingerprint,
               signerType: SignerType.KEEPER,
               storageType: SignerStorage.WARM,
               isMultisig: config.isMultisig,

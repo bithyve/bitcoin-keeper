@@ -14,7 +14,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -23,7 +22,6 @@ import { pickDocument } from 'src/services/documents';
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import { getPassportDetails } from 'src/hardware/passport';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import OptionCard from 'src/components/OptionCard';
 import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/keystone';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
@@ -37,17 +35,17 @@ function SetupOtherSDScreen({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { mode, signer: hcSigner, isMultisig } = route.params;
+  const { mode, signer: hcSigner, isMultisig, addSignerFlow = false } = route.params;
 
   const validateAndAddSigner = async () => {
     try {
       if (!xpub.match(/^([xyYzZtuUvV]pub[1-9A-HJ-NP-Za-km-z]{79,108})$/)) {
         throw new Error('Please check the xPub format');
       }
-      const signer = generateSignerFromMetaData({
+      const { signer, key } = generateSignerFromMetaData({
         xpub,
         derivationPath: derivationPath.replaceAll('h', "'"),
-        xfp: masterFingerprint,
+        masterFingerprint,
         isMultisig,
         signerType: SignerType.OTHER_SD,
         storageType: SignerStorage.COLD,
@@ -57,17 +55,14 @@ function SetupOtherSDScreen({ route }) {
         navigation.dispatch(
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
-      } else if (mode === InteracationMode.SIGNING) {
-        dispatch(addSigningDevice(signer));
+      } else if (mode === InteracationMode.ADDITION) {
+        dispatch(addSigningDevice([signer], [key], addSignerFlow));
         navigation.dispatch(
           CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
         );
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(signer.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } else if (mode === InteracationMode.HEALTH_CHECK) {
-        if (signer.xpub === hcSigner.xpub) {
+        if (key.xpub === hcSigner.xpub) {
           dispatch(healthCheckSigner([signer]));
           navigation.dispatch(CommonActions.goBack());
           showToast(`Other SD verified successfully`, <TickIcon />);
@@ -90,17 +85,17 @@ function SetupOtherSDScreen({ route }) {
       try {
         hw = getPassportDetails(qrData);
       } catch (e) {
-        // ignore
+        // ignore and try other type
       }
       try {
         hw = getSeedSignerDetails(qrData);
       } catch (error) {
-        // ignore
+        // ignore and try other type
       }
       try {
         hw = getKeystoneDetails(qrData);
       } catch (error) {
-        // ignore
+        // ignore and try other type
       }
       try {
         hw = getJadeDetails(qrData);
@@ -109,21 +104,22 @@ function SetupOtherSDScreen({ route }) {
       }
 
       if (hw) {
-        const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = hw;
+        const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } = hw;
         if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-          const signer = generateSignerFromMetaData({
+          const { signer, key } = generateSignerFromMetaData({
             xpub,
             derivationPath,
-            xfp,
+            masterFingerprint,
             isMultisig,
             signerType: SignerType.OTHER_SD,
             storageType: SignerStorage.COLD,
           });
           if (signer) {
-            dispatch(addSigningDevice(signer));
-            navigation.dispatch(
-              CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-            );
+            dispatch(addSigningDevice([signer], [key], addSignerFlow));
+            const navigationState = addSignerFlow
+              ? { name: 'Home' }
+              : { name: 'AddSigningDevice', merge: true, params: {} };
+            navigation.dispatch(CommonActions.navigate(navigationState));
             showToast(`signer added successfully`, <TickIcon />);
             resetQR();
           }
@@ -157,20 +153,21 @@ function SetupOtherSDScreen({ route }) {
       // file export from coldcard or passport(single sig)
       try {
         const ccDetails = extractColdCardExport(data, isMultisig);
-        const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-        const coldcard = generateSignerFromMetaData({
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
+        const { signer: coldcard, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.OTHER_SD,
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(coldcard));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        dispatch(addSigningDevice([coldcard], [key], addSignerFlow));
+        const navigationState = addSignerFlow
+          ? { name: 'Home' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
         return;
       } catch (e) {
         error = e;
@@ -178,24 +175,22 @@ function SetupOtherSDScreen({ route }) {
       if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
         // file export from passport(multisig)
         try {
-          const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(data);
+          const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+            getPassportDetails(data);
           if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-            const passport: VaultSigner = generateSignerFromMetaData({
+            const { signer: passport, key } = generateSignerFromMetaData({
               xpub,
               derivationPath,
-              xfp,
+              masterFingerprint,
               signerType: SignerType.OTHER_SD,
               storageType: SignerStorage.COLD,
               isMultisig,
             });
-            dispatch(addSigningDevice(passport));
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'AddSigningDevice',
-                merge: true,
-                params: {},
-              })
-            );
+            dispatch(addSigningDevice([passport], [key], addSignerFlow));
+            const navigationState = addSignerFlow
+              ? { name: 'Home' }
+              : { name: 'AddSigningDevice', merge: true, params: {} };
+            navigation.dispatch(CommonActions.navigate(navigationState));
             return;
           }
         } catch (e) {
@@ -204,25 +199,22 @@ function SetupOtherSDScreen({ route }) {
         if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
           // file export from keystone
           try {
-            const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } =
+            const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
               getKeystoneDetailsFromFile(data);
             if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-              const keystone: VaultSigner = generateSignerFromMetaData({
+              const { signer: keystone, key } = generateSignerFromMetaData({
                 xpub,
                 derivationPath,
-                xfp,
+                masterFingerprint,
                 signerType: SignerType.OTHER_SD,
                 storageType: SignerStorage.COLD,
                 isMultisig,
               });
-              dispatch(addSigningDevice(keystone));
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'AddSigningDevice',
-                  merge: true,
-                  params: {},
-                })
-              );
+              dispatch(addSigningDevice([keystone], [key], addSignerFlow));
+              const navigationState = addSignerFlow
+                ? { name: 'Home' }
+                : { name: 'AddSigningDevice', merge: true, params: {} };
+              navigation.dispatch(CommonActions.navigate(navigationState));
               return;
             }
           } catch (e) {
