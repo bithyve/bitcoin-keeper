@@ -113,6 +113,7 @@ export const customTheme = extendTheme({
       GreenishGrey: Colors.GreenishGrey,
       GreenishBlue: Colors.GreenishBlue,
       OffWhite: Colors.OffWhite,
+      SageGreen: Colors.SageGreen,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -177,6 +178,7 @@ export const customTheme = extendTheme({
       GreenishGrey: Colors.GreenishGrey,
       GreenishBlue: Colors.GreenishBlue,
       OffWhite: Colors.OffWhite,
+      SageGreen: Colors.SageGreen,
     },
   },
   config: {
