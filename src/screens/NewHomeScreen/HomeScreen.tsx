@@ -113,17 +113,17 @@ const NewHomeScreen = ({ navigation }) => {
     {
       name: 'Setup Inheritance',
       icon: null,
-      onPress: () => {
-        navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
-      },
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' })),
     },
     {
       name: 'Buy Bitcoin',
       icon: <BTC />,
+      callback: () => {},
     },
     {
       name: 'Manage All Signers',
       icon: null,
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
   ];
 
@@ -137,7 +137,12 @@ const NewHomeScreen = ({ navigation }) => {
         <HomeScreenWrapper>
           <Box style={styles.actionContainer}>
             {dummyData.map((data, index) => (
-              <ActionCard key={`${index}_${data.name}`} data={data} />
+              <ActionCard
+                key={`${index}_${data.name}`}
+                cardName={data.name}
+                callback={data.callback}
+                icon={data.icon}
+              />
             ))}
           </Box>
         </HomeScreenWrapper>

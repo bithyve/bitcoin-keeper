@@ -104,6 +104,7 @@ import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
 import AddSigner from 'src/screens/AddSigner/AddSigner';
 import NewHomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
+import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -256,6 +257,7 @@ function AppStack() {
         <Stack.Screen name="AddWallet" component={AddWallet} />
         {/* Add Signers Screen for new Flow */}
         <Stack.Screen name="AddSigner" component={AddSigner} />
+        <Stack.Screen name="ManageSigners" component={ManageSigners} />
       </Stack.Navigator>
     </RealmProvider>
   );

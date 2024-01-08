@@ -3,22 +3,23 @@ import Text from './KeeperText';
 import { StyleSheet } from 'react-native';
 
 type ActionCardProps = {
-  data: any;
+  cardName: string;
+  icon?: Element;
+  callback: () => void;
 };
 
-function ActionCard({ data }: ActionCardProps) {
+function ActionCard({ cardName, icon, callback }: ActionCardProps) {
   const { colorMode } = useColorMode();
-  const { name, icon, onPress } = data;
   return (
     <Pressable
-      onPress={onPress}
       style={[styles.cardContainer]}
       backgroundColor={`${colorMode}.seashellWhite`}
+      onPress={callback}
     >
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
         {icon && icon}
       </Box>
-      <Text color={`${colorMode}.primaryText`}>{name}</Text>
+      <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
     </Pressable>
   );
 }
