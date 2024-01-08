@@ -96,10 +96,13 @@ import {
 import { uaiChecks } from '../sagaActions/uai';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import {
+  relaySignersUpdateFail,
+  relaySignersUpdateSuccess,
   relayVaultUpdateFail,
   relayVaultUpdateSuccess,
   relayWalletUpdateFail,
   relayWalletUpdateSuccess,
+  setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
@@ -588,9 +591,24 @@ function* addSigningDeviceWorker({
 }: {
   payload: { signers: Signer[]; keys: VaultSigner[]; addSignerFlow: boolean };
 }) {
-  yield call(dbManager.createObjectBulk, RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
-  if (!addSignerFlow) {
-    yield put(addSigningDevice(keys));
+  if (signers.length > 0) {
+    yield put(setRelaySignersUpdateLoading(true));
+    const response = yield call(updateAppImageWorker, { payload: { signers } });
+    if (response.updated) {
+      yield call(
+        dbManager.createObjectBulk,
+        RealmSchema.Signer,
+        signers,
+        Realm.UpdateMode.Modified
+      );
+      if (!addSignerFlow) {
+        yield put(addSigningDevice(keys));
+      }
+      yield put(relaySignersUpdateSuccess());
+      return true;
+    }
+    yield put(relaySignersUpdateFail(response.error));
+    return false;
   }
 }
 
@@ -1148,15 +1166,27 @@ function* updateSignerDetailsWorker({ payload }) {
     value: any;
   } = payload;
 
-  yield call(
-    dbManager.updateObjectByPrimaryId,
-    RealmSchema.Signer,
-    'masterFingerprint',
-    signer.masterFingerprint,
-    {
-      [key]: value,
+  yield put(setRelaySignersUpdateLoading(true));
+  try {
+    const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
+    if (response.updated) {
+      yield call(
+        dbManager.updateObjectByPrimaryId,
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          [key]: value,
+        }
+      );
+      yield put(relaySignersUpdateSuccess());
+    } else {
+      yield put(relaySignersUpdateFail(response.error));
     }
-  );
+  } catch (err) {
+    console.error(err);
+    yield put(relaySignersUpdateFail('Something went wrong'));
+  }
 }
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
