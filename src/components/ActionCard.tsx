@@ -1,6 +1,6 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import Text from './KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 type ActionCardProps = {
   cardName: string;

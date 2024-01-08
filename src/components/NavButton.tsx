@@ -16,7 +16,7 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
 
   return (
     <Pressable onPress={() => openLink(link)}>
-      <Box style={styles.NavButtonContainer} backgroundColor={`${colorMode}.Ivory`}>
+      <Box style={styles.NavButtonContainer} backgroundColor={`${colorMode}.seashellWhite`}>
         <Box style={styles.headingWrapper}>
           {icon}
           <Box style={{ marginLeft: wp(10) }}>

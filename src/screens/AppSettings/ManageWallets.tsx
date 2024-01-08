@@ -10,6 +10,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
@@ -23,6 +24,7 @@ import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
 import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
@@ -50,39 +52,78 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 20,
   },
+  walletInfoContainer: {
+    flexDirection: 'column',
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 10,
+    gap: 5,
+    width: '100%',
+  },
+  iconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 30 / 2,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 15,
+    gap: 10,
+  },
+  bottomIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 38 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 function ListItem({ title, subtitle, balance, btnTitle, onBtnPress }) {
   const { colorMode } = useColorMode();
   return (
-    <Box flexDirection="row" my={2} alignItems="center">
-      <WalletInsideGreen />
-      <Box mx={4} flex={1}>
-        <Text fontSize={13} color={`${colorMode}.primaryText`}>
-          {title}
-        </Text>
-        <Text fontSize={12} color={`${colorMode}.secondaryText`}>
-          {subtitle}
-        </Text>
-        <Box flexDirection="row" alignItems="center">
-          {colorMode === 'light' ? <BtcBlack /> : <BtcWhite />}
-          <Text mx={1} fontSize={14} color={`${colorMode}.primaryText`}>
-            {SatsToBtc(balance)}
-          </Text>
+    <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
+      <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
+        <WalletInsideGreen />
+      </TouchableOpacity>
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
+        <Box style={{ flexDirection: 'row', gap: 10 }}>
+          <Box style={styles.iconContainer} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+            <WalletIcon />
+          </Box>
+          <Box>
+            <Text fontSize={13} color={`${colorMode}.primaryText`}>
+              {title}
+            </Text>
+            <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+              {subtitle}
+            </Text>
+          </Box>
+        </Box>
+        <Box flexDirection="row" justifyContent="space-between">
+          <Box flexDirection="row" alignItems="center">
+            {colorMode === 'light' ? <BtcBlack /> : <BtcWhite />}
+            <Text mx={1} fontSize={14} color={`${colorMode}.primaryText`}>
+              {SatsToBtc(balance)}
+            </Text>
+          </Box>
+          <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID={`btn${btnTitle}`}>
+            <Box
+              borderColor="light.RussetBrown"
+              backgroundColor="light.RussetBrown"
+              style={styles.learnMoreContainer}
+            >
+              <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
+                {btnTitle}
+              </Text>
+            </Box>
+          </TouchableOpacity>
         </Box>
       </Box>
-
-      <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID={`btn${btnTitle}`}>
-        <Box
-          borderColor="light.learnMoreBorder"
-          backgroundColor="light.lightAccent"
-          style={styles.learnMoreContainer}
-        >
-          <Text color="light.learnMoreBorder" style={styles.learnMoreText}>
-            {btnTitle}
-          </Text>
-        </Box>
-      </TouchableOpacity>
     </Box>
   );
 }
@@ -211,11 +252,14 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
+      <KeeperHeader
+        title={settings.ManageWallets}
+        subtitle={settings.ManageWalletsSub}
+        rightComponent={<CurrencyTypeSwitch />}
+      />
       <FlatList
         data={visibleWallets}
         extraData={[visibleWallets, hiddenWallets]}
-        style={{ height: '50%' }}
         contentContainerStyle={{ marginHorizontal: 20, marginTop: '5%' }}
         renderItem={({ item }) => (
           <ListItem
@@ -230,7 +274,15 @@ function ManageWallets() {
         keyExtractor={(item) => item.id}
       />
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
-      <FlatList
+      <Box style={styles.footer}>
+        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
+          <WalletIcon />
+        </Box>
+        <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
+          Show all
+        </Text>
+      </Box>
+      {/* <FlatList
         data={hiddenWallets}
         extraData={[visibleWallets, hiddenWallets]}
         style={{ height: '50%' }}
@@ -249,7 +301,7 @@ function ManageWallets() {
         )}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
-      />
+      /> */}
       <KeeperModal
         dismissible
         close={() => {

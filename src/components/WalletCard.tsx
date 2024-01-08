@@ -29,7 +29,7 @@ function WalletCard({
         styles.walletContainer,
         isSelected
           ? { backgroundColor: `${colorMode}.primaryGreen` }
-          : { backgroundColor: `${colorMode}.Ivory` },
+          : { backgroundColor: `${colorMode}.seashellWhite` },
       ]}
       onPress={() => onCardSelect(walletName)}
     >
