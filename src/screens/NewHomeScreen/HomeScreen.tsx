@@ -24,6 +24,7 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import AddWalletModal from '../Home/components/AddWalletModal';
+import { CommonActions } from '@react-navigation/native';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -112,14 +113,17 @@ const NewHomeScreen = ({ navigation }) => {
     {
       name: 'Setup Inheritance',
       icon: null,
+      callback: () => {},
     },
     {
       name: 'Buy Bitcoin',
       icon: null,
+      callback: () => {},
     },
     {
       name: 'Manage All Signers',
       icon: null,
+      callback: () => navigation.dispatch(CommonActions.navigate('ManageSigners')),
     },
   ];
 
@@ -133,7 +137,11 @@ const NewHomeScreen = ({ navigation }) => {
         <HomeScreenWrapper>
           <Box style={styles.actionContainer}>
             {dummyData.map((data, index) => (
-              <ActionCard key={`${index}_${data.name}`} cardName={data.name} />
+              <ActionCard
+                key={`${index}_${data.name}`}
+                cardName={data.name}
+                callback={data.callback}
+              />
             ))}
           </Box>
         </HomeScreenWrapper>

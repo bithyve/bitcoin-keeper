@@ -5,12 +5,17 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 type ActionCardProps = {
   cardName: string;
   icon?: Element;
+  callback: () => void;
 };
 
-function ActionCard({ cardName, icon }: ActionCardProps) {
+function ActionCard({ cardName, icon, callback }: ActionCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <Pressable style={[styles.cardContainer]} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Pressable
+      style={[styles.cardContainer]}
+      backgroundColor={`${colorMode}.seashellWhite`}
+      onPress={callback}
+    >
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
         {icon && icon}
       </Box>
