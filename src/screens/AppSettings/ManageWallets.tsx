@@ -9,8 +9,9 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
+import AlignIcon from 'src/assets/images/align_right.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
@@ -28,6 +29,8 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
+    flexDirection: 'row',
+    gap: 3,
     borderWidth: 0.5,
     borderRadius: 5,
     paddingHorizontal: 5,
@@ -88,7 +91,7 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
   return (
     <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
       <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
-        <WalletInsideGreen />
+        <AlignIcon />
       </TouchableOpacity>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
         <Box style={{ flexDirection: 'row', gap: 10 }}>
@@ -117,6 +120,7 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
               backgroundColor="light.RussetBrown"
               style={styles.learnMoreContainer}
             >
+              <HideWalletIcon />
               <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
                 {isHidden ? 'Unhide' : 'Hide'}
               </Text>
