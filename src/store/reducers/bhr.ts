@@ -27,6 +27,11 @@ const initialState: {
   relayWalletError: boolean;
   realyWalletErrorMessage: string;
 
+  relaySignersUpdateLoading: boolean;
+  relaySignersUpdate: boolean;
+  relaySignerUpdateError: boolean;
+  realySignersUpdateErrorMessage: string;
+
   relayVaultUpdateLoading: boolean;
   relayVaultUpdate: boolean;
   relayVaultError: boolean;
@@ -61,6 +66,10 @@ const initialState: {
   relayVaultError: false,
   realyVaultErrorMessage: null,
   relayVaultReoveryShellId: null,
+  relaySignersUpdateLoading: false,
+  relaySignersUpdate: false,
+  relaySignerUpdateError: false,
+  realySignersUpdateErrorMessage: null,
 };
 
 const bhrSlice = createSlice({
@@ -142,6 +151,27 @@ const bhrSlice = createSlice({
       state.realyWalletErrorMessage = null;
     },
 
+    setRelaySignersUpdateLoading: (state, action: PayloadAction<boolean>) => {
+      state.relaySignersUpdateLoading = action.payload;
+    },
+    relaySignersUpdateSuccess: (state) => {
+      state.relaySignersUpdate = true;
+      state.relaySignerUpdateError = false;
+      state.relaySignersUpdateLoading = false;
+      state.realySignersUpdateErrorMessage = null;
+    },
+    relaySignersUpdateFail: (state, action: PayloadAction<string>) => {
+      state.relaySignerUpdateError = true;
+      state.relaySignersUpdateLoading = false;
+      state.realySignersUpdateErrorMessage = action.payload;
+    },
+    resetSignersUpdateState: (state) => {
+      state.relaySignersUpdate = false;
+      state.relaySignerUpdateError = false;
+      state.relaySignersUpdateLoading = false;
+      state.realySignersUpdateErrorMessage = null;
+    },
+
     setRelayVaultUpdateLoading: (state, action: PayloadAction<boolean>) => {
       state.relayVaultUpdateLoading = action.payload;
     },
@@ -189,6 +219,11 @@ export const {
   relayWalletUpdateFail,
   resetRealyWalletState,
 
+  setRelaySignersUpdateLoading,
+  relaySignersUpdateSuccess,
+  relaySignersUpdateFail,
+  resetSignersUpdateState,
+
   setRelayVaultUpdateLoading,
   relayVaultUpdateSuccess,
   relayVaultUpdateFail,
@@ -213,14 +248,21 @@ const bhrPersistConfig = {
     'recoverBackupFailed',
     'invalidPassword',
     'backupWarning',
+
     'relayWalletUpdateLoading',
     'relayWalletUpdate',
     'relayWalletError',
     'realyWalletErrorMessage',
+
     'relayVaultUpdateLoading',
     'relayVaultUpdate',
     'relayVaultError',
     'realyVaultErrorMessage',
+
+    'relaySignersUpdateLoading',
+    'relaySignersUpdate',
+    'relaySignerUpdateError',
+    'realySignersUpdateErrorMessage',
   ],
 };
 
