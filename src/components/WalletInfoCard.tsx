@@ -23,7 +23,9 @@ function WalletInfoCard({ walletName, walletDescription, icon, amount }: WalletI
         <CardPill heading="WHAT HERE?" />
       </Box>
       <Box style={styles.detailContainer}>
-        <Box style={styles.iconWrapper}>{icon}</Box>
+        <Box backgroundColor={`${colorMode}.textBlack`} style={styles.iconWrapper}>
+          {icon}
+        </Box>
         <Box>
           <Text color={`${colorMode}.white`} numberOfLines={1}>
             {walletDescription}
@@ -60,7 +62,6 @@ const styles = StyleSheet.create({
   iconWrapper: {
     width: 34,
     height: 34,
-    backgroundColor: 'rgba(9, 44, 39, 0.5)',
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',

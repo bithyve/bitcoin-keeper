@@ -9,24 +9,25 @@ import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function WalletDetailsSettings({ route }) {
   const { colorMode } = useColorMode();
-  const { wallet, editPolicy = false } = route.params || {};
+  const { wallet } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
-  const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
   const { importWallet, common } = translations;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={walletTranslation.WalletDetails} subtitle={walletTranslation.walletDetailsSubTitle} />
+      <KeeperHeader
+        title={walletTranslation.WalletDetails}
+        subtitle={walletTranslation.walletDetailsSubTitle}
+      />
 
       <ScrollView
         contentContainerStyle={styles.optionsListContainer}
@@ -51,13 +52,6 @@ function WalletDetailsSettings({ route }) {
           description={walletTranslation.changeDerivationPath}
           callback={() => {
             navigation.navigate('UpdateWalletDetails', { wallet });
-          }}
-        />
-        <OptionCard
-          title={walletTranslation.TransferPolicy}
-          description={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
-          callback={() => {
-            setTransferPolicyVisible(true);
           }}
         />
       </ScrollView>
@@ -91,30 +85,6 @@ function WalletDetailsSettings({ route }) {
               close={() => setXPubVisible(false)}
               subText={walletTranslation?.AccountXpub}
               noteSubText={walletTranslation?.AccountXpubNote}
-            />
-          )}
-        />
-        <KeeperModal
-          visible={transferPolicyVisible}
-          close={() => {
-            setTransferPolicyVisible(false);
-          }}
-          title={walletTranslation.editTransPolicy}
-          subTitle={walletTranslation.editTransPolicySubTitle}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
-          Content={() => (
-            <TransferPolicy
-              wallet={wallet}
-              close={() => {
-                showToast(walletTranslation.TransPolicyChange, <TickIcon />);
-                setTransferPolicyVisible(false);
-              }}
-              secondaryBtnPress={() => {
-                setTransferPolicyVisible(false);
-              }}
             />
           )}
         />

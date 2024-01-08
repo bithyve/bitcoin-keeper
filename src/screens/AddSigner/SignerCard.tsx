@@ -31,7 +31,10 @@ function SignerCard({
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.iconWrapper}>
           {icon}
         </Box>
-        <Text style={isSelected ? { color: `${colorMode}.white` } : styles.walletName}>
+        <Text
+          color={isSelected ? `${colorMode}.white` : `${colorMode}.SlateGrey`}
+          style={styles.walletName}
+        >
           {walletName}
         </Text>
         <Text
@@ -60,7 +63,6 @@ const styles = StyleSheet.create({
     borderColor: '#eee3d8',
   },
   walletName: {
-    color: 'rgba(36, 49, 46, 1)',
     fontSize: 12,
     fontWeight: '400',
   },

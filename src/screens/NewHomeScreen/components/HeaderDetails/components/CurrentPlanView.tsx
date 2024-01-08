@@ -27,7 +27,7 @@ function CurrentPlanView({ plan }) {
         </Box>
         <TouchableOpacity
           style={{ padding: 5 }}
-          onPress={() => navigation.navigate('ChoosePlan')}
+          onPress={() => navigation.navigate('AppSettings')}
           testID="btn_choosePlan"
         >
           <SettingIcon />

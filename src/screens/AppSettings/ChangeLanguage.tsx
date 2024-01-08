@@ -2,9 +2,8 @@ import React, { useState, useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
-import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
+import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import CountryCode from 'src/constants/CountryCode';
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
 
 function ChangeLanguage() {
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
-  const { currencyCode, language, satsEnabled } = useAppSelector((state) => state.settings);
+  const { currencyCode, language } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
 
   const [currencyList] = useState(FiatCurrencies);
@@ -172,10 +171,6 @@ function ChangeLanguage() {
     availableLanguages.find((lang) => lang.iso === language)
   );
   const [isDisabled, setIsDisabled] = useState(true);
-
-  const changeThemeMode = () => {
-    dispatch(setSatsEnabled(!satsEnabled));
-  };
 
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
@@ -212,14 +207,6 @@ function ChangeLanguage() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={settings.LanguageCountry} subtitle={settings.biometricsDesc} />
       <Box flex={1}>
-        <CountryCard
-          title={settings.SatsMode}
-          description={settings.Viewbalancessats}
-          my={2}
-          bgColor={`${colorMode}.backgroundColor2`}
-          onSwitchToggle={() => changeThemeMode()}
-          value={satsEnabled}
-        />
         <CountrySwitchCard
           title={settings.AlternateCurrency}
           description={settings.Selectyourlocalcurrency}

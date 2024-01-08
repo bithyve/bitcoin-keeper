@@ -19,6 +19,7 @@ type Props = {
   rightComponent?: Element;
   contrastScreen?: boolean;
   marginLeft?: boolean;
+  icon?: Element;
 };
 function KeeperHeader({
   title = '',
@@ -26,12 +27,13 @@ function KeeperHeader({
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   learnBackgroundColor = 'light.lightAccent',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
   contrastScreen = false,
-  marginLeft = true
+  marginLeft = true,
+  icon = null,
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -64,26 +66,33 @@ function KeeperHeader({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box style={{ paddingLeft: marginLeft ? '10%' : 0 }}>
-          {title && (
-            <Text
-              numberOfLines={1}
-              style={[styles.addWalletText, { fontSize: 16 }]}
-              color={`${colorMode}.headerText`}
-              testID={`text_header_title`}
-            >
-              {title}
-            </Text>
+        <Box style={{ paddingLeft: marginLeft ? '10%' : 0, flexDirection: 'row', gap: 10 }}>
+          {icon && (
+            <Box backgroundColor={`${colorMode}.GreenishBlue`} style={styles.circle}>
+              {icon}
+            </Box>
           )}
-          {subtitle && (
-            <Text
-              style={[styles.addWalletDescription]}
-              color={`${colorMode}.black`}
-              testID={`text_header_subtitle`}
-            >
-              {subtitle}
-            </Text>
-          )}
+          <Box>
+            {title && (
+              <Text
+                numberOfLines={1}
+                style={[styles.addWalletText, { fontSize: 16 }]}
+                color={`${colorMode}.headerText`}
+                testID="text_header_title"
+              >
+                {title}
+              </Text>
+            )}
+            {subtitle && (
+              <Text
+                style={[styles.addWalletDescription]}
+                color={`${colorMode}.black`}
+                testID="text_header_subtitle"
+              >
+                {subtitle}
+              </Text>
+            )}
+          </Box>
         </Box>
         <Box>{rightComponent}</Box>
       </Box>
@@ -94,6 +103,7 @@ function KeeperHeader({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
+    marginBottom: 10,
   },
   addWalletText: {
     lineHeight: 26,
@@ -135,6 +145,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  circle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 export default KeeperHeader;
