@@ -27,6 +27,7 @@ import {
   NetworkType,
   PaymentInfoKind,
   ScriptTypes,
+  XpubTypes,
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
 import config from 'src/core/config';
@@ -780,5 +781,23 @@ export default class WalletUtilities {
       }
     }
     return null;
+  };
+
+  static getScriptTypeFromDerivationPath = (derivationPath: string): XpubTypes => {
+    const purpose = WalletUtilities.getPurpose(derivationPath);
+    switch (purpose) {
+      case DerivationPurpose.BIP48:
+        return XpubTypes.P2WSH;
+      case DerivationPurpose.BIP84:
+        return XpubTypes.P2WPKH;
+      case DerivationPurpose.BIP86:
+        return XpubTypes.P2TR;
+      case DerivationPurpose.BIP49:
+        return XpubTypes['P2SH-P2WPKH'];
+      case DerivationPurpose.BIP44:
+        return XpubTypes.P2PKH;
+      default:
+        return XpubTypes.P2WSH;
+    }
   };
 }

@@ -130,8 +130,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-              collaborativeWalletId: item.collaborativeWalletId,
-            })
+            collaborativeWalletId: item.collaborativeWalletId,
+          })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -550,7 +550,7 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title={choosePlan.validateSubscriptionTitle}
         subTitle={choosePlan.validateSubscriptionSubTitle}

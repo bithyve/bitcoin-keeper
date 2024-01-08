@@ -30,7 +30,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
   const { common } = translations;
-  const { onSuccess, signerId } = route.params;
+  const { onSuccess, xfp } = route.params;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -116,7 +116,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
   const onPressNext = async () => {
     const mnemonic = getSeedWord();
     if (bip39.validateMnemonic(mnemonic)) {
-      onSuccess({ signerId, seedBasedSingerMnemonic: mnemonic });
+      onSuccess({ xfp, seedBasedSingerMnemonic: mnemonic });
       navigation.goBack();
     } else Alert.alert('Invalid Mnemonic');
   };
@@ -206,8 +206,8 @@ function InputSeedWordSigner({ route }: { route: any }) {
                       styles.input,
                       item.invalid
                         ? {
-                          borderColor: '#F58E6F',
-                        }
+                            borderColor: '#F58E6F',
+                          }
                         : { borderColor: '#FDF7F0' },
                     ]}
                     placeholder={`enter ${getPlaceholder(index)} word`}

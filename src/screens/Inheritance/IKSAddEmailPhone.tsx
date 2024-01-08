@@ -6,7 +6,7 @@ import { Box, Input } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { StyleSheet } from 'react-native';
 import { hp } from 'src/constants/responsive';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
 import { InheritancePolicy } from 'src/services/interfaces';
@@ -14,25 +14,28 @@ import idx from 'idx';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
-import { RealmSchema } from 'src/storage/realm/enum';
-import dbManager from 'src/storage/realm/dbManager';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { useDispatch } from 'react-redux';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
 function IKSAddEmailPhone() {
   const navigtaion = useNavigation();
   const [email, setEmail] = useState('');
   const vault: Vault = useVault().activeVault;
   const { showToast } = useToastMessage();
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
+  const dispatch = useDispatch();
+  const [ikVaultKey] = vault.signers.filter(
+    (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
+  );
+  const signer = signerMap[ikVaultKey.masterFingerprint];
 
   const updateIKSPolicy = async (email: string) => {
     try {
-      const [ikSigner] = vault.signers.filter(
-        (signer) => signer.type === SignerType.INHERITANCEKEY
-      );
-      const thresholdDescriptors = vault.signers.map((signer) => signer.signerId).slice(0, 2);
-
+      const thresholdDescriptors = vault.signers.map((signer) => signer.xfp).slice(0, 2);
       const existingPolicy: InheritancePolicy | any =
-        idx(ikSigner, (_) => _.inheritanceKeyInfo.policy) || {};
+        idx(ikVaultKey, (_) => signer.inheritanceKeyInfo.policy) || {};
 
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
@@ -42,27 +45,18 @@ function IKSAddEmailPhone() {
       };
 
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
-        ikSigner.signerId,
+        ikVaultKey.xfp,
         updatedPolicy,
         thresholdDescriptors
       );
 
       if (updated) {
-        const updatedIKSigner: VaultSigner = {
-          ...ikSigner,
-          inheritanceKeyInfo: {
-            ...ikSigner.inheritanceKeyInfo,
+        dispatch(
+          updateSignerDetails(signer, 'inheritanceKeyInfo', {
+            ...signer.inheritanceKeyInfo,
             policy: updatedPolicy,
-          },
-        };
-        const updatedSigners = vault.signers.map((signer) => {
-          if (signer.type === SignerType.INHERITANCEKEY) return updatedIKSigner;
-          return signer;
-        });
-
-        dbManager.updateObjectById(RealmSchema.Vault, vault.id, {
-          signers: updatedSigners,
-        });
+          })
+        );
         showToast('Email added', <TickIcon />);
         navigtaion.goBack();
       } else showToast('Failed to add email');

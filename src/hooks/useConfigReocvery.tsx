@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
@@ -72,10 +72,10 @@ const useConfigRecovery = () => {
       if (parsedText) {
         const signers = [];
         parsedText.signersDetails.forEach((config) => {
-          const signer = generateSignerFromMetaData({
+          const { signer } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,
-            xfp: config.masterFingerprint,
+            masterFingerprint: config.masterFingerprint,
             signerType: SignerType.OTHER_SD,
             storageType: SignerStorage.WARM,
             isMultisig: config.isMultisig,

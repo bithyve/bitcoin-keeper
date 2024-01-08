@@ -7,6 +7,7 @@ import Fonts from 'src/constants/Fonts';
 
 function UAIView({
   title,
+  subTitle,
   primaryCallbackText,
   primaryCallback,
   secondaryCallbackText,
@@ -14,10 +15,13 @@ function UAIView({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={styles.wrapper}>
+    <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
+        <Text style={styles.uaiTitleText} color={`${colorMode}.primaryText`}>
           {title}
+        </Text>
+        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
+          {subTitle}
         </Text>
       </Box>
       <TouchableOpacity
@@ -48,19 +52,27 @@ function UAIView({
 }
 const styles = StyleSheet.create({
   wrapper: {
-    marginTop: hp(20),
+    marginVertical: hp(20),
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+    padding: 10,
+    borderRadius: 10
   },
   uaiMessageWrapper: {
     width: '60%',
   },
-  uaiMessageText: {
+  uaiTitleText: {
     fontSize: 12,
     width: '100%',
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 0,
+  },
+  uaiMessageText: {
+    fontSize: 14,
+    width: '100%',
+    fontFamily: Fonts.FiraSansCondensedMedium,
+    letterSpacing: 0.24,
   },
   skipWrapper: {
     width: '16%',

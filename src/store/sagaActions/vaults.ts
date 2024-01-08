@@ -1,4 +1,4 @@
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { NewVaultInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -19,9 +19,13 @@ export const addNewVault = (payload: {
   payload,
 });
 
-export const addSigningDevice = (payload: VaultSigner) => ({
+export const addSigningDevice = (
+  signers: Signer[],
+  keys: VaultSigner[] = [],
+  addSignerFlow: boolean = false
+) => ({
   type: ADD_SIGINING_DEVICE,
-  payload,
+  payload: { signers, keys, addSignerFlow },
 });
 
 export const migrateVault = (newVaultInfo: NewVaultInfo, vaultShellId: string) => ({

@@ -23,25 +23,29 @@ function MockWrapper({
   enable,
   isRecovery,
   navigation,
+  addSignerFlow = false,
 }: {
   children: any;
   signerType: SignerType;
   enable?: boolean;
   isRecovery?: boolean;
   navigation?: NavigationProp<any>;
+  addSignerFlow?: boolean;
 }) {
   const dispatch = useDispatch();
   const nav = navigation ?? useNavigation();
   const { showToast } = useToastMessage();
   const addMockSigner = () => {
     try {
-      const signer = getMockSigner(signerType);
-      if (signer) {
+      const data = getMockSigner(signerType);
+      if (data.signer && data.key) {
+        const { signer, key } = data;
         if (!isRecovery) {
-          dispatch(addSigningDevice(signer));
-          nav.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice([signer], [key], addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          nav.dispatch(CommonActions.navigate(navigationState));
         }
         if (isRecovery) {
           dispatch(setSigningDevices(signer));

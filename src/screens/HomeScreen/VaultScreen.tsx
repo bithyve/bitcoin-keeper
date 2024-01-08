@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import idx from 'idx';
-
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import InheritanceDarkIcon from 'src/assets/images/icon_inheritance_dark.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
@@ -16,11 +15,13 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSigners from 'src/hooks/useSigners';
+import { AppSigners } from '../Home/components/AppSigners';
 
 function VaultScreen() {
   const { activeVault } = useVault();
   const { colorMode } = useColorMode();
-  const signers = idx(activeVault, (_) => _.signers) || [];
+  const { vaultSigners, signers } = useSigners(activeVault ? activeVault.id : '');
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
   const scheme = idx(activeVault, (_) => _.scheme) || { m: 0, n: 0 };
@@ -35,7 +36,7 @@ function VaultScreen() {
   };
 
   const onVaultPress = () => {
-    if (signers.length) {
+    if (vaultSigners.length) {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
     } else {
       navigateToHardwareSetup();
@@ -44,7 +45,6 @@ function VaultScreen() {
 
   return (
     <HomeScreenWrapper>
-      {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_YourVault">
@@ -74,11 +74,11 @@ function VaultScreen() {
                       {`${scheme.m} of ${scheme.n} Vault`}
                     </Text>
                     <Box style={styles.signingDeviceList}>
-                      {signers.map((signer: any) => (
+                      {vaultSigners.map((signer) => (
                         <Box
                           backgroundColor="rgba(245, 241, 234, .2)"
                           style={styles.vaultSigner}
-                          key={signer.signerId}
+                          key={signer.masterFingerprint}
                         >
                           {SDIcons(signer.type, colorMode !== 'dark').Icon}
                         </Box>
@@ -104,6 +104,7 @@ function VaultScreen() {
             )}
           </Box>
         </TouchableOpacity>
+        <AppSigners keys={signers} navigation={navigation} />
         <ListItemView
           icon={colorMode === 'light' ? <InheritanceIcon /> : <InheritanceDarkIcon />}
           title={vault.inheritanceTools}

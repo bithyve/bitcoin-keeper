@@ -5,11 +5,7 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
-import {
-  addSigningDevice,
-  removeSigningDevice,
-  updateSigningDevice,
-} from 'src/store/reducers/vaults';
+import { addSigningDevice, removeSigningDevice } from 'src/store/reducers/vaults';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
@@ -33,6 +29,8 @@ import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
 import AddIKS from '../SigningDevices/AddIKS';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
 const { width } = Dimensions.get('screen');
 
@@ -47,13 +45,13 @@ export const checkSigningDevice = async (id) => {
 };
 
 function SignerItem({
-  signer,
+  vaultSigner,
   index,
   setInheritanceInit,
   isInheritance,
   scheme,
 }: {
-  signer: VaultSigner | undefined;
+  vaultSigner: VaultSigner | undefined;
   index: number;
   setInheritanceInit: any;
   isInheritance: boolean;
@@ -63,8 +61,9 @@ function SignerItem({
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
+  const { signer } = useSignerFromKey(vaultSigner);
 
-  const removeSigner = () => dispatch(removeSigningDevice(signer));
+  const removeSigner = () => dispatch(removeSigningDevice(vaultSigner));
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }));
 
@@ -78,7 +77,7 @@ function SignerItem({
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
-  if (!signer) {
+  if (!vaultSigner || !signer) {
     return (
       <Pressable onPress={callback}>
         <Box style={styles.signerItemContainer}>
@@ -109,7 +108,7 @@ function SignerItem({
       </Pressable>
     );
   }
-  const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
+  const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(vaultSigner, signer);
   let shouldReconfigure = false;
   if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
     shouldReconfigure = true;
@@ -181,9 +180,7 @@ function SignerItem({
         visible={visible}
         close={closeDescriptionModal}
         signer={signer}
-        callback={(value: any) =>
-          dispatch(updateSigningDevice({ signer, key: 'signerDescription', value }))
-        }
+        callback={(value: any) => dispatch(updateSignerDetails(signer, 'signerDescription', value))}
       />
     </Box>
   );
@@ -237,7 +234,7 @@ function AddSigningDevice() {
 
   const renderSigner = ({ item, index }) => (
     <SignerItem
-      signer={item}
+      vaultSigner={item}
       index={index}
       setInheritanceInit={setInheritanceInit}
       scheme={scheme}
@@ -249,8 +246,9 @@ function AddSigningDevice() {
 
   const subtitle =
     scheme.n > 1
-      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${isInheritance ? ' for Inheritance' : ''
-      }`
+      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
+          isInheritance ? ' for Inheritance' : ''
+        }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
   const trezorIncompatible =
@@ -272,7 +270,7 @@ function AddSigningDevice() {
         showsVerticalScrollIndicator={false}
         extraData={vaultSigners}
         data={signersState}
-        keyExtractor={(item, index) => item?.signerId ?? index}
+        keyExtractor={(item, index) => item?.xfp ?? index}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),
@@ -298,8 +296,9 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer} testID={'view_warning01'}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${scheme.n === 1 ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                scheme.n === 1 ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>

@@ -16,7 +16,7 @@ import {
   SignerException,
   SignerRestriction,
 } from 'src/services/interfaces';
-import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
   Wallet,
@@ -83,6 +83,7 @@ import {
   ADD_WHIRLPOOL_WALLETS_LOCAL,
   UPDATE_WALLET_PATH_PURPOSE_DETAILS,
   INCREMENT_ADDRESS_INDEX,
+  UPDATE_KEY_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -494,7 +495,10 @@ export function* addNewVaultWorker({
   try {
     const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
-
+    const signerMap = {};
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
       const {
@@ -521,6 +525,7 @@ export function* addNewVaultWorker({
         networkType,
         vaultShellId,
         collaborativeWalletId,
+        signerMap,
       });
     }
 
@@ -578,8 +583,15 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({ payload: signer }: { payload: VaultSigner }) {
-  yield put(addSigningDevice([signer]));
+function* addSigningDeviceWorker({
+  payload: { signers, keys, addSignerFlow },
+}: {
+  payload: { signers: Signer[]; keys: VaultSigner[]; addSignerFlow: boolean };
+}) {
+  yield call(dbManager.createObjectBulk, RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
+  if (!addSignerFlow) {
+    yield put(addSigningDevice(keys));
+  }
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
@@ -603,6 +615,11 @@ function* migrateVaultWorker({
 
     const networkType = config.NETWORK_TYPE;
 
+    const signerMap = {};
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+
     const vault: Vault = yield call(generateVault, {
       type: vaultType,
       vaultName: vaultDetails.name,
@@ -611,6 +628,7 @@ function* migrateVaultWorker({
       signers: vaultSigners,
       networkType,
       vaultShellId,
+      signerMap,
     });
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
   } catch (error) {
@@ -982,7 +1000,7 @@ export function* updateSignerPolicyWorker({
   } = payload;
   const { updated } = yield call(
     SigningServer.updatePolicy,
-    signer.signerId,
+    signer.xfp,
     verificationToken,
     updates
   );
@@ -990,12 +1008,16 @@ export function* updateSignerPolicyWorker({
     Alert.alert('Failed to update signer policy, try again.');
     throw new Error('Failed to update the policy');
   }
+  const signerMap = {};
+  dbManager
+    .getCollection(RealmSchema.Signer)
+    .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
   const { signers } = activeVault;
   for (const current of signers) {
-    if (current.signerId === signer.signerId) {
-      current.signerPolicy = {
-        ...current.signerPolicy,
+    if (current.xfp === signer.xfp) {
+      signerMap[current.masterFingerprint].signerPolicy = {
+        ...signerMap[current.masterFingerprint].signerPolicy,
         restrictions: updates.restrictions,
         exceptions: updates.exceptions,
       };
@@ -1121,29 +1143,62 @@ function* updateSignerDetailsWorker({ payload }) {
     key,
     value,
   }: {
+    signer: Signer;
+    key: string;
+    value: any;
+  } = payload;
+
+  yield call(
+    dbManager.updateObjectByPrimaryId,
+    RealmSchema.Signer,
+    'masterFingerprint',
+    signer.masterFingerprint,
+    {
+      [key]: value,
+    }
+  );
+}
+
+export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
+
+function* updateKeyDetailsWorker({ payload }) {
+  const {
+    signer,
+    key,
+    value,
+  }: {
     signer: VaultSigner;
     key: string;
     value: any;
   } = payload;
-  // TO_DO_VAULT_API
-  const activeVault: Vault = dbManager
-    .getCollection(RealmSchema.Vault)
-    .filter((vault: Vault) => !vault.archived)[0];
 
-  const updatedSigners = activeVault.signers.map((item) => {
-    if (item.signerId === signer.signerId) {
-      item[key] = value;
-      return item;
+  const vaultSigner = dbManager.getObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', signer.xpub);
+  const vaultSignerJSON: VaultSigner = vaultSigner.toJSON();
+  if (key === 'registered') {
+    let updatedFlag = false;
+    const updatedRegsteredVaults = vaultSignerJSON.registeredVaults.map((info) => {
+      if (info.vaultId === value.vaultId) {
+        updatedFlag = true;
+        return { ...info, ...value };
+      } else {
+        return info;
+      }
+    });
+    if (!updatedFlag) {
+      updatedRegsteredVaults.push(value);
     }
-    return item;
-  });
+    yield call(dbManager.updateObjectByPrimaryId, RealmSchema.VaultSigner, 'xpub', signer.xpub, {
+      registeredVaults: updatedRegsteredVaults,
+    });
+    return;
+  }
 
-  yield call(dbManager.updateObjectById, RealmSchema.Vault, activeVault.id, {
-    signers: updatedSigners,
+  yield call(dbManager.updateObjectByPrimaryId, RealmSchema.VaultSigner, 'xpub', signer.xpub, {
+    [key]: value,
   });
 }
 
-export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
+export const updateKeyDetails = createWatcher(updateKeyDetailsWorker, UPDATE_KEY_DETAILS);
 
 function* updateWalletsPropertyWorker({
   payload,

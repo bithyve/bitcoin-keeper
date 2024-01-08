@@ -64,7 +64,7 @@ function WalletDetails({ route }) {
   const { common } = translations;
   const currencyCode = useCurrencyCode();
   const exchangeRates = useExchangeRates();
-  const { autoRefresh, walletId, walletIndex } = route?.params || {};
+  const { autoRefresh, walletId } = route?.params || {};
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -232,11 +232,7 @@ function WalletDetails({ route }) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <TransactionFooter
-              currentWallet={wallet}
-              onPressBuyBitcoin={onPressBuyBitcoin}
-              walletIndex={walletIndex}
-            />
+            <TransactionFooter currentWallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />
           </>
         ) : (
           <Box style={styles.addNewWalletContainer}>

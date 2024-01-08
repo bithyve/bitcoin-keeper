@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-
+import { SignerType } from 'src/core/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
 import useVault from 'src/hooks/useVault';
 import { getSignerNameFromType, getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
-import idx from 'idx';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+// import idx from 'idx';
+// import WalletUtilities from 'src/core/wallets/operations/utils';
+// import config from 'src/core/config';
 import useSubscription from './useSubscription';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import useSignerMap from './useSignerMap';
 
 const getPrefillForSignerList = (scheme, vaultSigners) => {
   let fills = [];
@@ -26,55 +26,55 @@ const areSignersSame = ({ activeVault, signersState }) => {
   if (!activeVault) {
     return false;
   }
-  const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
-  const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
-  return currentSignerIds.sort().join() === activeSignerIds.sort().join();
+  const currentXfps = signersState.map((signer) => (signer ? signer.xfp : ''));
+  const activeXfps = activeVault.signers.map((signer) => signer.xfp);
+  return currentXfps.sort().join() === activeXfps.sort().join();
 };
 
-export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
-  const xPubTypeToSwitch = schemeN === 1 ? XpubTypes.P2WPKH : XpubTypes.P2WSH;
-  const completeSigner =
-    !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WPKH].xpub) &&
-    !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
-  const shouldSwitchXpub =
-    completeSigner && signer.xpub !== signer.xpubDetails[xPubTypeToSwitch].xpub;
-  if (shouldSwitchXpub) {
-    const switchedXpub = signer.xpubDetails[xPubTypeToSwitch].xpub;
-    const switchedDerivation = signer.xpubDetails[xPubTypeToSwitch].derivationPath;
-    const switchedXpriv = signer.xpubDetails[xPubTypeToSwitch].xpriv;
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-    return {
-      ...signer,
-      xpub: switchedXpub,
-      derivationPath: switchedDerivation,
-      xpriv: switchedXpriv,
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(switchedXpub, network),
-    };
-  }
-  return signer;
-};
+// export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
+//   const xPubTypeToSwitch = schemeN === 1 ? XpubTypes.P2WPKH : XpubTypes.P2WSH;
+//   const completeSigner =
+//     !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WPKH].xpub) &&
+//     !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
+//   const shouldSwitchXpub =
+//     completeSigner && signer.xpub !== signer.xpubDetails[xPubTypeToSwitch].xpub;
+//   if (shouldSwitchXpub) {
+//     const switchedXpub = signer.xpubDetails[xPubTypeToSwitch].xpub;
+//     const switchedDerivation = signer.xpubDetails[xPubTypeToSwitch].derivationPath;
+//     const switchedXpriv = signer.xpubDetails[xPubTypeToSwitch].xpriv;
+//     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+//     return {
+//       ...signer,
+//       xpub: switchedXpub,
+//       derivationPath: switchedDerivation,
+//       xpriv: switchedXpriv,
+//       signerId: WalletUtilities.getFingerprintFromExtendedKey(switchedXpub, network),
+//     };
+//   }
+//   return signer;
+// };
 
 const useSignerIntel = ({ scheme }) => {
   const { activeVault } = useVault();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
   const { validSigners } = useSubscription();
+  const { signerMap } = useSignerMap();
 
   useEffect(() => {
     const fills = getPrefillForSignerList(scheme, vaultSigners);
-    setSignersState(
-      vaultSigners.map((signer) => updateSignerForScheme(signer, scheme.n)).concat(fills)
-    );
+    setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
 
   const amfSigners = [];
   const misMatchedSigners = [];
-  signersState.forEach((signer: VaultSigner) => {
-    if (signer) {
+  signersState.forEach((key: VaultSigner) => {
+    if (key) {
+      const signer = signerMap[key.masterFingerprint];
       if (isSignerAMF(signer)) amfSigners.push(signer.type);
-      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
+      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(key, signer);
       if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
-        misMatchedSigners.push(signer.masterFingerprint);
+        misMatchedSigners.push(key.masterFingerprint);
       }
     }
   });

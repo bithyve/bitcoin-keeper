@@ -1,8 +1,10 @@
 import {
+  Signer,
   Vault,
   VaultScheme,
   VaultSigner,
   XpubDetailsType,
+  signerXpubs,
 } from 'src/core/wallets/interfaces/vault';
 
 import {
@@ -33,17 +35,18 @@ export const UNVERIFYING_SIGNERS = [
 export const generateSignerFromMetaData = ({
   xpub,
   derivationPath,
-  xfp,
+  masterFingerprint,
   signerType,
   storageType,
   isMultisig,
   xpriv = null,
   isMock = false,
-  xpubDetails = {} as XpubDetailsType,
-  signerId = null,
+  xpubDetails = null as XpubDetailsType,
+  xfp = null,
   signerPolicy = null,
   inheritanceKeyInfo = null,
-}): VaultSigner => {
+  isAmf = false,
+}): { signer: Signer; key: VaultSigner } => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   if (
@@ -55,28 +58,42 @@ export const generateSignerFromMetaData = ({
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
-  xpubDetails = Object.keys(xpubDetails).length
-    ? xpubDetails
-    : { [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath, xpriv } };
-  signerId = signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-  const signer: VaultSigner = {
-    signerId,
+
+  const signerXpubs: signerXpubs = {};
+  if (!xpubDetails) {
+    const scriptType = WalletUtilities.getScriptTypeFromDerivationPath(derivationPath);
+    signerXpubs[scriptType] = [{ xpub, xpriv, derivationPath }];
+  } else {
+    Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
+      const { xpub, xpriv, derivationPath } = xpubDetail;
+      signerXpubs[key] = signerXpubs[key] || [];
+      signerXpubs[key].push({ xpub, xpriv, derivationPath });
+    });
+  }
+
+  const signer: Signer = {
     type: signerType,
-    signerName: getSignerNameFromType(signerType, isMock, !!xpubDetails[XpubTypes.AMF]),
-    xpub,
-    xpriv,
-    derivationPath,
-    masterFingerprint: xfp,
+    storageType,
     isMock,
+    signerName: getSignerNameFromType(signerType, isMock, isAmf),
     lastHealthCheck: new Date(),
     addedOn: new Date(),
-    storageType,
-    registered: UNVERIFYING_SIGNERS.includes(signerType) || isMock,
-    xpubDetails,
+    masterFingerprint,
     signerPolicy,
     inheritanceKeyInfo,
+    signerXpubs,
+    hidden: false,
   };
-  return signer;
+
+  const key: VaultSigner = {
+    xfp: xfp || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+    derivationPath,
+    xpub,
+    xpriv,
+    masterFingerprint,
+  };
+
+  return { signer, key };
 };
 
 export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
@@ -118,6 +135,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.SEEDSIGNER:
       name = 'SeedSigner';
       break;
+    case SignerType.SPECTER:
+      name = 'Specter';
+      break;
     case SignerType.BITBOX02:
       name = 'BitBox02';
       break;
@@ -153,8 +173,8 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   return line;
 };
 
-export const getSignerSigTypeInfo = (signer: VaultSigner) => {
-  const purpose = WalletUtilities.getSignerPurposeFromPath(signer.derivationPath);
+export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
+  const purpose = WalletUtilities.getSignerPurposeFromPath(key.derivationPath);
   if (
     signer.isMock ||
     (signer.type === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.TESTNET) // amf flow
@@ -175,23 +195,22 @@ export const getMockSigner = (signerType: SignerType) => {
       signerType,
       networkType
     );
-    const signer: VaultSigner = generateSignerFromMetaData({
+    const { signer, key } = generateSignerFromMetaData({
       xpub,
       xpriv,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType,
       storageType: SignerStorage.COLD,
       isMock: true,
       isMultisig: true,
     });
-    return signer;
+    return { signer, key };
   }
   return null;
 };
 
-export const isSignerAMF = (signer: VaultSigner) =>
-  !!idx(signer, (_) => _.xpubDetails[XpubTypes.AMF].xpub);
+export const isSignerAMF = (signer: Signer) => !!idx(signer, (_) => _.signerName.includes('*'));
 
 const HARDENED = 0x80000000;
 export const getKeypathFromString = (keypathString: string): number[] => {
@@ -245,7 +264,8 @@ export const getDeviceStatus = (
   isNfcSupported,
   vaultSigners,
   isOnL1,
-  scheme: VaultScheme
+  scheme: VaultScheme,
+  addSignerFlow: boolean = false
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
@@ -258,21 +278,29 @@ export const getDeviceStatus = (
       return allowSingleKey(type, vaultSigners)
         ? { disabled: true, message: 'Key already added to the Vault' }
         : {
-          message: '',
-          disabled: false,
-        };
+            message: '',
+            disabled: false,
+          };
     case SignerType.POLICY_SERVER:
+      if (addSignerFlow) {
+        return {
+          message: `Please add ${getSignerNameFromType(
+            SignerType.POLICY_SERVER
+          )} from the vault creation flow`,
+          disabled: true,
+        };
+      }
       return {
         message: getDisabled(type, isOnL1, vaultSigners, scheme).message,
         disabled: getDisabled(type, isOnL1, vaultSigners, scheme).disabled,
       };
     case SignerType.TREZOR:
-      return scheme.n > 1
+      return addSignerFlow || scheme?.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
-          message: '',
-          disabled: false,
-        };
+            message: '',
+            disabled: false,
+          };
     case SignerType.KEEPER:
     case SignerType.SEED_WORDS:
     case SignerType.JADE:
@@ -281,6 +309,7 @@ export const getDeviceStatus = (
     case SignerType.SEEDSIGNER:
     case SignerType.LEDGER:
     case SignerType.KEYSTONE:
+    case SignerType.SPECTER:
     default:
       return {
         message: '',
@@ -295,6 +324,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.LEDGER:
     case SignerType.PASSPORT:
     case SignerType.BITBOX02:
+    case SignerType.SPECTER:
     case SignerType.KEYSTONE: {
       return 'Register for full verification';
     }

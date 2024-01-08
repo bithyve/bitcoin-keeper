@@ -1,46 +1,34 @@
-import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useContext, useMemo } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import BackupIcon from 'src/assets/images/backup.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import KeeperHeader from 'src/components/KeeperHeader';
+import CloseIcon from 'src/assets/images/cross.svg';
 import LinkIcon from 'src/assets/images/link.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import LoginMethod from 'src/models/enums/LoginMethod';
-import ThemeMode from 'src/models/enums/ThemeMode';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { BackupAction, BackupHistory } from 'src/models/enums/BHR';
 import moment from 'moment';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getBackupDuration } from 'src/utils/utilities';
-import useToastMessage from 'src/hooks/useToastMessage';
-import { setThemeMode } from 'src/store/reducers/settings';
-import { changeLoginMethod } from 'src/store/sagaActions/login';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
 import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 
-const RNBiometrics = new ReactNativeBiometrics();
-
 function AppSettings({ navigation }) {
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
-  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
 
-  const dispatch = useAppDispatch();
-  const { showToast } = useToastMessage();
+  // const dispatch = useAppDispatch();
 
-  const [sensorType, setSensorType] = useState('Biometrics');
+  // const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
   const { common } = translations;
   const { settings } = translations;
@@ -62,69 +50,6 @@ function AppSettings({ navigation }) {
     }
     return backupWalletStrings[backupHistory[0].title];
   }, [backupHistory, backupMethod]);
-
-  useEffect(() => {
-    if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK));
-    } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT));
-    }
-  }, [colorMode]);
-
-  useEffect(() => {
-    init();
-  }, []);
-
-  const init = async () => {
-    try {
-      const { available, biometryType } = await RNBiometrics.isSensorAvailable();
-      if (available) {
-        const type =
-          biometryType === 'TouchID'
-            ? 'Touch ID'
-            : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
-        setSensorType(type);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const onChangeLoginMethod = async () => {
-    try {
-      const { available } = await RNBiometrics.isSensorAvailable();
-      if (available) {
-        if (loginMethod === LoginMethod.PIN) {
-          const { keysExist } = await RNBiometrics.biometricKeysExist();
-          if (keysExist) {
-            await RNBiometrics.createKeys();
-          }
-          const { publicKey } = await RNBiometrics.createKeys();
-          const { success } = await RNBiometrics.simplePrompt({
-            promptMessage: 'Confirm your identity',
-          });
-          if (success) {
-            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
-          }
-        } else {
-          dispatch(changeLoginMethod(LoginMethod.PIN));
-        }
-      } else {
-        showToast(
-          'Biometrics not enabled.\nPlease go to setting and enable it',
-          <ToastErrorIcon />
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const changeThemeMode = () => {
-    toggleColorMode();
-  };
 
   function Option({ title, subTitle, onPress, Icon }) {
     return (
@@ -162,16 +87,10 @@ function AppSettings({ navigation }) {
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={`App ${common.settings}`}
-        subtitle={settings.settingsSubTitle}
-        rightComponent={
-          <Box style={styles.currentTypeSwitchWrapper}>
-            <CurrencyTypeSwitch />
-          </Box>
-        }
-      />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+        <CloseIcon />
+      </TouchableOpacity>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
@@ -184,44 +103,34 @@ function AppSettings({ navigation }) {
           }}
           Icon
         />
+
         <OptionCard
-          title={sensorType}
-          description={formatString(settings.UseBiometricSubTitle, sensorType)}
-          callback={() => onChangeLoginMethod()}
+          title={settings.SatsMode}
+          description={settings.SatsModeSubTitle}
+          callback={() => console.log('SatsMode')}
           Icon={
             <Switch
-              onValueChange={(value) => onChangeLoginMethod()}
-              value={loginMethod === LoginMethod.BIOMETRIC}
-              testID="switch_biometrics"
-            />
-          }
-        />
-        <OptionCard
-          title={settings.DarkMode}
-          description={settings.DarkModeSubTitle}
-          callback={() => changeThemeMode()}
-          Icon={
-            <Switch
-              onValueChange={(value) => changeThemeMode()}
+              onValueChange={(value) => console.log('SatsMode')}
               value={colorMode === 'dark'}
-              testID="switch_darkmode"
+              testID="switch_satsmode"
             />
           }
         />
         <OptionCard
-          title={settings.nodeSettings}
-          description={settings.nodeSettingsSubtitle}
-          callback={() => navigation.navigate('NodeSettings')}
+          title={settings.PrivacyDisplay}
+          description={settings.PrivacyDisplaySubTitle}
+          callback={() => navigation.navigate('PrivacyAndDisplay')}
         />
+        <OptionCard
+          title={settings.networkSettings}
+          description={settings.networkSettingConfigSubTitle}
+          callback={() => navigation.navigate('NetworkSetting')}
+        />
+
         <OptionCard
           title={settings.VersionHistory}
           description={settings.VersionHistorySubTitle}
           callback={() => navigation.navigate('AppVersionHistory')}
-        />
-        <OptionCard
-          title={settings.torSettingTitle}
-          description={settings.torSettingSubTitle}
-          callback={() => navigation.navigate('TorSettings')}
         />
         <OptionCard
           title={settings.LanguageCountry}
@@ -333,7 +242,6 @@ const styles = StyleSheet.create({
     padding: wp(10),
     width: '100%',
     flexDirection: 'row',
-    marginBottom: 10,
   },
   appBackupIconWrapper: {
     width: '20%',

@@ -11,6 +11,7 @@ import {
   VisibilityType,
 } from '../enums';
 import {
+  Signer,
   Vault,
   VaultPresentationData,
   VaultScheme,
@@ -64,6 +65,7 @@ export const generateVault = async ({
   networkType,
   vaultShellId,
   collaborativeWalletId,
+  signerMap,
 }: {
   type: VaultType;
   vaultName: string;
@@ -73,6 +75,7 @@ export const generateVault = async ({
   networkType: NetworkType;
   vaultShellId?: string;
   collaborativeWalletId?: string;
+  signerMap: { [key: string]: Signer };
 }): Promise<Vault> => {
   const id = generateVaultId(signers, networkType, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
@@ -125,7 +128,7 @@ export const generateVault = async ({
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 
   // update cosigners map(if one of the signers is an assisted key)
-  await updateCosignersMapForAssistedKeys(signers);
+  await updateCosignersMapForAssistedKeys(signers, signerMap); // disabling temporarily
 
   return vault;
 };
@@ -227,46 +230,55 @@ export const generateMockExtendedKey = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateCosignerMapIds = (signers: VaultSigner[], except: SignerType) => {
-  const cosignerIds = [];
-  signers.forEach((signer) => {
-    if (signer.type !== except) cosignerIds.push(signer.signerId);
+export const generateCosignerMapXfps = (
+  keys: VaultSigner[],
+  signerMap: { [key: string]: Signer },
+  except: SignerType
+) => {
+  const cosignerXfps = [];
+  keys.forEach((signer) => {
+    if (signerMap[signer.masterFingerprint].type !== except) cosignerXfps.push(signer.xfp);
   });
 
-  cosignerIds.sort();
+  cosignerXfps.sort();
 
-  const cosignersMapIds = [];
-  for (let i = 0; i < cosignerIds.length; i++) {
-    for (let j = i + 1; j < cosignerIds.length; j++) {
-      cosignersMapIds.push(cosignerIds[i] + '-' + cosignerIds[j]);
+  const cosignersMapXfps = [];
+  for (let i = 0; i < cosignerXfps.length; i++) {
+    for (let j = i + 1; j < cosignerXfps.length; j++) {
+      cosignersMapXfps.push(cosignerXfps[i] + '-' + cosignerXfps[j]);
     }
   }
-  return cosignersMapIds;
+  return cosignersMapXfps;
 };
 
 export const generateCosignerMapUpdates = (
-  signers: VaultSigner[],
-  assistedKey: VaultSigner
+  signerMap: { [key: string]: Signer },
+  assistedKey: VaultSigner,
+  keys: VaultSigner[]
 ): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
-  const cosignersMapIds = generateCosignerMapIds(signers, assistedKey.type);
+  const cosignersMapIds = generateCosignerMapXfps(
+    keys,
+    signerMap,
+    signerMap[assistedKey.masterFingerprint].type
+  );
 
-  if (assistedKey.type === SignerType.POLICY_SERVER) {
+  if (signerMap[assistedKey.masterFingerprint].type === SignerType.POLICY_SERVER) {
     const cosignersMapUpdates: CosignersMapUpdate[] = [];
     for (let id of cosignersMapIds) {
       cosignersMapUpdates.push({
         cosignersId: id,
-        signerId: assistedKey.signerId,
+        signerId: assistedKey.xfp,
         action: CosignersMapUpdateAction.ADD,
       });
     }
 
     return cosignersMapUpdates;
-  } else if (assistedKey.type === SignerType.INHERITANCEKEY) {
+  } else if (signerMap[assistedKey.masterFingerprint].type === SignerType.INHERITANCEKEY) {
     const cosignersMapUpdates: IKSCosignersMapUpdate[] = [];
     for (let id of cosignersMapIds) {
       cosignersMapUpdates.push({
         cosignersId: id,
-        inheritanceKeyId: assistedKey.signerId,
+        inheritanceKeyId: assistedKey.xfp,
         action: IKSCosignersMapUpdateAction.ADD,
       });
     }
@@ -275,20 +287,25 @@ export const generateCosignerMapUpdates = (
   } else throw new Error('Non-supported signer type');
 };
 
-const updateCosignersMapForAssistedKeys = async (signers) => {
-  for (let signer of signers) {
-    if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
-      const cosignersMapUpdates = generateCosignerMapUpdates(signers, signer);
+const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
+  for (let key of keys) {
+    if (
+      signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER ||
+      signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY
+    ) {
+      // creates maps per signer type
+      const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, key, keys);
 
-      if (signer.type === SignerType.POLICY_SERVER) {
+      // updates our backend with the cosigners map
+      if (signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER) {
         const { updated } = await SigningServer.updateCosignersToSignerMap(
-          signer.signerId,
+          key.xfp,
           cosignersMapUpdates as CosignersMapUpdate[]
         );
         if (!updated) throw new Error('Failed to update cosigners-map for SS Assisted Keys');
-      } else if (signer.type === SignerType.INHERITANCEKEY) {
+      } else if (signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY) {
         const { updated } = await InheritanceKeyServer.updateCosignersToSignerMapIKS(
-          signer.signerId,
+          key.xfp,
           cosignersMapUpdates as IKSCosignersMapUpdate[]
         );
         if (!updated) throw new Error('Failed to update cosigners-map for IKS Assisted Keys');

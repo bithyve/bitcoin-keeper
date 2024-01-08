@@ -24,9 +24,9 @@ const deleteRealm = (key: ArrayBuffer | ArrayBufferView | Int8Array) => realm.de
  * @param  {RealmSchema} schema
  * @param  {any} object
  */
-const createObject = (schema: RealmSchema, object: any) => {
+const createObject = (schema: RealmSchema, object: any, updateMode = Realm.UpdateMode.All) => {
   try {
-    const hasCreated = realm.create(schema, object);
+    const hasCreated = realm.create(schema, object, updateMode);
     return hasCreated;
   } catch (err) {
     console.log(err);
@@ -38,9 +38,13 @@ const createObject = (schema: RealmSchema, object: any) => {
  * @param  {RealmSchema} schema
  * @param  {any[]} objects
  */
-const createObjectBulk = (schema: RealmSchema, objects: any[]) => {
+const createObjectBulk = (
+  schema: RealmSchema,
+  objects: any[],
+  updateMode = Realm.UpdateMode.All
+) => {
   try {
-    const hasCreated = realm.createBulk(schema, objects);
+    const hasCreated = realm.createBulk(schema, objects, updateMode);
     return hasCreated;
   } catch (err) {
     console.log(err);
@@ -68,6 +72,16 @@ const getObjectById = (schema: RealmSchema, id: string) => {
 };
 
 /**
+ * generic :: fetches an object corresponding to provided schema and the supplied id
+ * @param  {RealmSchema} schema
+ * @param  {string} id
+ */
+const getObjectByPrimaryId = (schema: RealmSchema, name: string, primaryId: string) => {
+  const objects = realm.get(schema);
+  return objects.filtered(`${name} == '${primaryId}'`)[0];
+};
+
+/**
  * generic :: updates the object, corresponding to provided schema and id, w/ supplied props
  * @param  {RealmSchema} schema
  * @param  {string} id
@@ -76,6 +90,32 @@ const getObjectById = (schema: RealmSchema, id: string) => {
 const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => {
   try {
     const object = getObjectById(schema, id);
+    for (const [key, value] of Object.entries(updateProps)) {
+      realm.write(() => {
+        object[key] = value;
+      });
+    }
+    return true;
+  } catch (err) {
+    console.error({ err });
+    return false;
+  }
+};
+
+/**
+ * generic :: updates the object, corresponding to provided schema and id, w/ supplied props
+ * @param  {RealmSchema} schema
+ * @param  {string} id
+ * @param  {any} updateProps
+ */
+const updateObjectByPrimaryId = (
+  schema: RealmSchema,
+  name: string,
+  primaryId: string,
+  updateProps: any
+) => {
+  try {
+    const object = getObjectByPrimaryId(schema, name, primaryId);
     for (const [key, value] of Object.entries(updateProps)) {
       realm.write(() => {
         object[key] = value;
@@ -131,7 +171,9 @@ export default {
   createObject,
   getObjectByIndex,
   getObjectById,
+  getObjectByPrimaryId,
   updateObjectById,
+  updateObjectByPrimaryId,
   getCollection,
   getObjectByField,
 };

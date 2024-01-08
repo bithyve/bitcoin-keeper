@@ -14,7 +14,7 @@ const getKeystoneDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, xfp: mfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: mfp, forMultiSig, forSingleSig };
 };
 
 const getKeystoneDetailsFromFile = (data) => {
@@ -29,7 +29,7 @@ const getKeystoneDetailsFromFile = (data) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, xfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: xfp, forMultiSig, forSingleSig };
 };
 
 const getTxHexFromKeystonePSBT = (psbt, signedPsbt): bitcoin.Transaction => {

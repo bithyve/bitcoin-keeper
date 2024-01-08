@@ -22,7 +22,7 @@ const getScriptSpecificDetails = async (card, cvc, isMultisig) => {
   const xfp = await card.get_xfp(cvc);
   const xpub = isMultisig ? multiSigXpub : singleSigXpub;
   const derivationPath = isMultisig ? multiSigPath : singleSigPath;
-  return { xpub, xfp: xfp.toString('hex'), derivationPath, xpubDetails };
+  return { xpub, masterFingerprint: xfp.toString('hex'), derivationPath, xpubDetails };
 };
 
 export const getTapsignerDetails = async (card: CKTapCard, cvc: string, isMultisig: boolean) => {
@@ -30,25 +30,22 @@ export const getTapsignerDetails = async (card: CKTapCard, cvc: string, isMultis
   const isLegit = await card.certificate_check();
   if (isLegit) {
     if (status.path) {
-      const { xpub, xfp, derivationPath, xpubDetails } = await getScriptSpecificDetails(
-        card,
-        cvc,
-        isMultisig
-      );
+      const { xpub, masterFingerprint, derivationPath, xpubDetails } =
+        await getScriptSpecificDetails(card, cvc, isMultisig);
       // reset to original path
       await card.set_derivation(status.path, cvc);
-      return { xpub, xfp, derivationPath, xpubDetails };
+      return { xpub, masterFingerprint, derivationPath, xpubDetails };
     }
     await card.setup(cvc);
     const newCard = await card.first_look();
-    const { xpub, xfp, derivationPath, xpubDetails } = await getScriptSpecificDetails(
+    const { xpub, masterFingerprint, derivationPath, xpubDetails } = await getScriptSpecificDetails(
       newCard,
       cvc,
       isMultisig
     );
     // reset to original path
     await card.set_derivation(status.path, cvc);
-    return { xpub, xfp, derivationPath, xpubDetails };
+    return { xpub, masterFingerprint, derivationPath, xpubDetails };
   }
 };
 

@@ -3,7 +3,7 @@ import { Box, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -13,7 +13,7 @@ import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { globalStyles } from 'src/constants/globalStyles';
 import useVault from 'src/hooks/useVault';
@@ -28,7 +28,7 @@ const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer }: { signer: VaultSigner } = route.params;
+  const { signer, vaultKey }: { signer: Signer; vaultKey: VaultSigner } = route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
@@ -51,18 +51,24 @@ function SignerAdvanceSettings({ route }: any) {
     switch (signer.type) {
       case SignerType.COLDCARD:
         await registerColdCard();
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            vaultId: activeVault.id,
+          })
+        );
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { signer }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey }));
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
+      case SignerType.SPECTER:
       case SignerType.OTHER_SD:
-        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey }));
         break;
       default:
         showToast('Comming soon', null, 1000);
@@ -70,7 +76,7 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
-  const navigateToPolicyChange = (signer: VaultSigner) => {
+  const navigateToPolicyChange = (signer: Signer) => {
     const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
     const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(

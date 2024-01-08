@@ -42,6 +42,7 @@ function AssignSignerType({ navigation, route }: IProps) {
     SignerType.TAPSIGNER,
     SignerType.COLDCARD,
     SignerType.SEEDSIGNER,
+    SignerType.SPECTER,
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
@@ -79,7 +80,7 @@ function AssignSignerType({ navigation, route }: IProps) {
       />
       <VStack paddingLeft={'10%'} paddingTop={'5%'}>
         <Text>Master fingerprint: {signer.masterFingerprint}</Text>
-        <Text>Fingerprint: {signer.signerId}</Text>
+        <Text>Fingerprint: {signer.xfp}</Text>
         <Text>xPub: {signer.xpub}</Text>
       </VStack>
       <ScrollView

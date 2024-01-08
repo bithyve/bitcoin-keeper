@@ -14,6 +14,7 @@ import {
   updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
   updateSignerDetails,
+  updateKeyDetails,
   updateWalletsPropertyWatcher,
   addWhirlpoolWalletsWatcher,
   addWhirlpoolWalletsLocalWatcher,
@@ -100,6 +101,7 @@ const rootSaga = function* () {
     finaliseVaultMigrationWatcher,
     finaliseIKSetupWatcher,
     updateSignerDetails,
+    updateKeyDetails,
 
     // send and receive
     fetchExchangeRatesWatcher,
