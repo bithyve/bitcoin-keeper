@@ -25,10 +25,12 @@ import SigningServer from 'src/services/operations/SigningServer';
 import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
+import { updateAppImageWorker } from './bhr';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
 export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
+export const KEY_MANAGEMENT_VERSION = '1.1.9';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -46,6 +48,8 @@ export function* applyUpgradeSequence({
     yield put(migrateLabelsToBip329());
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
+  if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION))
+    yield call(migrateStructureforSignersandKeys);
 
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
@@ -183,4 +187,15 @@ function* migrateAssistedKeys() {
   } catch (error) {
     console.log({ error });
   }
+}
+
+function* migrateStructureforSignersandKeys() {
+  try {
+    const response = yield call(updateAppImageWorker, { payload: {} });
+    if (response.updated) {
+      console.log('Updated the Signers in app image');
+    } else {
+      console.log('Failed to update the update the app image with the updated the structure');
+    }
+  } catch (err) {}
 }
