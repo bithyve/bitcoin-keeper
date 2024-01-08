@@ -14,7 +14,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import Text from './KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, ColorMode, useColorMode } from 'native-base';
 import { useContext, useState } from 'react';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
@@ -49,6 +49,7 @@ function Card({ info, index, totalLength, activeIndex, removeCard }: CardProps) 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { colorMode } = useColorMode();
+  const styles = getStyles(colorMode);
 
   const animations = useAnimatedStyle(() => {
     return {
@@ -101,6 +102,9 @@ function Card({ info, index, totalLength, activeIndex, removeCard }: CardProps) 
 }
 
 export default function NotificationStack() {
+  const { colorMode } = useColorMode();
+  const styles = getStyles(colorMode);
+
   const [notifications, setNotifications] = useState(data);
   const activeIndex = useSharedValue(0);
 
@@ -144,43 +148,44 @@ export default function NotificationStack() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
-  card: {
-    borderRadius: layout.borderRadius,
-    width: layout.width,
-    height: layout.height,
-    padding: 10,
-    shadowColor: 'rgba(93, 110, 106, 0.5)',
-    shadowRadius: 10,
-    shadowOpacity: 1,
-    shadowOffset: {
-      width: 0,
-      height: 0,
+const getStyles = (colorMode: ColorMode) =>
+  StyleSheet.create({
+    container: {
+      position: 'relative',
     },
-    elevation: 5,
-  },
-  title: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  content: {
-    fontSize: 14,
-    fontWeight: '600',
-    width: '50%',
-  },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  skip: {
-    fontSize: 12,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 20,
-  },
-});
+    card: {
+      borderRadius: layout.borderRadius,
+      width: layout.width,
+      height: layout.height,
+      padding: 10,
+      shadowColor: `${colorMode}.Greige`,
+      shadowRadius: 10,
+      shadowOpacity: 1,
+      shadowOffset: {
+        width: 0,
+        height: 0,
+      },
+      elevation: 5,
+    },
+    title: {
+      fontSize: 12,
+      fontWeight: '600',
+    },
+    content: {
+      fontSize: 14,
+      fontWeight: '600',
+      width: '50%',
+    },
+    contentContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    skip: {
+      fontSize: 12,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      gap: 20,
+    },
+  });

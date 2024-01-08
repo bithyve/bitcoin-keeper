@@ -43,6 +43,7 @@ const Colors = {
   ForestGreen: 'rgba(0,131,105,1)',
   PearlGrey: 'rgba(250,252,252,1)',
   pantoneGreen: 'rgba(45,103,89,1)',
+  pantoneGreenLight: 'rgba(45,103,89,0.08)',
   Champagne: 'rgba(247,242,236,1)',
   Warmbeige: 'rgba(247, 242, 236, 1)',
   RussetBrown: 'rgba(145, 120, 93, 1)',
@@ -51,6 +52,9 @@ const Colors = {
   GreenishGrey: 'rgba(62, 82, 77, 1)',
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',
+  SlateGrey: 'rgba(36,49,46,1)',
+  LightKhaki: 'rgba(217,209,169,1)',
+  Greige: 'rgba(93, 110, 106, 0.6)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
