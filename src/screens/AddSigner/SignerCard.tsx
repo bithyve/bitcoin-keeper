@@ -1,6 +1,6 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import Text from '../../components/KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 
 type SignerCardProps = {
@@ -22,8 +22,10 @@ function SignerCard({
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity
-      style={[styles.walletContainer, isSelected && styles.selectedCard]}
+    <Pressable
+      backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
+      borderColor={`${colorMode}.Eggshell`}
+      style={styles.walletContainer}
       onPress={() => onCardSelect(walletName)}
     >
       {showSelection && <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle} />}
@@ -47,7 +49,7 @@ function SignerCard({
           {walletDescription}
         </Text>
       </Box>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -57,10 +59,8 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 125,
     alignItems: 'flex-start',
-    backgroundColor: '#FDF7F0',
     borderRadius: 10,
     borderWidth: 0.5,
-    borderColor: '#eee3d8',
   },
   walletName: {
     fontSize: 12,
@@ -79,9 +79,6 @@ const styles = StyleSheet.create({
   detailContainer: {
     gap: 2,
     marginTop: 15,
-  },
-  selectedCard: {
-    backgroundColor: '#2e6759',
   },
   iconWrapper: {
     width: 34,

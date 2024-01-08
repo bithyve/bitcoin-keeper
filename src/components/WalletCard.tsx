@@ -1,6 +1,6 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import Text from './KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import CheckmarkIcon from 'src/assets/images/checkmark.svg';
 
 type WalletCardProps = {
@@ -24,13 +24,10 @@ function WalletCard({
   const isSelected = selectedCard === walletName;
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.walletContainer,
-        isSelected
-          ? { backgroundColor: `${colorMode}.primaryGreen` }
-          : { backgroundColor: `${colorMode}.seashellWhite` },
-      ]}
+    <Pressable
+      borderColor={`${colorMode}.Eggshell`}
+      backgroundColor={isSelected ? `${colorMode}.primaryGreen` : `${colorMode}.seashellWhite`}
+      style={styles.walletContainer}
       onPress={() => onCardSelect(walletName)}
     >
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
@@ -45,7 +42,7 @@ function WalletCard({
           {walletDescription}
         </Text>
       </Box>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -57,7 +54,6 @@ const styles = StyleSheet.create({
     height: 125,
     borderRadius: 10,
     borderWidth: 0.5,
-    borderColor: '#eee3d8',
   },
   circle: {
     width: 22,
