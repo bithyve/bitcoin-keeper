@@ -5,15 +5,15 @@ import AddCardIcon from 'src/assets/images/addCardIcon.svg';
 
 type AddSignerCardProps = {
   name: string;
-  onCardSelect?: (cardName: string) => void;
+  callback?: (param: string) => void;
   cardStyles?: ViewStyle;
 };
 
-function AddCard({ name, onCardSelect, cardStyles }: AddSignerCardProps) {
+function AddCard({ name, callback, cardStyles }: AddSignerCardProps) {
   return (
     <TouchableOpacity
       style={[styles.AddCardContainer, cardStyles && cardStyles]}
-      onPress={() => onCardSelect(name)}
+      onPress={() => callback(name)}
     >
       <Box style={styles.detailContainer}>
         <Box style={styles.iconWrapper}>

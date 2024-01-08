@@ -4,13 +4,13 @@ import { StyleSheet, Text } from 'react-native';
 
 import BitcoinIcon from 'src/assets/images/icon_bitcoin.svg';
 
-const BalanceComponent = ({ balance, wallets }) => {
+const BalanceComponent = ({ balance, count }) => {
   const { colorMode } = useColorMode();
   const styles = getStyles(colorMode);
   return (
     <Box style={styles.walletWrapper}>
       <Text style={styles.noOfWallet}>
-        <Text style={{ fontWeight: 'bold' }}>{wallets}</Text> Wallets
+        <Text style={{ fontWeight: 'bold' }}>{count}</Text> Wallet{count > 1 && 's'}
       </Text>
       <Box style={styles.amount}>
         <BitcoinIcon />
