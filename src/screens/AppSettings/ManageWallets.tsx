@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function ListItem({ title, subtitle, balance, btnTitle, onBtnPress }) {
+function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
@@ -111,14 +111,14 @@ function ListItem({ title, subtitle, balance, btnTitle, onBtnPress }) {
               {SatsToBtc(balance)}
             </Text>
           </Box>
-          <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID={`btn${btnTitle}`}>
+          <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID={`btnHide`}>
             <Box
               borderColor="light.RussetBrown"
               backgroundColor="light.RussetBrown"
               style={styles.learnMoreContainer}
             >
               <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
-                {btnTitle}
+                {isHidden ? 'Unhide' : 'Hide'}
               </Text>
             </Box>
           </TouchableOpacity>
@@ -135,11 +135,13 @@ function ManageWallets() {
 
   const { wallets } = useWallets();
 
+  const [showAll, setShowAll] = useState(false);
+
   const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
   const visibleWallets = walletsWithoutWhirlpool.filter(
-    (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
+    (wallet) => showAll || wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
   const hiddenWallets = walletsWithoutWhirlpool.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
@@ -266,42 +268,27 @@ function ManageWallets() {
             title={item.presentationData.name}
             subtitle={item.presentationData.description}
             balance={item.specs.balances.confirmed}
-            btnTitle="Hide"
-            onBtnPress={() => hideWallet(item)}
+            isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
+            onBtnPress={
+              item.presentationData.visibility === VisibilityType.HIDDEN
+                ? () => unhideWallet(item)
+                : () => hideWallet(item)
+            }
           />
         )}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
       />
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
-      <Box style={styles.footer}>
+      <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
           <WalletIcon />
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
           Show all
         </Text>
-      </Box>
-      {/* <FlatList
-        data={hiddenWallets}
-        extraData={[visibleWallets, hiddenWallets]}
-        style={{ height: '50%' }}
-        contentContainerStyle={{ marginHorizontal: 20 }}
-        renderItem={({ item }) => (
-          <ListItem
-            title={item.presentationData.name}
-            subtitle={item.presentationData.description}
-            balance={item.specs.balances.confirmed}
-            btnTitle="Unhide"
-            onBtnPress={() => {
-              setSelectedWallet(item);
-              setConfirmPassVisible(true);
-            }}
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-      /> */}
+      </Pressable>
+
       <KeeperModal
         dismissible
         close={() => {
