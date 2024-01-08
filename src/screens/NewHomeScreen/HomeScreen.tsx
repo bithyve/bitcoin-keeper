@@ -128,7 +128,7 @@ const NewHomeScreen = ({ navigation }) => {
     <Box style={styles.container}>
       <Box
         backgroundColor={`${colorMode}.primaryGreenBackground`}
-        style={[styles.wrapper, { paddingTop: top, paddingLeft: 10 }]}
+        style={[styles.wrapper, { paddingTop: top }]}
       >
         <HomeScreenWrapper>
           <Box style={styles.actionContainer}>
@@ -144,17 +144,20 @@ const NewHomeScreen = ({ navigation }) => {
           balance={netBalanceWallets + netBalanceAllVaults}
         />
         <FlatList
+          style={styles.walletDetailWrapper}
           horizontal
           data={allWallets}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
             return (
-              <WalletInfoCard
-                walletName={item.presentationData.name}
-                walletDescription={item.presentationData.description}
-                icon={<WalletIcon />}
-                amount={21000}
-              />
+              <Box style={styles.wallerCardWrapper}>
+                <WalletInfoCard
+                  walletName={item.presentationData.name}
+                  walletDescription={item.presentationData.description}
+                  icon={<WalletIcon />}
+                  amount={21000}
+                />
+              </Box>
             );
           }}
           ListFooterComponent={() => (
@@ -182,14 +185,18 @@ export default NewHomeScreen;
 
 const getStyles = (colorMode) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: `${colorMode}.pantoneGreen` },
+    container: {
+      flex: 1,
+      backgroundColor: `${colorMode}.Linen`,
+    },
     valueWrapper: {
-      flex: 0.7,
+      flex: 0.65,
       justifyContent: 'center',
       alignItems: 'center',
+      marginTop: 100,
     },
     wrapper: {
-      flex: 0.3,
+      flex: 0.35,
       paddingHorizontal: 15,
       paddingVertical: 8,
       justifyContent: 'center',
@@ -198,6 +205,8 @@ const getStyles = (colorMode) =>
     actionContainer: {
       flexDirection: 'row',
       gap: 10,
-      marginTop: -70,
+      marginTop: -100,
     },
+    walletDetailWrapper: { marginTop: 27.25, paddingHorizontal: 10 },
+    wallerCardWrapper: { marginRight: 10 },
   });
