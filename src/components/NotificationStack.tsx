@@ -152,6 +152,7 @@ const getStyles = (colorMode: ColorMode) =>
   StyleSheet.create({
     container: {
       position: 'relative',
+      top: 100,
     },
     card: {
       borderRadius: layout.borderRadius,
