@@ -24,7 +24,8 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import AddWalletModal from '../Home/components/AddWalletModal';
-
+import { CommonActions } from '@react-navigation/native';
+import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
   let totalConfirmedBalance = 0;
@@ -112,10 +113,13 @@ const NewHomeScreen = ({ navigation }) => {
     {
       name: 'Setup Inheritance',
       icon: null,
+      onPress: () => {
+        navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+      },
     },
     {
       name: 'Buy Bitcoin',
-      icon: null,
+      icon: <BTC />,
     },
     {
       name: 'Manage All Signers',
@@ -125,7 +129,7 @@ const NewHomeScreen = ({ navigation }) => {
 
   const styles = getStyles(colorMode);
   return (
-    <Box style={styles.container}>
+    <Box backgroundColor={`${colorMode}.Linen`} style={[styles.container]}>
       <Box
         backgroundColor={`${colorMode}.primaryGreenBackground`}
         style={[styles.wrapper, { paddingTop: top }]}
@@ -133,7 +137,7 @@ const NewHomeScreen = ({ navigation }) => {
         <HomeScreenWrapper>
           <Box style={styles.actionContainer}>
             {dummyData.map((data, index) => (
-              <ActionCard key={`${index}_${data.name}`} cardName={data.name} />
+              <ActionCard key={`${index}_${data.name}`} data={data} />
             ))}
           </Box>
         </HomeScreenWrapper>
@@ -187,7 +191,6 @@ const getStyles = (colorMode) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: `${colorMode}.Linen`,
     },
     valueWrapper: {
       flex: 0.65,

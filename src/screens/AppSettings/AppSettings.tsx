@@ -121,7 +121,7 @@ function AppSettings({ navigation }) {
         <ScrollView showsHorizontalScrollIndicator={false}>
           <Box style={styles.actionContainer}>
             {dummyData.map((data) => (
-              <ActionCard cardName={data.name} icon={data.icon} />
+              <ActionCard data={data} />
             ))}
           </Box>
         </ScrollView>

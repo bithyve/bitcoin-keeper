@@ -1,20 +1,24 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import Text from './KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 type ActionCardProps = {
-  cardName: string;
-  icon?: Element;
+  data: any;
 };
 
-function ActionCard({ cardName, icon }: ActionCardProps) {
+function ActionCard({ data }: ActionCardProps) {
   const { colorMode } = useColorMode();
+  const { name, icon, onPress } = data;
   return (
-    <Pressable style={[styles.cardContainer]} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Pressable
+      onPress={onPress}
+      style={[styles.cardContainer]}
+      backgroundColor={`${colorMode}.seashellWhite`}
+    >
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
         {icon && icon}
       </Box>
-      <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
+      <Text color={`${colorMode}.primaryText`}>{name}</Text>
     </Pressable>
   );
 }
