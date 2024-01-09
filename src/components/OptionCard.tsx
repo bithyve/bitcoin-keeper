@@ -7,22 +7,24 @@ import { windowWidth } from 'src/constants/responsive';
 type OptionProps = {
   title: string;
   description: string;
-  Icon?: any;
   callback: () => void;
+  Icon?: Element;
+  LeftIcon?: Element;
 };
 
-export const OptionCard = ({ title, description, Icon, callback }: OptionProps) => {
+export function OptionCard({ title, description, Icon, callback, LeftIcon }: OptionProps) {
   const { colorMode } = useColorMode();
   return (
     <Pressable onPress={callback}>
       <HStack
         padding={3}
-        width={windowWidth * 0.90}
+        width={windowWidth * 0.9}
         justifyContent="space-between"
-        alignItems={'center'}
+        alignItems="center"
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
+        {LeftIcon && LeftIcon}
         <VStack>
           <Text
             color={`${colorMode}.primaryText`}
@@ -41,11 +43,11 @@ export const OptionCard = ({ title, description, Icon, callback }: OptionProps) 
           )}
         </VStack>
         <Box justifyContent="center" alignItems="flex-end">
-          {Icon ? Icon : <RightArrowIcon />}
+          {Icon || <RightArrowIcon />}
         </Box>
       </HStack>
     </Pressable>
   );
-};
+}
 
 export default OptionCard;

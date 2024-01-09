@@ -193,8 +193,7 @@ export const customTheme = extendTheme({
       LightKhaki: Colors.LightKhaki,
       Greige: Colors.Greige,
       Eggshell: Colors.Eggshell,
-      Teal: Colors,
-      Teal,
+      Teal: Colors.Teal,
     },
   },
   config: {

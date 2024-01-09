@@ -1,118 +1,101 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import WalletType from './WalletType';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
-import WatchOnlyWalletIcon from 'src/assets/images/watch_only_wallet.svg';
-import ImportWalletIcon from 'src/assets/images/import_wallet.svg';
-import Shield from 'src/assets/images/shield.svg';
-import WhiteShield from 'src/assets/images/shield_white.svg';
-import CollaborativeVault from 'src/assets/images/collaborative_vault.svg';
-import LockGreen from 'src/assets/images/lock_green.svg';
-import Lock from 'src/assets/images/lock.svg';
-
-const dummyData = [
-  {
-    heading: 'Single Sig',
-    data: [
-      {
-        walletName: 'Hot Wallet',
-        walletDescription: "App's mobile key",
-        icon: <WalletGreenIcon />,
-        selectedIcon: <WalletActiveIcon />,
-      },
-      {
-        walletName: 'Watch Only',
-        walletDescription: 'Use external xPub',
-        icon: <WatchOnlyWalletIcon />,
-        selectedIcon: <WalletActiveIcon />,
-      },
-      {
-        walletName: 'Import',
-        walletDescription: 'Import External wallet',
-        icon: <ImportWalletIcon />,
-        selectedIcon: <WalletActiveIcon />,
-      },
-    ],
-  },
-  {
-    heading: 'Multi Sig',
-    data: [
-      {
-        walletName: '2 of 3 Vault',
-        walletDescription: 'Occasional use wallet',
-        icon: <Shield />,
-        selectedIcon: <WhiteShield />,
-      },
-      {
-        walletName: '3 of 5 Vault',
-        walletDescription: 'Deep cold storage',
-        icon: <Shield />,
-        selectedIcon: <WhiteShield />,
-      },
-      {
-        walletName: 'Collaborative',
-        walletDescription: 'With contacts/ devices',
-        icon: <CollaborativeVault />,
-        selectedIcon: <WalletActiveIcon />,
-      },
-    ],
-  },
-  {
-    heading: 'Advanced',
-    data: [
-      {
-        walletName: 'Time-lock',
-        walletDescription: 'For 3, 6 or 12 mo',
-        icon: <LockGreen />,
-        selectedIcon: <Lock />,
-      },
-      {
-        walletName: 'Degrading MultiSig',
-        walletDescription: 'Time based sig',
-        icon: <WalletGreenIcon />,
-        selectedIcon: <WalletActiveIcon />,
-      },
-      {
-        walletName: 'Custom Multi Sig',
-        walletDescription: 'Build your own',
-        icon: <WalletGreenIcon />,
-        selectedIcon: <WalletActiveIcon />,
-      },
-    ],
-  },
-];
+import AdvancedGreenIcon from 'src/assets/images/advanced_green.svg';
+import AdvancedIcon from 'src/assets/images/advanced.svg';
+import ImportGreenIcon from 'src/assets/images/import_green.svg';
+import ImportIcon from 'src/assets/images/import.svg';
+import WalletCard from 'src/components/WalletCard';
+import { StyleSheet } from 'react-native';
+import Note from 'src/components/Note/Note';
+import Wallets from './Wallets';
+import AdvancedWallets from './AdvancedWallets';
+import ImportWallets from './ImportWallets';
 
 function AddWallet({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
 
-  const [selectedCard, selectCard] = useState('');
+  const [selectedCard, selectCard] = useState(1);
 
-  const onCardSelect = (name: string) => {
-    if (name === selectedCard) selectCard('');
-    else selectCard(name);
+  const onCardSelect = (id: number) => {
+    selectCard(id);
   };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
       <KeeperHeader title={wallet.AddWallet} subtitle={wallet.chooseFromTemplate} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {dummyData.map((data) => (
-          <WalletType walletData={data} selectedCard={selectedCard} onCardSelect={onCardSelect} />
-        ))}
-        <Box style={{ alignSelf: 'flex-end', marginRight: 20 }}>
-          <CustomGreenButton value={common.proceed} />
-        </Box>
-      </ScrollView>
+      <Box style={styles.container}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.walletType}
+        >
+          <WalletCard
+            id={1}
+            walletName="Wallets"
+            walletDescription="Single/Multi sig"
+            icon={<WalletActiveIcon />}
+            selectedIcon={<WalletGreenIcon />}
+            selectedCard={selectedCard}
+            onCardSelect={onCardSelect}
+            arrowStyles={{ alignSelf: 'flex-end', marginRight: 10 }}
+          />
+          <WalletCard
+            id={2}
+            walletName="Advanced"
+            walletDescription="Lorem ipsum dolor"
+            icon={<AdvancedIcon />}
+            selectedIcon={<AdvancedGreenIcon />}
+            selectedCard={selectedCard}
+            onCardSelect={onCardSelect}
+            arrowStyles={{ alignSelf: 'center' }}
+          />
+          <WalletCard
+            id={3}
+            walletName="Import"
+            walletDescription="Lorem ipsum dolor"
+            icon={<ImportIcon />}
+            selectedIcon={<ImportGreenIcon />}
+            selectedCard={selectedCard}
+            onCardSelect={onCardSelect}
+            arrowStyles={{ marginLeft: 10 }}
+          />
+        </ScrollView>
+        {selectedCard === 1 && <Wallets navigation={navigation} />}
+        {selectedCard === 2 && <AdvancedWallets navigation={navigation} />}
+        {selectedCard === 3 && <ImportWallets navigation={navigation} />}
+      </Box>
+      <Box style={styles.note}>
+        <Note
+          title={common.note}
+          subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          subtitleColor="GreyText"
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 25,
+    marginTop: 20,
+  },
+  walletType: {
+    gap: 5,
+  },
+  note: {
+    position: 'absolute',
+    bottom: 40,
+    width: '90%',
+    alignSelf: 'center',
+  },
+});
 
 export default AddWallet;
