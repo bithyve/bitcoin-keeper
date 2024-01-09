@@ -16,9 +16,9 @@ import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
 import Keystone from 'src/assets/images/keystone_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import AdvnaceOptions from 'src/assets/images/Advancedoptions.svg';
+import AdvnaceOptions from 'src/assets/images/settings.svg';
 import Change from 'src/assets/images/change.svg';
-import HealthCheck from 'src/assets/images/heathcheck.svg';
+import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -44,6 +44,13 @@ import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+
+const signerArray = [
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+];
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -254,7 +261,7 @@ function SigningDeviceDetails({ route }) {
         width="12"
         height="12"
         borderRadius={30}
-        backgroundColor={`${colorMode}.accent`}
+        backgroundColor={`${colorMode}.RussetBrown`}
         justifyContent="center"
         alignItems="center"
       >
@@ -267,14 +274,6 @@ function SigningDeviceDetails({ route }) {
 
   const footerItems = [
     {
-      text: 'Change signing device',
-      Icon: () => <FooterIcon Icon={Change} />,
-      onPress: () =>
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        ),
-    },
-    {
       text: 'Health Check',
       Icon: () => <FooterIcon Icon={HealthCheck} />,
       onPress: () => {
@@ -286,7 +285,16 @@ function SigningDeviceDetails({ route }) {
       },
     },
     {
-      text: 'Advance Options',
+      text: 'Change Signer',
+      Icon: () => <FooterIcon Icon={Change} />,
+      onPress: () =>
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        ),
+    },
+
+    {
+      text: 'Settings',
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
         navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey }));
@@ -303,34 +311,17 @@ function SigningDeviceDetails({ route }) {
           paddingHorizontal: '3%',
         }}
       >
-        <Box
-          style={{
-            margin: 5,
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: hp(48),
-            height: hp(48),
-            borderRadius: 30,
-            borderWidth: 1,
-            backgroundColor: '#725436',
-          }}
-        >
-          {Icon}
-        </Box>
-        <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
-          <Box flexDirection="column">
-            <Text fontSize={14} letterSpacing={1.15}>
-              {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
-            </Text>
-            <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(
-              signer?.addedOn
-            ).format('DD MMM YY, HH:mm A')}`}</Text>
-          </Box>
+        <Box>
+          <Text style={{ fontSize: 13 }}>Recent History</Text>
         </Box>
       </Box>
       <ScrollView>
         <Box mx={5} mt={4}>
-          <SigningDeviceChecklist signer={signer} />
+          {/* <SigningDeviceChecklist signer={signer} /> */}
+          {/* -------TODO Pratyaksh------- */}
+          {signerArray.map(() => (
+            <SigningDeviceChecklist signer={signer} />
+          ))}
         </Box>
       </ScrollView>
       <Box
@@ -342,9 +333,6 @@ function SigningDeviceDetails({ route }) {
         height={hp(188)}
         backgroundColor={`${colorMode}.primaryBackground`}
       >
-        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
-          You will be reminded in 90 days for the health check
-        </Text>
         <KeeperFooter items={footerItems} />
         <HardwareModalMap
           type={signer?.type}

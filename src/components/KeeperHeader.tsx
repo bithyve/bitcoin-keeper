@@ -26,12 +26,12 @@ function KeeperHeader({
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => { },
-  learnBackgroundColor = 'light.lightAccent',
-  learnTextColor = 'light.learnMoreBorder',
+  learnMorePressed = () => {},
+  learnBackgroundColor = 'light.brownColor',
+  learnTextColor = 'light.learMoreTextcolor',
   rightComponent = null,
   contrastScreen = false,
-  marginLeft = true
+  marginLeft = true,
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();

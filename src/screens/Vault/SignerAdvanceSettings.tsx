@@ -185,6 +185,8 @@ function SignerAdvanceSettings({ route }: any) {
           callback={navigateToUnlockTapsigner}
         />
       )}
+      {/* ---------TODO Pratyaksh--------- */}
+      <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} />
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
