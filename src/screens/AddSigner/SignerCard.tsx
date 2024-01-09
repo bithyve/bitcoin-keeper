@@ -1,7 +1,7 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import Text from '../../components/KeeperText';
 import { StyleSheet } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
+import Text from '../../components/KeeperText';
 
 type SignerCardProps = {
   walletName: string;
@@ -10,6 +10,7 @@ type SignerCardProps = {
   isSelected: boolean;
   onCardSelect: (cardName: string) => void;
   showSelection: boolean;
+  colorVarient: string;
 };
 
 function SignerCard({
@@ -19,8 +20,11 @@ function SignerCard({
   isSelected,
   onCardSelect,
   showSelection,
+  colorVarient = 'brown',
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
+  const backgroundColor =
+    colorVarient === 'brown' ? `${colorMode}.RussetBrown` : `${colorMode}.pantoneGreen`;
   return (
     <Pressable
       backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
@@ -28,9 +32,9 @@ function SignerCard({
       style={styles.walletContainer}
       onPress={() => onCardSelect(walletName)}
     >
-      {showSelection && <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle} />}
+      {showSelection && <Box backgroundColor={backgroundColor} style={styles.circle} />}
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.iconWrapper}>
+        <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
           {icon}
         </Box>
         <Text
@@ -61,6 +65,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     borderRadius: 10,
     borderWidth: 0.5,
+    backgroundColor: '#FDF7F0',
+    margin: 3,
   },
   walletName: {
     fontSize: 12,

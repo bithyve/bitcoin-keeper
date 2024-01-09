@@ -129,7 +129,7 @@ function ConnectChannel() {
         } else {
           dispatch(addSigningDevice([bitbox02], [key], addSignerFlow));
           const navigationState = addSignerFlow
-            ? { name: 'Home' }
+            ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
@@ -167,7 +167,7 @@ function ConnectChannel() {
         } else {
           dispatch(addSigningDevice([trezor], [key], addSignerFlow));
           const navigationState = addSignerFlow
-            ? { name: 'Home' }
+            ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
@@ -202,7 +202,7 @@ function ConnectChannel() {
         } else {
           dispatch(addSigningDevice([ledger], [key], addSignerFlow));
           const navigationState = addSignerFlow
-            ? { name: 'Home' }
+            ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }

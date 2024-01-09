@@ -79,7 +79,7 @@ function SetupSigningServer({ route }: { route }) {
 
     dispatch(addSigningDevice([signingServerKey], [key], addSignerFlow));
     const navigationState = addSignerFlow
-      ? { name: 'Home' }
+      ? { name: 'ManageSigners' }
       : { name: 'AddSigningDevice', merge: true, params: {} };
     navigation.dispatch(CommonActions.navigate(navigationState));
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);

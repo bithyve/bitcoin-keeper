@@ -29,6 +29,7 @@ function WalletInfoCard({
         {tags.map((tag, index) => {
           return (
             <CardPill
+              key={tag}
               heading={tag}
               cardStyles={index % 2 === 0 ? null : { backgroundColor: 'white' }}
             />
