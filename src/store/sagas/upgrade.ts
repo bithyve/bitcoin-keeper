@@ -49,7 +49,7 @@ export function* applyUpgradeSequence({
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION))
-    yield call(migrateStructureforSignersandKeys);
+    yield call(migrateStructureforSignersInAppImage);
 
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
@@ -189,7 +189,7 @@ function* migrateAssistedKeys() {
   }
 }
 
-function* migrateStructureforSignersandKeys() {
+function* migrateStructureforSignersInAppImage() {
   try {
     const response = yield call(updateAppImageWorker, { payload: {} });
     if (response.updated) {
