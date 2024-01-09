@@ -27,6 +27,7 @@ function SignerCard({
     colorVarient === 'brown' ? `${colorMode}.RussetBrown` : `${colorMode}.pantoneGreen`;
   return (
     <TouchableOpacity
+      activeOpacity={0.9}
       style={[styles.walletContainer, isSelected && styles.selectedCard]}
       onPress={() => onCardSelect(walletName)}
     >

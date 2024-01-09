@@ -154,6 +154,7 @@ const NewHomeScreen = ({ navigation }) => {
           balance={netBalanceWallets + netBalanceAllVaults}
         />
         <FlatList
+          contentContainerStyle={{ paddingRight: 30 }}
           style={styles.walletDetailWrapper}
           horizontal
           data={allWallets}

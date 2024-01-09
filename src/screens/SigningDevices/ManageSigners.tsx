@@ -48,7 +48,7 @@ const ManageSigners = () => {
         </VStack>
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.body}>
-        <ScrollView style={styles.scrollContainer}>
+        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <Box style={styles.signerContainer}>
             {signers.map((signer) => {
               return (
