@@ -25,7 +25,7 @@ import SigningServer from 'src/services/operations/SigningServer';
 import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
-import { updateAppImageWorker } from './bhr';
+import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -197,5 +197,13 @@ function* migrateStructureforSignersInAppImage() {
     } else {
       console.log('Failed to update the update the app image with the updated the structure');
     }
+
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
+
+    console.log('updating vault');
+    const vaultResponse = yield call(updateVaultImageWorker, {
+      payload: { isUpdate: true, vault: activeVault },
+    });
   } catch (err) {}
 }
