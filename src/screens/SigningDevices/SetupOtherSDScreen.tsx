@@ -117,7 +117,7 @@ function SetupOtherSDScreen({ route }) {
           if (signer) {
             dispatch(addSigningDevice([signer], [key], addSignerFlow));
             const navigationState = addSignerFlow
-              ? { name: 'Home' }
+              ? { name: 'ManageSigners' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
             showToast(`signer added successfully`, <TickIcon />);
@@ -165,7 +165,7 @@ function SetupOtherSDScreen({ route }) {
         });
         dispatch(addSigningDevice([coldcard], [key], addSignerFlow));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
         return;
@@ -188,7 +188,7 @@ function SetupOtherSDScreen({ route }) {
             });
             dispatch(addSigningDevice([passport], [key], addSignerFlow));
             const navigationState = addSignerFlow
-              ? { name: 'Home' }
+              ? { name: 'ManageSigners' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
             return;
@@ -212,7 +212,7 @@ function SetupOtherSDScreen({ route }) {
               });
               dispatch(addSigningDevice([keystone], [key], addSignerFlow));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               return;

@@ -562,7 +562,7 @@ function PasswordEnter({
         const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
         dispatch(addSigningDevice([signer], [key], addSignerFlow));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -828,7 +828,7 @@ function HardwareModalMap({
               const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
               dispatch(addSigningDevice([signer], [key], addSignerFlow));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -885,7 +885,7 @@ function HardwareModalMap({
       } else {
         dispatch(addSigningDevice([hw.signer], [hw.key], addSignerFlow));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
@@ -1085,7 +1085,7 @@ function HardwareModalMap({
               const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
               dispatch(addSigningDevice([signer], [key], addSignerFlow));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               showToast(`${signer.signerName} added successfully`, <TickIcon />);

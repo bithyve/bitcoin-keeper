@@ -10,6 +10,7 @@ type SignerCardProps = {
   isSelected: boolean;
   onCardSelect: (cardName: string) => void;
   showSelection: boolean;
+  colorVarient: string;
 };
 
 function SignerCard({
@@ -19,16 +20,19 @@ function SignerCard({
   isSelected,
   onCardSelect,
   showSelection,
+  colorVarient = 'brown',
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
+  const backgroundColor =
+    colorVarient === 'brown' ? `${colorMode}.RussetBrown` : `${colorMode}.pantoneGreen`;
   return (
     <TouchableOpacity
       style={[styles.walletContainer, isSelected && styles.selectedCard]}
       onPress={() => onCardSelect(walletName)}
     >
-      {showSelection && <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle} />}
+      {showSelection && <Box backgroundColor={backgroundColor} style={styles.circle} />}
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.iconWrapper}>
+        <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
           {icon}
         </Box>
         <Text
@@ -56,11 +60,9 @@ const styles = StyleSheet.create({
     width: windowWidth / 3 - windowWidth * 0.04,
     padding: 10,
     height: 125,
-    alignItems: 'flex-start',
     backgroundColor: '#FDF7F0',
     borderRadius: 10,
-    borderWidth: 0.5,
-    borderColor: '#eee3d8',
+    margin: 3,
   },
   walletName: {
     fontSize: 12,
