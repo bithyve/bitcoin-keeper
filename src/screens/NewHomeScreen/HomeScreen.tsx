@@ -8,6 +8,7 @@ import AddCard from 'src/components/AddCard';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceComponent from './components/BalanceComponent';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
 import React, { useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -157,33 +158,43 @@ const NewHomeScreen = ({ navigation }) => {
           horizontal
           data={allWallets}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
+          renderItem={({ item: wallet }) => {
+            const { confirmed, unconfirmed } = wallet.specs.balances;
+            const balance = confirmed + unconfirmed;
+            const tags =
+              wallet.entityKind === EntityKind.VAULT
+                ? [
+                    `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
+                    `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
+                  ]
+                : [`SINGLE SIG`, wallet.type];
             return (
               <TouchableOpacity
                 style={styles.wallerCardWrapper}
                 onPress={() => {
-                  if (item.entityKind === EntityKind.VAULT) {
-                    switch (item.type) {
+                  if (wallet.entityKind === EntityKind.VAULT) {
+                    switch (wallet.type) {
                       case VaultType.COLLABORATIVE:
                         navigation.navigate('VaultDetails', {
-                          collaborativeWalletId: (item as Vault).collaborativeWalletId,
+                          collaborativeWalletId: (wallet as Vault).collaborativeWalletId,
                         });
                         return;
                       case VaultType.DEFAULT:
                       default:
-                        navigation.navigate('VaultDetails', { vaultId: item.id });
+                        navigation.navigate('VaultDetails', { vaultId: wallet.id });
                         return;
                     }
                   } else {
-                    navigation.navigate('WalletDetails', { walletId: item.id });
+                    navigation.navigate('WalletDetails', { walletId: wallet.id });
                   }
                 }}
               >
                 <WalletInfoCard
-                  walletName={item.presentationData.name}
-                  walletDescription={item.presentationData.description}
-                  icon={<WalletIcon />}
-                  amount={21000}
+                  tags={tags}
+                  walletName={wallet.presentationData.name}
+                  walletDescription={wallet.presentationData.description}
+                  icon={wallet.entityKind === EntityKind.VAULT ? <VaultIcon /> : <WalletIcon />}
+                  amount={balance}
                 />
               </TouchableOpacity>
             );

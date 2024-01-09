@@ -10,17 +10,30 @@ type WalletInfoCardProps = {
   walletDescription: string;
   icon: Element;
   amount: number;
+  tags: string[];
 };
 
-function WalletInfoCard({ walletName, walletDescription, icon, amount }: WalletInfoCardProps) {
+function WalletInfoCard({
+  walletName,
+  walletDescription,
+  icon,
+  amount,
+  tags,
+}: WalletInfoCardProps) {
   const { colorMode } = useColorMode();
   const { satsEnabled } = useAppSelector((state) => state.settings);
 
   return (
     <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.walletContainer}>
       <Box style={styles.pillsContainer}>
-        <CardPill heading="SINGLE SIG" cardStyles={{ backgroundColor: 'white' }} />
-        <CardPill heading="WHAT HERE?" />
+        {tags.map((tag, index) => {
+          return (
+            <CardPill
+              heading={tag}
+              cardStyles={index % 2 === 0 ? null : { backgroundColor: 'white' }}
+            />
+          );
+        })}
       </Box>
       <Box style={styles.detailContainer}>
         <Box backgroundColor={`${colorMode}.textBlack`} style={styles.iconWrapper}>
