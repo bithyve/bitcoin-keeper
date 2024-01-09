@@ -18,8 +18,9 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import { AppSigners } from '../Home/components/AppSigners';
 
-function VaultScreen() {
-  const { activeVault } = useVault();
+function VaultScreen({ route }) {
+  const { vaultId } = route.params;
+  const { activeVault } = useVault({ vaultId });
   const { colorMode } = useColorMode();
   const { vaultSigners, signers } = useSigners(activeVault ? activeVault.id : '');
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
@@ -37,7 +38,9 @@ function VaultScreen() {
 
   const onVaultPress = () => {
     if (vaultSigners.length) {
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      navigation.dispatch(
+        CommonActions.navigate({ name: 'VaultDetails', params: { vaultId: activeVault.id } })
+      );
     } else {
       navigateToHardwareSetup();
     }
@@ -111,7 +114,12 @@ function VaultScreen() {
           subTitle={vault.manageInheritance}
           iconBackColor={`${colorMode}.learnMoreBorder`}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'SetupInheritance',
+                params: { vaultId: activeVault.id },
+              })
+            );
           }}
         />
       </ScrollView>

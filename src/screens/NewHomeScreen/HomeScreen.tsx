@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActionCard from 'src/components/ActionCard';
@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { VisibilityType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
@@ -26,6 +26,7 @@ import idx from 'idx';
 import AddWalletModal from '../Home/components/AddWalletModal';
 import { CommonActions } from '@react-navigation/native';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
   let totalConfirmedBalance = 0;
@@ -45,11 +46,10 @@ const NewHomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
-  const { activeVault } = useVault();
+  const { allVaults } = useVault({});
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
-  const allVaults = [activeVault, ...collaborativeWallets];
   const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
     (item) => item !== null
   );
@@ -159,14 +159,33 @@ const NewHomeScreen = ({ navigation }) => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
             return (
-              <Box style={styles.wallerCardWrapper}>
+              <TouchableOpacity
+                style={styles.wallerCardWrapper}
+                onPress={() => {
+                  if (item.entityKind === EntityKind.VAULT) {
+                    switch (item.type) {
+                      case VaultType.COLLABORATIVE:
+                        navigation.navigate('VaultDetails', {
+                          collaborativeWalletId: (item as Vault).collaborativeWalletId,
+                        });
+                        return;
+                      case VaultType.DEFAULT:
+                      default:
+                        navigation.navigate('VaultDetails', { vaultId: item.id });
+                        return;
+                    }
+                  } else {
+                    navigation.navigate('WalletDetails', { walletId: item.id });
+                  }
+                }}
+              >
                 <WalletInfoCard
                   walletName={item.presentationData.name}
                   walletDescription={item.presentationData.description}
                   icon={<WalletIcon />}
                   amount={21000}
                 />
-              </Box>
+              </TouchableOpacity>
             );
           }}
           ListFooterComponent={() => (

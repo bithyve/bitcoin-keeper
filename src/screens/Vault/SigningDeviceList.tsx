@@ -39,8 +39,11 @@ type HWProps = {
 
 function SigningDeviceList() {
   const route = useRoute();
-  const { scheme, addSignerFlow = false }: { scheme: VaultScheme; addSignerFlow: boolean } =
-    route.params as any;
+  const {
+    scheme,
+    addSignerFlow = false,
+    vaultId,
+  }: { scheme: VaultScheme; addSignerFlow: boolean; vaultId: string } = route.params as any;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
@@ -148,6 +151,7 @@ function SigningDeviceList() {
           isMultisig={isMultisig}
           primaryMnemonic={primaryMnemonic}
           addSignerFlow={addSignerFlow}
+          vaultId={vaultId}
         />
       </React.Fragment>
     );

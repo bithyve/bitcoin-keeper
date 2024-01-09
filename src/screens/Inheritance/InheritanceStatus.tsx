@@ -32,7 +32,8 @@ import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import KeeperHeader from 'src/components/KeeperHeader';
 
-function InheritanceStatus() {
+function InheritanceStatus({ route }) {
+  const { vaultId } = route.params;
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
@@ -43,7 +44,7 @@ function InheritanceStatus() {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const fingerPrints = activeVault.signers.map((signer) => signer.masterFingerprint);
 
   const descriptorString = genrateOutputDescriptors(activeVault);

@@ -5,7 +5,7 @@ import { useNavigation, CommonActions } from '@react-navigation/native';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import Text from 'src/components/KeeperText';
 
-const IdentifySignerModal = ({ visible, close, signer, secondaryCallback }) => {
+const IdentifySignerModal = ({ visible, close, signer, secondaryCallback, vaultId }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const Content = useCallback(() => {
@@ -31,6 +31,7 @@ const IdentifySignerModal = ({ visible, close, signer, secondaryCallback }) => {
         params: {
           parentNavigation: navigation,
           signer,
+          vaultId,
         },
       })
     );

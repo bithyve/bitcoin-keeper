@@ -13,16 +13,17 @@ import useBalance from 'src/hooks/useBalance';
 import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
 
-function ArchivedVault() {
+function ArchivedVault({ navigation }) {
   const { colorMode } = useColorMode();
   const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => vault.archived);
   const { getBalance } = useBalance();
 
-  function VaultItem({ vaultItem, index }: { vaultItem: Vault; index: number }) {
+  function VaultItem({ vaultItem }: { vaultItem: Vault }) {
     return (
       <Pressable
+        onPress={() => navigation.navigate('VaultDetails', { vaultId: vaultItem.id })}
         backgroundColor="light.primaryBackground"
         height={hp(135)}
         width={wp(300)}
@@ -87,12 +88,11 @@ function ArchivedVault() {
             </Text>
           </Box>
         </Box>
-        <Box>{/* <Arrow /> */}</Box>
       </Pressable>
     );
   }
 
-  const renderArchiveVaults = ({ item, index }) => <VaultItem vaultItem={item} index={index} />;
+  const renderArchiveVaults = ({ item }) => <VaultItem vaultItem={item} />;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

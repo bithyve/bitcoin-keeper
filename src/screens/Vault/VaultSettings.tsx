@@ -51,11 +51,12 @@ function VaultCard({ vaultName, vaultBalance, vaultDescription, getSatUnit }) {
   );
 }
 
-function VaultSettings() {
+function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { getSatUnit, getBalance } = useBalance();
-  const { activeVault: vault } = useVault();
+  const { vaultId } = route.params;
+  const { activeVault: vault } = useVault({ vaultId });
   const descriptorString = genrateOutputDescriptors(vault);
 
   const {

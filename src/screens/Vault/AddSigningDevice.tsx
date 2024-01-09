@@ -50,12 +50,14 @@ function SignerItem({
   setInheritanceInit,
   isInheritance,
   scheme,
+  vaultId,
 }: {
   vaultSigner: VaultSigner | undefined;
   index: number;
   setInheritanceInit: any;
   isInheritance: boolean;
   scheme: { m: number; n: number };
+  vaultId: string;
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -65,7 +67,7 @@ function SignerItem({
 
   const removeSigner = () => dispatch(removeSigningDevice(vaultSigner));
   const navigateToSignerList = () =>
-    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }));
+    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme, vaultId }));
 
   const callback = () => {
     if (index === 5 && isInheritance) {
@@ -189,10 +191,15 @@ function SignerItem({
 function AddSigningDevice() {
   const { colorMode } = useColorMode();
   const [vaultCreating, setCreating] = useState(false);
-  const { activeVault } = useVault();
   const navigation = useNavigation();
   const route = useRoute() as {
-    params: { isInheritance: boolean; scheme: VaultScheme; name: string; description: string };
+    params: {
+      isInheritance: boolean;
+      scheme: VaultScheme;
+      name: string;
+      description: string;
+      vaultId: string;
+    };
   };
   const dispatch = useDispatch();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
@@ -200,8 +207,15 @@ function AddSigningDevice() {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [inheritanceInit, setInheritanceInit] = useState(false);
+  const {
+    name = 'Vault',
+    description = 'Secure your sats',
+    isInheritance = false,
+    vaultId = '',
+  } = route.params;
 
-  const { name = 'Vault', description = 'Secure your sats', isInheritance = false } = route.params;
+  const { activeVault = null } = useVault({ vaultId });
+
   let { scheme } = route.params;
   if (scheme && isInheritance) {
     scheme = { m: scheme.m, n: scheme.n + 1 };
@@ -239,6 +253,7 @@ function AddSigningDevice() {
       setInheritanceInit={setInheritanceInit}
       scheme={scheme}
       isInheritance={isInheritance}
+      vaultId={vaultId}
     />
   );
 
@@ -264,6 +279,7 @@ function AddSigningDevice() {
         scheme={scheme}
         name={name}
         description={description}
+        vaultId={vaultId}
       />
       <FlatList
         keyboardShouldPersistTaps="always"

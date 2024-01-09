@@ -59,7 +59,7 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
 
 function RegisterWithChannel() {
   const { params } = useRoute();
-  const { vaultKey } = params as { vaultKey: VaultSigner };
+  const { vaultKey, vaultId } = params as { vaultKey: VaultSigner; vaultId: string };
   const { signer } = useSignerFromKey(vaultKey);
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -68,7 +68,7 @@ function RegisterWithChannel() {
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
-  const { activeVault: vault } = useVault();
+  const { activeVault: vault } = useVault({ vaultId });
 
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;

@@ -27,11 +27,12 @@ function VaultMigrationController({
   setCreating,
   name,
   description,
+  vaultId,
 }: any) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
     (state) => state.network.averageTxFees
@@ -59,7 +60,10 @@ function VaultMigrationController({
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+          {
+            name: 'VaultDetails',
+            params: { vaultId, vaultTransferSuccessful: true },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -171,7 +175,7 @@ function VaultMigrationController({
               { name: 'Home' },
               {
                 name: 'VaultDetails',
-                params: { autoRefresh: true },
+                params: { autoRefresh: true, vaultId: activeVault.id },
               },
             ],
           })

@@ -17,12 +17,12 @@ import UAIView from './components/HeaderDetails/components/UAIView';
 
 const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
 
-function UaiDisplay({ uaiStack }) {
+function UaiDisplay({ uaiStack, vaultId }) {
   const [uai, setUai] = useState<UAI | {}>({});
   const [uaiConfig, setUaiConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [modalActionLoader, setmodalActionLoader] = useState(false);
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
@@ -52,10 +52,10 @@ function UaiDisplay({ uaiStack }) {
           cta: () => {
             activeVault
               ? navigtaion.navigate('SendConfirmation', {
-                uaiSetActionFalse,
-                walletId: uai?.entityId,
-                transferType: TransferType.WALLET_TO_VAULT,
-              })
+                  uaiSetActionFalse,
+                  walletId: uai?.entityId,
+                  transferType: TransferType.WALLET_TO_VAULT,
+                })
               : showToast('No vaults found', <ToastErrorIcon />);
 
             setShowModal(false);
@@ -72,7 +72,7 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
         return {
           cta: () => {
-            navigtaion.navigate('VaultDetails');
+            navigtaion.navigate('VaultDetails', { vaultId: activeVault.id });
           },
         };
       case uaiType.VAULT_MIGRATION:
@@ -117,7 +117,7 @@ function UaiDisplay({ uaiStack }) {
         return {
           cta: () => {
             activeVault
-              ? navigtaion.navigate('VaultDetails')
+              ? navigtaion.navigate('VaultDetails', { vaultId: activeVault.id })
               : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
@@ -125,7 +125,7 @@ function UaiDisplay({ uaiStack }) {
         return {
           cta: () => {
             activeVault
-              ? navigtaion.navigate('VaultDetails')
+              ? navigtaion.navigate('VaultDetails', { vaultId: activeVault.id })
               : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
