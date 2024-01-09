@@ -431,66 +431,60 @@ function* recoverApp(
     const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
     console.log({ previousVersion });
     if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
-      console.log('aaplying the vault migrations befroe restoring');
-      const oldVault = vault;
-      const newVaults = {};
-      for (const objectIndex in oldVault) {
-        if (oldVault[objectIndex]?.signers?.length) {
-          const newVaultKeys = newVaults[objectIndex].signers;
-          oldVault[objectIndex].signers.forEach((signer, index) => {
-            newVaultKeys[index].xfp = signer.signerId;
-            newVaultKeys[index].registeredVaults.push({
-              vaultId: oldVault[objectIndex].id,
+      if (vault?.signers?.length) {
+        vault.signers.forEach((signer, index) => {
+          signer.xfp = signer.signerId;
+          signer.registeredVaults = [
+            {
+              vaultId: vault.id,
               registered: signer.registered,
               registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
-            });
-          });
-        }
+            },
+          ];
+        });
       }
-      oldVault.forEach(function* (vault) {
-        if (vault.signers.length) {
-          for (const realmSigner of vault.signers) {
-            const signer = getJSONFromRealmObject(realmSigner);
-            const signerXpubs = {};
-            Object.keys(signer.xpubDetails).forEach((type) => {
-              if (signer.xpubDetails[type].xpub) {
-                if (signerXpubs[type]) {
-                  signerXpubs[type].push({
+
+      if (vault.signers.length) {
+        for (const signer of vault.signers) {
+          const signerXpubs = {};
+          Object.keys(signer.xpubDetails).forEach((type) => {
+            if (signer.xpubDetails[type].xpub) {
+              if (signerXpubs[type]) {
+                signerXpubs[type].push({
+                  xpub: signer.xpubDetails[type].xpub,
+                  xpriv: signer.xpubDetails[type].xpriv,
+                  derivationPath: signer.xpubDetails[type].derivationPath,
+                });
+              } else {
+                signerXpubs[type] = [
+                  {
                     xpub: signer.xpubDetails[type].xpub,
                     xpriv: signer.xpubDetails[type].xpriv,
                     derivationPath: signer.xpubDetails[type].derivationPath,
-                  });
-                } else {
-                  signerXpubs[type] = [
-                    {
-                      xpub: signer.xpubDetails[type].xpub,
-                      xpriv: signer.xpubDetails[type].xpriv,
-                      derivationPath: signer.xpubDetails[type].derivationPath,
-                    },
-                  ];
-                }
+                  },
+                ];
               }
-            });
-            const signerObject = {
-              masterFingerprint: signer.masterFingerprint,
-              type: signer.type,
-              signerName: signer.signerName,
-              signerDescription: signer.signerDescription,
-              lastHealthCheck: signer.lastHealthCheck,
-              addedOn: signer.addedOn,
-              isMock: signer.isMock,
-              storageType: signer.storageType,
-              signerPolicy: signer.signerPolicy,
-              inheritanceKeyInfo: signer.inheritanceKeyInfo,
-              hidden: false,
-              signerXpubs,
-            };
-            yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
-          }
+            }
+          });
+          const signerObject = {
+            masterFingerprint: signer.masterFingerprint,
+            type: signer.type,
+            signerName: signer.signerName,
+            signerDescription: signer.signerDescription,
+            lastHealthCheck: signer.lastHealthCheck,
+            addedOn: signer.addedOn,
+            isMock: signer.isMock,
+            storageType: signer.storageType,
+            signerPolicy: signer.signerPolicy,
+            inheritanceKeyInfo: signer.inheritanceKeyInfo,
+            hidden: false,
+            signerXpubs,
+          };
+          yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
         }
-      });
+      }
 
-      yield call(dbManager.createObject, RealmSchema.Vault, newVaults);
+      yield call(dbManager.createObject, RealmSchema.Vault, vault);
     }
     yield call(dbManager.createObject, RealmSchema.Vault, vault);
   }
