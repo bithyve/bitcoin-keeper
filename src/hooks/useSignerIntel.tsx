@@ -54,8 +54,8 @@ const areSignersSame = ({ activeVault, signersState }) => {
 //   return signer;
 // };
 
-const useSignerIntel = ({ scheme }) => {
-  const { activeVault } = useVault();
+const useSignerIntel = ({ scheme, vaultId }) => {
+  const { activeVault } = useVault({ vaultId });
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
   const { validSigners } = useSubscription();

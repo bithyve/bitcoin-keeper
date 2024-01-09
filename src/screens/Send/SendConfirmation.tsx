@@ -674,6 +674,7 @@ function SendConfirmation({ route }) {
           note,
           label,
           collaborativeWalletId,
+          vaultId: sender.id,
         })
       );
     }

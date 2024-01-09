@@ -1,23 +1,43 @@
 import { RealmSchema } from 'src/storage/realm/enum';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { VaultType } from 'src/core/wallets/enums';
 import useCollaborativeWallet from './useCollaborativeWallet';
 import { useQuery } from '@realm/react';
 
-const useVault = (collaborativeWalletId?: string) => {
+type Params =
+  | {
+      collaborativeWalletId?: string;
+      vaultId: string;
+      includeArchived?: boolean;
+    }
+  | {
+      collaborativeWalletId: string;
+      vaultId?: string;
+      includeArchived?: boolean;
+    }
+  | { collaborativeWalletId?: string; vaultId?: string; includeArchived?: boolean };
+
+const useVault = ({ collaborativeWalletId = '', vaultId = '', includeArchived = true }: Params) => {
   const { collaborativeWallet } = useCollaborativeWallet(collaborativeWalletId);
-  if (collaborativeWallet) {
-    return { activeVault: collaborativeWallet };
+  let allVaults: Vault[] = useQuery(RealmSchema.Vault);
+
+  allVaults = includeArchived
+    ? allVaults.map(getJSONFromRealmObject)
+    : allVaults.filtered('archived != true').map(getJSONFromRealmObject);
+
+  if (!collaborativeWalletId && !vaultId) {
+    return { allVaults, activeVault: allVaults[0] };
   }
 
-  const activeVault: Vault =
-    useQuery(RealmSchema.Vault)
-      .map(getJSONFromRealmObject)
-      .filter((vault: Vault) => !vault.archived && vault.type !== VaultType.COLLABORATIVE)[0] ||
-    null;
+  if (collaborativeWallet) {
+    return { activeVault: collaborativeWallet, allVaults };
+  }
 
-  return { activeVault };
+  const activeVault: Vault = vaultId
+    ? allVaults.filter((v) => v.id === vaultId)[0]
+    : allVaults.filter((v) => !v.archived)[0];
+
+  return { activeVault, allVaults };
 };
 
 export default useVault;

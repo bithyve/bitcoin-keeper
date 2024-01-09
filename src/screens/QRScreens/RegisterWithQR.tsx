@@ -19,9 +19,9 @@ const { width } = Dimensions.get('window');
 const SPECTER_PREFIX = 'addwallet keeper vault&';
 
 function RegisterWithQR({ route, navigation }: any) {
-  const { vaultKey }: { vaultKey: VaultSigner } = route.params;
+  const { vaultKey, vaultId = '' }: { vaultKey: VaultSigner; vaultId: string } = route.params;
   const dispatch = useDispatch();
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER

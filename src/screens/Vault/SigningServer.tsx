@@ -27,7 +27,8 @@ function SigningServer({ navigation }) {
           justifyContent: 'center',
           alignItems: 'center',
         }}
-        backgroundColor={`${colorMode}.coffeeBackground`}>
+        backgroundColor={`${colorMode}.coffeeBackground`}
+      >
         <Icon />
       </Box>
     );

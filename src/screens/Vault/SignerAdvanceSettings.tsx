@@ -28,7 +28,8 @@ const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer, vaultKey }: { signer: Signer; vaultKey: VaultSigner } = route.params;
+  const { signer, vaultKey, vaultId }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } =
+    route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
@@ -38,7 +39,7 @@ function SignerAdvanceSettings({ route }: any) {
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
 
   const registerColdCard = async () => {
     await withNfcModal(() => registerToColcard({ vault: activeVault }));
@@ -87,6 +88,7 @@ function SignerAdvanceSettings({ route }: any) {
           exceptions,
           update: true,
           signer,
+          vaultId,
         },
       })
     );
@@ -114,6 +116,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           parentNavigation: navigation,
           signer,
+          vaultId,
         },
       })
     );

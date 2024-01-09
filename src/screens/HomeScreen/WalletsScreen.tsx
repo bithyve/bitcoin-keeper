@@ -537,7 +537,7 @@ const WalletsScreen = ({ navigation }) => {
         }
         <Box style={styles.actionContainer}>
           {dummyData.map((data, index) => (
-            <ActionCard key={`${index}_${data.name}`} cardName={data.name} />
+            <ActionCard key={`${index}_${data.name}`} data={data} />
           ))}
         </Box>
         <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }}>

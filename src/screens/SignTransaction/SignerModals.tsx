@@ -463,6 +463,7 @@ function SignerModals({
         signTransaction,
         vaultKey,
         collaborativeWalletId,
+        vaultId,
       })
     );
   };
@@ -476,6 +477,7 @@ function SignerModals({
         signTransaction,
         vaultKey,
         collaborativeWalletId,
+        vaultId,
       })
     );
   };
@@ -488,7 +490,12 @@ function SignerModals({
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
             navigation.dispatch(
-              CommonActions.navigate('SignWithTapsigner', { signTransaction, vaultKey, textRef })
+              CommonActions.navigate('SignWithTapsigner', {
+                signTransaction,
+                vaultKey,
+                textRef,
+                vaultId,
+              })
             );
           };
           return (
@@ -509,7 +516,12 @@ function SignerModals({
           const navigateToSignWithColdCard = () => {
             setColdCardModal(false);
             navigation.dispatch(
-              CommonActions.navigate('SignWithColdCard', { signTransaction, vaultKey, isMultisig })
+              CommonActions.navigate('SignWithColdCard', {
+                signTransaction,
+                vaultKey,
+                isMultisig,
+                vaultId,
+              })
             );
           };
           const shouldRegister = isMultisig && !info?.registered;

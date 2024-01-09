@@ -669,6 +669,7 @@ function HardwareModalMap({
   primaryMnemonic,
   vaultShellId,
   addSignerFlow = false,
+  vaultId,
 }: {
   type: SignerType;
   visible: boolean;
@@ -680,6 +681,7 @@ function HardwareModalMap({
   primaryMnemonic?: string;
   vaultShellId?: string;
   addSignerFlow: boolean;
+  vaultId: string;
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -769,7 +771,10 @@ function HardwareModalMap({
       }
     } else {
       navigation.dispatch(
-        CommonActions.navigate({ name: 'ChoosePolicyNew', params: { signer, addSignerFlow } })
+        CommonActions.navigate({
+          name: 'ChoosePolicyNew',
+          params: { signer, addSignerFlow, vaultId },
+        })
       );
     }
   };

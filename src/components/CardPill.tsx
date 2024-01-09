@@ -14,7 +14,7 @@ function CardPill({ heading, cardStyles }: CardPillProps) {
       backgroundColor={`${colorMode}.LightKhaki`}
       style={[styles.pillContainer, cardStyles && cardStyles]}
     >
-      <Text style={styles.heading} color={`${colorMode}.SlateGrey`} numberOfLines={1}>
+      <Text bold style={styles.heading} color={`${colorMode}.SlateGrey`} numberOfLines={1}>
         {heading}
       </Text>
     </Box>
@@ -23,7 +23,7 @@ function CardPill({ heading, cardStyles }: CardPillProps) {
 
 const styles = StyleSheet.create({
   pillContainer: {
-    width: 51,
+    paddingHorizontal: '6%',
     height: 17,
     borderRadius: 15,
     alignItems: 'center',
@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 8,
+    lineHeight: 17,
   },
 });
 

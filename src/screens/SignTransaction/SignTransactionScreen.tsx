@@ -48,17 +48,25 @@ function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, collaborativeWalletId } = (route.params || {
+  const { note, label, collaborativeWalletId, vaultId } = (route.params || {
     note: '',
     label: [],
     collaborativeWalletId: '',
+    vaultId: '',
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
     collaborativeWalletId: string;
+    vaultId: string;
   };
-  const { activeVault: defaultVault } = useVault(collaborativeWalletId);
-  const { signers: vaultKeys, id: vaultId, scheme } = defaultVault;
+
+  const { activeVault: defaultVault } = useVault({
+    collaborativeWalletId,
+    vaultId,
+  });
+
+  const { signers: vaultKeys, scheme } = defaultVault;
+
   const { signerMap } = useSignerMap();
   const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
   let parentCollaborativeWallet: Wallet;

@@ -26,7 +26,7 @@ const getStyles = (colorMode) =>
   StyleSheet.create({
     walletWrapper: {
       justifyContent: 'center',
-      marginTop: 44,
+      marginTop: 20,
     },
     noOfWallet: {
       textAlign: 'center',
