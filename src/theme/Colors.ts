@@ -50,6 +50,8 @@ const Colors = {
   MintWhisper: 'rgba(45, 103, 89, 0.08)',
   GreenishBlue: 'rgba(45, 103, 89, 1)',
   GreenishGrey: 'rgba(62, 82, 77, 1)',
+  Linen: 'rgba(240, 235, 230, 1)',
+
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',
   SlateGrey: 'rgba(36,49,46,1)',
