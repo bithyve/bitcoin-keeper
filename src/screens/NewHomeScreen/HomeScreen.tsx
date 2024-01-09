@@ -47,7 +47,7 @@ const NewHomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
-  const { allVaults } = useVault({});
+  const { allVaults } = useVault({ includeArchived: false });
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );

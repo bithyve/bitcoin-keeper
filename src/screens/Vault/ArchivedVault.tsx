@@ -12,6 +12,7 @@ import BTC from 'src/assets/images/btc_black.svg';
 import useBalance from 'src/hooks/useBalance';
 import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
+import { CommonActions } from '@react-navigation/native';
 
 function ArchivedVault({ navigation }) {
   const { colorMode } = useColorMode();
@@ -23,7 +24,15 @@ function ArchivedVault({ navigation }) {
   function VaultItem({ vaultItem }: { vaultItem: Vault }) {
     return (
       <Pressable
-        onPress={() => navigation.navigate('VaultDetails', { vaultId: vaultItem.id })}
+        onPress={() =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'VaultDetails',
+              params: { vaultId: vaultItem.id },
+              merge: true,
+            })
+          )
+        }
         backgroundColor="light.primaryBackground"
         height={hp(135)}
         width={wp(300)}
