@@ -40,12 +40,20 @@ function WalletCard({
           >
             {isSelected ? selectedIcon : icon}
           </Box>
-          <Text color={isSelected ? `${colorMode}.white` : `${colorMode}.black`} numberOfLines={1}>
-            {walletName}
-          </Text>
-          <Text color={isSelected ? `${colorMode}.white` : `${colorMode}.black`} numberOfLines={1}>
-            {walletDescription}
-          </Text>
+          <Box>
+            <Text
+              color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
+              numberOfLines={1}
+            >
+              {walletName}
+            </Text>
+            <Text
+              color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
+              numberOfLines={1}
+            >
+              {walletDescription}
+            </Text>
+          </Box>
         </Box>
       </Box>
       {isSelected && (
