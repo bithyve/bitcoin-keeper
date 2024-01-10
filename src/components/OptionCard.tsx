@@ -10,12 +10,20 @@ type OptionProps = {
   callback: () => void;
   Icon?: Element;
   LeftIcon?: Element;
+  disabled?: boolean;
 };
 
-export function OptionCard({ title, description, Icon, callback, LeftIcon }: OptionProps) {
+export function OptionCard({
+  title,
+  description,
+  Icon,
+  callback,
+  LeftIcon,
+  disabled = false,
+}: OptionProps) {
   const { colorMode } = useColorMode();
   return (
-    <Pressable onPress={callback}>
+    <Pressable onPress={callback} disabled={disabled}>
       <HStack
         padding={3}
         width={windowWidth * 0.9}
