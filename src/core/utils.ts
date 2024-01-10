@@ -2,9 +2,7 @@ import { EntityKind } from './wallets/enums';
 import { Vault, VaultScheme, VaultSigner } from './wallets/interfaces/vault';
 import { Wallet } from './wallets/interfaces/wallet';
 import WalletOperations from './wallets/operations';
-const cryptoJS = require('crypto');
-
-// GENRATOR
+const crypto = require('crypto');
 
 export const getDerivationPath = (derivationPath: string) =>
   derivationPath.substring(2).split("'").join('h');
@@ -195,17 +193,11 @@ export const urlParamsToObj = (url: string): object => {
 
 export const createCipheriv = (data: string, password: string) => {
   const algorithm = 'aes-256-cbc';
-  const iv = cryptoJS.randomBytes(16);
-  // Creating Cipheriv with its parameter
-  const cipher = cryptoJS.createCipheriv(algorithm, Buffer.from(password, 'hex'), iv);
-
-  // Updating text
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(password, 'hex'), iv);
   let encrypted = cipher.update(data);
-
-  // Using concatenation
   encrypted = Buffer.concat([encrypted, cipher.final()]);
 
-  // Returning iv and encrypted data
   return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
 };
 
@@ -213,7 +205,7 @@ export const createDecipheriv = (data: { iv: string; encryptedData: string }, pa
   const algorithm = 'aes-256-cbc';
   const encryptedText = Buffer.from(data.encryptedData, 'hex');
   // Creating Decipher
-  const decipher = cryptoJS.createDecipheriv(
+  const decipher = crypto.createDecipheriv(
     algorithm,
     Buffer.from(password, 'hex'),
     Buffer.from(data.iv, 'hex')
