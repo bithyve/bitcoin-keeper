@@ -106,7 +106,9 @@ function ChoosePolicyNew({ navigation, route }) {
       exceptions,
     };
     const verificationToken = Number(otp);
-    dispatch(updateSignerPolicy(route.params.signer, updates, verificationToken));
+    dispatch(
+      updateSignerPolicy(route.params.signer, route.params.vaultKey, updates, verificationToken)
+    );
     navigation.dispatch(
       CommonActions.navigate({
         name: 'VaultDetails',

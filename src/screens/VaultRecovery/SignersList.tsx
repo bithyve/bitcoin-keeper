@@ -23,7 +23,7 @@ import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getJadeDetails } from 'src/hardware/jade';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { crossInteractionHandler } from 'src/utils/utilities';
 import SigningServer from 'src/services/operations/SigningServer';
@@ -47,7 +47,8 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { generateCosignerMapXfps } from 'src/core/wallets/factories/VaultFactory';
+import { generateCosignerMapIds } from 'src/core/wallets/factories/VaultFactory';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -347,6 +348,7 @@ function SignersList({ navigation }) {
     last?: boolean;
   };
   const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
   const [isNfcSupported, setNfcSupport] = useState(true);
 
   const getNfcSupport = async () => {
@@ -535,7 +537,11 @@ function SignersList({ navigation }) {
   const verifySigningServer = async (otp) => {
     try {
       if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.POLICY_SERVER);
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        signingDevices,
+        SignerType.POLICY_SERVER
+      );
       const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
       if (response.xpub) {
         const { signer: signingServerKey } = generateSignerFromMetaData({
@@ -561,7 +567,11 @@ function SignersList({ navigation }) {
   const requestInheritanceKey = async (signers: VaultSigner[]) => {
     try {
       if (signers.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        signingDevices,
+        SignerType.INHERITANCEKEY
+      );
 
       const requestId = `request-${generateKey(10)}`;
       const thresholdDescriptors = signers.map((signer) => signer.xfp);

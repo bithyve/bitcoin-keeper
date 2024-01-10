@@ -77,7 +77,7 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
-  const navigateToPolicyChange = (signer: Signer) => {
+  const navigateToPolicyChange = () => {
     const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
     const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
@@ -86,9 +86,10 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           restrictions,
           exceptions,
-          update: true,
+          isUpdate: true,
           signer,
           vaultId,
+          vaultKey,
         },
       })
     );
@@ -133,10 +134,6 @@ function SignerAdvanceSettings({ route }: any) {
   const isOtherSD = signer.type === SignerType.OTHER_SD;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
-  const changePolicy = () => {
-    if (isPolicyServer) navigateToPolicyChange(signer);
-  };
-
   const { font12, font10, font14 } = globalStyles;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -178,7 +175,7 @@ function SignerAdvanceSettings({ route }: any) {
         <OptionCard
           title="Change Verification & Policy"
           description="Restriction and threshold"
-          callback={changePolicy}
+          callback={navigateToPolicyChange}
         />
       )}
       {isTapsigner && (
