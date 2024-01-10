@@ -47,6 +47,7 @@ export type signerXpubs = {
 export interface Signer {
   // Represents a h/w or s/w wallet(Signer)
   // Rel: Signer hosts multiple VaultSigners(key), diff derivation paths
+  // Note: Assisted Keys(IKS and SS) can only have one key(VaultSigner) per Signer
   type: SignerType;
   storageType: SignerStorage;
   isMock?: boolean;

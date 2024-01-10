@@ -981,17 +981,19 @@ export const updateWalletSettingsWatcher = createWatcher(
 export function* updateSignerPolicyWorker({
   payload,
 }: {
-  payload: { signer; updates; verificationToken };
+  payload: { signer; signingKey; updates; verificationToken };
 }) {
   const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
   const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
   const {
     signer,
+    signingKey,
     updates,
     verificationToken,
   }: {
-    signer: VaultSigner;
+    signer: Signer;
+    signingKey: VaultSigner;
     updates: {
       restrictions?: SignerRestriction;
       exceptions?: SignerException;
@@ -1000,7 +1002,7 @@ export function* updateSignerPolicyWorker({
   } = payload;
   const { updated } = yield call(
     SigningServer.updatePolicy,
-    signer.xfp,
+    signingKey.xfp,
     verificationToken,
     updates
   );
@@ -1008,25 +1010,28 @@ export function* updateSignerPolicyWorker({
     Alert.alert('Failed to update signer policy, try again.');
     throw new Error('Failed to update the policy');
   }
-  const signerMap = {};
-  dbManager
-    .getCollection(RealmSchema.Signer)
-    .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
   const { signers } = activeVault;
   for (const current of signers) {
-    if (current.xfp === signer.xfp) {
-      signerMap[current.masterFingerprint].signerPolicy = {
-        ...signerMap[current.masterFingerprint].signerPolicy,
+    if (current.xfp === signingKey.xfp) {
+      const updatedSignerPolicy = {
+        ...signer.signerPolicy,
         restrictions: updates.restrictions,
         exceptions: updates.exceptions,
       };
+
+      yield call(
+        dbManager.updateObjectByPrimaryId,
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          signerPolicy: updatedSignerPolicy,
+        }
+      );
       break;
     }
   }
-  yield call(dbManager.updateObjectById, RealmSchema.Vault, activeVault.id, {
-    signers,
-  });
 }
 
 export const updateSignerPolicyWatcher = createWatcher(
