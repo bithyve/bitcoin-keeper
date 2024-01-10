@@ -51,9 +51,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
     alignItems: 'center',
   },
-  selectedCard: {
-    backgroundColor: '#2e6759',
-  },
   iconWrapper: {
     width: 34,
     height: 34,

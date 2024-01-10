@@ -5,8 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActionCard from 'src/components/ActionCard';
 import WalletInfoCard from 'src/components/WalletInfoCard';
 import AddCard from 'src/components/AddCard';
-import HomeScreenWrapper from './components/HomeScreenWrapper';
-import BalanceComponent from './components/BalanceComponent';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import React, { useEffect, useState } from 'react';
@@ -24,9 +22,11 @@ import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
-import AddWalletModal from '../Home/components/AddWalletModal';
 import { CommonActions } from '@react-navigation/native';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import AddWalletModal from '../Home/components/AddWalletModal';
+import BalanceComponent from './components/BalanceComponent';
+import HomeScreenWrapper from './components/HomeScreenWrapper';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -42,7 +42,7 @@ const calculateBalancesForVaults = (vaults) => {
   return totalUnconfirmedBalance + totalConfirmedBalance;
 };
 
-const NewHomeScreen = ({ navigation }) => {
+function NewHomeScreen({ navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
@@ -168,7 +168,7 @@ const NewHomeScreen = ({ navigation }) => {
                     `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
                     `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
                   ]
-                : [`SINGLE SIG`, wallet.type];
+                : ['SINGLE SIG', wallet.type];
             return (
               <TouchableOpacity
                 style={styles.wallerCardWrapper}
@@ -183,7 +183,6 @@ const NewHomeScreen = ({ navigation }) => {
                       case VaultType.DEFAULT:
                       default:
                         navigation.navigate('VaultDetails', { vaultId: wallet.id });
-                        return;
                     }
                   } else {
                     navigation.navigate('WalletDetails', { walletId: wallet.id });
@@ -202,13 +201,14 @@ const NewHomeScreen = ({ navigation }) => {
           }}
           ListFooterComponent={() => (
             <AddCard
-              name={'Add'}
+              name="Add"
               cardStyles={{ height: 260, width: 130 }}
-              callback={() => setAddImportVisible(true)}
+              callback={() => navigation.navigate('AddWallet')}
+              // callback={() => setAddImportVisible(true)}
             />
           )}
         />
-        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }}></Box>
+        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }} />
       </Box>
       <AddWalletModal
         navigation={navigation}
@@ -220,7 +220,7 @@ const NewHomeScreen = ({ navigation }) => {
       />
     </Box>
   );
-};
+}
 export default NewHomeScreen;
 
 const getStyles = (colorMode) =>

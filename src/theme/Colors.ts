@@ -57,6 +57,8 @@ const Colors = {
   SlateGrey: 'rgba(36,49,46,1)',
   LightKhaki: 'rgba(217,209,169,1)',
   Greige: 'rgba(93, 110, 106, 0.6)',
+  Eggshell: 'rgba(238,227,216,1)',
+  Teal: 'rgba(46,103,89,1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',

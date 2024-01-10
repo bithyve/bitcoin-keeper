@@ -120,6 +120,8 @@ export const customTheme = extendTheme({
       SlateGrey: Colors.SlateGrey,
       LightKhaki: Colors.LightKhaki,
       Greige: Colors.Greige,
+      Eggshell: Colors.Eggshell,
+      Teal: Colors.Teal,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -190,6 +192,8 @@ export const customTheme = extendTheme({
       SlateGrey: Colors.SlateGrey,
       LightKhaki: Colors.LightKhaki,
       Greige: Colors.Greige,
+      Eggshell: Colors.Eggshell,
+      Teal: Colors.Teal,
     },
   },
   config: {
