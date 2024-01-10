@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';

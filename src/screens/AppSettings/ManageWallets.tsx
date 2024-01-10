@@ -11,7 +11,9 @@ import { VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
-import AlignIcon from 'src/assets/images/align_right.svg';
+import UnhideWalletIcon from 'src/assets/images/unhide.svg';
+import ShowAllIcon from 'src/assets/images/eye_folder.svg';
+// import AlignIcon from 'src/assets/images/align_right.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
@@ -61,7 +63,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     gap: 5,
-    width: '100%',
   },
   iconContainer: {
     width: 30,
@@ -89,46 +90,46 @@ const styles = StyleSheet.create({
 function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
-      <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
-        <AlignIcon />
-      </TouchableOpacity>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
-        <Box style={{ flexDirection: 'row', gap: 10 }}>
-          <Box style={styles.iconContainer} backgroundColor={`${colorMode}.primaryGreenBackground`}>
-            <WalletIcon />
-          </Box>
-          <Box>
-            <Text fontSize={13} color={`${colorMode}.primaryText`}>
-              {title}
-            </Text>
-            <Text fontSize={12} color={`${colorMode}.secondaryText`}>
-              {subtitle}
-            </Text>
-          </Box>
+    // <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
+    //   <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
+    //     <AlignIcon />
+    //   </TouchableOpacity>
+    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
+      <Box style={{ flexDirection: 'row', gap: 10 }}>
+        <Box style={styles.iconContainer} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+          <WalletIcon />
         </Box>
-        <Box flexDirection="row" justifyContent="space-between">
-          <Box flexDirection="row" alignItems="center">
-            {colorMode === 'light' ? <BtcBlack /> : <BtcWhite />}
-            <Text mx={1} fontSize={14} color={`${colorMode}.primaryText`}>
-              {SatsToBtc(balance)}
-            </Text>
-          </Box>
-          <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID={`btnHide`}>
-            <Box
-              borderColor="light.RussetBrown"
-              backgroundColor="light.RussetBrown"
-              style={styles.learnMoreContainer}
-            >
-              <HideWalletIcon />
-              <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
-                {isHidden ? 'Unhide' : 'Hide'}
-              </Text>
-            </Box>
-          </TouchableOpacity>
+        <Box>
+          <Text fontSize={13} color={`${colorMode}.primaryText`}>
+            {title}
+          </Text>
+          <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+            {subtitle}
+          </Text>
         </Box>
       </Box>
+      <Box flexDirection="row" justifyContent="space-between">
+        <Box flexDirection="row" alignItems="center">
+          {colorMode === 'light' ? <BtcBlack /> : <BtcWhite />}
+          <Text mx={1} fontSize={14} color={`${colorMode}.primaryText`}>
+            {SatsToBtc(balance)}
+          </Text>
+        </Box>
+        <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID="btnHide">
+          <Box
+            borderColor="light.RussetBrown"
+            backgroundColor="light.RussetBrown"
+            style={styles.learnMoreContainer}
+          >
+            {isHidden ? <UnhideWalletIcon /> : <HideWalletIcon />}
+            <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
+              {isHidden ? 'Unhide' : 'Hide'}
+            </Text>
+          </Box>
+        </TouchableOpacity>
+      </Box>
     </Box>
+    // </Box>
   );
 }
 
@@ -286,7 +287,7 @@ function ManageWallets() {
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
-          <WalletIcon />
+          <ShowAllIcon />
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
           Show all
@@ -312,9 +313,9 @@ function ManageWallets() {
       <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle={''}
+        subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
