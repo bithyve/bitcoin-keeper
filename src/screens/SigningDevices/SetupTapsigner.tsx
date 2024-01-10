@@ -91,7 +91,7 @@ function SetupTapsigner({ route }) {
 
   const addTapsigner = React.useCallback(async () => {
     try {
-      const { xpub, derivationPath, xfp, xpubDetails } = await withModal(async () =>
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = await withModal(async () =>
         getTapsignerDetails(card, cvc, isMultisig)
       )();
       let tapsigner: Signer;
@@ -105,7 +105,7 @@ function SetupTapsigner({ route }) {
         const { signer, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp: masterFingerprint,
+          masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
           isMultisig,
@@ -119,7 +119,7 @@ function SetupTapsigner({ route }) {
         const { signer, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
           isMultisig,
@@ -141,11 +141,6 @@ function SetupTapsigner({ route }) {
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-      if (!isSignerAMF(tapsigner)) {
-        // const exsists = await checkSigningDevice(tapsigner.signerId);
-        // if (exsists)
-        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
-      }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {

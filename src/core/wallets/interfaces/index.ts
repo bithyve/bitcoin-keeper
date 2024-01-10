@@ -180,7 +180,7 @@ export interface SigningPayload {
 }
 
 export interface SerializedPSBTEnvelop {
-  signerId: string;
+  xfp: string;
   signerType: SignerType;
   serializedPSBT: string;
   signingPayload?: SigningPayload[];

@@ -29,7 +29,7 @@ import { generateCosignerMapIds, generateVaultId } from 'src/core/wallets/factor
 import config from 'src/core/config';
 import { hash256 } from 'src/services/operations/encryption';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
+// import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
 import { setTempShellId } from 'src/store/reducers/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -37,13 +37,14 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceBrown.svg';
 import TimeIcon from 'src/assets/images/time.svg';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
 import { setInheritanceRequestId, setRecoveryCreatedApp } from 'src/store/reducers/storage';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 export function formatDuration(ms) {
   const duration = moment.duration(ms);
@@ -139,6 +140,8 @@ function SuccessModalContent() {
 function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
   const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
+
   const dispatch = useDispatch();
   const {
     signingDevices,
@@ -171,8 +174,8 @@ function VaultRecovery({ navigation }) {
   const checkInheritanceKeyRequest = async (signers: VaultSigner[], requestId: string) => {
     try {
       if (signers.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signers, SignerType.INHERITANCEKEY);
-      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+      const cosignersMapIds = generateCosignerMapIds(signerMap, signers, SignerType.INHERITANCEKEY);
+      const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
@@ -197,15 +200,15 @@ function VaultRecovery({ navigation }) {
         const { signer: inheritanceKey } = generateSignerFromMetaData({
           xpub: setupInfo.inheritanceXpub,
           derivationPath: setupInfo.derivationPath,
-          xfp: setupInfo.masterFingerprint,
+          masterFingerprint: setupInfo.masterFingerprint,
           signerType: SignerType.INHERITANCEKEY,
           storageType: SignerStorage.WARM,
           isMultisig: true,
           inheritanceKeyInfo: {
             configuration: setupInfo.configuration,
-            policy: setupInfo.policy,
+            // policy: setupInfo.policy,      // policy doesn't really apply to the heir
           },
-          signerId: setupInfo.id,
+          xfp: setupInfo.id,
         });
         if (setupInfo.configuration.bsms) {
           initateRecovery(setupInfo.configuration.bsms);
@@ -221,11 +224,11 @@ function VaultRecovery({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    setsignersList(
-      signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices?.length))
-    );
-  }, [signingDevices]);
+  // useEffect(() => {
+  //   setsignersList(
+  //     signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices?.length))
+  //   );
+  // }, [signingDevices]);
 
   useEffect(() => {
     if (signersList.length === 1) {
@@ -324,7 +327,7 @@ function VaultRecovery({ navigation }) {
             <FlatList
               showsVerticalScrollIndicator={false}
               data={signersList}
-              keyExtractor={(item, index) => item?.signerId ?? index}
+              keyExtractor={(item, index) => item?.xfp ?? index}
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),

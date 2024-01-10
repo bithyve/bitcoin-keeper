@@ -140,6 +140,12 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   );
 
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+  const signerMap = {};
+  if (wallet.entityKind === EntityKind.VAULT) {
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+  }
   try {
     const { txid, serializedPSBTEnvelops, finalOutputs } = yield call(
       WalletOperations.transferST2,
@@ -147,7 +153,8 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       txPrerequisites,
       txnPriority,
       recipients,
-      customTxPrerequisites
+      customTxPrerequisites,
+      signerMap
     );
 
     switch (wallet.entityKind) {

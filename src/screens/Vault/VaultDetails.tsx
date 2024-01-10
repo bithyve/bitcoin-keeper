@@ -15,7 +15,7 @@ import Send from 'src/assets/images/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault_new.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
 import { EntityKind, SignerType } from 'src/core/wallets/enums';
@@ -45,7 +45,7 @@ import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
-import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 function Footer({
   vault,
@@ -278,7 +278,7 @@ function TransactionList({
 
 function SignerList({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
-  const { signers: keys, isMultiSig } = vault;
+  const { signers: vaultKeys, isMultiSig } = vault;
   const navigation = useNavigation();
   const [unkonwnSignerHcModal, setUnkonwnSignerHcModal] = useState(true);
 
@@ -295,33 +295,38 @@ function SignerList({ vault }: { vault: Vault }) {
       setUnkonwnSignerHcModal(true);
     }
   };
+  const { signerMap } = useSignerMap();
 
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: `${70 - keys.length}%` }}
+      style={{ position: 'absolute', top: `${70 - vaultKeys.length}%` }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
-      {keys.map((key) => {
-        const { signer } = useSignerFromKey(key);
+      {vaultKeys.map((vaultKey) => {
+        const signer = signerMap[vaultKey.masterFingerprint];
         const indicate =
-          !key?.vaultInfo?.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
+          !vaultKey?.registeredVaults?.find(
+            (info) => info.vaultId === vault.id && info.registered
+          ) &&
+          isMultiSig &&
+          !UNVERIFYING_SIGNERS.includes(signer.type) &&
+          !isSignerAMF(signer);
 
         return (
           <Box
             style={styles.signerCard}
             marginRight="3"
-            key={key.xfp}
+            key={vaultKey.xfp}
             backgroundColor={`${colorMode}.seashellWhite`}
           >
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
                   CommonActions.navigate('SigningDeviceDetails', {
-                    SignerIcon: <SignerIcon />,
-                    key: key,
-                    vaultId: vault.id,
+                    signer,
+                    vaultKey,
                   })
                 );
               }}

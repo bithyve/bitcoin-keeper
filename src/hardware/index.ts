@@ -35,14 +35,14 @@ export const UNVERIFYING_SIGNERS = [
 export const generateSignerFromMetaData = ({
   xpub,
   derivationPath,
-  xfp: masterFingerprint,
+  masterFingerprint,
   signerType,
   storageType,
   isMultisig,
   xpriv = null,
   isMock = false,
   xpubDetails = null as XpubDetailsType,
-  signerId = null,
+  xfp = null,
   signerPolicy = null,
   inheritanceKeyInfo = null,
   isAmf = false,
@@ -86,7 +86,7 @@ export const generateSignerFromMetaData = ({
   };
 
   const key: VaultSigner = {
-    xfp: signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+    xfp: xfp || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
     derivationPath,
     xpub,
     xpriv,
@@ -134,6 +134,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       break;
     case SignerType.SEEDSIGNER:
       name = 'SeedSigner';
+      break;
+    case SignerType.SPECTER:
+      name = 'Specter';
       break;
     case SignerType.BITBOX02:
       name = 'BitBox02';
@@ -199,7 +202,7 @@ export const getMockSigner = (signerType: SignerType) => {
       xpub,
       xpriv,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType,
       storageType: SignerStorage.COLD,
       isMock: true,
@@ -309,6 +312,7 @@ export const getDeviceStatus = (
     case SignerType.SEEDSIGNER:
     case SignerType.LEDGER:
     case SignerType.KEYSTONE:
+    case SignerType.SPECTER:
     default:
       return {
         message: '',
@@ -323,6 +327,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.LEDGER:
     case SignerType.PASSPORT:
     case SignerType.BITBOX02:
+    case SignerType.SPECTER:
     case SignerType.KEYSTONE: {
       return 'Register for full verification';
     }

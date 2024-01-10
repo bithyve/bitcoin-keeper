@@ -661,12 +661,10 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
-  let collaborativeWalletId;
-  if (transferType !== TransferType.WALLET_TO_VAULT) {
+  const collaborativeWalletId =
     sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
       ? sender.collaborativeWalletId
       : '';
-  }
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -683,12 +681,18 @@ function SendConfirmation({ route }) {
 
   const viewDetails = () => {
     setVisibleModal(false);
-    if (vaultTransfers.includes(transferType)) {
+    if (vaultTransfers.includes(transferType) && collaborativeWalletId) {
       const navigationState = {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+          {
+            name: 'VaultDetails',
+            params: {
+              autoRefresh: true,
+              collaborativeWalletId,
+            },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));

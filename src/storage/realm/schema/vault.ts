@@ -107,6 +107,16 @@ export const SignerXpubsSchema: ObjectSchema = {
   },
 };
 
+export const RegistrationInfoSchema: ObjectSchema = {
+  name: RealmSchema.RegistrationInfo,
+  embedded: true,
+  properties: {
+    vaultId: 'string',
+    registered: 'bool',
+    registrationInfo: 'string?',
+  },
+};
+
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
   primaryKey: 'xpub',
@@ -116,7 +126,7 @@ export const VaultSignerSchema: ObjectSchema = {
     xpriv: 'string?',
     xfp: 'string',
     derivationPath: 'string',
-    vaultInfo: `{}?`,
+    registeredVaults: `${RealmSchema.RegistrationInfo}[]`,
   },
 };
 

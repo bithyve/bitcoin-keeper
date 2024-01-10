@@ -4,7 +4,7 @@ import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import persistReducer from 'redux-persist/es/persistReducer';
-import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
+import { ADD_NEW_VAULT } from '../sagaActions/vaults';
 
 export interface VaultCreationPayload {
   hasNewVaultGenerationSucceeded: boolean;
@@ -86,17 +86,6 @@ const vaultSlice = createSlice({
     clearSigningDevice: (state) => {
       state.signers = [];
     },
-    updateSigningDevice: (state, action: PayloadAction<SignerUpdatePayload>) => {
-      const { signer, key, value } = action.payload;
-      signer[key] = value;
-      // state.signers = state.signers.map((item) => {
-      //   if (item && item.signerId === signer.signerId) {
-      //     item[key] = value;
-      //     return item;
-      //   }
-      //   return item;
-      // });
-    },
     vaultCreated: (state, action: PayloadAction<VaultCreationPayload>) => {
       const {
         hasNewVaultGenerationFailed = false,
@@ -151,10 +140,6 @@ const vaultSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // might not be the case with segregated signer addition flow
-    // builder.addCase(ADD_SIGINING_DEVICE, (state) => {
-    //   state.isGeneratingNewVault = true;
-    // });
     builder.addCase(ADD_NEW_VAULT, (state) => {
       state.isGeneratingNewVault = false;
     });
@@ -170,7 +155,6 @@ export const {
   setIntroModal,
   setSdIntroModal,
   setWhirlpoolIntro,
-  updateSigningDevice,
   clearSigningDevice,
   resetVaultMigration,
   setTempShellId,

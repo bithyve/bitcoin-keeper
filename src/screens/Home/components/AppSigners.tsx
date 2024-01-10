@@ -55,7 +55,7 @@ const AppSigners = ({ keys, navigation }) => {
               <Box
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 style={styles.vaultSigner}
-                key={signer.signerId}
+                key={signer.masterFingerprint}
               >
                 {SDIcons(signer.type, colorMode !== 'dark').Icon}
               </Box>

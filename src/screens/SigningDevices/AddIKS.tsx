@@ -79,10 +79,10 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
       const { signer: inheritanceKey, key } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp: masterFingerprint,
+        masterFingerprint,
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
-        signerId: id,
+        xfp: id,
         isMultisig: true,
       });
       setInProgress(false);

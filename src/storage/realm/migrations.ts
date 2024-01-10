@@ -1,4 +1,4 @@
-import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from './enum';
 import { getJSONFromRealmObject } from './utils';
 
@@ -12,18 +12,17 @@ export const runRealmMigrations = ({
   // vault migrations for seggregated key management
   if (oldRealm.schemaVersion < 63) {
     const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
-    const newVaults = newRealm.objects(RealmSchema.Vault) as Vault[];
+    const newVaults = newRealm.objects(RealmSchema.Vault);
     for (const objectIndex in oldVaults) {
       if (oldVaults[objectIndex]?.signers?.length) {
         const newVaultKeys = newVaults[objectIndex].signers;
         oldVaults[objectIndex].signers.forEach((signer, index) => {
           newVaultKeys[index].xfp = signer.signerId;
-          // newVaultKeys[index].vaultInfo = {
-          //   [oldVaults[objectIndex].id]: {
-          //     registered: signer.registered,
-          //     registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : undefined,
-          //   },
-          // };
+          newVaultKeys[index].registeredVaults.push({
+            vaultId: oldVaults[objectIndex].id,
+            registered: signer.registered,
+            registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
+          });
         });
       }
     }

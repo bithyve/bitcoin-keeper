@@ -4,12 +4,8 @@ import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-import {
-  addSigningDevice,
-  removeSigningDevice,
-  updateSigningDevice,
-} from 'src/store/reducers/vaults';
+import { SignerType } from 'src/core/wallets/enums';
+import { addSigningDevice, removeSigningDevice } from 'src/store/reducers/vaults';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
@@ -34,6 +30,7 @@ import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
 import AddIKS from '../SigningDevices/AddIKS';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
 const { width } = Dimensions.get('screen');
 
@@ -183,9 +180,7 @@ function SignerItem({
         visible={visible}
         close={closeDescriptionModal}
         signer={signer}
-        callback={(value: any) =>
-          dispatch(updateSigningDevice({ signer, key: 'signerDescription', value }))
-        }
+        callback={(value: any) => dispatch(updateSignerDetails(signer, 'signerDescription', value))}
       />
     </Box>
   );
@@ -251,8 +246,9 @@ function AddSigningDevice() {
 
   const subtitle =
     scheme.n > 1
-      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${isInheritance ? ' for Inheritance' : ''
-      }`
+      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
+          isInheritance ? ' for Inheritance' : ''
+        }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
   const trezorIncompatible =
@@ -274,7 +270,7 @@ function AddSigningDevice() {
         showsVerticalScrollIndicator={false}
         extraData={vaultSigners}
         data={signersState}
-        keyExtractor={(item, index) => item?.signerId ?? index}
+        keyExtractor={(item, index) => item?.xfp ?? index}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),
@@ -300,8 +296,9 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer} testID={'view_warning01'}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${scheme.n === 1 ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                scheme.n === 1 ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>

@@ -23,7 +23,7 @@ import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getJadeDetails } from 'src/hardware/jade';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { crossInteractionHandler } from 'src/utils/utilities';
 import SigningServer from 'src/services/operations/SigningServer';
@@ -48,6 +48,7 @@ import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { generateCosignerMapIds } from 'src/core/wallets/factories/VaultFactory';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -347,6 +348,7 @@ function SignersList({ navigation }) {
     last?: boolean;
   };
   const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
   const [isNfcSupported, setNfcSupport] = useState(true);
 
   const getNfcSupport = async () => {
@@ -366,11 +368,11 @@ function SignersList({ navigation }) {
   const { showToast } = useToastMessage();
   const verifyPassport = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getPassportDetails(qrData);
       const { signer: passport } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.PASSPORT,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -451,11 +453,11 @@ function SignersList({ navigation }) {
 
   const verifySeedSigner = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getSeedSignerDetails(qrData);
       const { signer: seedSigner } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.SEEDSIGNER,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -472,11 +474,11 @@ function SignersList({ navigation }) {
 
   const verifyKeystone = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getKeystoneDetails(qrData);
       const { signer: keystone } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.KEYSTONE,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -493,11 +495,11 @@ function SignersList({ navigation }) {
 
   const verifyJade = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getJadeDetails(qrData);
       const { signer: jade } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.JADE,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -518,7 +520,7 @@ function SignersList({ navigation }) {
       const { signer: ksd } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp: mfp,
+        masterFingerprint: mfp,
         signerType: SignerType.KEEPER,
         storageType: SignerStorage.WARM,
         isMultisig: true,
@@ -535,17 +537,21 @@ function SignersList({ navigation }) {
   const verifySigningServer = async (otp) => {
     try {
       if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        signingDevices,
+        SignerType.POLICY_SERVER
+      );
       const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
       if (response.xpub) {
         const { signer: signingServerKey } = generateSignerFromMetaData({
           xpub: response.xpub,
           derivationPath: response.derivationPath,
-          xfp: response.masterFingerprint,
+          masterFingerprint: response.masterFingerprint,
           signerType: SignerType.POLICY_SERVER,
           storageType: SignerStorage.WARM,
           isMultisig: true,
-          signerId: response.id,
+          xfp: response.id,
           signerPolicy: response.policy,
         });
 
@@ -561,10 +567,14 @@ function SignersList({ navigation }) {
   const requestInheritanceKey = async (signers: VaultSigner[]) => {
     try {
       if (signers.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        signingDevices,
+        SignerType.INHERITANCEKEY
+      );
 
       const requestId = `request-${generateKey(10)}`;
-      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+      const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,

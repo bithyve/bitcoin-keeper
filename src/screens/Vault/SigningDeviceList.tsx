@@ -91,6 +91,7 @@ function SigningDeviceList() {
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
+    SignerType.SPECTER,
     SignerType.OTHER_SD,
     SignerType.SEED_WORDS,
     SignerType.MOBILE_KEY,

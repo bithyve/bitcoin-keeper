@@ -31,6 +31,7 @@ export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
+export const UPDATE_KEY_DETAILS = 'UPDATE_KEY_DETAILS';
 export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
 export const ADD_WHIRLPOOL_WALLETS_LOCAL = 'ADD_WHIRLPOOL_WALLETS_LOCAL';
 export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_PATH_PURPOSE_DETAILS';
@@ -112,7 +113,8 @@ export const incrementAddressIndex = (
 });
 
 export const updateSignerPolicy = (
-  signer: VaultSigner,
+  signer: Signer,
+  signingKey: VaultSigner,
   updates: {
     restrictions?: SignerRestriction;
     exceptions?: SignerException;
@@ -122,6 +124,7 @@ export const updateSignerPolicy = (
   type: UPDATE_SIGNER_POLICY,
   payload: {
     signer,
+    signingKey,
     updates,
     verificationToken,
   },
@@ -316,6 +319,15 @@ export const updateWalletPathAndPurposeDetails = (
 
 export const updateSignerDetails = (signer: Signer, key: string, value: any) => ({
   type: UPDATE_SIGNER_DETAILS,
+  payload: {
+    signer,
+    key,
+    value,
+  },
+});
+
+export const updateKeyDetails = (signer: VaultSigner, key: string, value: any) => ({
+  type: UPDATE_KEY_DETAILS,
   payload: {
     signer,
     key,

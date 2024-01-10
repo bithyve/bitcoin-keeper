@@ -205,7 +205,7 @@ function EnterSeedScreen({ route }) {
       const { signer: softSigner } = generateSignerFromMetaData({
         xpub: isMultisig ? multiSigXpub : singleSigXpub,
         derivationPath: isMultisig ? multiSigPath : singleSigPath,
-        xfp: masterFingerprint,
+        masterFingerprint,
         signerType: SignerType.SEED_WORDS,
         storageType: SignerStorage.WARM,
         isMultisig,

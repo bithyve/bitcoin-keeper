@@ -156,20 +156,6 @@ function VaultMigrationController({
     }
   }, []);
 
-  const sanitizeSigners = () =>
-    signersState.map((signer: VaultSigner) => {
-      // TODO: uncomment this when we have a way to register signers
-      // if (
-      //   !signer.isMock &&
-      //   scheme.n !== 1 &&
-      //   !UNVERIFYING_SIGNERS.includes(signer.type) &&
-      //   signer.registered
-      // ) {
-      //   return { ...signer, registered: false };
-      // }
-      return signer;
-    });
-
   const initiateNewVault = () => {
     if (activeVault) {
       if (unconfirmed) {
@@ -192,11 +178,11 @@ function VaultMigrationController({
         );
         return;
       }
-      const freshSignersState = sanitizeSigners();
+
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
         vaultScheme: scheme,
-        vaultSigners: freshSignersState,
+        vaultSigners: signersState,
         vaultDetails: {
           name: 'Vault',
           description: 'Secure your sats',

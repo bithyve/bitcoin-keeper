@@ -26,6 +26,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
@@ -56,7 +57,6 @@ import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/services/operations/SigningServer';
-import { checkSigningDevice } from './AddSigningDevice';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -66,6 +66,8 @@ import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import Instruction from 'src/components/Instruction';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { getSpecterDetails } from 'src/hardware/specter';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -189,6 +191,21 @@ const getSignerContent = (
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
       };
+    case SignerType.SPECTER:
+      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit.\n`;
+      return {
+        Illustration: <SpecterSetupImage />,
+        Instructions: isTestnet()
+          ? [
+              specterInstructions,
+              `Make sure you enable Testnet mode on the Specter if you are running the app in the Testnet by selecting Switch network (Testnet) on the home screen.`,
+            ]
+          : [specterInstructions],
+        title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter',
+        subTitle: 'Keep your Specter ready and powered before proceeding',
+      };
     case SignerType.BITBOX02:
       return {
         Illustration: <BitboxImage />,
@@ -295,12 +312,13 @@ function SignerContent({
 }
 
 const setupPassport = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getPassportDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: passport, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -316,12 +334,13 @@ const verifyPassport = (qrData, signer) => {
 };
 
 const setupSeedSigner = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSeedSignerDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getSeedSignerDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: seedSigner, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -336,13 +355,36 @@ const verifySeedSigner = (qrData, signer) => {
   return xpub === signer.xpub;
 };
 
+const setupSpecter = (qrData, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getSpecterDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const { signer, key } = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      masterFingerprint,
+      signerType: SignerType.SPECTER,
+      storageType: SignerStorage.COLD,
+      isMultisig,
+    });
+    return { signer, key };
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
+};
+
+const verifySpecter = (qrData, signer) => {
+  const { xpub } = getSpecterDetails(qrData);
+  return xpub === signer.xpub;
+};
+
 const setupKeystone = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getKeystoneDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getKeystoneDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: keystone, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -358,12 +400,13 @@ const verifyKeystone = (qrData, signer) => {
 };
 
 const setupJade = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getJadeDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getJadeDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: jade, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -386,7 +429,7 @@ const setupKeeperSigner = (qrData, isMultisig) => {
       derivationPath: isMultisig
         ? xpubDetails[XpubTypes.P2WSH].derivationPath
         : xpubDetails[XpubTypes.P2WPKH].derivationPath,
-      xfp: mfp,
+      masterFingerprint: mfp,
       signerType: SignerType.KEEPER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
@@ -441,7 +484,7 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
   const { signer: mobileKey, key } = generateSignerFromMetaData({
     xpub: isMultisig ? multiSigXpub : singleSigXpub,
     derivationPath: isMultisig ? multiSigPath : singleSigPath,
-    xfp: masterFingerprint,
+    masterFingerprint,
     signerType: SignerType.MOBILE_KEY,
     storageType: SignerStorage.WARM,
     isMultisig: true,
@@ -473,7 +516,7 @@ export const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) =>
   const { signer: softSigner, key } = generateSignerFromMetaData({
     xpub: isMultisig ? multiSigXpub : singleSigXpub,
     derivationPath: isMultisig ? multiSigPath : singleSigPath,
-    xfp: masterFingerprint,
+    masterFingerprint,
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
     isMultisig,
@@ -655,6 +698,8 @@ function HardwareModalMap({
   const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { signingDevices } = useAppSelector((state) => state.bhr);
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
+
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
@@ -717,7 +762,7 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       try {
         setInProgress(true);
-        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signer.signerId);
+        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signer.xfp);
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
@@ -825,6 +870,9 @@ function HardwareModalMap({
         case SignerType.SEEDSIGNER:
           hw = setupSeedSigner(qrData, isMultisig);
           break;
+        case SignerType.SPECTER:
+          hw = setupSpecter(qrData, isMultisig);
+          break;
         case SignerType.KEEPER:
           hw = setupKeeperSigner(qrData, isMultisig);
           break;
@@ -863,9 +911,6 @@ function HardwareModalMap({
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
       showToast(`${hw.signer.signerName} added successfully`, <TickIcon />);
-      // const exsists = await checkSigningDevice(hw.signerId);
-      // if (exsists)
-      //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);
@@ -892,6 +937,9 @@ function HardwareModalMap({
           break;
         case SignerType.SEEDSIGNER:
           healthcheckStatus = verifySeedSigner(qrData, signer);
+          break;
+        case SignerType.SPECTER:
+          healthcheckStatus = verifySpecter(qrData, signer);
           break;
         case SignerType.KEEPER:
           healthcheckStatus = verifyKeeperSigner(qrData, signer);
@@ -937,17 +985,21 @@ function HardwareModalMap({
         setInProgress(true);
 
         if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-        const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
+        const cosignersMapIds = generateCosignerMapIds(
+          signerMap,
+          signingDevices,
+          SignerType.POLICY_SERVER
+        );
         const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
         if (response.xpub) {
           const { signer: signingServerKey } = generateSignerFromMetaData({
             xpub: response.xpub,
             derivationPath: response.derivationPath,
-            xfp: response.masterFingerprint,
+            masterFingerprint: response.masterFingerprint,
             signerType: SignerType.POLICY_SERVER,
             storageType: SignerStorage.WARM,
             isMultisig: true,
-            signerId: response.id,
+            xfp: response.id,
             signerPolicy: response.policy,
           });
           setInProgress(false);
@@ -1107,10 +1159,14 @@ function HardwareModalMap({
   const requestInheritanceKeyRecovery = async (signers: VaultSigner[]) => {
     try {
       if (signingDevices.length <= 1) throw new Error('Add two others devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        signingDevices,
+        SignerType.INHERITANCEKEY
+      );
 
       const requestId = `request-${generateKey(10)}`;
-      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+      const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
@@ -1161,6 +1217,7 @@ function HardwareModalMap({
         return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
+      case SignerType.SPECTER:
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.KEEPER:
