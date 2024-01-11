@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';

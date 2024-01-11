@@ -15,7 +15,7 @@ function CurrentPlanView({ plan }) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.planContianer}>
-        <Box style={styles.plan}>
+        <TouchableOpacity style={styles.plan} onPress={() => navigation.navigate('ChoosePlan')}>
           <Hat />
           <Text
             testID="text_home_current_plan"
@@ -24,7 +24,7 @@ function CurrentPlanView({ plan }) {
           >
             {plan}
           </Text>
-        </Box>
+        </TouchableOpacity>
         <TouchableOpacity
           style={{ padding: 5 }}
           onPress={() => navigation.navigate('AppSettings')}

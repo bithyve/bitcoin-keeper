@@ -16,7 +16,7 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '1
   return (
     <Box style={styles.container}>
       <Box>
-        <Text testID="text_note_title" color={`${colorMode}.primaryText`} style={styles.title}>
+        <Text testID="text_note_title" color={`${colorMode}.headerText`} style={styles.title}>
           {title}
         </Text>
       </Box>

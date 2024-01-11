@@ -1,7 +1,8 @@
+import React from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
-import Text from './KeeperText';
 import { StyleSheet, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/addCardIcon.svg';
+import Text from './KeeperText';
 
 type AddSignerCardProps = {
   name: string;
@@ -14,12 +15,12 @@ function AddCard({ name, callback, cardStyles }: AddSignerCardProps) {
   return (
     <Pressable
       backgroundColor={`${colorMode}.pantoneGreenLight`}
-      borderColor={`${colorMode}.GreenishBlue`}
+      borderColor={`${colorMode}.pantoneGreen`}
       style={[styles.AddCardContainer, cardStyles && cardStyles]}
       onPress={() => callback(name)}
     >
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.GreenishBlue`} style={styles.iconWrapper}>
+        <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.iconWrapper}>
           <AddCardIcon />
         </Box>
         <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>

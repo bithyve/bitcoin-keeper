@@ -48,7 +48,6 @@ const Colors = {
   Warmbeige: 'rgba(247, 242, 236, 1)',
   RussetBrown: 'rgba(145, 120, 93, 1)',
   MintWhisper: 'rgba(45, 103, 89, 0.08)',
-  GreenishBlue: 'rgba(45, 103, 89, 1)',
   GreenishGrey: 'rgba(62, 82, 77, 1)',
   Linen: 'rgba(240, 235, 230, 1)',
 
@@ -59,6 +58,9 @@ const Colors = {
   Greige: 'rgba(93, 110, 106, 0.6)',
   Eggshell: 'rgba(238,227,216,1)',
   Teal: 'rgba(46,103,89,1)',
+  SmokeGreen: 'rgba(154,164,159,1)',
+  DeepOlive: 'rgba(35, 82, 71, 1)',
+  PaleKhaki: 'rgba(95,106,103,1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',

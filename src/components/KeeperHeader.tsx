@@ -68,7 +68,7 @@ function KeeperHeader({
       <Box style={styles.headerContainer}>
         <Box style={{ paddingLeft: marginLeft ? '10%' : 0, flexDirection: 'row', gap: 10 }}>
           {icon && (
-            <Box backgroundColor={`${colorMode}.GreenishBlue`} style={styles.circle}>
+            <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.circle}>
               {icon}
             </Box>
           )}
