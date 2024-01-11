@@ -149,7 +149,7 @@ function AssignSignerType({ navigation, route }: IProps) {
             setVisible(false);
             // setSkipHealthCheckModalVisible(true);
           }}
-          mode={InteracationMode.HEALTH_CHECK}
+          mode={InteracationMode.IDENTIFICATION}
           vaultShellId={vault?.shellId}
           isMultisig={vault?.isMultiSig}
           primaryMnemonic={'kokok'}
