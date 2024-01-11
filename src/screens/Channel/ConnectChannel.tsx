@@ -91,7 +91,7 @@ function ConnectChannel() {
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { mapUnknownSigner } = useUnkownSigners;
+  const { mapUnknownSigner } = useUnkownSigners();
 
   const dispatch = useDispatch();
   const navigation = useNavigation();

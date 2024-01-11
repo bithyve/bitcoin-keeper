@@ -133,7 +133,7 @@ function SetupColdCard({ route }) {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { xfp } = ccDetails;
-      const isColdCardVerified = () => {
+      const ColdCardVerified = () => {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
         showToast(`ColdCard verified successfully`, <TickIcon />);
@@ -144,13 +144,13 @@ function SetupColdCard({ route }) {
       if (mode === InteracationMode.IDENTIFICATION) {
         const mapped = mapUnknownSigner({ masterFingerprint: xfp, type: SignerType.COLDCARD });
         if (mapped) {
-          isColdCardVerified();
+          ColdCardVerified();
         } else {
           showVerificationError();
         }
       } else {
         if (xfp === signer.masterFingerprint) {
-          isColdCardVerified();
+          ColdCardVerified();
         } else {
           showVerificationError();
         }
