@@ -58,6 +58,7 @@ function SetupTapsigner({ route }) {
   const { mapUnknownSigner } = useUnkownSigners();
   const isConfigRecovery = mode === InteracationMode.CONFIG_RECOVERY;
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
+
   const onPressHandler = (digit) => {
     let temp = cvc;
     if (digit !== 'x') {
@@ -213,7 +214,12 @@ function SetupTapsigner({ route }) {
         title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
         subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
       />
-      <MockWrapper signerType={SignerType.TAPSIGNER} addSignerFlow={addSignerFlow}>
+      <MockWrapper
+        signerType={SignerType.TAPSIGNER}
+        addSignerFlow={addSignerFlow}
+        mode={mode}
+        signerXfp={signer?.masterFingerprint}
+      >
         <ScrollView>
           <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput

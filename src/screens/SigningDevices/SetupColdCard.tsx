@@ -172,7 +172,8 @@ function SetupColdCard({ route }) {
       <MockWrapper
         signerType={SignerType.COLDCARD}
         addSignerFlow={addSignerFlow}
-        enable={mode === InteracationMode.ADDITION}
+        signerXfp={signer?.masterFingerprint}
+        mode={mode}
       >
         <Box style={styles.header}>
           <KeeperHeader title={getTitle(mode)} subtitle={instructions} />

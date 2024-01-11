@@ -296,7 +296,12 @@ function ConnectChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={signerType} addSignerFlow={addSignerFlow}>
+      <MockWrapper
+        signerType={signerType}
+        addSignerFlow={addSignerFlow}
+        mode={mode}
+        signerXfp={signer?.masterFingerprint}
+      >
         <KeeperHeader title={title} subtitle={subtitle} />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
           <ScanAndInstruct onBarCodeRead={onBarCodeRead} mode={mode} />

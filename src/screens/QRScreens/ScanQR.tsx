@@ -119,6 +119,8 @@ function ScanQR() {
         signerType={type}
         enable={setup && type && !disableMockFlow}
         addSignerFlow={addSignerFlow}
+        signerXfp={signer?.masterFingerprint}
+        mode={mode}
       >
         <KeeperHeader title={title} subtitle={subtitle} />
         <VStack style={globalStyles.centerColumn}>
