@@ -48,6 +48,9 @@ import AddIcon from 'src/assets/images/add.svg';
 import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import CustomPriorityModal from './CustomPriorityModal';
 import { UTXO } from 'src/core/wallets/interfaces';
+import ActionCard from 'src/components/ActionCard';
+import SignerCard from '../AddSigner/SignerCard';
+import AddCard from 'src/components/AddCard';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -231,12 +234,29 @@ function TextValue({ amt, unit }) {
     <Text
       style={{
         ...styles.priorityTableText,
-        flex: 1,
-        textAlign: 'right',
       }}
     >
       {amt} sats
     </Text>
+  );
+}
+
+function DeductAmount() {
+  return (
+    <Box
+      flexDirection={'row'}
+      backgroundColor={'rgba(253, 247, 240, 1)'}
+      height={50}
+      alignItems={'center'}
+      paddingLeft={5}
+      marginTop={50}
+      borderRadius={10}
+    >
+      <Box paddingRight={2}>
+        <RadioButton isChecked={true} onpress={() => {}} />
+      </Box>
+      <Text>Deduct Fees from Amount</Text>
+    </Box>
   );
 }
 
@@ -253,24 +273,7 @@ function SendingPriority({
   const { colorMode } = useColorMode();
   return (
     <Box>
-      {/* <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} /> */}
-      <Box flexDirection="row" justifyContent="space-between" width="90%">
-        <Box
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingVertical: 10,
-            marginHorizontal: 20,
-            width: '100%',
-          }}
-        >
-          <Text style={styles.headingLabelText}>Priority</Text>
-          <Text style={styles.headingLabelText}>Arrival Time</Text>
-          <Text style={styles.headingLabelText}>Fees</Text>
-        </Box>
-      </Box>
-
-      <Box mt={hp(1)} width={'100%'}>
+      <Box flexDirection={'row'}>
         {availableTransactionPriorities?.map((priority) => {
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0)
             return (
@@ -280,62 +283,37 @@ function SendingPriority({
                   setTransactionPriority(priority);
                 }}
               >
-                <Box
-                  style={styles.priorityRowContainer}
-                  opacity={transactionPriority === priority ? 1 : 0.5}
-                  backgroundColor={`${colorMode}.seashellWhite`}
-                >
-                  <Box style={styles.priorityBox}>
-                    <RadioButton
-                      size={20}
-                      isChecked={transactionPriority === priority}
-                      borderColor="#74837F"
-                      onpress={() => {
-                        setTransactionPriority(priority);
-                      }}
-                    />
-                    <Text
-                      style={{
-                        ...styles.priorityTableText,
-                        marginLeft: 12,
-                        fontStyle: 'normal',
-                      }}
-                    >
-                      {String(priority)}
-                    </Text>
-                  </Box>
-                  <Text
-                    style={{
-                      ...styles.priorityTableText,
-                      flex: 1,
-                    }}
-                  >
-                    ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10}{' '}
-                    mins
-                  </Text>
-                  <TextValue
-                    amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
-                    unit={{
-                      bitcoinUnit: BitcoinUnit.SATS,
-                    }}
+                <Box>
+                  <SignerCard
+                    titleComp={
+                      <TextValue
+                        amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
+                        unit={{
+                          bitcoinUnit: BitcoinUnit.SATS,
+                        }}
+                      />
+                    }
+                    isSelected={transactionPriority === priority}
+                    key={priority}
+                    name={String(priority)}
+                    description={`~${
+                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                    } mins`}
+                    onCardSelect={() => setTransactionPriority(priority)}
+                    customStyle={{ width: windowWidth / 3.4 - windowWidth * 0.05 }}
                   />
                 </Box>
               </TouchableOpacity>
             );
         })}
       </Box>
-      <TouchableOpacity onPress={setVisibleCustomPriorityModal}>
-        <Box
-          backgroundColor={`${colorMode}.lightAccent`}
-          borderColor={`${colorMode}.coffeeBackground`}
-          style={styles.addTransPriority}
-        >
-          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
-          <Text style={[styles.addPriorityText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>
-            {walletTranslation.addCustomPriority}
-          </Text>
-        </Box>
-      </TouchableOpacity>
+      <AddCard
+        cardStyles={{ width: windowWidth / 3.4 - windowWidth * 0.05, marginTop: 5 }}
+        name="Custom Priority"
+        callback={setVisibleCustomPriorityModal}
+      />
+      {/* -------------- TODO Pratyaksh---------- */}
+      <DeductAmount />
     </Box>
   );
 }
@@ -867,7 +845,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.transactionPriority}
         subTitleWidth={wp(240)}
-        subTitle={''}
+        subTitle={walletTransactions.transactionPrioritySubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -969,9 +947,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   priorityTableText: {
-    fontSize: 10,
-    textAlign: 'center',
-    color: '#656565',
+    fontSize: 16,
+    color: '#24312E',
   },
   gradient: {
     flex: 1,
