@@ -24,7 +24,7 @@ const useUnkownSigners = () => {
     inheritanceKeyInfo?: InheritanceKeyInfo;
   }): boolean | void => {
     try {
-      const signer = signers.find((signer) => signer.masterFingerprint === masterFingerprint);
+      const signer = unknowSigners.find((signer) => signer.masterFingerprint === masterFingerprint);
       if (signer) {
         dispatch(updateSignerDetails(signer, 'type', type));
 
@@ -35,6 +35,7 @@ const useUnkownSigners = () => {
         if (inheritanceKeyInfo) {
           dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', inheritanceKeyInfo));
         }
+        return true;
       } else {
         return false;
       }
