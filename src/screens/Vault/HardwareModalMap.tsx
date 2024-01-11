@@ -681,7 +681,7 @@ function HardwareModalMap({
   isMultisig: boolean;
   primaryMnemonic?: string;
   vaultShellId?: string;
-  addSignerFlow: boolean;
+  addSignerFlow?: boolean;
   vaultId: string;
 }) {
   const { colorMode } = useColorMode();

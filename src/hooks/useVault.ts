@@ -9,15 +9,27 @@ type Params =
       collaborativeWalletId?: string;
       vaultId: string;
       includeArchived?: boolean;
+      getFirst?: boolean;
     }
   | {
       collaborativeWalletId: string;
       vaultId?: string;
       includeArchived?: boolean;
+      getFirst?: boolean;
     }
-  | { collaborativeWalletId?: string; vaultId?: string; includeArchived?: boolean };
+  | {
+      collaborativeWalletId?: string;
+      vaultId?: string;
+      includeArchived?: boolean;
+      getFirst?: boolean;
+    };
 
-const useVault = ({ collaborativeWalletId = '', vaultId = '', includeArchived = true }: Params) => {
+const useVault = ({
+  collaborativeWalletId = '',
+  vaultId = '',
+  includeArchived = true,
+  getFirst = false,
+}: Params) => {
   const { collaborativeWallet } = useCollaborativeWallet(collaborativeWalletId);
   let allVaults: Vault[] = useQuery(RealmSchema.Vault);
 
@@ -26,7 +38,7 @@ const useVault = ({ collaborativeWalletId = '', vaultId = '', includeArchived = 
     : allVaults.filtered('archived != true').map(getJSONFromRealmObject);
 
   if (!collaborativeWalletId && !vaultId) {
-    return { allVaults, activeVault: allVaults[0] };
+    return { allVaults, activeVault: getFirst ? null : allVaults[0] };
   }
 
   if (collaborativeWallet) {

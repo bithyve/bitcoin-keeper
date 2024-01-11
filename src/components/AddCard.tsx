@@ -5,7 +5,7 @@ import AddCardIcon from 'src/assets/images/addCardIcon.svg';
 
 type AddSignerCardProps = {
   name: string;
-  callback?: (param: string) => void;
+  callback?: (param: any) => void;
   cardStyles?: ViewStyle;
 };
 

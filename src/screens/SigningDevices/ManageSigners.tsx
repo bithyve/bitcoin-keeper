@@ -54,11 +54,10 @@ const ManageSigners = () => {
               return (
                 <SignerCard
                   key={signer.masterFingerprint}
-                  walletName={signer.signerName}
-                  walletDescription={signer.signerDescription || signer.type}
+                  name={signer.signerName}
+                  description={signer.signerDescription || signer.type}
                   icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
                   isSelected={false}
-                  onCardSelect={() => {}}
                   showSelection={false}
                   colorVarient="green"
                 />
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-    paddingHorizontal: '4%',
+    paddingHorizontal: '5%',
   },
   scrollContainer: {
     marginTop: '-20%',
@@ -110,7 +109,7 @@ const styles = StyleSheet.create({
   },
   addCard: {
     height: 125,
-    width: windowWidth / 3 - windowWidth * 0.04,
+    width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
   },
 });

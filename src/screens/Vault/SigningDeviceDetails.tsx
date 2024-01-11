@@ -271,7 +271,11 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={Change} />,
       onPress: () =>
         navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          CommonActions.navigate({
+            name: 'AddSigningDevice',
+            merge: true,
+            params: { vaultId, scheme: activeVault.scheme },
+          })
         ),
     },
     {

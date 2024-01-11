@@ -12,7 +12,6 @@ import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
-import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
@@ -22,13 +21,13 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
 function VaultMigrationController({
   vaultCreating,
-  signersState,
+  vaultKeys,
   scheme,
   setCreating,
   name,
   description,
   vaultId,
-}: any) {
+}) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -186,15 +185,15 @@ function VaultMigrationController({
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
         vaultScheme: scheme,
-        vaultSigners: signersState,
+        vaultSigners: vaultKeys,
         vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
+          name,
+          description,
         },
       };
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(signersState, scheme);
+      createVault(vaultKeys, scheme);
     }
   };
   return null;

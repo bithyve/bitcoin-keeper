@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 import BitcoinIcon from 'src/assets/images/icon_bitcoin.svg';
+import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
 
 const BalanceComponent = ({ balance, count }) => {
   const { colorMode } = useColorMode();
@@ -13,8 +14,13 @@ const BalanceComponent = ({ balance, count }) => {
         <Text style={{ fontWeight: 'bold' }}>{count}</Text> Wallet{count > 1 && 's'}
       </Text>
       <Box style={styles.amount}>
-        <BitcoinIcon />
-        <Text style={{ fontSize: 27 }}>{balance}</Text>
+        <CurrencyInfo
+          hideAmounts={false}
+          amount={balance}
+          fontSize={27}
+          color={`${colorMode}.primaryText`}
+          variation="dark"
+        />
       </Box>
     </Box>
   );

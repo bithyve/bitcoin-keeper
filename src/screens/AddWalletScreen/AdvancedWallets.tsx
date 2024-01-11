@@ -7,8 +7,8 @@ import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import { CommonActions } from '@react-navigation/native';
 
 function AdvancedWallets({ navigation }) {
-  const navigateToVaultSetup = () => {
-    navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
+  const navigateToVaultSetup = (scheme?) => {
+    navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup', params: { scheme } }));
   };
 
   return (
@@ -31,7 +31,7 @@ function AdvancedWallets({ navigation }) {
         title="Custom Multi-sig"
         description="Build your own"
         LeftIcon={<VaultGreenIcon />}
-        callback={() => navigateToVaultSetup()}
+        callback={() => navigateToVaultSetup({ m: 3, n: 6 })}
       />
     </Box>
   );

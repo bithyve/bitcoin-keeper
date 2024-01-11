@@ -22,7 +22,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { PaymentInfoKind } from 'src/core/wallets/enums';
+import { PaymentInfoKind, VisibilityType } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -40,6 +40,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/core/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
+import useVault from 'src/hooks/useVault';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -58,10 +59,15 @@ function SendScreen({ route }) {
   const [paymentInfo, setPaymentInfo] = useState('');
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
-  const { wallets: allWallets } = useWallets();
-  const otherWallets: Wallet[] = allWallets.filter(
-    (existingWallet) => existingWallet.id !== sender.id
+  const { wallets } = useWallets({ getAll: true });
+  const { allVaults } = useVault({ includeArchived: false });
+  const nonHiddenWallets = wallets.filter(
+    (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
+  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
+    (item) => item !== null
+  );
+  const otherWallets = allWallets.filter((existingWallet) => existingWallet.id !== sender.id);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
