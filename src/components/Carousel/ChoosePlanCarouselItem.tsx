@@ -5,6 +5,8 @@ import { hp, wp } from 'src/constants/responsive';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
+import { SvgUri } from 'react-native-svg';
+import config from 'src/core/config';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 
 const styles = StyleSheet.create({
@@ -15,10 +17,9 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   circle: {
-    width: 40,
-    height: 40,
-    borderRadius: 40 / 2,
     marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
@@ -125,10 +126,9 @@ function ChoosePlanCarouselItem({
             </Box>
           )}
           {/* <Box my={15}>{currentPosition === index ? <SvgUri uri={`${config.RELAY}${item.iconFocused}`} /> : <SvgUri uri={`${config.RELAY}${item.icon}`} />}</Box> */}
-          <Box
-            backgroundColor={isSelected ? `${colorMode}.DeepOlive` : `${colorMode}.PaleKhaki`}
-            style={styles.circle}
-          />
+          <Box style={styles.circle}>
+            <SvgUri uri={`${config.RELAY}${isSelected ? item.iconFocused : item.icon}`} />
+          </Box>
           <Text fontSize={12} bold color={`${colorMode}.white`} mt={2}>
             {item.name}
           </Text>
