@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ReactNativeBiometrics from 'react-native-biometrics';
@@ -16,6 +17,13 @@ import ThemeMode from 'src/models/enums/ThemeMode';
 import { StyleSheet } from 'react-native';
 import { hp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
+import { sentryConfig } from 'src/services/sentry';
+import useAsync from 'src/hooks/useAsync';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import dbManager from 'src/storage/realm/dbManager';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -28,6 +36,23 @@ function PrivacyAndDisplay({ navigation }) {
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common } = translations;
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const { inProgress, start } = useAsync();
+  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const analyticsEnabled = app.enableAnalytics;
+
+  const toggleSentryReports = async () => {
+    if (inProgress) {
+      return;
+    }
+    if (!analyticsEnabled) {
+      await start(() => Sentry.init(sentryConfig));
+    } else {
+      await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+    }
+    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+      enableAnalytics: !analyticsEnabled,
+    });
+  };
 
   useEffect(() => {
     init();
@@ -125,11 +150,10 @@ function PrivacyAndDisplay({ navigation }) {
             <OptionCard
               title={settings.shareAnalytics}
               description={settings.analyticsDescription}
-              callback={() => changeThemeMode()}
               Icon={
                 <Switch
-                  onValueChange={(value) => changeThemeMode()}
-                  value={colorMode === 'dark'}
+                  onValueChange={async () => await toggleSentryReports()}
+                  value={app.enableAnalytics}
                   testID="switch_darkmode"
                 />
               }
