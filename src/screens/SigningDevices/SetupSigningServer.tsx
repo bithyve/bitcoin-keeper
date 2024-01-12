@@ -66,18 +66,18 @@ function SetupSigningServer({ route }: { route }) {
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
     const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
-    const { signer: signingServerKey, key } = generateSignerFromMetaData({
+    const { signer: signingServerKey } = generateSignerFromMetaData({
       xpub,
       derivationPath,
       masterFingerprint,
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
-      signerId: id,
+      xfp: id,
       signerPolicy: policy,
     });
 
-    dispatch(addSigningDevice([signingServerKey], [key], addSignerFlow));
+    dispatch(addSigningDevice([signingServerKey]));
     const navigationState = addSignerFlow
       ? { name: 'ManageSigners' }
       : { name: 'AddSigningDevice', merge: true, params: {} };

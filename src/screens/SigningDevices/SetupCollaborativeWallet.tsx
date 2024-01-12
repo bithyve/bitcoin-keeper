@@ -330,7 +330,7 @@ function SetupCollaborativeWallet() {
         }
         return item;
       });
-      dispatch(addSigningDevice([signer], null, true));
+      dispatch(addSigningDevice([signer]));
       setCoSigners(newSigners);
       if (goBack) navigation.goBack();
     } catch (err) {
