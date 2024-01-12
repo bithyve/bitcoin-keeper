@@ -30,7 +30,7 @@ function WalletCard({
     <Pressable onPress={() => onCardSelect(id)}>
       <Box
         borderColor={`${colorMode}.Eggshell`}
-        backgroundColor={isSelected ? `${colorMode}.GreenishBlue` : `${colorMode}.seashellWhite`}
+        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
         style={[styles.walletContainer, !isSelected && { opacity: 0.7 }]}
       >
         <Box style={styles.detailContainer}>
@@ -57,7 +57,7 @@ function WalletCard({
         </Box>
       </Box>
       {isSelected && (
-        <Box borderTopColor={`${colorMode}.GreenishBlue`} style={[styles.arrow, arrowStyles]} />
+        <Box borderTopColor={`${colorMode}.pantoneGreen`} style={[styles.arrow, arrowStyles]} />
       )}
     </Pressable>
   );

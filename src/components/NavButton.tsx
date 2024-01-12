@@ -1,9 +1,10 @@
+import React from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
-import Text from './KeeperText';
 import LinkIcon from 'src/assets/images/link.svg';
 import openLink from 'src/utils/OpenLink';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
+import Text from './KeeperText';
 
 type NavButtonProps = {
   icon: Element;
