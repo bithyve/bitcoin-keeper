@@ -198,9 +198,10 @@ function AddSigningDevice() {
             const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
             const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
             const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
-            if (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) {
-              disabled = true;
-            } else if (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock) {
+            if (
+              (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
+              (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
+            ) {
               disabled = true;
             }
             return (
@@ -219,7 +220,13 @@ function AddSigningDevice() {
             name={'Add Signer'}
             cardStyles={styles.addCard}
             callback={() =>
-              navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }))
+              navigation.dispatch(
+                CommonActions.navigate('SigningDeviceList', {
+                  scheme,
+                  vaultId,
+                  vaultSigners: vaultKeys,
+                })
+              )
             }
           />
         </Box>
