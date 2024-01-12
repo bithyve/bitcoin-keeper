@@ -46,7 +46,7 @@ function InheritanceStatus({ route }) {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
-  const { activeVault } = useVault({ vaultId });
+  const { activeVault } = useVault({ vaultId, getFirst: true });
   const fingerPrints = activeVault.signers.map((signer) => signer.masterFingerprint);
 
   const descriptorString = genrateOutputDescriptors(activeVault);

@@ -133,12 +133,7 @@ function NewHomeScreen({ navigation }) {
             })
           );
           return;
-        }
-        // else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5) {
-        //   navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
-        //   return;
-        // }
-        else {
+        } else {
           navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
           return;
         }

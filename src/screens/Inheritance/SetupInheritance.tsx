@@ -17,7 +17,6 @@ import Recovery from 'src/assets/images/recovery.svg';
 import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
@@ -30,8 +29,7 @@ function SetupInheritance({ route }) {
   const { inheritence, vault: vaultTranslation, common } = translations;
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
-  const { vaultId } = route.params;
-
+  const { vaultId = '' } = route.params || {};
   const inheritanceData = [
     {
       title: 'Safeguarding Tips',
@@ -145,19 +143,17 @@ function SetupInheritance({ route }) {
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
-          {shouldActivateInheritance()
-            ? vaultTranslation.manageInheritance
-            : `This can be activated once you are on ${SubscriptionTier.L3} and create a 3 of 5 Vault to add this key`}
+          {vaultTranslation.manageInheritance}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
-          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
+          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => proceedCallback()}>
             <Box
               borderColor={`${colorMode}.learnMoreBorder`}
               backgroundColor={`${colorMode}.lightAccent`}
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {shouldActivateInheritance() ? common.proceed : common.upgradeNow}
+                {common.proceed}
               </Text>
             </Box>
           </TouchableOpacity>
