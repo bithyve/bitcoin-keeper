@@ -246,14 +246,8 @@ export const getCosignerDetails = (wallet: Wallet, appId: string) => {
 
   const { extendedKeys: multiSigExtendedKeys, xDerivationPath: multiSigXderivationPath } =
     generateExtendedKeysForCosigner(wallet);
-  const { extendedKeys: singleSigExtendedKeys, xDerivationPath: singleSigXderivationPath } =
-    generateExtendedKeysForCosigner(wallet, EntityKind.WALLET);
 
   const xpubDetails: XpubDetailsType = {};
-  xpubDetails[XpubTypes.P2WPKH] = {
-    xpub: singleSigExtendedKeys.xpub,
-    derivationPath: singleSigXderivationPath,
-  };
   xpubDetails[XpubTypes.P2WSH] = {
     xpub: multiSigExtendedKeys.xpub,
     derivationPath: multiSigXderivationPath,
