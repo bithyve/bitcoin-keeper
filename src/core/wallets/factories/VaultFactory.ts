@@ -39,7 +39,7 @@ const STANDARD_VAULT_SCHEME = [
   { m: 3, n: 5 },
 ];
 
-export const generateVaultId = (signers, networkType, scheme) => {
+export const generateVaultId = (signers: VaultSigner[], networkType, scheme) => {
   const network = WalletUtilities.getNetworkByType(networkType);
   const xpubs = signers.map((signer) => signer.xpub).sort();
   const fingerprints = [];
