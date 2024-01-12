@@ -60,12 +60,7 @@ import ElectrumClient, {
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { RootState } from '../store';
-import {
-  addSigningDevice,
-  initiateVaultMigration,
-  vaultCreated,
-  vaultMigrationCompleted,
-} from '../reducers/vaults';
+import { initiateVaultMigration, vaultCreated, vaultMigrationCompleted } from '../reducers/vaults';
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
@@ -594,15 +589,8 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({
-  payload: { signers, keys, addSignerFlow },
-}: {
-  payload: { signers: Signer[]; keys: VaultSigner[]; addSignerFlow: boolean };
-}) {
+function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   yield call(dbManager.createObjectBulk, RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
-  if (!addSignerFlow) {
-    yield put(addSigningDevice(keys));
-  }
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);

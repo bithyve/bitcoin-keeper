@@ -219,9 +219,7 @@ function AddSigningDevice() {
             name={'Add Signer'}
             cardStyles={styles.addCard}
             callback={() =>
-              navigation.dispatch(
-                CommonActions.navigate('SigningDeviceList', { addSignerFlow: true })
-              )
+              navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }))
             }
           />
         </Box>

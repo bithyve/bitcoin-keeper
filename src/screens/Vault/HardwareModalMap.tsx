@@ -560,8 +560,8 @@ function PasswordEnter({
     try {
       const currentPinHash = hash512(password);
       if (currentPinHash === pinHash) {
-        const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-        dispatch(addSigningDevice([signer], [key], addSignerFlow));
+        const { signer } = await setupMobileKey({ primaryMnemonic, isMultisig });
+        dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
           ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -829,7 +829,7 @@ function HardwareModalMap({
             isHealthcheck,
             onSuccess: (mnemonic) => {
               const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice([signer], [key], addSignerFlow));
+              dispatch(addSigningDevice([signer]));
               const navigationState = addSignerFlow
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -1090,7 +1090,7 @@ function HardwareModalMap({
             const res = await SecureStore.verifyBiometricAuth(signature, appId);
             if (res.success) {
               const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-              dispatch(addSigningDevice([signer], [key], addSignerFlow));
+              dispatch(addSigningDevice([signer]));
               const navigationState = addSignerFlow
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
