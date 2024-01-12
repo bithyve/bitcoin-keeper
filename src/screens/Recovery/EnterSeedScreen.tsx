@@ -276,7 +276,10 @@ function EnterSeedScreen({ route }) {
           const seedWord = getSeedWord();
           const softSigner: Signer = setupSeedWordsBasedSigner(seedWord, isMultisig);
           if (mode === InteracationMode.IDENTIFICATION) {
-            const mapped = mapUnknownSigner({ masterFingerprint: xfp, type: SignerType.COLDCARD });
+            const mapped = mapUnknownSigner({
+              masterFingerprint: softSigner.masterFingerprint,
+              type: SignerType.COLDCARD,
+            });
             if (mapped) {
               handleSuccess();
             } else {
