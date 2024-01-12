@@ -70,11 +70,12 @@ export const generateWalletSpecsFromExtendedKeys = (
 ) => {
   let xpriv: string;
   let xpub: string;
+
   if (WalletUtilities.isExtendedPrvKey(extendedKeyType)) {
-    xpriv = extendedKey; //TODO: perform conversion for other key types
-    xpub = WalletUtilities.getPublicExtendedKeyFromPriv(extendedKey);
+    xpriv = WalletUtilities.getXprivFromExtendedKey(extendedKey, config.NETWORK);
+    xpub = WalletUtilities.getPublicExtendedKeyFromPriv(xpriv);
   } else if (WalletUtilities.isExtendedPubKey(extendedKeyType)) {
-    xpub = extendedKey; // TODO: perform conversion for other key types
+    xpub = WalletUtilities.getXpubFromExtendedKey(extendedKey, config.NETWORK);
   } else {
     throw new Error('Invalid key');
   }
@@ -136,7 +137,7 @@ export const generateWallet = async ({
     if (!importDetails) throw new Error('Import details are missing');
 
     const { importedKey, importedKeyDetails, derivationConfig } = importDetails;
-    console.log({ importedKey, importedKeyDetails, derivationConfig });
+
     let mnemonic;
     if (importedKeyDetails.importedKeyType === ImportedKeyType.MNEMONIC) {
       // case: import wallet via mnemonic
@@ -152,17 +153,16 @@ export const generateWallet = async ({
     } else {
       // case: import wallet via extended keys
 
-      id = WalletUtilities.getFingerprintFromExtendedKey(importedKey, config.NETWORK); // case: extended key imported wallets have xfp as their id
-
       derivationDetails = {
         instanceNum, // null
         mnemonic, // null
         bip85Config, // null
         xDerivationPath: derivationConfig.path,
       };
-      console.log({ derivationDetails, id });
+
       specs = generateWalletSpecsFromExtendedKeys(importedKey, importedKeyDetails.importedKeyType);
-      console.log({ specs });
+
+      id = WalletUtilities.getFingerprintFromExtendedKey(specs.xpriv || specs.xpub, config.NETWORK); // case: extended key imported wallets have xfp as their id
     }
   } else if (whirlPoolWalletTypes.includes(type)) {
     // case: adding whirlpool wallet

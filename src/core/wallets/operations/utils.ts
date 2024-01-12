@@ -328,9 +328,17 @@ export default class WalletUtilities {
     return bs58check.encode(data);
   };
 
-  static generateXpubFromYpub = (ypub: string, network: bitcoinJS.Network): string => {
-    // generates xpub corresponding to supplied ypub || tpub corresponding to upub
-    let data = bs58check.decode(ypub);
+  static getXprivFromExtendedKey = (extendedKey: string, network: bitcoinJS.Network) => {
+    // case: xprv corresponding to supplied yprv/zprv  or tprv corresponding to supplied uprv/vprv
+    let data = bs58check.decode(extendedKey);
+    const versionBytes = bitcoinJS.networks.bitcoin === network ? '0488ade4' : '04358394';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static getXpubFromExtendedKey = (extendedKey: string, network: bitcoinJS.Network) => {
+    // case: xpub corresponding to supplied ypub/zpub  or tpub corresponding to supplied upub/vpub
+    let data = bs58check.decode(extendedKey);
     const versionBytes = bitcoinJS.networks.bitcoin === network ? '0488b21e' : '043587cf';
     data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
