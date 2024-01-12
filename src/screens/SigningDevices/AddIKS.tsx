@@ -76,7 +76,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
       setInProgress(true);
       const { setupData } = await InheritanceKeyServer.initializeIKSetup();
       const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
-      const { signer: inheritanceKey, key } = generateSignerFromMetaData({
+      const { signer: inheritanceKey } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         masterFingerprint,
@@ -86,7 +86,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         isMultisig: true,
       });
       setInProgress(false);
-      dispatch(addSigningDevice([inheritanceKey], [key]));
+      dispatch(addSigningDevice([inheritanceKey]));
       showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
     } catch (err) {
       console.log({ err });

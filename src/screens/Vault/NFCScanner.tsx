@@ -34,7 +34,7 @@ const NFCScanner = ({ route }) => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
-      const { signer, key } = generateSignerFromMetaData({
+      const { signer } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         masterFingerprint,
@@ -44,7 +44,7 @@ const NFCScanner = ({ route }) => {
         xpubDetails,
       });
 
-      dispatch(addSigningDevice([signer], [key], addSignerFlow));
+      dispatch(addSigningDevice([signer]));
       const navigationState = addSignerFlow
         ? { name: 'ManageSigners' }
         : { name: 'AddSigningDevice', merge: true, params: {} };

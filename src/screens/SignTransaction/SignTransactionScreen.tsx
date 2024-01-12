@@ -23,7 +23,6 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
@@ -130,7 +129,6 @@ function SignTransactionScreen() {
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetRealyVaultState());
-      dispatch(clearSigningDevice());
     }
     if (relayVaultError) {
       showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);

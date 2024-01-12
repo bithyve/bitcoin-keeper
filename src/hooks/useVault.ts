@@ -38,7 +38,7 @@ const useVault = ({
     : allVaults.filtered('archived != true').map(getJSONFromRealmObject);
 
   if (!collaborativeWalletId && !vaultId) {
-    return { allVaults, activeVault: getFirst ? null : allVaults[0] };
+    return { allVaults, activeVault: getFirst ? allVaults[0] : null };
   }
 
   if (collaborativeWallet) {

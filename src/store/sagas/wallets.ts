@@ -47,7 +47,10 @@ import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
+import {
+  generateWallet,
+  generateWalletSpecsFromMnemonic,
+} from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateKey, hash256 } from 'src/services/operations/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -60,12 +63,7 @@ import ElectrumClient, {
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { RootState } from '../store';
-import {
-  addSigningDevice,
-  initiateVaultMigration,
-  vaultCreated,
-  vaultMigrationCompleted,
-} from '../reducers/vaults';
+import { initiateVaultMigration, vaultCreated, vaultMigrationCompleted } from '../reducers/vaults';
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
@@ -594,15 +592,8 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({
-  payload: { signers, keys, addSignerFlow },
-}: {
-  payload: { signers: Signer[]; keys: VaultSigner[]; addSignerFlow: boolean };
-}) {
+function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   yield call(dbManager.createObjectBulk, RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
-  if (!addSignerFlow) {
-    yield put(addSigningDevice(keys));
-  }
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
@@ -1117,7 +1108,7 @@ function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
       ...wallet.derivationDetails,
       xDerivationPath: details.path,
     };
-    const specs = generateWalletSpecs(
+    const specs = generateWalletSpecsFromMnemonic(
       derivationDetails.mnemonic,
       WalletUtilities.getNetworkByType(wallet.networkType),
       derivationDetails.xDerivationPath

@@ -111,7 +111,7 @@ function ConnectChannel() {
           decrypted,
           isMultisig
         );
-        const { signer: bitbox02, key } = generateSignerFromMetaData({
+        const { signer: bitbox02 } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           masterFingerprint,
@@ -127,7 +127,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice([bitbox02], [key], addSignerFlow));
+          dispatch(addSigningDevice([bitbox02]));
           const navigationState = addSignerFlow
             ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -150,7 +150,7 @@ function ConnectChannel() {
           decrypted,
           isMultisig
         );
-        const { signer: trezor, key } = generateSignerFromMetaData({
+        const { signer: trezor } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           masterFingerprint,
@@ -165,7 +165,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice([trezor], [key], addSignerFlow));
+          dispatch(addSigningDevice([trezor]));
           const navigationState = addSignerFlow
             ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -185,7 +185,7 @@ function ConnectChannel() {
         const decrypted = createDecipheriv(data, decryptionKey.current);
         const { xpub, derivationPath, masterFingerprint, xpubDetails } =
           getLedgerDetailsFromChannel(decrypted, isMultisig);
-        const { signer: ledger, key } = generateSignerFromMetaData({
+        const { signer: ledger } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           masterFingerprint,
@@ -200,7 +200,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice([ledger], [key], addSignerFlow));
+          dispatch(addSigningDevice([ledger]));
           const navigationState = addSignerFlow
             ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };

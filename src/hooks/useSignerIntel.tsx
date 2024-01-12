@@ -1,8 +1,9 @@
 import { SignerType } from 'src/core/wallets/enums';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
-import useSubscription from './useSubscription';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import useSignerMap from './useSignerMap';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import usePlan from './usePlan';
 
 const areSignersSame = ({ existingKeys, vaultKeys }) => {
   if (!existingKeys.length || !vaultKeys.length) {
@@ -13,9 +14,21 @@ const areSignersSame = ({ existingKeys, vaultKeys }) => {
   return currentXfps.sort().join() === activeXfps.sort().join();
 };
 
-const useSignerIntel = ({ scheme, vaultKeys, selectedSigners, existingKeys }) => {
-  const { validSigners } = useSubscription();
+const useSignerIntel = ({
+  scheme,
+  vaultKeys,
+  selectedSigners,
+  existingKeys,
+}: {
+  scheme: VaultScheme;
+  vaultKeys: VaultSigner[];
+  selectedSigners;
+  existingKeys: VaultSigner[];
+}) => {
   const { signerMap } = useSignerMap();
+  const { plan } = usePlan();
+  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
 
   const amfSigners = [];
   for (let mfp of selectedSigners.keys()) {
@@ -29,23 +42,25 @@ const useSignerIntel = ({ scheme, vaultKeys, selectedSigners, existingKeys }) =>
 
   vaultKeys.forEach((key) => {
     if (key) {
+      const isIKS = signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY;
+      const isSS = signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER;
       const signerName = getSignerNameFromType(signerMap[key.masterFingerprint].type);
-      if (signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY) {
-        if (!validSigners.includes(signerMap[key].type)) {
-          invalidIKS = true;
-          invalidMessage = `${signerName} is not allowed in ${SubscriptionTier.L2} Please upgrade your plan or remove them`;
-        } else if (vaultKeys.length < 5) {
-          invalidIKS = true;
-          invalidMessage = `You need at least 5 signers to use ${signerName}. Please add more signers`;
+      if (isSS) {
+        if (isOnL1) {
+          invalidSS = true;
+          invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L2} Please upgrade your plan or remove them`;
+        } else if (scheme.m < 2 || scheme.n < 3) {
+          invalidSS = true;
+          invalidMessage = `You need at least 3 signers and 2 required signers to use ${signerName}. Please add more signers`;
         }
       }
-      if (signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER) {
-        if (!validSigners.includes(signerMap[key.masterFingerprint].type)) {
-          invalidSS = true;
-          invalidMessage = `${signerName} is not allowed in ${SubscriptionTier.L1} Please upgrade your plan or remove them`;
-        } else if (vaultKeys.length < 3) {
-          invalidSS = true;
-          invalidMessage = `You need at least 3 signers to use ${signerName}. Please add more signers`;
+      if (isIKS) {
+        if (!isOnL3) {
+          invalidIKS = true;
+          invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L3} Please upgrade your plan or remove them`;
+        } else if (scheme.m < 3 || scheme.n < 5) {
+          invalidIKS = true;
+          invalidMessage = `You need at least 5 signers and 3 required signers to use ${signerName}. Please add more signers`;
         }
       }
     }
