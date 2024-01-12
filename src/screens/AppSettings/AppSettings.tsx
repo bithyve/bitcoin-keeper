@@ -75,7 +75,7 @@ function AppSettings({ navigation }) {
         <OptionCard
           title={settings.SatsMode}
           description={settings.satsModeSubTitle}
-          callback={() => changeThemeMode()}
+          callback={() => changeSatsMode()}
           Icon={
             <Switch
               value={satsEnabled}
