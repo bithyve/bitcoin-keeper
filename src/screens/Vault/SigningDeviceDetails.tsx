@@ -29,7 +29,7 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
-import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WalletInsideGreen from 'src/assets/images/coldcard_light.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -335,6 +335,7 @@ function SigningDeviceDetails({ route }) {
         <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
       </Box>
       <Box flexDirection={'row'} alignItems={'center'}>
+        {/* ------------ TODO Pratyaksh ---- add vault details------- */}
         <Box width={'80%'}>
           <VaultCardHeader />
         </Box>
