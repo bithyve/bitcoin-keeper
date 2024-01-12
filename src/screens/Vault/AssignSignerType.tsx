@@ -17,6 +17,10 @@ import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import useSigners from 'src/hooks/useSigners';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 type IProps = {
   navigation: any;
@@ -30,18 +34,11 @@ function AssignSignerType({ navigation, route }: IProps) {
   const dispatch = useDispatch();
   const { vault } = route.params;
   const { signers: appSigners } = useSigners(vault.id);
-  const unknownSigners = appSigners.filter((signer) => signer.type === SignerType.UNKOWN_SIGNER);
   const [visible, setVisible] = useState(false);
   const [signerType, setSignerType] = useState<SignerType>();
   const assignSignerType = (type: SignerType) => {
     setSignerType(type);
     setVisible(true);
-    // parentNavigation.setParams({
-    //   signer: { ...signer, type, signerName: getSignerNameFromType(type) },
-    // });
-    // dispatch(updateSignerDetails(signer, 'type', type));
-    // dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type)));
-    // navigation.goBack();
   };
   const { plan } = usePlan();
 
@@ -68,6 +65,9 @@ function AssignSignerType({ navigation, route }: IProps) {
   } = useVault();
 
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
@@ -144,7 +144,7 @@ function AssignSignerType({ navigation, route }: IProps) {
           type={signerType}
           visible={visible}
           close={() => setVisible(false)}
-          unkownSigners={unknownSigners}
+          vaultSigners={vault.signers}
           skipHealthCheckCallBack={() => {
             setVisible(false);
             // setSkipHealthCheckModalVisible(true);
@@ -152,7 +152,7 @@ function AssignSignerType({ navigation, route }: IProps) {
           mode={InteracationMode.IDENTIFICATION}
           vaultShellId={vault?.shellId}
           isMultisig={vault?.isMultiSig}
-          primaryMnemonic={'kokok'}
+          primaryMnemonic={primaryMnemonic}
         />
       </ScrollView>
     </ScreenWrapper>
