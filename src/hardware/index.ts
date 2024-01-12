@@ -57,7 +57,7 @@ export const generateSignerFromMetaData = ({
   ) {
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
-  xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+  xpub = WalletUtilities.getXpubFromExtendedKey(xpub, network);
 
   const signerXpubs: signerXpubs = {};
   if (!xpubDetails) {

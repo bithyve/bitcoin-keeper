@@ -150,3 +150,27 @@ export enum LabelRefType {
   PUBKEY = 'PUBKEY',
   XPUB = 'XPUB',
 }
+
+export enum ImportedKeyType {
+  MNEMONIC = 'mnemonic',
+
+  // Extended Public Keys - MAINNET
+  XPUB = 'xpub',
+  YPUB = 'ypub',
+  ZPUB = 'zpub',
+
+  // Extended Private Keys - MAINNET
+  XPRV = 'xprv',
+  YPRV = 'yprv',
+  ZPRV = 'zprv',
+
+  // Extended Public Keys - TESTNET
+  TPUB = 'tpub',
+  UPUB = 'upub',
+  VPUB = 'vpub',
+
+  // Extended Private Keys - TESTNET
+  TPRV = 'tprv',
+  UPRV = 'uprv',
+  VPRV = 'vprv',
+}

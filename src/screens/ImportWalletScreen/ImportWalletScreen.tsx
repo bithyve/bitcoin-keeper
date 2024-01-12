@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -17,10 +17,11 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { WalletType } from 'src/core/wallets/enums';
+import { ImportedKeyType, WalletType } from 'src/core/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 
 function ImportWalletScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -56,7 +57,7 @@ function ImportWalletScreen({ route }) {
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
-            handleTextChange(data);
+            initiateWalletImport(data);
           })
           .catch((err) => {
             showToast('Invalid or No related QR code');
@@ -65,14 +66,20 @@ function ImportWalletScreen({ route }) {
     });
   };
 
-  const handleTextChange = (info: string) => {
-    info = info.trim();
-    navigation.navigate('ImportWalletDetails', {
-      seed: info,
-      type: WalletType.IMPORTED,
-      name: `Wallet ${wallets.length + 1}`,
-      description: 'Watch Only',
-    });
+  const initiateWalletImport = (data: string) => {
+    try {
+      const importedKey = data.trim();
+      const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+      navigation.navigate('ImportWalletDetails', {
+        importedKey,
+        importedKeyDetails,
+        type: WalletType.IMPORTED,
+        name: `Wallet ${wallets.length + 1}`,
+        description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
+      });
+    } catch (err) {
+      showToast('Invalid Import Key');
+    }
   };
 
   return (
@@ -91,7 +98,7 @@ function ImportWalletScreen({ route }) {
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
-                  handleTextChange(data.data);
+                  initiateWalletImport(data.data);
                 }}
                 notAuthorizedView={<CameraUnauthorized />}
               />
