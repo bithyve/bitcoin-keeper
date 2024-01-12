@@ -125,7 +125,6 @@ export const generateWallet = async ({
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
 
-  let xDerivationPath: string;
   let bip85Config: BIP85Config;
   let depositWalletId: string;
   let id: string;
@@ -135,7 +134,6 @@ export const generateWallet = async ({
   if (type === WalletType.IMPORTED) {
     // case: adding imported wallet
     if (!importDetails) throw new Error('Import details are missing');
-
     const { importedKey, importedKeyDetails, derivationConfig } = importDetails;
 
     let mnemonic;
@@ -149,7 +147,8 @@ export const generateWallet = async ({
         bip85Config,
         xDerivationPath: derivationConfig.path,
       };
-      specs = generateWalletSpecsFromMnemonic(mnemonic, network, xDerivationPath);
+
+      specs = generateWalletSpecsFromMnemonic(mnemonic, network, derivationDetails.xDerivationPath);
     } else {
       // case: import wallet via extended keys
 
@@ -178,7 +177,7 @@ export const generateWallet = async ({
         ? derivationConfig.path
         : WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType),
     };
-    specs = generateWalletSpecsFromMnemonic(mnemonic, network, xDerivationPath);
+    specs = generateWalletSpecsFromMnemonic(mnemonic, network, derivationDetails.xDerivationPath);
   } else {
     // case: adding new wallet
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
@@ -197,7 +196,7 @@ export const generateWallet = async ({
         ? derivationConfig.path
         : WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType),
     };
-    specs = generateWalletSpecsFromMnemonic(mnemonic, network, xDerivationPath);
+    specs = generateWalletSpecsFromMnemonic(mnemonic, network, derivationDetails.xDerivationPath);
   }
 
   const defaultShell = 1;
