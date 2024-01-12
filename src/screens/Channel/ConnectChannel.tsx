@@ -233,19 +233,19 @@ function ConnectChannel() {
 
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        let xfp, signerType;
+        let masterFingerprint, signerType;
 
         switch (deviceType) {
           case LEDGER_HEALTHCHECK:
-            ({ xfp } = getLedgerDetailsFromChannel(decrypted, isMultisig));
+            ({ masterFingerprint } = getLedgerDetailsFromChannel(decrypted, isMultisig));
             signerType = SignerType.LEDGER;
             break;
           case TREZOR_HEALTHCHECK:
-            ({ xfp } = getTrezorDetails(decrypted, isMultisig));
+            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
             signerType = SignerType.TREZOR;
             break;
           case BITBOX_HEALTHCHECK:
-            ({ xfp } = getTrezorDetails(decrypted, isMultisig));
+            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
             signerType = SignerType.BITBOX02;
             break;
           default:
@@ -253,14 +253,14 @@ function ConnectChannel() {
         }
 
         if (mode === InteracationMode.IDENTIFICATION) {
-          const mapped = mapUnknownSigner({ masterFingerprint: xfp, type: signerType });
+          const mapped = mapUnknownSigner({ masterFingerprint, type: signerType });
           if (mapped) {
             handleSuccess();
           } else {
             handleFailure();
           }
         } else {
-          if (xfp === signer.masterFingerprint) {
+          if (masterFingerprint === signer.masterFingerprint) {
             handleSuccess();
           } else {
             handleFailure();
