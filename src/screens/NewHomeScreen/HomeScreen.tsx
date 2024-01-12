@@ -29,6 +29,7 @@ import BalanceComponent from './components/BalanceComponent';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import RampModal from '../WalletDetails/components/RampModal';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -70,6 +71,11 @@ function NewHomeScreen({ navigation }) {
   const electrumClientConnectionStatus = useAppSelector(
     (state) => state.login.electrumClientConnectionStatus
   );
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+  // const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
+  const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
+  const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
+  const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
 
   useEffect(() => {
     if (electrumClientConnectionStatus.success) {
@@ -112,7 +118,7 @@ function NewHomeScreen({ navigation }) {
 
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
-
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const dummyData = [
     {
       name: 'Inheritance Tools',
@@ -142,7 +148,7 @@ function NewHomeScreen({ navigation }) {
     {
       name: 'Buy Bitcoin',
       icon: <BTC />,
-      callback: () => {},
+      callback: onPressBuyBitcoin,
     },
     {
       name: 'Manage All Signers',
@@ -152,6 +158,7 @@ function NewHomeScreen({ navigation }) {
   ];
 
   const styles = getStyles(colorMode);
+
   return (
     <Box backgroundColor={`${colorMode}.Linen`} style={[styles.container]}>
       <Box
@@ -240,6 +247,15 @@ function NewHomeScreen({ navigation }) {
         wallets={wallets}
         collaborativeWallets={collaborativeWallets}
         setDefaultWalletCreation={setDefaultWalletCreation}
+      />
+      <RampModal
+        showBuyRampModal={showBuyRampModal}
+        setShowBuyRampModal={setShowBuyRampModal}
+        //wallet
+        wallet={'qwqwqwqw'}
+        receivingAddress={receivingAddress}
+        balance={balance}
+        name={presentationName}
       />
     </Box>
   );
