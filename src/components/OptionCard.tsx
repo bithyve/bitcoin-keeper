@@ -7,7 +7,7 @@ import { windowWidth } from 'src/constants/responsive';
 type OptionProps = {
   title: string;
   description: string;
-  callback: () => void;
+  callback?: () => void;
   Icon?: Element;
   LeftIcon?: Element;
   disabled?: boolean;
@@ -17,7 +17,7 @@ export function OptionCard({
   title,
   description,
   Icon,
-  callback,
+  callback = null,
   LeftIcon,
   disabled = false,
 }: OptionProps) {

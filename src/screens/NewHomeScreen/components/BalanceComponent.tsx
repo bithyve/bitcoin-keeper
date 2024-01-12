@@ -1,16 +1,14 @@
 import { Box, useColorMode } from 'native-base';
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
-
-import BitcoinIcon from 'src/assets/images/icon_bitcoin.svg';
+import { StyleSheet } from 'react-native';
+import Text from 'src/components/KeeperText';
 import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
 
-const BalanceComponent = ({ balance, count }) => {
+function BalanceComponent({ balance, count }) {
   const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
   return (
     <Box style={styles.walletWrapper}>
-      <Text style={styles.noOfWallet}>
+      <Text color={`${colorMode}.black`} style={styles.noOfWallet}>
         <Text style={{ fontWeight: 'bold' }}>{count}</Text> Wallet{count > 1 && 's'}
       </Text>
       <Box style={styles.amount}>
@@ -24,27 +22,25 @@ const BalanceComponent = ({ balance, count }) => {
       </Box>
     </Box>
   );
-};
+}
 
 export default BalanceComponent;
 
-const getStyles = (colorMode) =>
-  StyleSheet.create({
-    walletWrapper: {
-      justifyContent: 'center',
-      marginTop: 20,
-    },
-    noOfWallet: {
-      textAlign: 'center',
-      fontSize: 27,
-      color: `${colorMode}.black`,
-    },
-    amount: {
-      textAlign: 'center',
-      gap: 5,
-      color: `${colorMode}.black`,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'row',
-    },
-  });
+const styles = StyleSheet.create({
+  walletWrapper: {
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  noOfWallet: {
+    textAlign: 'center',
+    fontSize: 27,
+    lineHeight: 27,
+  },
+  amount: {
+    textAlign: 'center',
+    gap: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+});
