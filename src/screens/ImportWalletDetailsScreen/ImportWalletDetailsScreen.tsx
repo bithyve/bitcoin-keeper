@@ -16,20 +16,19 @@ function ImportWalletDetailsScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet } = translations;
 
-  const name = route?.params?.name;
-  const desc = route?.params?.description;
+  const { importedKey, importedKeyDetails, type, name, description } = route.params;
+  const transferPolicy = maxTransferPolicyThreshold.toString();
+
   const [walletName, setWalletName] = useState(name || '');
-  const [description, setDescription] = useState(desc || '');
-  const [walletType, setWalletType] = useState(route?.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route?.params?.seed?.replace(/,/g, ' '));
-  const [transferPolicy, setTransferPolicy] = useState(maxTransferPolicyThreshold.toString());
+  const [walletDescription, setWalletDescription] = useState(description || '');
 
   const onNextClick = () => {
     navigation.navigate('AddDetailsFinal', {
-      type: walletType,
-      description,
+      type, // walletType
+      description: walletDescription,
       name: walletName,
-      seed: importedSeed,
+      importedKey,
+      importedKeyDetails,
       policy: transferPolicy,
     });
   };
@@ -53,7 +52,7 @@ function ImportWalletDetailsScreen({ route }) {
                 style={styles.textInput}
                 borderWidth="0"
                 backgroundColor={`${colorMode}.seashellWhite`}
-                value={walletName}
+                value={name}
                 onChangeText={(text) => setWalletName(text)}
               />
             </Box>
@@ -64,7 +63,7 @@ function ImportWalletDetailsScreen({ route }) {
                 borderWidth="0"
                 backgroundColor={`${colorMode}.seashellWhite`}
                 value={description}
-                onChangeText={(text) => setDescription(text)}
+                onChangeText={(text) => setWalletDescription(text)}
               />
             </Box>
           </Box>

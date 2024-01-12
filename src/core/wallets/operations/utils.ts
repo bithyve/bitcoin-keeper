@@ -24,6 +24,7 @@ import {
   BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
+  ImportedKeyType,
   NetworkType,
   PaymentInfoKind,
   ScriptTypes,
@@ -798,6 +799,107 @@ export default class WalletUtilities {
         return XpubTypes.P2PKH;
       default:
         return XpubTypes.P2WSH;
+    }
+  };
+
+  static getImportedKeyDetails = (
+    input: string
+  ): { importedKeyType: ImportedKeyType; watchOnly: Boolean; purpose: DerivationPurpose } => {
+    try {
+      // case: mnemonic
+      bip39.mnemonicToEntropy(input);
+      return { importedKeyType: ImportedKeyType.MNEMONIC, watchOnly: false, purpose: null };
+    } catch (err) {
+      try {
+        // case: extended keys
+        bs58check.decode(input);
+
+        // attempt to create an extended key from the input
+        if (config.NETWORK === bitcoinJS.networks.bitcoin) {
+          // extended public keys (mainnet)
+          if (input.startsWith(ImportedKeyType.XPUB))
+            return {
+              importedKeyType: ImportedKeyType.XPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.YPUB))
+            return {
+              importedKeyType: ImportedKeyType.YPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.ZPUB))
+            return {
+              importedKeyType: ImportedKeyType.ZPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP84,
+            };
+
+          // extended private keys (mainnet)
+          if (input.startsWith(ImportedKeyType.XPRV))
+            return {
+              importedKeyType: ImportedKeyType.XPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.YPRV))
+            return {
+              importedKeyType: ImportedKeyType.YPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.ZPRV))
+            return {
+              importedKeyType: ImportedKeyType.ZPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP84,
+            };
+        } else {
+          // extended public keys (testnet)
+          if (input.startsWith(ImportedKeyType.TPUB))
+            return {
+              importedKeyType: ImportedKeyType.TPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.UPUB))
+            return {
+              importedKeyType: ImportedKeyType.UPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.VPUB))
+            return {
+              importedKeyType: ImportedKeyType.VPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP84,
+            };
+
+          // extended private keys (testnet)
+          if (input.startsWith(ImportedKeyType.TPRV))
+            return {
+              importedKeyType: ImportedKeyType.TPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.UPRV))
+            return {
+              importedKeyType: ImportedKeyType.UPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.VPRV))
+            return {
+              importedKeyType: ImportedKeyType.VPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP84,
+            };
+        }
+      } catch (err) {
+        // if neither mnemonic nor extended key, consider it an invalid input
+        throw new Error('Invalid Import Key');
+      }
     }
   };
 }
