@@ -6,19 +6,23 @@ import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Buy from 'src/assets/images/icon_buy.svg';
+import CoinIcon from 'src/assets/images/coins.svg';
+import SignerIcon from 'src/assets/images/signer_white.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Recieve from 'src/assets/images/receive.svg';
 import { ScrollView } from 'react-native-gesture-handler';
-import Send from 'src/assets/images/send.svg';
-import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
+import SendIcon from 'src/assets/images/icon_sent_footer.svg';
+import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
+import SettingIcon from 'src/assets/images/settings_footer.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
-import VaultIcon from 'src/assets/images/icon_vault_new.svg';
+// import VaultIcon from 'src/assets/images/icon_vault_new.svg';
+import VaultIcon from 'src/assets/images/wallet_vault.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
-import { EntityKind, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -36,16 +40,18 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
 import openLink from 'src/utils/OpenLink';
-import { SDIcons } from './SigningDeviceIcons';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
-import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import useSignerMap from 'src/hooks/useSignerMap';
+import CardPill from 'src/components/CardPill';
+import ActionCard from 'src/components/ActionCard';
+import IdentifySignerModal from './components/IdentifySignerModal';
+import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import { SDIcons } from './SigningDeviceIcons';
 
 function Footer({
   vault,
@@ -63,7 +69,7 @@ function Footer({
   const navigation = useNavigation();
   const footerItems = [
     {
-      Icon: Send,
+      Icon: SendIcon,
       text: 'Send',
       onPress: () => {
         if (identifySigner) {
@@ -74,19 +80,19 @@ function Footer({
       },
     },
     {
-      Icon: Recieve,
+      Icon: RecieveIcon,
       text: 'Receive',
       onPress: () => {
         navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
       },
     },
+    // {
+    //   Icon: Buy,
+    //   text: 'Buy',
+    //   onPress: onPressBuy,
+    // },
     {
-      Icon: Buy,
-      text: 'Buy',
-      onPress: onPressBuy,
-    },
-    {
-      Icon: IconSettings,
+      Icon: SettingIcon,
       text: 'Settings',
       onPress: () => {
         navigation.dispatch(
@@ -119,15 +125,15 @@ function VaultInfo({
   } = vault;
 
   return (
-    <VStack paddingBottom={10} paddingLeft={5}>
+    <VStack marginTop={-10} paddingLeft={5}>
       <HStack alignItems="center">
         <Box paddingRight={3}>{isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}</Box>
         <VStack>
           <Text
-            color={`${colorMode}.white`}
+            color={`${colorMode}.seashellWhite`}
             style={styles.vaultInfoText}
-            fontSize={16}
-            testID={'text_vaultName'}
+            fontSize={18}
+            testID="text_vaultName"
           >
             {name}
           </Text>
@@ -135,19 +141,23 @@ function VaultInfo({
             color={`${colorMode}.white`}
             style={styles.vaultInfoText}
             fontSize={12}
-            testID={'text_vaultDescription'}
+            testID="text_vaultDescription"
           >
             {description}
           </Text>
         </VStack>
       </HStack>
       <HStack justifyContent="space-between" top={isCollaborativeWallet ? '16' : '0'}>
-        <VStack paddingTop="6">
-          <Text
+        <HStack paddingTop="6" space={2}>
+          <CardPill heading={`${vault.scheme.m} of ${vault.scheme.n}`} />
+          <CardPill
+            heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
+          />
+          {/* <Text
             color={`${colorMode}.white`}
             style={styles.vaultInfoText}
             fontSize={11}
-            testID={'text_unconfirmed'}
+            testID="text_unconfirmed"
           >
             {common.unconfirmed}
           </Text>
@@ -157,21 +167,21 @@ function VaultInfo({
             fontSize={14}
             color={`${colorMode}.white`}
             variation={colorMode === 'light' ? 'light' : 'dark'}
-          />
-        </VStack>
+          /> */}
+        </HStack>
         <VStack paddingBottom="16" paddingTop="6">
-          <Text
+          {/* <Text
             color={`${colorMode}.white`}
             style={styles.vaultInfoText}
             fontSize={11}
-            testID={'text_availableBalance'}
+            testID="text_availableBalance"
           >
             {common.availableBalance}
-          </Text>
+          </Text> */}
           <CurrencyInfo
             hideAmounts={false}
             amount={confirmed}
-            fontSize={20}
+            fontSize={24}
             color={`${colorMode}.white`}
             variation={colorMode === 'light' ? 'light' : 'dark'}
           />
@@ -207,18 +217,18 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.1) }}>
+      <VStack style={{ paddingTop: windowHeight * (collaborativeWalletId ? 0.03 : 0.1) }}>
         <HStack justifyContent="space-between" alignItems="center">
           <Text
             color={`${colorMode}.black`}
             marginLeft={wp(3)}
             fontSize={16}
             letterSpacing={1.28}
-            testID={'text_Transaction'}
+            testID="text_Transaction"
           >
             {common.transactions}
           </Text>
-          {transactions ? (
+          {/* {transactions ? (
             <TouchableOpacity
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={() => {
@@ -239,18 +249,18 @@ function TransactionList({
                   fontSize={11}
                   bold
                   letterSpacing={0.6}
-                  testID={'text_viewAll'}
+                  testID="text_viewAll"
                 >
                   {common.viewAll}
                 </Text>
                 <IconArrowBlack />
               </HStack>
             </TouchableOpacity>
-          ) : null}
+          ) : null} */}
         </HStack>
       </VStack>
       <FlatList
-        testID={'view_TransactionList'}
+        testID="view_TransactionList"
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
@@ -545,7 +555,7 @@ function VaultDetails({ navigation }) {
     <Box
       style={styles.container}
       backgroundColor={
-        collaborativeWalletId ? `${colorMode}.greenText2` : `${colorMode}.learnMoreBorder`
+        collaborativeWalletId ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
       }
     >
       <StatusBar barStyle="light-content" />
@@ -560,12 +570,41 @@ function VaultDetails({ navigation }) {
           />
           <VaultInfo vault={vault} isCollaborativeWallet={!!collaborativeWalletId} />
         </VStack>
-        {collaborativeWalletId ? null : <SignerList vault={vault} />}
+        {/* {collaborativeWalletId ? null : <SignerList vault={vault} />} */}
       </VStack>
+      <Box
+        style={{
+          marginBottom: -50,
+          zIndex: 10,
+          flexDirection: 'row',
+          gap: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ActionCard
+          cardName="View All Coins"
+          description="Manage UTXO"
+          callback={() =>
+            navigation.navigate('UTXOManagement', {
+              data: vault,
+              routeName: 'Vault',
+              // accountType: VaultType.DEFAULT,
+            })
+          }
+          icon={<CoinIcon />}
+        />
+        <ActionCard
+          cardName="Manage Signers"
+          description="Manage for this wallet"
+          callback={() => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' }))}
+          icon={<SignerIcon />}
+        />
+      </Box>
       <VStack
         backgroundColor={`${colorMode}.primaryBackground`}
         px={wp(28)}
-        borderTopLeftRadius={20}
+        // borderTopLeftRadius={20}
         flex={1}
         justifyContent="space-between"
         paddingBottom={windowHeight > 800 ? 5 : 0}

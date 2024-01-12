@@ -1,14 +1,15 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import Text from './KeeperText';
 import { StyleSheet } from 'react-native';
+import Text from './KeeperText';
 
 type ActionCardProps = {
   cardName: string;
-  icon?: Element;
   callback: () => void;
+  icon?: Element;
+  description?: string;
 };
 
-function ActionCard({ cardName, icon, callback }: ActionCardProps) {
+function ActionCard({ cardName, icon, callback, description }: ActionCardProps) {
   const { colorMode } = useColorMode();
   return (
     <Pressable
@@ -19,7 +20,14 @@ function ActionCard({ cardName, icon, callback }: ActionCardProps) {
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
         {icon && icon}
       </Box>
-      <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
+      <Text fontSize={12} color={`${colorMode}.primaryText`}>
+        {cardName}
+      </Text>
+      {description && (
+        <Text fontSize={11} color={`${colorMode}.GreenishGrey`}>
+          {description}
+        </Text>
+      )}
     </Pressable>
   );
 }
@@ -37,7 +45,7 @@ const styles = StyleSheet.create({
     borderRadius: 34 / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 25,
+    marginTop: 15,
     marginBottom: 10,
   },
 });
