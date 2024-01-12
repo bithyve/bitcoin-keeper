@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { wp, hp, windowHeight } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
@@ -18,9 +18,7 @@ import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import usePlan from 'src/hooks/usePlan';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -32,11 +30,7 @@ function SetupInheritance({ route }) {
   const { inheritence, vault: vaultTranslation, common } = translations;
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
-  const { plan } = usePlan();
   const { vaultId } = route.params;
-  const { activeVault } = useVault({ vaultId });
-
-  const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
 
   const inheritanceData = [
     {
@@ -120,23 +114,7 @@ function SetupInheritance({ route }) {
 
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus', { vaultId });
-  };
-
-  const toSetupInheritance = () => {
-    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus', { vaultId });
-    else if (plan !== SubscriptionTier.L3.toUpperCase())
-      navigtaion.navigate('ChoosePlan', { planPosition: 2 });
-    else if (!activeVault)
-      navigtaion.dispatch(
-        CommonActions.navigate({
-          name: 'AddSigningDevice',
-          merge: true,
-          params: { scheme: { m: 3, n: 5 } },
-        })
-      );
-    else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5)
-      navigtaion.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
+    navigtaion.navigate('InheritanceStatus', { vaultId });
   };
 
   return (
