@@ -307,30 +307,16 @@ export default class WalletUtilities {
     return childXKey.toBase58();
   };
 
+  static getPublicExtendedKeyFromPriv = (extendedKey: string): string => {
+    const xKey = bip32.fromBase58(extendedKey, config.NETWORK);
+    return xKey.neutered().toBase58();
+  };
+
   static getNetworkFromXpub = (xpub: string) => {
     if (xpub) {
       return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
         ? NetworkType.MAINNET
         : NetworkType.TESTNET;
-    }
-  };
-
-  static getNetworkFromPrefix = (prefix) => {
-    switch (prefix) {
-      case 'xpub': // 0x0488b21e
-      case 'ypub': // 0x049d7cb2
-      case 'Ypub': // 0x0295b43f
-      case 'zpub': // 0x04b24746
-      case 'Zpub': // 0x02aa7ed3
-        return NetworkType.MAINNET;
-      case 'tpub': // 0x043587cf
-      case 'upub': // 0x044a5262
-      case 'Upub': // 0x024289ef
-      case 'vpub': // 0x045f1cf6
-      case 'Vpub': // 0x02575483
-        return NetworkType.TESTNET;
-      default:
-        return null;
     }
   };
 
@@ -802,6 +788,20 @@ export default class WalletUtilities {
     }
   };
 
+  static isExtendedPrvKey = (keyType: ImportedKeyType) => {
+    if (config.NETWORK === bitcoinJS.networks.bitcoin)
+      return [ImportedKeyType.XPRV, ImportedKeyType.YPRV, ImportedKeyType.ZPRV].includes(keyType);
+    else
+      return [ImportedKeyType.TPRV, ImportedKeyType.UPRV, ImportedKeyType.VPRV].includes(keyType);
+  };
+
+  static isExtendedPubKey = (keyType: ImportedKeyType) => {
+    if (config.NETWORK === bitcoinJS.networks.bitcoin)
+      return [ImportedKeyType.XPUB, ImportedKeyType.YPUB, ImportedKeyType.ZPUB].includes(keyType);
+    else
+      return [ImportedKeyType.TPUB, ImportedKeyType.UPUB, ImportedKeyType.VPUB].includes(keyType);
+  };
+
   static getImportedKeyDetails = (
     input: string
   ): { importedKeyType: ImportedKeyType; watchOnly: Boolean; purpose: DerivationPurpose } => {
@@ -900,6 +900,25 @@ export default class WalletUtilities {
         // if neither mnemonic nor extended key, consider it an invalid input
         throw new Error('Invalid Import Key');
       }
+    }
+  };
+
+  static getNetworkFromPrefix = (prefix) => {
+    switch (prefix) {
+      case 'xpub': // 0x0488b21e
+      case 'ypub': // 0x049d7cb2
+      case 'Ypub': // 0x0295b43f
+      case 'zpub': // 0x04b24746
+      case 'Zpub': // 0x02aa7ed3
+        return NetworkType.MAINNET;
+      case 'tpub': // 0x043587cf
+      case 'upub': // 0x044a5262
+      case 'Upub': // 0x024289ef
+      case 'vpub': // 0x045f1cf6
+      case 'Vpub': // 0x02575483
+        return NetworkType.TESTNET;
+      default:
+        return null;
     }
   };
 }

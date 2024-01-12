@@ -47,7 +47,10 @@ import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
+import {
+  generateWallet,
+  generateWalletSpecsFromMnemonic,
+} from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateKey, hash256 } from 'src/services/operations/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -1117,7 +1120,7 @@ function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
       ...wallet.derivationDetails,
       xDerivationPath: details.path,
     };
-    const specs = generateWalletSpecs(
+    const specs = generateWalletSpecsFromMnemonic(
       derivationDetails.mnemonic,
       WalletUtilities.getNetworkByType(wallet.networkType),
       derivationDetails.xDerivationPath

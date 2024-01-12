@@ -5,6 +5,7 @@ import { hash256 } from 'src/services/operations/encryption';
 import config from 'src/core/config';
 import {
   EntityKind,
+  ImportedKeyType,
   NetworkType,
   ScriptTypes,
   VisibilityType,
@@ -14,6 +15,7 @@ import {
 import {
   TransferPolicy,
   Wallet,
+  WalletDerivationDetails,
   WalletImportDetails,
   WalletPresentationData,
   WalletSpecs,
@@ -27,7 +29,7 @@ import { XpubDetailsType } from '../interfaces/vault';
 
 export const whirlPoolWalletTypes = [WalletType.PRE_MIX, WalletType.POST_MIX, WalletType.BAD_BANK];
 
-export const generateWalletSpecs = (
+export const generateWalletSpecsFromMnemonic = (
   mnemonic: string,
   network: bitcoinJS.Network,
   xDerivationPath: string
@@ -41,6 +43,41 @@ export const generateWalletSpecs = (
   );
   const { xpriv } = extendedKeys;
   const { xpub } = extendedKeys;
+
+  const specs: WalletSpecs = {
+    xpub,
+    xpriv,
+    nextFreeAddressIndex: 0,
+    nextFreeChangeAddressIndex: 0,
+    confirmedUTXOs: [],
+    unconfirmedUTXOs: [],
+    balances: {
+      confirmed: 0,
+      unconfirmed: 0,
+    },
+    transactions: [],
+    txNote: {},
+    hasNewUpdates: false,
+    lastSynched: 0,
+    receivingAddress: '',
+  };
+  return specs;
+};
+
+export const generateWalletSpecsFromExtendedKeys = (
+  extendedKey: string,
+  extendedKeyType: ImportedKeyType
+) => {
+  let xpriv: string;
+  let xpub: string;
+  if (WalletUtilities.isExtendedPrvKey(extendedKeyType)) {
+    xpriv = extendedKey; //TODO: perform conversion for other key types
+    xpub = WalletUtilities.getPublicExtendedKeyFromPriv(extendedKey);
+  } else if (WalletUtilities.isExtendedPubKey(extendedKeyType)) {
+    xpub = extendedKey; // TODO: perform conversion for other key types
+  } else {
+    throw new Error('Invalid key');
+  }
 
   const specs: WalletSpecs = {
     xpub,
@@ -87,42 +124,81 @@ export const generateWallet = async ({
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
 
-  let mnemonic: string;
   let xDerivationPath: string;
   let bip85Config: BIP85Config;
   let depositWalletId: string;
+  let id: string;
+  let derivationDetails: WalletDerivationDetails;
+  let specs: WalletSpecs;
 
   if (type === WalletType.IMPORTED) {
+    // case: adding imported wallet
     if (!importDetails) throw new Error('Import details are missing');
-    mnemonic = importDetails.mnemonic;
+
+    const { importedKey, importedKeyDetails, derivationConfig } = importDetails;
+    console.log({ importedKey, importedKeyDetails, derivationConfig });
+    let mnemonic;
+    if (importedKeyDetails.importedKeyType === ImportedKeyType.MNEMONIC) {
+      // case: import wallet via mnemonic
+      mnemonic = importedKey;
+      id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: wallets(non-whirlpool) have master-fingerprints as their id
+      derivationDetails = {
+        instanceNum,
+        mnemonic,
+        bip85Config,
+        xDerivationPath: derivationConfig.path,
+      };
+      specs = generateWalletSpecsFromMnemonic(mnemonic, network, xDerivationPath);
+    } else {
+      // case: import wallet via extended keys
+
+      id = WalletUtilities.getFingerprintFromExtendedKey(importedKey, config.NETWORK); // case: extended key imported wallets have xfp as their id
+
+      derivationDetails = {
+        instanceNum, // null
+        mnemonic, // null
+        bip85Config, // null
+        xDerivationPath: derivationConfig.path,
+      };
+      console.log({ derivationDetails, id });
+      specs = generateWalletSpecsFromExtendedKeys(importedKey, importedKeyDetails.importedKeyType);
+      console.log({ specs });
+    }
   } else if (whirlPoolWalletTypes.includes(type)) {
-    mnemonic = parentMnemonic;
+    // case: adding whirlpool wallet
+    const mnemonic = parentMnemonic;
+    depositWalletId = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: whirlpool wallets have master-fingerprints as their deposit id
+    id = hash256(`${id}${type}`);
+
+    derivationDetails = {
+      instanceNum,
+      mnemonic,
+      bip85Config,
+      xDerivationPath: derivationConfig
+        ? derivationConfig.path
+        : WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType),
+    };
+    specs = generateWalletSpecsFromMnemonic(mnemonic, network, xDerivationPath);
   } else {
+    // case: adding new wallet
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
     // BIP85 derivation: primary mnemonic to bip85-child mnemonic
     bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
     const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-    mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+
+    const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+    id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: wallets(non-whirlpool) have master-fingerprints as their id
+
+    derivationDetails = {
+      instanceNum,
+      mnemonic,
+      bip85Config,
+      xDerivationPath: derivationConfig
+        ? derivationConfig.path
+        : WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType),
+    };
+    specs = generateWalletSpecsFromMnemonic(mnemonic, network, xDerivationPath);
   }
-
-  if (derivationConfig) xDerivationPath = derivationConfig.path;
-  else if (importDetails && importDetails.derivationConfig)
-    xDerivationPath = importDetails.derivationConfig.path;
-  else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
-
-  let id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: wallets(non-whirlpool) have master-fingerprints as their id
-
-  if (whirlPoolWalletTypes.includes(type)) {
-    depositWalletId = id; // case: whirlpool wallets have master-fingerprints as their deposit id
-    id = hash256(`${id}${type}`);
-  }
-
-  const derivationDetails = {
-    instanceNum,
-    mnemonic,
-    bip85Config,
-    xDerivationPath,
-  };
 
   const defaultShell = 1;
   const presentationData: WalletPresentationData = {
@@ -131,8 +207,6 @@ export const generateWallet = async ({
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
-
-  const specs: WalletSpecs = generateWalletSpecs(mnemonic, network, xDerivationPath);
 
   const wallet: Wallet = {
     id,
