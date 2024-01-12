@@ -22,12 +22,13 @@ type IProps = {
     params: {
       signer: VaultSigner;
       parentNavigation: any;
+      vaultId: string;
     };
   };
 };
 function AssignSignerType({ navigation, route }: IProps) {
   const dispatch = useDispatch();
-  const { signer, parentNavigation } = route.params;
+  const { signer, parentNavigation, vaultId } = route.params;
   const assignSignerType = (type: SignerType) => {
     parentNavigation.setParams({
       signer: { ...signer, type, signerName: getSignerNameFromType(type) },
@@ -58,7 +59,7 @@ function AssignSignerType({ navigation, route }: IProps) {
   const [signersLoaded, setSignersLoaded] = useState(false);
   const {
     activeVault: { signers, scheme },
-  } = useVault();
+  } = useVault({ vaultId });
 
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
 

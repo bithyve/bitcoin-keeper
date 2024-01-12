@@ -1,23 +1,25 @@
 import { StatusBar, StyleSheet } from 'react-native';
 import React from 'react';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { useDispatch } from 'react-redux';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Text from 'src/components/KeeperText';
 import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
+import { windowWidth } from 'src/constants/responsive';
+import AddCard from 'src/components/AddCard';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 const ManageSigners = () => {
   const { colorMode } = useColorMode();
-  const dispatch = useDispatch();
   const { signers } = useSigners();
+  const navigation = useNavigation();
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.learnMoreBorder`}>
       <StatusBar barStyle="light-content" />
-      <Box style={{ paddingHorizontal: 20, paddingTop: 15 }}>
+      <Box style={styles.header}>
         <KeeperHeader learnMore learnMorePressed={() => {}} contrastScreen={true} />
         <VStack paddingBottom={10} paddingLeft={5}>
           <HStack alignItems="center">
@@ -45,20 +47,33 @@ const ManageSigners = () => {
           </HStack>
         </VStack>
       </Box>
-      <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.signerContainer}>
-        {signers.map((signer) => {
-          return (
-            <SignerCard
-              key={signer.masterFingerprint}
-              walletName={signer.signerName}
-              walletDescription={signer.signerDescription || signer.type}
-              icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-              isSelected={false}
-              onCardSelect={() => {}}
-              showSelection={false}
+      <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.body}>
+        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+          <Box style={styles.signerContainer}>
+            {signers.map((signer) => {
+              return (
+                <SignerCard
+                  key={signer.masterFingerprint}
+                  name={signer.signerName}
+                  description={signer.signerDescription || signer.type}
+                  icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                  isSelected={false}
+                  showSelection={false}
+                  colorVarient="green"
+                />
+              );
+            })}
+            <AddCard
+              name={'Add Signer'}
+              cardStyles={styles.addCard}
+              callback={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceList', { addSignerFlow: true })
+                )
+              }
             />
-          );
-        })}
+          </Box>
+        </ScrollView>
       </VStack>
     </Box>
   );
@@ -71,15 +86,30 @@ const styles = StyleSheet.create({
     paddingTop: '10%',
     flex: 1,
   },
-  signerContainer: {
-    paddingHorizontal: '5%',
-    paddingTop: '5%',
-    paddingBottom: 20,
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    flex: 0.6,
+  },
+  body: {
     flex: 1,
+    paddingHorizontal: '5%',
+  },
+  scrollContainer: {
+    marginTop: '-20%',
+  },
+  signerContainer: {
+    width: windowWidth,
     flexDirection: 'row',
     flexWrap: 'wrap',
+    paddingBottom: 20,
   },
   infoText: {
     letterSpacing: 1.28,
+  },
+  addCard: {
+    height: 125,
+    width: windowWidth / 3 - windowWidth * 0.05,
+    margin: 3,
   },
 });

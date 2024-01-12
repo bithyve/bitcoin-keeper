@@ -56,7 +56,7 @@ function SetupOtherSDScreen({ route }) {
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else if (mode === InteracationMode.ADDITION) {
-        dispatch(addSigningDevice([signer], [key], addSignerFlow));
+        dispatch(addSigningDevice([signer]));
         navigation.dispatch(
           CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
         );
@@ -106,7 +106,7 @@ function SetupOtherSDScreen({ route }) {
       if (hw) {
         const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } = hw;
         if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-          const { signer, key } = generateSignerFromMetaData({
+          const { signer } = generateSignerFromMetaData({
             xpub,
             derivationPath,
             masterFingerprint,
@@ -115,9 +115,9 @@ function SetupOtherSDScreen({ route }) {
             storageType: SignerStorage.COLD,
           });
           if (signer) {
-            dispatch(addSigningDevice([signer], [key], addSignerFlow));
+            dispatch(addSigningDevice([signer]));
             const navigationState = addSignerFlow
-              ? { name: 'Home' }
+              ? { name: 'ManageSigners' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
             showToast(`signer added successfully`, <TickIcon />);
@@ -154,7 +154,7 @@ function SetupOtherSDScreen({ route }) {
       try {
         const ccDetails = extractColdCardExport(data, isMultisig);
         const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
-        const { signer: coldcard, key } = generateSignerFromMetaData({
+        const { signer: coldcard } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           masterFingerprint,
@@ -163,9 +163,9 @@ function SetupOtherSDScreen({ route }) {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice([coldcard], [key], addSignerFlow));
+        dispatch(addSigningDevice([coldcard]));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
         return;
@@ -178,7 +178,7 @@ function SetupOtherSDScreen({ route }) {
           const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
             getPassportDetails(data);
           if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-            const { signer: passport, key } = generateSignerFromMetaData({
+            const { signer: passport } = generateSignerFromMetaData({
               xpub,
               derivationPath,
               masterFingerprint,
@@ -186,9 +186,9 @@ function SetupOtherSDScreen({ route }) {
               storageType: SignerStorage.COLD,
               isMultisig,
             });
-            dispatch(addSigningDevice([passport], [key], addSignerFlow));
+            dispatch(addSigningDevice([passport]));
             const navigationState = addSignerFlow
-              ? { name: 'Home' }
+              ? { name: 'ManageSigners' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
             return;
@@ -202,7 +202,7 @@ function SetupOtherSDScreen({ route }) {
             const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
               getKeystoneDetailsFromFile(data);
             if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-              const { signer: keystone, key } = generateSignerFromMetaData({
+              const { signer: keystone } = generateSignerFromMetaData({
                 xpub,
                 derivationPath,
                 masterFingerprint,
@@ -210,9 +210,9 @@ function SetupOtherSDScreen({ route }) {
                 storageType: SignerStorage.COLD,
                 isMultisig,
               });
-              dispatch(addSigningDevice([keystone], [key], addSignerFlow));
+              dispatch(addSigningDevice([keystone]));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               return;

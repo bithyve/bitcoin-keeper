@@ -113,7 +113,8 @@ export const incrementAddressIndex = (
 });
 
 export const updateSignerPolicy = (
-  signer: VaultSigner,
+  signer: Signer,
+  signingKey: VaultSigner,
   updates: {
     restrictions?: SignerRestriction;
     exceptions?: SignerException;
@@ -123,6 +124,7 @@ export const updateSignerPolicy = (
   type: UPDATE_SIGNER_POLICY,
   payload: {
     signer,
+    signingKey,
     updates,
     verificationToken,
   },

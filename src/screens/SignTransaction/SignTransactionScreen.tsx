@@ -23,7 +23,6 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
@@ -48,17 +47,25 @@ function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, collaborativeWalletId } = (route.params || {
+  const { note, label, collaborativeWalletId, vaultId } = (route.params || {
     note: '',
     label: [],
     collaborativeWalletId: '',
+    vaultId: '',
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
     collaborativeWalletId: string;
+    vaultId: string;
   };
-  const { activeVault: defaultVault } = useVault(collaborativeWalletId);
-  const { signers: vaultKeys, id: vaultId, scheme } = defaultVault;
+
+  const { activeVault: defaultVault } = useVault({
+    collaborativeWalletId,
+    vaultId,
+  });
+
+  const { signers: vaultKeys, scheme } = defaultVault;
+
   const { signerMap } = useSignerMap();
   const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
   let parentCollaborativeWallet: Wallet;
@@ -122,7 +129,6 @@ function SignTransactionScreen() {
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetRealyVaultState());
-      dispatch(clearSigningDevice());
     }
     if (relayVaultError) {
       showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);

@@ -13,7 +13,6 @@ import {
   NetworkType,
   SignerStorage,
   SignerType,
-  XpubTypes,
 } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config, { APP_STAGE } from 'src/core/config';
@@ -21,6 +20,7 @@ import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import idx from 'idx';
 import HWError from './HWErrorState';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -227,10 +227,14 @@ export const getKeypathFromString = (keypathString: string): number[] => {
   });
 };
 
-const SIGNLE_ALLOWED_SIGNERS = [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY];
+const SIGNLE_ALLOWED_SIGNERS = [
+  SignerType.POLICY_SERVER,
+  SignerType.MOBILE_KEY,
+  SignerType.INHERITANCEKEY,
+];
 
-const allowSingleKey = (type, vaultSigners) => {
-  if (vaultSigners.find((s) => s.type === type)) {
+const allowSingleKey = (type: SignerType, vaultSigners: VaultSigner[], signerMap) => {
+  if (vaultSigners.find((s) => signerMap[s.masterFingerprint].type === type)) {
     if (SIGNLE_ALLOWED_SIGNERS.includes(type)) {
       return true;
     }
@@ -239,32 +243,14 @@ const allowSingleKey = (type, vaultSigners) => {
   return false;
 };
 
-const getDisabled = (type: SignerType, isOnL1, vaultSigners, scheme) => {
-  // Keys Incase of level 1 we have level 1
-  if (isOnL1) {
-    return { disabled: true, message: 'Upgrade tier to use as key' };
-  }
-
-  if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
-    return {
-      disabled: true,
-      message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
-    };
-  }
-  // Keys Incase of already added
-  if (allowSingleKey(type, vaultSigners)) {
-    return { disabled: true, message: 'Key already added to the Vault' };
-  }
-
-  return { disabled: false, message: '' };
-};
-
 export const getDeviceStatus = (
   type: SignerType,
-  isNfcSupported,
-  vaultSigners,
-  isOnL1,
+  isNfcSupported: boolean,
+  vaultSigners: any[], // Replace with the actual type of vaultSigners
+  isOnL1: boolean,
+  isOnL2: boolean,
   scheme: VaultScheme,
+  signerMap: { [key: string]: Signer },
   addSignerFlow: boolean = false
 ) => {
   switch (type) {
@@ -275,46 +261,85 @@ export const getDeviceStatus = (
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.MOBILE_KEY:
-      return allowSingleKey(type, vaultSigners)
+      return allowSingleKey(type, vaultSigners, signerMap)
         ? { disabled: true, message: 'Key already added to the Vault' }
-        : {
-            message: '',
-            disabled: false,
-          };
-    case SignerType.POLICY_SERVER:
-      if (addSignerFlow) {
-        return {
-          message: `Please add ${getSignerNameFromType(
-            SignerType.POLICY_SERVER
-          )} from the vault creation flow`,
-          disabled: true,
-        };
-      }
-      return {
-        message: getDisabled(type, isOnL1, vaultSigners, scheme).message,
-        disabled: getDisabled(type, isOnL1, vaultSigners, scheme).disabled,
-      };
+        : { message: '', disabled: false };
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
-        : {
-            message: '',
-            disabled: false,
-          };
-    case SignerType.KEEPER:
-    case SignerType.SEED_WORDS:
-    case SignerType.JADE:
-    case SignerType.BITBOX02:
-    case SignerType.PASSPORT:
-    case SignerType.SEEDSIGNER:
-    case SignerType.LEDGER:
-    case SignerType.KEYSTONE:
-    case SignerType.SPECTER:
+        : { message: '', disabled: false };
+    case SignerType.POLICY_SERVER:
+      return getPolicyServerStatus(type, isOnL1, scheme, vaultSigners, addSignerFlow, signerMap);
+    case SignerType.INHERITANCEKEY:
+      return getInheritanceKeyStatus(
+        type,
+        isOnL1,
+        isOnL2,
+        scheme,
+        vaultSigners,
+        addSignerFlow,
+        signerMap
+      );
     default:
-      return {
-        message: '',
-        disabled: false,
-      };
+      return { message: '', disabled: false };
+  }
+};
+
+const getPolicyServerStatus = (
+  type: SignerType,
+  isOnL1: boolean,
+  scheme: VaultScheme,
+  vaultSigners: VaultSigner[],
+  addSignerFlow: boolean,
+  signerMap: { [key: string]: Signer }
+) => {
+  if (addSignerFlow) {
+    return {
+      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+      disabled: true,
+    };
+  } else if (isOnL1) {
+    return { disabled: true, message: 'Upgrade tier to use as key' };
+  } else if (allowSingleKey(type, vaultSigners, signerMap)) {
+    return { disabled: true, message: 'Key already added to the Vault' };
+  } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
+    return {
+      disabled: true,
+      message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
+    };
+  } else {
+    return { disabled: false, message: '' };
+  }
+};
+
+const getInheritanceKeyStatus = (
+  type: SignerType,
+  isOnL1: boolean,
+  isOnL2: boolean,
+  scheme: VaultScheme,
+  vaultSigners: VaultSigner[],
+  addSignerFlow: boolean,
+  signerMap: { [key: string]: Signer }
+) => {
+  if (addSignerFlow) {
+    return {
+      disabled: true,
+      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+    };
+  } else if (isOnL1 || isOnL2) {
+    return {
+      disabled: true,
+      message: `Please upgrade to ${SubscriptionTier.L3} to add an ${getSignerNameFromType(type)}`,
+    };
+  } else if (allowSingleKey(type, vaultSigners, signerMap)) {
+    return { disabled: true, message: 'Key already added to the Vault' };
+  } else if (type === SignerType.INHERITANCEKEY && (scheme.n < 5 || scheme.m < 3)) {
+    return {
+      disabled: true,
+      message: 'Please create a vault with a minimum of 5 signers and 3 required signers',
+    };
+  } else {
+    return { message: '', disabled: false };
   }
 };
 

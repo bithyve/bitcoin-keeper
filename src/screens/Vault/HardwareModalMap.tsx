@@ -6,7 +6,7 @@ import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import {
-  generateCosignerMapXfps,
+  generateCosignerMapIds,
   generateMobileKey,
   generateSeedWordsKey,
 } from 'src/core/wallets/factories/VaultFactory';
@@ -66,6 +66,7 @@ import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import Instruction from 'src/components/Instruction';
 import { getSpecterDetails } from 'src/hardware/specter';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -559,10 +560,10 @@ function PasswordEnter({
     try {
       const currentPinHash = hash512(password);
       if (currentPinHash === pinHash) {
-        const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-        dispatch(addSigningDevice([signer], [key], addSignerFlow));
+        const { signer } = await setupMobileKey({ primaryMnemonic, isMultisig });
+        dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -669,6 +670,7 @@ function HardwareModalMap({
   primaryMnemonic,
   vaultShellId,
   addSignerFlow = false,
+  vaultId,
 }: {
   type: SignerType;
   visible: boolean;
@@ -679,7 +681,8 @@ function HardwareModalMap({
   isMultisig: boolean;
   primaryMnemonic?: string;
   vaultShellId?: string;
-  addSignerFlow: boolean;
+  addSignerFlow?: boolean;
+  vaultId: string;
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -692,6 +695,8 @@ function HardwareModalMap({
 
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { signingDevices } = useAppSelector((state) => state.bhr);
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
+
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
@@ -769,7 +774,10 @@ function HardwareModalMap({
       }
     } else {
       navigation.dispatch(
-        CommonActions.navigate({ name: 'ChoosePolicyNew', params: { signer, addSignerFlow } })
+        CommonActions.navigate({
+          name: 'ChoosePolicyNew',
+          params: { signer, addSignerFlow, vaultId },
+        })
       );
     }
   };
@@ -821,9 +829,9 @@ function HardwareModalMap({
             isHealthcheck,
             onSuccess: (mnemonic) => {
               const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice([signer], [key], addSignerFlow));
+              dispatch(addSigningDevice([signer]));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -880,7 +888,7 @@ function HardwareModalMap({
       } else {
         dispatch(addSigningDevice([hw.signer], [hw.key], addSignerFlow));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
@@ -961,7 +969,11 @@ function HardwareModalMap({
         setInProgress(true);
 
         if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-        const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.POLICY_SERVER);
+        const cosignersMapIds = generateCosignerMapIds(
+          signerMap,
+          signingDevices,
+          SignerType.POLICY_SERVER
+        );
         const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
         if (response.xpub) {
           const { signer: signingServerKey } = generateSignerFromMetaData({
@@ -1078,9 +1090,9 @@ function HardwareModalMap({
             const res = await SecureStore.verifyBiometricAuth(signature, appId);
             if (res.success) {
               const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-              dispatch(addSigningDevice([signer], [key], addSignerFlow));
+              dispatch(addSigningDevice([signer]));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -1102,7 +1114,11 @@ function HardwareModalMap({
   const requestInheritanceKeyRecovery = async (signers: VaultSigner[]) => {
     try {
       if (signingDevices.length <= 1) throw new Error('Add two others devices first to recover');
-      const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        signingDevices,
+        SignerType.INHERITANCEKEY
+      );
 
       const requestId = `request-${generateKey(10)}`;
       const thresholdDescriptors = signers.map((signer) => signer.xfp);

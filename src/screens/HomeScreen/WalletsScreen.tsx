@@ -441,7 +441,7 @@ const WalletsScreen = ({ navigation }) => {
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
-  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const app: KeeperApp = useQuery(RealmSchema.KeeperApp)?.map(getJSONFromRealmObject)[0];
 
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
 
@@ -536,8 +536,8 @@ const WalletsScreen = ({ navigation }) => {
           //TESTING
         }
         <Box style={styles.actionContainer}>
-          {dummyData.map((data, index) => (
-            <ActionCard key={`${index}_${data.name}`} cardName={data.name} />
+          {dummyData?.map((data, index) => (
+            <ActionCard key={`${index}_${data.name}`} data={data} />
           ))}
         </Box>
         <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }}>

@@ -25,7 +25,7 @@ import { captureError } from 'src/services/sentry';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
 import Relay from 'src/services/operations/Relay';
-import { generateCosignerMapXfps, generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import { generateCosignerMapIds, generateVaultId } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
 import { hash256 } from 'src/services/operations/encryption';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -37,13 +37,14 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceBrown.svg';
 import TimeIcon from 'src/assets/images/time.svg';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
 import { setInheritanceRequestId, setRecoveryCreatedApp } from 'src/store/reducers/storage';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 export function formatDuration(ms) {
   const duration = moment.duration(ms);
@@ -139,6 +140,8 @@ function SuccessModalContent() {
 function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
   const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
+
   const dispatch = useDispatch();
   const {
     signingDevices,
@@ -171,7 +174,7 @@ function VaultRecovery({ navigation }) {
   const checkInheritanceKeyRequest = async (signers: VaultSigner[], requestId: string) => {
     try {
       if (signers.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapXfps(signers, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapIds(signerMap, signers, SignerType.INHERITANCEKEY);
       const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(

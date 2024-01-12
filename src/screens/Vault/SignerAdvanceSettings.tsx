@@ -28,7 +28,8 @@ const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer, vaultKey }: { signer: Signer; vaultKey: VaultSigner } = route.params;
+  const { signer, vaultKey, vaultId }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } =
+    route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
@@ -38,7 +39,7 @@ function SignerAdvanceSettings({ route }: any) {
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
 
   const registerColdCard = async () => {
     await withNfcModal(() => registerToColcard({ vault: activeVault }));
@@ -76,7 +77,7 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
-  const navigateToPolicyChange = (signer: Signer) => {
+  const navigateToPolicyChange = () => {
     const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
     const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
@@ -85,8 +86,10 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           restrictions,
           exceptions,
-          update: true,
+          isUpdate: true,
           signer,
+          vaultId,
+          vaultKey,
         },
       })
     );
@@ -114,6 +117,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           parentNavigation: navigation,
           signer,
+          vaultId,
         },
       })
     );
@@ -129,10 +133,6 @@ function SignerAdvanceSettings({ route }: any) {
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isOtherSD = signer.type === SignerType.OTHER_SD;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
-
-  const changePolicy = () => {
-    if (isPolicyServer) navigateToPolicyChange(signer);
-  };
 
   const { font12, font10, font14 } = globalStyles;
   return (
@@ -175,7 +175,7 @@ function SignerAdvanceSettings({ route }: any) {
         <OptionCard
           title="Change Verification & Policy"
           description="Restriction and threshold"
-          callback={changePolicy}
+          callback={navigateToPolicyChange}
         />
       )}
       {isTapsigner && (

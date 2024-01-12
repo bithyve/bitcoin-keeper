@@ -1,76 +1,100 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
+import React, { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import CheckmarkIcon from 'src/assets/images/checkmark.svg';
 
 type WalletCardProps = {
+  id: number;
   walletName: string;
   walletDescription: string;
   icon: Element;
   selectedIcon: Element;
-  selectedCard: string;
-  onCardSelect: (cardName: string) => void;
+  selectedCard: number;
+  onCardSelect: (cardName: number) => void;
+  arrowStyles: ViewStyle;
 };
 
 function WalletCard({
+  id,
   walletName,
   walletDescription,
   icon,
   selectedIcon,
   selectedCard,
   onCardSelect,
+  arrowStyles,
 }: WalletCardProps) {
   const { colorMode } = useColorMode();
-  const isSelected = selectedCard === walletName;
+  const isSelected = selectedCard === id;
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.walletContainer,
-        isSelected
-          ? { backgroundColor: `${colorMode}.primaryGreen` }
-          : { backgroundColor: `${colorMode}.Ivory` },
-      ]}
-      onPress={() => onCardSelect(walletName)}
-    >
-      <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
-        {isSelected && <CheckmarkIcon />}
+    <Pressable onPress={() => onCardSelect(id)}>
+      <Box
+        borderColor={`${colorMode}.Eggshell`}
+        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
+        style={[styles.walletContainer, !isSelected && { opacity: 0.7 }]}
+      >
+        <Box style={styles.detailContainer}>
+          <Box
+            backgroundColor={isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.RussetBrown`}
+            style={styles.circle}
+          >
+            {isSelected ? selectedIcon : icon}
+          </Box>
+          <Box>
+            <Text
+              color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
+              numberOfLines={1}
+            >
+              {walletName}
+            </Text>
+            <Text
+              color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
+              numberOfLines={1}
+            >
+              {walletDescription}
+            </Text>
+          </Box>
+        </Box>
       </Box>
-      <Box style={styles.detailContainer}>
-        <Box>{isSelected ? selectedIcon : icon}</Box>
-        <Text style={isSelected && { color: `${colorMode}.white` }} numberOfLines={1}>
-          {walletName}
-        </Text>
-        <Text style={[isSelected && { color: `${colorMode}.white` }]} numberOfLines={1}>
-          {walletDescription}
-        </Text>
-      </Box>
-    </TouchableOpacity>
+      {isSelected && (
+        <Box borderTopColor={`${colorMode}.pantoneGreen`} style={[styles.arrow, arrowStyles]} />
+      )}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   walletContainer: {
     width: 114,
-    marginVertical: 15,
-    padding: 10,
     height: 125,
+    padding: 10,
     borderRadius: 10,
     borderWidth: 0.5,
-    borderColor: '#eee3d8',
   },
   circle: {
-    width: 22,
-    height: 22,
-    borderRadius: 22 / 2,
+    width: 40,
+    height: 40,
+    borderRadius: 40 / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   detailContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
     gap: 5,
     marginTop: 15,
+  },
+  arrow: {
+    marginTop: -10,
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderTopWidth: 20,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
   },
 });
 

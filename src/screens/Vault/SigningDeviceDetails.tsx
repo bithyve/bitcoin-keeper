@@ -29,6 +29,7 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
+import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -44,6 +45,7 @@ import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const signerArray = [
   { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
@@ -203,13 +205,13 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signer, vaultKey } = route.params;
+  const { signer, vaultKey, vaultId } = route.params;
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -272,6 +274,29 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
 
+  function VaultCardHeader() {
+    return (
+      <Box style={styles.walletHeaderWrapper}>
+        <Box style={styles.walletIconWrapper}>
+          <Box
+            style={styles.walletIconView}
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+          >
+            <WalletInsideGreen />
+          </Box>
+        </Box>
+        <Box style={styles.walletNameWrapper}>
+          <Text color={`${colorMode}.textBlack`} style={styles.walletNameText}>
+            Coldcard
+          </Text>
+          <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
+            StateBankLocker
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   const footerItems = [
     {
       text: 'Health Check',
@@ -297,14 +322,26 @@ function SigningDeviceDetails({ route }) {
       text: 'Settings',
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
-        navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey }));
+        navigation.dispatch(
+          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId })
+        );
       },
     },
   ];
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
+      <Box mb={-10}>
+        <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
+      </Box>
+      <Box flexDirection={'row'} alignItems={'center'}>
+        <Box width={'80%'}>
+          <VaultCardHeader />
+        </Box>
+        <Box width={'20%'}>
+          <CurrencyTypeSwitch />
+        </Box>
+      </Box>
       <Box
         style={{
           flexDirection: 'row',
@@ -347,6 +384,7 @@ function SigningDeviceDetails({ route }) {
           vaultShellId={activeVault.shellId}
           isMultisig={activeVault.isMultiSig}
           primaryMnemonic={primaryMnemonic}
+          vaultId={vaultId}
         />
         <KeeperModal
           visible={skipHealthCheckModalVisible}
@@ -384,6 +422,7 @@ function SigningDeviceDetails({ route }) {
           secondaryCallback={() => {
             setVisible(true);
           }}
+          vaultId={vaultId}
         />
       </Box>
     </ScreenWrapper>
@@ -392,6 +431,31 @@ function SigningDeviceDetails({ route }) {
 const styles = StyleSheet.create({
   skipHealthIllustration: {
     marginLeft: wp(25),
+  },
+  walletHeaderWrapper: {
+    margin: wp(15),
+    flexDirection: 'row',
+    width: '100%',
+  },
+  walletIconWrapper: {
+    width: '15%',
+  },
+  walletIconView: {
+    height: 40,
+    width: 40,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  walletDescText: {
+    fontSize: 14,
+  },
+  walletNameWrapper: {
+    width: '85%',
+    marginLeft: 10,
+  },
+  walletNameText: {
+    fontSize: 20,
   },
 });
 

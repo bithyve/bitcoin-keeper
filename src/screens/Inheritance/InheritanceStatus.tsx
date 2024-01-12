@@ -31,8 +31,11 @@ import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import KeeperHeader from 'src/components/KeeperHeader';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { Signer } from 'src/core/wallets/interfaces/vault';
 
-function InheritanceStatus() {
+function InheritanceStatus({ route }) {
+  const { vaultId } = route.params;
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
@@ -43,18 +46,19 @@ function InheritanceStatus() {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const fingerPrints = activeVault.signers.map((signer) => signer.masterFingerprint);
 
   const descriptorString = genrateOutputDescriptors(activeVault);
   const [isSetupDone, setIsSetupDone] = useState(false);
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   useEffect(() => {
     if (activeVault && activeVault.signers) {
-      const [ikSigner] = activeVault.signers.filter(
-        (signer) => signer.type === SignerType.INHERITANCEKEY
+      const [ikVaultKey] = activeVault.signers.filter(
+        (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
       );
-      if (ikSigner) setIsSetupDone(true);
+      if (ikVaultKey) setIsSetupDone(true);
       else setIsSetupDone(false);
     }
   }, [activeVault]);

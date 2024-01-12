@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
@@ -24,7 +24,6 @@ export interface VaultMigrationCompletionPayload {
 }
 
 export type VaultState = {
-  signers: VaultSigner[];
   isGeneratingNewVault: boolean;
   hasNewVaultGenerationSucceeded: boolean;
   hasNewVaultGenerationFailed: boolean;
@@ -41,13 +40,11 @@ export type VaultState = {
 };
 
 export type SignerUpdatePayload = {
-  signer: Signer;
   key: string;
   value: any;
 };
 
 const initialState: VaultState = {
-  signers: [],
   isGeneratingNewVault: false,
   hasNewVaultGenerationSucceeded: false,
   hasNewVaultGenerationFailed: false,
@@ -67,25 +64,6 @@ const vaultSlice = createSlice({
   name: 'vault',
   initialState,
   reducers: {
-    addSigningDevice: (state, action: PayloadAction<VaultSigner[]>) => {
-      const newSigners = action.payload.filter((signer) => signer && signer.xfp);
-      if (newSigners.length === 0) {
-        return state;
-      }
-      let updatedSigners = [...state.signers];
-      updatedSigners.push(...newSigners);
-      updatedSigners = _.uniqBy(updatedSigners, 'xfp');
-      return { ...state, signers: updatedSigners };
-    },
-    removeSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
-      const signerToRemove = action.payload && action.payload.xpub ? action.payload : null;
-      if (signerToRemove) {
-        state.signers = state.signers.filter((signer) => signer.xpub !== signerToRemove.xpub);
-      }
-    },
-    clearSigningDevice: (state) => {
-      state.signers = [];
-    },
     vaultCreated: (state, action: PayloadAction<VaultCreationPayload>) => {
       const {
         hasNewVaultGenerationFailed = false,
@@ -147,15 +125,12 @@ const vaultSlice = createSlice({
 });
 
 export const {
-  addSigningDevice,
   vaultCreated,
   initiateVaultMigration,
   vaultMigrationCompleted,
-  removeSigningDevice,
   setIntroModal,
   setSdIntroModal,
   setWhirlpoolIntro,
-  clearSigningDevice,
   resetVaultMigration,
   setTempShellId,
   setBackupBSMSForIKS,

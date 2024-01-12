@@ -10,20 +10,36 @@ type WalletInfoCardProps = {
   walletDescription: string;
   icon: Element;
   amount: number;
+  tags: string[];
 };
 
-function WalletInfoCard({ walletName, walletDescription, icon, amount }: WalletInfoCardProps) {
+function WalletInfoCard({
+  walletName,
+  walletDescription,
+  icon,
+  amount,
+  tags,
+}: WalletInfoCardProps) {
   const { colorMode } = useColorMode();
   const { satsEnabled } = useAppSelector((state) => state.settings);
 
   return (
     <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.walletContainer}>
       <Box style={styles.pillsContainer}>
-        <CardPill heading="SINGLE SIG" cardStyles={{ backgroundColor: 'white' }} />
-        <CardPill heading="WHAT HERE?" />
+        {tags?.map((tag, index) => {
+          return (
+            <CardPill
+              key={tag}
+              heading={tag}
+              cardStyles={index % 2 === 0 ? null : { backgroundColor: 'white' }}
+            />
+          );
+        })}
       </Box>
       <Box style={styles.detailContainer}>
-        <Box style={styles.iconWrapper}>{icon}</Box>
+        <Box backgroundColor={`${colorMode}.textBlack`} style={styles.iconWrapper}>
+          {icon}
+        </Box>
         <Box>
           <Text color={`${colorMode}.white`} numberOfLines={1}>
             {walletDescription}
@@ -60,7 +76,6 @@ const styles = StyleSheet.create({
   iconWrapper: {
     width: 34,
     height: 34,
-    backgroundColor: 'rgba(9, 44, 39, 0.5)',
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',

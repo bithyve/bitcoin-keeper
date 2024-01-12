@@ -45,6 +45,9 @@ export type signerXpubs = {
 };
 
 export interface Signer {
+  // Represents a h/w or s/w wallet(Signer)
+  // Rel: Signer hosts multiple VaultSigners(key), diff derivation paths
+  // Note: Assisted Keys(IKS and SS) can only have one key(VaultSigner) per Signer
   type: SignerType;
   storageType: SignerStorage;
   isMock?: boolean;
@@ -55,8 +58,8 @@ export interface Signer {
   lastHealthCheck: Date;
   addedOn: Date;
   bip85Config?: BIP85Config;
-  signerPolicy?: SignerPolicy;
-  inheritanceKeyInfo?: InheritanceKeyInfo;
+  signerPolicy?: SignerPolicy; // Signing Server's Signer Policy
+  inheritanceKeyInfo?: InheritanceKeyInfo; // IKS config and policy
   hidden: boolean;
 }
 
@@ -67,6 +70,8 @@ export type RegisteredVaultInfo = {
 };
 
 export interface VaultSigner {
+  // Represents xpub(Extended Key) belonging to one of the Signers,
+  // Rel: VaultSigner(Extended Key) could only belong to one Signer, and is an active part of a Vault(s)
   masterFingerprint: string;
   xpub: string;
   xpriv?: string;
@@ -76,6 +81,8 @@ export interface VaultSigner {
 }
 
 export interface Vault {
+  // Represents a Vault
+  // Rel: Created using multiple VaultSigners(Extended Keys)
   id: string; // vault identifier(derived from xpub)
   shellId: string;
   entityKind: EntityKind; // Vault vs Wallet identifier

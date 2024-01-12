@@ -1,68 +1,83 @@
-import { Box, useColorMode } from 'native-base';
-import Text from '../../components/KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, Pressable, useColorMode } from 'native-base';
+import { StyleSheet } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
+import Text from 'src/components/KeeperText';
+import Checked from 'src/assets/images/check.svg';
 
 type SignerCardProps = {
-  walletName: string;
-  walletDescription: string;
+  name: string;
+  description: string;
   icon: Element;
   isSelected: boolean;
-  onCardSelect: (cardName: string) => void;
-  showSelection: boolean;
+  onCardSelect?: (selected: any) => void;
+  showSelection?: boolean;
+  colorVarient?: string;
+  disabled?: boolean;
 };
 
 function SignerCard({
-  walletName,
-  walletDescription,
+  name,
+  description,
   icon,
   isSelected,
   onCardSelect,
-  showSelection,
+  showSelection = true,
+  colorVarient = 'brown',
+  disabled = false,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
+  const backgroundColor =
+    colorVarient === 'brown' ? `${colorMode}.RussetBrown` : `${colorMode}.pantoneGreen`;
+
   return (
-    <TouchableOpacity
-      style={[styles.walletContainer, isSelected && styles.selectedCard]}
-      onPress={() => onCardSelect(walletName)}
+    <Pressable
+      disabled={disabled}
+      backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
+      borderColor={`${colorMode}.Eggshell`}
+      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
+      onPress={() => {
+        if (showSelection) {
+          onCardSelect(isSelected);
+        }
+      }}
     >
-      {showSelection && <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle} />}
+      {showSelection &&
+        (isSelected ? (
+          <Checked style={{ alignSelf: 'flex-end' }} />
+        ) : (
+          <Box style={styles.circle} />
+        ))}
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.iconWrapper}>
+        <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
           {icon}
         </Box>
-        <Text style={isSelected ? { color: `${colorMode}.white` } : styles.walletName}>
-          {walletName}
+        <Text color={`${colorMode}.SlateGrey`} style={styles.walletName} numberOfLines={1} bold>
+          {name}
         </Text>
         <Text
-          style={[
-            isSelected ? { color: `${colorMode}.white` } : { color: `${colorMode}.GreenishGrey` },
-            styles.walletDescription,
-          ]}
+          style={[{ color: `${colorMode}.GreenishGrey` }, styles.walletDescription]}
           numberOfLines={1}
         >
-          {walletDescription}
+          {description}
         </Text>
       </Box>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: windowWidth / 3 - windowWidth * 0.04,
+    width: windowWidth / 3 - windowWidth * 0.05,
     padding: 10,
     height: 125,
     alignItems: 'flex-start',
-    backgroundColor: '#FDF7F0',
     borderRadius: 10,
     borderWidth: 0.5,
-    borderColor: '#eee3d8',
+    backgroundColor: '#FDF7F0',
+    margin: 3,
   },
   walletName: {
-    color: 'rgba(36, 49, 46, 1)',
     fontSize: 12,
-    fontWeight: '400',
   },
   walletDescription: {
     fontSize: 11,
@@ -77,9 +92,6 @@ const styles = StyleSheet.create({
   detailContainer: {
     gap: 2,
     marginTop: 15,
-  },
-  selectedCard: {
-    backgroundColor: '#2e6759',
   },
   iconWrapper: {
     width: 34,

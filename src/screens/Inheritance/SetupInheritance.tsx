@@ -25,7 +25,7 @@ import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-function SetupInheritance() {
+function SetupInheritance({ route }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -33,7 +33,8 @@ function SetupInheritance() {
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { plan } = usePlan();
-  const { activeVault } = useVault();
+  const { vaultId } = route.params;
+  const { activeVault } = useVault({ vaultId });
 
   const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
 
@@ -119,11 +120,11 @@ function SetupInheritance() {
 
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
+    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus', { vaultId });
   };
 
   const toSetupInheritance = () => {
-    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
+    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus', { vaultId });
     else if (plan !== SubscriptionTier.L3.toUpperCase())
       navigtaion.navigate('ChoosePlan', { planPosition: 2 });
     else if (!activeVault)

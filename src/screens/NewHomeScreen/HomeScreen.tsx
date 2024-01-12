@@ -1,18 +1,17 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActionCard from 'src/components/ActionCard';
 import WalletInfoCard from 'src/components/WalletInfoCard';
 import AddCard from 'src/components/AddCard';
-import HomeScreenWrapper from './components/HomeScreenWrapper';
-import BalanceComponent from './components/BalanceComponent';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
 import React, { useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { VisibilityType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
@@ -23,8 +22,11 @@ import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
-import AddWalletModal from '../Home/components/AddWalletModal';
 import { CommonActions } from '@react-navigation/native';
+import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import AddWalletModal from '../Home/components/AddWalletModal';
+import BalanceComponent from './components/BalanceComponent';
+import HomeScreenWrapper from './components/HomeScreenWrapper';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -40,16 +42,15 @@ const calculateBalancesForVaults = (vaults) => {
   return totalUnconfirmedBalance + totalConfirmedBalance;
 };
 
-const NewHomeScreen = ({ navigation }) => {
+function NewHomeScreen({ navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
-  const { activeVault } = useVault();
+  const { allVaults } = useVault({ includeArchived: false });
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
-  const allVaults = [activeVault, ...collaborativeWallets];
   const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
     (item) => item !== null
   );
@@ -113,26 +114,26 @@ const NewHomeScreen = ({ navigation }) => {
     {
       name: 'Setup Inheritance',
       icon: null,
-      callback: () => {},
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' })),
     },
     {
       name: 'Buy Bitcoin',
-      icon: null,
+      icon: <BTC />,
       callback: () => {},
     },
     {
       name: 'Manage All Signers',
       icon: null,
-      callback: () => navigation.dispatch(CommonActions.navigate('ManageSigners')),
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
   ];
 
   const styles = getStyles(colorMode);
   return (
-    <Box style={styles.container}>
+    <Box backgroundColor={`${colorMode}.Linen`} style={[styles.container]}>
       <Box
         backgroundColor={`${colorMode}.primaryGreenBackground`}
-        style={[styles.wrapper, { paddingTop: top, paddingLeft: 10 }]}
+        style={[styles.wrapper, { paddingTop: top }]}
       >
         <HomeScreenWrapper>
           <Box style={styles.actionContainer}>
@@ -141,6 +142,7 @@ const NewHomeScreen = ({ navigation }) => {
                 key={`${index}_${data.name}`}
                 cardName={data.name}
                 callback={data.callback}
+                icon={data.icon}
               />
             ))}
           </Box>
@@ -152,28 +154,61 @@ const NewHomeScreen = ({ navigation }) => {
           balance={netBalanceWallets + netBalanceAllVaults}
         />
         <FlatList
+          contentContainerStyle={{ paddingRight: 30 }}
+          style={styles.walletDetailWrapper}
           horizontal
           data={allWallets}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
+          renderItem={({ item: wallet }) => {
+            const { confirmed, unconfirmed } = wallet.specs.balances;
+            const balance = confirmed + unconfirmed;
+            const tags =
+              wallet.entityKind === EntityKind.VAULT
+                ? [
+                    `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
+                    `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
+                  ]
+                : ['SINGLE SIG', wallet.type];
             return (
-              <WalletInfoCard
-                walletName={item.presentationData.name}
-                walletDescription={item.presentationData.description}
-                icon={<WalletIcon />}
-                amount={21000}
-              />
+              <TouchableOpacity
+                style={styles.wallerCardWrapper}
+                onPress={() => {
+                  if (wallet.entityKind === EntityKind.VAULT) {
+                    switch (wallet.type) {
+                      case VaultType.COLLABORATIVE:
+                        navigation.navigate('VaultDetails', {
+                          collaborativeWalletId: (wallet as Vault).collaborativeWalletId,
+                        });
+                        return;
+                      case VaultType.DEFAULT:
+                      default:
+                        navigation.navigate('VaultDetails', { vaultId: wallet.id });
+                    }
+                  } else {
+                    navigation.navigate('WalletDetails', { walletId: wallet.id });
+                  }
+                }}
+              >
+                <WalletInfoCard
+                  tags={tags}
+                  walletName={wallet.presentationData.name}
+                  walletDescription={wallet.presentationData.description}
+                  icon={wallet.entityKind === EntityKind.VAULT ? <VaultIcon /> : <WalletIcon />}
+                  amount={balance}
+                />
+              </TouchableOpacity>
             );
           }}
           ListFooterComponent={() => (
             <AddCard
-              name={'Add'}
+              name="Add"
               cardStyles={{ height: 260, width: 130 }}
-              callback={() => setAddImportVisible(true)}
+              callback={() => navigation.navigate('AddWallet')}
+              // callback={() => setAddImportVisible(true)}
             />
           )}
         />
-        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }}></Box>
+        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }} />
       </Box>
       <AddWalletModal
         navigation={navigation}
@@ -185,19 +220,22 @@ const NewHomeScreen = ({ navigation }) => {
       />
     </Box>
   );
-};
+}
 export default NewHomeScreen;
 
 const getStyles = (colorMode) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: `${colorMode}.pantoneGreen` },
+    container: {
+      flex: 1,
+    },
     valueWrapper: {
-      flex: 0.7,
+      flex: 0.65,
       justifyContent: 'center',
       alignItems: 'center',
+      marginTop: 100,
     },
     wrapper: {
-      flex: 0.3,
+      flex: 0.35,
       paddingHorizontal: 15,
       paddingVertical: 8,
       justifyContent: 'center',
@@ -206,6 +244,8 @@ const getStyles = (colorMode) =>
     actionContainer: {
       flexDirection: 'row',
       gap: 10,
-      marginTop: -70,
+      marginTop: -100,
     },
+    walletDetailWrapper: { marginTop: 27.25, paddingHorizontal: 10 },
+    wallerCardWrapper: { marginRight: 10 },
   });

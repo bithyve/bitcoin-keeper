@@ -27,7 +27,8 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { useRoute } from '@react-navigation/native';
-import { VaultScheme } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 type HWProps = {
   type: SignerType;
@@ -39,20 +40,30 @@ type HWProps = {
 
 function SigningDeviceList() {
   const route = useRoute();
-  const { scheme, addSignerFlow = false }: { scheme: VaultScheme; addSignerFlow: boolean } =
-    route.params as any;
+  const {
+    scheme,
+    addSignerFlow = false,
+    vaultId,
+    vaultSigners = [],
+  }: {
+    scheme: VaultScheme;
+    addSignerFlow: boolean;
+    vaultId: string;
+    vaultSigners?: VaultSigner[];
+  } = route.params as any;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
+
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
   const isMultisig = addSignerFlow ? true : scheme.n !== 1;
-
+  const { signerMap } = useSignerMap();
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
@@ -96,11 +107,9 @@ function SigningDeviceList() {
     SignerType.SEED_WORDS,
     SignerType.MOBILE_KEY,
     SignerType.KEEPER,
+    SignerType.POLICY_SERVER,
+    SignerType.INHERITANCEKEY,
   ];
-
-  if (!addSignerFlow) {
-    sortedSigners.push(SignerType.POLICY_SERVER);
-  }
 
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
@@ -132,7 +141,7 @@ function SigningDeviceList() {
               <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
-                <Text color="light.inActiveMsg" style={styles.messageText}>
+                <Text color="light.inActiveMsg" style={styles.messageText} numberOfLines={2}>
                   {message}
                 </Text>
               </Box>
@@ -148,6 +157,7 @@ function SigningDeviceList() {
           isMultisig={isMultisig}
           primaryMnemonic={primaryMnemonic}
           addSignerFlow={addSignerFlow}
+          vaultId={vaultId}
         />
       </React.Fragment>
     );
@@ -175,7 +185,9 @@ function SigningDeviceList() {
                   isNfcSupported,
                   vaultSigners,
                   isOnL1,
+                  isOnL2,
                   scheme,
+                  signerMap,
                   addSignerFlow
                 );
                 let message = connectivityStatus;
@@ -253,7 +265,7 @@ const styles = StyleSheet.create({
   },
   walletMapContainer: {
     alignItems: 'center',
-    height: windowHeight * 0.08,
+    minHeight: windowHeight * 0.08,
     flexDirection: 'row',
     paddingLeft: wp(40),
   },
@@ -272,6 +284,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     letterSpacing: 1.3,
     marginTop: hp(5),
+    width: windowWidth * 0.6,
   },
   dividerStyle: {
     opacity: 0.1,

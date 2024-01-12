@@ -92,7 +92,7 @@ function Footer({
         navigation.dispatch(
           CommonActions.navigate(
             isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-            { wallet: isCollaborativeWallet ? vault : vault }
+            { vaultId: vault.id }
           )
         );
       },
@@ -312,6 +312,7 @@ function SignerList({ vault }: { vault: Vault }) {
                   CommonActions.navigate('SigningDeviceDetails', {
                     signer,
                     vaultKey,
+                    vaultId: vault.id,
                   })
                 );
               }}
@@ -430,6 +431,7 @@ function VaultDetails({ navigation }) {
   const { vault: vaultTranslation, ramp, common } = translations;
   const route = useRoute() as {
     params: {
+      vaultId: string;
       vaultTransferSuccessful: boolean;
       autoRefresh: boolean;
       collaborativeWalletId: string;
@@ -440,11 +442,12 @@ function VaultDetails({ navigation }) {
     vaultTransferSuccessful = false,
     autoRefresh = false,
     collaborativeWalletId = '',
+    vaultId = '',
   } = route.params || {};
 
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { activeVault: vault } = useVault(collaborativeWalletId);
+  const { activeVault: vault } = useVault({ collaborativeWalletId, vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
@@ -500,7 +503,7 @@ function VaultDetails({ navigation }) {
             style={styles.addPhoneEmailWrapper}
             backgroundColor={`${colorMode}.primaryBackground`}
             onPress={() => {
-              navigation.navigate('IKSAddEmailPhone');
+              navigation.navigate('IKSAddEmailPhone', { vaultId });
               setVaultCreated(false);
             }}
           >
@@ -655,6 +658,7 @@ function VaultDetails({ navigation }) {
         secondaryCallback={() => {
           navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
         }}
+        vaultId={vault.id}
       />
     </Box>
   );

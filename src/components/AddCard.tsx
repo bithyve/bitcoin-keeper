@@ -1,27 +1,33 @@
-import { Box } from 'native-base';
-import Text from './KeeperText';
-import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import React from 'react';
+import { Box, Pressable, useColorMode } from 'native-base';
+import { StyleSheet, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/addCardIcon.svg';
+import Text from './KeeperText';
 
 type AddSignerCardProps = {
   name: string;
-  callback?: (param: string) => void;
+  callback?: (param: any) => void;
   cardStyles?: ViewStyle;
 };
 
 function AddCard({ name, callback, cardStyles }: AddSignerCardProps) {
+  const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity
+    <Pressable
+      backgroundColor={`${colorMode}.pantoneGreenLight`}
+      borderColor={`${colorMode}.pantoneGreen`}
       style={[styles.AddCardContainer, cardStyles && cardStyles]}
       onPress={() => callback(name)}
     >
       <Box style={styles.detailContainer}>
-        <Box style={styles.iconWrapper}>
+        <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.iconWrapper}>
           <AddCardIcon />
         </Box>
-        <Text style={styles.nameStyle}>{name}</Text>
+        <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>
+          {name}
+        </Text>
       </Box>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -34,12 +40,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     borderWidth: 1,
-    backgroundColor: 'rgba(45, 103, 89, 0.08)',
-    borderColor: 'rgba(45, 103, 89, 1)',
     borderStyle: 'dashed',
   },
   nameStyle: {
-    color: 'rgba(36, 49, 46, 1)',
     fontSize: 12,
     fontWeight: '400',
   },
@@ -49,13 +52,9 @@ const styles = StyleSheet.create({
     marginTop: 15,
     alignItems: 'center',
   },
-  selectedCard: {
-    backgroundColor: '#2e6759',
-  },
   iconWrapper: {
     width: 34,
     height: 34,
-    backgroundColor: 'rgba(45, 103, 89, 1)',
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
