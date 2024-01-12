@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
@@ -12,14 +12,9 @@ import Telegram from 'src/assets/images/Telegram.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import ThemeMode from 'src/models/enums/ThemeMode';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import useToastMessage from 'src/hooks/useToastMessage';
-import { setSatsEnabled, setThemeMode } from 'src/store/reducers/settings';
-import { changeLoginMethod } from 'src/store/sagaActions/login';
+import { setSatsEnabled } from 'src/store/reducers/settings';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
@@ -27,82 +22,16 @@ import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 
-const RNBiometrics = new ReactNativeBiometrics();
-
 function AppSettings({ navigation }) {
-  const { colorMode, toggleColorMode } = useColorMode();
-  const { loginMethod, satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } =
-    useAppSelector((state) => state.settings);
+  const { colorMode } = useColorMode();
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
 
   const dispatch = useAppDispatch();
-  const { showToast } = useToastMessage();
 
-  const [sensorType, setSensorType] = useState('Biometrics');
-  const { translations, formatString } = useContext(LocalizationContext);
+  const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
-
-  useEffect(() => {
-    if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK));
-    } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT));
-    }
-  }, [colorMode]);
-
-  useEffect(() => {
-    init();
-  }, []);
-
-  const init = async () => {
-    try {
-      const { available, biometryType } = await RNBiometrics.isSensorAvailable();
-      if (available) {
-        const type =
-          biometryType === 'TouchID'
-            ? 'Touch ID'
-            : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
-        setSensorType(type);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const onChangeLoginMethod = async () => {
-    try {
-      const { available } = await RNBiometrics.isSensorAvailable();
-      if (available) {
-        if (loginMethod === LoginMethod.PIN) {
-          const { keysExist } = await RNBiometrics.biometricKeysExist();
-          if (keysExist) {
-            await RNBiometrics.createKeys();
-          }
-          const { publicKey } = await RNBiometrics.createKeys();
-          const { success } = await RNBiometrics.simplePrompt({
-            promptMessage: 'Confirm your identity',
-          });
-          if (success) {
-            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
-          }
-        } else {
-          dispatch(changeLoginMethod(LoginMethod.PIN));
-        }
-      } else {
-        showToast(
-          'Biometrics not enabled.\nPlease go to setting and enable it',
-          <ToastErrorIcon />
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const changeThemeMode = () => {
-    toggleColorMode();
-  };
 
   const changeSatsMode = () => {
     dispatch(setSatsEnabled(!satsEnabled));
@@ -156,28 +85,9 @@ function AppSettings({ navigation }) {
           }
         />
         <OptionCard
-          title={sensorType}
-          description={formatString(settings.UseBiometricSubTitle, sensorType)}
-          callback={() => onChangeLoginMethod()}
-          Icon={
-            <Switch
-              onValueChange={(value) => onChangeLoginMethod()}
-              value={loginMethod === LoginMethod.BIOMETRIC}
-              testID="switch_biometrics"
-            />
-          }
-        />
-        <OptionCard
-          title={settings.DarkMode}
-          description={settings.DarkModeSubTitle}
-          callback={() => changeThemeMode()}
-          Icon={
-            <Switch
-              onValueChange={(value) => changeThemeMode()}
-              value={colorMode === 'dark'}
-              testID="switch_darkmode"
-            />
-          }
+          title={settings.PrivacyAndDisplay}
+          description={settings.PrivacySettingsSubtitle}
+          callback={() => navigation.navigate('PrivacyAndDisplay')}
         />
         <OptionCard
           title={settings.nodeSettings}
