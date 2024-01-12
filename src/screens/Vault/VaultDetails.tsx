@@ -280,7 +280,7 @@ function SignerList({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
   const { signers: vaultKeys, isMultiSig } = vault;
   const navigation = useNavigation();
-  const [unkonwnSignerHcModal, setUnkonwnSignerHcModal] = useState(true);
+  const [unkonwnSignerHcModal, setUnkonwnSignerHcModal] = useState(false);
 
   const signerPressHandler = (signer: VaultSigner) => {
     if (signer.type !== SignerType.UNKOWN_SIGNER) {
