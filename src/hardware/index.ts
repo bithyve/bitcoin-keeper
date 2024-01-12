@@ -227,30 +227,13 @@ export const getKeypathFromString = (keypathString: string): number[] => {
   });
 };
 
-const SIGNLE_ALLOWED_SIGNERS = [
-  SignerType.POLICY_SERVER,
-  SignerType.MOBILE_KEY,
-  SignerType.INHERITANCEKEY,
-];
-
-const allowSingleKey = (type: SignerType, vaultSigners: VaultSigner[], signerMap) => {
-  if (vaultSigners.find((s) => signerMap[s.masterFingerprint].type === type)) {
-    if (SIGNLE_ALLOWED_SIGNERS.includes(type)) {
-      return true;
-    }
-    return false;
-  }
-  return false;
-};
-
 export const getDeviceStatus = (
   type: SignerType,
   isNfcSupported: boolean,
-  vaultSigners: any[], // Replace with the actual type of vaultSigners
   isOnL1: boolean,
   isOnL2: boolean,
   scheme: VaultScheme,
-  signerMap: { [key: string]: Signer },
+  existingSigners: Signer[],
   addSignerFlow: boolean = false
 ) => {
   switch (type) {
@@ -261,25 +244,19 @@ export const getDeviceStatus = (
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.MOBILE_KEY:
-      return allowSingleKey(type, vaultSigners, signerMap)
-        ? { disabled: true, message: 'Key already added to the Vault' }
-        : { message: '', disabled: false };
+      if (existingSigners.find((s) => s.type === SignerType.MOBILE_KEY)) {
+        return { message: 'Please choose the existing key from the signers list', disabled: true };
+      } else {
+        return { message: '', disabled: false };
+      }
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : { message: '', disabled: false };
     case SignerType.POLICY_SERVER:
-      return getPolicyServerStatus(type, isOnL1, scheme, vaultSigners, addSignerFlow, signerMap);
+      return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
     case SignerType.INHERITANCEKEY:
-      return getInheritanceKeyStatus(
-        type,
-        isOnL1,
-        isOnL2,
-        scheme,
-        vaultSigners,
-        addSignerFlow,
-        signerMap
-      );
+      return getInheritanceKeyStatus(type, isOnL1, isOnL2, scheme, addSignerFlow, existingSigners);
     default:
       return { message: '', disabled: false };
   }
@@ -289,9 +266,8 @@ const getPolicyServerStatus = (
   type: SignerType,
   isOnL1: boolean,
   scheme: VaultScheme,
-  vaultSigners: VaultSigner[],
   addSignerFlow: boolean,
-  signerMap: { [key: string]: Signer }
+  existingSigners
 ) => {
   if (addSignerFlow) {
     return {
@@ -300,8 +276,8 @@ const getPolicyServerStatus = (
     };
   } else if (isOnL1) {
     return { disabled: true, message: 'Upgrade tier to use as key' };
-  } else if (allowSingleKey(type, vaultSigners, signerMap)) {
-    return { disabled: true, message: 'Key already added to the Vault' };
+  } else if (existingSigners.find((s) => s.type === SignerType.POLICY_SERVER)) {
+    return { message: 'Please choose the existing key from the signers list', disabled: true };
   } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
     return {
       disabled: true,
@@ -317,9 +293,8 @@ const getInheritanceKeyStatus = (
   isOnL1: boolean,
   isOnL2: boolean,
   scheme: VaultScheme,
-  vaultSigners: VaultSigner[],
   addSignerFlow: boolean,
-  signerMap: { [key: string]: Signer }
+  existingSigners
 ) => {
   if (addSignerFlow) {
     return {
@@ -331,8 +306,8 @@ const getInheritanceKeyStatus = (
       disabled: true,
       message: `Please upgrade to ${SubscriptionTier.L3} to add an ${getSignerNameFromType(type)}`,
     };
-  } else if (allowSingleKey(type, vaultSigners, signerMap)) {
-    return { disabled: true, message: 'Key already added to the Vault' };
+  } else if (existingSigners.find((s) => s.type === SignerType.INHERITANCEKEY)) {
+    return { message: 'Please choose the existing key from the signers list', disabled: true };
   } else if (type === SignerType.INHERITANCEKEY && (scheme.n < 5 || scheme.m < 3)) {
     return {
       disabled: true,

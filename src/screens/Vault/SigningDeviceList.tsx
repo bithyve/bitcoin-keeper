@@ -28,7 +28,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { useRoute } from '@react-navigation/native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import useSignerMap from 'src/hooks/useSignerMap';
+import useSigners from 'src/hooks/useSigners';
 
 type HWProps = {
   type: SignerType;
@@ -44,7 +44,6 @@ function SigningDeviceList() {
     scheme,
     addSignerFlow = false,
     vaultId,
-    vaultSigners = [],
   }: {
     scheme: VaultScheme;
     addSignerFlow: boolean;
@@ -63,7 +62,7 @@ function SigningDeviceList() {
     getJSONFromRealmObject
   )[0];
   const isMultisig = addSignerFlow ? true : scheme.n !== 1;
-  const { signerMap } = useSignerMap();
+  const { signers } = useSigners();
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
@@ -183,11 +182,10 @@ function SigningDeviceList() {
                 const { disabled, message: connectivityStatus } = getDeviceStatus(
                   type,
                   isNfcSupported,
-                  vaultSigners,
                   isOnL1,
                   isOnL2,
                   scheme,
-                  signerMap,
+                  signers,
                   addSignerFlow
                 );
                 let message = connectivityStatus;

@@ -3,6 +3,7 @@ import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import useSubscription from './useSubscription';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import useSignerMap from './useSignerMap';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 const areSignersSame = ({ existingKeys, vaultKeys }) => {
   if (!existingKeys.length || !vaultKeys.length) {
@@ -13,7 +14,17 @@ const areSignersSame = ({ existingKeys, vaultKeys }) => {
   return currentXfps.sort().join() === activeXfps.sort().join();
 };
 
-const useSignerIntel = ({ scheme, vaultKeys, selectedSigners, existingKeys }) => {
+const useSignerIntel = ({
+  scheme,
+  vaultKeys,
+  selectedSigners,
+  existingKeys,
+}: {
+  scheme: VaultScheme;
+  vaultKeys: VaultSigner[];
+  selectedSigners;
+  existingKeys: VaultSigner[];
+}) => {
   const { validSigners } = useSubscription();
   const { signerMap } = useSignerMap();
 
@@ -31,7 +42,7 @@ const useSignerIntel = ({ scheme, vaultKeys, selectedSigners, existingKeys }) =>
     if (key) {
       const signerName = getSignerNameFromType(signerMap[key.masterFingerprint].type);
       if (signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY) {
-        if (!validSigners.includes(signerMap[key].type)) {
+        if (!validSigners.includes(signerMap[key.masterFingerprint].type)) {
           invalidIKS = true;
           invalidMessage = `${signerName} is not allowed in ${SubscriptionTier.L2} Please upgrade your plan or remove them`;
         } else if (vaultKeys.length < 5) {
