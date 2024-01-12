@@ -245,7 +245,7 @@ export const getDeviceStatus = (
       };
     case SignerType.MOBILE_KEY:
       if (existingSigners.find((s) => s.type === SignerType.MOBILE_KEY)) {
-        return { message: 'Please choose the existing key from the signers list', disabled: true };
+        return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
       } else {
         return { message: '', disabled: false };
       }
@@ -277,7 +277,7 @@ const getPolicyServerStatus = (
   } else if (isOnL1) {
     return { disabled: true, message: 'Upgrade tier to use as key' };
   } else if (existingSigners.find((s) => s.type === SignerType.POLICY_SERVER)) {
-    return { message: 'Please choose the existing key from the signers list', disabled: true };
+    return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
   } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
     return {
       disabled: true,
@@ -307,7 +307,7 @@ const getInheritanceKeyStatus = (
       message: `Please upgrade to ${SubscriptionTier.L3} to add an ${getSignerNameFromType(type)}`,
     };
   } else if (existingSigners.find((s) => s.type === SignerType.INHERITANCEKEY)) {
-    return { message: 'Please choose the existing key from the signers list', disabled: true };
+    return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
   } else if (type === SignerType.INHERITANCEKEY && (scheme.n < 5 || scheme.m < 3)) {
     return {
       disabled: true,
