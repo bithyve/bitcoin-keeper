@@ -66,18 +66,19 @@ import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import Instruction from 'src/components/Instruction';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 export const enum InteracationMode {
-  ADDITION = 'ADDITION',
+  VAULT_ADDITION = 'VAULT_ADDITION',
   HEALTH_CHECK = 'HEALTH_CHECK',
   RECOVERY = 'RECOVERY',
   CONFIG_RECOVERY = 'CONFIG_RECOVERY',
   IDENTIFICATION = 'IDENTIFICATION',
+  APP_ADDITION = 'APP_ADDITION',
 }
 
 const getSignerContent = (
@@ -564,10 +565,10 @@ function PasswordEnter({
     try {
       const currentPinHash = hash512(password);
       if (currentPinHash === pinHash) {
-        const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-        dispatch(addSigningDevice([signer], [key], addSignerFlow));
+        const { signer } = await setupMobileKey({ primaryMnemonic, isMultisig });
+        dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -670,11 +671,12 @@ function HardwareModalMap({
   isMultisig,
   signer,
   skipHealthCheckCallBack,
-  mode = InteracationMode.ADDITION,
+  mode = InteracationMode.VAULT_ADDITION,
   primaryMnemonic,
   vaultShellId,
   addSignerFlow = false,
   vaultSigners,
+  vaultId,
 }: {
   type: SignerType;
   visible: boolean;
@@ -687,6 +689,7 @@ function HardwareModalMap({
   vaultShellId?: string;
   addSignerFlow: boolean;
   vaultSigners?: VaultSigner[];
+  vaultId: string;
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -759,7 +762,9 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       try {
         setInProgress(true);
-        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signer.xfp);
+        const { isSignerAvailable } = await SigningServer.checkSignerHealth(
+          signer.masterFingerprint
+        );
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
@@ -775,7 +780,12 @@ function HardwareModalMap({
         showToast('Error in Health check', <ToastErrorIcon />, 3000);
       }
     } else {
-      navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: { signer } }));
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ChoosePolicyNew',
+          params: { signer, addSignerFlow, vaultId },
+        })
+      );
     }
   };
 
@@ -814,7 +824,7 @@ function HardwareModalMap({
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.ADDITION) {
+    } else if (mode === InteracationMode.VAULT_ADDITION) {
       close();
       const mnemonic = bip39.generateMnemonic();
       navigation.dispatch(
@@ -826,9 +836,9 @@ function HardwareModalMap({
             isHealthcheck,
             onSuccess: (mnemonic) => {
               const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice([signer], [key], addSignerFlow));
+              dispatch(addSigningDevice([signer]));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -898,9 +908,9 @@ function HardwareModalMap({
         const mapped = mapUnknownSigner({ masterFingerprint: hw.signer.masterFingerprint, type });
         mapped ? handleSuccess() : handleFailure();
       } else {
-        dispatch(addSigningDevice([hw.signer], [hw.key], addSignerFlow));
+        dispatch(addSigningDevice([hw.signer]));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
@@ -1097,7 +1107,7 @@ function HardwareModalMap({
       const navigationState = getnavigationState(SignerType.MOBILE_KEY);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.ADDITION) {
+    } else if (mode === InteracationMode.VAULT_ADDITION) {
       await biometricAuth(isMultiSig);
     } else if (mode === InteracationMode.HEALTH_CHECK) {
       navigation.dispatch(
@@ -1142,9 +1152,9 @@ function HardwareModalMap({
             const res = await SecureStore.verifyBiometricAuth(signature, appId);
             if (res.success) {
               const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-              dispatch(addSigningDevice([signer], [key], addSignerFlow));
+              dispatch(addSigningDevice([signer]));
               const navigationState = addSignerFlow
-                ? { name: 'Home' }
+                ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
               showToast(`${signer.signerName} added successfully`, <TickIcon />);
@@ -1291,7 +1301,7 @@ function HardwareModalMap({
         secondaryCallback={isHealthcheck ? skipHealthCheckCallBack : null}
       />
       <KeeperModal
-        visible={passwordModal && mode === InteracationMode.ADDITION}
+        visible={passwordModal && mode === InteracationMode.VAULT_ADDITION}
         close={() => {
           setPasswordModal(false);
         }}

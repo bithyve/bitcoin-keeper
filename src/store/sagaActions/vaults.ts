@@ -18,13 +18,9 @@ export const addNewVault = (payload: {
   payload,
 });
 
-export const addSigningDevice = (
-  signers: Signer[],
-  keys: VaultSigner[] = [],
-  addSignerFlow: boolean = false
-) => ({
+export const addSigningDevice = (signers: Signer[]) => ({
   type: ADD_SIGINING_DEVICE,
-  payload: { signers, keys, addSignerFlow },
+  payload: { signers },
 });
 
 export const migrateVault = (newVaultInfo: NewVaultInfo, vaultShellId: string) => ({

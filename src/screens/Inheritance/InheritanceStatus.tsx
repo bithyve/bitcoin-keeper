@@ -34,7 +34,8 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer } from 'src/core/wallets/interfaces/vault';
 
-function InheritanceStatus() {
+function InheritanceStatus({ route }) {
+  const { vaultId } = route.params;
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
@@ -45,7 +46,7 @@ function InheritanceStatus() {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const fingerPrints = activeVault.signers.map((signer) => signer.masterFingerprint);
 
   const descriptorString = genrateOutputDescriptors(activeVault);

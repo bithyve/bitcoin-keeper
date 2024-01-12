@@ -1,36 +1,29 @@
-import { Dimensions, Pressable, StyleSheet } from 'react-native';
-import Text from 'src/components/KeeperText';
-import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
+import { Dimensions, ScrollView, StyleSheet } from 'react-native';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType } from 'src/core/wallets/enums';
-import { addSigningDevice, removeSigningDevice } from 'src/store/reducers/vaults';
+import { Signer, VaultScheme, VaultSigner, signerXpubs } from 'src/core/wallets/interfaces/vault';
+import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 
-import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
-import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import IconArrowGray from 'src/assets/images/icon_arrow_grey.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import Relay from 'src/services/operations/Relay';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
-import moment from 'moment';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
-import { getPlaceholder } from 'src/utils/utilities';
-import { getSignerSigTypeInfo } from 'src/hardware';
-import useVault from 'src/hooks/useVault';
 import useSignerIntel from 'src/hooks/useSignerIntel';
-import { globalStyles } from 'src/constants/globalStyles';
 import { SDIcons } from './SigningDeviceIcons';
-import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
-import AddIKS from '../SigningDevices/AddIKS';
-import useSignerFromKey from 'src/hooks/useSignerFromKey';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import useSigners from 'src/hooks/useSigners';
+import SignerCard from '../AddSigner/SignerCard';
+import AddCard from 'src/components/AddCard';
+import useToastMessage from 'src/hooks/useToastMessage';
+import useSignerMap from 'src/hooks/useSignerMap';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/core/config';
+import useVault from 'src/hooks/useVault';
 
 const { width } = Dimensions.get('screen');
 
@@ -44,203 +37,70 @@ export const checkSigningDevice = async (id) => {
   }
 };
 
-function SignerItem({
-  vaultSigner,
-  index,
-  setInheritanceInit,
-  isInheritance,
-  scheme,
-}: {
-  vaultSigner: VaultSigner | undefined;
-  index: number;
-  setInheritanceInit: any;
-  isInheritance: boolean;
-  scheme: { m: number; n: number };
-}) {
-  const { colorMode } = useColorMode();
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const [visible, setVisible] = useState(false);
-  const { signer } = useSignerFromKey(vaultSigner);
-
-  const removeSigner = () => dispatch(removeSigningDevice(vaultSigner));
-  const navigateToSignerList = () =>
-    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }));
-
-  const callback = () => {
-    if (index === 5 && isInheritance) {
-      setInheritanceInit(true);
-    } else {
-      navigateToSignerList();
-    }
-  };
-  const openDescriptionModal = () => setVisible(true);
-  const closeDescriptionModal = () => setVisible(false);
-
-  if (!vaultSigner || !signer) {
-    return (
-      <Pressable onPress={callback}>
-        <Box style={styles.signerItemContainer}>
-          <HStack style={styles.signerItem}>
-            <HStack alignItems="center">
-              <AddIcon />
-              <VStack marginX="4" maxWidth="64">
-                <Text
-                  color={`${colorMode}.primaryText`}
-                  numberOfLines={2}
-                  style={[globalStyles.font15, { letterSpacing: 1.12, alignItems: 'center' }]}
-                >
-                  {`Add ${getPlaceholder(index)} Signing Device`}
-                </Text>
-                <Text
-                  color={`${colorMode}.GreyText`}
-                  style={[globalStyles.font13, { letterSpacing: 0.06 }]}
-                >
-                  Select signing device
-                </Text>
-              </VStack>
-            </HStack>
-            <Box style={styles.backArrow}>
-              {colorMode === 'light' ? <IconArrowBlack /> : <IconArrowGray />}
-            </Box>
-          </HStack>
-        </Box>
-      </Pressable>
-    );
-  }
-  const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(vaultSigner, signer);
-  let shouldReconfigure = false;
-  if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
-    shouldReconfigure = true;
-  }
-  return (
-    <Box
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 10,
-        marginBottom: hp(windowHeight < 700 ? 5 : 25),
-      }}
-    >
-      <HStack style={styles.signerItem}>
-        <HStack>
-          <Box
-            width="8"
-            height="8"
-            borderRadius={30}
-            backgroundColor="#725436"
-            justifyContent="center"
-            alignItems="center"
-            alignSelf="center"
-          >
-            {SDIcons(signer.type, true).Icon}
-          </Box>
-          <VStack marginLeft="4" maxWidth="80%">
-            <Text
-              color={`${colorMode}.primaryText`}
-              numberOfLines={1}
-              style={[
-                globalStyles.font15,
-                { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
-              ]}
-            >
-              {`${signer.signerName}`}
-              <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
-            </Text>
-            <Text
-              color={`${colorMode}.GreyText`}
-              style={[globalStyles.font12, { letterSpacing: 0.6 }]}
-            >
-              {`Added ${moment(signer.lastHealthCheck).calendar()}`}
-            </Text>
-            <Pressable onPress={openDescriptionModal}>
-              <Box style={styles.descriptionBox} backgroundColor={`${colorMode}.seashellWhite`}>
-                <Text
-                  numberOfLines={1}
-                  color={signer.signerDescription ? '#6A7772' : '#387F6A'}
-                  style={[
-                    globalStyles.font12,
-                    { letterSpacing: 0.6, fontStyle: signer.signerDescription ? null : 'italic' },
-                  ]}
-                  bold={!signer.signerDescription}
-                >
-                  {signer.signerDescription ? signer.signerDescription : 'Add Description'}
-                </Text>
-              </Box>
-            </Pressable>
-          </VStack>
-        </HStack>
-        <Pressable style={styles.remove} onPress={() => removeSigner()}>
-          <Text color={`${colorMode}.black`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
-            {shouldReconfigure ? 'Re-configure' : 'Remove'}
-          </Text>
-        </Pressable>
-      </HStack>
-      <DescriptionModal
-        visible={visible}
-        close={closeDescriptionModal}
-        signer={signer}
-        callback={(value: any) => dispatch(updateSignerDetails(signer, 'signerDescription', value))}
-      />
-    </Box>
-  );
-}
-
 function AddSigningDevice() {
   const { colorMode } = useColorMode();
   const [vaultCreating, setCreating] = useState(false);
-  const { activeVault } = useVault();
   const navigation = useNavigation();
   const route = useRoute() as {
-    params: { isInheritance: boolean; scheme: VaultScheme; name: string; description: string };
+    params: {
+      isInheritance: boolean;
+      scheme: VaultScheme;
+      name: string;
+      description: string;
+      vaultId: string;
+    };
   };
-  const dispatch = useDispatch();
-  const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const [inheritanceInit, setInheritanceInit] = useState(false);
-
-  const { name = 'Vault', description = 'Secure your sats', isInheritance = false } = route.params;
-  let { scheme } = route.params;
-  if (scheme && isInheritance) {
-    scheme = { m: scheme.m, n: scheme.n + 1 };
-  } else if (!scheme && activeVault && !isInheritance) {
-    scheme = activeVault.scheme;
-    // added temporarily until we support multiple vaults
-  } else if (!scheme && activeVault && isInheritance) {
-    scheme = { m: 3, n: 6 };
-  }
-
+  // const [inheritanceInit, setInheritanceInit] = useState(false);
   const {
-    signersState,
-    areSignersValid,
-    amfSigners,
-    misMatchedSigners,
-    invalidSS,
-    invalidIKS,
-    invalidMessage,
-  } = useSignerIntel({ scheme });
+    name = 'Vault',
+    description = 'Secure your sats',
+    isInheritance = false,
+    vaultId = '',
+    scheme,
+  } = route.params;
+
+  const { signers } = useSigners();
+  const { signerMap } = useSignerMap();
+  const [selectedSigners, setSelectedSigners] = useState(new Map());
+  const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
+  const { activeVault } = useVault({ vaultId });
+
+  // let { scheme } = route.params;
+  // if (scheme && isInheritance) {
+  //   scheme = { m: scheme.m, n: scheme.n + 1 };
+  // } else if (!scheme && activeVault && !isInheritance) {
+  //   scheme = activeVault.scheme;
+  //   // added temporarily until we support multiple vaults
+  // } else if (!scheme && activeVault && isInheritance) {
+  //   scheme = { m: 3, n: 6 };
+  // }
 
   useEffect(() => {
-    if (activeVault && !vaultSigners.length) {
-      dispatch(addSigningDevice(activeVault.signers));
+    if (activeVault) {
+      const vaultKeys = activeVault.signers;
+      setVaultKeys(vaultKeys);
+      const updatedSignerMap = new Map();
+      vaultKeys.forEach((key) => {
+        updatedSignerMap.set(key.masterFingerprint, true);
+      });
+      setSelectedSigners(new Map(updatedSignerMap));
     }
   }, []);
+
+  const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
+    scheme,
+    vaultKeys,
+    selectedSigners,
+    existingKeys: activeVault?.signers || [],
+  });
 
   const triggerVaultCreation = () => {
     setCreating(true);
   };
-
-  const renderSigner = ({ item, index }) => (
-    <SignerItem
-      vaultSigner={item}
-      index={index}
-      setInheritanceInit={setInheritanceInit}
-      scheme={scheme}
-      isInheritance={isInheritance}
-    />
-  );
 
   const preTitle = 'Add Vault Signing Devices';
 
@@ -251,8 +111,73 @@ function AddSigningDevice() {
         }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
-  const trezorIncompatible =
-    scheme.n > 1 && signersState.find((signer) => signer && signer.type === SignerType.TREZOR);
+  let trezorIncompatible = false;
+  if (scheme.n > 1) {
+    for (const mfp of selectedSigners.keys()) {
+      if (signerMap[mfp].type === SignerType.TREZOR) {
+        trezorIncompatible = true;
+        break;
+      }
+    }
+  }
+
+  const onSignerSelect = (selected, signer: Signer) => {
+    const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
+    const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
+    const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
+
+    const isMock = !!amfXpub || signer.isMock;
+    const isMultisig = msXpub && scheme.n > 1;
+
+    if (selected) {
+      const updated = selectedSigners.delete(signer.masterFingerprint);
+      if (updated) {
+        if (isMock) {
+          const updatedKeys = vaultKeys.filter(
+            (key) => (msXpub && key.xpub !== msXpub.xpub) || (amfXpub && key.xpub !== amfXpub.xpub)
+          );
+          setVaultKeys(updatedKeys);
+        } else if (isMultisig) {
+          const updatedKeys = vaultKeys.filter((key) => key.xpub !== msXpub.xpub);
+          setVaultKeys(updatedKeys);
+        } else {
+          const updatedKeys = vaultKeys.filter((key) => key.xpub !== ssXpub.xpub);
+          setVaultKeys(updatedKeys);
+        }
+        setSelectedSigners(new Map(selectedSigners));
+      }
+    } else {
+      if (selectedSigners.size >= scheme.n) {
+        showToast(
+          'You have selected the total (n) keys, please proceed with the creation of vault.'
+        );
+        return;
+      }
+      if (isMock || isMultisig) {
+        vaultKeys.push({
+          ...msXpub,
+          masterFingerprint: signer.masterFingerprint,
+          xfp: WalletUtilities.getFingerprintFromExtendedKey(
+            msXpub.xpub,
+            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          ),
+        });
+        setVaultKeys(vaultKeys);
+      } else {
+        vaultKeys.push({
+          ...ssXpub,
+          masterFingerprint: signer.masterFingerprint,
+          xfp: WalletUtilities.getFingerprintFromExtendedKey(
+            ssXpub.xpub,
+            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          ),
+        });
+        setVaultKeys(vaultKeys);
+      }
+      const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
+      setSelectedSigners(new Map(updatedSignerMap));
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -260,23 +185,52 @@ function AddSigningDevice() {
       <VaultMigrationController
         vaultCreating={vaultCreating}
         setCreating={setCreating}
-        signersState={signersState}
+        vaultKeys={vaultKeys}
         scheme={scheme}
         name={name}
         description={description}
+        vaultId={vaultId}
       />
-      <FlatList
-        keyboardShouldPersistTaps="always"
-        showsVerticalScrollIndicator={false}
-        extraData={vaultSigners}
-        data={signersState}
-        keyExtractor={(item, index) => item?.xfp ?? index}
-        renderItem={renderSigner}
-        style={{
-          marginTop: hp(52),
-        }}
-        testID={'view_signerList'}
-      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Box style={styles.signerContainer}>
+          {signers.map((signer) => {
+            let disabled = false;
+            const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
+            const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
+            const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
+            if (
+              (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
+              (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
+            ) {
+              disabled = true;
+            }
+            return (
+              <SignerCard
+                disabled={disabled}
+                key={signer.masterFingerprint}
+                name={signer.signerName}
+                description={signer.signerDescription || signer.type}
+                icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                isSelected={!!selectedSigners.get(signer.masterFingerprint)}
+                onCardSelect={(selected) => onSignerSelect(selected, signer)}
+              />
+            );
+          })}
+          <AddCard
+            name={'Add Signer'}
+            cardStyles={styles.addCard}
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.navigate('SigningDeviceList', {
+                  scheme,
+                  vaultId,
+                  vaultSigners: vaultKeys,
+                })
+              )
+            }
+          />
+        </Box>
+      </ScrollView>
       <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
         {amfSigners.length ? (
           <Box style={styles.noteContainer}>
@@ -291,16 +245,6 @@ function AddSigningDevice() {
         {invalidSS || invalidIKS ? (
           <Box style={styles.noteContainer}>
             <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
-          </Box>
-        ) : misMatchedSigners.length ? (
-          <Box style={styles.noteContainer} testID={'view_warning01'}>
-            <Note
-              title="WARNING"
-              subtitle={`Looks like you've added a ${
-                scheme.n === 1 ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
-              subtitleColor="error"
-            />
           </Box>
         ) : trezorIncompatible ? (
           <Box style={styles.noteContainer} testID={'view_warning02'}>
@@ -323,11 +267,11 @@ function AddSigningDevice() {
           paddingHorizontal={wp(30)}
         />
       </Box>
-      <AddIKS
+      {/* <AddIKS
         vault={activeVault}
         visible={inheritanceInit}
         close={() => setInheritanceInit(false)}
-      />
+      /> */}
     </ScreenWrapper>
   );
 }
@@ -375,6 +319,17 @@ const styles = StyleSheet.create({
   backArrow: {
     width: '15%',
     alignItems: 'center',
+  },
+  signerContainer: {
+    width: windowWidth,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingBottom: 20,
+  },
+  addCard: {
+    height: 125,
+    width: windowWidth / 3 - windowWidth * 0.05,
+    margin: 3,
   },
 });
 

@@ -66,12 +66,17 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
 
 function SignWithChannel() {
   const { params } = useRoute();
-  const { vaultKey, collaborativeWalletId = '' } = params as {
+  const {
+    vaultKey,
+    collaborativeWalletId = '',
+    vaultId = '',
+  } = params as {
     vaultKey: VaultSigner;
     collaborativeWalletId: string;
+    vaultId: string;
   };
   const { signer } = useSignerFromKey(vaultKey);
-  const { activeVault } = useVault(collaborativeWalletId);
+  const { activeVault } = useVault({ collaborativeWalletId, vaultId });
   const { isMultiSig: isMultisig } = activeVault;
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops

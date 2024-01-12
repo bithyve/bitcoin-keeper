@@ -92,7 +92,7 @@ function Footer({
         navigation.dispatch(
           CommonActions.navigate(
             isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-            { wallet: isCollaborativeWallet ? vault : vault }
+            { vaultId: vault.id }
           )
         );
       },
@@ -280,14 +280,16 @@ function SignerList({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
   const { signers: vaultKeys, isMultiSig } = vault;
   const navigation = useNavigation();
+  const { signerMap } = useSignerMap();
   const [unkonwnSignerHcModal, setUnkonwnSignerHcModal] = useState(false);
 
+  //TO-DO
   const signerPressHandler = (signer: VaultSigner) => {
-    if (signer.type !== SignerType.UNKOWN_SIGNER) {
+    if (signerMap[signer.masterFingerprint].type !== SignerType.UNKOWN_SIGNER) {
       navigation.dispatch(
         CommonActions.navigate('SigningDeviceDetails', {
           SignerIcon: <SignerIcon />,
-          signerId: signer.signerId,
+          signerId: signer.xfp,
           vaultId: vault.id,
         })
       );
@@ -295,7 +297,6 @@ function SignerList({ vault }: { vault: Vault }) {
       setUnkonwnSignerHcModal(true);
     }
   };
-  const { signerMap } = useSignerMap();
 
   return (
     <ScrollView
@@ -327,6 +328,7 @@ function SignerList({ vault }: { vault: Vault }) {
                   CommonActions.navigate('SigningDeviceDetails', {
                     signer,
                     vaultKey,
+                    vaultId: vault.id,
                   })
                 );
               }}
@@ -468,6 +470,7 @@ function VaultDetails({ navigation }) {
   const { vault: vaultTranslation, ramp, common } = translations;
   const route = useRoute() as {
     params: {
+      vaultId: string;
       vaultTransferSuccessful: boolean;
       autoRefresh: boolean;
       collaborativeWalletId: string;
@@ -478,11 +481,12 @@ function VaultDetails({ navigation }) {
     vaultTransferSuccessful = false,
     autoRefresh = false,
     collaborativeWalletId = '',
+    vaultId = '',
   } = route.params || {};
 
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { activeVault: vault } = useVault(collaborativeWalletId);
+  const { activeVault: vault } = useVault({ collaborativeWalletId, vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(true);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
@@ -536,7 +540,7 @@ function VaultDetails({ navigation }) {
             style={styles.addPhoneEmailWrapper}
             backgroundColor={`${colorMode}.primaryBackground`}
             onPress={() => {
-              navigation.navigate('IKSAddEmailPhone');
+              navigation.navigate('IKSAddEmailPhone', { vaultId });
               setVaultCreated(false);
             }}
           >

@@ -18,10 +18,11 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
-function IKSAddEmailPhone() {
+function IKSAddEmailPhone({ route }) {
   const navigtaion = useNavigation();
   const [email, setEmail] = useState('');
-  const vault: Vault = useVault().activeVault;
+  const { vaultId } = route.params;
+  const vault: Vault = useVault({ vaultId }).activeVault;
   const { showToast } = useToastMessage();
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
   const dispatch = useDispatch();

@@ -4,7 +4,6 @@ import { TxPriority, VaultType } from 'src/core/wallets/enums';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { TransferType } from 'src/models/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -12,7 +11,6 @@ import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
-import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
@@ -22,16 +20,17 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
 function VaultMigrationController({
   vaultCreating,
-  signersState,
+  vaultKeys,
   scheme,
   setCreating,
   name,
   description,
-}: any) {
+  vaultId,
+}) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
     (state) => state.network.averageTxFees
@@ -59,12 +58,14 @@ function VaultMigrationController({
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+          {
+            name: 'VaultDetails',
+            params: { vaultId, vaultTransferSuccessful: true },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetRealyVaultState());
-      dispatch(clearSigningDevice());
       setCreating(false);
     }
 
@@ -171,7 +172,7 @@ function VaultMigrationController({
               { name: 'Home' },
               {
                 name: 'VaultDetails',
-                params: { autoRefresh: true },
+                params: { autoRefresh: true, vaultId: activeVault.id },
               },
             ],
           })
@@ -182,15 +183,15 @@ function VaultMigrationController({
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
         vaultScheme: scheme,
-        vaultSigners: signersState,
+        vaultSigners: vaultKeys,
         vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
+          name,
+          description,
         },
       };
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(signersState, scheme);
+      createVault(vaultKeys, scheme);
     }
   };
   return null;

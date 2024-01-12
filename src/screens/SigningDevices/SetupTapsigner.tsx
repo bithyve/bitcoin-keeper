@@ -137,7 +137,7 @@ function SetupTapsigner({ route }) {
       } else {
         dispatch(addSigningDevice([tapsigner], [vaultKey], addSignerFlow));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }

@@ -196,13 +196,13 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signer, vaultKey } = route.params;
+  const { signer, vaultKey, vaultId } = route.params;
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -271,7 +271,11 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={Change} />,
       onPress: () =>
         navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          CommonActions.navigate({
+            name: 'AddSigningDevice',
+            merge: true,
+            params: { vaultId, scheme: activeVault.scheme },
+          })
         ),
     },
     {
@@ -289,7 +293,9 @@ function SigningDeviceDetails({ route }) {
       text: 'Advance Options',
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
-        navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey }));
+        navigation.dispatch(
+          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId })
+        );
       },
     },
   ];
@@ -359,6 +365,7 @@ function SigningDeviceDetails({ route }) {
           vaultShellId={activeVault.shellId}
           isMultisig={activeVault.isMultiSig}
           primaryMnemonic={primaryMnemonic}
+          vaultId={vaultId}
         />
         <KeeperModal
           visible={skipHealthCheckModalVisible}
@@ -396,6 +403,7 @@ function SigningDeviceDetails({ route }) {
           secondaryCallback={() => {
             setVisible(true);
           }}
+          vaultId={vaultId}
         />
       </Box>
     </ScreenWrapper>

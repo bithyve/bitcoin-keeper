@@ -33,7 +33,7 @@ type IProps = {
 function AssignSignerType({ navigation, route }: IProps) {
   const dispatch = useDispatch();
   const { vault } = route.params;
-  const { signers: appSigners } = useSigners(vault.id);
+  const { signers: appSigners } = useSigners();
   const [visible, setVisible] = useState(false);
   const [signerType, setSignerType] = useState<SignerType>();
   const assignSignerType = (type: SignerType) => {
@@ -62,9 +62,10 @@ function AssignSignerType({ navigation, route }: IProps) {
   const [signersLoaded, setSignersLoaded] = useState(false);
   const {
     activeVault: { signers, scheme },
-  } = useVault();
+  } = useVault({ vaultId });
 
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -98,9 +99,10 @@ function AssignSignerType({ navigation, route }: IProps) {
               const { disabled, message: connectivityStatus } = getDeviceStatus(
                 type,
                 isNfcSupported,
-                signers,
                 isOnL1,
-                scheme
+                isOnL2,
+                scheme,
+                appSigners
               );
               let message = connectivityStatus;
               if (!connectivityStatus) {
@@ -153,6 +155,7 @@ function AssignSignerType({ navigation, route }: IProps) {
           vaultShellId={vault?.shellId}
           isMultisig={vault?.isMultiSig}
           primaryMnemonic={primaryMnemonic}
+          addSignerFlow={false}
         />
       </ScrollView>
     </ScreenWrapper>

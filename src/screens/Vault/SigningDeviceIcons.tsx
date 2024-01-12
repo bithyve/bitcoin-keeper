@@ -26,7 +26,7 @@ import SEEDSIGNERICONLIGHT from 'src/assets/images/seedsigner_light.svg';
 import SEEDSIGNERLOGO from 'src/assets/images/seedsignerlogo.svg';
 import SPECTERICON from 'src/assets/images/specter_icon.svg';
 import SPECTERICONLIGHT from 'src/assets/images/specter_icon_light.svg';
-import SPECTERLOGO from 'src/assets/images/seedsignerlogo.svg';
+import SPECTERLOGO from 'src/assets/images/specterlogo.svg';
 import SEEDWORDS from 'src/assets/images/seedwords.svg';
 import SEEDWORDSLIGHT from 'src/assets/images/seedwordsLight.svg';
 import SERVER from 'src/assets/images/server.svg';

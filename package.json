@@ -50,6 +50,7 @@
     "cktap-protocol-react-native": "git+https://github.com/bithyve/cktap-protocol-react-native.git#main",
     "coinselect": "3.1.13",
     "constants": "^0.0.2",
+    "crypto": "^1.0.1",
     "crypto-js": "4.1.1",
     "deprecated-react-native-prop-types": "^4.2.1",
     "ecpair": "2.0.1",

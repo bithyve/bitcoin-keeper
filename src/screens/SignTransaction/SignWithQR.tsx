@@ -32,11 +32,16 @@ function SignWithQR() {
   const {
     vaultKey,
     collaborativeWalletId = '',
-  }: { vaultKey: VaultSigner; collaborativeWalletId: string } = route.params as any;
+    vaultId = '',
+  }: {
+    vaultKey: VaultSigner;
+    collaborativeWalletId: string;
+    vaultId: string;
+  } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
     (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
-  const { activeVault } = useVault(collaborativeWalletId);
+  const { activeVault } = useVault({ collaborativeWalletId, vaultId });
   const isSingleSig = activeVault.scheme.n === 1;
   const { signer } = useSignerFromKey(vaultKey);
 

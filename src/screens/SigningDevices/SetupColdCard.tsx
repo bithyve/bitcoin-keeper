@@ -101,7 +101,7 @@ function SetupColdCard({ route }) {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
-      const { signer: coldcard, key } = generateSignerFromMetaData({
+      const { signer: coldcard } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         masterFingerprint,
@@ -117,9 +117,9 @@ function SetupColdCard({ route }) {
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else {
-        dispatch(addSigningDevice([coldcard], [key], addSignerFlow));
+        dispatch(addSigningDevice([coldcard]));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }

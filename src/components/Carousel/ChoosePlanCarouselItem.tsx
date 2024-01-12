@@ -5,6 +5,8 @@ import { hp, wp } from 'src/constants/responsive';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
+import { SvgUri } from 'react-native-svg';
+import config from 'src/core/config';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 
 const styles = StyleSheet.create({
@@ -13,6 +15,11 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(4),
     position: 'relative',
     paddingBottom: 20,
+  },
+  circle: {
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
@@ -40,6 +47,7 @@ function ChoosePlanCarouselItem({
   requesting,
 }: Props) {
   const { colorMode } = useColorMode();
+  const isSelected = currentPosition === index;
   const getFreeTrail = useMemo(() => {
     if (item.monthlyPlanDetails || item.yearlyPlanDetails) {
       if (isMonthly) return item.monthlyPlanDetails.trailPeriod;
@@ -77,7 +85,7 @@ function ChoosePlanCarouselItem({
   }, [item, isMonthly]);
 
   const canSelectPlan = useMemo(() => {
-    if (currentPosition === index) {
+    if (isSelected) {
       if (isMonthly) {
         return !item.monthlyPlanDetails?.productId.includes(subscription.productId.toLowerCase());
       }
@@ -89,11 +97,12 @@ function ChoosePlanCarouselItem({
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
       <Box
-        backgroundColor={currentPosition === index ? `${colorMode}.pantoneGreen` : '#848484'}
+        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.SmokeGreen`}
         style={[
           styles.wrapperView,
           {
             width: wp(itemWidth),
+            height: isSelected ? 260 : 230,
           },
         ]}
       >
@@ -107,7 +116,7 @@ function ChoosePlanCarouselItem({
               py={0.5}
               px={2}
             >
-              <Text fontSize={8} letterSpacing={0.64} bold color="black">
+              <Text fontSize={8} letterSpacing={0.64} bold color={`${colorMode}.pantoneGreen`}>
                 Current
               </Text>
             </Box>
@@ -117,20 +126,23 @@ function ChoosePlanCarouselItem({
             </Box>
           )}
           {/* <Box my={15}>{currentPosition === index ? <SvgUri uri={`${config.RELAY}${item.iconFocused}`} /> : <SvgUri uri={`${config.RELAY}${item.icon}`} />}</Box> */}
-          <Text fontSize={13} bold color={`${colorMode}.white`} mt={2}>
+          <Box style={styles.circle}>
+            <SvgUri uri={`${config.RELAY}${isSelected ? item.iconFocused : item.icon}`} />
+          </Box>
+          <Text fontSize={12} bold color={`${colorMode}.white`} mt={2}>
             {item.name}
           </Text>
-          <Text fontSize={10} color={`${colorMode}.white`} mb={2}>
+          <Text fontSize={10} color={`${colorMode}.Warmbeige`} mb={4}>
             {item.subTitle}
           </Text>
-          <Text bold fontSize={10} color={`${colorMode}.white`} my={2}>
-            {getFreeTrail}
-          </Text>
-          <Text textAlign="center" fontSize={15} color={`${colorMode}.white`}>
+          <Text textAlign="center" fontSize={isSelected ? 22 : 15} color={`${colorMode}.white`}>
             {getAmt}
           </Text>
           <Text fontSize={10} color={`${colorMode}.white`}>
             {item.productType !== 'free' && item.isActive ? (isMonthly ? '/month' : '/year') : ''}
+          </Text>
+          <Text bold fontSize={10} color={`${colorMode}.white`} my={2}>
+            {getFreeTrail}
           </Text>
           {/* <Text bold fontSize={10} color="light.white" my={item.productIds.includes(subscription.productId.toLowerCase()) ? 0.5 : 2}>
             {getFreeTrail}
@@ -138,14 +150,15 @@ function ChoosePlanCarouselItem({
           {canSelectPlan === true ? (
             <Box
               style={{
-                marginTop: hp(20),
+                marginTop: hp(10),
               }}
             >
               <CustomYellowButton
                 onPress={() => onSelect(item, index)}
                 value={getBtnTitle}
                 disabled={!item.isActive || requesting}
-                titleColor={`${colorMode}.yellowButtonTextColor`}
+                titleColor={`${colorMode}.pantoneGreen`}
+                backgroundColor={`${colorMode}.seashellWhite`}
               />
             </Box>
           ) : null}
