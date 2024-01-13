@@ -104,6 +104,7 @@ function SignTransactionScreen() {
     (state) => state.bhr
   );
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
+  const intrimVault = useAppSelector((state) => state.vault.intrimVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
@@ -123,7 +124,12 @@ function SignTransactionScreen() {
           { name: 'Home' },
           {
             name: 'VaultDetails',
-            params: { vaultTransferSuccessful: true, autoRefresh: true, collaborativeWalletId },
+            params: {
+              vaultTransferSuccessful: true,
+              autoRefresh: true,
+              collaborativeWalletId,
+              vaultId: intrimVault?.id || '',
+            },
           },
         ],
       };
