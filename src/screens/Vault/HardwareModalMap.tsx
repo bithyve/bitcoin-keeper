@@ -18,7 +18,10 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
+import RecoverImage from 'src/assets/images/recover_white.svg';
+
 import KeeperModal from 'src/components/KeeperModal';
+
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
@@ -67,6 +70,8 @@ import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import Instruction from 'src/components/Instruction';
 import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
+import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
+import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -97,6 +102,7 @@ const getSignerContent = (
           : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
+        options: [],
       };
     case SignerType.JADE:
       const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
@@ -112,6 +118,7 @@ const getSignerContent = (
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
+        options: [],
       };
     case SignerType.KEEPER:
       return {
@@ -122,6 +129,7 @@ const getSignerContent = (
         ],
         title: 'Keep your Device Ready',
         subTitle: 'Keep your Collaborative Signer ready before proceeding',
+        options: [],
       };
     case SignerType.MOBILE_KEY:
       return {
@@ -131,6 +139,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify Mobile Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
+        options: [],
       };
     case SignerType.KEYSTONE:
       const keystoneInstructions = isMultisig
@@ -146,6 +155,7 @@ const getSignerContent = (
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
+        options: [],
       };
     case SignerType.PASSPORT:
       const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
@@ -161,6 +171,7 @@ const getSignerContent = (
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
+        options: [],
       };
     case SignerType.POLICY_SERVER:
       return {
@@ -173,6 +184,7 @@ const getSignerContent = (
             ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
         subTitle: 'A Signing Server will hold one of the keys of the Vault',
+        options: [],
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
@@ -188,6 +200,7 @@ const getSignerContent = (
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
+        options: [],
       };
     case SignerType.SPECTER:
       const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
@@ -203,6 +216,7 @@ const getSignerContent = (
           : [specterInstructions],
         title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter',
         subTitle: 'Keep your Specter ready and powered before proceeding',
+        options: [],
       };
     case SignerType.BITBOX02:
       return {
@@ -213,6 +227,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
+        options: [],
       };
     case SignerType.TREZOR:
       return {
@@ -223,6 +238,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
         subTitle: trezor.SetupDescription,
+        options: [],
       };
     case SignerType.LEDGER:
       return {
@@ -233,6 +249,7 @@ const getSignerContent = (
         ],
         title: ledger.SetupTitle,
         subTitle: ledger.SetupDescription,
+        options: [],
       };
     case SignerType.SEED_WORDS:
       return {
@@ -243,6 +260,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
+        options: [],
       };
     case SignerType.TAPSIGNER:
       return {
@@ -253,6 +271,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
+        options: [],
       };
     case SignerType.OTHER_SD:
       return {
@@ -263,16 +282,31 @@ const getSignerContent = (
         ],
         title: 'Keep your signing device ready',
         subTitle: 'Keep your signing device ready before proceeding',
+        options: [],
       };
+
     case SignerType.INHERITANCEKEY:
       return {
-        Illustration: <OtherSDSetup />,
+        Illustration: <InhertanceKeyIcon />,
+        title: 'Setting up an Inheritance Key',
+        subTitle: 'This step will add an additional, mandatory key to your m-of-n vault',
         Instructions: [
-          'Manually provide the signing device details',
-          `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+          'This Key would only get activated after the other two Keys have signed',
+          `On activation the Key would send emails to your email id for 30 days for you to decline using it`,
         ],
-        title: 'Keep your signing device ready',
-        subTitle: 'Keep your signing device ready before proceeding',
+        options: [
+          {
+            title: 'Configure a New Key',
+            icon: <RecoverImage />,
+            callback: () => {},
+            name: 'newKey',
+          },
+          {
+            title: 'Recover Existing Key',
+            icon: <RecoverImage />,
+            name: 'recoverKey',
+          },
+        ],
       };
     default:
       return {
@@ -289,10 +323,16 @@ function SignerContent({
   Illustration,
   Instructions,
   mode,
+  options,
+  setSelectInheritanceType,
+  selectInheritanceType,
 }: {
   Illustration: Element;
   Instructions: Array<string>;
   mode: InteracationMode;
+  options?: any;
+  setSelectInheritanceType: (index) => any;
+  selectInheritanceType: any;
 }) {
   return (
     <View>
@@ -301,10 +341,30 @@ function SignerContent({
         {mode === InteracationMode.HEALTH_CHECK && (
           <Instruction text="Health Check is initiated if a signing device is not used for the last 180 days" />
         )}
-        {Instructions.map((instruction) => (
+        {Instructions?.map((instruction) => (
           <Instruction text={instruction} key={instruction} />
         ))}
       </Box>
+      <View
+        style={{
+          marginVertical: 5,
+          gap: 2,
+          flexDirection: 'row',
+        }}
+      >
+        {options &&
+          options.map((option, index) => (
+            <SignerCard
+              isSelected={index === selectInheritanceType}
+              isFullText={true}
+              name={option.title}
+              icon={option.icon}
+              onCardSelect={() => {
+                setSelectInheritanceType(index);
+              }}
+            />
+          ))}
+      </View>
     </View>
   );
 }
@@ -1114,6 +1174,8 @@ function HardwareModalMap({
 
   const requestInheritanceKeyRecovery = async (signers: VaultSigner[]) => {
     try {
+      // console.log('selectInheritanceType---->', selectInheritanceType);
+      // ------TESTING-------
       if (signingDevices.length <= 1) throw new Error('Add two others devices first to recover');
       const cosignersMapIds = generateCosignerMapIds(
         signerMap,
@@ -1142,16 +1204,26 @@ function HardwareModalMap({
     close();
   };
 
-  const { Illustration, Instructions, title, subTitle, unsupported } = getSignerContent(
+  const { Illustration, Instructions, title, subTitle, unsupported, options } = getSignerContent(
     type,
     isMultisig,
     translations,
     isHealthcheck
   );
 
+  const [selectInheritanceType, setSelectInheritanceType] = useState(1);
   const Content = useCallback(
-    () => <SignerContent Illustration={Illustration} Instructions={Instructions} mode={mode} />,
-    []
+    () => (
+      <SignerContent
+        Illustration={Illustration}
+        Instructions={Instructions}
+        mode={mode}
+        options={options}
+        setSelectInheritanceType={setSelectInheritanceType}
+        selectInheritanceType={selectInheritanceType}
+      />
+    ),
+    [selectInheritanceType]
   );
 
   const buttonCallback = () => {
@@ -1202,8 +1274,16 @@ function HardwareModalMap({
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
-        secondaryButtonText={isHealthcheck ? 'Skip' : null}
-        secondaryCallback={isHealthcheck ? skipHealthCheckCallBack : null}
+        secondaryButtonText={
+          isHealthcheck ? 'Skip' : type === SignerType.INHERITANCEKEY ? 'cancel' : null
+        }
+        secondaryCallback={
+          isHealthcheck
+            ? skipHealthCheckCallBack
+            : type === SignerType.INHERITANCEKEY
+            ? close
+            : null
+        }
       />
       <KeeperModal
         visible={passwordModal && mode === InteracationMode.VAULT_ADDITION}
