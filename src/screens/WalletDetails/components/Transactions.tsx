@@ -52,8 +52,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
       ListEmptyComponent={
         <EmptyStateView
           IllustartionImage={NoTransactionIcon}
-          title="No transactions yet."
-          subTitle="Pull down to refresh"
+          title="You have no transactions yet"
         />
       }
     />

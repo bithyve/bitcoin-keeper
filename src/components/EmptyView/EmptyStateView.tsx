@@ -7,22 +7,26 @@ import { hp, windowHeight } from 'src/constants/responsive';
 function EmptyStateView({
   IllustartionImage,
   title,
-  subTitle,
+  subTitle = '',
 }: {
   IllustartionImage: any;
   title: string;
-  subTitle: string;
+  subTitle?: string;
 }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.container}>
+      <Box>
+        <Text italic style={styles.noTransactionTitle} color={`${colorMode}.black`}>
+          {title}
+        </Text>
+        {subTitle && (
+          <Text italic style={styles.noTransactionSubTitle} color={`${colorMode}.black`}>
+            {subTitle}
+          </Text>
+        )}
+      </Box>
       {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />}
-      <Text italic style={styles.noTransactionTitle} color={`${colorMode}.black`}>
-        {title}
-      </Text>
-      <Text italic style={styles.noTransactionSubTitle} color={`${colorMode}.black`}>
-        {subTitle}
-      </Text>
     </Box>
   );
 }
@@ -31,13 +35,13 @@ const styles = StyleSheet.create({
     marginTop: windowHeight > 800 ? hp(20) : hp(12),
     alignItems: 'center',
     justifyContent: 'flex-end',
+    gap: 20,
   },
   noTransactionTitle: {
-    fontSize: 12,
+    fontSize: 14,
     letterSpacing: 0.6,
     opacity: 0.85,
     fontWeight: '400',
-    marginTop: hp(20),
   },
   noTransactionSubTitle: {
     fontSize: 12,
