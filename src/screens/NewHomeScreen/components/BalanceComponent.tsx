@@ -6,7 +6,6 @@ import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
 
 function BalanceComponent({ balance, count }) {
   const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
   return (
     <Box style={styles.walletWrapper}>
       <Text color={`${colorMode}.black`} style={styles.noOfWallet}>
@@ -27,21 +26,21 @@ function BalanceComponent({ balance, count }) {
 
 export default BalanceComponent;
 
-const getStyles = (colorMode) =>
-  StyleSheet.create({
-    walletWrapper: {
-      justifyContent: 'center',
-      marginTop: 20,
-    },
-    noOfWallet: {
-      textAlign: 'center',
-      fontSize: 27,
-    },
-    amount: {
-      textAlign: 'center',
-      gap: 5,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'row',
-    },
-  });
+const styles = StyleSheet.create({
+  walletWrapper: {
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  noOfWallet: {
+    textAlign: 'center',
+    fontSize: 27,
+    lineHeight: 27,
+  },
+  amount: {
+    textAlign: 'center',
+    gap: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+});

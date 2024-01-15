@@ -17,6 +17,8 @@ import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import config from 'src/core/config';
 
 function VaultMigrationController({
   vaultCreating,
@@ -30,7 +32,7 @@ function VaultMigrationController({
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { activeVault } = useVault({ vaultId });
+  const { activeVault, allVaults } = useVault({ vaultId });
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
     (state) => state.network.averageTxFees
@@ -45,6 +47,7 @@ function VaultMigrationController({
   );
 
   const [recipients, setRecepients] = useState<any[]>();
+  const [generatedVaultId, setGeneratedVaultId] = useState('');
 
   useEffect(() => {
     if (vaultCreating) {
@@ -53,14 +56,15 @@ function VaultMigrationController({
   }, [vaultCreating]);
 
   useEffect(() => {
-    if (relayVaultUpdate && activeVault) {
+    const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
+    if (relayVaultUpdate && newVault) {
       const navigationState = {
         index: 1,
         routes: [
           { name: 'Home' },
           {
             name: 'VaultDetails',
-            params: { vaultId, vaultTransferSuccessful: true },
+            params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
           },
         ],
       };
@@ -149,6 +153,8 @@ function VaultMigrationController({
           description,
         },
       };
+      const generatedVaultId = generateVaultId(signers, config.NETWORK_TYPE, scheme);
+      setGeneratedVaultId(generatedVaultId);
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       return vaultInfo;
     } catch (err) {
