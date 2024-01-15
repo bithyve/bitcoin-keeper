@@ -261,7 +261,6 @@ export default function NotificationStack() {
             alignItems: 'center',
             flex: 1,
             justifyContent: 'flex-end',
-            marginBottom: layout.cardsGap * 2,
           }}
           pointerEvents="box-none"
         >
@@ -287,12 +286,12 @@ const getStyles = (colorMode: ColorMode) =>
     container: {
       position: 'relative',
       top: 100,
+      left: 7,
     },
     card: {
       borderRadius: layout.borderRadius,
       width: layout.width,
       height: layout.height,
-      padding: 10,
       shadowColor: `${colorMode}.Greige`,
       shadowRadius: 10,
       shadowOpacity: 1,
