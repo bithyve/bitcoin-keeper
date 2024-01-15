@@ -125,6 +125,7 @@ export const customTheme = extendTheme({
       DeepOlive: Colors.DeepOlive,
       PaleKhaki: Colors.PaleKhaki,
       Warmbeige: Colors.Warmbeige,
+      PaleTurquoise: Colors.PaleTurquoise,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -200,6 +201,7 @@ export const customTheme = extendTheme({
       DeepOlive: Colors.DeepOlive,
       PaleKhaki: Colors.PaleKhaki,
       Warmbeige: Colors.Warmbeige,
+      PaleTurquoise: Colors.PaleTurquoise,
     },
   },
   config: {

@@ -1,14 +1,14 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Pressable, StatusBar, useColorMode, VStack } from 'native-base';
+import { StyleSheet } from 'react-native';
+import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import idx from 'idx';
 import { useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WalletIcon from 'src/assets/images/hexagontile_wallet.svg';
+
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
-import Arrow from 'src/assets/images/arrow_brown.svg';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -22,12 +22,15 @@ import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import CardPill from 'src/components/CardPill';
+import Colors from 'src/theme/Colors';
+import ActionCard from 'src/components/ActionCard';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -105,19 +108,21 @@ function WalletDetails({ route }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.greenText2`}>
+    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <StatusBar barStyle="light-content" />
       <Box style={{ paddingHorizontal: 20, paddingTop: 15 }}>
         <KeeperHeader
           learnMore
+          learnTextColor="light.white"
+          learnBackgroundColor="rgba(0,0,0,.2)"
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
         />
         <VStack>
           <Box style={styles.walletHeaderWrapper}>
             <Box style={styles.walletIconWrapper}>
-              <Box style={styles.walletIconView} backgroundColor={`${colorMode}.white`}>
-                {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletInsideGreen />}
+              <Box style={styles.walletIconView}>
+                {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletIcon />}
               </Box>
             </Box>
             <Box style={styles.walletNameWrapper}>
@@ -131,17 +136,13 @@ function WalletDetails({ route }) {
           </Box>
           <Box style={styles.balanceWrapper}>
             <Box style={styles.unconfirmBalanceView}>
-              <Text color={`${colorMode}.white`}>{common.unconfirmed}</Text>
-              <CurrencyInfo
-                hideAmounts={false}
-                amount={unconfirmed}
-                fontSize={14}
-                color={`${colorMode}.white`}
-                variation={colorMode === 'light' ? 'light' : 'dark'}
+              <CardPill
+                heading="SINGLE SIG"
+                cardStyles={{ backgroundColor: Colors.PaleTurquoise }}
               />
+              <CardPill heading={wallet.type} />
             </Box>
             <Box style={styles.availableBalanceView}>
-              <Text color={`${colorMode}.white`}>{common.availableBalance}</Text>
               <CurrencyInfo
                 hideAmounts={false}
                 amount={confirmed}
@@ -153,78 +154,27 @@ function WalletDetails({ route }) {
           </Box>
         </VStack>
       </Box>
+      <Box style={styles.actionCard}>
+        <ActionCard
+          cardName="View All Coins"
+          description="Manage Whirlpool and UTXOs"
+          callback={() =>
+            navigation.navigate('UTXOManagement', {
+              data: wallet,
+              routeName: 'Wallet',
+              accountType: WalletType.DEFAULT,
+            })
+          }
+          icon={<WhirlpoolAccountIcon />}
+        />
+      </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
-        <Pressable
-          key={wallet?.id}
-          backgroundColor={`${colorMode}.accent`}
-          style={styles.transferPolicyCard}
-          onPress={() => {
-            navigation.navigate('WalletDetailsSettings', {
-              wallet,
-              editPolicy: true,
-            });
-          }}
-        >
-          <Box style={styles.transferPolicyContent}>
-            <Box
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                color="light.learnMoreBorder"
-                fontSize={12}
-                style={{
-                  letterSpacing: 0.6,
-                }}
-              >
-                {common.transferPolicySet}
-                {'  '}
-              </Text>
-              <CurrencyInfo
-                hideAmounts={false}
-                amount={wallet?.transferPolicy.threshold}
-                fontSize={14}
-                color="light.learnMoreBorder"
-                variation="dark"
-              />
-            </Box>
-            <Box>
-              <Arrow />
-            </Box>
-          </Box>
-        </Pressable>
         {wallet ? (
           <>
             <HStack style={styles.transTitleWrapper}>
               <Text color={`${colorMode}.black`} fontSize={16} letterSpacing={1.28}>
                 {common.transactions}
               </Text>
-              {wallet?.specs.transactions.length ? (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('AllTransactions', {
-                      title: 'Wallet Transactions',
-                      subtitle: 'All incoming and outgoing transactions',
-                      entityKind: EntityKind.WALLET,
-                    })
-                  }
-                >
-                  <HStack alignItems="center">
-                    <Text
-                      color={`${colorMode}.primaryGreen`}
-                      marginRight={2}
-                      fontSize={11}
-                      bold
-                      letterSpacing={0.6}
-                    >
-                      {common.viewAll}
-                    </Text>
-                    <IconArrowBlack />
-                  </HStack>
-                </TouchableOpacity>
-              ) : null}
             </HStack>
             <TransactionsAndUTXOs
               transactions={wallet?.specs.transactions}
@@ -268,9 +218,8 @@ const styles = StyleSheet.create({
   },
   walletContainer: {
     paddingHorizontal: wp(28),
-    paddingTop: wp(28),
+    paddingTop: wp(45),
     paddingBottom: 20,
-    borderTopLeftRadius: 20,
     flex: 1,
     justifyContent: 'space-between',
   },
@@ -291,12 +240,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   walletHeaderWrapper: {
-    margin: wp(15),
+    marginTop: -10,
+    marginHorizontal: wp(15),
     flexDirection: 'row',
     width: '100%',
   },
   walletIconWrapper: {
     width: '15%',
+    marginRight: 7,
   },
   walletNameWrapper: {
     width: '85%',
@@ -322,6 +273,8 @@ const styles = StyleSheet.create({
   },
   unconfirmBalanceView: {
     width: '50%',
+    flexDirection: 'row',
+    gap: 5,
   },
   availableBalanceView: {
     width: '50%',
@@ -349,6 +302,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  actionCard: {
+    marginTop: 40,
+    marginBottom: -50,
+    zIndex: 10,
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 export default WalletDetails;

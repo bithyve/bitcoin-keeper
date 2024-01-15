@@ -61,6 +61,7 @@ const Colors = {
   SmokeGreen: 'rgba(154,164,159,1)',
   DeepOlive: 'rgba(35, 82, 71, 1)',
   PaleKhaki: 'rgba(95,106,103,1)',
+  PaleTurquoise: 'rgba(184,214,207,1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',

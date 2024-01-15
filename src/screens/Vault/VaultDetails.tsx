@@ -49,6 +49,7 @@ import useSigners from 'src/hooks/useSigners';
 import useSignerMap from 'src/hooks/useSignerMap';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
+import Colors from 'src/theme/Colors';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import { SDIcons } from './SigningDeviceIcons';
@@ -149,7 +150,10 @@ function VaultInfo({
       </HStack>
       <HStack justifyContent="space-between" top={isCollaborativeWallet ? '16' : '0'}>
         <HStack paddingTop="6" space={2}>
-          <CardPill heading={`${vault.scheme.m} of ${vault.scheme.n}`} />
+          <CardPill
+            heading={`${vault.scheme.m} of ${vault.scheme.n}`}
+            cardStyles={{ backgroundColor: Colors.PaleTurquoise }}
+          />
           <CardPill
             heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
           />
