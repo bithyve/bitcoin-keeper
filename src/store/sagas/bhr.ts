@@ -15,7 +15,7 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/operations/Relay';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -60,26 +60,48 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { NewVaultInfo, addNewVaultWorker } from './wallets';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { KEY_MANAGEMENT_VERSION } from './upgrade';
 
-export function* updateAppImageWorker({ payload }) {
-  const { wallets } = payload;
+export function* updateAppImageWorker({
+  payload,
+}: {
+  payload: {
+    wallets?: Wallet[];
+    signers?: Signer[];
+  };
+}) {
+  const { wallets, signers } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const walletObject = {};
+  const signersObjects = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallets) {
     for (const wallet of wallets) {
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
       walletObject[wallet.id] = encrytedWallet;
     }
+  } else if (signers) {
+    for (const signer of signers) {
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(signer));
+      signersObjects[signer.masterFingerprint] = encrytedWallet;
+    }
   } else {
+    //update all wallets and signers
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
       walletObject[wallet.id] = encrytedWallet;
+    }
+    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    for (const index in signers) {
+      const signer = signers[index];
+      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+      signersObjects[signer.masterFingerprint] = encrytedSigner;
     }
   }
 
@@ -93,11 +115,14 @@ export function* updateAppImageWorker({ payload }) {
       nodesToUpdate.push(encrytedNode);
     }
   }
+
+  // API call to Relay to do modular updates
   try {
     const response = yield call(Relay.updateAppImage, {
       appId: id,
       publicId,
       walletObject,
+      signersObjects,
       networkType,
       subscription: JSON.stringify(subscription),
       version,
@@ -262,7 +287,8 @@ function* getAppImageWorker({ payload }) {
           appImage,
           vaultImage,
           UTXOinfos,
-          labels
+          labels,
+          previousVersion
         );
       } else {
         const plebSubscription = {
@@ -282,7 +308,8 @@ function* getAppImageWorker({ payload }) {
           appImage,
           vaultImage,
           UTXOinfos,
-          labels
+          labels,
+          previousVersion
         );
       }
     }
@@ -304,7 +331,8 @@ function* recoverApp(
   appImage,
   vaultImage,
   UTXOinfos,
-  labels
+  labels,
+  previousVersion
 ) {
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
@@ -390,10 +418,74 @@ function* recoverApp(
     }
   }
 
+  //Signers recreatin
+  if (appImage.signers) {
+    for (const [key, value] of Object.entries(appImage.signers)) {
+      const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
+      yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
+    }
+  }
+
   // Vault recreation
   if (vaultImage) {
     const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+    console.log({ previousVersion });
+    if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
+      if (vault?.signers?.length) {
+        vault.signers.forEach((signer, index) => {
+          signer.xfp = signer.signerId;
+          signer.registeredVaults = [
+            {
+              vaultId: vault.id,
+              registered: signer.registered,
+              registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
+            },
+          ];
+        });
+      }
 
+      if (vault.signers.length) {
+        for (const signer of vault.signers) {
+          const signerXpubs = {};
+          Object.keys(signer.xpubDetails).forEach((type) => {
+            if (signer.xpubDetails[type].xpub) {
+              if (signerXpubs[type]) {
+                signerXpubs[type].push({
+                  xpub: signer.xpubDetails[type].xpub,
+                  xpriv: signer.xpubDetails[type].xpriv,
+                  derivationPath: signer.xpubDetails[type].derivationPath,
+                });
+              } else {
+                signerXpubs[type] = [
+                  {
+                    xpub: signer.xpubDetails[type].xpub,
+                    xpriv: signer.xpubDetails[type].xpriv,
+                    derivationPath: signer.xpubDetails[type].derivationPath,
+                  },
+                ];
+              }
+            }
+          });
+          const signerObject = {
+            masterFingerprint: signer.masterFingerprint,
+            type: signer.type,
+            signerName: signer.signerName,
+            signerDescription: signer.signerDescription,
+            lastHealthCheck: signer.lastHealthCheck,
+            addedOn: signer.addedOn,
+            isMock: signer.isMock,
+            storageType: signer.storageType,
+            signerPolicy: signer.signerPolicy,
+            inheritanceKeyInfo: signer.inheritanceKeyInfo,
+            hidden: false,
+            signerXpubs,
+          };
+          yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+        }
+      }
+
+      yield call(dbManager.createObject, RealmSchema.Vault, vault);
+    }
     yield call(dbManager.createObject, RealmSchema.Vault, vault);
   }
 
