@@ -22,7 +22,7 @@ export const securityTips = [
   {
     title: 'Security Tip',
     subTitle:
-      'You can get a receive address directly from a signing device and do not have to trust the Keeper app',
+      'You can get a receive address directly from a signer and do not have to trust the Keeper app',
     assert: <LoadingAnimation />,
     message: 'This will mean that the funds are received at the correct address',
   },
@@ -34,8 +34,8 @@ export const securityTips = [
     message: 'Consult your estate planner for incorporating documents from this app in your will',
   },
   {
-    title: 'Keep your signing devices safe',
-    subTitle: 'Signing devices are what control your funds.',
+    title: 'Keep your signers safe',
+    subTitle: 'Signers are what control your funds.',
     assert: <LoadingAnimation />,
     message: 'These are generally offline and to keep them secure is your responsibility. ',
   },

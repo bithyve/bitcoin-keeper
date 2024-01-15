@@ -43,7 +43,7 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
             </Box>
             <VStack pb={2}>
               <Text color="light.white" fontSize={10} bold letterSpacing={0.6} textAlign="center">
-                Add signing device to upgrade
+                Add signer to upgrade
               </Text>
             </VStack>
           </TouchableOpacity>

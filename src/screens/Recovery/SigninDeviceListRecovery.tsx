@@ -12,13 +12,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
-import HardwareModalMap, { InteracationMode } from '../Vault/HardwareModalMap';
 import config, { APP_STAGE, KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperModal from 'src/components/KeeperModal';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import openLink from 'src/utils/OpenLink';
+import HardwareModalMap, { InteracationMode } from '../Vault/HardwareModalMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 type HWProps = {
   type: SignerType;
@@ -140,7 +140,7 @@ function SigningDeviceListRecovery({ navigation }) {
           <SigningDevicesIllustration />
         </Box>
         <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
-          {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
+          {`In the ${SubscriptionTier.L1} tier, you can add one signer to activate your vault. This can be upgraded to three signers and five signers on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signer is not supported, it will be indicated.`}
         </Text>
       </Box>
     );
@@ -242,8 +242,8 @@ function SigningDeviceListRecovery({ navigation }) {
         close={() => {
           dispatch(setSdIntroModal(false));
         }}
-        title="Signing Devices"
-        subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
+        title="Signers"
+        subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
         modalBackground={`${colorMode}.modalGreenBackground`}
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
         buttonBackground={`${colorMode}.modalWhiteButton`}

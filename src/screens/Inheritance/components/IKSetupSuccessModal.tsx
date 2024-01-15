@@ -15,8 +15,8 @@ function InitiateContent() {
         <Assert />
       </Box>
       <Text style={styles.paragraphText}>
-        When a Signing Device is changed and a new Vault is created, some aspects of Inheritance
-        documents may change
+        When a signer is changed and a new Vault is created, some aspects of Inheritance documents
+        may change
       </Text>
     </Box>
   );
@@ -29,7 +29,7 @@ function IKSetupSuccessModal({ visible, closeModal }: modalParams) {
       close={() => closeModal()}
       title="Inheritance Support Setup Successful"
       subTitle="You have visited all sections of the Inheritance Support feature"
-      modalBackground={'#F7F2EC'}
+      modalBackground="#F7F2EC"
       buttonBackground={`${colorMode}.gradientStart`}
       buttonText="View Inhetitance"
       buttonTextColor="#FAFAFA"

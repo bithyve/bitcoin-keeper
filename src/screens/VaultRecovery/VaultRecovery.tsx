@@ -210,7 +210,7 @@ function VaultRecovery({ navigation }) {
         if (setupInfo.configuration.bsms) {
           initateRecovery(setupInfo.configuration.bsms);
         } else {
-          showToast(`Cannot recreate Vault as BSMS was not present`, <ToastErrorIcon />);
+          showToast('Cannot recreate Vault as BSMS was not present', <ToastErrorIcon />);
         }
         dispatch(setSigningDevices(inheritanceKey));
         dispatch(setInheritanceRequestId('')); // clear approved request
@@ -317,7 +317,7 @@ function VaultRecovery({ navigation }) {
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
-      <KeeperHeader title="Add signing devices" subtitle="To recover your Vault" />
+      <KeeperHeader title="Add signers" subtitle="To recover your Vault" />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>
@@ -353,7 +353,7 @@ function VaultRecovery({ navigation }) {
                 } else navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' });
               }}
               title="Add Another"
-              subTitle="Select signing device"
+              subTitle="Select signer"
             />
           </Box>
         ) : (
@@ -368,7 +368,7 @@ function VaultRecovery({ navigation }) {
               </Box>
             </TouchableOpacity>
             <Text style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
-              You can use any one of the signing devices to start with
+              You can use any one of the signers to start with
             </Text>
           </Box>
         )}
@@ -393,7 +393,7 @@ function VaultRecovery({ navigation }) {
         )}
         <Note
           title="Note"
-          subtitle="Signing Server cannot be used as the first signing device while recovering"
+          subtitle="Signing Server cannot be used as the first signer while recovering"
         />
       </Box>
       <KeeperModal

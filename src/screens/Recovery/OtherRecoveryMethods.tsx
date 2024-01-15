@@ -15,10 +15,10 @@ function OtherRecoveryMethods() {
         title="Other methods for restoring the Vault"
         subtitle="This method can only be used for restoring the Vault"
       />
-      <Box style={{ marginTop: hp(30) }} testID={'view_allOtherMethods'}>
+      <Box style={{ marginTop: hp(30) }} testID="view_allOtherMethods">
         <Tile
-          title="All Signing Devices"
-          subTitle="If you have all the signing devices that were initially used to create the Vault"
+          title="All signers"
+          subTitle="If you have all the signers that were initially used to create the Vault"
           onPress={() => {
             navigate('LoginStack', { screen: 'VaultSetup', params: { isRecreation: true } });
           }}
@@ -32,8 +32,8 @@ function OtherRecoveryMethods() {
         />
 
         <Tile
-          title="Signing Device with Vault details"
-          subTitle="These are the signing devices where you may have registered the Vault"
+          title="Signer with Vault details"
+          subTitle="These are the signers where you may have registered the Vault"
           onPress={() => {
             navigate('LoginStack', { screen: 'SigningDeviceConfigRecovery' });
           }}

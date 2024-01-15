@@ -36,14 +36,14 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
 import openLink from 'src/utils/OpenLink';
-import { SDIcons } from './SigningDeviceIcons';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
-import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import IdentifySignerModal from './components/IdentifySignerModal';
+import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import { SDIcons } from './SigningDeviceIcons';
 
 function Footer({
   vault,
@@ -121,17 +121,32 @@ function VaultInfo({
       <HStack alignItems="center">
         <Box paddingRight={3}>{isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}</Box>
         <VStack>
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={16} testID={'text_vaultName'}>
+          <Text
+            color={`${colorMode}.white`}
+            style={styles.vaultInfoText}
+            fontSize={16}
+            testID="text_vaultName"
+          >
             {name}
           </Text>
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={12} testID={'text_vaultDescription'}>
+          <Text
+            color={`${colorMode}.white`}
+            style={styles.vaultInfoText}
+            fontSize={12}
+            testID="text_vaultDescription"
+          >
             {description}
           </Text>
         </VStack>
       </HStack>
       <HStack justifyContent="space-between" top={isCollaborativeWallet ? '16' : '0'}>
         <VStack paddingTop="6">
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11} testID={'text_unconfirmed'}>
+          <Text
+            color={`${colorMode}.white`}
+            style={styles.vaultInfoText}
+            fontSize={11}
+            testID="text_unconfirmed"
+          >
             {common.unconfirmed}
           </Text>
           <CurrencyInfo
@@ -143,7 +158,12 @@ function VaultInfo({
           />
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11} testID={'text_availableBalance'}>
+          <Text
+            color={`${colorMode}.white`}
+            style={styles.vaultInfoText}
+            fontSize={11}
+            testID="text_availableBalance"
+          >
             {common.availableBalance}
           </Text>
           <CurrencyInfo
@@ -185,9 +205,15 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.1) }}>
+      <VStack style={{ paddingTop: windowHeight * (collaborativeWalletId ? 0.03 : 0.1) }}>
         <HStack justifyContent="space-between" alignItems="center">
-          <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28} testID={'text_Transaction'}>
+          <Text
+            color={`${colorMode}.black`}
+            marginLeft={wp(3)}
+            fontSize={16}
+            letterSpacing={1.28}
+            testID="text_Transaction"
+          >
             {common.transactions}
           </Text>
           {transactions ? (
@@ -211,7 +237,7 @@ function TransactionList({
                   fontSize={11}
                   bold
                   letterSpacing={0.6}
-                  testID={'text_viewAll'}
+                  testID="text_viewAll"
                 >
                   {common.viewAll}
                 </Text>
@@ -222,7 +248,7 @@ function TransactionList({
         </HStack>
       </VStack>
       <FlatList
-        testID={'view_TransactionList'}
+        testID="view_TransactionList"
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
@@ -575,7 +601,7 @@ function VaultDetails({ navigation }) {
         subTitle={
           collaborativeWalletId
             ? vaultTranslation.collaborativeWalletMultipleUsers
-            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`
+            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the Vault`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}

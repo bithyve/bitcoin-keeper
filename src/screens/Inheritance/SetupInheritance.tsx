@@ -42,7 +42,7 @@ function SetupInheritance() {
       title: 'Safeguarding Tips',
       subTitle: 'For yourself',
       description:
-        'Consists of tips on things to consider while storing your signing devices for the purpose of inheritance (when it will be needed by someone else)',
+        'Consists of tips on things to consider while storing your signers for the purpose of inheritance (when it will be needed by someone else)',
       Icon: Vault,
     },
     {
@@ -124,9 +124,9 @@ function SetupInheritance() {
 
   const toSetupInheritance = () => {
     if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
-    else if (plan !== SubscriptionTier.L3.toUpperCase())
+    else if (plan !== SubscriptionTier.L3.toUpperCase()) {
       navigtaion.navigate('ChoosePlan', { planPosition: 2 });
-    else if (!activeVault)
+    } else if (!activeVault) {
       navigtaion.dispatch(
         CommonActions.navigate({
           name: 'AddSigningDevice',
@@ -134,8 +134,9 @@ function SetupInheritance() {
           params: { scheme: { m: 3, n: 5 } },
         })
       );
-    else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5)
+    } else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5) {
       navigtaion.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
+    }
   };
 
   return (

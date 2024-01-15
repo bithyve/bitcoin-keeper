@@ -36,11 +36,10 @@ function VaultModals({
           <VaultSetupIcon />
         </Box>
         <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-          Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can
-          select
+          Keeper supports all the popular bitcoin signers (Hardware Wallets) that a user can select
         </Text>
         <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-          There are also some additional options if you do not have hardware signing devices
+          There are also some additional options if you do not have hardware signers
         </Text>
       </View>
     ),
@@ -63,7 +62,7 @@ function VaultModals({
           dispatch(setIntroModal(false));
         }}
         title="Keeper Vault"
-        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
+        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}

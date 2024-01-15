@@ -25,8 +25,8 @@ function RegisterWithQR({ route, navigation }: any) {
   return (
     <ScreenWrapper>
       <KeeperHeader
-        title="Register Signing Device"
-        subtitle="Register the vault with any of the QR based signing devices"
+        title="Register signer"
+        subtitle="Register the vault with any of the QR based signers"
       />
       <Box style={styles.center}>
         <DisplayQR qrContents={qrContents} toBytes type="hex" />

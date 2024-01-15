@@ -18,11 +18,11 @@ import Instruction from 'src/components/Instruction';
 const config = {
   Illustration: <InheritanceKeyIllustration />,
   Instructions: [
-    'Manually provide the signing device details',
-    `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+    'Manually provide the signer details',
+    'The hardened part of the derivation path of the xpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
   ],
   title: 'Setting up the Inheritance Key',
-  subTitle: 'Keep your signing device ready before proceeding',
+  subTitle: 'Keep your signer ready before proceeding',
 };
 function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; close: () => void }) {
   const dispatch = useDispatch();
@@ -90,7 +90,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
       showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
     } catch (err) {
       console.log({ err });
-      showToast(`Failed to add inheritance key`, <TickIcon />);
+      showToast('Failed to add inheritance key', <TickIcon />);
     }
   };
 

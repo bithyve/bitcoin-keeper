@@ -56,15 +56,15 @@ import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/services/operations/SigningServer';
-import { checkSigningDevice } from './AddSigningDevice';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { formatDuration } from '../VaultRecovery/VaultRecovery';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
-import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import Instruction from 'src/components/Instruction';
+import { formatDuration } from '../VaultRecovery/VaultRecovery';
+import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
+import { checkSigningDevice } from './AddSigningDevice';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -83,28 +83,30 @@ const getSignerContent = (
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
     case SignerType.COLDCARD:
-      const ccInstructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n`;
+      const ccInstructions =
+        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n';
       return {
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
           ? [
-            ccInstructions,
-            `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-          ]
+              ccInstructions,
+              'Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.',
+            ]
           : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-        } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+        isMultisig ? 'MultiSig' : 'SingleSig'
+      } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-            jadeInstructions,
-            `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-          ]
+              jadeInstructions,
+              'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
+            ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -113,8 +115,8 @@ const getSignerContent = (
       return {
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          `Choose a wallet or create a new one from your Linked Wallets`,
-          `Within settings choose Show co-signer Details to scan the QR`,
+          'Choose a wallet or create a new one from your Linked Wallets',
+          'Within settings choose Show co-signer Details to scan the QR',
         ],
         title: 'Keep your Device Ready',
         subTitle: 'Keep your Collaborative Signer ready before proceeding',
@@ -123,36 +125,37 @@ const getSignerContent = (
       return {
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          `Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.`,
+          "Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.",
         ],
         title: isHealthcheck ? 'Verify Mobile Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
       };
     case SignerType.KEYSTONE:
       const keystoneInstructions = isMultisig
-        ? `Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`
-        : `Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet`;
+        ? 'Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n'
+        : 'Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
       return {
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-            keystoneInstructions,
-            `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-          ]
+              keystoneInstructions,
+              'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
+            ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-            passportInstructions,
-            `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-          ]
+              passportInstructions,
+              'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
+            ]
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -163,22 +166,23 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signing server will be made to checks it health']
           : [
-            `A 2FA authenticator will have to be set up to use this option.`,
-            `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
-          ],
+              'A 2FA authenticator will have to be set up to use this option.',
+              'On providing the correct code from the auth app, the Signing Server will sign the transaction.',
+            ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
         subTitle: 'A Signing Server will hold one of the keys of the Vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-            seedSignerInstructions,
-            `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.`,
-          ]
+              seedSignerInstructions,
+              'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
+            ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
@@ -188,7 +192,7 @@ const getSignerContent = (
         Illustration: <BitboxImage />,
         Instructions: [
           `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02. `,
-          `Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.`,
+          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.',
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
@@ -198,7 +202,7 @@ const getSignerContent = (
         Illustration: <TrezorSetup />,
         Instructions: [
           `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor. `,
-          `Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.`,
+          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.',
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
         subTitle: trezor.SetupDescription,
@@ -208,7 +212,7 @@ const getSignerContent = (
         Illustration: <LedgerImage />,
         Instructions: [
           `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Ledger. `,
-          `Please Make sure you have the BTC app downloaded on Ledger before this step.`,
+          'Please Make sure you have the BTC app downloaded on Ledger before this step.',
         ],
         title: ledger.SetupTitle,
         subTitle: ledger.SetupDescription,
@@ -217,8 +221,8 @@ const getSignerContent = (
       return {
         Illustration: <SeedWordsIllustration />,
         Instructions: [
-          `Once the transaction is signed the key is not stored on the app.`,
-          `Make sure that you're noting down the words in private as exposing them will compromise the Seed Key`,
+          'Once the transaction is signed the key is not stored on the app.',
+          "Make sure that you're noting down the words in private as exposing them will compromise the Seed Key",
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
@@ -228,7 +232,7 @@ const getSignerContent = (
         Illustration: <TapsignerSetupImage />,
         Instructions: [
           'You will need the Pin/CVC at the back of TAPSIGNER',
-          'You should generally not use the same signing device on multiple wallets/apps',
+          'You should generally not use the same signer on multiple wallets/apps',
         ],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
@@ -237,21 +241,21 @@ const getSignerContent = (
       return {
         Illustration: <OtherSDSetup />,
         Instructions: [
-          'Manually provide the signing device details',
-          `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+          'Manually provide the signer details',
+          'The hardened part of the derivation path of the xpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
         ],
-        title: 'Keep your signing device ready',
-        subTitle: 'Keep your signing device ready before proceeding',
+        title: 'Keep your signer ready',
+        subTitle: 'Keep your signer ready before proceeding',
       };
     case SignerType.INHERITANCEKEY:
       return {
         Illustration: <OtherSDSetup />,
         Instructions: [
-          'Manually provide the signing device details',
-          `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+          'Manually provide the signer details',
+          'The hardened part of the derivation path of the xpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
         ],
-        title: 'Keep your signing device ready',
-        subTitle: 'Keep your signing device ready before proceeding',
+        title: 'Keep your signer ready',
+        subTitle: 'Keep your signer ready before proceeding',
       };
     default:
       return {
@@ -278,7 +282,7 @@ function SignerContent({
       <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {mode === InteracationMode.HEALTH_CHECK && (
-          <Instruction text="Health Check is initiated if a signing device is not used for the last 180 days" />
+          <Instruction text="Health Check is initiated if a signer is not used for the last 180 days" />
         )}
         {Instructions.map((instruction) => (
           <Instruction text={instruction} key={instruction} />
@@ -538,7 +542,7 @@ function PasswordEnter({
       const currentPinHash = hash512(password);
       if (currentPinHash === pinHash) {
         dispatch(healthCheckSigner([signer]));
-        showToast(`Mobile Key verified successfully`, <TickIcon />);
+        showToast('Mobile Key verified successfully', <TickIcon />);
         setInProgress(false);
         close();
       } else {
@@ -677,7 +681,7 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `${isHealthcheck ? `Verify` : `Setting up`} ${getSignerNameFromType(type)}`,
+          title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: isHealthcheck ? onQRScanHealthCheck : onQRScan,
           setup: true,
@@ -697,7 +701,7 @@ function HardwareModalMap({
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
-          showToast(`Health check done successfully`, <TickIcon />);
+          showToast('Health check done successfully', <TickIcon />);
         } else {
           close();
           showToast('Error in Health check', <ToastErrorIcon />, 3000);
@@ -718,7 +722,7 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ConnectChannel',
         params: {
-          title: `${isHealthcheck ? `Verify` : `Setting up`} ${getSignerNameFromType(type)}`,
+          title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
           subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
           type,
           signer,
@@ -816,8 +820,9 @@ function HardwareModalMap({
       }
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(hw.signerId);
-      if (exsists)
+      if (exsists) {
         showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
+      }
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);
@@ -860,7 +865,7 @@ function HardwareModalMap({
       if (healthcheckStatus) {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
-        showToast(`Health check done successfully`, <TickIcon />);
+        showToast('Health check done successfully', <TickIcon />);
       } else {
         navigation.dispatch(CommonActions.goBack());
         showToast('Error in Health check', <ToastErrorIcon />, 3000);

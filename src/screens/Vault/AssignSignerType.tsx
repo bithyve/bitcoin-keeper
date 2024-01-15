@@ -9,12 +9,12 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { getDeviceStatus, getSDMessage, getSignerNameFromType } from 'src/hardware';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import useVault from 'src/hooks/useVault';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 type IProps = {
   navigation: any;
@@ -74,10 +74,10 @@ function AssignSignerType({ navigation, route }: IProps) {
   return (
     <ScreenWrapper>
       <KeeperHeader
-        title="Identify your Signing Device"
+        title="Identify your signer"
         subtitle="for better communication and conectivity"
       />
-      <VStack paddingLeft={'10%'} paddingTop={'5%'}>
+      <VStack paddingLeft="10%" paddingTop="5%">
         <Text>Master fingerprint: {signer.masterFingerprint}</Text>
         <Text>Fingerprint: {signer.signerId}</Text>
         <Text>xPub: {signer.xpub}</Text>
