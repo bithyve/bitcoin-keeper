@@ -66,6 +66,7 @@ function MixProgress({
       walletPoolMap: any;
       isRemix: boolean;
       remixingToVault: boolean;
+      vaultId: string;
     };
   };
   navigation: any;
@@ -85,7 +86,7 @@ function MixProgress({
   });
   const styles = getStyles(clock);
 
-  const { selectedUTXOs, depositWallet, isRemix, remixingToVault } = route.params;
+  const { selectedUTXOs, depositWallet, isRemix, remixingToVault, vaultId } = route.params;
   const statusData = [
     {
       title: 'Subscribing',
@@ -155,7 +156,7 @@ function MixProgress({
   const { postmixWallet, premixWallet } = useWhirlpoolWallets({ wallets: [depositWallet] })[
     depositWallet.id
   ];
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const source = isRemix ? postmixWallet : premixWallet;
   const destination = isRemix && remixingToVault ? activeVault : postmixWallet;
   const { labels } = useLabelsNew({ utxos: selectedUTXOs, wallet: depositWallet });

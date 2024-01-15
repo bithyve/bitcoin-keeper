@@ -13,6 +13,7 @@ import Buttons from 'src/components/Buttons';
 import { setVaultRecoveryDetails } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 
 const NumberInput = ({ value, onDecrease, onIncrease }) => {
   const { colorMode } = useColorMode();
@@ -43,11 +44,12 @@ const VaultSetup = () => {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { params } = useRoute();
-  const { isRecreation } = (params as { isRecreation: Boolean }) || {};
+  const { isRecreation, scheme: preDefinedScheme = { m: 2, n: 3 } } =
+    (params as { isRecreation: Boolean; scheme: VaultScheme }) || {};
   const dispatch = useDispatch();
   const [vaultName, setVaultName] = useState('Vault');
   const [vaultDescription, setVaultDescription] = useState('');
-  const [scheme, setScheme] = useState({ m: 2, n: 3 });
+  const [scheme, setScheme] = useState(preDefinedScheme);
   const onDecreaseM = () => {
     if (scheme.m > 1) {
       setScheme({ ...scheme, m: scheme.m - 1 });
@@ -88,9 +90,9 @@ const VaultSetup = () => {
         );
       }
     } else {
-      showToast('Please Enter Vault name', <ToastErrorIcon />)
+      showToast('Please Enter Vault name', <ToastErrorIcon />);
     }
-  }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -101,9 +103,9 @@ const VaultSetup = () => {
           value={vaultName}
           onChangeText={(value) => {
             if (vaultName === 'Vault') {
-              setVaultName('')
+              setVaultName('');
             } else {
-              setVaultName(value)
+              setVaultName(value);
             }
           }}
           testID={'vault_name'}
@@ -119,17 +121,22 @@ const VaultSetup = () => {
           height={20}
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-        <Text style={{ fontSize: 14 }} testID={'text_totalKeys'}>Total Keys for Vault Configuration</Text>
-        <Text style={{ fontSize: 12 }} testID={'text_totalKeys_subTitle'}>Select the total number of keys</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_totalKeys'}>
+          Total Keys for Vault Configuration
+        </Text>
+        <Text style={{ fontSize: 12 }} testID={'text_totalKeys_subTitle'}>
+          Select the total number of keys
+        </Text>
         <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-        <Text style={{ fontSize: 14 }} testID={'text_requireKeys'}>Required Keys</Text>
-        <Text style={{ fontSize: 12 }} testID={'text_requireKeys_subTitle'}>Select the number of keys required</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_requireKeys'}>
+          Required Keys
+        </Text>
+        <Text style={{ fontSize: 12 }} testID={'text_requireKeys_subTitle'}>
+          Select the number of keys required
+        </Text>
         <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
       </VStack>
-      <Buttons
-        primaryText="Proceed"
-        primaryCallback={OnProceed}
-      />
+      <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
 };

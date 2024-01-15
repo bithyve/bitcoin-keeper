@@ -17,8 +17,9 @@ function UTXOFooter({
   wallet,
   utxos,
   setRemixingToVault,
+  vaultId,
 }) {
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
@@ -34,7 +35,10 @@ function UTXOFooter({
       hideItem: !allowedMixTypes.includes(wallet?.type),
     },
     {
-      text: wallet.type === WalletType.POST_MIX ? walletTranslation.selectForRemix : walletTranslation.selectForMix,
+      text:
+        wallet.type === WalletType.POST_MIX
+          ? walletTranslation.selectForRemix
+          : walletTranslation.selectForMix,
       Icon: MixIcon,
       onPress: () => {
         setEnableSelection(!enableSelection);

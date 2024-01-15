@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { wp, hp, windowHeight } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
@@ -17,26 +17,19 @@ import Recovery from 'src/assets/images/recovery.svg';
 import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import usePlan from 'src/hooks/usePlan';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-function SetupInheritance() {
+function SetupInheritance({ route }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritence, vault: vaultTranslation, common } = translations;
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
-  const { plan } = usePlan();
-  const { activeVault } = useVault();
-
-  const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
-
+  const { vaultId = '' } = route.params || {};
   const inheritanceData = [
     {
       title: 'Safeguarding Tips',
@@ -119,23 +112,7 @@ function SetupInheritance() {
 
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
-  };
-
-  const toSetupInheritance = () => {
-    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
-    else if (plan !== SubscriptionTier.L3.toUpperCase())
-      navigtaion.navigate('ChoosePlan', { planPosition: 2 });
-    else if (!activeVault)
-      navigtaion.dispatch(
-        CommonActions.navigate({
-          name: 'AddSigningDevice',
-          merge: true,
-          params: { scheme: { m: 3, n: 5 } },
-        })
-      );
-    else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5)
-      navigtaion.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
+    navigtaion.navigate('InheritanceStatus', { vaultId });
   };
 
   return (
@@ -166,19 +143,17 @@ function SetupInheritance() {
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
-          {shouldActivateInheritance()
-            ? vaultTranslation.manageInheritance
-            : `This can be activated once you are on ${SubscriptionTier.L3} and create a 3 of 5 Vault to add this key`}
+          {vaultTranslation.manageInheritance}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
-          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
+          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => proceedCallback()}>
             <Box
               borderColor={`${colorMode}.learnMoreBorder`}
               backgroundColor={`${colorMode}.lightAccent`}
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {shouldActivateInheritance() ? common.proceed : common.upgradeNow}
+                {common.proceed}
               </Text>
             </Box>
           </TouchableOpacity>

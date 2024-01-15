@@ -127,6 +127,7 @@ function Footer({
       wallet={wallet}
       utxos={utxos}
       setRemixingToVault={setRemixingToVault}
+      vaultId={vaultId}
     />
   );
 }

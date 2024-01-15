@@ -155,11 +155,18 @@ function* migrateAssistedKeys() {
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
     const { signers } = activeVault;
+    const signerMap = {};
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
     for (let signer of signers) {
-      if (signer.type === SignerType.POLICY_SERVER) {
+      const signerType = signerMap[signer.masterFingerprint].type;
+
+      if (signerType === SignerType.POLICY_SERVER) {
         const cosignersMapUpdates: CosignersMapUpdate[] = yield call(
           generateCosignerMapUpdates,
+          signerMap,
           signers,
           signer
         );
@@ -171,9 +178,10 @@ function* migrateAssistedKeys() {
         );
 
         if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(SS)');
-      } else if (signer.type === SignerType.INHERITANCEKEY) {
+      } else if (signerType === SignerType.INHERITANCEKEY) {
         const cosignersMapUpdates: IKSCosignersMapUpdate[] = yield call(
           generateCosignerMapUpdates,
+          signerMap,
           signers,
           signer
         );

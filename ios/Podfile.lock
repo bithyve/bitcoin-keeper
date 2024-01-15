@@ -472,6 +472,8 @@ PODS:
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
+  - react-native-rsa-native (2.0.5):
+    - React
   - react-native-safe-area-context (4.7.2):
     - React-Core
   - react-native-tcp-socket (5.6.2):
@@ -696,6 +698,7 @@ DEPENDENCIES:
   - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
+  - react-native-rsa-native (from `../node_modules/react-native-rsa-native`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-tor (from `../node_modules/react-native-tor`)
@@ -836,6 +839,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-pdf"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
+  react-native-rsa-native:
+    :path: "../node_modules/react-native-rsa-native"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-tcp-socket:
@@ -969,6 +974,7 @@ SPEC CHECKSUMS:
   react-native-nfc-manager: 42ebc22a04f32c0c2bc63a016ab30fa6486de450
   react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
+  react-native-rsa-native: 12132eb627797529fdb1f0d22fd0f8f9678df64a
   react-native-safe-area-context: 7aa8e6d9d0f3100a820efb1a98af68aa747f9284
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7

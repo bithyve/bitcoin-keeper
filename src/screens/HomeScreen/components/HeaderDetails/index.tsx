@@ -9,6 +9,7 @@ import usePlan from 'src/hooks/usePlan';
 
 import HeaderBar from './components/HeaderBar';
 import CurrentPlanView from './components/CurrentPlanView';
+import NotificationStack from 'src/components/NotificationStack';
 
 function HeaderDetails() {
   const { colorMode } = useColorMode();
@@ -24,6 +25,10 @@ function HeaderDetails() {
       <HeaderBar />
       <CurrentPlanView plan={plan} />
       <UaiDisplay uaiStack={uaiStack} />
+      {
+        //TESTING
+      }
+      <NotificationStack />
     </Box>
   );
 }

@@ -21,7 +21,6 @@ import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscripti
 import dbManager from 'src/storage/realm/dbManager';
 import { wp } from 'src/constants/responsive';
 import Relay from 'src/services/operations/Relay';
-import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';
@@ -30,9 +29,10 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useQuery } from '@realm/react';
 import { useRoute } from '@react-navigation/native';
+import SettingsIcon from 'src/assets/images/settings_white.svg';
+import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan() {
   const route = useRoute();
@@ -115,8 +115,9 @@ function ChoosePlan() {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
-                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${
+                subscription.introductoryPriceNumberOfPeriodsIOS
+              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -236,7 +237,7 @@ function ChoosePlan() {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => { },
+              onPress: () => {},
               style: 'cancel',
             },
             {
@@ -250,14 +251,17 @@ function ChoosePlan() {
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
         const sku = plan.productId;
         const { offerToken } = plan;
-        var purchaseTokenAndroid = null;
+        let purchaseTokenAndroid = null;
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
-        requestSubscription({
-          sku,
-          subscriptionOffers: [{ sku, offerToken }],
-          purchaseTokenAndroid,
+        processPurchase({
+          productId: sku,
+          transactionReceipt: 'keeper-dev-mock-purchase',
+          autoRenewingAndroid: true,
+          isCanceledAmazon: false,
+          transactionDate: Date.now(),
+          transactionId: `keeper-dev-mock-purchase-${Date.now()}`,
         });
       }
     } catch (err) {
@@ -291,8 +295,9 @@ function ChoosePlan() {
       }
     }
     if (trial) {
-      return `Start your ${trial} FREE trial now! Then ${amount} per ${isMonthly ? 'month' : 'year'
-        }, cancel anytime`;
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${
+        isMonthly ? 'month' : 'year'
+      }, cancel anytime`;
     } else {
       return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
     }
@@ -306,7 +311,6 @@ function ChoosePlan() {
       if (purchases.length === 0) {
         showToast('No purchases found');
       } else {
-        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < purchases.length; i++) {
           const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {
@@ -344,19 +348,17 @@ function ChoosePlan() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        subtitle={
-          // subscription.name === 'Diamond Hands'
-          //   ? `You are currently a ${subscription.name}`
-          //   : `You are currently a ${subscription.name}`
-          `The subscription will be \nconfirmed on the ${Platform.OS === 'android' ? 'Play' : 'App'} Store`
-        }
-        rightComponent={
-          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
-        }
+        subtitle={`The subscription will be \nconfirmed on the ${
+          Platform.OS === 'android' ? 'Play' : 'App'
+        } Store`}
+        learnMore
+        learnBackgroundColor={`${colorMode}.RussetBrown`}
+        learnTextColor="light.white"
+        icon={<SettingsIcon />}
       />
       <KeeperModal
         visible={requesting}
-        close={() => { }}
+        close={() => {}}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -365,7 +367,7 @@ function ChoosePlan() {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => { }}
+        buttonCallback={() => {}}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
@@ -403,7 +405,7 @@ function ChoosePlan() {
 
           <Box ml={5}>
             <Box>
-              <Text fontSize={14} color={`${colorMode}.modalGreenTitle`} letterSpacing={1.12}>
+              <Text fontSize={14} color={`${colorMode}.pantoneGreen`} letterSpacing={1.12}>
                 {getBenifitsTitle(items[currentPosition].name)}:
               </Text>
             </Box>
@@ -445,10 +447,10 @@ function ChoosePlan() {
         >
           <Box
             borderColor={`${colorMode}.learnMoreBorder`}
-            backgroundColor={`${colorMode}.lightAccent`}
+            backgroundColor={`${colorMode}.RussetBrown`}
             style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color={colorMode === 'light' ? 'light.learnMoreBorder' : '#24312E'}>
+            <Text fontSize={12} color={colorMode === 'light' ? 'light.white' : '#24312E'}>
               {choosePlan.restorePurchases}
             </Text>
           </Box>

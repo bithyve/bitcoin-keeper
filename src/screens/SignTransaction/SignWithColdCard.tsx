@@ -63,16 +63,17 @@ function Card({ message, buttonText, buttonCallBack }) {
 function SignWithColdCard({ route }: { route }) {
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
-  const { activeVault: Vault } = useVault();
-  const { vaultKey, signTransaction, isMultisig } = route.params as {
+  const { vaultKey, signTransaction, isMultisig, vaultId } = route.params as {
     vaultKey: VaultSigner;
     signTransaction;
     isMultisig: boolean;
+    vaultId: string;
   };
+  const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
 
   const { registered = false } = vaultKey.registeredVaults.find(
-    (info) => info.vaultId === Vault.id
+    (info) => info.vaultId === activeVault.id
   );
   const dispatch = useDispatch();
 
@@ -88,7 +89,7 @@ function SignWithColdCard({ route }: { route }) {
         dispatch(
           updateKeyDetails(vaultKey, 'registered', {
             registered: true,
-            vaultId: Vault.id,
+            vaultId: activeVault.id,
           })
         );
         dispatch(healthCheckSigner([signer]));
@@ -97,11 +98,11 @@ function SignWithColdCard({ route }: { route }) {
 
   const registerCC = async () =>
     withNfcModal(async () => {
-      await registerToColcard({ vault: Vault });
+      await registerToColcard({ vault: activeVault });
       dispatch(
         updateKeyDetails(vaultKey, 'registered', {
           registered: true,
-          vaultId: Vault.id,
+          vaultId: activeVault.id,
         })
       );
     });

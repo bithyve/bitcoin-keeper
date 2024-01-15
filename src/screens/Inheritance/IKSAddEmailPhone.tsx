@@ -10,7 +10,6 @@ import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
 import { InheritancePolicy } from 'src/services/interfaces';
-import idx from 'idx';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
@@ -19,23 +18,27 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
-function IKSAddEmailPhone() {
+function IKSAddEmailPhone({ route }) {
   const navigtaion = useNavigation();
   const [email, setEmail] = useState('');
-  const vault: Vault = useVault().activeVault;
+  const { vaultId } = route.params;
+  const vault: Vault = useVault({ vaultId }).activeVault;
   const { showToast } = useToastMessage();
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
   const dispatch = useDispatch();
   const [ikVaultKey] = vault.signers.filter(
     (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
   );
-  const signer = signerMap[ikVaultKey.masterFingerprint];
 
   const updateIKSPolicy = async (email: string) => {
     try {
       const thresholdDescriptors = vault.signers.map((signer) => signer.xfp).slice(0, 2);
-      const existingPolicy: InheritancePolicy | any =
-        idx(ikVaultKey, (_) => signer.inheritanceKeyInfo.policy) || {};
+      const IKSigner = signerMap[ikVaultKey.masterFingerprint];
+
+      if (IKSigner.inheritanceKeyInfo === undefined)
+        showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+
+      const existingPolicy: InheritancePolicy = IKSigner.inheritanceKeyInfo.policy;
 
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
@@ -46,19 +49,17 @@ function IKSAddEmailPhone() {
 
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         ikVaultKey.xfp,
-        {
-          alert: updatedPolicy.alert,
-        },
+        updatedPolicy,
         thresholdDescriptors
       );
 
       if (updated) {
-        dispatch(
-          updateSignerDetails(signer, 'inheritanceKeyInfo', {
-            ...signer.inheritanceKeyInfo,
-            policy: updatedPolicy,
-          })
-        );
+        const updateInheritanceKeyInfo = {
+          ...IKSigner.inheritanceKeyInfo,
+          policy: updatedPolicy,
+        };
+
+        dispatch(updateSignerDetails(IKSigner, 'inheritanceKeyInfo', updateInheritanceKeyInfo));
         showToast('Email added', <TickIcon />);
         navigtaion.goBack();
       } else showToast('Failed to add email');

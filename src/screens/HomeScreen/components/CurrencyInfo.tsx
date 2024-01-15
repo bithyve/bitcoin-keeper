@@ -11,8 +11,8 @@ interface ICurrencyInfo {
   hideAmounts: boolean;
   amount: number;
   fontSize: number;
-  color: string;
-  variation: 'light' | 'green' | 'dark' | 'grey';
+  color?: string;
+  variation?: 'light' | 'green' | 'dark' | 'grey';
 }
 function CurrencyInfo({
   hideAmounts,
@@ -28,7 +28,12 @@ function CurrencyInfo({
       {getCurrencyIcon(BTC, variation)}
       {!hideAmounts ? (
         <Box style={styles.rowCenter}>
-          <Text color={color} style={{ fontSize }} numberOfLines={1} testID="text_balance">
+          <Text
+            color={color}
+            style={{ fontSize, lineHeight: fontSize }}
+            numberOfLines={1}
+            testID="text_balance"
+          >
             {` ${getBalance(amount)} ${getSatUnit()}`}
           </Text>
         </Box>

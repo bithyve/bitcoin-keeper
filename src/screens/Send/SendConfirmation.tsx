@@ -553,7 +553,7 @@ function SendConfirmation({ route }) {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item.id === walletId);
-  const { activeVault: defaultVault } = useVault();
+  const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
@@ -661,10 +661,10 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
-  const collaborativeWalletId =
-    sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
-      ? sender.collaborativeWalletId
-      : '';
+  const collaborativeWalletId = '';
+  sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
+    ? sender.collaborativeWalletId
+    : '';
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -674,6 +674,7 @@ function SendConfirmation({ route }) {
           note,
           label,
           collaborativeWalletId,
+          vaultId: sender.id,
         })
       );
     }

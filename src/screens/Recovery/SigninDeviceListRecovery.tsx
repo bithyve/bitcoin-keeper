@@ -190,6 +190,7 @@ function SigningDeviceListRecovery({ navigation }) {
           type={type}
           mode={InteracationMode.RECOVERY}
           isMultisig={isMultisig}
+          vaultId={''}
         />
       </React.Fragment>
     );

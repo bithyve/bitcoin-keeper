@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
@@ -9,7 +9,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
+import UnhideWalletIcon from 'src/assets/images/unhide.svg';
+import ShowAllIcon from 'src/assets/images/eye_folder.svg';
+// import AlignIcon from 'src/assets/images/align_right.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
@@ -23,9 +27,12 @@ import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
 import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
+    flexDirection: 'row',
+    gap: 3,
     borderWidth: 0.5,
     borderRadius: 5,
     paddingHorizontal: 5,
@@ -50,40 +57,79 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 20,
   },
+  walletInfoContainer: {
+    flexDirection: 'column',
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 10,
+    gap: 5,
+  },
+  iconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 30 / 2,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 15,
+    gap: 10,
+  },
+  bottomIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 38 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
-function ListItem({ title, subtitle, balance, btnTitle, onBtnPress }) {
+function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
   const { colorMode } = useColorMode();
   return (
-    <Box flexDirection="row" my={2} alignItems="center">
-      <WalletInsideGreen />
-      <Box mx={4} flex={1}>
-        <Text fontSize={13} color={`${colorMode}.primaryText`}>
-          {title}
-        </Text>
-        <Text fontSize={12} color={`${colorMode}.secondaryText`}>
-          {subtitle}
-        </Text>
+    // <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
+    //   <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
+    //     <AlignIcon />
+    //   </TouchableOpacity>
+    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
+      <Box style={{ flexDirection: 'row', gap: 10 }}>
+        <Box style={styles.iconContainer} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+          <WalletIcon />
+        </Box>
+        <Box>
+          <Text fontSize={13} color={`${colorMode}.primaryText`}>
+            {title}
+          </Text>
+          <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+            {subtitle}
+          </Text>
+        </Box>
+      </Box>
+      <Box flexDirection="row" justifyContent="space-between">
         <Box flexDirection="row" alignItems="center">
           {colorMode === 'light' ? <BtcBlack /> : <BtcWhite />}
           <Text mx={1} fontSize={14} color={`${colorMode}.primaryText`}>
             {SatsToBtc(balance)}
           </Text>
         </Box>
+        <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID="btnHide">
+          <Box
+            borderColor="light.RussetBrown"
+            backgroundColor="light.RussetBrown"
+            style={styles.learnMoreContainer}
+          >
+            {isHidden ? <UnhideWalletIcon /> : <HideWalletIcon />}
+            <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
+              {isHidden ? 'Unhide' : 'Hide'}
+            </Text>
+          </Box>
+        </TouchableOpacity>
       </Box>
-
-      <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID={`btn${btnTitle}`}>
-        <Box
-          borderColor="light.learnMoreBorder"
-          backgroundColor="light.lightAccent"
-          style={styles.learnMoreContainer}
-        >
-          <Text color="light.learnMoreBorder" style={styles.learnMoreText}>
-            {btnTitle}
-          </Text>
-        </Box>
-      </TouchableOpacity>
     </Box>
+    // </Box>
   );
 }
 
@@ -94,11 +140,13 @@ function ManageWallets() {
 
   const { wallets } = useWallets();
 
+  const [showAll, setShowAll] = useState(false);
+
   const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
   const visibleWallets = walletsWithoutWhirlpool.filter(
-    (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
+    (wallet) => showAll || wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
   const hiddenWallets = walletsWithoutWhirlpool.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
@@ -211,45 +259,41 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
+      <KeeperHeader
+        title={settings.ManageWallets}
+        subtitle={settings.ManageWalletsSub}
+        rightComponent={<CurrencyTypeSwitch />}
+      />
       <FlatList
         data={visibleWallets}
         extraData={[visibleWallets, hiddenWallets]}
-        style={{ height: '50%' }}
         contentContainerStyle={{ marginHorizontal: 20, marginTop: '5%' }}
         renderItem={({ item }) => (
           <ListItem
             title={item.presentationData.name}
             subtitle={item.presentationData.description}
             balance={item.specs.balances.confirmed}
-            btnTitle="Hide"
-            onBtnPress={() => hideWallet(item)}
+            isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
+            onBtnPress={
+              item.presentationData.visibility === VisibilityType.HIDDEN
+                ? () => unhideWallet(item)
+                : () => hideWallet(item)
+            }
           />
         )}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
       />
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
-      <FlatList
-        data={hiddenWallets}
-        extraData={[visibleWallets, hiddenWallets]}
-        style={{ height: '50%' }}
-        contentContainerStyle={{ marginHorizontal: 20 }}
-        renderItem={({ item }) => (
-          <ListItem
-            title={item.presentationData.name}
-            subtitle={item.presentationData.description}
-            balance={item.specs.balances.confirmed}
-            btnTitle="Unhide"
-            onBtnPress={() => {
-              setSelectedWallet(item);
-              setConfirmPassVisible(true);
-            }}
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-      />
+      <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
+        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
+          <ShowAllIcon />
+        </Box>
+        <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
+          Show all
+        </Text>
+      </Pressable>
+
       <KeeperModal
         dismissible
         close={() => {
@@ -269,9 +313,9 @@ function ManageWallets() {
       <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle={''}
+        subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

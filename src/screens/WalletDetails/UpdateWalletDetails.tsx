@@ -24,7 +24,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import { WalletDerivationDetails } from 'src/core/wallets/interfaces/wallet';
-import { generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
+import { generateWalletSpecsFromMnemonic } from 'src/core/wallets/factories/WalletFactory';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
@@ -39,7 +39,7 @@ function UpdateWalletDetails({ route }) {
   const { wallet, isFromSeed, words } = route.params;
 
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation, seed, importWallet, common } = translations
+  const { wallet: walletTranslation, seed, importWallet, common } = translations;
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const purposeList = [
@@ -64,7 +64,7 @@ function UpdateWalletDetails({ route }) {
   );
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
-  const [warringsVisible, setWarringsVisible] = useState(false)
+  const [warringsVisible, setWarringsVisible] = useState(false);
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -87,7 +87,7 @@ function UpdateWalletDetails({ route }) {
         ...wallet.derivationDetails,
         xDerivationPath: path,
       };
-      const specs = generateWalletSpecs(
+      const specs = generateWalletSpecsFromMnemonic(
         derivationDetails.mnemonic,
         WalletUtilities.getNetworkByType(wallet.networkType),
         derivationDetails.xDerivationPath
@@ -103,13 +103,13 @@ function UpdateWalletDetails({ route }) {
         scriptType,
       });
       if (isUpdated) {
-        setWarringsVisible(false)
+        setWarringsVisible(false);
         updateAppImageWorker({ payload: { wallet } });
         navigtaion.goBack();
         showToast(walletTranslation.walletDetailsUpdate, <TickIcon />);
       } else showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     } catch (error) {
-      setWarringsVisible(false)
+      setWarringsVisible(false);
       console.log(error);
       showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     }
@@ -132,18 +132,18 @@ function UpdateWalletDetails({ route }) {
             <Buttons
               secondaryText="Cancel"
               secondaryCallback={() => {
-                setWarringsVisible(false)
+                setWarringsVisible(false);
               }}
               primaryText="I understand, Proceed"
               primaryCallback={() => {
-                updateWallet()
+                updateWallet();
               }}
               primaryLoading={relayWalletUpdateLoading}
             />
           </Box>
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
@@ -157,9 +157,7 @@ function UpdateWalletDetails({ route }) {
         <KeeperHeader
           title={isFromSeed ? seed.recoveryPhrase : walletTranslation.WalletDetails}
           subtitle={
-            isFromSeed
-              ? walletTranslation.qrofRecoveryPhrase
-              : walletTranslation.updateWalletPath
+            isFromSeed ? walletTranslation.qrofRecoveryPhrase : walletTranslation.updateWalletPath
           }
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -229,12 +227,19 @@ function UpdateWalletDetails({ route }) {
                     navigtaion.goBack();
                   }}
                   primaryText={common.save}
-                  primaryDisable={path === wallet?.derivationDetails.xDerivationPath && wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0}
+                  primaryDisable={
+                    path === wallet?.derivationDetails.xDerivationPath &&
+                    wallet?.specs?.balances?.confirmed === 0 &&
+                    wallet?.specs?.balances?.unconfirmed === 0
+                  }
                   primaryCallback={() => {
-                    if (wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0) {
-                      setWarringsVisible(true)
+                    if (
+                      wallet?.specs?.balances?.confirmed === 0 &&
+                      wallet?.specs?.balances?.unconfirmed === 0
+                    ) {
+                      setWarringsVisible(true);
                     } else {
-                      showToast(walletTranslation.walletBalanceMsg, <ToastErrorIcon />)
+                      showToast(walletTranslation.walletBalanceMsg, <ToastErrorIcon />);
                     }
                   }}
                   primaryLoading={relayWalletUpdateLoading}
@@ -329,8 +334,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     paddingHorizontal: 1,
     paddingVertical: 5,
-    letterSpacing: 0.65
-  }
+    letterSpacing: 0.65,
+  },
 });
 
 export default UpdateWalletDetails;

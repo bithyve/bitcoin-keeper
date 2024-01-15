@@ -7,7 +7,7 @@ const getPassportDetails = (qrData) => {
   try {
     const { p2wsh, p2wsh_deriv: derivationPath, xfp } = qrData;
     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-    const xpub = WalletUtilities.generateXpubFromYpub(p2wsh, network);
+    const xpub = WalletUtilities.getXpubFromExtendedKey(p2wsh, network);
     return { xpub, derivationPath, masterFingerprint: xfp, forMultiSig: true, forSingleSig: false };
   } catch (_) {
     console.log('Not exported for multisig!');

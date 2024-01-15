@@ -39,11 +39,11 @@ function MockWrapper({
     try {
       const data = getMockSigner(signerType);
       if (data.signer && data.key) {
-        const { signer, key } = data;
+        const { signer } = data;
         if (!isRecovery) {
-          dispatch(addSigningDevice([signer], [key], addSignerFlow));
+          dispatch(addSigningDevice([signer]));
           const navigationState = addSignerFlow
-            ? { name: 'Home' }
+            ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           nav.dispatch(CommonActions.navigate(navigationState));
         }
