@@ -9,6 +9,7 @@ import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import WalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
+import CoinsIcon from 'src/assets/images/whirlpool.svg';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -165,7 +166,7 @@ function WalletDetails({ route }) {
               accountType: WalletType.DEFAULT,
             })
           }
-          icon={<WhirlpoolAccountIcon />}
+          icon={<CoinsIcon />}
         />
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>

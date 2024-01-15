@@ -26,7 +26,8 @@ function EmptyStateView({
           </Text>
         )}
       </Box>
-      {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />}
+      {/* {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />} */}
+      <IllustartionImage />
     </Box>
   );
 }
