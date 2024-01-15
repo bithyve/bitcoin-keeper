@@ -152,7 +152,7 @@ function* uaiChecksWorker({ payload }) {
             } else {
               yield put(
                 addToUaiStack({
-                  title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
+                  title: `Transfer fund to vault from ${wallet.presentationData.name}`,
                   isDisplay: false,
                   uaiType: uaiType.VAULT_TRANSFER,
                   prirority: 80,
@@ -184,7 +184,7 @@ function* uaiChecksWorker({ payload }) {
           if (!migrationUai) {
             yield put(
               addToUaiStack({
-                title: 'To use the Vault, reconfigure signer',
+                title: 'To use the vault, reconfigure signer',
                 isDisplay: false,
                 uaiType: uaiType.VAULT_MIGRATION,
                 prirority: 100,

@@ -15,7 +15,7 @@ function InitiateContent() {
         <Assert />
       </Box>
       <Text style={styles.paragraphText}>
-        When a signer is changed and a new Vault is created, some aspects of Inheritance documents
+        When a signer is changed and a new vault is created, some aspects of Inheritance documents
         may change
       </Text>
     </Box>

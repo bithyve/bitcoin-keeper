@@ -245,7 +245,7 @@ function AddSigningDevice() {
     />
   );
 
-  const preTitle = 'Add Vault signers';
+  const preTitle = 'Add vault signers';
 
   const subtitle =
     scheme.n > 1

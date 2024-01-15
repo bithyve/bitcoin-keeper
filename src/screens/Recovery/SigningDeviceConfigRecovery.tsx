@@ -60,7 +60,7 @@ function ColdCardSetupContent() {
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {
-            'Export the Vault config by going to Setting > Multisig > Then select the wallet > Export '
+            'Export the vault config by going to Setting > Multisig > Then select the wallet > Export '
           }
         </Text>
       </Box>
@@ -196,7 +196,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
     <ScreenWrapper>
       <KeeperHeader
         title="Select signer"
-        subtitle="To recover your Vault"
+        subtitle="To recover your vault"
         onPressHandler={() => navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' })}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>

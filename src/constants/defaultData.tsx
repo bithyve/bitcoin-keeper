@@ -10,7 +10,7 @@ export const securityTips = [
       'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones',
     assert: <WhirlpoolLoader />,
     message:
-      'For increased privacy and security, remix sats a few times, then transfer them to the Vault',
+      'For increased privacy and security, remix sats a few times, then transfer them to the vault',
   },
   {
     title: 'Connecting to Node',
@@ -42,7 +42,7 @@ export const securityTips = [
   {
     title: 'Security Tip',
     subTitle:
-      'Recreate the multisig Vault on more coordinators. Receive a small amount and send a part of it. Check whether the balances are appropriately reflected across all the coordinators after each step',
+      'Recreate the multisig vault on more coordinators. Receive a small amount and send a part of it. Check whether the balances are appropriately reflected across all the coordinators after each step',
     assert: <LoadingAnimation />,
     message: 'Testing out your setup before using it is always a good idea',
   },

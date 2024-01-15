@@ -32,7 +32,7 @@ function FinalizeFooter({
             : initateWhirlpoolMix
             ? isRemix
               ? remixingToVault
-                ? 'Remix to Vault'
+                ? 'Remix to vault'
                 : 'Start Remix'
               : 'Start Mix'
             : 'Send'

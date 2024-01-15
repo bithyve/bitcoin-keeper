@@ -210,7 +210,7 @@ function VaultRecovery({ navigation }) {
         if (setupInfo.configuration.bsms) {
           initateRecovery(setupInfo.configuration.bsms);
         } else {
-          showToast('Cannot recreate Vault as BSMS was not present', <ToastErrorIcon />);
+          showToast('Cannot recreate vault as BSMS was not present', <ToastErrorIcon />);
         }
         dispatch(setSigningDevices(inheritanceKey));
         dispatch(setInheritanceRequestId('')); // clear approved request
@@ -317,7 +317,7 @@ function VaultRecovery({ navigation }) {
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
-      <KeeperHeader title="Add signers" subtitle="To recover your Vault" />
+      <KeeperHeader title="Add signers" subtitle="To recover your vault" />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>
@@ -348,7 +348,7 @@ function VaultRecovery({ navigation }) {
               onPress={() => {
                 if (error) {
                   showToast(
-                    'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
+                    'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
                   );
                 } else navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' });
               }}
@@ -377,7 +377,7 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText={inheritanceRequestId || isIKS ? 'Restore via IKS' : 'Recover Vault'}
+              primaryText={inheritanceRequestId || isIKS ? 'Restore via IKS' : 'Recover vault'}
               primaryCallback={
                 inheritanceRequestId || isIKS
                   ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
@@ -399,7 +399,7 @@ function VaultRecovery({ navigation }) {
       <KeeperModal
         visible={successModalVisible}
         title="Vault Recovered!"
-        subTitle="Your Keeper Vault has successfully been recovered."
+        subTitle="Your Keeper vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
         close={() => {}}

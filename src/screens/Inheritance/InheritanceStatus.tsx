@@ -71,7 +71,7 @@ function InheritanceStatus() {
       />
       <InheritanceSupportView
         title="Inheritance Support"
-        subtitle="Keeper provides you with the tips and tools you need to include the Vault in your estate planning"
+        subtitle="Keeper provides you with the tips and tools you need to include the vault in your estate planning"
       />
       <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
         <Box style={styles.sectionTitleWrapper}>
@@ -83,7 +83,7 @@ function InheritanceStatus() {
           subTitle={
             disableInheritance
               ? 'Please create a 3 of 5 vault to proceed with adding inheritance support'
-              : 'Add an assisted key to create a 3 of 6 Vault'
+              : 'Add an assisted key to create a 3 of 6 vault'
           }
           isSetupDone={isSetupDone}
           onPress={() => {

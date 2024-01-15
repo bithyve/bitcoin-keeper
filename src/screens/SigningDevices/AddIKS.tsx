@@ -58,7 +58,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
               }}
             />
           )}
-          <Text style={{ fontSize: 14, marginLeft: 15 }}>Backup Vault Config (BSMS)</Text>
+          <Text style={{ fontSize: 14, marginLeft: 15 }}>Backup vault Config (BSMS)</Text>
         </Pressable>
         <Box marginTop="4">
           {config.Instructions.map((instruction) => (

@@ -35,9 +35,9 @@ function VaultCreatedModal({
   return (
     <KeeperModal
       visible={vaultCreated}
-      title="New Vault Created"
+      title="New vault Created"
       subTitle={subtitle}
-      buttonText="View Vault"
+      buttonText="View vault"
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
       buttonCallback={close}

@@ -601,7 +601,7 @@ function VaultDetails({ navigation }) {
         subTitle={
           collaborativeWalletId
             ? vaultTranslation.collaborativeWalletMultipleUsers
-            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the Vault`
+            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}

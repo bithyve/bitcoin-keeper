@@ -142,7 +142,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Multisig setup file (exported from Keeper)\n';
-  line += 'Name: Keeper Vault\n';
+  line += 'Name: Keeper vault\n';
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
   line += 'Format: P2WSH\n';
   line += '\n';
@@ -234,7 +234,7 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners, scheme) => {
   }
   // Keys Incase of already added
   if (allowSingleKey(type, vaultSigners)) {
-    return { disabled: true, message: 'Key already added to the Vault' };
+    return { disabled: true, message: 'Key already added to the vault' };
   }
 
   return { disabled: false, message: '' };
@@ -256,7 +256,7 @@ export const getDeviceStatus = (
       };
     case SignerType.MOBILE_KEY:
       return allowSingleKey(type, vaultSigners)
-        ? { disabled: true, message: 'Key already added to the Vault' }
+        ? { disabled: true, message: 'Key already added to the vault' }
         : {
             message: '',
             disabled: false,

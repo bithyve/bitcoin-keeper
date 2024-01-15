@@ -44,7 +44,7 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.VAULT_TRANSFER:
         return {
           modalDetails: {
-            heading: 'Trasfer to Vault',
+            heading: 'Trasfer to vault',
             subTitle:
               'Your Auto-transfer policy has triggered a transaction that needs your approval',
             btnText: ' Transfer Now',

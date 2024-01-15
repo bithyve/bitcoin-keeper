@@ -26,7 +26,10 @@ function WalletDetailsSettings({ route }) {
   const { importWallet, common } = translations;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={walletTranslation.WalletDetails} subtitle={walletTranslation.walletDetailsSubTitle} />
+      <KeeperHeader
+        title={walletTranslation.WalletDetails}
+        subtitle={walletTranslation.walletDetailsSubTitle}
+      />
 
       <ScrollView
         contentContainerStyle={styles.optionsListContainer}
@@ -55,7 +58,7 @@ function WalletDetailsSettings({ route }) {
         />
         <OptionCard
           title={walletTranslation.TransferPolicy}
-          description={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+          description={`Transfer to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
           callback={() => {
             setTransferPolicyVisible(true);
           }}

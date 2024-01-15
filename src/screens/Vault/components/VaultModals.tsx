@@ -61,7 +61,7 @@ function VaultModals({
         close={() => {
           dispatch(setIntroModal(false));
         }}
-        title="Keeper Vault"
+        title="Keeper vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}

@@ -92,7 +92,7 @@ function VaultSetup() {
         );
       }
     } else {
-      showToast('Please Enter Vault name', <ToastErrorIcon />);
+      showToast('Please Enter vault name', <ToastErrorIcon />);
     }
   };
 
@@ -124,7 +124,7 @@ function VaultSetup() {
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
         <Text style={{ fontSize: 14 }} testID="text_totalKeys">
-          Total Keys for Vault Configuration
+          Total Keys for vault Configuration
         </Text>
         <Text style={{ fontSize: 12 }} testID="text_totalKeys_subTitle">
           Select the total number of keys

@@ -84,7 +84,7 @@ const getSignerContent = (
   switch (type) {
     case SignerType.COLDCARD:
       const ccInstructions =
-        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n';
+        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n';
       return {
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
@@ -170,7 +170,7 @@ const getSignerContent = (
               'On providing the correct code from the auth app, the Signing Server will sign the transaction.',
             ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
-        subTitle: 'A Signing Server will hold one of the keys of the Vault',
+        subTitle: 'A Signing Server will hold one of the keys of the vault',
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
