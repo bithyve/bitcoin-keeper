@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, HStack, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
-
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -14,8 +13,9 @@ import { setVaultRecoveryDetails } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
+import useVault from 'src/hooks/useVault';
 
-const NumberInput = ({ value, onDecrease, onIncrease }) => {
+function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
 
   return (
@@ -37,19 +37,26 @@ const NumberInput = ({ value, onDecrease, onIncrease }) => {
       </TouchableOpacity>
     </HStack>
   );
-};
+}
 
-const VaultSetup = () => {
+function VaultSetup() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { params } = useRoute();
-  const { isRecreation, scheme: preDefinedScheme = { m: 2, n: 3 } } =
-    (params as { isRecreation: Boolean; scheme: VaultScheme }) || {};
+  const {
+    isRecreation,
+    scheme: preDefinedScheme,
+    vaultId,
+  } = (params as { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string }) || {};
   const dispatch = useDispatch();
-  const [vaultName, setVaultName] = useState('Vault');
-  const [vaultDescription, setVaultDescription] = useState('');
-  const [scheme, setScheme] = useState(preDefinedScheme);
+  const { activeVault } = useVault({ vaultId });
+  const [vaultName, setVaultName] = useState(activeVault?.presentationData?.name || 'Vault');
+  const [vaultDescription, setVaultDescription] = useState(
+    activeVault?.presentationData?.description || 'Secure your sats'
+  );
+  const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
+
   const onDecreaseM = () => {
     if (scheme.m > 1) {
       setScheme({ ...scheme, m: scheme.m - 1 });
@@ -85,18 +92,23 @@ const VaultSetup = () => {
         navigation.dispatch(
           CommonActions.navigate({
             name: 'AddSigningDevice',
-            params: { scheme, name: vaultName, description: vaultDescription },
+            params: {
+              scheme,
+              name: vaultName || 'Vault',
+              description: vaultDescription || 'Secure your sats',
+              vaultId,
+            },
           })
         );
       }
     } else {
-      showToast('Please Enter Vault name', <ToastErrorIcon />);
+      showToast('Please Enter vault name', <ToastErrorIcon />);
     }
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Setup your Vault" subtitle="Configure your scheme" />
+      <KeeperHeader title={vault.SetupyourVault} subtitle={vault.configureScheme} />
       <VStack style={{ margin: 20, flex: 1 }}>
         <KeeperTextInput
           placeholder="Vault name"
@@ -108,7 +120,7 @@ const VaultSetup = () => {
               setVaultName(value);
             }
           }}
-          testID={'vault_name'}
+          testID="vault_name"
           maxLength={20}
         />
         <Box style={{ height: 20 }} />
@@ -116,30 +128,30 @@ const VaultSetup = () => {
           placeholder="Vault description (Optional)"
           value={vaultDescription}
           onChangeText={setVaultDescription}
-          testID={'vault_description'}
+          testID="vault_description"
           maxLength={40}
           height={20}
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-        <Text style={{ fontSize: 14 }} testID={'text_totalKeys'}>
-          Total Keys for Vault Configuration
+        <Text style={{ fontSize: 14 }} testID="text_totalKeys">
+          Total Keys for vault Configuration
         </Text>
-        <Text style={{ fontSize: 12 }} testID={'text_totalKeys_subTitle'}>
+        <Text style={{ fontSize: 12 }} testID="text_totalKeys_subTitle">
           Select the total number of keys
         </Text>
         <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-        <Text style={{ fontSize: 14 }} testID={'text_requireKeys'}>
+        <Text style={{ fontSize: 14 }} testID="text_requireKeys">
           Required Keys
         </Text>
-        <Text style={{ fontSize: 12 }} testID={'text_requireKeys_subTitle'}>
-          Select the number of keys required
+        <Text style={{ fontSize: 12 }} testID="text_requireKeys_subTitle">
+          Select number of keys to broadcast transaction
         </Text>
         <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
       </VStack>
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
-};
+}
 
 export default VaultSetup;
 

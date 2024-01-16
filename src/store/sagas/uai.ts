@@ -8,6 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/hooks/usePlan';
+import { isTestnet } from 'src/constants/Bitcoin';
+import { EntityKind, VaultType } from 'src/core/wallets/enums';
 import { setRefreshUai } from '../reducers/uai';
 import {
   addToUaiStack,
@@ -19,8 +21,6 @@ import {
   UAI_CHECKS,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
-import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind, VaultType } from 'src/core/wallets/enums';
 
 const healthCheckRemider = (signer: VaultSigner) => {
   const today = new Date();
@@ -119,7 +119,7 @@ function* uaiChecksWorker({ payload }) {
       if (!secureVaultUai) {
         yield put(
           addToUaiStack({
-            title: 'Add a signing device to activate your Vault',
+            title: 'Add a signer to activate your Vault',
             isDisplay: false,
             uaiType: uaiType.SECURE_VAULT,
             prirority: 100,
@@ -152,7 +152,7 @@ function* uaiChecksWorker({ payload }) {
             } else {
               yield put(
                 addToUaiStack({
-                  title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
+                  title: `Transfer fund to vault from ${wallet.presentationData.name}`,
                   isDisplay: false,
                   uaiType: uaiType.VAULT_TRANSFER,
                   prirority: 80,
@@ -184,7 +184,7 @@ function* uaiChecksWorker({ payload }) {
           if (!migrationUai) {
             yield put(
               addToUaiStack({
-                title: 'To use the Vault, reconfigure signing device',
+                title: 'To use the vault, reconfigure signer',
                 isDisplay: false,
                 uaiType: uaiType.VAULT_MIGRATION,
                 prirority: 100,
@@ -204,7 +204,7 @@ function* uaiChecksWorker({ payload }) {
       if (!defaultUai) {
         yield put(
           addToUaiStack({
-            title: 'Make sure your signing devices are safe and accessible',
+            title: 'Make sure your signers are safe and accessible',
             isDisplay: false,
             uaiType: uaiType.DEFAULT,
             prirority: 10,

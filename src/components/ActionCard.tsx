@@ -1,18 +1,20 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import Text from './KeeperText';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
 
 type ActionCardProps = {
   cardName: string;
+  description?: string;
   icon?: Element;
   callback: () => void;
+  customStyle?: ViewStyle;
 };
 
-function ActionCard({ cardName, icon, callback }: ActionCardProps) {
+function ActionCard({ cardName, icon, description, customStyle, callback }: ActionCardProps) {
   const { colorMode } = useColorMode();
   return (
     <Pressable
-      style={[styles.cardContainer]}
+      style={[styles.cardContainer, { ...customStyle }]}
       backgroundColor={`${colorMode}.seashellWhite`}
       onPress={callback}
     >
@@ -20,6 +22,11 @@ function ActionCard({ cardName, icon, callback }: ActionCardProps) {
         {icon && icon}
       </Box>
       <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
+      {description && (
+        <Text fontSize={11} color={`${colorMode}.GreenishGrey`}>
+          {description}
+        </Text>
+      )}
     </Pressable>
   );
 }

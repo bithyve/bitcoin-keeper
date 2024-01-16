@@ -125,25 +125,7 @@ function ReceiveScreen({ route }: { route }) {
           </Text>
         </Box>
       </Box>
-      <TouchableOpacity
-        activeOpacity={0.4}
-        testID="btn_copy_address"
-        onPress={() => {
-          Clipboard.setString(paymentURI || receivingAddress);
-          showToast(walletTranslation.addressCopied, <TickIcon />);
-        }}
-        style={styles.inputContainer}
-      >
-        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text width="80%" marginLeft={4} numberOfLines={1}>
-            {paymentURI || receivingAddress}
-          </Text>
 
-          <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
-            <CopyIcon />
-          </Box>
-        </Box>
-      </TouchableOpacity>
       <MenuItemButton
         onPress={() => setModalVisible(true)}
         icon={<BtcGreen />}

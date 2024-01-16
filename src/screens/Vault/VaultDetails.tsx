@@ -15,7 +15,7 @@ import Send from 'src/assets/images/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault_new.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
 import { EntityKind, SignerType } from 'src/core/wallets/enums';
@@ -36,16 +36,15 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
 import openLink from 'src/utils/OpenLink';
-import { SDIcons } from './SigningDeviceIcons';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
-import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import useSignerMap from 'src/hooks/useSignerMap';
+import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import { SDIcons } from './SigningDeviceIcons';
 
 function Footer({
   vault,
@@ -127,7 +126,7 @@ function VaultInfo({
             color={`${colorMode}.white`}
             style={styles.vaultInfoText}
             fontSize={16}
-            testID={'text_vaultName'}
+            testID="text_vaultName"
           >
             {name}
           </Text>
@@ -135,7 +134,7 @@ function VaultInfo({
             color={`${colorMode}.white`}
             style={styles.vaultInfoText}
             fontSize={12}
-            testID={'text_vaultDescription'}
+            testID="text_vaultDescription"
           >
             {description}
           </Text>
@@ -147,7 +146,7 @@ function VaultInfo({
             color={`${colorMode}.white`}
             style={styles.vaultInfoText}
             fontSize={11}
-            testID={'text_unconfirmed'}
+            testID="text_unconfirmed"
           >
             {common.unconfirmed}
           </Text>
@@ -164,7 +163,7 @@ function VaultInfo({
             color={`${colorMode}.white`}
             style={styles.vaultInfoText}
             fontSize={11}
-            testID={'text_availableBalance'}
+            testID="text_availableBalance"
           >
             {common.availableBalance}
           </Text>
@@ -207,14 +206,14 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.1) }}>
+      <VStack style={{ paddingTop: windowHeight * (collaborativeWalletId ? 0.03 : 0.1) }}>
         <HStack justifyContent="space-between" alignItems="center">
           <Text
             color={`${colorMode}.black`}
             marginLeft={wp(3)}
             fontSize={16}
             letterSpacing={1.28}
-            testID={'text_Transaction'}
+            testID="text_Transaction"
           >
             {common.transactions}
           </Text>
@@ -239,7 +238,7 @@ function TransactionList({
                   fontSize={11}
                   bold
                   letterSpacing={0.6}
-                  testID={'text_viewAll'}
+                  testID="text_viewAll"
                 >
                   {common.viewAll}
                 </Text>
@@ -250,7 +249,7 @@ function TransactionList({
         </HStack>
       </VStack>
       <FlatList
-        testID={'view_TransactionList'}
+        testID="view_TransactionList"
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
@@ -281,6 +280,22 @@ function SignerList({ vault }: { vault: Vault }) {
   const { signers: vaultKeys, isMultiSig } = vault;
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
+  const [unkonwnSignerHcModal, setUnkonwnSignerHcModal] = useState(false);
+
+  //TO-DO
+  const signerPressHandler = (signer: VaultSigner) => {
+    if (signerMap[signer.masterFingerprint].type !== SignerType.UNKOWN_SIGNER) {
+      navigation.dispatch(
+        CommonActions.navigate('SigningDeviceDetails', {
+          SignerIcon: <SignerIcon />,
+          signerId: signer.xfp,
+          vaultId: vault.id,
+        })
+      );
+    } else {
+      setUnkonwnSignerHcModal(true);
+    }
+  };
 
   return (
     <ScrollView
@@ -331,7 +346,11 @@ function SignerList({ vault }: { vault: Vault }) {
                 {SDIcons(signer.type, true).Icon}
               </Box>
               <Text bold style={styles.unregistered} numberOfLines={1}>
-                {indicate ? 'Not registered' : ' '}
+                {signer.type === SignerType.UNKOWN_SIGNER
+                  ? 'Health Check'
+                  : indicate
+                  ? 'Not registered'
+                  : ' '}
               </Text>
               <VStack pb={2}>
                 <Text
@@ -359,6 +378,25 @@ function SignerList({ vault }: { vault: Vault }) {
           </Box>
         );
       })}
+      <KeeperModal
+        visible={unkonwnSignerHcModal}
+        close={() => setUnkonwnSignerHcModal(false)}
+        title="Identify Unkown Signing Device"
+        buttonText="Continue"
+        buttonCallback={() => {
+          setUnkonwnSignerHcModal(false);
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'AssignSignerType',
+              params: {
+                vault,
+              },
+            })
+          );
+        }}
+        secondaryButtonText="Skip"
+        secondaryCallback={() => setUnkonwnSignerHcModal(false)}
+      ></KeeperModal>
     </ScrollView>
   );
 }
@@ -449,12 +487,10 @@ function VaultDetails({ navigation }) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ collaborativeWalletId, vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [identifySignerModal, setIdentifySignerModal] = useState(false);
+  const [identifySignerModal, setIdentifySignerModal] = useState(true);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
-  const { vaultSigners: signers } = useSigners(vault.id);
-  const inheritanceSigner = signers.filter(
-    (signer) => signer.type === SignerType.INHERITANCEKEY
-  )[0];
+  const { vaultSigners: keys } = useSigners(vault.id);
+  const inheritanceSigner = keys.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const transactions = vault?.specs?.transactions || [];
 
@@ -546,7 +582,7 @@ function VaultDetails({ navigation }) {
 
   const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
-  const identifySigner = signers.find((signer) => signer.type === SignerType.OTHER_SD);
+  const identifySigner = keys.find((signer) => signer.type === SignerType.OTHER_SD);
 
   return (
     <Box
@@ -622,7 +658,7 @@ function VaultDetails({ navigation }) {
         subTitle={
           collaborativeWalletId
             ? vaultTranslation.collaborativeWalletMultipleUsers
-            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`
+            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
@@ -659,15 +695,6 @@ function VaultDetails({ navigation }) {
             vault={vault}
           />
         )}
-      />
-      <IdentifySignerModal
-        visible={identifySigner && identifySignerModal}
-        close={() => setIdentifySignerModal(false)}
-        signer={identifySigner}
-        secondaryCallback={() => {
-          navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-        }}
-        vaultId={vault.id}
       />
     </Box>
   );

@@ -133,7 +133,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
-    subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
+    subTitle: 'Keeper allows you to create single sig wallets and a multisig vault',
     message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
@@ -165,7 +165,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
-        <Box style={styles.headerContainer} testID={'view_newKeeperHeader'}>
+        <Box style={styles.headerContainer} testID="view_newKeeperHeader">
           <KeeperHeader
             enableBack={false}
             marginLeft={false}
@@ -173,10 +173,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
             subtitle="Choose this option when you want to start with a fresh app"
           />
         </Box>
-        <Box style={styles.tileContainer} testID={'view_startNewTile'}>
+        <Box style={styles.tileContainer} testID="view_startNewTile">
           <Tile
             title="Start New"
-            subTitle="New wallets and Vault"
+            subTitle="New wallets and vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -187,18 +187,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
 
       <Box style={styles.titleWrapper02}>
-        <Box style={styles.headerContainer} testID={'view_restore'}>
+        <Box style={styles.headerContainer} testID="view_restore">
           <KeeperHeader
             enableBack={false}
             marginLeft={false}
             title="Restore"
-            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
+            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the vault"
           />
         </Box>
-        <Box style={styles.tileContainer} testID={'view_recoverTile'}>
+        <Box style={styles.tileContainer} testID="view_recoverTile">
           <Tile
             title="Recover Existing App"
-            subTitle="For self or inherited Vault"
+            subTitle="For self or inherited vault"
             Icon={<Recover />}
             onPress={() => {
               navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
@@ -209,7 +209,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.footerContainer}>
         <Box style={styles.noteContainer}>
           <Box opacity={1}>
-            <Text color="light.black" style={styles.title} testID={'text_termOfService'}>
+            <Text color="light.black" style={styles.title} testID="text_termOfService">
               Terms of Service
             </Text>
           </Box>
@@ -239,7 +239,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -254,7 +254,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -270,7 +270,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -331,12 +331,12 @@ const styles = StyleSheet.create({
   modalMessageWrapper: {
     flexDirection: 'row',
     width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   modalMessageText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    paddingTop: 5
+    paddingTop: 5,
   },
   contentText: {
     fontSize: 13,

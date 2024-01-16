@@ -1,13 +1,16 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, useColorMode, VStack } from 'native-base';
+import { Box, HStack, ScrollView, useColorMode, VStack } from 'native-base';
+import Clipboard from '@react-native-community/clipboard';
+
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
@@ -23,6 +26,13 @@ import DescriptionModal from './components/EditDescriptionModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
+import WalletInsideGreen from 'src/assets/images/coldcard_light.svg';
+import WalletVault from 'src/assets/images/wallet_vault.svg';
+import CopyIcon from 'src/assets/images/copy_new.svg';
+
+import { hp, windowHeight, wp } from 'src/constants/responsive';
+import ActionCard from 'src/components/ActionCard';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const { width } = Dimensions.get('screen');
 
@@ -95,6 +105,29 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  function VaultCardHeader() {
+    return (
+      <Box style={styles.walletHeaderWrapper}>
+        <Box style={styles.walletIconWrapper}>
+          <Box
+            style={styles.walletIconView}
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+          >
+            <WalletInsideGreen />
+          </Box>
+        </Box>
+        <Box style={styles.walletNameWrapper}>
+          <Text color={`${colorMode}.primaryGreenBackground`} style={styles.walletNameText}>
+            Advanced Settings
+          </Text>
+          <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
+            StateBankLocker
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   function WarningContent() {
     return (
       <Box alignItems="center">
@@ -131,14 +164,22 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
-  const isOtherSD = signer.type === SignerType.OTHER_SD;
+  const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
   const { font12, font10, font14 } = globalStyles;
+
+  const { translations } = useContext(LocalizationContext);
+
+  const { wallet: walletTranslation } = translations;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Advanced Settings" />
-      <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>
+      <Box mb={-10}>
+        <KeeperHeader />
+      </Box>
+      {/* ------------ TODO Pratyaksh ---- add vault details------- */}
+      <VaultCardHeader />
+      {/* <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
           <VStack justifyContent="center" px={4}>
@@ -155,7 +196,7 @@ function SignerAdvanceSettings({ route }: any) {
             ) : null}
           </VStack>
         </HStack>
-      </Box>
+      </Box> */}
       <OptionCard
         title={'Edit Description'}
         description={`Short description to help you remember`}
@@ -185,6 +226,57 @@ function SignerAdvanceSettings({ route }: any) {
           callback={navigateToUnlockTapsigner}
         />
       )}
+      {/* ---------TODO Pratyaksh--------- */}
+      <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} />
+      <Box ml={2} style={{ marginVertical: 20 }}>
+        Wallet used in
+      </Box>
+      <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
+        <ActionCard
+          customStyle={{ height: 135 }}
+          description={'Funds to return home'}
+          cardName={'Valinor'}
+          icon={<WalletVault />}
+          callback={() => {}}
+        />
+        <ActionCard
+          customStyle={{ height: 135 }}
+          description={'Funds to return home'}
+          cardName={'Valinor'}
+          icon={<WalletVault />}
+          callback={() => {}}
+        />
+        <ActionCard
+          customStyle={{ height: 135 }}
+          description={'Funds to return home'}
+          cardName={'Valinor'}
+          icon={<WalletVault />}
+          callback={() => {}}
+        />
+      </ScrollView>
+      {/* ---------------- Finger Print copy ---------- */}
+      <TouchableOpacity
+        activeOpacity={0.4}
+        testID="btn_copy_address"
+        onPress={() => {
+          Clipboard.setString('testing');
+          showToast(walletTranslation.addressCopied, <TickIcon />);
+        }}
+        style={styles.inputContainer}
+      >
+        <Box height={60} style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box justifyContent={'center'} paddingLeft={2}>
+            <Text fontSize={14}>Signer Fingerprint</Text>
+            <Text width="80%" numberOfLines={1} color={`${colorMode}.GreenishGrey`}>
+              JWL7U89
+            </Text>
+          </Box>
+          <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
+            <CopyIcon />
+          </Box>
+        </Box>
+      </TouchableOpacity>
+      {/* ------------------------------------------------------- */}
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
@@ -251,5 +343,47 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     width: width * 0.8,
+  },
+  walletHeaderWrapper: {
+    margin: wp(15),
+    flexDirection: 'row',
+    width: '100%',
+  },
+  walletIconWrapper: {
+    width: '15%',
+  },
+  walletIconView: {
+    height: 40,
+    width: 40,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  walletDescText: {
+    fontSize: 14,
+  },
+  walletNameWrapper: {
+    width: '85%',
+  },
+  walletNameText: {
+    fontSize: 20,
+  },
+  inputContainer: {
+    alignItems: 'center',
+    borderBottomLeftRadius: 10,
+    borderTopLeftRadius: 10,
+    marginTop: windowHeight > 600 ? hp(40) : 0,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 10,
+  },
+  copyIconWrapper: {
+    padding: 10,
+    borderRadius: 10,
+    marginRight: 5,
   },
 });

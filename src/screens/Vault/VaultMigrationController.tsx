@@ -17,8 +17,6 @@ import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
-import config from 'src/core/config';
 
 function VaultMigrationController({
   vaultCreating,
@@ -50,6 +48,12 @@ function VaultMigrationController({
   const [generatedVaultId, setGeneratedVaultId] = useState('');
 
   useEffect(() => {
+    if (temporaryVault && temporaryVault.id) {
+      setGeneratedVaultId(temporaryVault.id);
+    }
+  }, [temporaryVault]);
+
+  useEffect(() => {
     if (vaultCreating) {
       initiateNewVault();
     }
@@ -69,6 +73,10 @@ function VaultMigrationController({
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
+      dispatch(resetRealyVaultState());
+      setCreating(false);
+    } else if (relayVaultUpdate) {
+      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
       dispatch(resetRealyVaultState());
       setCreating(false);
     }
@@ -153,8 +161,6 @@ function VaultMigrationController({
           description,
         },
       };
-      const generatedVaultId = generateVaultId(signers, config.NETWORK_TYPE, scheme);
-      setGeneratedVaultId(generatedVaultId);
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       return vaultInfo;
     } catch (err) {

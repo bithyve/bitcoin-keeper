@@ -90,7 +90,7 @@ function DescriptionModal({
       DarkCloseIcon={colorMode === 'dark'}
       close={close}
       title="Add Description"
-      subTitle="Optionally you can add a short description to the signing device"
+      subTitle="Optionally you can add a short description to the signer"
       buttonText="Save"
       justifyContent="center"
       Content={MemoisedContent}

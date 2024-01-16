@@ -133,7 +133,7 @@ function MixProgress({
     {
       title: isRemix
         ? remixingToVault
-          ? 'Remix to Vault successful'
+          ? 'Remix to vault successful'
           : 'Remix completed successful'
         : 'Mix completed successfully',
       subTitle: 'Mixed UTXO available in Postmix',
@@ -486,7 +486,7 @@ function MixProgress({
         />
         <Box style={styles.currentUtxo}>
           <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
-            {`Current UTXO: `}
+            {'Current UTXO: '}
           </Text>
           <Text
             numberOfLines={1}

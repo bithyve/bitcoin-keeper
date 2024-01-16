@@ -68,7 +68,7 @@ function VaultSettings({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Vault Settings" subtitle="Settings specific to the Vault" />
+      <KeeperHeader title="Vault Settings" subtitle="Settings specific to the vault" />
       <Box borderBottomColor={`${colorMode}.divider`} style={styles.vaultCardWrapper}>
         <VaultCard
           vaultName={name}
@@ -88,7 +88,7 @@ function VaultSettings({ route }) {
           }}
         />
         <OptionCard
-          title="Archived Vault"
+          title="Archived vault"
           description="View details of old vaults"
           callback={() => {
             navigation.dispatch(CommonActions.navigate('ArchivedVault'));
@@ -98,14 +98,16 @@ function VaultSettings({ route }) {
           title="Update scheme"
           description="Update your vault configuration and transfer funds"
           callback={() => {
-            navigation.dispatch(CommonActions.navigate('VaultSetup'));
+            navigation.dispatch(
+              CommonActions.navigate({ name: 'VaultSetup', params: { vaultId } })
+            );
           }}
         />
       </ScrollView>
       <Box style={styles.bottomNoteWrapper}>
         <Note
           title="Security Tip"
-          subtitle="Recreate the Vault on another coordinator software and check if the multisig has the same details"
+          subtitle="Recreate the vault on another coordinator software and check if the multisig has the same details"
         />
       </Box>
     </ScreenWrapper>

@@ -135,7 +135,12 @@ export const SDIcons = (type: SignerType, light = false) => {
     case SignerType.SPECTER:
       return {
         Icon: getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light),
-        Logo: <SPECTERLOGO />,
+        // Logo: <SPECTERLOGO />,
+        Logo: (
+          <Text style={styles.text} color="light.secondaryText">
+            Specter DIY
+          </Text>
+        ),
         type: SignerStorage.COLD,
       };
     case SignerType.BITBOX02:
@@ -149,7 +154,18 @@ export const SDIcons = (type: SignerType, light = false) => {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
         Logo: (
           <Text style={styles.text} color="light.secondaryText">
-            Other Signing Device
+            Other signer
+          </Text>
+        ),
+        type: SignerStorage.COLD,
+      };
+
+    case SignerType.UNKOWN_SIGNER:
+      return {
+        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
+        Logo: (
+          <Text style={styles.text} color="light.secondaryText">
+            Unknonw Signer
           </Text>
         ),
         type: SignerStorage.COLD,

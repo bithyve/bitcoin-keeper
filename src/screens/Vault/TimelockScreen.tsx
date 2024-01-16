@@ -22,7 +22,7 @@ function TimelockScreen() {
         <Box marginX={3}>
           <Box width={wp(320)}>
             <KeeperHeader
-              title="Timelock Vault"
+              title="Timelock vault"
               subtitle="Provide number of blocks from the current block"
             />
             <Box

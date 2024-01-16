@@ -20,7 +20,7 @@ function UAIView({
         <Text style={styles.uaiTitleText} color={`${colorMode}.primaryText`}>
           {title}
         </Text>
-        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={2} style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
           {subTitle}
         </Text>
       </Box>
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     padding: 10,
-    borderRadius: 10
+    borderRadius: 10,
   },
   uaiMessageWrapper: {
     width: '60%',

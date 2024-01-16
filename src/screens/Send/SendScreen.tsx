@@ -263,7 +263,7 @@ function SendScreen({ route }) {
             title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
             subtitle={
               sender.entityKind === 'VAULT'
-                ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
+                ? 'Check the send-to address on a signer you are going to use to sign the transaction.'
                 : 'Make sure the address or QR is the one where you want to send the funds to'
             }
             subtitleColor="GreyText"

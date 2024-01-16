@@ -16,9 +16,9 @@ import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
 import Keystone from 'src/assets/images/keystone_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import AdvnaceOptions from 'src/assets/images/Advancedoptions.svg';
+import AdvnaceOptions from 'src/assets/images/settings.svg';
 import Change from 'src/assets/images/change.svg';
-import HealthCheck from 'src/assets/images/heathcheck.svg';
+import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -29,21 +29,26 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
+import WalletInsideGreen from 'src/assets/images/coldcard_light.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
-import { SDIcons } from './SigningDeviceIcons';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+
+const signerArray = [
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
+];
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -54,7 +59,7 @@ const getSignerContent = (type: SignerType) => {
           'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
         assert: <ColdCardSetupImage />,
         description:
-          '\u2022 Coldcard provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
+          '\u2022 Coldcard provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signer (hardware wallet) with the option to avoid ever being connected to a computer.',
         FAQ: 'https://coldcard.com/docs/faq',
       };
     case SignerType.TAPSIGNER:
@@ -80,7 +85,7 @@ const getSignerContent = (type: SignerType) => {
       return {
         title: 'SeedSigner',
         subTitle:
-          'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signing device using inexpensive, publicly available hardware components (usually < $50).',
+          'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50).',
         assert: <SeedSigner />,
         description:
           '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022  It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
@@ -126,7 +131,7 @@ const getSignerContent = (type: SignerType) => {
       };
     case SignerType.KEEPER:
       return {
-        title: 'Keeper as signing device',
+        title: 'Keeper as signer',
         subTitle: 'You can use a specific BIP-85 wallet on Collaborative Signer as a signer',
         assert: <KeeperSetupImage />,
         description:
@@ -140,7 +145,7 @@ const getSignerContent = (type: SignerType) => {
           'The key on the Signing Server will sign a transaction depending on the policy and authentication',
         assert: <SigningServerIllustration />,
         description:
-          '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signing devices, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
+          '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
         FAQ: '',
       };
     case SignerType.BITBOX02:
@@ -239,14 +244,14 @@ function SigningDeviceDetails({ route }) {
           <SkipHealthCheck />
         </Box>
         <Text>
-          You can choose to manually confirm the health of the Signing Device if you are sure that
-          they are secure and accessible. Or you can choose to do the Health Check when you can
+          You can choose to manually confirm the health of the signer if you are sure that they are
+          secure and accessible. Or you can choose to do the Health Check when you can
         </Text>
       </Box>
     );
   }
 
-  const FooterIcon = ({ Icon }) => {
+  function FooterIcon({ Icon }) {
     return (
       <Box
         margin="1"
@@ -254,30 +259,41 @@ function SigningDeviceDetails({ route }) {
         width="12"
         height="12"
         borderRadius={30}
-        backgroundColor={`${colorMode}.accent`}
+        backgroundColor={`${colorMode}.RussetBrown`}
         justifyContent="center"
         alignItems="center"
       >
         <Icon />
       </Box>
     );
-  };
+  }
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
 
+  function VaultCardHeader() {
+    return (
+      <Box style={styles.walletHeaderWrapper}>
+        <Box style={styles.walletIconWrapper}>
+          <Box
+            style={styles.walletIconView}
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+          >
+            <WalletInsideGreen />
+          </Box>
+        </Box>
+        <Box style={styles.walletNameWrapper}>
+          <Text color={`${colorMode}.textBlack`} style={styles.walletNameText}>
+            Coldcard
+          </Text>
+          <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
+            StateBankLocker
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   const footerItems = [
-    {
-      text: 'Change signing device',
-      Icon: () => <FooterIcon Icon={Change} />,
-      onPress: () =>
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'AddSigningDevice',
-            merge: true,
-            params: { vaultId, scheme: activeVault.scheme },
-          })
-        ),
-    },
     {
       text: 'Health Check',
       Icon: () => <FooterIcon Icon={HealthCheck} />,
@@ -290,7 +306,16 @@ function SigningDeviceDetails({ route }) {
       },
     },
     {
-      text: 'Advance Options',
+      text: 'Change Signer',
+      Icon: () => <FooterIcon Icon={Change} />,
+      onPress: () =>
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        ),
+    },
+
+    {
+      text: 'Settings',
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
         navigation.dispatch(
@@ -302,41 +327,35 @@ function SigningDeviceDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
+      <Box mb={-10}>
+        <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
+      </Box>
+      <Box flexDirection={'row'} alignItems={'center'}>
+        {/* ------------ TODO Pratyaksh ---- add vault details------- */}
+        <Box width={'80%'}>
+          <VaultCardHeader />
+        </Box>
+        <Box width={'20%'}>
+          <CurrencyTypeSwitch />
+        </Box>
+      </Box>
       <Box
         style={{
           flexDirection: 'row',
           paddingHorizontal: '3%',
         }}
       >
-        <Box
-          style={{
-            margin: 5,
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: hp(48),
-            height: hp(48),
-            borderRadius: 30,
-            borderWidth: 1,
-            backgroundColor: '#725436',
-          }}
-        >
-          {Icon}
-        </Box>
-        <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
-          <Box flexDirection="column">
-            <Text fontSize={14} letterSpacing={1.15}>
-              {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
-            </Text>
-            <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(
-              signer?.addedOn
-            ).format('DD MMM YY, HH:mm A')}`}</Text>
-          </Box>
+        <Box>
+          <Text style={{ fontSize: 13 }}>Recent History</Text>
         </Box>
       </Box>
       <ScrollView>
         <Box mx={5} mt={4}>
-          <SigningDeviceChecklist signer={signer} />
+          {/* <SigningDeviceChecklist signer={signer} /> */}
+          {/* -------TODO Pratyaksh------- */}
+          {signerArray.map(() => (
+            <SigningDeviceChecklist signer={signer} />
+          ))}
         </Box>
       </ScrollView>
       <Box
@@ -348,9 +367,6 @@ function SigningDeviceDetails({ route }) {
         height={hp(188)}
         backgroundColor={`${colorMode}.primaryBackground`}
       >
-        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
-          You will be reminded in 90 days for the health check
-        </Text>
         <KeeperFooter items={footerItems} />
         <HardwareModalMap
           type={signer?.type}
@@ -371,7 +387,7 @@ function SigningDeviceDetails({ route }) {
           visible={skipHealthCheckModalVisible}
           close={() => setSkipHealthCheckModalVisible(false)}
           title="Skipping Health Check"
-          subTitle="It is very important that you keep your Signing Devices secure and fairly accessible at all times."
+          subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
           buttonText="Do Later"
           secondaryButtonText="Confirm Access"
           buttonTextColor="light.white"
@@ -412,6 +428,31 @@ function SigningDeviceDetails({ route }) {
 const styles = StyleSheet.create({
   skipHealthIllustration: {
     marginLeft: wp(25),
+  },
+  walletHeaderWrapper: {
+    margin: wp(15),
+    flexDirection: 'row',
+    width: '100%',
+  },
+  walletIconWrapper: {
+    width: '15%',
+  },
+  walletIconView: {
+    height: 40,
+    width: 40,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  walletDescText: {
+    fontSize: 14,
+  },
+  walletNameWrapper: {
+    width: '85%',
+    marginLeft: 10,
+  },
+  walletNameText: {
+    fontSize: 20,
   },
 });
 
