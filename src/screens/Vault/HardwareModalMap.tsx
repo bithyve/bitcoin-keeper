@@ -72,6 +72,7 @@ import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
 import SignerCard from '../AddSigner/SignerCard';
+import useSigners from 'src/hooks/useSigners';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -754,8 +755,17 @@ function HardwareModalMap({
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
 
+  //TODO---need to pass vault id
+  // console.log('vaultIdvaultIdvaultIdvaultId---->', vaultId);
+
+  //1- useSigner with vault id and use those signers (vault already exist)
+  //2- useSigner without vault id when there is no vault (Pending Parsh)
+
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
-  const { signingDevices } = useAppSelector((state) => state.bhr);
+  // const { signingDevices } = useAppSelector((state) => state.bhr);
+  const { signers } = useSigners();
+  const signingDevices = signers;
+  console.log('signerssignerssigners--->', signers);
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   const appId = useAppSelector((state) => state.storage.appId);
@@ -1172,10 +1182,16 @@ function HardwareModalMap({
     }
   };
 
+  const handleInheritanceKey = (signers: VaultSigner[]) => {
+    if (selectInheritanceType === 1) {
+      requestInheritanceKeyRecovery(signers);
+    } else {
+      setupInheritanceKey();
+    }
+  };
+
   const requestInheritanceKeyRecovery = async (signers: VaultSigner[]) => {
     try {
-      // console.log('selectInheritanceType---->', selectInheritanceType);
-      // ------TESTING-------
       if (signingDevices.length <= 1) throw new Error('Add two others devices first to recover');
       const cosignersMapIds = generateCosignerMapIds(
         signerMap,
@@ -1202,6 +1218,30 @@ function HardwareModalMap({
       showToast(`${err}`, <ToastErrorIcon />);
     }
     close();
+  };
+
+  const setupInheritanceKey = async () => {
+    try {
+      close();
+      setInProgress(true);
+      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
+      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { signer: inheritanceKey } = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        masterFingerprint,
+        signerType: SignerType.INHERITANCEKEY,
+        storageType: SignerStorage.WARM,
+        xfp: id,
+        isMultisig: true,
+      });
+      setInProgress(false);
+      dispatch(addSigningDevice([inheritanceKey]));
+      showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+    } catch (err) {
+      console.log({ err });
+      showToast(`Failed to add inheritance key`, <TickIcon />);
+    }
   };
 
   const { Illustration, Instructions, title, subTitle, unsupported, options } = getSignerContent(
@@ -1253,7 +1293,7 @@ function HardwareModalMap({
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
       case SignerType.INHERITANCEKEY:
-        return requestInheritanceKeyRecovery(signingDevices);
+        return handleInheritanceKey(signingDevices);
       default:
         return null;
     }
