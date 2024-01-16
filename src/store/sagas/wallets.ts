@@ -839,6 +839,7 @@ function* refreshWalletsWorker({
   const { wallets, options } = payload;
   try {
     if (!ELECTRUM_CLIENT.isClientConnected) {
+      ElectrumClient.resetCurrentPeerIndex();
       yield call(connectToNodeWorker);
     }
 
