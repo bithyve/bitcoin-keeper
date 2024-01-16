@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, HStack, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
@@ -14,6 +14,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -56,6 +57,8 @@ function VaultSetup() {
     activeVault?.presentationData?.description || 'Secure your sats'
   );
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
 
   const onDecreaseM = () => {
     if (scheme.m > 1) {
