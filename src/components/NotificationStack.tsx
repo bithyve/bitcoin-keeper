@@ -278,7 +278,6 @@ const getStyles = (colorMode: ColorMode) =>
     container: {
       position: 'relative',
       top: 100,
-      left: 5,
     },
     card: {
       borderRadius: layout.borderRadius,

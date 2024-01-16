@@ -24,6 +24,7 @@ import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions } from '@react-navigation/native';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import InheritanceIcon from 'src/assets/images/inheri.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
@@ -123,7 +124,7 @@ function NewHomeScreen({ navigation }) {
   const cardsData = [
     {
       name: 'Inheritance Tools',
-      icon: null,
+      icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
         if (!eligible) {
@@ -284,7 +285,6 @@ const getStyles = (colorMode) =>
       justifyContent: 'center',
       gap: 10,
       marginTop: -100,
-      left: 5,
     },
     walletDetailWrapper: {
       marginTop: 27.25,
