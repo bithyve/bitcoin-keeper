@@ -85,7 +85,7 @@ function SignWithQR() {
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Scan Signed Transaction`,
+          title: 'Scan Signed Transaction',
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: signTransaction,
           type: signer.type,
@@ -98,7 +98,7 @@ function SignWithQR() {
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey }));
   return (
     <ScreenWrapper>
-      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signing device" />
+      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
         {signer.type === SignerType.KEEPER ? (

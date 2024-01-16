@@ -8,7 +8,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { captureError, identifyUser } from 'src/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -22,17 +22,17 @@ import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/core/wallets/interfaces/vault';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 const getTitle = (mode) => {
   switch (mode) {
     case InteracationMode.CONFIG_RECOVERY:
       return 'Recover Using Configuration';
-    case InteracationMode.ADDITION:
+    case InteracationMode.VAULT_ADDITION:
       return 'Setting up Coldcard';
     case InteracationMode.HEALTH_CHECK || InteracationMode.IDENTIFICATION:
       return 'Verify Coldcard';

@@ -15,7 +15,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 
-const NumberInput = ({ value, onDecrease, onIncrease }) => {
+function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
 
   return (
@@ -37,9 +37,9 @@ const NumberInput = ({ value, onDecrease, onIncrease }) => {
       </TouchableOpacity>
     </HStack>
   );
-};
+}
 
-const VaultSetup = () => {
+function VaultSetup() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -102,13 +102,13 @@ const VaultSetup = () => {
         );
       }
     } else {
-      showToast('Please Enter Vault name', <ToastErrorIcon />);
+      showToast('Please Enter vault name', <ToastErrorIcon />);
     }
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Setup your Vault" subtitle="Configure your scheme" />
+      <KeeperHeader title={vault.SetupyourVault} subtitle={vault.configureScheme} />
       <VStack style={{ margin: 20, flex: 1 }}>
         <KeeperTextInput
           placeholder="Vault name"
@@ -120,7 +120,7 @@ const VaultSetup = () => {
               setVaultName(value);
             }
           }}
-          testID={'vault_name'}
+          testID="vault_name"
           maxLength={20}
         />
         <Box style={{ height: 20 }} />
@@ -128,30 +128,30 @@ const VaultSetup = () => {
           placeholder="Vault description (Optional)"
           value={vaultDescription}
           onChangeText={setVaultDescription}
-          testID={'vault_description'}
+          testID="vault_description"
           maxLength={40}
           height={20}
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-        <Text style={{ fontSize: 14 }} testID={'text_totalKeys'}>
-          Total Keys for Vault Configuration
+        <Text style={{ fontSize: 14 }} testID="text_totalKeys">
+          Total Keys for vault Configuration
         </Text>
-        <Text style={{ fontSize: 12 }} testID={'text_totalKeys_subTitle'}>
+        <Text style={{ fontSize: 12 }} testID="text_totalKeys_subTitle">
           Select the total number of keys
         </Text>
         <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-        <Text style={{ fontSize: 14 }} testID={'text_requireKeys'}>
+        <Text style={{ fontSize: 14 }} testID="text_requireKeys">
           Required Keys
         </Text>
-        <Text style={{ fontSize: 12 }} testID={'text_requireKeys_subTitle'}>
-          Select the number of keys required
+        <Text style={{ fontSize: 12 }} testID="text_requireKeys_subTitle">
+          Select number of keys to broadcast transaction
         </Text>
         <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
       </VStack>
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
-};
+}
 
 export default VaultSetup;
 

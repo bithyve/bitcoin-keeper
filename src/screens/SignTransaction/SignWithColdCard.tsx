@@ -175,7 +175,7 @@ function SignWithColdCard({ route }: { route }) {
             >
               <VStack width="97%">
                 <Text fontSize={14}>Manually Register Mk4</Text>
-                <Text fontSize={12}>Please resigister the Vault if not already registered</Text>
+                <Text fontSize={12}>Please resigister the vault if not already registered</Text>
               </VStack>
               <Arrow />
             </TouchableOpacity>

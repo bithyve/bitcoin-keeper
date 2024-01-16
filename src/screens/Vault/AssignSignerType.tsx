@@ -6,9 +6,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { getDeviceStatus, getSDMessage, getSignerNameFromType } from 'src/hardware';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { getDeviceStatus, getSDMessage } from 'src/hardware';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
@@ -30,8 +29,7 @@ type IProps = {
     };
   };
 };
-function AssignSignerType({ navigation, route }: IProps) {
-  const dispatch = useDispatch();
+function AssignSignerType({ route }: IProps) {
   const { vault } = route.params;
   const { signers: appSigners } = useSigners();
   const [visible, setVisible] = useState(false);
@@ -83,7 +81,7 @@ function AssignSignerType({ navigation, route }: IProps) {
   return (
     <ScreenWrapper>
       <KeeperHeader
-        title="Identify your Signing Device"
+        title="Identify your signer"
         subtitle="for better communication and conectivity"
       />
       <ScrollView

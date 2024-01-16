@@ -60,7 +60,9 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the Vault config by going to Setting > Multisig > Then select the wallet > Export `}
+          {
+            'Export the vault config by going to Setting > Multisig > Then select the wallet > Export '
+          }
         </Text>
       </Box>
     </View>
@@ -82,7 +84,9 @@ function PassportSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
+          {
+            '\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n'
+          }
         </Text>
       </Box>
     </View>
@@ -194,8 +198,8 @@ function SigningDeviceConfigRecovery({ navigation }) {
   return (
     <ScreenWrapper>
       <KeeperHeader
-        title="Select Signing Device"
-        subtitle="To recover your Vault"
+        title="Select signer"
+        subtitle="To recover your vault"
         onPressHandler={() => navigation.goBack()}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>

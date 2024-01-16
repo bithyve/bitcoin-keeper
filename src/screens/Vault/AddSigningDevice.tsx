@@ -4,12 +4,10 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import React, { useContext, useEffect, useState } from 'react';
 import { Signer, VaultScheme, VaultSigner, signerXpubs } from 'src/core/wallets/interfaces/vault';
 import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import Relay from 'src/services/operations/Relay';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
@@ -94,7 +92,7 @@ function AddSigningDevice() {
     setCreating(true);
   };
 
-  const preTitle = 'Add Vault Signing Devices';
+  const preTitle = 'Add vault signers';
 
   const subtitle =
     scheme.n > 1
@@ -244,7 +242,7 @@ function AddSigningDevice() {
             <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
           </Box>
         ) : trezorIncompatible ? (
-          <Box style={styles.noteContainer} testID={'view_warning02'}>
+          <Box style={styles.noteContainer} testID="view_warning02">
             <Note
               title="WARNING"
               subtitle="Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault"
