@@ -122,7 +122,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'BitBox02';
       break;
     case SignerType.OTHER_SD:
-      name = 'Other Signing Device';
+      name = 'Other signer';
       break;
     case SignerType.INHERITANCEKEY:
       name = 'Inheritance Key';
@@ -142,10 +142,10 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Multisig setup file (exported from Keeper)\n';
-  line += `Name: Keeper Vault\n`;
+  line += 'Name: Keeper vault\n';
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
-  line += `Format: P2WSH\n`;
-  line += `\n`;
+  line += 'Format: P2WSH\n';
+  line += '\n';
   vault.signers.forEach((signer) => {
     line += `Derivation: ${signer.derivationPath}\n`;
     line += `${signer.masterFingerprint}: ${signer.xpub}\n\n`;
@@ -234,7 +234,7 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners, scheme) => {
   }
   // Keys Incase of already added
   if (allowSingleKey(type, vaultSigners)) {
-    return { disabled: true, message: 'Key already added to the Vault' };
+    return { disabled: true, message: 'Key already added to the vault' };
   }
 
   return { disabled: false, message: '' };
@@ -256,11 +256,11 @@ export const getDeviceStatus = (
       };
     case SignerType.MOBILE_KEY:
       return allowSingleKey(type, vaultSigners)
-        ? { disabled: true, message: 'Key already added to the Vault' }
+        ? { disabled: true, message: 'Key already added to the vault' }
         : {
-          message: '',
-          disabled: false,
-        };
+            message: '',
+            disabled: false,
+          };
     case SignerType.POLICY_SERVER:
       return {
         message: getDisabled(type, isOnL1, vaultSigners, scheme).message,
@@ -270,9 +270,9 @@ export const getDeviceStatus = (
       return scheme.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
-          message: '',
-          disabled: false,
-        };
+            message: '',
+            disabled: false,
+          };
     case SignerType.KEEPER:
     case SignerType.SEED_WORDS:
     case SignerType.JADE:

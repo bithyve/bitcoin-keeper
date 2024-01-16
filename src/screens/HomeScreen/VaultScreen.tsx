@@ -10,12 +10,12 @@ import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
-import Fonts from 'src/constants/Fonts';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -71,7 +71,7 @@ function VaultScreen() {
                 <Box style={styles.signingDeviceWrapper}>
                   <Box style={styles.signingDeviceDetails}>
                     <Text style={styles.signingDeviceText} color={`${colorMode}.white`}>
-                      {`${scheme.m} of ${scheme.n} Vault`}
+                      {`${scheme.m} of ${scheme.n} vault`}
                     </Text>
                     <Box style={styles.signingDeviceList}>
                       {signers.map((signer: any) => (

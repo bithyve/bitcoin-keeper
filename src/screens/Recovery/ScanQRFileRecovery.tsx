@@ -62,8 +62,8 @@ function ScanQRFileRecovery({ route }) {
     <ScreenWrapper>
       <Box flex={1}>
         <KeeperHeader
-          title="Recover Using Vault Configuration File"
-          subtitle="Recover the Vault from output descriptor or configuration"
+          title="Recover Using vault Configuration File"
+          subtitle="Recover the vault from output descriptor or configuration"
         />
         <Box style={styles.qrcontainer}>
           <RNCamera

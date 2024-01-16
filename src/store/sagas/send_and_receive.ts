@@ -1,5 +1,3 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable no-restricted-syntax */
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { EntityKind, LabelRefType, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
@@ -16,8 +14,8 @@ import {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
-import { createWatcher } from '../utilities';
 import dbManager from 'src/storage/realm/dbManager';
+import { createWatcher } from '../utilities';
 import {
   SendPhaseOneExecutedPayload,
   sendPhaseOneExecuted,
@@ -176,8 +174,9 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       case EntityKind.VAULT:
-        if (!serializedPSBTEnvelops.length)
+        if (!serializedPSBTEnvelops.length) {
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
+        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -187,7 +186,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       default:
-        throw new Error('Invalid Entity: not a Vault/Wallet');
+        throw new Error('Invalid Entity: not a vault/Wallet');
     }
     if (wallet.entityKind === EntityKind.WALLET) {
       const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
@@ -208,8 +207,9 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       }
     }
   } catch (err) {
-    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(setElectrumNotConnectedErr(err?.message));
+    }
 
     yield put(
       sendPhaseTwoExecuted({
@@ -252,10 +252,11 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
         txHex = serializedPSBTEnvelop.txHex; // txHex is given out by COLDCARD, KEYSTONE and TREZOR post signing
       }
     }
-    if (availableSignatures < threshold)
+    if (availableSignatures < threshold) {
       throw new Error(
         `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
       );
+    }
 
     const { txid, finalOutputs } = yield call(
       WalletOperations.transferST3,
@@ -301,8 +302,9 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       });
     }
   } catch (err) {
-    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(setElectrumNotConnectedErr(err?.message));
+    }
 
     yield put(
       sendPhaseThreeExecuted({
