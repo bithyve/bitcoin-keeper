@@ -300,8 +300,16 @@ function SigningDeviceDetails({ route }) {
       text: 'Health Check',
       Icon: () => <FooterIcon Icon={HealthCheck} />,
       onPress: () => {
-        if (signer.type === SignerType.OTHER_SD) {
-          setIdentifySignerModal(true);
+        if (signer.type === SignerType.UNKOWN_SIGNER) {
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'AssignSignerType',
+              params: {
+                parentNavigation: navigation,
+                vault: activeVault,
+              },
+            })
+          );
         } else {
           setVisible(true);
         }

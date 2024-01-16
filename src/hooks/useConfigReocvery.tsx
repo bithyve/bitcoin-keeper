@@ -10,6 +10,7 @@ import { captureError } from 'src/services/sentry';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
+import useToastMessage from './useToastMessage';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate, realyVaultErrorMessage } = useAppSelector(
@@ -19,9 +20,15 @@ const useConfigRecovery = () => {
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [scheme, setScheme] = useState<VaultScheme>();
   const [vaultSignersList, setVaultSignersList] = useState([]);
+  const { showToast } = useToastMessage();
   const [signersList, setSignersList] = useState([]);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+
+  let recoveryError = {
+    failed: false,
+    message: '',
+  };
 
   useEffect(() => {
     if (scheme && signersList.length > 1 && vaultSignersList.length > 1) {
@@ -32,7 +39,7 @@ const useConfigRecovery = () => {
           vaultScheme: scheme,
           vaultSigners: vaultSignersList,
           vaultDetails: {
-            name: 'Vault',
+            name: 'Imported Vault',
             description: 'Secure your sats',
           },
         };
@@ -49,17 +56,14 @@ const useConfigRecovery = () => {
     if (relayVaultUpdate) {
       setRecoveryLoading(false);
       const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
-        ],
+        index: 0,
+        routes: [{ name: 'Home' }],
       };
+      showToast('Vault Imported Successfully!');
       navigation.dispatch(CommonActions.reset(navigationState));
     }
     if (relayVaultError) {
       setRecoveryLoading(false);
-      Alert.alert('Something went wrong!', realyVaultErrorMessage);
     }
   }, [relayVaultUpdate, relayVaultError]);
 
@@ -88,12 +92,12 @@ const useConfigRecovery = () => {
       }
     } catch (err) {
       setRecoveryLoading(false);
-      console.log(err);
-      Alert.alert(`Something went wrong!`);
+      recoveryError.failed = true;
+      recoveryError.message = err;
     }
   };
 
-  return { recoveryLoading, initateRecovery };
+  return { recoveryLoading, recoveryError, initateRecovery };
 };
 
 export default useConfigRecovery;
