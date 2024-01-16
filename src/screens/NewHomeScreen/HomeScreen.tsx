@@ -27,6 +27,9 @@ import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import AddWalletModal from '../Home/components/AddWalletModal';
 import BalanceComponent from './components/BalanceComponent';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
+import usePlan from 'src/hooks/usePlan';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import RampModal from '../WalletDetails/components/RampModal';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -47,7 +50,7 @@ function NewHomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
-  const { allVaults } = useVault({ includeArchived: false });
+  const { allVaults, activeVault } = useVault({ includeArchived: false, getFirst: true });
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
@@ -68,6 +71,11 @@ function NewHomeScreen({ navigation }) {
   const electrumClientConnectionStatus = useAppSelector(
     (state) => state.login.electrumClientConnectionStatus
   );
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+  // const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
+  const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
+  const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
+  const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
 
   useEffect(() => {
     if (electrumClientConnectionStatus.success) {
@@ -109,17 +117,38 @@ function NewHomeScreen({ navigation }) {
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
   const { top } = useSafeAreaInsets();
-
+  const { plan } = usePlan();
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const dummyData = [
     {
-      name: 'Setup Inheritance',
+      name: 'Inheritance Tools',
       icon: null,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' })),
+      callback: () => {
+        const eligible = plan === SubscriptionTier.L3.toUpperCase();
+        if (!eligible) {
+          showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
+          navigation.navigate('ChoosePlan', { planPosition: 2 });
+          return;
+        } else if (!activeVault) {
+          showToast(`Please create a vault to setup inheritance`);
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'AddSigningDevice',
+              merge: true,
+              params: { scheme: { m: 3, n: 5 } },
+            })
+          );
+          return;
+        } else {
+          navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+          return;
+        }
+      },
     },
     {
       name: 'Buy Bitcoin',
       icon: <BTC />,
-      callback: () => {},
+      callback: onPressBuyBitcoin,
     },
     {
       name: 'Manage All Signers',
@@ -129,6 +158,7 @@ function NewHomeScreen({ navigation }) {
   ];
 
   const styles = getStyles(colorMode);
+
   return (
     <Box backgroundColor={`${colorMode}.Linen`} style={[styles.container]}>
       <Box
@@ -217,6 +247,15 @@ function NewHomeScreen({ navigation }) {
         wallets={wallets}
         collaborativeWallets={collaborativeWallets}
         setDefaultWalletCreation={setDefaultWalletCreation}
+      />
+      <RampModal
+        showBuyRampModal={showBuyRampModal}
+        setShowBuyRampModal={setShowBuyRampModal}
+        //wallet
+        wallet={'qwqwqwqw'}
+        receivingAddress={receivingAddress}
+        balance={balance}
+        name={presentationName}
       />
     </Box>
   );

@@ -27,16 +27,6 @@ import useVault from 'src/hooks/useVault';
 
 const { width } = Dimensions.get('screen');
 
-export const checkSigningDevice = async (id) => {
-  try {
-    const exisits = await Relay.getSignerIdInfo(id);
-    return exisits;
-  } catch (err) {
-    // ignoring temporarily if the network call fails
-    return true;
-  }
-};
-
 function AddSigningDevice() {
   const { colorMode } = useColorMode();
   const [vaultCreating, setCreating] = useState(false);
@@ -85,7 +75,9 @@ function AddSigningDevice() {
       setVaultKeys(vaultKeys);
       const updatedSignerMap = new Map();
       vaultKeys.forEach((key) => {
-        updatedSignerMap.set(key.masterFingerprint, true);
+        if (isSignerValidForScheme(signerMap[key.masterFingerprint])) {
+          updatedSignerMap.set(key.masterFingerprint, true);
+        }
       });
       setSelectedSigners(new Map(updatedSignerMap));
     }
@@ -179,6 +171,20 @@ function AddSigningDevice() {
     }
   };
 
+  const isSignerValidForScheme = (signer: Signer) => {
+    const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
+    const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
+    const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
+    if (
+      (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
+      (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={`${preTitle}`} subtitle={subtitle} />
@@ -194,16 +200,7 @@ function AddSigningDevice() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.signerContainer}>
           {signers.map((signer) => {
-            let disabled = false;
-            const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
-            const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
-            const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
-            if (
-              (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
-              (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
-            ) {
-              disabled = true;
-            }
+            const disabled = !isSignerValidForScheme(signer);
             return (
               <SignerCard
                 disabled={disabled}

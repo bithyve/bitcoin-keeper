@@ -2,8 +2,6 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/services/sentry';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -61,7 +59,6 @@ import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
-import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
@@ -98,7 +95,6 @@ import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
-import Home from 'src/screens/Home/Home';
 import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
 import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
@@ -170,7 +166,6 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
         <Stack.Screen name="Home" component={NewHomeScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
@@ -292,23 +287,6 @@ function Navigator() {
         subTitle="loading"
       />
     </NavigationContainer>
-  );
-}
-function DrawerStack() {
-  const Drawer = createDrawerNavigator();
-  return (
-    <Drawer.Navigator
-      drawerContent={(props) => <AppSettings {...props} />}
-      screenOptions={{
-        headerShown: false,
-        drawerStyle: {
-          width: '94%',
-        },
-      }}
-    >
-      <Drawer.Screen name="HomeScreen" component={Home} />
-      {/* <Drawer.Screen name="AppSettings" component={AppSettings} /> */}
-    </Drawer.Navigator>
   );
 }
 

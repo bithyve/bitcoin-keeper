@@ -24,6 +24,7 @@ import {
   BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
+  ImportedKeyType,
   NetworkType,
   PaymentInfoKind,
   ScriptTypes,
@@ -306,30 +307,16 @@ export default class WalletUtilities {
     return childXKey.toBase58();
   };
 
+  static getPublicExtendedKeyFromPriv = (extendedKey: string): string => {
+    const xKey = bip32.fromBase58(extendedKey, config.NETWORK);
+    return xKey.neutered().toBase58();
+  };
+
   static getNetworkFromXpub = (xpub: string) => {
     if (xpub) {
       return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
         ? NetworkType.MAINNET
         : NetworkType.TESTNET;
-    }
-  };
-
-  static getNetworkFromPrefix = (prefix) => {
-    switch (prefix) {
-      case 'xpub': // 0x0488b21e
-      case 'ypub': // 0x049d7cb2
-      case 'Ypub': // 0x0295b43f
-      case 'zpub': // 0x04b24746
-      case 'Zpub': // 0x02aa7ed3
-        return NetworkType.MAINNET;
-      case 'tpub': // 0x043587cf
-      case 'upub': // 0x044a5262
-      case 'Upub': // 0x024289ef
-      case 'vpub': // 0x045f1cf6
-      case 'Vpub': // 0x02575483
-        return NetworkType.TESTNET;
-      default:
-        return null;
     }
   };
 
@@ -341,9 +328,17 @@ export default class WalletUtilities {
     return bs58check.encode(data);
   };
 
-  static generateXpubFromYpub = (ypub: string, network: bitcoinJS.Network): string => {
-    // generates xpub corresponding to supplied ypub || tpub corresponding to upub
-    let data = bs58check.decode(ypub);
+  static getXprivFromExtendedKey = (extendedKey: string, network: bitcoinJS.Network) => {
+    // case: xprv corresponding to supplied yprv/zprv  or tprv corresponding to supplied uprv/vprv
+    let data = bs58check.decode(extendedKey);
+    const versionBytes = bitcoinJS.networks.bitcoin === network ? '0488ade4' : '04358394';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static getXpubFromExtendedKey = (extendedKey: string, network: bitcoinJS.Network) => {
+    // case: xpub corresponding to supplied ypub/zpub  or tpub corresponding to supplied upub/vpub
+    let data = bs58check.decode(extendedKey);
     const versionBytes = bitcoinJS.networks.bitcoin === network ? '0488b21e' : '043587cf';
     data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
@@ -798,6 +793,140 @@ export default class WalletUtilities {
         return XpubTypes.P2PKH;
       default:
         return XpubTypes.P2WSH;
+    }
+  };
+
+  static isExtendedPrvKey = (keyType: ImportedKeyType) => {
+    if (config.NETWORK === bitcoinJS.networks.bitcoin)
+      return [ImportedKeyType.XPRV, ImportedKeyType.YPRV, ImportedKeyType.ZPRV].includes(keyType);
+    else
+      return [ImportedKeyType.TPRV, ImportedKeyType.UPRV, ImportedKeyType.VPRV].includes(keyType);
+  };
+
+  static isExtendedPubKey = (keyType: ImportedKeyType) => {
+    if (config.NETWORK === bitcoinJS.networks.bitcoin)
+      return [ImportedKeyType.XPUB, ImportedKeyType.YPUB, ImportedKeyType.ZPUB].includes(keyType);
+    else
+      return [ImportedKeyType.TPUB, ImportedKeyType.UPUB, ImportedKeyType.VPUB].includes(keyType);
+  };
+
+  static getImportedKeyDetails = (
+    input: string
+  ): { importedKeyType: ImportedKeyType; watchOnly: Boolean; purpose: DerivationPurpose } => {
+    try {
+      // case: mnemonic
+      bip39.mnemonicToEntropy(input);
+      return { importedKeyType: ImportedKeyType.MNEMONIC, watchOnly: false, purpose: null };
+    } catch (err) {
+      try {
+        // case: extended keys
+        bs58check.decode(input);
+
+        // attempt to create an extended key from the input
+        if (config.NETWORK === bitcoinJS.networks.bitcoin) {
+          // extended public keys (mainnet)
+          if (input.startsWith(ImportedKeyType.XPUB))
+            return {
+              importedKeyType: ImportedKeyType.XPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.YPUB))
+            return {
+              importedKeyType: ImportedKeyType.YPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.ZPUB))
+            return {
+              importedKeyType: ImportedKeyType.ZPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP84,
+            };
+
+          // extended private keys (mainnet)
+          if (input.startsWith(ImportedKeyType.XPRV))
+            return {
+              importedKeyType: ImportedKeyType.XPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.YPRV))
+            return {
+              importedKeyType: ImportedKeyType.YPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.ZPRV))
+            return {
+              importedKeyType: ImportedKeyType.ZPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP84,
+            };
+        } else {
+          // extended public keys (testnet)
+          if (input.startsWith(ImportedKeyType.TPUB))
+            return {
+              importedKeyType: ImportedKeyType.TPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.UPUB))
+            return {
+              importedKeyType: ImportedKeyType.UPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.VPUB))
+            return {
+              importedKeyType: ImportedKeyType.VPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP84,
+            };
+
+          // extended private keys (testnet)
+          if (input.startsWith(ImportedKeyType.TPRV))
+            return {
+              importedKeyType: ImportedKeyType.TPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP44,
+            };
+          if (input.startsWith(ImportedKeyType.UPRV))
+            return {
+              importedKeyType: ImportedKeyType.UPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP49,
+            };
+          if (input.startsWith(ImportedKeyType.VPRV))
+            return {
+              importedKeyType: ImportedKeyType.VPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP84,
+            };
+        }
+      } catch (err) {
+        // if neither mnemonic nor extended key, consider it an invalid input
+        throw new Error('Invalid Import Key');
+      }
+    }
+  };
+
+  static getNetworkFromPrefix = (prefix) => {
+    switch (prefix) {
+      case 'xpub': // 0x0488b21e
+      case 'ypub': // 0x049d7cb2
+      case 'Ypub': // 0x0295b43f
+      case 'zpub': // 0x04b24746
+      case 'Zpub': // 0x02aa7ed3
+        return NetworkType.MAINNET;
+      case 'tpub': // 0x043587cf
+      case 'upub': // 0x044a5262
+      case 'Upub': // 0x024289ef
+      case 'vpub': // 0x045f1cf6
+      case 'Vpub': // 0x02575483
+        return NetworkType.TESTNET;
+      default:
+        return null;
     }
   };
 }

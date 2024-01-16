@@ -3,7 +3,6 @@ import semver from 'semver';
 import { decrypt, encrypt } from 'src/services/operations/encryption';
 import Relay from 'src/services/operations/Relay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { ADDITION_OF_VAULTSHELL_VERSION } from './upgrade';
 
 export function* applyRestoreSequence({
   previousVersion,
@@ -19,8 +18,6 @@ export function* applyRestoreSequence({
   encryptionKey: string;
 }) {
   console.log(`applying restore upgarde sequence - from: ${previousVersion} to ${newVersion}`);
-  if (semver.lte(previousVersion, ADDITION_OF_VAULTSHELL_VERSION))
-    yield call(additionOfVaultShellId, vaultImage, appImage, encryptionKey);
 
   yield call(updateVersion, appImage, newVersion);
 }

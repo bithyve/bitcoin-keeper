@@ -47,7 +47,10 @@ import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
+import {
+  generateWallet,
+  generateWalletSpecsFromMnemonic,
+} from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateKey, hash256 } from 'src/services/operations/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -90,10 +93,13 @@ import {
 import { uaiChecks } from '../sagaActions/uai';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import {
+  relaySignersUpdateFail,
+  relaySignersUpdateSuccess,
   relayVaultUpdateFail,
   relayVaultUpdateSuccess,
   relayWalletUpdateFail,
   relayWalletUpdateSuccess,
+  setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
@@ -590,7 +596,21 @@ export function* addNewVaultWorker({
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
 function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
-  yield call(dbManager.createObjectBulk, RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
+  if (signers.length > 0) {
+    yield put(setRelaySignersUpdateLoading(true));
+    const response = yield call(updateAppImageWorker, { payload: { signers } });
+    if (response.updated) {
+      yield call(
+        dbManager.createObjectBulk,
+        RealmSchema.Signer,
+        signers,
+        Realm.UpdateMode.Modified
+      );
+      return true;
+    }
+    yield put(relaySignersUpdateFail(response.error));
+    return false;
+  }
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
@@ -1105,7 +1125,7 @@ function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
       ...wallet.derivationDetails,
       xDerivationPath: details.path,
     };
-    const specs = generateWalletSpecs(
+    const specs = generateWalletSpecsFromMnemonic(
       derivationDetails.mnemonic,
       WalletUtilities.getNetworkByType(wallet.networkType),
       derivationDetails.xDerivationPath
@@ -1146,15 +1166,27 @@ function* updateSignerDetailsWorker({ payload }) {
     value: any;
   } = payload;
 
-  yield call(
-    dbManager.updateObjectByPrimaryId,
-    RealmSchema.Signer,
-    'masterFingerprint',
-    signer.masterFingerprint,
-    {
-      [key]: value,
+  yield put(setRelaySignersUpdateLoading(true));
+  try {
+    const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
+    if (response.updated) {
+      yield call(
+        dbManager.updateObjectByPrimaryId,
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          [key]: value,
+        }
+      );
+      yield put(relaySignersUpdateSuccess());
+    } else {
+      yield put(relaySignersUpdateFail(response.error));
     }
-  );
+  } catch (err) {
+    console.error(err);
+    yield put(relaySignersUpdateFail('Something went wrong'));
+  }
 }
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
