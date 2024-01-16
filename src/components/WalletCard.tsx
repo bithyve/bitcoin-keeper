@@ -50,6 +50,7 @@ function WalletCard({
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
               numberOfLines={1}
+              fontSize={11}
             >
               {walletDescription}
             </Text>

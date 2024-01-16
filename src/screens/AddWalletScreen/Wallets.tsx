@@ -3,6 +3,7 @@ import React from 'react';
 import OptionCard from 'src/components/OptionCard';
 import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault.svg';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import useWallets from 'src/hooks/useWallets';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
@@ -18,7 +19,7 @@ const addNewDefaultWallet = (walletsCount, dispatch) => {
     walletType: WalletType.DEFAULT,
     walletDetails: {
       name: `Wallet ${walletsCount + 1} `,
-      description: `Single-sig Wallet`,
+      description: 'Single-sig Wallet',
       transferPolicy: {
         id: uuidv4(),
         threshold: defaultTransferPolicyThreshold,
@@ -81,7 +82,7 @@ function Wallets({ navigation }) {
       <OptionCard
         title="Collaborative"
         description="With contacts/devices"
-        LeftIcon={<WalletGreenIcon />}
+        LeftIcon={<CollaborativeIcon />}
         callback={handleCollaaborativeWalletCreation}
       />
     </Box>

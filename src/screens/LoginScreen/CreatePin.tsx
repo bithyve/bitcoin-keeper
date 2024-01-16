@@ -152,18 +152,17 @@ export default function CreatePin(props) {
       <Box width={235}>
         <Box>
           <Text color={`${colorMode}.greenText`} style={{ fontSize: 19, marginBottom: 8 }}>
-            Remember me your password
+            Remember your passcode
           </Text>
         </Box>
         <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
-          Remember your Keeper app passcode and securely write down your Backup Phrase.
+          Please remember your passcode and backup your wallet by writing down the seed words
         </Text>
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
         <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
-          If you forget your passcode or lose the Backup Phrase, you risk being locked out of your
-          wallet permanently.
+          You would be locked out of the app if you forget your passcode and will have to recover it
         </Text>
       </Box>
     );
@@ -192,7 +191,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                      `light.error`
+                      'light.error'
                     : 'transparent'
                 }
               />
@@ -249,14 +248,14 @@ export default function CreatePin(props) {
       <KeeperModal
         visible={createPassword}
         close={() => {}}
-        title={''}
-        subTitle={''}
+        title=""
+        subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
-        buttonText={'Continue'}
-        secondaryButtonText={'Back'}
+        buttonText="Continue"
+        secondaryButtonText="Back"
         buttonCallback={() => {
           dispatch(storeCreds(passcode));
           setCreatePassword(false);

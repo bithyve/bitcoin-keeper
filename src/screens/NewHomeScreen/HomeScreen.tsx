@@ -24,11 +24,13 @@ import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions } from '@react-navigation/native';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import InheritanceIcon from 'src/assets/images/inheri.svg';
+import SignerIcon from 'src/assets/images/signer_white.svg';
+import usePlan from 'src/hooks/usePlan';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import AddWalletModal from '../Home/components/AddWalletModal';
 import BalanceComponent from './components/BalanceComponent';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
-import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import RampModal from '../WalletDetails/components/RampModal';
 
 const calculateBalancesForVaults = (vaults) => {
@@ -119,18 +121,17 @@ function NewHomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-  const dummyData = [
+  const cardsData = [
     {
       name: 'Inheritance Tools',
-      icon: null,
+      icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
         if (!eligible) {
           showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
           navigation.navigate('ChoosePlan', { planPosition: 2 });
-          return;
         } else if (!activeVault) {
-          showToast(`Please create a vault to setup inheritance`);
+          showToast('Please create a vault to setup inheritance');
           navigation.dispatch(
             CommonActions.navigate({
               name: 'AddSigningDevice',
@@ -138,10 +139,8 @@ function NewHomeScreen({ navigation }) {
               params: { scheme: { m: 3, n: 5 } },
             })
           );
-          return;
         } else {
           navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
-          return;
         }
       },
     },
@@ -152,7 +151,7 @@ function NewHomeScreen({ navigation }) {
     },
     {
       name: 'Manage All Signers',
-      icon: null,
+      icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
   ];
@@ -167,7 +166,7 @@ function NewHomeScreen({ navigation }) {
       >
         <HomeScreenWrapper>
           <Box style={styles.actionContainer}>
-            {dummyData.map((data, index) => (
+            {cardsData.map((data, index) => (
               <ActionCard
                 key={`${index}_${data.name}`}
                 cardName={data.name}
@@ -251,8 +250,8 @@ function NewHomeScreen({ navigation }) {
       <RampModal
         showBuyRampModal={showBuyRampModal}
         setShowBuyRampModal={setShowBuyRampModal}
-        //wallet
-        wallet={'qwqwqwqw'}
+        // wallet
+        wallet="qwqwqwqw"
         receivingAddress={receivingAddress}
         balance={balance}
         name={presentationName}
@@ -282,9 +281,16 @@ const getStyles = (colorMode) =>
     },
     actionContainer: {
       flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
       gap: 10,
       marginTop: -100,
     },
-    walletDetailWrapper: { marginTop: 27.25, paddingHorizontal: 10 },
-    wallerCardWrapper: { marginRight: 10 },
+    walletDetailWrapper: {
+      marginTop: 27.25,
+      paddingHorizontal: 10,
+    },
+    wallerCardWrapper: {
+      marginRight: 10,
+    },
   });

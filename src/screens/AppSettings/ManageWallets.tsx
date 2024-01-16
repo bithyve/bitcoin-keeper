@@ -140,13 +140,13 @@ function ManageWallets() {
 
   const { wallets } = useWallets();
 
-  const [showAll, setShowAll] = useState(false);
+  // const [showAll, setShowAll] = useState(false);
 
   const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
   const visibleWallets = walletsWithoutWhirlpool.filter(
-    (wallet) => showAll || wallet.presentationData.visibility === VisibilityType.DEFAULT
+    (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
   const hiddenWallets = walletsWithoutWhirlpool.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
@@ -265,7 +265,7 @@ function ManageWallets() {
         rightComponent={<CurrencyTypeSwitch />}
       />
       <FlatList
-        data={visibleWallets}
+        data={walletsWithoutWhirlpool}
         extraData={[visibleWallets, hiddenWallets]}
         contentContainerStyle={{ marginHorizontal: 20, marginTop: '5%' }}
         renderItem={({ item }) => (
@@ -284,7 +284,7 @@ function ManageWallets() {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
       />
-      <Box backgroundColor="#BABABA" height={0.9} width="100%" />
+      {/* <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
           <ShowAllIcon />
@@ -292,7 +292,7 @@ function ManageWallets() {
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
           Show all
         </Text>
-      </Pressable>
+      </Pressable> */}
 
       <KeeperModal
         dismissible

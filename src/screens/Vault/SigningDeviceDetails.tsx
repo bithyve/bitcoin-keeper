@@ -27,7 +27,6 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
-import WalletInsideGreen from 'src/assets/images/coldcard_light.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -43,6 +42,7 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
+import { SDIcons } from './SigningDeviceIcons';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -280,7 +280,7 @@ function SigningDeviceDetails({ route }) {
             style={styles.walletIconView}
             backgroundColor={`${colorMode}.primaryGreenBackground`}
           >
-            <WalletInsideGreen />
+            {SDIcons(signer.type, true).Icon}
           </Box>
         </Box>
         <Box style={styles.walletNameWrapper}>
