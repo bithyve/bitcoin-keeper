@@ -17,7 +17,7 @@ MockWrapper.defaultProps = {
   enable: true,
   isRecovery: false,
   navigation: null,
-  mode: InteracationMode.ADDITION,
+  mode: InteracationMode.VAULT_ADDITION,
 };
 
 function MockWrapper({
@@ -59,7 +59,6 @@ function MockWrapper({
   };
   const { mapUnknownSigner } = useUnkownSigners();
   const verifyMockSigner = () => {
-    console.log('heredfdfd');
     try {
       const data = getMockSigner(signerType);
       console.log(data.signer.masterFingerprint, mode);
@@ -74,8 +73,6 @@ function MockWrapper({
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {
-        console.log('here');
-        console.log({ signerType, xfpExtrctex: data.signer.masterFingerprint });
         const mapped = mapUnknownSigner({
           masterFingerprint: data.signer.masterFingerprint,
           type: data.signer.type,
@@ -100,7 +97,7 @@ function MockWrapper({
   };
 
   const handleMockTap = () => {
-    if (mode === InteracationMode.ADDITION) {
+    if (mode === InteracationMode.VAULT_ADDITION || mode === InteracationMode.APP_ADDITION) {
       addMockSigner();
     } else if (mode === InteracationMode.HEALTH_CHECK) {
       verifyMockSigner();
