@@ -42,6 +42,10 @@ import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import { SDIcons } from './SigningDeviceIcons';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import IdentifySignerModal from './components/IdentifySignerModal';
 
 const signerArray = [
   { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
