@@ -90,7 +90,12 @@ const VaultSetup = () => {
         navigation.dispatch(
           CommonActions.navigate({
             name: 'AddSigningDevice',
-            params: { scheme, name: vaultName, description: vaultDescription, vaultId },
+            params: {
+              scheme,
+              name: vaultName || 'Vault',
+              description: vaultDescription || 'Secure your sats',
+              vaultId,
+            },
           })
         );
       }
