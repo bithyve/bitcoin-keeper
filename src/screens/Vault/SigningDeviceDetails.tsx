@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -206,6 +206,16 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
 
+  const [healthCheckArray, setHealthCheckArray] = useState([]);
+
+  useEffect(() => {
+    if (signer) {
+      setHealthCheckArray([
+        { name: 'Health Check Successful', lastHealthCheck: signer.lastHealthCheck },
+      ]);
+    }
+  }, [signer]);
+
   if (!signer) {
     return null;
   }
@@ -262,7 +272,7 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
 
-  function VaultCardHeader() {
+  function VaultCardHeader({ signer }) {
     return (
       <Box style={styles.walletHeaderWrapper}>
         <Box style={styles.walletIconWrapper}>
@@ -275,10 +285,10 @@ function SigningDeviceDetails({ route }) {
         </Box>
         <Box style={styles.walletNameWrapper}>
           <Text color={`${colorMode}.textBlack`} style={styles.walletNameText}>
-            Coldcard
+            {signer.signerName}
           </Text>
           <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
-            StateBankLocker
+            {signer.signerDescription}
           </Text>
         </Box>
       </Box>
@@ -321,15 +331,16 @@ function SigningDeviceDetails({ route }) {
     },
   ];
 
+  console.log({ signer });
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box mb={-10}>
         <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
       </Box>
       <Box flexDirection={'row'} alignItems={'center'}>
-        {/* ------------ TODO Pratyaksh ---- add vault details------- */}
         <Box width={'80%'}>
-          <VaultCardHeader />
+          <VaultCardHeader signer={signer} />
         </Box>
         <Box width={'20%'}>
           <CurrencyTypeSwitch />
@@ -347,9 +358,9 @@ function SigningDeviceDetails({ route }) {
       </Box>
       <ScrollView contentContainerStyle={{ flex: 1 }}>
         <Box mx={5} mt={4}>
-          {/* <SigningDeviceChecklist signer={signer} /> */}
-          {/* -------TODO Pratyaksh------- */}
-          <SigningDeviceChecklist signer={signer} />
+          {healthCheckArray.map(() => (
+            <SigningDeviceChecklist signer={signer} />
+          ))}
         </Box>
       </ScrollView>
       <KeeperFooter items={footerItems} />
