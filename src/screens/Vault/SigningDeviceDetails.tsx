@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Box, Center, useColorMode } from 'native-base';
+import { Box, Center, HStack, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
@@ -43,6 +43,8 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
+import { Signer } from 'src/core/wallets/interfaces/vault';
+import moment from 'moment';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -272,7 +274,7 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
 
-  function VaultCardHeader({ signer }) {
+  function VaultCardHeader({ signer }: { signer: Signer }) {
     return (
       <Box style={styles.walletHeaderWrapper}>
         <Box style={styles.walletIconWrapper}>
@@ -287,9 +289,11 @@ function SigningDeviceDetails({ route }) {
           <Text color={`${colorMode}.textBlack`} style={styles.walletNameText}>
             {signer.signerName}
           </Text>
-          <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
-            {signer.signerDescription}
-          </Text>
+          <Text
+            color={`${colorMode}.textBlack`}
+            style={styles.walletDescText}
+            numberOfLines={1}
+          ></Text>
         </Box>
       </Box>
     );
@@ -343,29 +347,20 @@ function SigningDeviceDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box mb={-10}>
-        <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
-      </Box>
-      <Box flexDirection={'row'} alignItems={'center'}>
-        <Box width={'80%'}>
-          <VaultCardHeader signer={signer} />
-        </Box>
-        <Box width={'20%'}>
-          <CurrencyTypeSwitch />
-        </Box>
-      </Box>
-      <Box
-        style={{
-          flexDirection: 'row',
-          paddingHorizontal: '3%',
-        }}
-      >
-        <Box>
-          <Text style={{ fontSize: 13 }}>Recent History</Text>
-        </Box>
+      <KeeperHeader
+        learnMore
+        learnMorePressed={() => setDetailModal(true)}
+        title={signer.signerName}
+        subtitle={
+          signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+        }
+        icon={SDIcons(signer.type, true).Icon}
+      />
+      <Box>
+        <Text style={{ fontSize: 16, padding: '7%' }}>Recent History</Text>
       </Box>
       <ScrollView contentContainerStyle={{ flex: 1 }}>
-        <Box mx={5} mt={4}>
+        <Box mx={5}>
           {healthCheckArray.map(() => (
             <SigningDeviceChecklist signer={signer} />
           ))}

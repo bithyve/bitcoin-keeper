@@ -43,7 +43,6 @@ function SignerAdvanceSettings({ route }: any) {
   const { signer, vaultKey, vaultId }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } =
     route.params;
   const { showToast } = useToastMessage();
-  const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEamilModal] = useState(false);
   const [waningModal, setWarning] = useState(false);
@@ -73,7 +72,7 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey, vaultId }));
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
@@ -81,7 +80,7 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
-        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       default:
         showToast('Comming soon', null, 1000);
@@ -115,7 +114,7 @@ function SignerAdvanceSettings({ route }: any) {
             style={styles.walletIconView}
             backgroundColor={`${colorMode}.primaryGreenBackground`}
           >
-            <WalletInsideGreen />
+            {SDIcons(signer.type, true).Icon}
           </Box>
         </Box>
         <Box style={styles.walletNameWrapper}>
@@ -123,7 +122,7 @@ function SignerAdvanceSettings({ route }: any) {
             Advanced Settings
           </Text>
           <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
-            StateBankLocker
+            {`for ${signer.signerName}`}
           </Text>
         </Box>
       </Box>
@@ -222,8 +221,6 @@ function SignerAdvanceSettings({ route }: any) {
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
-  const { font12, font10, font14 } = globalStyles;
-
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
@@ -267,15 +264,15 @@ function SignerAdvanceSettings({ route }: any) {
         />
         <OptionCard
           title={'Manual Registration'}
-          description={`Register your active vault with the ${signerName}`}
+          description={`Register your active vault with the ${signer.signerName}`}
           callback={registerSigner}
         />
-        <OptionCard
+        {/* disabling this temporarily */}
+        {/* <OptionCard
           title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
           description="Identify your signer type for enhanced connectivity and communication"
           callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-        />
-
+        /> */}
         {isPolicyServer && (
           <OptionCard
             title="Change Verification & Policy"
@@ -291,7 +288,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
         {/* ---------TODO Pratyaksh--------- */}
-        <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} />
+        {/* <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} /> */}
       </ScrollView>
       <Box ml={2} style={{ marginVertical: 20 }}>
         Wallet used in
@@ -319,14 +316,12 @@ function SignerAdvanceSettings({ route }: any) {
           callback={() => {}}
         />
       </ScrollView>
-
-      {/* ---------------- Finger Print copy ---------- */}
       <TouchableOpacity
         activeOpacity={0.4}
         testID="btn_copy_address"
         onPress={() => {
-          Clipboard.setString('testing');
-          showToast(walletTranslation.addressCopied, <TickIcon />);
+          Clipboard.setString(signer.masterFingerprint);
+          showToast(walletTranslation.walletIdCopied, <TickIcon />);
         }}
         style={styles.inputContainer}
       >
@@ -334,7 +329,7 @@ function SignerAdvanceSettings({ route }: any) {
           <Box justifyContent={'center'} paddingLeft={2}>
             <Text fontSize={14}>Signer Fingerprint</Text>
             <Text width="80%" numberOfLines={1} color={`${colorMode}.GreenishGrey`}>
-              JWL7U89
+              {signer.masterFingerprint}
             </Text>
           </Box>
           <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
@@ -342,7 +337,6 @@ function SignerAdvanceSettings({ route }: any) {
           </Box>
         </Box>
       </TouchableOpacity>
-      {/* ------------------------------------------------------- */}
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}

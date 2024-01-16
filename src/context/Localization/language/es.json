@@ -380,7 +380,7 @@
     "receiveSubTitle": "Native segwit address",
     "receiveAddress": "Receive Address",
     "addressCopied": "Address Copied Successfully",
-    "walletIdCopied": "Wallet Fingerprint Copied Successfully",
+    "walletIdCopied": "Fingerprint Copied Successfully",
     "addSpecificInvoiceAmt": "Add a specific invoice amount",
     "addressReceiveDirectly": "You can get a receive address directly from a signer and do not have to trust the Keeper app",
     "editTransPolicyInfo": " This will trigger a transfer request which you need to approve",
