@@ -50,9 +50,11 @@ const VaultSetup = () => {
     vaultId,
   } = (params as { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string }) || {};
   const dispatch = useDispatch();
-  const [vaultName, setVaultName] = useState('Vault');
-  const [vaultDescription, setVaultDescription] = useState('');
   const { activeVault } = useVault({ vaultId });
+  const [vaultName, setVaultName] = useState(activeVault?.presentationData?.name || 'Vault');
+  const [vaultDescription, setVaultDescription] = useState(
+    activeVault?.presentationData?.description || 'Secure your sats'
+  );
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
 
   const onDecreaseM = () => {
