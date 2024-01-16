@@ -42,7 +42,6 @@ function SignerAdvanceSettings({ route }: any) {
     route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
-
   const [visible, setVisible] = useState(false);
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
@@ -149,8 +148,7 @@ function SignerAdvanceSettings({ route }: any) {
         name: 'AssignSignerType',
         params: {
           parentNavigation: navigation,
-          signer,
-          vaultId,
+          vault: activeVault,
         },
       })
     );
