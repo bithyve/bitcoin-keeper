@@ -26,8 +26,7 @@ const useConfigRecovery = () => {
   useEffect(() => {
     if (scheme && signersList.length > 1 && vaultSignersList.length > 1) {
       try {
-        dispatch(addSigningDevice(signersList, null, true));
-        console.log(vaultSignersList[0], signersList[0]);
+        dispatch(addSigningDevice(signersList));
         const vaultInfo: NewVaultInfo = {
           vaultType: VaultType.DEFAULT,
           vaultScheme: scheme,

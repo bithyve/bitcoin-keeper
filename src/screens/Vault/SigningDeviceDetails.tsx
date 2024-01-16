@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import moment from 'moment';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
@@ -42,13 +40,9 @@ import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-
-const signerArray = [
-  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
-  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
-  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
-  { name: 'Health Check Successful', lastHealthCheck: '2024-01-05T01:22:44.058Z' },
-];
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import IdentifySignerModal from './components/IdentifySignerModal';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -212,12 +206,21 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
 
+  const [healthCheckArray, setHealthCheckArray] = useState([]);
+
+  useEffect(() => {
+    if (signer) {
+      setHealthCheckArray([
+        { name: 'Health Check Successful', lastHealthCheck: signer.lastHealthCheck },
+      ]);
+    }
+  }, [signer]);
+
   if (!signer) {
     return null;
   }
 
   const { title, subTitle, assert, description, FAQ } = getSignerContent(signer?.type);
-  const { Icon } = SDIcons(signer?.type, true);
 
   function SignerContent() {
     return (
@@ -255,7 +258,6 @@ function SigningDeviceDetails({ route }) {
     return (
       <Box
         margin="1"
-        marginBottom="3"
         width="12"
         height="12"
         borderRadius={30}
@@ -270,7 +272,7 @@ function SigningDeviceDetails({ route }) {
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
 
-  function VaultCardHeader() {
+  function VaultCardHeader({ signer }) {
     return (
       <Box style={styles.walletHeaderWrapper}>
         <Box style={styles.walletIconWrapper}>
@@ -283,10 +285,10 @@ function SigningDeviceDetails({ route }) {
         </Box>
         <Box style={styles.walletNameWrapper}>
           <Text color={`${colorMode}.textBlack`} style={styles.walletNameText}>
-            Coldcard
+            {signer.signerName}
           </Text>
           <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
-            StateBankLocker
+            {signer.signerDescription}
           </Text>
         </Box>
       </Box>
@@ -310,7 +312,11 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={Change} />,
       onPress: () =>
         navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          CommonActions.navigate({
+            name: 'AddSigningDevice',
+            merge: true,
+            params: { vaultId, scheme: activeVault.scheme },
+          })
         ),
     },
 
@@ -325,15 +331,16 @@ function SigningDeviceDetails({ route }) {
     },
   ];
 
+  console.log({ signer });
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box mb={-10}>
         <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
       </Box>
       <Box flexDirection={'row'} alignItems={'center'}>
-        {/* ------------ TODO Pratyaksh ---- add vault details------- */}
         <Box width={'80%'}>
-          <VaultCardHeader />
+          <VaultCardHeader signer={signer} />
         </Box>
         <Box width={'20%'}>
           <CurrencyTypeSwitch />
@@ -349,79 +356,68 @@ function SigningDeviceDetails({ route }) {
           <Text style={{ fontSize: 13 }}>Recent History</Text>
         </Box>
       </Box>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ flex: 1 }}>
         <Box mx={5} mt={4}>
-          {/* <SigningDeviceChecklist signer={signer} /> */}
-          {/* -------TODO Pratyaksh------- */}
-          {signerArray.map(() => (
+          {healthCheckArray.map(() => (
             <SigningDeviceChecklist signer={signer} />
           ))}
         </Box>
       </ScrollView>
-      <Box
-        position="absolute"
-        bottom={0}
-        alignItems="center"
-        justifyContent="center"
-        width={windowWidth}
-        height={hp(188)}
-        backgroundColor={`${colorMode}.primaryBackground`}
-      >
-        <KeeperFooter items={footerItems} />
-        <HardwareModalMap
-          type={signer?.type}
-          visible={visible}
-          close={() => setVisible(false)}
-          signer={signer}
-          skipHealthCheckCallBack={() => {
-            setVisible(false);
-            setSkipHealthCheckModalVisible(true);
-          }}
-          mode={InteracationMode.HEALTH_CHECK}
-          vaultShellId={activeVault.shellId}
-          isMultisig={activeVault.isMultiSig}
-          primaryMnemonic={primaryMnemonic}
-          vaultId={vaultId}
-        />
-        <KeeperModal
-          visible={skipHealthCheckModalVisible}
-          close={() => setSkipHealthCheckModalVisible(false)}
-          title="Skipping Health Check"
-          subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
-          buttonText="Do Later"
-          secondaryButtonText="Confirm Access"
-          buttonTextColor="light.white"
-          buttonCallback={() => setSkipHealthCheckModalVisible(false)}
-          secondaryCallback={() => {
-            dispatch(healthCheckSigner([signer]));
-            showToast('Device verified manually!');
-            setSkipHealthCheckModalVisible(false);
-          }}
-          textColor="light.primaryText"
-          Content={HealthCheckSkipContent}
-        />
-        <KeeperModal
-          visible={detailModal}
-          close={() => setDetailModal(false)}
-          title={title}
-          subTitle={subTitle}
-          modalBackground={`${colorMode}.modalGreenBackground`}
-          textColor="light.white"
-          learnMoreCallback={() => openLink(FAQ)}
-          Content={SignerContent}
-          DarkCloseIcon
-          learnMore
-        />
-        <IdentifySignerModal
-          visible={identifySigner && identifySignerModal}
-          close={() => setIdentifySignerModal(false)}
-          signer={signer}
-          secondaryCallback={() => {
-            setVisible(true);
-          }}
-          vaultId={vaultId}
-        />
-      </Box>
+      <KeeperFooter items={footerItems} />
+      <HardwareModalMap
+        type={signer?.type}
+        visible={visible}
+        close={() => setVisible(false)}
+        signer={signer}
+        skipHealthCheckCallBack={() => {
+          setVisible(false);
+          setSkipHealthCheckModalVisible(true);
+        }}
+        mode={InteracationMode.HEALTH_CHECK}
+        vaultShellId={activeVault.shellId}
+        isMultisig={activeVault.isMultiSig}
+        primaryMnemonic={primaryMnemonic}
+        vaultId={vaultId}
+        addSignerFlow={false}
+      />
+      <KeeperModal
+        visible={skipHealthCheckModalVisible}
+        close={() => setSkipHealthCheckModalVisible(false)}
+        title="Skipping Health Check"
+        subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
+        buttonText="Do Later"
+        secondaryButtonText="Confirm Access"
+        buttonTextColor="light.white"
+        buttonCallback={() => setSkipHealthCheckModalVisible(false)}
+        secondaryCallback={() => {
+          dispatch(healthCheckSigner([signer]));
+          showToast('Device verified manually!');
+          setSkipHealthCheckModalVisible(false);
+        }}
+        textColor="light.primaryText"
+        Content={HealthCheckSkipContent}
+      />
+      <KeeperModal
+        visible={detailModal}
+        close={() => setDetailModal(false)}
+        title={title}
+        subTitle={subTitle}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor="light.white"
+        learnMoreCallback={() => openLink(FAQ)}
+        Content={SignerContent}
+        DarkCloseIcon
+        learnMore
+      />
+      <IdentifySignerModal
+        visible={identifySigner && identifySignerModal}
+        close={() => setIdentifySignerModal(false)}
+        signer={signer}
+        secondaryCallback={() => {
+          setVisible(true);
+        }}
+        vaultId={vaultId}
+      />
     </ScreenWrapper>
   );
 }

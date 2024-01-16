@@ -7,7 +7,6 @@ import Fonts from 'src/constants/Fonts';
 
 function UAIView({
   title,
-  subTitle,
   primaryCallbackText,
   primaryCallback,
   secondaryCallbackText,
@@ -20,9 +19,6 @@ function UAIView({
         <Text style={styles.uaiTitleText} color={`${colorMode}.GreenishGrey`}>
           {title}
         </Text>
-        {/* <Text numberOfLines={2} style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
-          {subTitle}
-        </Text> */}
       </Box>
       <TouchableOpacity
         style={styles.skipWrapper}

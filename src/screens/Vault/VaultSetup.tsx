@@ -59,6 +59,8 @@ function VaultSetup() {
     activeVault?.presentationData?.description || 'Secure your sats'
   );
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
 
   const onDecreaseM = () => {
     if (scheme.m > 1) {

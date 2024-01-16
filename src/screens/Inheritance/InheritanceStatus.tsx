@@ -18,7 +18,6 @@ import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
-// import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';

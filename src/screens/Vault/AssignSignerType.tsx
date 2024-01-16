@@ -5,13 +5,11 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
-import { useDispatch } from 'react-redux';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
-import useVault from 'src/hooks/useVault';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
@@ -58,9 +56,7 @@ function AssignSignerType({ route }: IProps) {
   ];
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
-  const {
-    activeVault: { signers, scheme },
-  } = useVault({ vaultId });
+  const { scheme } = vault;
 
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
   const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
@@ -147,13 +143,13 @@ function AssignSignerType({ route }: IProps) {
           vaultSigners={vault.signers}
           skipHealthCheckCallBack={() => {
             setVisible(false);
-            // setSkipHealthCheckModalVisible(true);
           }}
           mode={InteracationMode.IDENTIFICATION}
           vaultShellId={vault?.shellId}
           isMultisig={vault?.isMultiSig}
           primaryMnemonic={primaryMnemonic}
           addSignerFlow={false}
+          vaultId={vault.id}
         />
       </ScrollView>
     </ScreenWrapper>

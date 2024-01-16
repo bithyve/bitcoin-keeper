@@ -1,4 +1,4 @@
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import { NewVaultInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas

@@ -135,14 +135,6 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
             navigtaion.navigate('VaultDetails', { vaultId: activeVault.id });
           },
         };
-      case uaiType.VAULT_MIGRATION:
-        return {
-          cta: () => {
-            navigtaion.dispatch(
-              CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-            );
-          },
-        };
       case uaiType.IKS_REQUEST:
         return {
           modalDetails: {
