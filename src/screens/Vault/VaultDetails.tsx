@@ -396,7 +396,7 @@ function SignerList({ vault }: { vault: Vault }) {
         }}
         secondaryButtonText="Skip"
         secondaryCallback={() => setUnkonwnSignerHcModal(false)}
-      ></KeeperModal>
+      />
     </ScrollView>
   );
 }

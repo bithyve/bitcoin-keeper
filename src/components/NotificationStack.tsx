@@ -206,7 +206,6 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
         <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
           <UAIView
             title={info?.title}
-            // subTitle={info?.title}
             primaryCallbackText="ADD NOW"
             secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
             secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
