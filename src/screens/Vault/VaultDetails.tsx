@@ -558,7 +558,7 @@ function VaultDetails({ navigation }) {
             </Box>
             <Box style={styles.titleWrapper}>
               <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.pantoneGreen`}>
-                {vaultTranslation.addEmail}
+                {vaultTranslation.addEmailPhone}
               </Text>
               <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
                 {vaultTranslation.addEmailVaultDetail}
