@@ -257,7 +257,7 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage, subscription, UTXOinfos, labels } = yield call(
+    const { appImage, subscription, UTXOinfos, vaultImage, labels, allVaultImages } = yield call(
       Relay.getAppImage,
       appID
     );
@@ -285,7 +285,7 @@ function* getAppImageWorker({ payload }) {
           appID,
           subscription,
           appImage,
-          vaultImage,
+          allVaultImages,
           UTXOinfos,
           labels,
           previousVersion
@@ -306,7 +306,7 @@ function* getAppImageWorker({ payload }) {
           appID,
           plebSubscription,
           appImage,
-          vaultImage,
+          allVaultImages,
           UTXOinfos,
           labels,
           previousVersion
@@ -329,7 +329,7 @@ function* recoverApp(
   appID,
   subscription,
   appImage,
-  vaultImage,
+  allVaultImages,
   UTXOinfos,
   labels,
   previousVersion
@@ -427,66 +427,68 @@ function* recoverApp(
   }
 
   // Vault recreation
-  if (vaultImage) {
-    const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
-    console.log({ previousVersion });
-    if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
-      if (vault?.signers?.length) {
-        vault.signers.forEach((signer, index) => {
-          signer.xfp = signer.signerId;
-          signer.registeredVaults = [
-            {
-              vaultId: vault.id,
-              registered: signer.registered,
-              registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
-            },
-          ];
-        });
-      }
+  if (allvaultImages.length > 0) {
+    for (const vaultImage of allVaultImages) {
+      const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
 
-      if (vault.signers.length) {
-        for (const signer of vault.signers) {
-          const signerXpubs = {};
-          Object.keys(signer.xpubDetails).forEach((type) => {
-            if (signer.xpubDetails[type].xpub) {
-              if (signerXpubs[type]) {
-                signerXpubs[type].push({
-                  xpub: signer.xpubDetails[type].xpub,
-                  xpriv: signer.xpubDetails[type].xpriv,
-                  derivationPath: signer.xpubDetails[type].derivationPath,
-                });
-              } else {
-                signerXpubs[type] = [
-                  {
+      if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
+        if (vault?.signers?.length) {
+          vault.signers.forEach((signer, index) => {
+            signer.xfp = signer.signerId;
+            signer.registeredVaults = [
+              {
+                vaultId: vault.id,
+                registered: signer.registered,
+                registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
+              },
+            ];
+          });
+        }
+
+        if (vault.signers.length) {
+          for (const signer of vault.signers) {
+            const signerXpubs = {};
+            Object.keys(signer.xpubDetails).forEach((type) => {
+              if (signer.xpubDetails[type].xpub) {
+                if (signerXpubs[type]) {
+                  signerXpubs[type].push({
                     xpub: signer.xpubDetails[type].xpub,
                     xpriv: signer.xpubDetails[type].xpriv,
                     derivationPath: signer.xpubDetails[type].derivationPath,
-                  },
-                ];
+                  });
+                } else {
+                  signerXpubs[type] = [
+                    {
+                      xpub: signer.xpubDetails[type].xpub,
+                      xpriv: signer.xpubDetails[type].xpriv,
+                      derivationPath: signer.xpubDetails[type].derivationPath,
+                    },
+                  ];
+                }
               }
-            }
-          });
-          const signerObject = {
-            masterFingerprint: signer.masterFingerprint,
-            type: signer.type,
-            signerName: signer.signerName,
-            signerDescription: signer.signerDescription,
-            lastHealthCheck: signer.lastHealthCheck,
-            addedOn: signer.addedOn,
-            isMock: signer.isMock,
-            storageType: signer.storageType,
-            signerPolicy: signer.signerPolicy,
-            inheritanceKeyInfo: signer.inheritanceKeyInfo,
-            hidden: false,
-            signerXpubs,
-          };
-          yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+            });
+            const signerObject = {
+              masterFingerprint: signer.masterFingerprint,
+              type: signer.type,
+              signerName: signer.signerName,
+              signerDescription: signer.signerDescription,
+              lastHealthCheck: signer.lastHealthCheck,
+              addedOn: signer.addedOn,
+              isMock: signer.isMock,
+              storageType: signer.storageType,
+              signerPolicy: signer.signerPolicy,
+              inheritanceKeyInfo: signer.inheritanceKeyInfo,
+              hidden: false,
+              signerXpubs,
+            };
+            yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+          }
         }
-      }
 
+        yield call(dbManager.createObject, RealmSchema.Vault, vault);
+      }
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
     }
-    yield call(dbManager.createObject, RealmSchema.Vault, vault);
   }
 
   // UTXOinfo restore
