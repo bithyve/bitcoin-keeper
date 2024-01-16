@@ -21,6 +21,7 @@ import Switch from 'src/components/Switch/Switch';
 import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
@@ -46,6 +47,7 @@ function AppSettings({ navigation }) {
         learnBackgroundColor="light.RussetBrown"
         learnTextColor="light.white"
         icon={<SettingsIcon />}
+        rightComponent={<CurrencyTypeSwitch />}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

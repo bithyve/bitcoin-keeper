@@ -159,11 +159,14 @@ function PrivacyAndDisplay({ navigation }) {
               }
             />
           </Box>
-          <OptionCard
+          {/*
+            TODO: missing functionality
+            */}
+          {/* <OptionCard
             title={settings.changePasscode}
             description={settings.changePasscodeDescription}
             callback={() => navigation.navigate('NodeSettings')}
-          />
+          /> */}
         </Box>
       </ScrollView>
       <Box style={styles.note}>
