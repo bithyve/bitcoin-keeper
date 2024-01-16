@@ -9,6 +9,7 @@ import {
   VaultType,
   VisibilityType,
   WalletType,
+  XpubTypes,
 } from 'src/core/wallets/enums';
 import {
   InheritanceConfiguration,
@@ -596,7 +597,32 @@ export function* addNewVaultWorker({
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
 function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
-  if (signers.length > 0) {
+  if (!!signers.length) {
+    const signerMap = {};
+    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    existingSigners.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+
+    // not letting user added multiple accounts for the same signer yet
+    for (const newSigner of signers) {
+      const existingSigner = signerMap[newSigner.masterFingerprint];
+      if (existingSigner) {
+        // TO-DO: we're not YET supporting multiple keys (accounts) for the same script type
+        if (
+          (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
+            existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
+          (newSigner.signerXpubs[XpubTypes.P2WPKH].length &&
+            existingSigner.signerXpubs[XpubTypes.P2WSH].length)
+        ) {
+          yield put(
+            relaySignersUpdateFail(
+              'A different account has already been added. Please use the existing for this signer.'
+            )
+          );
+          return false;
+        }
+      }
+    }
+
     yield put(setRelaySignersUpdateLoading(true));
     const response = yield call(updateAppImageWorker, { payload: { signers } });
     if (response.updated) {

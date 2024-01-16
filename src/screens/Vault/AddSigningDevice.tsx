@@ -69,14 +69,24 @@ function AddSigningDevice() {
 
   useEffect(() => {
     if (activeVault) {
+      // setting initital keys (update if scheme has changed)
       const vaultKeys = activeVault.signers;
-      setVaultKeys(vaultKeys);
+      const isMultisig = scheme.n > 1;
+      const modifiedVaultKeysForScriptType = [];
       const updatedSignerMap = new Map();
       vaultKeys.forEach((key) => {
-        if (isSignerValidForScheme(signerMap[key.masterFingerprint])) {
+        const signer = signerMap[key.masterFingerprint];
+        if (isSignerValidForScheme(signer)) {
           updatedSignerMap.set(key.masterFingerprint, true);
+          const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
+          const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
+          const scriptKey = getKeyForScheme(signer.isMock, isMultisig, signer, msXpub, ssXpub);
+          if (scriptKey) {
+            modifiedVaultKeysForScriptType.push(scriptKey);
+          }
         }
       });
+      setVaultKeys(modifiedVaultKeysForScriptType);
       setSelectedSigners(new Map(updatedSignerMap));
     }
   }, []);
@@ -111,6 +121,28 @@ function AddSigningDevice() {
     }
   }
 
+  const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub) => {
+    if (isMock || isMultisig) {
+      return {
+        ...msXpub,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: WalletUtilities.getFingerprintFromExtendedKey(
+          msXpub.xpub,
+          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+    } else {
+      return {
+        ...ssXpub,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: WalletUtilities.getFingerprintFromExtendedKey(
+          ssXpub.xpub,
+          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+    }
+  };
+
   const onSignerSelect = (selected, signer: Signer) => {
     const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
     const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
@@ -143,27 +175,9 @@ function AddSigningDevice() {
         );
         return;
       }
-      if (isMock || isMultisig) {
-        vaultKeys.push({
-          ...msXpub,
-          masterFingerprint: signer.masterFingerprint,
-          xfp: WalletUtilities.getFingerprintFromExtendedKey(
-            msXpub.xpub,
-            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-          ),
-        });
-        setVaultKeys(vaultKeys);
-      } else {
-        vaultKeys.push({
-          ...ssXpub,
-          masterFingerprint: signer.masterFingerprint,
-          xfp: WalletUtilities.getFingerprintFromExtendedKey(
-            ssXpub.xpub,
-            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-          ),
-        });
-        setVaultKeys(vaultKeys);
-      }
+      const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub);
+      vaultKeys.push(scriptKey);
+      setVaultKeys(vaultKeys);
       const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
       setSelectedSigners(new Map(updatedSignerMap));
     }
