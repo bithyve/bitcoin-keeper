@@ -132,17 +132,6 @@ function LoginStack() {
         component={NewKeeperApp}
       />
 
-      {/* <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="VaultRecoveryAddSigner"
-        component={VaultRecovery}
-      />
-      <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
-      <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
-      <Stack.Screen name="SigningDeviceListRecovery" component={SigningDeviceListRecovery} />
-      <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
-      <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} /> */}
-
       {/* Cold Card */}
       <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
       {/* Tap Signer  */}
