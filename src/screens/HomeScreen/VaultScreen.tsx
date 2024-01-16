@@ -33,7 +33,7 @@ function VaultScreen({ route }) {
   const { vault } = translations;
 
   const navigateToHardwareSetup = () => {
-    navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
+    navigation.dispatch(CommonActions.navigate({ name: 'VaultCreationOptions' }));
   };
 
   const onVaultPress = () => {

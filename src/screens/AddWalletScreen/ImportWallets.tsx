@@ -12,19 +12,19 @@ function ImportWallets({ navigation }) {
         title="Watch Only"
         description="Use external xPub"
         LeftIcon={<WatchOnlyIcon />}
-        callback={() => navigation.navigate('NodeSettings')}
+        callback={() => navigation.navigate('ImportWallet')}
       />
       <OptionCard
         title="Vault Configuration File"
         description="Text in your Recovery Instructions (Inheritance)"
         LeftIcon={<ConfigurationIcon />}
-        callback={() => navigation.navigate('NodeSettings')}
+        callback={() => navigation.navigate('VaultConfigurationCreation')}
       />
       <OptionCard
         title="Signers with Vault details"
         description="Signers registered with the Vault"
         LeftIcon={<SignerIcon />}
-        callback={() => navigation.navigate('NodeSettings')}
+        callback={() => navigation.navigate('SigningDeviceConfigRecovery')}
       />
     </Box>
   );

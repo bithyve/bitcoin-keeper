@@ -1,5 +1,5 @@
 import { Box, ScrollView, View } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -15,6 +15,7 @@ import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
   switch (type) {
@@ -156,10 +157,12 @@ function SigningDeviceConfigRecovery({ navigation }) {
           buttonText="Proceed"
           buttonTextColor="light.white"
           buttonCallback={() => {
-            navigate('LoginStack', {
-              screen: 'ColdCardReocvery',
-              params: { isConfigRecovery: true },
-            });
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddColdCard',
+                params: { mode: InteracationMode.CONFIG_RECOVERY },
+              })
+            );
             close();
           }}
           textColor="light.primaryText"
@@ -193,7 +196,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
       <KeeperHeader
         title="Select Signing Device"
         subtitle="To recover your Vault"
-        onPressHandler={() => navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' })}
+        onPressHandler={() => navigation.goBack()}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">

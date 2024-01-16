@@ -26,6 +26,11 @@ export const extractColdCardExport = (data, isMultisig) => {
   return { xpub, derivationPath, masterFingerprint: data.xfp, xpubDetails };
 };
 
+export const getConfigDetails = async () => {
+  const { data } = (await NFC.read(NfcTech.NfcV))[0];
+  return data;
+};
+
 export const getColdcardDetails = async (isMultisig: boolean) => {
   try {
     const { data } = (await NFC.read(NfcTech.NfcV))[0];

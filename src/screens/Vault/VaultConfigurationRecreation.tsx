@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
-function VaultConfigurationRecovery() {
+function VaultConfigurationCreation() {
   const [inputText, setInputText] = useState('');
   const { recoveryLoading, initateRecovery } = useConfigRecovery();
   const { navigate } = useNavigation();
@@ -45,16 +45,14 @@ function VaultConfigurationRecovery() {
                 title="Scan or Import a file"
                 subTitle="From your phone"
                 onPress={() => {
-                  navigate('LoginStack', {
-                    screen: 'ScanQRFileRecovery',
-                  });
+                  navigate('ScanQRFileRecovery');
                 }}
               />
             </Box>
             <Buttons
               primaryCallback={() => initateRecovery(inputText)}
-              primaryText="Recover"
-              primaryLoading={recoveryLoading}
+              primaryText="Create Vault"
+              // primaryLoading={recoveryLoading}
             />
           </Box>
         </View>
@@ -63,7 +61,7 @@ function VaultConfigurationRecovery() {
   );
 }
 
-export default VaultConfigurationRecovery;
+export default VaultConfigurationCreation;
 
 const styles = StyleSheet.create({
   wrapper: {

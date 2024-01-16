@@ -22,6 +22,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import { globalStyles } from 'src/constants/globalStyles';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 let decoder = new URRegistryDecoder();
 
@@ -37,7 +38,7 @@ function ScanQR() {
     onQrScan = () => {},
     setup = false,
     type,
-    isHealthcheck = false,
+    mode,
     signer,
     disableMockFlow = false,
     addSignerFlow = false,
@@ -57,7 +58,7 @@ function ScanQR() {
 
   useEffect(() => {
     if (qrData) {
-      if (isHealthcheck) {
+      if (mode === InteracationMode.HEALTH_CHECK) {
         onQrScan(qrData, resetQR, signer);
       } else {
         onQrScan(qrData, resetQR);
@@ -118,6 +119,8 @@ function ScanQR() {
         signerType={type}
         enable={setup && type && !disableMockFlow}
         addSignerFlow={addSignerFlow}
+        signerXfp={signer?.masterFingerprint}
+        mode={mode}
       >
         <KeeperHeader title={title} subtitle={subtitle} />
         <VStack style={globalStyles.centerColumn}>
