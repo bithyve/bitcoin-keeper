@@ -51,8 +51,6 @@ function VaultSetup() {
     vaultId,
   } = (params as { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string }) || {};
   const dispatch = useDispatch();
-  const { translations } = useContext(LocalizationContext);
-  const { vault } = translations;
   const { activeVault } = useVault({ vaultId });
   const [vaultName, setVaultName] = useState(activeVault?.presentationData?.name || 'Vault');
   const [vaultDescription, setVaultDescription] = useState(
