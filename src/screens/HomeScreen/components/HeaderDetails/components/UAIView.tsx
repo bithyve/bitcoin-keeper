@@ -6,7 +6,6 @@ import { hp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
 
 function UAIView({
-  title,
   subTitle,
   primaryCallbackText,
   primaryCallback,
@@ -17,9 +16,9 @@ function UAIView({
   return (
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiTitleText} color={`${colorMode}.primaryText`}>
+        {/* <Text style={styles.uaiTitleText} color={`${colorMode}.primaryText`}>
           {title}
-        </Text>
+        </Text> */}
         <Text numberOfLines={2} style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
           {subTitle}
         </Text>
