@@ -31,7 +31,7 @@ function AdvancedWallets({ navigation }) {
         title="Custom Multi-sig"
         description="Build your own"
         LeftIcon={<VaultGreenIcon />}
-        callback={() => navigateToVaultSetup({ m: 3, n: 6 })}
+        callback={() => navigateToVaultSetup()}
       />
     </Box>
   );

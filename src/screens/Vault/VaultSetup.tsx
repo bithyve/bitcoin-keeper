@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, HStack, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
-
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -14,6 +13,7 @@ import { setVaultRecoveryDetails } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
+import useVault from 'src/hooks/useVault';
 
 const NumberInput = ({ value, onDecrease, onIncrease }) => {
   const { colorMode } = useColorMode();
@@ -44,12 +44,17 @@ const VaultSetup = () => {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { params } = useRoute();
-  const { isRecreation, scheme: preDefinedScheme = { m: 2, n: 3 } } =
-    (params as { isRecreation: Boolean; scheme: VaultScheme }) || {};
+  const {
+    isRecreation,
+    scheme: preDefinedScheme,
+    vaultId,
+  } = (params as { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string }) || {};
   const dispatch = useDispatch();
   const [vaultName, setVaultName] = useState('Vault');
   const [vaultDescription, setVaultDescription] = useState('');
-  const [scheme, setScheme] = useState(preDefinedScheme);
+  const { activeVault } = useVault({ vaultId });
+  const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
+
   const onDecreaseM = () => {
     if (scheme.m > 1) {
       setScheme({ ...scheme, m: scheme.m - 1 });
@@ -85,7 +90,7 @@ const VaultSetup = () => {
         navigation.dispatch(
           CommonActions.navigate({
             name: 'AddSigningDevice',
-            params: { scheme, name: vaultName, description: vaultDescription },
+            params: { scheme, name: vaultName, description: vaultDescription, vaultId },
           })
         );
       }

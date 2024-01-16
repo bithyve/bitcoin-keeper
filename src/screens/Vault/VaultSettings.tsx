@@ -98,7 +98,9 @@ function VaultSettings({ route }) {
           title="Update scheme"
           description="Update your vault configuration and transfer funds"
           callback={() => {
-            navigation.dispatch(CommonActions.navigate('VaultSetup'));
+            navigation.dispatch(
+              CommonActions.navigate({ name: 'VaultSetup', params: { vaultId } })
+            );
           }}
         />
       </ScrollView>
