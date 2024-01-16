@@ -26,7 +26,7 @@ function WalletInfoCard({
   return (
     <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.walletContainer}>
       <Box style={styles.pillsContainer}>
-        {tags.map((tag, index) => {
+        {tags?.map((tag, index) => {
           return (
             <CardPill
               key={tag}
