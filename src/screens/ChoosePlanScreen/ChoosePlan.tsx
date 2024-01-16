@@ -32,10 +32,11 @@ import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 import { useQuery } from '@realm/react';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 function ChoosePlan() {
   const route = useRoute();
+  const navigation = useNavigation();
   const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
@@ -55,6 +56,8 @@ function ChoosePlan() {
   const [isMonthly, setIsMonthly] = useState(true);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
+  const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
+
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
       processPurchase(purchase);
@@ -79,13 +82,14 @@ function ChoosePlan() {
   }, []);
 
   async function init() {
+    let data = [];
     try {
       const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
       if (getPlansResponse.plans) {
+        data = getPlansResponse.plans;
         const skus = [];
         getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
-        const data = getPlansResponse.plans;
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
           const monthlyPlans = [];
@@ -115,8 +119,9 @@ function ChoosePlan() {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
-                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${
+                subscription.introductoryPriceNumberOfPeriodsIOS
+              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -132,6 +137,15 @@ function ChoosePlan() {
       }
     } catch (error) {
       console.log('error', error);
+      if (error.message.includes('Billing is unavailable.')) {
+        setItems(data);
+        setLoading(false);
+        showToast(error.message);
+        setIsServiceUnavailible(true);
+      } else {
+        navigation.goBack();
+        showToast(error.message);
+      }
     }
   }
 
@@ -158,7 +172,7 @@ function ChoosePlan() {
       } else if (response.error) {
         showToast(response.error);
       }
-      await RNIap.finishTransaction({ purchase, isConsumable: false });
+      if (receipt) await RNIap.finishTransaction({ purchase, isConsumable: false });
     } catch (error) {
       setRequesting(false);
       console.log(error);
@@ -236,7 +250,7 @@ function ChoosePlan() {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => { },
+              onPress: () => {},
               style: 'cancel',
             },
             {
@@ -246,6 +260,12 @@ function ChoosePlan() {
           ]);
         }
       } else {
+        if (isServiceUnavailible) {
+          showToast(
+            'It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon'
+          );
+          return;
+        }
         setRequesting(true);
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
         const sku = plan.productId;
@@ -291,8 +311,9 @@ function ChoosePlan() {
       }
     }
     if (trial) {
-      return `Start your ${trial} FREE trial now! Then ${amount} per ${isMonthly ? 'month' : 'year'
-        }, cancel anytime`;
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${
+        isMonthly ? 'month' : 'year'
+      }, cancel anytime`;
     } else {
       return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
     }
@@ -348,7 +369,9 @@ function ChoosePlan() {
           // subscription.name === 'Diamond Hands'
           //   ? `You are currently a ${subscription.name}`
           //   : `You are currently a ${subscription.name}`
-          `The subscription will be \nconfirmed on the ${Platform.OS === 'android' ? 'Play' : 'App'} Store`
+          `The subscription will be \nconfirmed on the ${
+            Platform.OS === 'android' ? 'Play' : 'App'
+          } Store`
         }
         rightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
@@ -356,7 +379,7 @@ function ChoosePlan() {
       />
       <KeeperModal
         visible={requesting}
-        close={() => { }}
+        close={() => {}}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -365,7 +388,7 @@ function ChoosePlan() {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => { }}
+        buttonCallback={() => {}}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
