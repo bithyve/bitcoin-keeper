@@ -12,33 +12,28 @@ function SigningDeviceChecklist({ signer }: { signer: Signer }) {
       {signer && (
         <Box
           padding={1}
-          borderLeftColor={`${colorMode}.lightAccent`}
+          borderLeftColor={`${colorMode}.RussetBrownLight`}
           borderLeftWidth={1}
           width="100%"
           position="relative"
+          borderLeftStyle="dashed"
         >
           <Box
             zIndex={99}
             position="absolute"
             left={-8}
-            backgroundColor={`${colorMode}.secondaryBackground`}
+            backgroundColor={`${colorMode}.RussetBrownLight`}
             padding={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
+            <DotView height={2} width={2} color={`${colorMode}.RussetBrown`} />
           </Box>
-          <Text color={`${colorMode}.GreyText`} fontSize={10} bold ml={5} opacity={0.7}>
+          <Text color={`${colorMode}.GreenishGrey`} fontSize={12} bold ml={5} opacity={0.7}>
+            Health Check Successful
+          </Text>
+          <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
             {moment(signer?.lastHealthCheck).calendar()}
           </Text>
-          <Box
-            backgroundColor={`${colorMode}.seashellWhite`}
-            padding={5}
-            borderRadius={10}
-            my={2}
-            ml={5}
-          >
-            <Text letterSpacing={0.96}>Health Check Successful</Text>
-          </Box>
         </Box>
       )}
     </Box>
