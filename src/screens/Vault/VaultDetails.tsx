@@ -28,7 +28,7 @@ import { useDispatch } from 'react-redux';
 import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
-import AddPhoneEmailIcon from 'src/assets/images/AddPhoneEmail.svg';
+import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
@@ -529,15 +529,25 @@ function VaultDetails({ navigation }) {
     () => (
       <Box>
         <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
-          {vaultTranslation.sendVaultSignDevices}
+          Your 3-of-6 vault has been setup successfully. You can start receiving/transfering bitcoin
+        </Text>
+        <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
+          For sending bitcoin out of the vault you will need the signers{' '}
+        </Text>
+        <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
+          This means no one can steal your sats from the vault unless they also have access to your
+          signers{' '}
         </Text>
         <Box alignItems="center">
+          {' '}
           <Success />
         </Box>
         {inheritanceSigner && (
           <Pressable
-            style={styles.addPhoneEmailWrapper}
-            backgroundColor={`${colorMode}.primaryBackground`}
+            padding={5}
+            backgroundColor={`${colorMode}.pantoneGreenLight`}
+            borderColor={`${colorMode}.pantoneGreen`}
+            style={[styles.addPhoneEmailWrapper]}
             onPress={() => {
               navigation.navigate('IKSAddEmailPhone', { vaultId });
               setVaultCreated(false);
@@ -547,15 +557,12 @@ function VaultDetails({ navigation }) {
               <AddPhoneEmailIcon />
             </Box>
             <Box style={styles.titleWrapper}>
-              <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.primaryText`}>
-                {vaultTranslation.addEmail}
+              <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.pantoneGreen`}>
+                {vaultTranslation.addEmailPhone}
               </Text>
-              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.secondaryText`}>
-                {vaultTranslation.addEmailDetails}
+              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
+                {vaultTranslation.addEmailVaultDetail}
               </Text>
-            </Box>
-            <Box style={styles.rightIconWrapper}>
-              <RightArrowIcon />
             </Box>
           </Pressable>
         )}
@@ -625,7 +632,7 @@ function VaultDetails({ navigation }) {
         visible={vaultCreated}
         title={vaultTranslation.newVaultCreated}
         subTitle={subtitle}
-        buttonText={vaultTranslation.ViewVault}
+        buttonText={'Confirm'}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
@@ -633,6 +640,8 @@ function VaultDetails({ navigation }) {
         buttonCallback={() => {
           setVaultCreated(false);
         }}
+        secondaryButtonText={'Cancel'}
+        secondaryCallback={() => setVaultCreated(false)}
         close={() => setVaultCreated(false)}
         Content={NewVaultContent}
       />
@@ -791,6 +800,8 @@ const styles = StyleSheet.create({
     marginVertical: hp(20),
     paddingVertical: hp(10),
     borderRadius: 10,
+    borderWidth: 1,
+    borderStyle: 'dashed',
   },
   iconWrapper: {
     width: '15%',
@@ -800,12 +811,14 @@ const styles = StyleSheet.create({
   },
   addPhoneEmailTitle: {
     fontSize: 14,
+    fontWeight: '800',
   },
   addPhoneEmailSubTitle: {
     fontSize: 12,
   },
   rightIconWrapper: {
     width: '10%',
+    marginLeft: 5,
   },
 });
 export default VaultDetails;

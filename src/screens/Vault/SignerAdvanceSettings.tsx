@@ -28,11 +28,13 @@ import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
 import WalletInsideGreen from 'src/assets/images/coldcard_light.svg';
 import WalletVault from 'src/assets/images/wallet_vault.svg';
+import DeleteIcon from 'src/assets/images/delete_phone.svg';
 import CopyIcon from 'src/assets/images/copy_new.svg';
 
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { TextInput } from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get('screen');
 
@@ -43,6 +45,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
   const [visible, setVisible] = useState(false);
+  const [editEmailModal, setEditEamilModal] = useState(false);
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const openDescriptionModal = () => setVisible(true);
@@ -141,6 +144,60 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
+  function editModalContent() {
+    return (
+      <Box height={400}>
+        <Box>
+          <TextInput style={styles.textInput} placeholder="disa@khazadum.com" />
+
+          <TouchableOpacity>
+            <Box
+              flexDirection={'row'}
+              gap={2}
+              alignItems={'center'}
+              height={70}
+              padding={5}
+              style={{
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderRadius: 10,
+                marginVertical: 10,
+                backgroundColor: 'rgba(145, 120, 93, 0.08)',
+              }}
+            >
+              <Box>
+                <DeleteIcon />
+              </Box>
+              <Box>
+                <Text
+                  style={{ fontWeight: '800' }}
+                  color={`${colorMode}.RussetBrown`}
+                  fontSize={13}
+                >
+                  Delete Email
+                </Text>
+                <Box fontSize={12}>This is a irreversible action</Box>
+              </Box>
+            </Box>
+          </TouchableOpacity>
+          <Box alignItems={'center'} marginVertical={20}>
+            <WarningIllustration />
+          </Box>
+          <Text
+            style={{ fontWeight: '900' }}
+            color={`${colorMode}.primaryGreenBackground`}
+            fontSize={14}
+          >
+            Note:
+          </Text>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            If notification is not declined continuously for 30 days, the Key would be activated
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   const navigateToAssignSigner = () => {
     setWarning(false);
     navigation.dispatch(
@@ -195,37 +252,47 @@ function SignerAdvanceSettings({ route }: any) {
           </VStack>
         </HStack>
       </Box> */}
-      <OptionCard
-        title={'Edit Description'}
-        description={`Short description to help you remember`}
-        callback={openDescriptionModal}
-      />
-      <OptionCard
-        title={'Manual Registration'}
-        description={`Register your active vault with the ${signerName}`}
-        callback={registerSigner}
-      />
-      <OptionCard
-        title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
-        description="Identify your signer type for enhanced connectivity and communication"
-        callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-      />
-      {isPolicyServer && (
+      <ScrollView>
         <OptionCard
-          title="Change Verification & Policy"
-          description="Restriction and threshold"
-          callback={navigateToPolicyChange}
+          title={'Edit Description'}
+          description={`Short description to help you remember`}
+          callback={openDescriptionModal}
         />
-      )}
-      {isTapsigner && (
         <OptionCard
-          title="Unlock card"
-          description="Run the unlock card process if it's rate-limited"
-          callback={navigateToUnlockTapsigner}
+          title={'Registered Email/Phone'}
+          description={`Delete or Edit registered email/phone`}
+          callback={() => {
+            setEditEamilModal(true);
+          }}
         />
-      )}
-      {/* ---------TODO Pratyaksh--------- */}
-      <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} />
+        <OptionCard
+          title={'Manual Registration'}
+          description={`Register your active vault with the ${signerName}`}
+          callback={registerSigner}
+        />
+        <OptionCard
+          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
+          description="Identify your signer type for enhanced connectivity and communication"
+          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
+        />
+
+        {isPolicyServer && (
+          <OptionCard
+            title="Change Verification & Policy"
+            description="Restriction and threshold"
+            callback={navigateToPolicyChange}
+          />
+        )}
+        {isTapsigner && (
+          <OptionCard
+            title="Unlock card"
+            description="Run the unlock card process if it's rate-limited"
+            callback={navigateToUnlockTapsigner}
+          />
+        )}
+        {/* ---------TODO Pratyaksh--------- */}
+        <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} />
+      </ScrollView>
       <Box ml={2} style={{ marginVertical: 20 }}>
         Wallet used in
       </Box>
@@ -252,6 +319,7 @@ function SignerAdvanceSettings({ route }: any) {
           callback={() => {}}
         />
       </ScrollView>
+
       {/* ---------------- Finger Print copy ---------- */}
       <TouchableOpacity
         activeOpacity={0.4}
@@ -299,6 +367,16 @@ function SignerAdvanceSettings({ route }: any) {
         textColor="light.primaryText"
         Content={WarningContent}
       />
+      <KeeperModal
+        visible={editEmailModal}
+        close={() => setEditEamilModal(false)}
+        title="Registered Email"
+        subTitle="Delete or edit registered email"
+        subTitleColor="light.secondaryText"
+        buttonTextColor="light.white"
+        textColor="light.primaryText"
+        Content={editModalContent}
+      />
     </ScreenWrapper>
   );
 }
@@ -341,6 +419,13 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     width: width * 0.8,
+  },
+  textInput: {
+    width: '100%',
+    height: 55,
+    padding: 20,
+    backgroundColor: 'rgba(253, 247, 240, 1)',
+    borderRadius: 10,
   },
   walletHeaderWrapper: {
     margin: wp(15),

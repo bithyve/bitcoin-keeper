@@ -14,6 +14,7 @@ type SignerCardProps = {
   showSelection?: boolean;
   colorVarient?: string;
   disabled?: boolean;
+  isFullText?: boolean;
 };
 
 function SignerCard({
@@ -25,6 +26,7 @@ function SignerCard({
   showSelection = true,
   colorVarient = 'brown',
   disabled = false,
+  isFullText = false,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -52,7 +54,12 @@ function SignerCard({
         <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
           {icon}
         </Box>
-        <Text color={`${colorMode}.SlateGrey`} style={styles.walletName} numberOfLines={1} bold>
+        <Text
+          color={`${colorMode}.SlateGrey`}
+          style={styles.walletName}
+          numberOfLines={isFullText ? 0 : 1}
+          bold
+        >
           {name}
         </Text>
         <Text

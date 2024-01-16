@@ -44,6 +44,7 @@ function SigningDeviceList() {
     scheme,
     addSignerFlow = false,
     vaultId,
+    vaultSigners,
   }: {
     scheme: VaultScheme;
     addSignerFlow: boolean;
@@ -157,6 +158,7 @@ function SigningDeviceList() {
           primaryMnemonic={primaryMnemonic}
           addSignerFlow={addSignerFlow}
           vaultId={vaultId}
+          vaultSigners={vaultSigners}
         />
       </React.Fragment>
     );
