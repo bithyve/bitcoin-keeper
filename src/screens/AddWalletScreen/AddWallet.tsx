@@ -49,7 +49,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={2}
             walletName="Advanced"
-            walletDescription="Lorem ipsum dolor"
+            walletDescription="For seasoned plebs"
             icon={<AdvancedIcon />}
             selectedIcon={<AdvancedGreenIcon />}
             selectedCard={selectedCard}
@@ -59,7 +59,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={3}
             walletName="Import"
-            walletDescription="Lorem ipsum dolor"
+            walletDescription="Other wallets"
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
@@ -71,13 +71,13 @@ function AddWallet({ navigation }) {
         {selectedCard === 2 && <AdvancedWallets navigation={navigation} />}
         {selectedCard === 3 && <ImportWallets navigation={navigation} />}
       </Box>
-      <Box style={styles.note}>
+      {/* <Box style={styles.note}>
         <Note
           title={common.note}
           subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
           subtitleColor="GreyText"
         />
-      </Box>
+      </Box> */}
     </ScreenWrapper>
   );
 }

@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Box, HStack, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
@@ -14,6 +14,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -50,6 +51,8 @@ function VaultSetup() {
     vaultId,
   } = (params as { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string }) || {};
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
   const { activeVault } = useVault({ vaultId });
   const [vaultName, setVaultName] = useState(activeVault?.presentationData?.name || 'Vault');
   const [vaultDescription, setVaultDescription] = useState(

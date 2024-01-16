@@ -17,12 +17,12 @@ function UAIView({
   return (
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiTitleText} color={`${colorMode}.primaryText`}>
+        <Text style={styles.uaiTitleText} color={`${colorMode}.GreenishGrey`}>
           {title}
         </Text>
-        <Text numberOfLines={2} style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
+        {/* <Text numberOfLines={2} style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
           {subTitle}
-        </Text>
+        </Text> */}
       </Box>
       <TouchableOpacity
         style={styles.skipWrapper}
@@ -52,18 +52,19 @@ function UAIView({
 }
 const styles = StyleSheet.create({
   wrapper: {
-    marginVertical: hp(20),
     flexDirection: 'row',
     width: '100%',
+    height: '100%',
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
     borderRadius: 10,
   },
   uaiMessageWrapper: {
     width: '60%',
   },
   uaiTitleText: {
-    fontSize: 12,
+    fontSize: 14,
     width: '100%',
     fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 0,

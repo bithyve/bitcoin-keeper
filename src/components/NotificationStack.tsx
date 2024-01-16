@@ -30,7 +30,7 @@ import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView'
 
 const { width } = Dimensions.get('window');
 
-const _size = width * 0.9;
+const _size = width * 0.95;
 const layout = {
   borderRadius: 16,
   width: _size,
@@ -213,8 +213,8 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
       <Animated.View style={[animations]}>
         <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
           <UAIView
-            title="Your Vault: Valinor"
-            subTitle={info?.title}
+            title={info?.title}
+            // subTitle={info?.title}
             primaryCallbackText="ADD NOW"
             secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
             secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
@@ -286,20 +286,12 @@ const getStyles = (colorMode: ColorMode) =>
     container: {
       position: 'relative',
       top: 100,
-      left: 7,
+      left: 5,
     },
     card: {
       borderRadius: layout.borderRadius,
       width: layout.width,
       height: layout.height,
-      shadowColor: `${colorMode}.Greige`,
-      shadowRadius: 10,
-      shadowOpacity: 1,
-      shadowOffset: {
-        width: 0,
-        height: 0,
-      },
-      elevation: 5,
     },
     title: {
       fontSize: 12,
