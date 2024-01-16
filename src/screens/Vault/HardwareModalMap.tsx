@@ -1181,9 +1181,7 @@ function HardwareModalMap({
           throw new Error('Add two other devices first to do a health check');
         const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
         const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-        const ids = vaultSigners.map((signer) =>
-          WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network)
-        );
+        const ids = vaultSigners.map((signer) => signer.xfp);
         const response = await InheritanceKeyServer.findIKSSetup(ids, thresholdDescriptors);
         if (response.setupInfo.id) {
           const mapped = mapUnknownSigner({
