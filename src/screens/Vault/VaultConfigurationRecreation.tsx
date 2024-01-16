@@ -12,7 +12,7 @@ import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
 function VaultConfigurationCreation() {
   const [inputText, setInputText] = useState('');
-  const { recoveryLoading, initateRecovery } = useConfigRecovery();
+  const { recoveryLoading, recoveryError, initateRecovery } = useConfigRecovery();
   const { navigate } = useNavigation();
 
   return (
@@ -52,7 +52,7 @@ function VaultConfigurationCreation() {
             <Buttons
               primaryCallback={() => initateRecovery(inputText)}
               primaryText="Create Vault"
-              // primaryLoading={recoveryLoading}
+              primaryLoading={recoveryLoading}
             />
           </Box>
         </View>
