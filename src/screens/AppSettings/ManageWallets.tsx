@@ -7,7 +7,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VisibilityType, WalletType } from 'src/core/wallets/enums';
+import { EntityKind, VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
@@ -28,6 +28,8 @@ import { useDispatch } from 'react-redux';
 import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import useVault from 'src/hooks/useVault';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
@@ -145,6 +147,12 @@ function ManageWallets() {
   const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
+
+  const { allVaults } = useVault({ includeArchived: false });
+  const allWallets: (Wallet | Vault)[] = [...walletsWithoutWhirlpool, ...allVaults].filter(
+    (item) => item !== null
+  );
+
   const visibleWallets = walletsWithoutWhirlpool.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
@@ -177,41 +185,35 @@ function ManageWallets() {
   };
 
   const onProceed = () => {
-    unhideWallet(selectedWallet);
+    updateWalletVisibility(selectedWallet, false);
   };
 
-  const hideWallet = (wallet: Wallet, checkBalance = true) => {
-    if (wallet.specs.balances.confirmed > 0 && checkBalance) {
+  const updateWalletVisibility = (wallet: Wallet | Vault, hide: boolean, checkBalance = true) => {
+    const { id, entityKind, specs } = wallet;
+    const isWallet = entityKind === EntityKind.WALLET;
+
+    if (hide && checkBalance && specs.balances.confirmed > 0) {
       setShowBalanceAlert(true);
       setSelectedWallet(wallet);
       return;
     }
-    try {
-      dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
-        presentationData: {
-          name: wallet.presentationData.name,
-          description: wallet.presentationData.description,
-          visibility: VisibilityType.HIDDEN,
-          shell: wallet.presentationData.shell,
-        },
-      });
-    } catch (error) {
-      captureError(error);
-    }
-  };
 
-  const unhideWallet = (wallet: Wallet) => {
     try {
-      dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
+      const visibilityType = hide ? VisibilityType.HIDDEN : VisibilityType.DEFAULT;
+      console.log({ visibilityType });
+      const schema = isWallet ? RealmSchema.Wallet : RealmSchema.Vault;
+
+      dbManager.updateObjectById(schema, id, {
         presentationData: {
           name: wallet.presentationData.name,
           description: wallet.presentationData.description,
-          visibility: VisibilityType.DEFAULT,
+          visibility: visibilityType,
           shell: wallet.presentationData.shell,
         },
       });
     } catch (error) {
       console.log(error);
+      captureError(error);
     }
   };
 
@@ -265,7 +267,7 @@ function ManageWallets() {
         rightComponent={<CurrencyTypeSwitch />}
       />
       <FlatList
-        data={walletsWithoutWhirlpool}
+        data={allWallets}
         extraData={[visibleWallets, hiddenWallets]}
         contentContainerStyle={{ marginHorizontal: 20, marginTop: '5%' }}
         renderItem={({ item }) => (
@@ -276,8 +278,8 @@ function ManageWallets() {
             isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
             onBtnPress={
               item.presentationData.visibility === VisibilityType.HIDDEN
-                ? () => unhideWallet(item)
-                : () => hideWallet(item)
+                ? () => updateWalletVisibility(item, false)
+                : () => updateWalletVisibility(item, true)
             }
           />
         )}
