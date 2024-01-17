@@ -15,7 +15,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Box, ColorMode, useColorMode } from 'native-base';
 import { uaiType } from 'src/models/interfaces/Uai';
-import UAIView from 'src/screens/HomeScreen/components/HeaderDetails/components/UAIView';
 import useUaiStack from 'src/hooks/useUaiStack';
 import { useDispatch } from 'react-redux';
 import { uaiActioned } from 'src/store/sagaActions/uai';
@@ -27,6 +26,7 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
+import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
 
 const { width } = Dimensions.get('window');
 
