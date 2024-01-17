@@ -20,9 +20,7 @@ function ActionCard({ cardName, icon, description, customStyle, callback }: Acti
       onPress={callback}
     >
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
-        {/* <Box style={styles.innerBorder}> */}
         {icon && icon}
-        {/* </Box> */}
       </Box>
       <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
       {description && (
@@ -41,13 +39,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
-  // innerBorder: {
-  //   borderWidth: 1,
-  //   padding: 5,
-  //   borderStyle: 'dashed',
-  //   borderColor: 'white',
-  //   borderRadius: 34 / 2,
-  // },
+
   circle: {
     width: 34,
     height: 34,

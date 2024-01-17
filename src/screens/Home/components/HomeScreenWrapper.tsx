@@ -9,7 +9,7 @@ function HomeScreenWrapper({ children }) {
     <Box style={styles.container}>
       <StatusBar barStyle={colorMode === 'light' ? 'light-content' : 'dark-content'} />
       <HeaderDetails />
-      <Box style={styles.container2}>{children}</Box>
+      <Box style={styles.childrenWrapper}>{children}</Box>
     </Box>
   );
 }
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
   },
-  container2: {
+  childrenWrapper: {
     flex: 1,
   },
 });
