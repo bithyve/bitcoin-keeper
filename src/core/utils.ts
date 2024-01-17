@@ -176,7 +176,7 @@ export const parseTextforVaultConfig = (secret: string) => {
   throw Error('Unsupported format!');
 };
 
-export const urlParamsToObj = (url: string): object => {
+export const urlParamsToObj = (url: string): any => {
   try {
     const regex = /[?&]([^=#]+)=([^&#]*)/g;
     const params = {};

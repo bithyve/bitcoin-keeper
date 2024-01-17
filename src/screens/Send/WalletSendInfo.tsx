@@ -8,7 +8,7 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import BTCWhite from 'src/assets/images/btc_white.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function WalletSendInfo({
