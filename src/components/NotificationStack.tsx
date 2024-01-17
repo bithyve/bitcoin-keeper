@@ -13,7 +13,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import { Box, ColorMode, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { uaiType } from 'src/models/interfaces/Uai';
 import useUaiStack from 'src/hooks/useUaiStack';
 import { useDispatch } from 'react-redux';
@@ -52,7 +52,6 @@ type CardProps = {
 
 function Card({ info, index, totalLength, activeIndex }: CardProps) {
   const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
 
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -232,9 +231,6 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
 }
 
 export default function NotificationStack() {
-  const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
-
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
 
@@ -267,41 +263,40 @@ export default function NotificationStack() {
   );
 }
 
-const getStyles = (colorMode: ColorMode) =>
-  StyleSheet.create({
-    container: {
-      position: 'relative',
-      top: windowHeight / 8,
-    },
-    viewWrapper: {
-      alignItems: 'center',
-      flex: 1,
-      justifyContent: 'flex-end',
-    },
-    card: {
-      borderRadius: layout.borderRadius,
-      width: layout.width,
-      height: layout.height,
-    },
-    title: {
-      fontSize: 12,
-      fontWeight: '600',
-    },
-    content: {
-      fontSize: 14,
-      fontWeight: '600',
-      width: '50%',
-    },
-    contentContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    skip: {
-      fontSize: 12,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      gap: 20,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+    top: windowHeight / 8,
+  },
+  viewWrapper: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  card: {
+    borderRadius: layout.borderRadius,
+    width: layout.width,
+    height: layout.height,
+  },
+  title: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  content: {
+    fontSize: 14,
+    fontWeight: '600',
+    width: '50%',
+  },
+  contentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  skip: {
+    fontSize: 12,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+});

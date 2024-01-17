@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
@@ -13,12 +13,12 @@ import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import UnhideWalletIcon from 'src/assets/images/unhide.svg';
 import ShowAllIcon from 'src/assets/images/eye_folder.svg';
-// import AlignIcon from 'src/assets/images/align_right.svg';
+import AlignIcon from 'src/assets/images/align_right.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
 import dbManager from 'src/storage/realm/dbManager';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
 import KeeperModal from 'src/components/KeeperModal';
 import { useQuery } from '@realm/react';
@@ -30,6 +30,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import Hexagon from 'src/components/HexagonIcon';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
@@ -87,17 +88,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  textContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  justifyContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  alignCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  BalanceModalContainer: {
+    marginTop: 4,
+  },
+  walletsContainer: {
+    marginHorizontal: 20,
+    marginTop: '5%',
+  },
 });
 
 function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
   const { colorMode } = useColorMode();
   return (
+    // TODO: Drag and rearrange wallet functionality
     // <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
     //   <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
     //     <AlignIcon />
     //   </TouchableOpacity>
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
-      <Box style={{ flexDirection: 'row', gap: 10 }}>
+      <Box style={styles.textContainer}>
         <Box style={styles.iconContainer} backgroundColor={`${colorMode}.primaryGreenBackground`}>
           <WalletIcon />
         </Box>
@@ -110,8 +131,8 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
           </Text>
         </Box>
       </Box>
-      <Box flexDirection="row" justifyContent="space-between">
-        <Box flexDirection="row" alignItems="center">
+      <Box style={styles.justifyContent}>
+        <Box style={styles.alignCenter}>
           {colorMode === 'light' ? <BtcBlack /> : <BtcWhite />}
           <Text mx={1} fontSize={14} color={`${colorMode}.primaryText`}>
             {SatsToBtc(balance)}
@@ -142,8 +163,6 @@ function ManageWallets() {
 
   const { wallets } = useWallets();
 
-  // const [showAll, setShowAll] = useState(false);
-
   const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
@@ -163,7 +182,6 @@ function ManageWallets() {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const navigation = useNavigation();
-  const route = useRoute();
   const dispatch = useDispatch();
 
   const [selectedWallet, setSelectedWallet] = useState(null);
@@ -220,9 +238,9 @@ function ManageWallets() {
   function BalanceAlertModalContent() {
     return (
       <Box>
-        <Box marginTop={4} alignItems="center" flexDirection="row">
+        <Box style={[styles.alignCenter, styles.BalanceModalContainer]}>
           <TouchableOpacity
-            style={[styles.cancelBtn]}
+            style={styles.cancelBtn}
             onPress={() => {
               hideWallet(selectedWallet, false);
               setShowBalanceAlert(false);
@@ -244,10 +262,7 @@ function ManageWallets() {
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box
-                style={[styles.createBtn]}
-                backgroundColor={`${colorMode}.greenButtonBackground`}
-              >
+              <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
                 <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
                   Move Funds
                 </Text>
@@ -269,7 +284,7 @@ function ManageWallets() {
       <FlatList
         data={allWallets}
         extraData={[visibleWallets, hiddenWallets]}
-        contentContainerStyle={{ marginHorizontal: 20, marginTop: '5%' }}
+        contentContainerStyle={styles.walletsContainer}
         renderItem={({ item }) => (
           <ListItem
             title={item.presentationData.name}
@@ -286,7 +301,9 @@ function ManageWallets() {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
       />
-      {/* <Box backgroundColor="#BABABA" height={0.9} width="100%" />
+
+      {/* TODO: showAll/hideAll wallet functionality
+      <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
           <ShowAllIcon />

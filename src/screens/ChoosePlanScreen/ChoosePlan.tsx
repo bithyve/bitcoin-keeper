@@ -5,7 +5,6 @@ import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
   getAvailablePurchases,
   SubscriptionPurchase,
 } from 'react-native-iap';
@@ -372,7 +371,7 @@ function ChoosePlan() {
         } Store`}
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor="light.white"
+        learnTextColor={`${colorMode}.white`}
         icon={<SettingsIcon />}
       />
       <KeeperModal

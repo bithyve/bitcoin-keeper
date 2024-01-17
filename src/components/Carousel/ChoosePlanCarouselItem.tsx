@@ -129,8 +129,6 @@ function ChoosePlanCarouselItem({
               <Text fontSize={8} letterSpacing={0.64} bold />
             </Box>
           )}
-          {/* <Box my={15}>{currentPosition === index ? <SvgUri uri={`${config.RELAY}${item.iconFocused}`} /> : <SvgUri uri={`${config.RELAY}${item.icon}`} />}</Box> */}
-
           <Box
             backgroundColor={isSelected ? `${colorMode}.DeepOlive` : `${colorMode}.PaleKhaki`}
             style={styles.circle}
@@ -154,9 +152,6 @@ function ChoosePlanCarouselItem({
           <Text bold fontSize={10} color={`${colorMode}.white`} my={2}>
             {getFreeTrail}
           </Text>
-          {/* <Text bold fontSize={10} color="light.white" my={item.productIds.includes(subscription.productId.toLowerCase()) ? 0.5 : 2}>
-            {getFreeTrail}
-          </Text> */}
           {canSelectPlan === true ? (
             <Box
               style={{
