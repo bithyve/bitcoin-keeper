@@ -35,7 +35,7 @@ import { urlParamsToObj } from 'src/core/utils';
 import { DowngradeModal } from './components/DowngradeModal';
 import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
 import HeaderDetails from './components/HeaderDetails';
-import { windowHeight } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -365,12 +365,12 @@ const getStyles = (colorMode) =>
       justifyContent: 'center',
       gap: 7,
       position: 'absolute',
-      top: windowHeight / 3.5,
+      top: hp(220),
     },
     walletDetailWrapper: {
       marginTop: 20,
       width: '100%',
-      justifyContent: 'center',
+      paddingLeft: 10,
     },
     wallerCardWrapper: {
       marginRight: 10,
