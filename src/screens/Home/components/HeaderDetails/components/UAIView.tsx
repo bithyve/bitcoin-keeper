@@ -7,6 +7,7 @@ import Fonts from 'src/constants/Fonts';
 
 function UAIView({
   title,
+  subTitle,
   primaryCallbackText,
   primaryCallback,
   secondaryCallbackText,
@@ -16,8 +17,11 @@ function UAIView({
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
+        <Text style={styles.uaiMessageText} color={`${colorMode}.RussetBrown`}>
           {title}
+        </Text>
+        <Text fontSize={14} color={`${colorMode}.primaryText`}>
+          {subTitle}
         </Text>
       </Box>
       <TouchableOpacity
@@ -52,6 +56,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   uaiMessageWrapper: {
     width: '60%',
@@ -77,7 +83,7 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 8,
   },
   addNowCTAText: {
     fontSize: 11,

@@ -30,11 +30,12 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import AddWalletModal from './components/AddWalletModal';
 import BalanceComponent from './components/BalanceComponent';
-import HomeScreenWrapper from './components/HomeScreenWrapper';
 import RampModal from '../WalletDetails/components/RampModal';
 import { urlParamsToObj } from 'src/core/utils';
 import { DowngradeModal } from './components/DowngradeModal';
 import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
+import HeaderDetails from './components/HeaderDetails';
+import { windowHeight } from 'src/constants/responsive';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -233,23 +234,24 @@ function NewHomeScreen({ navigation }) {
   const styles = getStyles(colorMode);
 
   return (
-    <Box backgroundColor={`${colorMode}.Linen`} style={[styles.container]}>
+    <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
       <Box
         backgroundColor={`${colorMode}.primaryGreenBackground`}
         style={[styles.wrapper, { paddingTop: top }]}
       >
-        <HomeScreenWrapper>
-          <Box style={styles.actionContainer}>
-            {cardsData.map((data, index) => (
-              <ActionCard
-                key={`${index}_${data.name}`}
-                cardName={data.name}
-                callback={data.callback}
-                icon={data.icon}
-              />
-            ))}
-          </Box>
-        </HomeScreenWrapper>
+        <Box width={'100%'} style={styles.padding}>
+          <HeaderDetails />
+        </Box>
+        <Box style={styles.actionContainer}>
+          {cardsData.map((data, index) => (
+            <ActionCard
+              key={`${index}_${data.name}`}
+              cardName={data.name}
+              callback={data.callback}
+              icon={data.icon}
+            />
+          ))}
+        </Box>
       </Box>
       <Box style={styles.valueWrapper}>
         <BalanceComponent
@@ -257,8 +259,7 @@ function NewHomeScreen({ navigation }) {
           balance={netBalanceWallets + netBalanceAllVaults}
         />
         <FlatList
-          contentContainerStyle={{ paddingRight: 30 }}
-          style={styles.walletDetailWrapper}
+          contentContainerStyle={styles.walletDetailWrapper}
           horizontal
           data={allWallets}
           keyExtractor={(item) => item.id}
@@ -310,7 +311,6 @@ function NewHomeScreen({ navigation }) {
             />
           )}
         />
-        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }} />
       </Box>
       <AddWalletModal
         navigation={navigation}
@@ -346,25 +346,31 @@ const getStyles = (colorMode) =>
       flex: 0.65,
       justifyContent: 'center',
       alignItems: 'center',
-      marginTop: 100,
+      marginTop: '35%',
+      gap: 10,
+      height: '100%',
+    },
+    padding: {
+      paddingHorizontal: 10,
     },
     wrapper: {
       flex: 0.35,
-      paddingHorizontal: 15,
-      paddingVertical: 8,
-      justifyContent: 'center',
-      alignItems: 'flex-end',
+      width: '100%',
+      alignItems: 'center',
+      position: 'relative',
     },
     actionContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 10,
-      marginTop: -100,
+      gap: 7,
+      position: 'absolute',
+      top: windowHeight / 3.5,
     },
     walletDetailWrapper: {
-      marginTop: 27.25,
-      paddingHorizontal: 10,
+      marginTop: 20,
+      width: '100%',
+      justifyContent: 'center',
     },
     wallerCardWrapper: {
       marginRight: 10,

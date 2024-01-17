@@ -1,6 +1,7 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, ViewStyle } from 'react-native';
+import { windowHeight, windowWidth } from 'src/constants/responsive';
 
 type ActionCardProps = {
   cardName: string;
@@ -19,7 +20,9 @@ function ActionCard({ cardName, icon, description, customStyle, callback }: Acti
       onPress={callback}
     >
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
+        {/* <Box style={styles.innerBorder}> */}
         {icon && icon}
+        {/* </Box> */}
       </Box>
       <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
       {description && (
@@ -33,11 +36,18 @@ function ActionCard({ cardName, icon, description, customStyle, callback }: Acti
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: 114,
-    height: 125,
+    width: windowWidth / 3.3,
+    height: windowHeight / 6.5,
     padding: 10,
     borderRadius: 10,
   },
+  // innerBorder: {
+  //   borderWidth: 1,
+  //   padding: 5,
+  //   borderStyle: 'dashed',
+  //   borderColor: 'white',
+  //   borderRadius: 34 / 2,
+  // },
   circle: {
     width: 34,
     height: 34,
