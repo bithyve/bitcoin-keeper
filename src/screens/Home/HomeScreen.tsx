@@ -198,7 +198,17 @@ function NewHomeScreen({ navigation }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const cardsData = [
     {
-      name: 'Inheritance Tools',
+      name: 'Buy Bitcoin',
+      icon: <BTC />,
+      callback: onPressBuyBitcoin,
+    },
+    {
+      name: 'Manage All Signers',
+      icon: <SignerIcon />,
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
+    },
+    {
+      name: 'Security & Inheritance Tools',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
@@ -218,16 +228,6 @@ function NewHomeScreen({ navigation }) {
           navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
         }
       },
-    },
-    {
-      name: 'Buy Bitcoin',
-      icon: <BTC />,
-      callback: onPressBuyBitcoin,
-    },
-    {
-      name: 'Manage All Signers',
-      icon: <SignerIcon />,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
   ];
 

@@ -249,7 +249,7 @@ export default function NotificationStack() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
-        <View style={styles.viewWrapper} pointerEvents="box-none">
+        <View style={styles.viewWrapper}>
           {(uaiStack || []).map((c, index) => {
             return (
               <Card
