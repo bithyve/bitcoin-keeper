@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { StyleSheet, Text } from 'react-native';
 import { hp } from 'src/constants/responsive';
@@ -29,6 +29,7 @@ function IKSAddEmailPhone({ route }) {
   const [ikVaultKey] = vault.signers.filter(
     (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
   );
+  const { colorMode } = useColorMode();
 
   const updateIKSPolicy = async (email: string) => {
     try {
@@ -88,9 +89,15 @@ function IKSAddEmailPhone({ route }) {
         />
       </Box>
       <Box>
-        <Text style={{ color: 'rgba(45, 103, 89, 1)', fontWeight: '800' }}>Note</Text>
-        <Text style={{ width: '70%', marginVertical: 10 }}>
-          You can always choose to delete/change this data
+        <Text style={[styles.consentNotes, { color: `${colorMode}.pantoneGreen` }]}>
+          Consent Note:
+        </Text>
+        <Text style={styles.notesDescription}>
+          By providing your email address/phone number, you consent to us using this information to
+          send you alerts and notifications about Inheritance Key requests, notify you of account
+          activity, and contact you for customer support purposes if needed. You can withdraw your
+          consent at any time by disabling this from App settings or clicking the unsubscribe link
+          in our emails. We will protect your data as outlined in our privacy policy.{' '}
         </Text>
       </Box>
       <Buttons
@@ -112,5 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingLeft: 5,
   },
+  consentNotes: { fontWeight: '500' },
+  notesDescription: { marginVertical: 10, fontSize: 12, lineHeight: 20 },
 });
 export default IKSAddEmailPhone;

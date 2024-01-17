@@ -27,6 +27,7 @@ import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
+import { windowHeight } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -205,7 +206,8 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
       <Animated.View style={[animations]}>
         <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
           <UAIView
-            title={info?.title}
+            title={'Add signers to setup vault'}
+            subTitle={info?.title}
             primaryCallbackText="ADD NOW"
             secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
             secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
@@ -247,14 +249,7 @@ export default function NotificationStack() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
-        <View
-          style={{
-            alignItems: 'center',
-            flex: 1,
-            justifyContent: 'flex-end',
-          }}
-          pointerEvents="box-none"
-        >
+        <View style={styles.viewWrapper} pointerEvents="box-none">
           {(uaiStack || []).map((c, index) => {
             return (
               <Card
@@ -276,7 +271,12 @@ const getStyles = (colorMode: ColorMode) =>
   StyleSheet.create({
     container: {
       position: 'relative',
-      top: 100,
+      top: windowHeight / 8,
+    },
+    viewWrapper: {
+      alignItems: 'center',
+      flex: 1,
+      justifyContent: 'flex-end',
     },
     card: {
       borderRadius: layout.borderRadius,
