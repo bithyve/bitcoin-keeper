@@ -5,7 +5,7 @@ import Clipboard from '@react-native-community/clipboard';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -46,7 +46,18 @@ function SignerAdvanceSettings({ route }: any) {
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
-  const { activeVault } = useVault({ vaultId });
+  const { activeVault, allVaults } = useVault({ vaultId, includeArchived: false });
+  const signerVaults: Vault[] = [];
+
+  allVaults.forEach((vault) => {
+    const keys = vault.signers;
+    for (const key of keys) {
+      if (signer.masterFingerprint === key.masterFingerprint) {
+        signerVaults.push(vault);
+        break;
+      }
+    }
+  });
 
   const registerColdCard = async () => {
     await withNfcModal(() => registerToColcard({ vault: activeVault }));
@@ -139,12 +150,11 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  function editModalContent() {
+  function EditModalContent() {
     return (
       <Box height={400}>
         <Box>
           <TextInput style={styles.textInput} placeholder="disa@khazadum.com" />
-
           <TouchableOpacity>
             <Box
               flexDirection={'row'}
@@ -287,30 +297,18 @@ function SignerAdvanceSettings({ route }: any) {
         {/* <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} /> */}
       </ScrollView>
       <Box ml={2} style={{ marginVertical: 20 }}>
-        Wallet used in
+        {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
       </Box>
       <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
-        <ActionCard
-          customStyle={{ height: 135 }}
-          description={'Funds to return home'}
-          cardName={'Valinor'}
-          icon={<WalletVault />}
-          callback={() => {}}
-        />
-        <ActionCard
-          customStyle={{ height: 135 }}
-          description={'Funds to return home'}
-          cardName={'Valinor'}
-          icon={<WalletVault />}
-          callback={() => {}}
-        />
-        <ActionCard
-          customStyle={{ height: 135 }}
-          description={'Funds to return home'}
-          cardName={'Valinor'}
-          icon={<WalletVault />}
-          callback={() => {}}
-        />
+        {signerVaults.map((vault) => (
+          <ActionCard
+            key={vault.id}
+            description={vault.presentationData.description || 'Secure your sats'}
+            cardName={vault.presentationData.name}
+            icon={<WalletVault />}
+            callback={() => {}}
+          />
+        ))}
       </ScrollView>
       <TouchableOpacity
         activeOpacity={0.4}
@@ -365,7 +363,7 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor="light.secondaryText"
         buttonTextColor="light.white"
         textColor="light.primaryText"
-        Content={editModalContent}
+        Content={EditModalContent}
       />
     </ScreenWrapper>
   );

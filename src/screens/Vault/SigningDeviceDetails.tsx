@@ -343,8 +343,6 @@ function SigningDeviceDetails({ route }) {
     },
   ];
 
-  console.log({ signer });
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
