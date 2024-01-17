@@ -46,7 +46,9 @@ function SignerAdvanceSettings({ route }: any) {
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
   const [visible, setVisible] = useState(false);
-  const [editEmailModal, setEditEamilModal] = useState(false);
+  const [editEmailModal, setEditEmailModal] = useState(false);
+  const [deleteEmailModal, setDeleteEmailModal] = useState(false);
+
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const openDescriptionModal = () => setVisible(true);
@@ -151,7 +153,12 @@ function SignerAdvanceSettings({ route }: any) {
         <Box>
           <TextInput style={styles.textInput} placeholder="disa@khazadum.com" />
 
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setEditEmailModal(false);
+              setDeleteEmailModal(true);
+            }}
+          >
             <Box
               flexDirection={'row'}
               gap={2}
@@ -193,6 +200,18 @@ function SignerAdvanceSettings({ route }: any) {
           </Text>
           <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
             If notification is not declined continuously for 30 days, the Key would be activated
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  function deleteEmailModalContent() {
+    return (
+      <Box height={200} justifyContent={'flex-end'}>
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            You would not receive daily reminders about your Inheritance Key if it is used
           </Text>
         </Box>
       </Box>
@@ -264,7 +283,7 @@ function SignerAdvanceSettings({ route }: any) {
           title={'Registered Email/Phone'}
           description={`Delete or Edit registered email/phone`}
           callback={() => {
-            setEditEamilModal(true);
+            setEditEmailModal(true);
           }}
         />
         <OptionCard
@@ -371,13 +390,28 @@ function SignerAdvanceSettings({ route }: any) {
       />
       <KeeperModal
         visible={editEmailModal}
-        close={() => setEditEamilModal(false)}
+        close={() => setEditEmailModal(false)}
         title="Registered Email"
         subTitle="Delete or edit registered email"
         subTitleColor="light.secondaryText"
         buttonTextColor="light.white"
         textColor="light.primaryText"
         Content={editModalContent}
+      />
+      <KeeperModal
+        visible={deleteEmailModal}
+        close={() => setDeleteEmailModal(false)}
+        title="Deleting Registered Email"
+        subTitle="Are you sure you want to delete email id?"
+        subTitleColor="light.secondaryText"
+        buttonTextColor="light.white"
+        textColor="light.primaryText"
+        buttonText="Delete"
+        // -----TODO PARSH-----
+        buttonCallback={() => {}}
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => setDeleteEmailModal(false)}
+        Content={deleteEmailModalContent}
       />
     </ScreenWrapper>
   );
