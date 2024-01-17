@@ -2,7 +2,7 @@ import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 
 function BalanceComponent({ balance, count }) {
   const { colorMode } = useColorMode();

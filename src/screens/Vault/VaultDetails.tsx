@@ -43,7 +43,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import useSignerMap from 'src/hooks/useSignerMap';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { SDIcons } from './SigningDeviceIcons';
 
 function Footer({

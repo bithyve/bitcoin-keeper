@@ -1,8 +1,8 @@
 import { Box, useColorMode } from 'native-base';
-import Text from './KeeperText';
+import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
-import CardPill from './CardPill';
-import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
+import CardPill from 'src/components/CardPill';
+import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { useAppSelector } from 'src/store/hooks';
 
 type WalletInfoCardProps = {
