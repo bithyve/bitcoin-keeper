@@ -63,8 +63,14 @@ function SignerAdvanceSettings({ route }: any) {
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
 
-  const updateIKSPolicy = async (newEmail: string) => {
+  const updateIKSPolicy = async (removeEmail: string, newEmail?: string) => {
     try {
+      if (!removeEmail && !newEmail) {
+        showToast('Nothing to update');
+        navigation.goBack();
+        return;
+      }
+
       const thresholdDescriptors = activeVault.signers.map((signer) => signer.xfp).slice(0, 2);
 
       if (signer.inheritanceKeyInfo === undefined)
@@ -76,11 +82,13 @@ function SignerAdvanceSettings({ route }: any) {
       const existingEmails = existingAlert.emails || [];
 
       // remove the previous email
-      const index = existingEmails.indexOf(currentEmail);
+      const index = existingEmails.indexOf(removeEmail);
       if (index !== -1) existingEmails.splice(index, 1);
 
-      // add the new email
-      const updatedEmails = [...existingEmails, newEmail];
+      // add the new email(if provided)
+      const updatedEmails = [...existingEmails];
+      if (newEmail) updatedEmails.push(newEmail);
+
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
         alert: {
@@ -102,12 +110,12 @@ function SignerAdvanceSettings({ route }: any) {
         };
 
         dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', updateInheritanceKeyInfo));
-        showToast('Email updated', <TickIcon />);
+        showToast(`Email ${newEmail ? 'updated' : 'deleted'}`, <TickIcon />);
         navigation.goBack();
-      } else showToast('Failed to update email');
+      } else showToast(`Failed to ${newEmail ? 'update' : 'delete'} email`);
     } catch (err) {
       captureError(err);
-      showToast('Failed to update email');
+      showToast(`Failed to ${newEmail ? 'update' : 'delete'} email`);
     }
   };
 
@@ -449,7 +457,7 @@ function SignerAdvanceSettings({ route }: any) {
         buttonText={currentEmail !== email ? 'Update' : ''}
         buttonCallback={() => {
           // TODO: put a check for email validation(show a toast if email isn't valid)
-          updateIKSPolicy(email);
+          updateIKSPolicy(currentEmail, email);
         }}
       />
       <KeeperModal
@@ -461,7 +469,9 @@ function SignerAdvanceSettings({ route }: any) {
         buttonTextColor="light.white"
         textColor="light.primaryText"
         buttonText="Delete"
-        buttonCallback={() => {}}
+        buttonCallback={() => {
+          updateIKSPolicy(currentEmail);
+        }}
         secondaryButtonText="Cancel"
         secondaryCallback={() => setDeleteEmailModal(false)}
         Content={DeleteEmailModalContent}
