@@ -331,6 +331,8 @@ export const MOCK_SD_MNEMONIC_MAP = {
     'equal gospel mirror humor early liberty finger breeze super celery invite proof',
   [SignerType.BITBOX02]:
     'journey gospel position invite winter pattern inquiry scrub sorry early enable badge',
+  [SignerType.SPECTER]:
+    'journey invite inquiry day among poverty inquiry affair keen pave nasty position',
 };
 
 export const generateMockExtendedKeyForSigner = (
@@ -339,6 +341,9 @@ export const generateMockExtendedKeyForSigner = (
   networkType = NetworkType.TESTNET
 ) => {
   const mockMnemonic = MOCK_SD_MNEMONIC_MAP[signer];
+  if (!mockMnemonic) {
+    throw new Error(`We don't support mock flow for soft keys`);
+  }
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, 123);

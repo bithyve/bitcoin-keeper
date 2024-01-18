@@ -54,6 +54,10 @@ function MockWrapper({
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
       }
     } catch (error) {
+      if (error.toString().includes(`We don't support`)) {
+        showToast(error.toString());
+        return;
+      }
       captureError(error);
     }
   };
