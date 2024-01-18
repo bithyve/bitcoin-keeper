@@ -302,6 +302,9 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
+  const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
+  const isAssistedKey = isPolicyServer || isInheritanceKey;
+
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
@@ -339,18 +342,22 @@ function SignerAdvanceSettings({ route }: any) {
           description={`Short description to help you remember`}
           callback={openDescriptionModal}
         />
-        <OptionCard
-          title={'Registered Email/Phone'}
-          description={`Delete or Edit registered email/phone`}
-          callback={() => {
-            setEditEmailModal(true);
-          }}
-        />
-        <OptionCard
-          title={'Manual Registration'}
-          description={`Register your active vault with the ${signer.signerName}`}
-          callback={registerSigner}
-        />
+        {isInheritanceKey && (
+          <OptionCard
+            title={'Registered Email/Phone'}
+            description={`Delete or Edit registered email/phone`}
+            callback={() => {
+              setEditEmailModal(true);
+            }}
+          />
+        )}
+        {isAssistedKey ? null : (
+          <OptionCard
+            title={'Manual Registration'}
+            description={`Register your active vault with the ${signer.signerName}`}
+            callback={registerSigner}
+          />
+        )}
         {/* disabling this temporarily */}
         {/* <OptionCard
           title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
