@@ -30,7 +30,8 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import Hexagon from 'src/components/HexagonIcon';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
@@ -66,14 +67,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     gap: 5,
-  },
-  iconContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 30 / 2,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   footer: {
     alignItems: 'center',
@@ -119,9 +112,12 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
     //   </TouchableOpacity>
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletInfoContainer}>
       <Box style={styles.textContainer}>
-        <Box style={styles.iconContainer} backgroundColor={`${colorMode}.primaryGreenBackground`}>
-          <WalletIcon />
-        </Box>
+        <HexagonIcon
+          width={32}
+          height={28}
+          backgroundColor={Colors.pantoneGreen}
+          icon={<WalletIcon />}
+        />
         <Box>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
             {title}
