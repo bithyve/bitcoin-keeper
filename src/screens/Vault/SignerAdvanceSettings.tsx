@@ -31,6 +31,9 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { TextInput } from 'react-native-gesture-handler';
+import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { captureError } from 'src/services/sentry';
 
 const { width } = Dimensions.get('screen');
 
@@ -42,6 +45,9 @@ function SignerAdvanceSettings({ route }: any) {
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
+
+  const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
+  const [email, setEmail] = useState(currentEmail);
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
@@ -56,6 +62,54 @@ function SignerAdvanceSettings({ route }: any) {
 
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
+
+  const updateIKSPolicy = async (newEmail: string) => {
+    try {
+      const thresholdDescriptors = activeVault.signers.map((signer) => signer.xfp).slice(0, 2);
+
+      if (signer.inheritanceKeyInfo === undefined)
+        showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+
+      const existingPolicy: InheritancePolicy = signer.inheritanceKeyInfo.policy;
+      const existingAlert: InheritanceAlert | any =
+        idx(signer, (_) => _.inheritanceKeyInfo.policy.alert) || {};
+      const existingEmails = existingAlert.emails || [];
+
+      // remove the previous email
+      const index = existingEmails.indexOf(currentEmail);
+      if (index !== -1) existingEmails.splice(index, 1);
+
+      // add the new email
+      const updatedEmails = [...existingEmails, newEmail];
+      const updatedPolicy: InheritancePolicy = {
+        ...existingPolicy,
+        alert: {
+          ...existingAlert,
+          emails: updatedEmails,
+        },
+      };
+
+      const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
+        vaultKey.xfp,
+        updatedPolicy,
+        thresholdDescriptors
+      );
+
+      if (updated) {
+        const updateInheritanceKeyInfo = {
+          ...signer.inheritanceKeyInfo,
+          policy: updatedPolicy,
+        };
+
+        dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', updateInheritanceKeyInfo));
+        showToast('Email updated', <TickIcon />);
+        navigation.goBack();
+      } else showToast('Failed to update email');
+    } catch (err) {
+      captureError(err);
+      showToast('Failed to update email');
+    }
+  };
 
   const registerSigner = async () => {
     switch (signer.type) {
@@ -141,11 +195,18 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  function editModalContent() {
+  function EditModalContent() {
     return (
       <Box height={400}>
         <Box>
-          <TextInput style={styles.textInput} placeholder="disa@khazadum.com" />
+          <TextInput
+            style={styles.textInput}
+            placeholder="pleb@bitcoin.com"
+            value={email}
+            onChangeText={(value) => {
+              setEmail(value);
+            }}
+          />
 
           <TouchableOpacity
             onPress={() => {
@@ -200,7 +261,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  function deleteEmailModalContent() {
+  function DeleteEmailModalContent() {
     return (
       <Box height={200} justifyContent={'flex-end'}>
         <Box>
@@ -384,7 +445,12 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor="light.secondaryText"
         buttonTextColor="light.white"
         textColor="light.primaryText"
-        Content={editModalContent}
+        Content={EditModalContent}
+        buttonText={currentEmail !== email ? 'Update' : ''}
+        buttonCallback={() => {
+          // TODO: put a check for email validation(show a toast if email isn't valid)
+          updateIKSPolicy(email);
+        }}
       />
       <KeeperModal
         visible={deleteEmailModal}
@@ -395,11 +461,10 @@ function SignerAdvanceSettings({ route }: any) {
         buttonTextColor="light.white"
         textColor="light.primaryText"
         buttonText="Delete"
-        // -----TODO PARSH-----
         buttonCallback={() => {}}
         secondaryButtonText="Cancel"
         secondaryCallback={() => setDeleteEmailModal(false)}
-        Content={deleteEmailModalContent}
+        Content={DeleteEmailModalContent}
       />
     </ScreenWrapper>
   );
