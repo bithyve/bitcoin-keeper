@@ -369,7 +369,7 @@ const getStyles = (colorMode) =>
     },
     walletDetailWrapper: {
       marginTop: 20,
-      width: '100%',
+      // width: '100%',
       paddingLeft: 10,
     },
     wallerCardWrapper: {
