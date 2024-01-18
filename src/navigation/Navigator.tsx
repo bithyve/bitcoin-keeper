@@ -101,7 +101,7 @@ import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
 import AddSigner from 'src/screens/AddSigner/AddSigner';
-import NewHomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
+import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 
 const defaultTheme = {
@@ -155,7 +155,7 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={NewHomeScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />

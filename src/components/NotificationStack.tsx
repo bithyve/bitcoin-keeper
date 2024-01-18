@@ -13,9 +13,8 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import { Box, ColorMode, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { uaiType } from 'src/models/interfaces/Uai';
-import UAIView from 'src/screens/HomeScreen/components/HeaderDetails/components/UAIView';
 import useUaiStack from 'src/hooks/useUaiStack';
 import { useDispatch } from 'react-redux';
 import { uaiActioned } from 'src/store/sagaActions/uai';
@@ -27,6 +26,8 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
+import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
+import { windowHeight } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -51,7 +52,6 @@ type CardProps = {
 
 function Card({ info, index, totalLength, activeIndex }: CardProps) {
   const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
 
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -205,7 +205,8 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
       <Animated.View style={[animations]}>
         <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
           <UAIView
-            title={info?.title}
+            title={'Add signers to setup vault'}
+            subTitle={info?.title}
             primaryCallbackText="ADD NOW"
             secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
             secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
@@ -230,9 +231,6 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
 }
 
 export default function NotificationStack() {
-  const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
-
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
 
@@ -247,14 +245,7 @@ export default function NotificationStack() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
-        <View
-          style={{
-            alignItems: 'center',
-            flex: 1,
-            justifyContent: 'flex-end',
-          }}
-          pointerEvents="box-none"
-        >
+        <View style={styles.viewWrapper}>
           {(uaiStack || []).map((c, index) => {
             return (
               <Card
@@ -272,36 +263,40 @@ export default function NotificationStack() {
   );
 }
 
-const getStyles = (colorMode: ColorMode) =>
-  StyleSheet.create({
-    container: {
-      position: 'relative',
-      top: 100,
-    },
-    card: {
-      borderRadius: layout.borderRadius,
-      width: layout.width,
-      height: layout.height,
-    },
-    title: {
-      fontSize: 12,
-      fontWeight: '600',
-    },
-    content: {
-      fontSize: 14,
-      fontWeight: '600',
-      width: '50%',
-    },
-    contentContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    skip: {
-      fontSize: 12,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      gap: 20,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+    top: windowHeight / 8,
+  },
+  viewWrapper: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  card: {
+    borderRadius: layout.borderRadius,
+    width: layout.width,
+    height: layout.height,
+  },
+  title: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  content: {
+    fontSize: 14,
+    fontWeight: '600',
+    width: '50%',
+  },
+  contentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  skip: {
+    fontSize: 12,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+});

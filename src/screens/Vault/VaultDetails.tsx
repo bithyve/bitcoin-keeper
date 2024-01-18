@@ -43,7 +43,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import useSignerMap from 'src/hooks/useSignerMap';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { SDIcons } from './SigningDeviceIcons';
 
 function Footer({
@@ -283,12 +283,11 @@ function SignerList({ vault }: { vault: Vault }) {
   const [unkonwnSignerHcModal, setUnkonwnSignerHcModal] = useState(false);
 
   //TO-DO
-  const signerPressHandler = (signer: VaultSigner) => {
-    if (signerMap[signer.masterFingerprint].type !== SignerType.UNKOWN_SIGNER) {
+  const signerPressHandler = (vaultKey: VaultSigner) => {
+    if (signerMap[vaultKey.masterFingerprint].type !== SignerType.UNKOWN_SIGNER) {
       navigation.dispatch(
         CommonActions.navigate('SigningDeviceDetails', {
-          SignerIcon: <SignerIcon />,
-          signerId: signer.xfp,
+          vaultKey,
           vaultId: vault.id,
         })
       );
@@ -325,7 +324,6 @@ function SignerList({ vault }: { vault: Vault }) {
               onPress={() => {
                 navigation.dispatch(
                   CommonActions.navigate('SigningDeviceDetails', {
-                    signer,
                     vaultKey,
                     vaultId: vault.id,
                   })

@@ -1,6 +1,7 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, ViewStyle } from 'react-native';
+import { windowHeight, windowWidth } from 'src/constants/responsive';
 
 type ActionCardProps = {
   cardName: string;
@@ -33,11 +34,12 @@ function ActionCard({ cardName, icon, description, customStyle, callback }: Acti
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: 114,
-    height: 125,
+    width: windowWidth / 3.3,
+    height: windowHeight / 6.5,
     padding: 10,
     borderRadius: 10,
   },
+
   circle: {
     width: 34,
     height: 34,

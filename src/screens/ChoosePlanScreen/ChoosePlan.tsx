@@ -5,7 +5,6 @@ import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
   getAvailablePurchases,
   SubscriptionPurchase,
 } from 'react-native-iap';
@@ -274,13 +273,10 @@ function ChoosePlan() {
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
-        processPurchase({
-          productId: sku,
-          transactionReceipt: 'keeper-dev-mock-purchase',
-          autoRenewingAndroid: true,
-          isCanceledAmazon: false,
-          transactionDate: Date.now(),
-          transactionId: `keeper-dev-mock-purchase-${Date.now()}`,
+        requestSubscription({
+          sku,
+          subscriptionOffers: [{ sku, offerToken }],
+          purchaseTokenAndroid,
         });
       }
     } catch (err) {
@@ -372,7 +368,7 @@ function ChoosePlan() {
         } Store`}
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor="light.white"
+        learnTextColor={`${colorMode}.white`}
         icon={<SettingsIcon />}
       />
       <KeeperModal

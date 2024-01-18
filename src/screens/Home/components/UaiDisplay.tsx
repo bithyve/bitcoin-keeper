@@ -13,7 +13,7 @@ import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import UAIView from './components/HeaderDetails/components/UAIView';
+import UAIView from '../../HomeScreen/components/HeaderDetails/components/UAIView';
 
 const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
 
