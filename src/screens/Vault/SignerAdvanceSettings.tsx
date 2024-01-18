@@ -141,7 +141,7 @@ function SignerAdvanceSettings({ route }: any) {
       <Box alignItems="center">
         <WarningIllustration />
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color="light.greenText" style={styles.warningText}>
             If the signer is identified incorrectly there may be repurcusssions with general signer
             interactions like signing etc.
           </Text>
@@ -152,22 +152,16 @@ function SignerAdvanceSettings({ route }: any) {
 
   function EditModalContent() {
     return (
-      <Box height={hp(400)}>
+      <Box style={styles.editModalContainer}>
         <Box>
           <TextInput style={styles.textInput} placeholder="disa@khazadum.com" />
           <TouchableOpacity>
-            <Box
-              style={[styles.deleteContentWrapper, { backgroundColor: `${colorMode}.LightBrown` }]}
-            >
+            <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
               <Box>
                 <DeleteIcon />
               </Box>
               <Box>
-                <Text
-                  style={{ fontWeight: '800' }}
-                  color={`${colorMode}.RussetBrown`}
-                  fontSize={13}
-                >
+                <Text style={styles.fw800} color={`${colorMode}.RussetBrown`} fontSize={13}>
                   Delete Email
                 </Text>
                 <Box fontSize={12}>This is a irreversible action</Box>
@@ -279,10 +273,10 @@ function SignerAdvanceSettings({ route }: any) {
         {/* ---------TODO Pratyaksh--------- */}
         {/* <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} /> */}
       </ScrollView>
-      <Box ml={2} style={{ marginVertical: 20 }}>
+      <Box style={styles.walletUsedText}>
         {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
       </Box>
-      <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
+      <ScrollView horizontal contentContainerStyle={styles.actionCardContainer}>
         {signerVaults.map((vault) => (
           <ActionCard
             key={vault.id}
@@ -302,10 +296,10 @@ function SignerAdvanceSettings({ route }: any) {
         }}
         style={styles.inputContainer}
       >
-        <Box height={60} style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Box justifyContent={'center'} paddingLeft={2}>
+        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box style={styles.fingerprintContainer}>
             <Text fontSize={14}>Signer Fingerprint</Text>
-            <Text width="80%" numberOfLines={1} color={`${colorMode}.GreenishGrey`}>
+            <Text style={styles.w80} numberOfLines={1} color={`${colorMode}.GreenishGrey`}>
               {signer.masterFingerprint}
             </Text>
           </Box>
@@ -434,6 +428,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 10,
+    height: 60,
   },
   copyIconWrapper: {
     padding: 10,
@@ -455,10 +450,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: hp(20),
   },
-  noteText: { fontWeight: '900', fontSize: 14 },
+  noteText: {
+    fontWeight: '900',
+    fontSize: 14,
+  },
   noteDescription: {
     fontSize: 13,
     padding: 1,
     letterSpacing: 0.65,
+  },
+  editModalContainer: {
+    height: hp(400),
+  },
+  fw800: {
+    fontWeight: '800',
+  },
+  fingerprintContainer: {
+    justifyContent: 'center',
+    paddingLeft: 2,
+  },
+  w80: {
+    width: '80%',
+  },
+  warningText: {
+    fontSize: 13,
+    padding: 1,
+    letterSpacing: 0.65,
+  },
+  walletUsedText: {
+    marginLeft: 2,
+    marginVertical: 20,
+  },
+  actionCardContainer: {
+    gap: 5,
   },
 });

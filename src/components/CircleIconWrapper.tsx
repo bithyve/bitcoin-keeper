@@ -7,7 +7,7 @@ type Props = {
   backgroundColor?: string;
 };
 
-function CircleIconWrapper({ icon, width = 50, backgroundColor = null }: Props) {
+function CircleIconWrapper({ icon, width = 50, backgroundColor }: Props) {
   return (
     <Box
       width={width}

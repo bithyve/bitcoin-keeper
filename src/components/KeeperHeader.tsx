@@ -37,10 +37,11 @@ function KeeperHeader({
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const styles = getStyles(marginLeft);
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <Box style={[styles.backContainer]}>
+        <Box style={styles.backContainer}>
           <TouchableOpacity
             testID="btn_back"
             onPress={onPressHandler || navigation.goBack}
@@ -66,13 +67,13 @@ function KeeperHeader({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box style={{ paddingLeft: marginLeft ? '10%' : 0, flexDirection: 'row', gap: 10 }}>
+        <Box style={styles.headerInfo}>
           {icon && icon}
           <Box>
             {title && (
               <Text
                 numberOfLines={1}
-                style={[styles.addWalletText, { fontSize: 16 }]}
+                style={styles.addWalletText}
                 color={`${colorMode}.headerText`}
                 testID="text_header_title"
               >
@@ -96,50 +97,57 @@ function KeeperHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'transparent',
-  },
-  addWalletText: {
-    lineHeight: 26,
-    letterSpacing: 0.8,
-  },
-  addWalletDescription: {
-    fontSize: 12,
-    lineHeight: 20,
-    letterSpacing: 0.5,
-  },
-  backContainer: {
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 5,
-    paddingVertical: windowHeight > 680 ? 15 : 7,
-  },
-  backButton: {
-    height: 20,
-    width: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  learnMoreContainer: {
-    borderWidth: 0.5,
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  learnMoreText: {
-    fontSize: 12,
-    letterSpacing: 0.6,
-    alignSelf: 'center',
-  },
-  headerContainer: {
-    width: windowWidth * 0.85,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-});
+const getStyles = (marginLeft: boolean) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: 'transparent',
+    },
+    addWalletText: {
+      lineHeight: 26,
+      letterSpacing: 0.8,
+      fontSize: 16,
+    },
+    addWalletDescription: {
+      fontSize: 12,
+      lineHeight: 20,
+      letterSpacing: 0.5,
+    },
+    backContainer: {
+      justifyContent: 'space-between',
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 5,
+      paddingVertical: windowHeight > 680 ? 15 : 7,
+    },
+    backButton: {
+      height: 20,
+      width: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    learnMoreContainer: {
+      borderWidth: 0.5,
+      borderRadius: 5,
+      paddingHorizontal: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    learnMoreText: {
+      fontSize: 12,
+      letterSpacing: 0.6,
+      alignSelf: 'center',
+    },
+    headerContainer: {
+      width: windowWidth * 0.85,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    headerInfo: {
+      paddingLeft: marginLeft ? '10%' : 0,
+      flexDirection: 'row',
+      gap: 10,
+    },
+  });
 export default KeeperHeader;
