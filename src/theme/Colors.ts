@@ -53,6 +53,7 @@ const Colors = {
   brownColor: 'rgba(145, 120, 92, 1)',
   learMoreTextcolor: 'rgba(242, 237, 230, 1)',
   Linen: 'rgba(240, 235, 230, 1)',
+  LightBrown: 'rgba(145, 120, 93, 0.08)',
 
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',

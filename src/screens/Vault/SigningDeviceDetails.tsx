@@ -355,7 +355,7 @@ function SigningDeviceDetails({ route }) {
         icon={SDIcons(signer.type, true).Icon}
       />
       <Box>
-        <Text style={{ fontSize: 16, padding: '7%' }}>Recent History</Text>
+        <Text style={styles.recentHistoryText}>Recent History</Text>
       </Box>
       <ScrollView contentContainerStyle={{ flex: 1 }}>
         <Box mx={5}>
@@ -451,6 +451,7 @@ const styles = StyleSheet.create({
   walletNameText: {
     fontSize: 20,
   },
+  recentHistoryText: { fontSize: 16, padding: '7%' },
 });
 
 export default SigningDeviceDetails;

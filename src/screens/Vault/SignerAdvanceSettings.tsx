@@ -152,23 +152,12 @@ function SignerAdvanceSettings({ route }: any) {
 
   function EditModalContent() {
     return (
-      <Box height={400}>
+      <Box height={hp(400)}>
         <Box>
           <TextInput style={styles.textInput} placeholder="disa@khazadum.com" />
           <TouchableOpacity>
             <Box
-              flexDirection={'row'}
-              gap={2}
-              alignItems={'center'}
-              height={70}
-              padding={5}
-              style={{
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderRadius: 10,
-                marginVertical: 10,
-                backgroundColor: 'rgba(145, 120, 93, 0.08)',
-              }}
+              style={[styles.deleteContentWrapper, { backgroundColor: `${colorMode}.LightBrown` }]}
             >
               <Box>
                 <DeleteIcon />
@@ -185,17 +174,13 @@ function SignerAdvanceSettings({ route }: any) {
               </Box>
             </Box>
           </TouchableOpacity>
-          <Box alignItems={'center'} marginVertical={20}>
+          <Box style={styles.warningIconWrapper}>
             <WarningIllustration />
           </Box>
-          <Text
-            style={{ fontWeight: '900' }}
-            color={`${colorMode}.primaryGreenBackground`}
-            fontSize={14}
-          >
+          <Text style={styles.noteText} color={`${colorMode}.primaryGreenBackground`}>
             Note:
           </Text>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color="light.greenText" style={styles.noteDescription}>
             If notification is not declined continuously for 30 days, the Key would be activated
           </Text>
         </Box>
@@ -456,5 +441,26 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginRight: 5,
+  },
+  deleteContentWrapper: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    marginVertical: hp(10),
+    gap: 10,
+    padding: 10,
+    height: hp(70),
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  warningIconWrapper: {
+    alignItems: 'center',
+    marginVertical: hp(20),
+  },
+  noteText: { fontWeight: '900', fontSize: 14 },
+  noteDescription: {
+    fontSize: 13,
+    padding: 1,
+    letterSpacing: 0.65,
   },
 });
