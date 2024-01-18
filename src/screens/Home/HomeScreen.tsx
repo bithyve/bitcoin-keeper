@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, Linking, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActionCard from 'src/components/ActionCard';
@@ -231,15 +231,13 @@ function NewHomeScreen({ navigation }) {
     },
   ];
 
-  const styles = getStyles(colorMode);
-
   return (
     <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
       <Box
         backgroundColor={`${colorMode}.primaryGreenBackground`}
         style={[styles.wrapper, { paddingTop: top }]}
       >
-        <Box width={'100%'} style={styles.padding}>
+        <Box style={styles.headerContainer}>
           <HeaderDetails />
         </Box>
         <Box style={styles.actionContainer}>
@@ -340,42 +338,41 @@ function NewHomeScreen({ navigation }) {
 }
 export default NewHomeScreen;
 
-const getStyles = (colorMode) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    valueWrapper: {
-      flex: 0.65,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: '35%',
-      gap: 10,
-      height: '100%',
-    },
-    padding: {
-      paddingHorizontal: 10,
-    },
-    wrapper: {
-      flex: 0.35,
-      width: '100%',
-      alignItems: 'center',
-      position: 'relative',
-    },
-    actionContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 7,
-      position: 'absolute',
-      top: hp(220),
-    },
-    walletDetailWrapper: {
-      marginTop: 20,
-      // width: '100%',
-      paddingLeft: 10,
-    },
-    wallerCardWrapper: {
-      marginRight: 10,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  valueWrapper: {
+    flex: 0.65,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '35%',
+    gap: 10,
+    height: '100%',
+  },
+  headerContainer: {
+    paddingHorizontal: 10,
+    width: '100%',
+  },
+  wrapper: {
+    flex: 0.35,
+    width: '100%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    position: 'absolute',
+    top: Platform.OS === 'android' ? hp(200) : hp(220),
+  },
+  walletDetailWrapper: {
+    marginTop: 20,
+    paddingHorizontal: 10,
+  },
+  wallerCardWrapper: {
+    marginRight: 10,
+  },
+});
