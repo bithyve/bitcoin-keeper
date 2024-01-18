@@ -106,7 +106,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.KEEPER:
-      name = 'Collaborative Signer';
+      name = 'Collaborative Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -252,6 +252,15 @@ export const getDeviceStatus = (
       } else {
         return { message: '', disabled: false };
       }
+    case SignerType.KEEPER:
+      return addSignerFlow || scheme?.n < 2
+        ? {
+            message: `You can add a ${getSignerNameFromType(
+              type
+            )} in a multisig configuration only`,
+            disabled: true,
+          }
+        : { message: '', disabled: false };
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
