@@ -22,6 +22,7 @@ import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
@@ -66,7 +67,12 @@ function AppSettings({ navigation }) {
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
         learnTextColor={`${colorMode}.white`}
-        icon={<SettingsIcon />}
+        icon={
+          <CircleIconWrapper
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+            icon={<SettingsIcon />}
+          />
+        }
         rightComponent={<CurrencyTypeSwitch />}
       />
       <ScrollView

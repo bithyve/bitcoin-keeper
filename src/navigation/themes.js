@@ -128,6 +128,7 @@ export const customTheme = extendTheme({
       PaleKhaki: Colors.PaleKhaki,
       Warmbeige: Colors.Warmbeige,
       LightBrown: Colors.LightBrown,
+      PearlWhite: Colors.PearlWhite,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -206,6 +207,7 @@ export const customTheme = extendTheme({
       PaleKhaki: Colors.PaleKhaki,
       Warmbeige: Colors.Warmbeige,
       LightBrown: Colors.LightBrown,
+      PearlWhite: Colors.PearlWhite,
     },
   },
   config: {

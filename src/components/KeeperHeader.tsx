@@ -67,11 +67,7 @@ function KeeperHeader({
       )}
       <Box style={styles.headerContainer}>
         <Box style={{ paddingLeft: marginLeft ? '10%' : 0, flexDirection: 'row', gap: 10 }}>
-          {icon && (
-            <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.circle}>
-              {icon}
-            </Box>
-          )}
+          {icon && icon}
           <Box>
             {title && (
               <Text
@@ -145,13 +141,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  circle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 export default KeeperHeader;

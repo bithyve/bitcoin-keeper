@@ -11,6 +11,8 @@ import Colors from 'src/theme/Colors';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import OptionCard from 'src/components/OptionCard';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 function VaultCard({ vaultName, vaultBalance, vaultDescription, getSatUnit }) {
   const { colorMode } = useColorMode();
@@ -68,7 +70,18 @@ function VaultSettings({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Vault Settings" subtitle="Settings specific to the vault" />
+      <KeeperHeader
+        title="Vault Settings"
+        subtitle="Settings specific to the vault"
+        icon={
+          <HexagonIcon
+            width={50}
+            height={38}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<VaultIcon />}
+          />
+        }
+      />
       <Box borderBottomColor={`${colorMode}.divider`} style={styles.vaultCardWrapper}>
         <VaultCard
           vaultName={name}

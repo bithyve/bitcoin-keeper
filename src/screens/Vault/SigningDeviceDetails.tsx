@@ -38,13 +38,13 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
 import { Signer } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -352,7 +352,12 @@ function SigningDeviceDetails({ route }) {
         subtitle={
           signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
-        icon={SDIcons(signer.type, true).Icon}
+        icon={
+          <CircleIconWrapper
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+            icon={SDIcons(signer.type, true).Icon}
+          />
+        }
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>

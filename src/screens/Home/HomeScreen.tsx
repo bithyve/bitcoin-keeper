@@ -249,6 +249,7 @@ function NewHomeScreen({ navigation }) {
               cardName={data.name}
               callback={data.callback}
               icon={data.icon}
+              dottedBorder
             />
           ))}
         </Box>
@@ -308,6 +309,8 @@ function NewHomeScreen({ navigation }) {
               name="Add"
               cardStyles={{ height: 260, width: 130 }}
               callback={() => navigation.navigate('AddWallet')}
+              iconWidth={44}
+              iconHeight={38}
             />
           )}
         />
