@@ -217,9 +217,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { wallet: walletTranslation } = translations;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box mb={-10}>
-        <KeeperHeader />
-      </Box>
+      <KeeperHeader />
       {/* ------------ TODO Pratyaksh ---- add vault details------- */}
       <VaultCardHeader />
       {/* <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>

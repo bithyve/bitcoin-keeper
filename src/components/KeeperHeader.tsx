@@ -103,7 +103,6 @@ function KeeperHeader({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
-    marginBottom: 10,
   },
   addWalletText: {
     lineHeight: 26,
