@@ -32,22 +32,6 @@ function ChoosePlanCarousel(props: Props) {
     props.onChange(index);
   };
 
-  const getBtnTitle = (item: SubScriptionPlan) => {
-    if (!item.isActive) {
-      return 'Coming soon';
-    }
-    if (item.productIds.includes(SubscriptionTier.L1)) {
-      return 'Select';
-    }
-    if (
-      item.name.split(' ')[0] === SubscriptionTier.L2 &&
-      subscription.name === SubscriptionTier.L3
-    ) {
-      return 'Select';
-    }
-    return 'Select';
-  };
-
   return (
     <Box
       style={{
