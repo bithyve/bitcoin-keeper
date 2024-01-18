@@ -394,7 +394,7 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId, vaultId } },
         ],
       })
     );

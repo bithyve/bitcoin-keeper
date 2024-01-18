@@ -41,7 +41,11 @@ import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interface
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
-import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
+import {
+  extractKeyFromDescriptor,
+  generateSignerFromMetaData,
+  getSignerNameFromType,
+} from 'src/hardware';
 import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
@@ -486,22 +490,26 @@ const verifyJade = (qrData, signer) => {
   return xpub === signer.xpub;
 };
 
-const setupKeeperSigner = (qrData, isMultisig) => {
+const setupKeeperSigner = (qrData) => {
   try {
-    const { mfp, xpubDetails } = JSON.parse(qrData);
+    const { xpub, derivationPath, masterFingerprint, forMultiSig } =
+      extractKeyFromDescriptor(qrData);
+    if (!forMultiSig) {
+      throw new HWError(HWErrorType.INVALID_SIG);
+    }
     const { signer: ksd, key } = generateSignerFromMetaData({
-      xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
-      derivationPath: isMultisig
-        ? xpubDetails[XpubTypes.P2WSH].derivationPath
-        : xpubDetails[XpubTypes.P2WPKH].derivationPath,
-      masterFingerprint: mfp,
+      xpub: xpub,
+      derivationPath,
+      masterFingerprint,
       signerType: SignerType.KEEPER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
-      xpubDetails,
     });
     return { signer: ksd, key };
   } catch (err) {
+    if (err instanceof HWError) {
+      throw err.message;
+    }
     const message = crossInteractionHandler(err);
     throw new Error(message);
   }
@@ -948,7 +956,7 @@ function HardwareModalMap({
           hw = setupSpecter(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
-          hw = setupKeeperSigner(qrData, isMultisig);
+          hw = setupKeeperSigner(qrData);
           break;
         case SignerType.KEYSTONE:
           hw = setupKeystone(qrData, isMultisig);

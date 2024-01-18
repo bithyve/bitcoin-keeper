@@ -283,12 +283,11 @@ function SignerList({ vault }: { vault: Vault }) {
   const [unkonwnSignerHcModal, setUnkonwnSignerHcModal] = useState(false);
 
   //TO-DO
-  const signerPressHandler = (signer: VaultSigner) => {
-    if (signerMap[signer.masterFingerprint].type !== SignerType.UNKOWN_SIGNER) {
+  const signerPressHandler = (vaultKey: VaultSigner) => {
+    if (signerMap[vaultKey.masterFingerprint].type !== SignerType.UNKOWN_SIGNER) {
       navigation.dispatch(
         CommonActions.navigate('SigningDeviceDetails', {
-          SignerIcon: <SignerIcon />,
-          signerId: signer.xfp,
+          vaultKey,
           vaultId: vault.id,
         })
       );
@@ -325,7 +324,6 @@ function SignerList({ vault }: { vault: Vault }) {
               onPress={() => {
                 navigation.dispatch(
                   CommonActions.navigate('SigningDeviceDetails', {
-                    signer,
                     vaultKey,
                     vaultId: vault.id,
                   })
