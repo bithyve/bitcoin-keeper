@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Box, Center, HStack, useColorMode } from 'native-base';
+import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
@@ -38,13 +38,12 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
-import { Signer } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -197,7 +196,9 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signer, vaultKey, vaultId } = route.params;
+  const { vaultKey, vaultId } = route.params;
+  const { signerMap } = useSignerMap();
+  const signer = signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -216,7 +217,7 @@ function SigningDeviceDetails({ route }) {
         { name: 'Health Check Successful', lastHealthCheck: signer.lastHealthCheck },
       ]);
     }
-  }, [signer]);
+  }, []);
 
   if (!signer) {
     return null;
@@ -273,31 +274,6 @@ function SigningDeviceDetails({ route }) {
   }
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
-
-  function VaultCardHeader({ signer }: { signer: Signer }) {
-    return (
-      <Box style={styles.walletHeaderWrapper}>
-        <Box style={styles.walletIconWrapper}>
-          <Box
-            style={styles.walletIconView}
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-          >
-            {SDIcons(signer.type, true).Icon}
-          </Box>
-        </Box>
-        <Box style={styles.walletNameWrapper}>
-          <Text color={`${colorMode}.textBlack`} style={styles.walletNameText}>
-            {signer.signerName}
-          </Text>
-          <Text
-            color={`${colorMode}.textBlack`}
-            style={styles.walletDescText}
-            numberOfLines={1}
-          ></Text>
-        </Box>
-      </Box>
-    );
-  }
 
   const footerItems = [
     {
@@ -359,8 +335,8 @@ function SigningDeviceDetails({ route }) {
       </Box>
       <ScrollView contentContainerStyle={{ flex: 1 }}>
         <Box mx={5}>
-          {healthCheckArray.map(() => (
-            <SigningDeviceChecklist signer={signer} />
+          {healthCheckArray.map((_, index) => (
+            <SigningDeviceChecklist signer={signer} key={index.toString()} />
           ))}
         </Box>
       </ScrollView>

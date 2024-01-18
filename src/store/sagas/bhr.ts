@@ -391,7 +391,7 @@ function* recoverApp(
             signers.push(signer);
           });
 
-          const { xpubDetails } = getCosignerDetails(decrytpedWallet, app.id);
+          const { xpubDetails } = getCosignerDetails(decrytpedWallet);
           const isValidDescriptor = signers.find(
             (signer) => signer.xpub === xpubDetails[XpubTypes.P2WSH].xpub
           );
