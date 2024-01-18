@@ -365,3 +365,22 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return null;
   }
 };
+
+export const extractKeyFromDescriptor = (data) => {
+  const xpub = data.slice(data.indexOf(']') + 1);
+  const masterFingerprint = data.slice(1, 9);
+  const derivationPath = data
+    .slice(data.indexOf('[') + 1, data.indexOf(']'))
+    .replace(masterFingerprint, 'm');
+  const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
+  let forMultiSig: boolean;
+  let forSingleSig: boolean;
+  if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
+    forMultiSig = true;
+    forSingleSig = false;
+  } else {
+    forMultiSig = false;
+    forSingleSig = true;
+  }
+  return { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig };
+};
