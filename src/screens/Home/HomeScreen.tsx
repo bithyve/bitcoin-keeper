@@ -35,7 +35,7 @@ import { urlParamsToObj } from 'src/core/utils';
 import { DowngradeModal } from './components/DowngradeModal';
 import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
 import HeaderDetails from './components/HeaderDetails';
-import { windowHeight } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -198,7 +198,17 @@ function NewHomeScreen({ navigation }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const cardsData = [
     {
-      name: 'Inheritance Tools',
+      name: 'Buy Bitcoin',
+      icon: <BTC />,
+      callback: onPressBuyBitcoin,
+    },
+    {
+      name: 'Manage All Signers',
+      icon: <SignerIcon />,
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
+    },
+    {
+      name: 'Security & Inheritance Tools',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
@@ -218,16 +228,6 @@ function NewHomeScreen({ navigation }) {
           navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
         }
       },
-    },
-    {
-      name: 'Buy Bitcoin',
-      icon: <BTC />,
-      callback: onPressBuyBitcoin,
-    },
-    {
-      name: 'Manage All Signers',
-      icon: <SignerIcon />,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
   ];
 
@@ -365,12 +365,12 @@ const getStyles = (colorMode) =>
       justifyContent: 'center',
       gap: 7,
       position: 'absolute',
-      top: windowHeight / 3.5,
+      top: hp(220),
     },
     walletDetailWrapper: {
       marginTop: 20,
       width: '100%',
-      justifyContent: 'center',
+      paddingLeft: 10,
     },
     wallerCardWrapper: {
       marginRight: 10,
