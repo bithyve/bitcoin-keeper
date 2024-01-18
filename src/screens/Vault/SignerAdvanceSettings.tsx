@@ -3,7 +3,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import Clipboard from '@react-native-community/clipboard';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -203,7 +203,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  function EditModalContent() {
+  const EditModalContent = useCallback(() => {
     return (
       <Box height={400}>
         <Box>
@@ -267,7 +267,7 @@ function SignerAdvanceSettings({ route }: any) {
         </Box>
       </Box>
     );
-  }
+  }, [email]);
 
   function DeleteEmailModalContent() {
     return (
@@ -463,8 +463,13 @@ function SignerAdvanceSettings({ route }: any) {
         Content={EditModalContent}
         buttonText={currentEmail !== email ? 'Update' : ''}
         buttonCallback={() => {
-          // TODO: put a check for email validation(show a toast if email isn't valid)
-          updateIKSPolicy(currentEmail, email);
+          let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+          if (reg.test(email) === false) {
+            console.log('Email is Not Correct');
+            showToast(`Email is incorrect`);
+          } else {
+            updateIKSPolicy(currentEmail, email);
+          }
         }}
       />
       <KeeperModal
