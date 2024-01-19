@@ -39,13 +39,16 @@ const STANDARD_VAULT_SCHEME = [
   { m: 3, n: 5 },
 ];
 
-export const generateVaultId = (signers: VaultSigner[], networkType, scheme) => {
-  const network = WalletUtilities.getNetworkByType(networkType);
+export const generateVaultId = (signers: VaultSigner[], scheme) => {
   const xpubs = signers.map((signer) => signer.xpub).sort();
-  const fingerprints = [];
-  xpubs.forEach((xpub) =>
-    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
-  );
+  const xpubMap = {};
+  signers.forEach((signer) => {
+    xpubMap[signer.xpub] = signer;
+  });
+  const fingerprints = xpubs.map((xpub) => {
+    const signer = xpubMap[xpub];
+    return signer.xfp;
+  });
   STANDARD_VAULT_SCHEME.forEach((s) => {
     if (s.m !== scheme.m || s.n !== scheme.n) {
       fingerprints.push(JSON.stringify(scheme));
@@ -77,7 +80,7 @@ export const generateVault = async ({
   collaborativeWalletId?: string;
   signerMap: { [key: string]: Signer };
 }): Promise<Vault> => {
-  const id = generateVaultId(signers, networkType, scheme);
+  const id = generateVaultId(signers, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;

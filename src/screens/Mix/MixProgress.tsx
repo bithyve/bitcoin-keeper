@@ -43,6 +43,7 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { useQuery } from '@realm/react';
+import { CommonActions } from '@react-navigation/native';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -362,11 +363,17 @@ function MixProgress({
       } finally {
         setTimeout(async () => {
           dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-          navigation.navigate('UTXOManagement', {
-            data: depositWallet,
-            accountType: WalletType.POST_MIX,
-            routeName: 'Wallet',
-          });
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'UTXOManagement',
+              params: {
+                data: depositWallet,
+                accountType: WalletType.POST_MIX,
+                routeName: 'Wallet',
+              },
+              merge: true,
+            })
+          );
         }, 3000);
       }
     }
