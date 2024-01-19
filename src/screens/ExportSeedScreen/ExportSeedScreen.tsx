@@ -98,7 +98,7 @@ function ExportSeedScreen({ route, navigation }) {
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <KeeperHeader title={seedText.recoveryPhrase} subtitle={seedText.SeedDesc} />
+      <KeeperHeader title={seedText.backupPhrase} subtitle={seedText.SeedDesc} />
 
       <Box style={{ flex: 1 }}>
         <FlatList
@@ -110,7 +110,11 @@ function ExportSeedScreen({ route, navigation }) {
         />
       </Box>
       <Box m={2}>
-        <Note title={common.note} subtitle={BackupWallet.recoveryPhraseNote} subtitleColor="GreyText" />
+        <Note
+          title={common.note}
+          subtitle={BackupWallet.recoveryPhraseNote}
+          subtitleColor="GreyText"
+        />
       </Box>
       {!next && (
         <Pressable
@@ -195,7 +199,7 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         title={BackupWallet.backupSuccessTitle}
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
