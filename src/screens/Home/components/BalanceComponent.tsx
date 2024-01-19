@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, HStack, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -8,9 +8,10 @@ function BalanceComponent({ balance, count }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.walletWrapper}>
-      <Text color={`${colorMode}.black`} style={styles.noOfWallet}>
-        <Text style={{ fontWeight: 'bold' }}>{count}</Text> Wallet{count > 1 && 's'}
-      </Text>
+      <HStack color={`${colorMode}.black`} space={2}>
+        <Text style={[styles.noOfWallet, { fontWeight: 'bold' }]}>{count}</Text>
+        <Text style={styles.noOfWallet}>Wallet{count > 1 && 's'}</Text>
+      </HStack>
       <Box style={styles.amount}>
         <CurrencyInfo
           hideAmounts={false}
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   noOfWallet: {
-    textAlign: 'center',
+    // textAlign: 'center',
     fontSize: 27,
     lineHeight: 27,
   },
