@@ -5,7 +5,6 @@ import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
   getAvailablePurchases,
   SubscriptionPurchase,
 } from 'react-native-iap';
@@ -30,12 +29,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
-import { useRoute } from '@react-navigation/native';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
 import TierUpgradeModal from './TierUpgradeModal';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 function ChoosePlan() {
   const route = useRoute();
+  const navigation = useNavigation();
   const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
@@ -55,6 +55,8 @@ function ChoosePlan() {
   const [isMonthly, setIsMonthly] = useState(true);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
+  const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
+
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
       processPurchase(purchase);
@@ -79,13 +81,14 @@ function ChoosePlan() {
   }, []);
 
   async function init() {
+    let data = [];
     try {
       const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
       if (getPlansResponse.plans) {
+        data = getPlansResponse.plans;
         const skus = [];
         getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
-        const data = getPlansResponse.plans;
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
           const monthlyPlans = [];
@@ -133,6 +136,15 @@ function ChoosePlan() {
       }
     } catch (error) {
       console.log('error', error);
+      if (error.message.includes('Billing is unavailable.')) {
+        setItems(data);
+        setLoading(false);
+        showToast(error.message);
+        setIsServiceUnavailible(true);
+      } else {
+        navigation.goBack();
+        showToast(error.message);
+      }
     }
   }
 
@@ -159,7 +171,7 @@ function ChoosePlan() {
       } else if (response.error) {
         showToast(response.error);
       }
-      await RNIap.finishTransaction({ purchase, isConsumable: false });
+      if (receipt) await RNIap.finishTransaction({ purchase, isConsumable: false });
     } catch (error) {
       setRequesting(false);
       console.log(error);
@@ -247,6 +259,12 @@ function ChoosePlan() {
           ]);
         }
       } else {
+        if (isServiceUnavailible) {
+          showToast(
+            'It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon'
+          );
+          return;
+        }
         setRequesting(true);
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
         const sku = plan.productId;
@@ -255,13 +273,10 @@ function ChoosePlan() {
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
-        processPurchase({
-          productId: sku,
-          transactionReceipt: 'keeper-dev-mock-purchase',
-          autoRenewingAndroid: true,
-          isCanceledAmazon: false,
-          transactionDate: Date.now(),
-          transactionId: `keeper-dev-mock-purchase-${Date.now()}`,
+        requestSubscription({
+          sku,
+          subscriptionOffers: [{ sku, offerToken }],
+          purchaseTokenAndroid,
         });
       }
     } catch (err) {
@@ -353,7 +368,7 @@ function ChoosePlan() {
         } Store`}
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor="light.white"
+        learnTextColor={`${colorMode}.white`}
         icon={<SettingsIcon />}
       />
       <KeeperModal

@@ -10,9 +10,9 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
-function VaultConfigurationRecovery() {
+function VaultConfigurationCreation() {
   const [inputText, setInputText] = useState('');
-  const { recoveryLoading, initateRecovery } = useConfigRecovery();
+  const { recoveryLoading, recoveryError, initateRecovery } = useConfigRecovery();
   const { navigate } = useNavigation();
 
   return (
@@ -24,12 +24,12 @@ function VaultConfigurationRecovery() {
       >
         <View style={styles.wrapper}>
           <KeeperHeader
-            title="Recovery through Vault configuration"
-            subtitle="Recover the Vault from output descriptor or configuration"
+            title="Recovery through vault configuration"
+            subtitle="Recover the vault from output descriptor or configuration"
           />
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
             <TextInput
-              placeholder="Enter the Vault configuration or output descriptor"
+              placeholder="Enter the vault configuration or output descriptor"
               placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
               style={styles.textInput}
               value={inputText}
@@ -45,15 +45,13 @@ function VaultConfigurationRecovery() {
                 title="Scan or Import a file"
                 subTitle="From your phone"
                 onPress={() => {
-                  navigate('LoginStack', {
-                    screen: 'ScanQRFileRecovery',
-                  });
+                  navigate('ScanQRFileRecovery');
                 }}
               />
             </Box>
             <Buttons
               primaryCallback={() => initateRecovery(inputText)}
-              primaryText="Recover"
+              primaryText="Create Vault"
               primaryLoading={recoveryLoading}
             />
           </Box>
@@ -63,7 +61,7 @@ function VaultConfigurationRecovery() {
   );
 }
 
-export default VaultConfigurationRecovery;
+export default VaultConfigurationCreation;
 
 const styles = StyleSheet.create({
   wrapper: {

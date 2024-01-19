@@ -21,6 +21,7 @@ import Switch from 'src/components/Switch/Switch';
 import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
@@ -37,39 +38,46 @@ function AppSettings({ navigation }) {
     dispatch(setSatsEnabled(!satsEnabled));
   };
 
+  const actionCardData = [
+    {
+      cardName: settings.appBackup,
+      icon: <AppBackupIcon />,
+      callback: () => {
+        navigation.navigate('BackupWallet');
+      },
+    },
+    {
+      cardName: settings.ManageWallets,
+      icon: <WalletIcon />,
+      callback: () => navigation.navigate('ManageWallets'),
+    },
+    {
+      cardName: common.FAQs,
+      icon: <FaqIcon />,
+      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`),
+    },
+  ];
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`Keeper ${common.settings}`}
         subtitle={settings.settingsSubTitle}
         learnMore
-        learnBackgroundColor="light.RussetBrown"
-        learnTextColor="light.white"
+        learnBackgroundColor={`${colorMode}.RussetBrown`}
+        learnTextColor={`${colorMode}.white`}
         icon={<SettingsIcon />}
+        rightComponent={<CurrencyTypeSwitch />}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
       >
-        <ScrollView showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <Box style={styles.actionContainer}>
-            <ActionCard
-              cardName={settings.appBackup}
-              icon={<AppBackupIcon />}
-              callback={() => {
-                navigation.navigate('BackupWallet');
-              }}
-            />
-            <ActionCard
-              cardName={settings.ManageWallets}
-              icon={<WalletIcon />}
-              callback={() => navigation.navigate('ManageWallets')}
-            />
-            <ActionCard
-              cardName={common.FAQs}
-              icon={<FaqIcon />}
-              callback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}
-            />
+            {actionCardData.map((card) => (
+              <ActionCard cardName={card.cardName} icon={card.icon} callback={card.callback} />
+            ))}
           </Box>
         </ScrollView>
         <OptionCard
@@ -111,14 +119,7 @@ function AppSettings({ navigation }) {
         />
       </ScrollView>
       <Box backgroundColor={`${colorMode}.primaryBackground`}>
-        <Box
-          style={{
-            flexDirection: 'row',
-            gap: 10,
-            justifyContent: 'space-around',
-            marginBottom: 10,
-          }}
-        >
+        <Box style={styles.bottomNav}>
           <NavButton
             icon={<Telegram />}
             heading="Keeper Telegram"
@@ -245,6 +246,12 @@ const styles = StyleSheet.create({
   actionContainer: {
     flexDirection: 'row',
     gap: 5,
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-around',
+    marginBottom: 10,
   },
 });
 export default AppSettings;

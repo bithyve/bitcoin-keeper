@@ -28,8 +28,9 @@ import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import SignerModals from './SignerModals';
-import SignerList from './SignerList';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import {
   signTransactionWithColdCard,
   signTransactionWithInheritanceKey,
@@ -38,10 +39,9 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import Text from 'src/components/KeeperText';
-import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
+import SignerList from './SignerList';
+import SignerModals from './SignerModals';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -394,7 +394,7 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId, vaultId } },
         ],
       })
     );
@@ -435,14 +435,14 @@ function SignTransactionScreen() {
                 })
               );
             } else {
-              showToast(`Sorry there aren't enough signatures!`);
+              showToast("Sorry there aren't enough signatures!");
             }
           }}
         />
       </Box>
       <Note
         title={common.note}
-        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
+        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
         subtitleColor="GreyText"
       />
       <SignerModals

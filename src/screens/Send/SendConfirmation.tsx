@@ -46,8 +46,8 @@ import Fonts from 'src/constants/Fonts';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import AddIcon from 'src/assets/images/add.svg';
 import AddIconWhite from 'src/assets/images/icon_add_white.svg';
-import CustomPriorityModal from './CustomPriorityModal';
 import { UTXO } from 'src/core/wallets/interfaces';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -119,10 +119,10 @@ function SendingCard({
     switch (transferType) {
       case TransferType.VAULT_TO_VAULT:
         return isSend ? (
-          <Card title="Old Vault" subTitle="Moving all funds" isVault />
+          <Card title="Old vault" subTitle="Moving all funds" isVault />
         ) : (
           <Card
-            title="New Vault"
+            title="New vault"
             subTitle={`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
             isVault
           />
@@ -270,9 +270,9 @@ function SendingPriority({
         </Box>
       </Box>
 
-      <Box mt={hp(1)} width={'100%'}>
+      <Box mt={hp(1)} width="100%">
         {availableTransactionPriorities?.map((priority) => {
-          if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0)
+          if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
             return (
               <TouchableOpacity
                 key={priority}
@@ -322,6 +322,7 @@ function SendingPriority({
                 </Box>
               </TouchableOpacity>
             );
+          }
         })}
       </Box>
       <TouchableOpacity onPress={setVisibleCustomPriorityModal}>
@@ -771,21 +772,21 @@ function SendConfirmation({ route }) {
         </TouchableOpacity>
         <AmountDetails
           title={walletTransactions.totalAmount}
-          fiatAmount={'10,000.00'}
+          fiatAmount="10,000.00"
           satsAmount={getBalance(amount)}
         />
         <AmountDetails
           title={walletTransactions.totalFees}
-          fiatAmount={'80.00'}
+          fiatAmount="80.00"
           satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
         <AmountDetails
           title={walletTransactions.total}
-          fiatAmount={'10,080.00'}
+          fiatAmount="10,080.00"
           satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
           fontSize={17}
-          fontWeight={'400'}
+          fontWeight="400"
         />
         {/* <Box>
           {customFeeOptionTransfers.includes(transferType) ? (
@@ -846,7 +847,7 @@ function SendConfirmation({ route }) {
         close={() => setConfirmPassVisible(false)}
         title={walletTransactions.confirmPassTitle}
         subTitleWidth={wp(240)}
-        subTitle={''}
+        subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -867,7 +868,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.transactionPriority}
         subTitleWidth={wp(240)}
-        subTitle={''}
+        subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -925,7 +926,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle={'Enter sats to pay per vbyte'}
+          subTitle="Enter sats to pay per vbyte"
           network={sender.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender}

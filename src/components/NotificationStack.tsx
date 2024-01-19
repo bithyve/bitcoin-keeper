@@ -1,5 +1,5 @@
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
-const { width } = Dimensions.get('window');
+import React, { useEffect, useState } from 'react';
+import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
   Gesture,
@@ -13,21 +13,25 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import { Box, useColorMode } from 'native-base';
+import { uaiType } from 'src/models/interfaces/Uai';
+import useUaiStack from 'src/hooks/useUaiStack';
+import { useDispatch } from 'react-redux';
+import { uaiActioned } from 'src/store/sagaActions/uai';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import useVault from 'src/hooks/useVault';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import Text from './KeeperText';
-import { Box, ColorMode, useColorMode } from 'native-base';
-import { useContext, useState } from 'react';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
-import CustomGreenButton from './CustomButton/CustomGreenButton';
+import KeeperModal from './KeeperModal';
+import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
+import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
+import { windowHeight } from 'src/constants/responsive';
 
-const data = [
-  { id: 1, title: 'Card 1', content: 'Content for Card 1' },
-  { id: 2, title: 'Card 2', content: 'Content for Card 2' },
-  { id: 3, title: 'Card 3', content: 'Content for Card 3' },
-  { id: 4, title: 'Card 4', content: 'Content for Card 4' },
-  { id: 5, title: 'Card 5', content: 'Content for Card 5' },
-];
+const { width } = Dimensions.get('window');
 
-const _size = width * 0.9;
+const _size = width * 0.95;
 const layout = {
   borderRadius: 16,
   width: _size,
@@ -37,19 +41,28 @@ const layout = {
 };
 const maxVisibleItems = 3;
 
+const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
+
 type CardProps = {
   totalLength: number;
   index: number;
-  info: (typeof data)[0];
+  info: any;
   activeIndex: SharedValue<number>;
-  removeCard: () => void;
 };
 
-function Card({ info, index, totalLength, activeIndex, removeCard }: CardProps) {
-  const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+function Card({ info, index, totalLength, activeIndex }: CardProps) {
   const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
+
+  const dispatch = useDispatch();
+  const navigtaion = useNavigation();
+  const { showToast } = useToastMessage();
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalActionLoader, setmodalActionLoader] = useState(false);
+  const [uaiConfig, setUaiConfig] = useState<any>({});
+
+  const vaultId = '';
+  const { activeVault } = useVault({ vaultId }) || '';
 
   const animations = useAnimatedStyle(() => {
     return {
@@ -75,42 +88,153 @@ function Card({ info, index, totalLength, activeIndex, removeCard }: CardProps) 
     };
   });
 
+  const getUaiTypeDefinations = (type: string, entityId?: string) => {
+    switch (type) {
+      case uaiType.RELEASE_MESSAGE:
+        return {
+          modalDetails: {
+            heading: 'Update application',
+            btnText: 'Update',
+          },
+          cta: () => {
+            setShowModal(false);
+            uaiSetActionFalse();
+          },
+        };
+      case uaiType.VAULT_TRANSFER:
+        return {
+          modalDetails: {
+            heading: 'Trasfer to Vault',
+            subTitle:
+              'Your Auto-transfer policy has triggered a transaction that needs your approval',
+            btnText: ' Transfer Now',
+          },
+          cta: () => {
+            activeVault
+              ? navigtaion.navigate('SendConfirmation', {
+                  uaiSetActionFalse,
+                  walletId: uai?.entityId,
+                  transferType: TransferType.WALLET_TO_VAULT,
+                })
+              : showToast('No vaults found', <ToastErrorIcon />);
+
+            setShowModal(false);
+          },
+        };
+      case uaiType.SECURE_VAULT:
+        return {
+          cta: () => {
+            navigtaion.dispatch(
+              CommonActions.navigate({ name: 'VaultSetup', merge: true, params: {} })
+            );
+          },
+        };
+      case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
+        return {
+          cta: () => {
+            navigtaion.navigate('VaultDetails', { vaultId: activeVault.id });
+          },
+        };
+      case uaiType.IKS_REQUEST:
+        return {
+          modalDetails: {
+            heading: 'Inheritance Key request',
+            subTitle: `Request:${entityId}`,
+            displayText:
+              'There is a request by someone for accessing the Inheritance Key you have set up using this app',
+            btnText: 'Decline',
+          },
+          cta: async (entityId) => {
+            try {
+              setmodalActionLoader(true);
+              if (entityId) {
+                const res = await InheritanceKeyServer.declineInheritanceKeyRequest(entityId);
+                if (res?.declined) {
+                  showToast('IKS declined');
+                  uaiSetActionFalse();
+                  setShowModal(false);
+                } else {
+                  Alert.alert('Something went Wrong!');
+                }
+              }
+            } catch (err) {
+              Alert.alert('Something went Wrong!');
+              console.log('Error in declining request');
+            }
+            setShowModal(false);
+            setmodalActionLoader(false);
+          },
+        };
+      case uaiType.DEFAULT:
+        return {
+          cta: () => {
+            activeVault
+              ? navigtaion.navigate('VaultDetails', { vaultId: activeVault.id })
+              : showToast('No vaults found', <ToastErrorIcon />);
+          },
+        };
+      default:
+        return {
+          cta: () => {
+            activeVault
+              ? navigtaion.navigate('VaultDetails', { vaultId: activeVault.id })
+              : showToast('No vaults found', <ToastErrorIcon />);
+          },
+        };
+    }
+  };
+
+  useEffect(() => {
+    setUaiConfig(getUaiTypeDefinations(info?.uaiType, info?.entityId));
+  }, [info]);
+
+  const uaiSetActionFalse = () => {
+    dispatch(uaiActioned(info.id));
+  };
+
+  const pressHandler = () => {
+    if (info?.isDisplay) {
+      setShowModal(true);
+    } else {
+      uaiConfig?.cta();
+    }
+  };
+
   return (
-    <Animated.View style={[animations]}>
-      <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
-        <Text color={`${colorMode}.RussetBrown`} style={styles.title}>
-          {info.title}
-        </Text>
-        <Box style={styles.contentContainer}>
-          <Text color={`${colorMode}.GreenishGrey`} style={styles.content} numberOfLines={1}>
-            {info.content}
-          </Text>
-          <Box style={styles.buttonContainer}>
-            <TouchableOpacity style={{ alignSelf: 'center' }} onPress={removeCard}>
-              <Text color={`${colorMode}.RussetBrown`} style={styles.skip}>
-                SKIP
-              </Text>
-            </TouchableOpacity>
-            <Box>
-              <CustomGreenButton value={common['action']} />
-            </Box>
-          </Box>
+    <>
+      <Animated.View style={[animations]}>
+        <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
+          <UAIView
+            title={'Add signers to setup vault'}
+            subTitle={info?.title}
+            primaryCallbackText="ADD NOW"
+            secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
+            secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
+            primaryCallback={pressHandler}
+          />
         </Box>
-      </Box>
-    </Animated.View>
+      </Animated.View>
+
+      <KeeperModal
+        visible={showModal}
+        close={() => setShowModal(false)}
+        title={uaiConfig?.modalDetails?.heading}
+        subTitle={uaiConfig?.modalDetails?.subTitle}
+        buttonText={uaiConfig?.modalDetails?.btnText}
+        buttonTextColor="light.white"
+        buttonCallback={() => uaiConfig?.cta(info?.entityId)}
+        Content={() => <Text color="light.greenText">{info?.displayText}</Text>}
+      />
+      <ActivityIndicatorView visible={modalActionLoader} showLoader />
+    </>
   );
 }
 
 export default function NotificationStack() {
-  const { colorMode } = useColorMode();
-  const styles = getStyles(colorMode);
-
-  const [notifications, setNotifications] = useState(data);
   const activeIndex = useSharedValue(0);
+  const { uaiStack } = useUaiStack();
 
-  const removeCard = () => {
-    setNotifications(notifications.slice(1));
-  };
+  const removeCard = () => {};
 
   const flingUp = Gesture.Fling()
     .direction(Directions.UP)
@@ -121,24 +245,15 @@ export default function NotificationStack() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
-        <View
-          style={{
-            alignItems: 'center',
-            flex: 1,
-            justifyContent: 'flex-end',
-            marginBottom: layout.cardsGap * 2,
-          }}
-          pointerEvents="box-none"
-        >
-          {notifications.map((c, index) => {
+        <View style={styles.viewWrapper}>
+          {(uaiStack || []).map((c, index) => {
             return (
               <Card
                 info={c}
                 key={c.id}
                 index={index}
-                totalLength={notifications.length - 1}
+                totalLength={uaiStack.length - 1}
                 activeIndex={activeIndex}
-                removeCard={removeCard}
               />
             );
           })}
@@ -148,45 +263,40 @@ export default function NotificationStack() {
   );
 }
 
-const getStyles = (colorMode: ColorMode) =>
-  StyleSheet.create({
-    container: {
-      position: 'relative',
-      top: 100,
-    },
-    card: {
-      borderRadius: layout.borderRadius,
-      width: layout.width,
-      height: layout.height,
-      padding: 10,
-      shadowColor: `${colorMode}.Greige`,
-      shadowRadius: 10,
-      shadowOpacity: 1,
-      shadowOffset: {
-        width: 0,
-        height: 0,
-      },
-      elevation: 5,
-    },
-    title: {
-      fontSize: 12,
-      fontWeight: '600',
-    },
-    content: {
-      fontSize: 14,
-      fontWeight: '600',
-      width: '50%',
-    },
-    contentContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    skip: {
-      fontSize: 12,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      gap: 20,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+    top: windowHeight / 8,
+  },
+  viewWrapper: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  card: {
+    borderRadius: layout.borderRadius,
+    width: layout.width,
+    height: layout.height,
+  },
+  title: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  content: {
+    fontSize: 14,
+    fontWeight: '600',
+    width: '50%',
+  },
+  contentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  skip: {
+    fontSize: 12,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+});

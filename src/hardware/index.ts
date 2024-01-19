@@ -106,7 +106,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.KEEPER:
-      name = 'Collaborative Signer';
+      name = 'Collaborative Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -142,7 +142,10 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'BitBox02';
       break;
     case SignerType.OTHER_SD:
-      name = 'Other Signing Device';
+      name = 'Other signer';
+      break;
+    case SignerType.UNKOWN_SIGNER:
+      name = 'Unknown Signer';
       break;
     case SignerType.INHERITANCEKEY:
       name = 'Inheritance Key';
@@ -162,10 +165,10 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Multisig setup file (exported from Keeper)\n';
-  line += `Name: Keeper Vault\n`;
+  line += 'Name: Keeper vault\n';
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
-  line += `Format: P2WSH\n`;
-  line += `\n`;
+  line += 'Format: P2WSH\n';
+  line += '\n';
   vault.signers.forEach((signer) => {
     line += `Derivation: ${signer.derivationPath}\n`;
     line += `${signer.masterFingerprint}: ${signer.xpub}\n\n`;
@@ -249,6 +252,15 @@ export const getDeviceStatus = (
       } else {
         return { message: '', disabled: false };
       }
+    case SignerType.KEEPER:
+      return addSignerFlow || scheme?.n < 2
+        ? {
+            message: `You can add a ${getSignerNameFromType(
+              type
+            )} in a multisig configuration only`,
+            disabled: true,
+          }
+        : { message: '', disabled: false };
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
@@ -361,4 +373,23 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     default:
       return null;
   }
+};
+
+export const extractKeyFromDescriptor = (data) => {
+  const xpub = data.slice(data.indexOf(']') + 1);
+  const masterFingerprint = data.slice(1, 9);
+  const derivationPath = data
+    .slice(data.indexOf('[') + 1, data.indexOf(']'))
+    .replace(masterFingerprint, 'm');
+  const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
+  let forMultiSig: boolean;
+  let forSingleSig: boolean;
+  if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
+    forMultiSig = true;
+    forSingleSig = false;
+  } else {
+    forMultiSig = false;
+    forSingleSig = true;
+  }
+  return { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig };
 };

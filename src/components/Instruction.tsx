@@ -8,7 +8,10 @@ export function Instruction({ text }: { text: string }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.bulletContainer}>
-      <Box backgroundColor={`${colorMode}.greenText`} style={styles.bulletPoint} />
+      <Box
+        backgroundColor={`${colorMode}.greenText`}
+        //  style={styles.bulletPoint}
+      />
       <Text color={`${colorMode}.greenText`} style={styles.infoText}>
         {text}
       </Text>

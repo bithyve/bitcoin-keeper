@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { hp } from 'src/constants/responsive';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
@@ -29,6 +29,7 @@ function IKSAddEmailPhone({ route }) {
   const [ikVaultKey] = vault.signers.filter(
     (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
   );
+  const { colorMode } = useColorMode();
 
   const updateIKSPolicy = async (email: string) => {
     try {
@@ -71,15 +72,13 @@ function IKSAddEmailPhone({ route }) {
 
   return (
     <ScreenWrapper>
-      <KeeperHeader
-        title="Add email"
-        subtitle="If notification is not declined continuously for 30 days, the Key would be activated"
-      />
+      <KeeperHeader title="Add Phone/Email" subtitle="To receive periodic notifications" />
       <Box style={styles.inputWrapper}>
         <Input
           placeholderTextColor="grey"
           backgroundColor="light.primaryBackground"
-          placeholder="Add email"
+          placeholder="Add phone number / email Id"
+          placeholderTextColor={'rgba(165, 180, 174, 1)'}
           style={styles.input}
           borderWidth={0}
           height={50}
@@ -89,8 +88,20 @@ function IKSAddEmailPhone({ route }) {
           }}
         />
       </Box>
+      <Box>
+        <Text style={[styles.consentNotes, { color: `${colorMode}.pantoneGreen` }]}>
+          Consent Note:
+        </Text>
+        <Text style={styles.notesDescription}>
+          By providing your email address/phone number, you consent to us using this information to
+          send you alerts and notifications about Inheritance Key requests, notify you of account
+          activity, and contact you for customer support purposes if needed. You can withdraw your
+          consent at any time by disabling this from App settings or clicking the unsubscribe link
+          in our emails. We will protect your data as outlined in our privacy policy.{' '}
+        </Text>
+      </Box>
       <Buttons
-        primaryText="Proceed"
+        primaryText="Confirm"
         primaryCallback={() => {
           updateIKSPolicy(email);
         }}
@@ -108,5 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingLeft: 5,
   },
+  consentNotes: { fontWeight: '500' },
+  notesDescription: { marginVertical: 10, fontSize: 12, lineHeight: 20 },
 });
 export default IKSAddEmailPhone;

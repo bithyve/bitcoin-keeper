@@ -15,12 +15,12 @@ function UAIView({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Box style={styles.wrapper}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiTitleText} color={`${colorMode}.primaryText`}>
+        <Text style={styles.uaiMessageText} color={`${colorMode}.RussetBrown`}>
           {title}
         </Text>
-        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
+        <Text fontSize={14} color={`${colorMode}.primaryText`}>
           {subTitle}
         </Text>
       </Box>
@@ -52,27 +52,21 @@ function UAIView({
 }
 const styles = StyleSheet.create({
   wrapper: {
-    marginVertical: hp(20),
+    marginTop: hp(20),
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
-    padding: 10,
-    borderRadius: 10
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   uaiMessageWrapper: {
     width: '60%',
   },
-  uaiTitleText: {
+  uaiMessageText: {
     fontSize: 12,
     width: '100%',
-    fontFamily: Fonts.FiraSansCondensedBold,
-    letterSpacing: 0,
-  },
-  uaiMessageText: {
-    fontSize: 14,
-    width: '100%',
     fontFamily: Fonts.FiraSansCondensedMedium,
-    letterSpacing: 0.24,
+    letterSpacing: 0,
   },
   skipWrapper: {
     width: '16%',
@@ -89,7 +83,7 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 8,
   },
   addNowCTAText: {
     fontSize: 11,

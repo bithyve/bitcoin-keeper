@@ -4,12 +4,10 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import React, { useContext, useEffect, useState } from 'react';
 import { Signer, VaultScheme, VaultSigner, signerXpubs } from 'src/core/wallets/interfaces/vault';
 import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import Relay from 'src/services/operations/Relay';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
@@ -71,14 +69,26 @@ function AddSigningDevice() {
 
   useEffect(() => {
     if (activeVault) {
+      // setting initital keys (update if scheme has changed)
       const vaultKeys = activeVault.signers;
-      setVaultKeys(vaultKeys);
+      const isMultisig = scheme.n > 1;
+      const modifiedVaultKeysForScriptType = [];
       const updatedSignerMap = new Map();
       vaultKeys.forEach((key) => {
-        if (isSignerValidForScheme(signerMap[key.masterFingerprint])) {
-          updatedSignerMap.set(key.masterFingerprint, true);
+        const signer = signerMap[key.masterFingerprint];
+        if (isSignerValidForScheme(signer)) {
+          if (modifiedVaultKeysForScriptType.length < scheme.n) {
+            updatedSignerMap.set(key.masterFingerprint, true);
+            const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
+            const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
+            const scriptKey = getKeyForScheme(signer.isMock, isMultisig, signer, msXpub, ssXpub);
+            if (scriptKey) {
+              modifiedVaultKeysForScriptType.push(scriptKey);
+            }
+          }
         }
       });
+      setVaultKeys(modifiedVaultKeysForScriptType);
       setSelectedSigners(new Map(updatedSignerMap));
     }
   }, []);
@@ -94,7 +104,7 @@ function AddSigningDevice() {
     setCreating(true);
   };
 
-  const preTitle = 'Add Vault Signing Devices';
+  const preTitle = 'Add vault signers';
 
   const subtitle =
     scheme.n > 1
@@ -112,6 +122,28 @@ function AddSigningDevice() {
       }
     }
   }
+
+  const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub) => {
+    if (isMock || isMultisig) {
+      return {
+        ...msXpub,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: WalletUtilities.getFingerprintFromExtendedKey(
+          msXpub.xpub,
+          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+    } else {
+      return {
+        ...ssXpub,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: WalletUtilities.getFingerprintFromExtendedKey(
+          ssXpub.xpub,
+          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+    }
+  };
 
   const onSignerSelect = (selected, signer: Signer) => {
     const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
@@ -145,27 +177,9 @@ function AddSigningDevice() {
         );
         return;
       }
-      if (isMock || isMultisig) {
-        vaultKeys.push({
-          ...msXpub,
-          masterFingerprint: signer.masterFingerprint,
-          xfp: WalletUtilities.getFingerprintFromExtendedKey(
-            msXpub.xpub,
-            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-          ),
-        });
-        setVaultKeys(vaultKeys);
-      } else {
-        vaultKeys.push({
-          ...ssXpub,
-          masterFingerprint: signer.masterFingerprint,
-          xfp: WalletUtilities.getFingerprintFromExtendedKey(
-            ssXpub.xpub,
-            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-          ),
-        });
-        setVaultKeys(vaultKeys);
-      }
+      const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub);
+      vaultKeys.push(scriptKey);
+      setVaultKeys(vaultKeys);
       const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
       setSelectedSigners(new Map(updatedSignerMap));
     }
@@ -244,7 +258,7 @@ function AddSigningDevice() {
             <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
           </Box>
         ) : trezorIncompatible ? (
-          <Box style={styles.noteContainer} testID={'view_warning02'}>
+          <Box style={styles.noteContainer} testID="view_warning02">
             <Note
               title="WARNING"
               subtitle="Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault"

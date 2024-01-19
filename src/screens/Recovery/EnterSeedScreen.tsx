@@ -39,9 +39,11 @@ import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Fonts from 'src/constants/Fonts';
-import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -51,6 +53,7 @@ function EnterSeedScreen({ route }) {
   const {
     isSoftKeyRecovery = false,
     type,
+    mode,
     isHealthCheck,
     signer,
     isMultisig,
@@ -132,6 +135,7 @@ function EnterSeedScreen({ route }) {
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
   const inputRef = useRef([]);
+  const { mapUnknownSigner } = useUnkownSigners();
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -256,17 +260,37 @@ function EnterSeedScreen({ route }) {
 
   const onPressHealthCheck = () => {
     setHcLoading(true);
+
+    const handleSuccess = () => {
+      dispatch(healthCheckSigner([signer]));
+      showToast(`Seed Key health check successfull`, <TickIcon />);
+      navigation.dispatch(CommonActions.goBack());
+    };
+
+    const handleFailure = () => {
+      showToast(`Health check failed`, <TickIcon />);
+    };
     try {
       if (isSeedFilled(6)) {
         if (isSeedFilled(12)) {
           const seedWord = getSeedWord();
-          const softSigner: VaultSigner = setupSeedWordsBasedSigner(seedWord, isMultisig);
-          if (softSigner.xpub === signer.xpub) {
-            dispatch(healthCheckSigner([signer]));
-            showToast(`Seed Key health check successfull`, <TickIcon />);
-            navigation.dispatch(CommonActions.goBack());
+          const softSigner: Signer = setupSeedWordsBasedSigner(seedWord, isMultisig);
+          if (mode === InteracationMode.IDENTIFICATION) {
+            const mapped = mapUnknownSigner({
+              masterFingerprint: softSigner.masterFingerprint,
+              type: SignerType.COLDCARD,
+            });
+            if (mapped) {
+              handleSuccess();
+            } else {
+              handleFailure();
+            }
           } else {
-            showToast(`Health check failed`, <TickIcon />);
+            if (softSigner.masterFingerprint === signer.masterFingerprint) {
+              handleSuccess();
+            } else {
+              handleFailure();
+            }
           }
         }
       }
@@ -506,10 +530,6 @@ function EnterSeedScreen({ route }) {
               <Buttons
                 primaryCallback={onPressNextSeedReocvery}
                 primaryText="Next"
-                secondaryCallback={() => {
-                  navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' });
-                }}
-                secondaryText="Other Methods"
                 primaryLoading={recoveryLoading}
               />
             )}

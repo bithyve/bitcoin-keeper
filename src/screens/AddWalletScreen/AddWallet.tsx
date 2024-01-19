@@ -11,7 +11,6 @@ import ImportGreenIcon from 'src/assets/images/import_green.svg';
 import ImportIcon from 'src/assets/images/import.svg';
 import WalletCard from 'src/components/WalletCard';
 import { StyleSheet } from 'react-native';
-import Note from 'src/components/Note/Note';
 import Wallets from './Wallets';
 import AdvancedWallets from './AdvancedWallets';
 import ImportWallets from './ImportWallets';
@@ -19,7 +18,7 @@ import ImportWallets from './ImportWallets';
 function AddWallet({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { wallet, common } = translations;
+  const { wallet } = translations;
 
   const [selectedCard, selectCard] = useState(1);
 
@@ -49,7 +48,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={2}
             walletName="Advanced"
-            walletDescription="Lorem ipsum dolor"
+            walletDescription="For seasoned plebs"
             icon={<AdvancedIcon />}
             selectedIcon={<AdvancedGreenIcon />}
             selectedCard={selectedCard}
@@ -59,7 +58,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={3}
             walletName="Import"
-            walletDescription="Lorem ipsum dolor"
+            walletDescription="Other wallets"
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
@@ -71,13 +70,6 @@ function AddWallet({ navigation }) {
         {selectedCard === 2 && <AdvancedWallets navigation={navigation} />}
         {selectedCard === 3 && <ImportWallets navigation={navigation} />}
       </Box>
-      <Box style={styles.note}>
-        <Note
-          title={common.note}
-          subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-          subtitleColor="GreyText"
-        />
-      </Box>
     </ScreenWrapper>
   );
 }
@@ -88,7 +80,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   walletType: {
-    gap: 5,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   note: {
     position: 'absolute',

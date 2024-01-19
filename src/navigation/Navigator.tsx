@@ -62,7 +62,7 @@ import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
-import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
+import VaultConfigurationRecovery from 'src/screens/Vault/VaultConfigurationRecreation';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
@@ -97,9 +97,11 @@ import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
 import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
 import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
+import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
+import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
 import AddSigner from 'src/screens/AddSigner/AddSigner';
-import NewHomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
+import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 
 const defaultTheme = {
@@ -130,17 +132,6 @@ function LoginStack() {
         component={NewKeeperApp}
       />
 
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="VaultRecoveryAddSigner"
-        component={VaultRecovery}
-      />
-      <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
-      <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
-      <Stack.Screen name="SigningDeviceListRecovery" component={SigningDeviceListRecovery} />
-      <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
-      <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
-
       {/* Cold Card */}
       <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
       {/* Tap Signer  */}
@@ -164,7 +155,7 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={NewHomeScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
@@ -241,7 +232,12 @@ function AppStack() {
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
         <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
+        <Stack.Screen name="VaultCreationOptions" component={VaultCreationOptions} />
+        <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
+        <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
         <Stack.Screen name="VaultSetup" component={VaultSetup} />
+        <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
+
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

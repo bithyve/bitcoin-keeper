@@ -9,6 +9,7 @@ import {
   VaultType,
   VisibilityType,
   WalletType,
+  XpubTypes,
 } from 'src/core/wallets/enums';
 import {
   InheritanceConfiguration,
@@ -93,10 +94,13 @@ import {
 import { uaiChecks } from '../sagaActions/uai';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import {
+  relaySignersUpdateFail,
+  relaySignersUpdateSuccess,
   relayVaultUpdateFail,
   relayVaultUpdateSuccess,
   relayWalletUpdateFail,
   relayWalletUpdateSuccess,
+  setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
@@ -593,7 +597,46 @@ export function* addNewVaultWorker({
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
 function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
-  yield call(dbManager.createObjectBulk, RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
+  if (!!signers.length) {
+    const signerMap = {};
+    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    existingSigners.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+
+    // not letting user added multiple accounts for the same signer yet
+    for (const newSigner of signers) {
+      const existingSigner = signerMap[newSigner.masterFingerprint];
+      if (existingSigner) {
+        // TO-DO: we're not YET supporting multiple keys (accounts) for the same script type
+        if (
+          (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
+            existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
+          (newSigner.signerXpubs[XpubTypes.P2WPKH].length &&
+            existingSigner.signerXpubs[XpubTypes.P2WSH].length)
+        ) {
+          yield put(
+            relaySignersUpdateFail(
+              'A different account has already been added. Please use the existing for this signer.'
+            )
+          );
+          return false;
+        }
+      }
+    }
+
+    yield put(setRelaySignersUpdateLoading(true));
+    const response = yield call(updateAppImageWorker, { payload: { signers } });
+    if (response.updated) {
+      yield call(
+        dbManager.createObjectBulk,
+        RealmSchema.Signer,
+        signers,
+        Realm.UpdateMode.Modified
+      );
+      return true;
+    }
+    yield put(relaySignersUpdateFail(response.error));
+    return false;
+  }
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
@@ -663,7 +706,6 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
           error: null,
         })
       );
-      yield put(uaiChecks([uaiType.VAULT_MIGRATION]));
     }
   } catch (error) {
     yield put(
@@ -797,6 +839,7 @@ function* refreshWalletsWorker({
   const { wallets, options } = payload;
   try {
     if (!ELECTRUM_CLIENT.isClientConnected) {
+      ElectrumClient.resetCurrentPeerIndex();
       yield call(connectToNodeWorker);
     }
 
@@ -1149,15 +1192,27 @@ function* updateSignerDetailsWorker({ payload }) {
     value: any;
   } = payload;
 
-  yield call(
-    dbManager.updateObjectByPrimaryId,
-    RealmSchema.Signer,
-    'masterFingerprint',
-    signer.masterFingerprint,
-    {
-      [key]: value,
+  yield put(setRelaySignersUpdateLoading(true));
+  try {
+    const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
+    if (response.updated) {
+      yield call(
+        dbManager.updateObjectByPrimaryId,
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          [key]: value,
+        }
+      );
+      yield put(relaySignersUpdateSuccess());
+    } else {
+      yield put(relaySignersUpdateFail(response.error));
     }
-  );
+  } catch (err) {
+    console.error(err);
+    yield put(relaySignersUpdateFail('Something went wrong'));
+  }
 }
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);

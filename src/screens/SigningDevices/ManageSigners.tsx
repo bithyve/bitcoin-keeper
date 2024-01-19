@@ -2,7 +2,6 @@ import { StatusBar, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
-import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Text from 'src/components/KeeperText';
 import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
@@ -10,6 +9,7 @@ import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import SignerIcon from 'src/assets/images/signer_white.svg';
 
 const ManageSigners = () => {
   const { colorMode } = useColorMode();
@@ -23,14 +23,14 @@ const ManageSigners = () => {
         <KeeperHeader learnMore learnMorePressed={() => {}} contrastScreen={true} />
         <VStack paddingBottom={10} paddingLeft={5}>
           <HStack alignItems="center">
-            <Box paddingRight={3}>
+            <Box style={styles.iconWrapper} backgroundColor={`${colorMode}.RussetBrown`}>
               <SignerIcon />
             </Box>
             <VStack>
               <Text
                 color={`${colorMode}.white`}
                 style={styles.infoText}
-                fontSize={16}
+                fontSize={18}
                 testID={'text_vaultName'}
               >
                 {'Manage Signers'}
@@ -38,10 +38,11 @@ const ManageSigners = () => {
               <Text
                 color={`${colorMode}.white`}
                 style={styles.infoText}
-                fontSize={12}
+                fontSize={14}
                 testID={'text_vaultDescription'}
+                numberOfLines={2}
               >
-                {'Manage the hardware information'}
+                {'Add, remove, change or check on signers'}
               </Text>
             </VStack>
           </HStack>
@@ -106,10 +107,20 @@ const styles = StyleSheet.create({
   },
   infoText: {
     letterSpacing: 1.28,
+    maxWidth: windowWidth * 0.6,
   },
   addCard: {
     height: 125,
     width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
+  },
+  iconWrapper: {
+    width: 50,
+    height: 50,
+    borderRadius: 50 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 25,
+    margin: 10,
   },
 });

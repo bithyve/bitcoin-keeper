@@ -13,7 +13,7 @@ import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import UAIView from './components/HeaderDetails/components/UAIView';
+import UAIView from '../../HomeScreen/components/HeaderDetails/components/UAIView';
 
 const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
 
@@ -44,7 +44,7 @@ function UaiDisplay({ uaiStack, vaultId }) {
       case uaiType.VAULT_TRANSFER:
         return {
           modalDetails: {
-            heading: 'Trasfer to Vault',
+            heading: 'Trasfer to vault',
             subTitle:
               'Your Auto-transfer policy has triggered a transaction that needs your approval',
             btnText: ' Transfer Now',

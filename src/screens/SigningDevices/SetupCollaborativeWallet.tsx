@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import AddIcon from 'src/assets/images/green_add.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -12,7 +12,7 @@ import { hp, windowHeight } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { extractKeyFromDescriptor, generateSignerFromMetaData } from 'src/hardware';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -170,11 +170,16 @@ function SignerItem({
             </Pressable>
           </VStack>
         </HStack>
-        <Pressable style={styles.remove} onPress={() => removeSigner(index)} disabled={index === 0}>
-          <Text color={`${colorMode}.black`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
-            Remove
-          </Text>
-        </Pressable>
+        {index !== 0 && (
+          <Pressable style={styles.remove} onPress={() => removeSigner(index)}>
+            <Text
+              color={`${colorMode}.black`}
+              style={[globalStyles.font12, { letterSpacing: 0.6 }]}
+            >
+              Remove
+            </Text>
+          </Pressable>
+        )}
       </HStack>
       <DescriptionModal
         visible={visible}
@@ -291,36 +296,20 @@ function SetupCollaborativeWallet() {
     }
   };
 
-  const pushSigner = (
-    coSigner: {
-      deviceId: string;
-      mfp: string;
-      xpubDetails: XpubDetailsType;
-    },
-    goBack = true
-  ) => {
+  const pushSigner = (xpub, derivationPath, masterFingerprint, goBack = true) => {
     try {
-      if (!coSigner.xpubDetails || !coSigner.xpubDetails[XpubTypes.P2WSH].xpub) {
-        coSigner = JSON.parse(coSigner as any);
-        if (!coSigner.xpubDetails && !coSigner.xpubDetails[XpubTypes.P2WSH].xpub) {
-          showToast('Please scan a vaild QR', <ToastErrorIcon />, 4000);
-          return;
-        }
-      }
-      const { mfp, xpubDetails } = coSigner;
       // duplicate check
-      if (coSigners.find((item) => item && item.xpub === xpubDetails[XpubTypes.P2WSH].xpub)) {
+      if (coSigners.find((item) => item && item.xpub === xpub)) {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
         return;
       }
       const { key, signer } = generateSignerFromMetaData({
-        xpub: xpubDetails[XpubTypes.P2WSH].xpub,
-        derivationPath: xpubDetails[XpubTypes.P2WSH].derivationPath,
-        masterFingerprint: mfp,
+        xpub,
+        derivationPath,
+        masterFingerprint,
         signerType: SignerType.KEEPER,
         storageType: SignerStorage.WARM,
         isMultisig: true,
-        xpubDetails,
       });
       let addedSigner = false;
       const newSigners = coSigners.map((item) => {
@@ -342,8 +331,13 @@ function SetupCollaborativeWallet() {
 
   useEffect(() => {
     setTimeout(() => {
-      const details = getCosignerDetails(coSigner, keeper.id);
-      pushSigner(details, false);
+      const details = getCosignerDetails(coSigner);
+      pushSigner(
+        details.xpubDetails[XpubTypes.P2WSH].xpub,
+        details.xpubDetails[XpubTypes.P2WSH].derivationPath,
+        details.mfp,
+        false
+      );
     }, 200);
     return () => {
       dispatch(resetVaultFlags());
@@ -376,7 +370,10 @@ function SetupCollaborativeWallet() {
     <SignerItem
       vaultKey={item}
       index={index}
-      onQRScan={pushSigner}
+      onQRScan={(data) => {
+        const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
+        pushSigner(xpub, derivationPath, masterFingerprint);
+      }}
       updateSigner={updateSigner}
       removeSigner={removeSigner}
       coSignerFingerprint={coSigner.id}

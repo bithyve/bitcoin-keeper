@@ -31,7 +31,7 @@ import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,

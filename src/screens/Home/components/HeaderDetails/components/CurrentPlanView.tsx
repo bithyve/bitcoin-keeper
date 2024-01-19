@@ -5,8 +5,9 @@ import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
-
-import Hat from 'src/assets/images/coinhat.svg';
+import PlebIcon from 'src/assets/images/pleb_white.svg';
+import HodlerIcon from 'src/assets/images/hodler.svg';
+import DiamondIcon from 'src/assets/images/diamond_hands.svg';
 import SettingIcon from 'src/assets/images/settings.svg';
 
 function CurrentPlanView({ plan }) {
@@ -16,7 +17,9 @@ function CurrentPlanView({ plan }) {
     <Box style={styles.wrapper}>
       <Box style={styles.planContianer}>
         <TouchableOpacity style={styles.plan} onPress={() => navigation.navigate('ChoosePlan')}>
-          <Hat />
+          {plan === 'Pleb'.toUpperCase() && <PlebIcon />}
+          {plan === 'Hodler'.toUpperCase() && <HodlerIcon />}
+          {plan === 'Diamond Hands'.toUpperCase() && <DiamondIcon />}
           <Text
             testID="text_home_current_plan"
             style={styles.currentPlanText}

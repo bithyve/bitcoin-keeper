@@ -50,6 +50,12 @@ function VaultMigrationController({
   const [generatedVaultId, setGeneratedVaultId] = useState('');
 
   useEffect(() => {
+    if (temporaryVault && temporaryVault.id) {
+      setGeneratedVaultId(temporaryVault.id);
+    }
+  }, [temporaryVault]);
+
+  useEffect(() => {
     if (vaultCreating) {
       initiateNewVault();
     }
@@ -69,6 +75,10 @@ function VaultMigrationController({
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
+      dispatch(resetRealyVaultState());
+      setCreating(false);
+    } else if (relayVaultUpdate) {
+      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
       dispatch(resetRealyVaultState());
       setCreating(false);
     }

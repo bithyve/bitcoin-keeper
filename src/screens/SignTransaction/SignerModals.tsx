@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { Alert } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
@@ -41,9 +40,11 @@ function ColdCardContent({ register, isMultisig }: { register: boolean; isMultis
   let message = '';
 
   if (register) {
-    message = `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`;
+    message =
+      '\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.';
   } else if (isMultisig) {
-    message = `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`;
+    message =
+      '\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction';
   }
 
   return (
@@ -55,8 +56,8 @@ function ColdCardContent({ register, isMultisig }: { register: boolean; isMultis
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {register
-            ? ``
-            : `\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option.`}
+            ? ''
+            : "\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option."}
         </Text>
       </Box>
     </Box>
@@ -74,7 +75,7 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
           }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
+          {"\u2022 On the Passport main menu, choose the 'Sign with QR Code' option."}
         </Text>
       </Box>
     </Box>
@@ -88,11 +89,15 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
       <Box marginTop={2}>
         {isMultisig ? (
           <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-            {`\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.`}
+            {
+              '\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.'
+            }
           </Text>
         ) : null}
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
+          {
+            "\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned."
+          }
         </Text>
       </Box>
     </Box>
@@ -141,7 +146,9 @@ function JadeContent() {
       <JadeSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
+          {
+            "\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned."
+          }
         </Text>
       </Box>
     </Box>
@@ -154,7 +161,9 @@ function TrezorContent() {
       <TrezorSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+          {
+            '\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signer.'
+          }
         </Text>
       </Box>
     </Box>
@@ -167,7 +176,9 @@ function BitBox02Content() {
       <BitoxImage />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+          {
+            '\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signer.'
+          }
         </Text>
       </Box>
     </Box>
@@ -180,7 +191,9 @@ function LedgerContent() {
       <LedgerImage />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+          {
+            '\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signer.'
+          }
         </Text>
       </Box>
     </Box>
@@ -193,7 +206,7 @@ function OtherSDContent() {
       <OtherSDImage />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Either scan or use the export option to transfer the PSBT to the signer.`}
+          {'\u2022 Either scan or use the export option to transfer the PSBT to the signer.'}
         </Text>
       </Box>
     </Box>
@@ -205,7 +218,7 @@ export function KeeperContent() {
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n`}
+          {'\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n'}
         </Text>
       </Box>
     </Box>
@@ -350,8 +363,7 @@ function OtpContent({ signTransaction }) {
           color="light.greenText"
           marginTop={2}
         >
-          If you lose your authenticator app, use the other Signing Devices to reset the Signing
-          Server
+          If you lose your authenticator app, use the other signers to reset the Signing Server
         </Text>
         <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>

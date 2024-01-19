@@ -240,21 +240,28 @@ const generateExtendedKeysForCosigner = (
   return { extendedKeys, xDerivationPath };
 };
 
-export const getCosignerDetails = (wallet: Wallet, appId: string) => {
-  const deviceId = appId;
+export const getCosignerDetails = (wallet: Wallet, singleSig: boolean = false) => {
   const masterFingerprint = wallet.id;
 
-  const { extendedKeys: multiSigExtendedKeys, xDerivationPath: multiSigXderivationPath } =
-    generateExtendedKeysForCosigner(wallet);
+  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(
+    wallet,
+    singleSig ? EntityKind.WALLET : EntityKind.VAULT
+  );
 
   const xpubDetails: XpubDetailsType = {};
-  xpubDetails[XpubTypes.P2WSH] = {
-    xpub: multiSigExtendedKeys.xpub,
-    derivationPath: multiSigXderivationPath,
-  };
+  if (singleSig) {
+    xpubDetails[XpubTypes.P2WPKH] = {
+      xpub: extendedKeys.xpub,
+      derivationPath: xDerivationPath,
+    };
+  } else {
+    xpubDetails[XpubTypes.P2WSH] = {
+      xpub: extendedKeys.xpub,
+      derivationPath: xDerivationPath,
+    };
+  }
 
   return {
-    deviceId,
     mfp: masterFingerprint,
     xpubDetails,
   };

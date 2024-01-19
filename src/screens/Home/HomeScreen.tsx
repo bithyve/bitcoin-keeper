@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActionCard from 'src/components/ActionCard';
-import WalletInfoCard from 'src/components/WalletInfoCard';
+import WalletInfoCard from 'src/screens/Home/components/WalletInfoCard';
 import AddCard from 'src/components/AddCard';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { EntityKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, VisibilityType, WalletType } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
@@ -24,12 +24,18 @@ import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions } from '@react-navigation/native';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import AddWalletModal from '../Home/components/AddWalletModal';
-import BalanceComponent from './components/BalanceComponent';
-import HomeScreenWrapper from './components/HomeScreenWrapper';
+import InheritanceIcon from 'src/assets/images/inheri.svg';
+import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import AddWalletModal from './components/AddWalletModal';
+import BalanceComponent from './components/BalanceComponent';
 import RampModal from '../WalletDetails/components/RampModal';
+import { urlParamsToObj } from 'src/core/utils';
+import { DowngradeModal } from './components/DowngradeModal';
+import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
+import HeaderDetails from './components/HeaderDetails';
+import { hp } from 'src/constants/responsive';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -50,7 +56,11 @@ function NewHomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
-  const { allVaults, activeVault } = useVault({ includeArchived: false, getFirst: true });
+  const { allVaults, activeVault } = useVault({
+    includeArchived: false,
+    getFirst: true,
+    getHiddenWallets: false,
+  });
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
@@ -76,6 +86,73 @@ function NewHomeScreen({ navigation }) {
   const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
+
+  useEffect(() => {
+    Linking.addEventListener('url', handleDeepLinkEvent);
+    handleDeepLinking();
+    return () => {
+      Linking.removeAllListeners('url');
+    };
+  }, []);
+
+  function handleDeepLinkEvent({ url }) {
+    if (url) {
+      if (url.includes('backup')) {
+        const splits = url.split('backup/');
+        const decoded = Buffer.from(splits[1], 'base64').toString();
+        const params = urlParamsToObj(decoded);
+        if (params.seed) {
+          navigation.navigate('EnterWalletDetail', {
+            seed: params.seed,
+            name: `${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
+            path: params.path,
+            appId: params.appId,
+            description: `Imported from ${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
+            type: WalletType.IMPORTED,
+          });
+        } else {
+          showToast('Invalid deeplink');
+        }
+      }
+    }
+  }
+
+  async function handleDeepLinking() {
+    try {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        if (initialUrl.includes('backup')) {
+          const splits = initialUrl.split('backup/');
+          const decoded = Buffer.from(splits[1], 'base64').toString();
+          const params = urlParamsToObj(decoded);
+          if (params.seed) {
+            navigation.navigate('EnterWalletDetail', {
+              seed: params.seed,
+              name: `${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
+              path: params.path,
+              appId: params.appId,
+              purpose: params.purpose,
+              description: `Imported from ${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
+              type: WalletType.IMPORTED,
+            });
+          } else {
+            showToast('Invalid deeplink');
+          }
+        } else if (initialUrl.includes('create/')) {
+        }
+      }
+    } catch (error) {
+      //
+    }
+  }
 
   useEffect(() => {
     if (electrumClientConnectionStatus.success) {
@@ -119,32 +196,7 @@ function NewHomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-  const dummyData = [
-    {
-      name: 'Inheritance Tools',
-      icon: null,
-      callback: () => {
-        const eligible = plan === SubscriptionTier.L3.toUpperCase();
-        if (!eligible) {
-          showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
-          navigation.navigate('ChoosePlan', { planPosition: 2 });
-          return;
-        } else if (!activeVault) {
-          showToast(`Please create a vault to setup inheritance`);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'AddSigningDevice',
-              merge: true,
-              params: { scheme: { m: 3, n: 5 } },
-            })
-          );
-          return;
-        } else {
-          navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
-          return;
-        }
-      },
-    },
+  const cardsData = [
     {
       name: 'Buy Bitcoin',
       icon: <BTC />,
@@ -152,31 +204,54 @@ function NewHomeScreen({ navigation }) {
     },
     {
       name: 'Manage All Signers',
-      icon: null,
+      icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
+    },
+    {
+      name: 'Security & Inheritance Tools',
+      icon: <InheritanceIcon />,
+      callback: () => {
+        const eligible = plan === SubscriptionTier.L3.toUpperCase();
+        if (!eligible) {
+          showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
+          navigation.navigate('ChoosePlan', { planPosition: 2 });
+        } else if (!activeVault) {
+          showToast('Please create a vault to setup inheritance');
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'AddSigningDevice',
+              merge: true,
+              params: { scheme: { m: 3, n: 5 } },
+            })
+          );
+        } else {
+          navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+        }
+      },
     },
   ];
 
   const styles = getStyles(colorMode);
 
   return (
-    <Box backgroundColor={`${colorMode}.Linen`} style={[styles.container]}>
+    <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
       <Box
         backgroundColor={`${colorMode}.primaryGreenBackground`}
         style={[styles.wrapper, { paddingTop: top }]}
       >
-        <HomeScreenWrapper>
-          <Box style={styles.actionContainer}>
-            {dummyData.map((data, index) => (
-              <ActionCard
-                key={`${index}_${data.name}`}
-                cardName={data.name}
-                callback={data.callback}
-                icon={data.icon}
-              />
-            ))}
-          </Box>
-        </HomeScreenWrapper>
+        <Box width={'100%'} style={styles.padding}>
+          <HeaderDetails />
+        </Box>
+        <Box style={styles.actionContainer}>
+          {cardsData.map((data, index) => (
+            <ActionCard
+              key={`${index}_${data.name}`}
+              cardName={data.name}
+              callback={data.callback}
+              icon={data.icon}
+            />
+          ))}
+        </Box>
       </Box>
       <Box style={styles.valueWrapper}>
         <BalanceComponent
@@ -184,8 +259,7 @@ function NewHomeScreen({ navigation }) {
           balance={netBalanceWallets + netBalanceAllVaults}
         />
         <FlatList
-          contentContainerStyle={{ paddingRight: 30 }}
-          style={styles.walletDetailWrapper}
+          contentContainerStyle={styles.walletDetailWrapper}
           horizontal
           data={allWallets}
           keyExtractor={(item) => item.id}
@@ -234,11 +308,9 @@ function NewHomeScreen({ navigation }) {
               name="Add"
               cardStyles={{ height: 260, width: 130 }}
               callback={() => navigation.navigate('AddWallet')}
-              // callback={() => setAddImportVisible(true)}
             />
           )}
         />
-        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }} />
       </Box>
       <AddWalletModal
         navigation={navigation}
@@ -251,11 +323,14 @@ function NewHomeScreen({ navigation }) {
       <RampModal
         showBuyRampModal={showBuyRampModal}
         setShowBuyRampModal={setShowBuyRampModal}
-        //wallet
-        wallet={'qwqwqwqw'}
         receivingAddress={receivingAddress}
         balance={balance}
         name={presentationName}
+      />
+      <DowngradeModal navigation={navigation} />
+      <ElectrumDisconnectModal
+        electrumErrorVisible={electrumErrorVisible}
+        setElectrumErrorVisible={setElectrumErrorVisible}
       />
     </Box>
   );
@@ -271,20 +346,32 @@ const getStyles = (colorMode) =>
       flex: 0.65,
       justifyContent: 'center',
       alignItems: 'center',
-      marginTop: 100,
+      marginTop: '35%',
+      gap: 10,
+      height: '100%',
+    },
+    padding: {
+      paddingHorizontal: 10,
     },
     wrapper: {
       flex: 0.35,
-      paddingHorizontal: 15,
-      paddingVertical: 8,
-      justifyContent: 'center',
-      alignItems: 'flex-end',
+      width: '100%',
+      alignItems: 'center',
+      position: 'relative',
     },
     actionContainer: {
       flexDirection: 'row',
-      gap: 10,
-      marginTop: -100,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 7,
+      position: 'absolute',
+      top: hp(220),
     },
-    walletDetailWrapper: { marginTop: 27.25, paddingHorizontal: 10 },
-    wallerCardWrapper: { marginRight: 10 },
+    walletDetailWrapper: {
+      marginTop: 20,
+      paddingHorizontal: 20,
+    },
+    wallerCardWrapper: {
+      marginRight: 10,
+    },
   });

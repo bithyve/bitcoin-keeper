@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
-import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
+import CardPill from 'src/components/CardPill';
+import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { useAppSelector } from 'src/store/hooks';
-import CardPill from './CardPill';
-import Text from './KeeperText';
 
 type WalletInfoCardProps = {
   walletName: string;
@@ -27,7 +27,7 @@ function WalletInfoCard({
   return (
     <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.walletContainer}>
       <Box style={styles.pillsContainer}>
-        {tags.map((tag, index) => {
+        {tags?.map((tag, index) => {
           return (
             <CardPill
               key={tag}

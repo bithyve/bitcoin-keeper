@@ -14,7 +14,7 @@ import TransactionPendingIcon from 'src/assets/images/transaction_pending.svg';
 
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import Text from 'src/components/KeeperText';
-import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 
 function TransactionElement({
   transaction,

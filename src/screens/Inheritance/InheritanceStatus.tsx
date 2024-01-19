@@ -18,7 +18,6 @@ import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
-// import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
@@ -27,10 +26,10 @@ import GenerateRecoveryInstrPDF from 'src/utils/GenerateRecoveryInstrPDF';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import GenerateSecurityTipsPDF from 'src/utils/GenerateSecurityTipsPDF';
 import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
-import KeeperHeader from 'src/components/KeeperHeader';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer } from 'src/core/wallets/interfaces/vault';
 
@@ -75,7 +74,7 @@ function InheritanceStatus({ route }) {
       />
       <InheritanceSupportView
         title="Inheritance Support"
-        subtitle="Keeper provides you with the tips and tools you need to include the Vault in your estate planning"
+        subtitle="Keeper provides you with the tips and tools you need to include the vault in your estate planning"
       />
       <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
         <Box style={styles.sectionTitleWrapper}>
@@ -87,7 +86,7 @@ function InheritanceStatus({ route }) {
           subTitle={
             disableInheritance
               ? 'Please create a 3 of 5 vault to proceed with adding inheritance support'
-              : 'Add an assisted key to create a 3 of 6 Vault'
+              : 'Add an assisted key to create a 3 of 6 vault'
           }
           isSetupDone={isSetupDone}
           onPress={() => {
@@ -124,7 +123,7 @@ function InheritanceStatus({ route }) {
         {/* Error view - Need to add condition for this */}
         {visibleErrorView && (
           <Box style={styles.signingDevicesView}>
-            <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
+            <Text style={styles.signingDevicesText}>Signers have been changed&nbsp;</Text>
             <ToastErrorIcon />
           </Box>
         )}
