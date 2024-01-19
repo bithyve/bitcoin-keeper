@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
-import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { hp, wp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/rightarrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -72,9 +72,8 @@ function SignWithColdCard({ route }: { route }) {
   const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
 
-  const { registered = false } = vaultKey.registeredVaults.find(
-    (info) => info.vaultId === activeVault.id
-  );
+  const { registered = false } =
+    vaultKey.registeredVaults.find((info) => info.vaultId === activeVault.id) || {};
   const dispatch = useDispatch();
 
   const receiveFromColdCard = async () =>
