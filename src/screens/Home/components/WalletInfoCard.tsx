@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -31,7 +32,7 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              cardStyles={index % 2 === 0 ? null : { backgroundColor: 'white' }}
+              backgroundColor={index % 2 === 0 ? null : `${colorMode}.white`}
             />
           );
         })}

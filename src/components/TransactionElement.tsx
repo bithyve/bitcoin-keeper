@@ -3,13 +3,13 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
-import useBalance from 'src/hooks/useBalance';
 import { hp, wp } from 'src/constants/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
 
-import IconRecieve from 'src/assets/images/icon_received.svg';
-import UnconfirmedIcon from 'src/assets/images/pending.svg';
-import IconSent from 'src/assets/images/icon_sent.svg';
+import IconSent from 'src/assets/images/icon_sent_red.svg';
+import IconRecieve from 'src/assets/images/icon_recieved_red.svg';
+import TransactionPendingIcon from 'src/assets/images/transaction_pending.svg';
+
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import Text from 'src/components/KeeperText';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
@@ -25,39 +25,33 @@ function TransactionElement({
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  •  HH:mm A');
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
     <TouchableOpacity onPress={onPress} testID={`btn_transaction_${index}`}>
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
-          {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
+          <Box backgroundColor={`${colorMode}.Eggshell`} style={styles.circle}>
+            {transaction.confirmations === 0 && (
+              <Box style={styles.transaction}>
+                <TransactionPendingIcon />
+              </Box>
+            )}
+            {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
+          </Box>
           <Box style={styles.transactionContainer}>
+            <Text color={`${colorMode}.GreenishGrey`} style={styles.transactionIdText}>
+              {date}
+            </Text>
             <Text
-              color={`${colorMode}.GreyText`}
-              style={styles.transactionIdText}
+              color={`${colorMode}.GreenishGrey`}
               numberOfLines={1}
+              style={styles.transactionDate}
             >
               {transaction?.txid}
-            </Text>
-            <Text color={`${colorMode}.dateText`} style={styles.transactionDate}>
-              {date}
             </Text>
           </Box>
         </Box>
         <Box style={styles.rowCenter}>
-          {transaction.confirmations > 0 ? null : (
-            <Box testID={`icon_unconfirmed_${index}`} style={styles.unconfirmIconWrapper}>
-              <UnconfirmedIcon />
-            </Box>
-          )}
-          {/* <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
-          <Text style={styles.amountText}>
-            {getBalance(transaction?.amount)}
-            <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getSatUnit()}
-            </Text>
-          </Text> */}
           <CurrencyInfo
             hideAmounts={false}
             amount={transaction?.amount}
@@ -81,6 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: hp(20),
+    marginLeft: 5,
     paddingVertical: 1,
   },
   rowCenter: {
@@ -93,7 +88,7 @@ const styles = StyleSheet.create({
     marginLeft: 1.5,
   },
   transactionIdText: {
-    fontSize: 13,
+    fontSize: 12,
     letterSpacing: 0.6,
     width: wp(125),
     marginHorizontal: 3,
@@ -105,18 +100,20 @@ const styles = StyleSheet.create({
     opacity: 0.82,
     width: 125,
   },
-  amountText: {
-    fontSize: 19,
-    letterSpacing: 0.95,
-    marginHorizontal: 3,
-    marginRight: 3,
-  },
-  unitText: {
-    letterSpacing: 0.6,
-    fontSize: hp(12),
-  },
   unconfirmIconWrapper: {
     paddingHorizontal: 5,
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: 30 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  transaction: {
+    position: 'absolute',
+    top: -7,
+    left: -4,
   },
 });
 export default TransactionElement;
