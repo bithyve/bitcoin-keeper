@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -8,6 +8,7 @@ import TransactionElement from 'src/components/TransactionElement';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function TransactionItem({ item, wallet, navigation, index }) {
   return (
@@ -29,6 +30,8 @@ function TransactionItem({ item, wallet, navigation, index }) {
 function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
@@ -50,10 +53,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
       keyExtractor={(item: Transaction) => `${item.txid}${item.transactionType}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
-        <EmptyStateView
-          IllustartionImage={NoTransactionIcon}
-          title="You have no transactions yet"
-        />
+        <EmptyStateView IllustartionImage={NoTransactionIcon} title={common.noTransYet} />
       }
     />
   );
