@@ -792,7 +792,7 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.KEEPER}
           close={close}
           title="Keep your Device Ready"
-          subTitle="Keep your Collaborative Signer ready before proceeding"
+          subTitle="Keep your Collaborative Key ready before proceeding"
           subTitleColor="light.secondaryText"
           Content={() => <KeeperContent />}
           buttonText="Continue"

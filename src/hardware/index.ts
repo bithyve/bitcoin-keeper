@@ -344,7 +344,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Optional registration';
     }
     case SignerType.KEEPER: {
-      return 'Use Collaborative Signer as signer';
+      return 'Use Collaborative Key as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';

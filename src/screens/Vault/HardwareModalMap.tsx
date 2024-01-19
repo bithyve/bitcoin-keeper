@@ -139,7 +139,7 @@ const getSignerContent = (
           'Within settings choose Show co-signer Details to scan the QR',
         ],
         title: 'Keep your Device Ready',
-        subTitle: 'Keep your Collaborative Signer ready before proceeding',
+        subTitle: 'Keep your Collaborative Key ready before proceeding',
         options: [],
       };
     case SignerType.MOBILE_KEY:
