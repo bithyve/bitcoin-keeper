@@ -7,7 +7,7 @@ import Checked from 'src/assets/images/check.svg';
 
 type SignerCardProps = {
   name: string;
-  description: string;
+  description?: string;
   icon: Element;
   isSelected: boolean;
   onCardSelect?: (selected: any) => void;
@@ -19,7 +19,7 @@ type SignerCardProps = {
 
 function SignerCard({
   name,
-  description,
+  description = '',
   icon,
   isSelected,
   onCardSelect,
@@ -39,9 +39,7 @@ function SignerCard({
       borderColor={`${colorMode}.Eggshell`}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
       onPress={() => {
-        if (showSelection) {
-          onCardSelect(isSelected);
-        }
+        onCardSelect(isSelected);
       }}
     >
       {showSelection &&

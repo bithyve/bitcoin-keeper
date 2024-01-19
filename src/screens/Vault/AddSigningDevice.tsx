@@ -42,7 +42,6 @@ function AddSigningDevice() {
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  // const [inheritanceInit, setInheritanceInit] = useState(false);
   const {
     name = 'Vault',
     description = 'Secure your sats',
@@ -56,16 +55,6 @@ function AddSigningDevice() {
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
   const { activeVault } = useVault({ vaultId });
-
-  // let { scheme } = route.params;
-  // if (scheme && isInheritance) {
-  //   scheme = { m: scheme.m, n: scheme.n + 1 };
-  // } else if (!scheme && activeVault && !isInheritance) {
-  //   scheme = activeVault.scheme;
-  //   // added temporarily until we support multiple vaults
-  // } else if (!scheme && activeVault && isInheritance) {
-  //   scheme = { m: 3, n: 6 };
-  // }
 
   useEffect(() => {
     if (activeVault) {
@@ -278,11 +267,6 @@ function AddSigningDevice() {
           paddingHorizontal={wp(30)}
         />
       </Box>
-      {/* <AddIKS
-        vault={activeVault}
-        visible={inheritanceInit}
-        close={() => setInheritanceInit(false)}
-      /> */}
     </ScreenWrapper>
   );
 }

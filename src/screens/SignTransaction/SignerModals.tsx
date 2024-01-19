@@ -747,7 +747,7 @@ function SignerModals({
                 setKeeperModal(false);
               }}
               title="Keep your Device Ready"
-              subTitle="Keep your Collaborative Signer ready before proceeding"
+              subTitle="Keep your Collaborative Key ready before proceeding"
               textColor="light.primaryText"
               Content={() => <KeeperContent />}
               buttonText="Proceed"
