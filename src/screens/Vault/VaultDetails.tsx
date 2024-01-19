@@ -312,6 +312,7 @@ function VaultDetails({ navigation }) {
             navigation.navigate('UTXOManagement', {
               data: vault,
               routeName: 'Vault',
+              vaultId,
             })
           }
           icon={<CoinIcon />}
@@ -319,7 +320,14 @@ function VaultDetails({ navigation }) {
         <ActionCard
           cardName="Manage Signers"
           description="Manage for this wallet"
-          callback={() => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' }))}
+          callback={() =>
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ManageSigners',
+                params: { vaultId, vaultKeys: vault.signers },
+              })
+            )
+          }
           icon={<SignerIcon />}
         />
       </HStack>

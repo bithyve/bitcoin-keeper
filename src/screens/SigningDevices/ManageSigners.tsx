@@ -1,4 +1,4 @@
-import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -8,13 +8,18 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import SignerIcon from 'src/assets/images/signer_white.svg';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const ManageSigners = () => {
   const { colorMode } = useColorMode();
-  const { signers } = useSigners();
   const navigation = useNavigation();
+  const { params } = useRoute() as { params: { vaultId: string; vaultKeys: VaultSigner[] } };
+  const { vaultId, vaultKeys } = params || { vaultId: '', vaultKeys: [] };
+  const { signerMap } = useSignerMap();
+  const { signers } = useSigners();
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.learnMoreBorder`}>
@@ -51,12 +56,19 @@ const ManageSigners = () => {
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.body}>
         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <Box style={styles.signerContainer}>
-            {signers.map((signer) => {
+            {(vaultKeys.length ? vaultKeys : signers).map((item) => {
+              const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
               return (
                 <SignerCard
                   key={signer.masterFingerprint}
                   onCardSelect={() =>
-                    navigation.dispatch(CommonActions.navigate('SigningDeviceDetails', { signer }))
+                    navigation.dispatch(
+                      CommonActions.navigate('SigningDeviceDetails', {
+                        signer,
+                        vaultId,
+                        vaultKey: vaultKeys.length ? item : undefined,
+                      })
+                    )
                   }
                   name={signer.signerName}
                   description={signer.signerDescription || signer.type}

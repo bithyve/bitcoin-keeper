@@ -10,7 +10,6 @@ import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
-
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 import { Alert, StyleSheet } from 'react-native';
@@ -35,6 +34,7 @@ import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
+import useVault from 'src/hooks/useVault';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -71,6 +71,7 @@ function Footer({
   isRemix,
   setRemixingToVault,
   remixingToVault,
+  vaultId,
 }) {
   const navigation = useNavigation();
 
@@ -140,18 +141,28 @@ function UTXOManagement({ route, navigation }) {
     data,
     routeName,
     accountType,
-  }: { data: Wallet | Vault; routeName: string; accountType: string } = route.params || {};
+    vaultId = '',
+  }: {
+    data: Wallet | Vault;
+    routeName: string;
+    accountType: string;
+    vaultId: string;
+  } = route.params || {};
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const { id } = data;
-  const wallet = useWallets({ walletIds: [id] }).wallets[0];
+  const wallet = vaultId
+    ? useVault({ vaultId }).activeVault
+    : useWallets({ walletIds: [id] }).wallets[0];
 
   const whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface = useWhirlpoolWallets({
     wallets: [wallet],
   })?.[wallet.id];
 
-  const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const isWhirlpoolWallet = vaultId
+    ? false
+    : Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedAccount, setSelectedAccount] = useState<string>();
   const [depositWallet, setDepositWallet] = useState<any>();
@@ -308,6 +319,7 @@ function UTXOManagement({ route, navigation }) {
           selectedAccount={selectedAccount}
           setRemixingToVault={setRemixingToVault}
           remixingToVault={remixingToVault}
+          vaultId={vaultId}
         />
       ) : null}
       <KeeperModal
