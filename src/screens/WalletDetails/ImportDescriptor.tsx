@@ -62,7 +62,7 @@ function ImportDescriptorScreen({ navigation }) {
       if (parsedText) {
         const signers: VaultSigner[] = [];
         parsedText.signersDetails.forEach((config) => {
-          const { signer, key } = generateSignerFromMetaData({
+          const { key } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,
             masterFingerprint: config.masterFingerprint,
@@ -70,7 +70,7 @@ function ImportDescriptorScreen({ navigation }) {
             storageType: SignerStorage.WARM,
             isMultisig: config.isMultisig,
           });
-          signers.push(signer);
+          signers.push(key);
         });
 
         const parentCollaborativeWallet =
