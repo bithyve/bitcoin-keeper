@@ -15,6 +15,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import config, { APP_STAGE } from 'src/core/config';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -52,7 +53,11 @@ function VaultSetup() {
   } = (params as { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string }) || {};
   const dispatch = useDispatch();
   const { activeVault } = useVault({ vaultId });
-  const [vaultName, setVaultName] = useState(activeVault?.presentationData?.name || 'Vault');
+  const [vaultName, setVaultName] = useState(
+    activeVault?.presentationData?.name || config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
+      ? 'Vault'
+      : ''
+  );
   const [vaultDescription, setVaultDescription] = useState(
     activeVault?.presentationData?.description || 'Secure your sats'
   );
@@ -97,7 +102,7 @@ function VaultSetup() {
             name: 'AddSigningDevice',
             params: {
               scheme,
-              name: vaultName || 'Vault',
+              name: vaultName,
               description: vaultDescription || 'Secure your sats',
               vaultId,
             },

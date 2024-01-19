@@ -3,7 +3,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import Clipboard from '@react-native-community/clipboard';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -31,6 +31,9 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { TextInput } from 'react-native-gesture-handler';
+import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { captureError } from 'src/services/sentry';
 
 const { width } = Dimensions.get('screen');
 
@@ -40,7 +43,12 @@ function SignerAdvanceSettings({ route }: any) {
     route.params;
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
-  const [editEmailModal, setEditEamilModal] = useState(false);
+  const [editEmailModal, setEditEmailModal] = useState(false);
+  const [deleteEmailModal, setDeleteEmailModal] = useState(false);
+
+  const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
+  const [email, setEmail] = useState(currentEmail);
+
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const openDescriptionModal = () => setVisible(true);
@@ -65,6 +73,62 @@ function SignerAdvanceSettings({ route }: any) {
 
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
+
+  const updateIKSPolicy = async (removeEmail: string, newEmail?: string) => {
+    try {
+      if (!removeEmail && !newEmail) {
+        showToast('Nothing to update');
+        navigation.goBack();
+        return;
+      }
+
+      const thresholdDescriptors = activeVault.signers.map((signer) => signer.xfp).slice(0, 2);
+
+      if (signer.inheritanceKeyInfo === undefined)
+        showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+
+      const existingPolicy: InheritancePolicy = signer.inheritanceKeyInfo.policy;
+      const existingAlert: InheritanceAlert | any =
+        idx(signer, (_) => _.inheritanceKeyInfo.policy.alert) || {};
+      const existingEmails = existingAlert.emails || [];
+
+      // remove the previous email
+      const index = existingEmails.indexOf(removeEmail);
+      if (index !== -1) existingEmails.splice(index, 1);
+
+      // add the new email(if provided)
+      const updatedEmails = [...existingEmails];
+      if (newEmail) updatedEmails.push(newEmail);
+
+      const updatedPolicy: InheritancePolicy = {
+        ...existingPolicy,
+        alert: {
+          ...existingAlert,
+          emails: updatedEmails,
+        },
+      };
+
+      const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
+        vaultKey.xfp,
+        updatedPolicy,
+        thresholdDescriptors
+      );
+
+      if (updated) {
+        const updateInheritanceKeyInfo = {
+          ...signer.inheritanceKeyInfo,
+          policy: updatedPolicy,
+        };
+
+        dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', updateInheritanceKeyInfo));
+        showToast(`Email ${newEmail ? 'updated' : 'deleted'}`, <TickIcon />);
+        navigation.goBack();
+      } else showToast(`Failed to ${newEmail ? 'update' : 'delete'} email`);
+    } catch (err) {
+      captureError(err);
+      showToast(`Failed to ${newEmail ? 'update' : 'delete'} email`);
+    }
+  };
 
   const registerSigner = async () => {
     switch (signer.type) {
@@ -150,12 +214,24 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  function EditModalContent() {
+  const EditModalContent = useCallback(() => {
     return (
       <Box style={styles.editModalContainer}>
         <Box>
-          <TextInput style={styles.textInput} placeholder="disa@khazadum.com" />
-          <TouchableOpacity>
+          <TextInput
+            style={styles.textInput}
+            placeholder="disa@khazadum.com"
+            value={email}
+            onChangeText={(value) => {
+              setEmail(value);
+            }}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              setEditEmailModal(false);
+              setDeleteEmailModal(true);
+            }}
+          >
             <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
               <Box>
                 <DeleteIcon />
@@ -176,6 +252,18 @@ function SignerAdvanceSettings({ route }: any) {
           </Text>
           <Text color="light.greenText" style={styles.noteDescription}>
             If notification is not declined continuously for 30 days, the Key would be activated
+          </Text>
+        </Box>
+      </Box>
+    );
+  }, [email]);
+
+  function DeleteEmailModalContent() {
+    return (
+      <Box height={200} justifyContent={'flex-end'}>
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            You would not receive daily reminders about your Inheritance Key if it is used
           </Text>
         </Box>
       </Box>
@@ -203,6 +291,9 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
+  const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
+  const isAssistedKey = isPolicyServer || isInheritanceKey;
+
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
@@ -238,18 +329,22 @@ function SignerAdvanceSettings({ route }: any) {
           description={`Short description to help you remember`}
           callback={openDescriptionModal}
         />
-        <OptionCard
-          title={'Registered Email/Phone'}
-          description={`Delete or Edit registered email/phone`}
-          callback={() => {
-            setEditEamilModal(true);
-          }}
-        />
-        <OptionCard
-          title={'Manual Registration'}
-          description={`Register your active vault with the ${signer.signerName}`}
-          callback={registerSigner}
-        />
+        {isInheritanceKey && (
+          <OptionCard
+            title={'Registered Email/Phone'}
+            description={`Delete or Edit registered email/phone`}
+            callback={() => {
+              setEditEmailModal(true);
+            }}
+          />
+        )}
+        {isAssistedKey ? null : (
+          <OptionCard
+            title={'Manual Registration'}
+            description={`Register your active vault with the ${signer.signerName}`}
+            callback={registerSigner}
+          />
+        )}
         {/* disabling this temporarily */}
         {/* <OptionCard
           title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
@@ -334,13 +429,38 @@ function SignerAdvanceSettings({ route }: any) {
       />
       <KeeperModal
         visible={editEmailModal}
-        close={() => setEditEamilModal(false)}
+        close={() => setEditEmailModal(false)}
         title="Registered Email"
         subTitle="Delete or edit registered email"
         subTitleColor="light.secondaryText"
         buttonTextColor="light.white"
         textColor="light.primaryText"
         Content={EditModalContent}
+        buttonText={currentEmail !== email ? 'Update' : ''}
+        buttonCallback={() => {
+          let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+          if (reg.test(email) === false) {
+            showToast(`Email is incorrect`);
+          } else {
+            updateIKSPolicy(currentEmail, email);
+          }
+        }}
+      />
+      <KeeperModal
+        visible={deleteEmailModal}
+        close={() => setDeleteEmailModal(false)}
+        title="Deleting Registered Email"
+        subTitle="Are you sure you want to delete email id?"
+        subTitleColor="light.secondaryText"
+        buttonTextColor="light.white"
+        textColor="light.primaryText"
+        buttonText="Delete"
+        buttonCallback={() => {
+          updateIKSPolicy(currentEmail);
+        }}
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => setDeleteEmailModal(false)}
+        Content={DeleteEmailModalContent}
       />
     </ScreenWrapper>
   );

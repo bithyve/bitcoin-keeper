@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import AddIcon from 'src/assets/images/green_add.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -170,11 +170,16 @@ function SignerItem({
             </Pressable>
           </VStack>
         </HStack>
-        <Pressable style={styles.remove} onPress={() => removeSigner(index)} disabled={index === 0}>
-          <Text color={`${colorMode}.black`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
-            Remove
-          </Text>
-        </Pressable>
+        {index !== 0 && (
+          <Pressable style={styles.remove} onPress={() => removeSigner(index)}>
+            <Text
+              color={`${colorMode}.black`}
+              style={[globalStyles.font12, { letterSpacing: 0.6 }]}
+            >
+              Remove
+            </Text>
+          </Pressable>
+        )}
       </HStack>
       <DescriptionModal
         visible={visible}

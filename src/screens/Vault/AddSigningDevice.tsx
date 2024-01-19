@@ -77,12 +77,14 @@ function AddSigningDevice() {
       vaultKeys.forEach((key) => {
         const signer = signerMap[key.masterFingerprint];
         if (isSignerValidForScheme(signer)) {
-          updatedSignerMap.set(key.masterFingerprint, true);
-          const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
-          const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
-          const scriptKey = getKeyForScheme(signer.isMock, isMultisig, signer, msXpub, ssXpub);
-          if (scriptKey) {
-            modifiedVaultKeysForScriptType.push(scriptKey);
+          if (modifiedVaultKeysForScriptType.length < scheme.n) {
+            updatedSignerMap.set(key.masterFingerprint, true);
+            const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
+            const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
+            const scriptKey = getKeyForScheme(signer.isMock, isMultisig, signer, msXpub, ssXpub);
+            if (scriptKey) {
+              modifiedVaultKeysForScriptType.push(scriptKey);
+            }
           }
         }
       });
