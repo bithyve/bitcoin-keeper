@@ -662,10 +662,10 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
-  const collaborativeWalletId = '';
-  sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
-    ? sender.collaborativeWalletId
-    : '';
+  const collaborativeWalletId =
+    sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
+      ? sender.collaborativeWalletId
+      : '';
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
