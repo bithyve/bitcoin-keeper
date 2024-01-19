@@ -4,11 +4,10 @@ import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
 import SettingIcon from 'src/assets/images/settings_footer.svg';
 
-import BuyBitcoin from 'src/assets/images/icon_buy.svg';
 import KeeperFooter from 'src/components/KeeperFooter';
 import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 
-function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
+function TransactionFooter({ currentWallet }) {
   const navigation = useNavigation();
 
   const footerItems = [
@@ -25,12 +24,6 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
         navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet })),
       hideItems: !allowedRecieveTypes.includes(currentWallet.type),
     },
-    // {
-    //   Icon: BuyBitcoin,
-    //   text: 'Buy',
-    //   onPress: onPressBuyBitcoin,
-    //   hideItems: !allowedRecieveTypes.includes(currentWallet.type),
-    // },
     {
       Icon: SettingIcon,
       text: 'Settings',

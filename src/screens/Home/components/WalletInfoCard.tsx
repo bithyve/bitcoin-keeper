@@ -32,7 +32,7 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              cardStyles={index % 2 === 0 ? null : { backgroundColor: 'white' }}
+              backgroundColor={index % 2 === 0 ? null : `${colorMode}.white`}
             />
           );
         })}

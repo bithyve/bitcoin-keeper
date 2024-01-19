@@ -10,7 +10,7 @@ import WalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/whirlpool.svg';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -18,14 +18,10 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
-import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import useExchangeRates from 'src/hooks/useExchangeRates';
+import { WalletType } from 'src/core/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CardPill from 'src/components/CardPill';
-import Colors from 'src/theme/Colors';
 import ActionCard from 'src/components/ActionCard';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
@@ -66,13 +62,11 @@ function WalletDetails({ route }) {
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const currencyCode = useCurrencyCode();
-  const exchangeRates = useExchangeRates();
   const { autoRefresh, walletId } = route?.params || {};
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
-    specs: { balances: { confirmed, unconfirmed } } = {
+    specs: { balances: { confirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = wallet;
@@ -85,8 +79,6 @@ function WalletDetails({ route }) {
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
 
@@ -106,16 +98,15 @@ function WalletDetails({ route }) {
     dispatch(refreshWallets([wallet], { hardRefresh: true }));
     setPullRefresh(false);
   };
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <StatusBar barStyle="light-content" />
-      <Box style={{ paddingHorizontal: 20, paddingTop: 15 }}>
+      <Box style={styles.topContainer}>
         <KeeperHeader
           learnMore
-          learnTextColor="light.white"
-          learnBackgroundColor="rgba(0,0,0,.2)"
+          learnTextColor={`${colorMode}.white`}
+          learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
         />
@@ -137,10 +128,7 @@ function WalletDetails({ route }) {
           </Box>
           <Box style={styles.balanceWrapper}>
             <Box style={styles.unconfirmBalanceView}>
-              <CardPill
-                heading="SINGLE SIG"
-                cardStyles={{ backgroundColor: Colors.PaleTurquoise }}
-              />
+              <CardPill heading="SINGLE SIG" backgroundColor={`${colorMode}.PaleTurquoise`} />
               <CardPill heading={wallet.type} />
             </Box>
             <Box style={styles.availableBalanceView}>
@@ -173,7 +161,7 @@ function WalletDetails({ route }) {
         {wallet ? (
           <>
             <HStack style={styles.transTitleWrapper}>
-              <Text color={`${colorMode}.black`} fontSize={16} letterSpacing={1.28}>
+              <Text color={`${colorMode}.black`} style={styles.transactionHeading}>
                 {common.transactions}
               </Text>
             </HStack>
@@ -183,7 +171,7 @@ function WalletDetails({ route }) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <TransactionFooter currentWallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />
+            <TransactionFooter currentWallet={wallet} />
           </>
         ) : (
           <Box style={styles.addNewWalletContainer}>
@@ -217,16 +205,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flex: 1,
   },
+  topContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
+  },
   walletContainer: {
     paddingHorizontal: wp(28),
     paddingTop: wp(45),
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
-  },
-  transactionsListContainer: {
-    height: windowHeight > 800 ? '66%' : '58%',
-    position: 'relative',
   },
   addNewWalletText: {
     fontSize: 12,
@@ -287,23 +275,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 5,
   },
-  transferPolicyCard: {
-    paddingHorizontal: wp(10),
-    height: hp(50),
-    width: '95%',
-    borderRadius: hp(5),
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  transferPolicyContent: {
-    paddingLeft: wp(10),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
   actionCard: {
     marginTop: 40,
     marginBottom: -50,
@@ -312,6 +283,10 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  transactionHeading: {
+    fontSize: 16,
+    letterSpacing: 0.16,
   },
 });
 export default WalletDetails;

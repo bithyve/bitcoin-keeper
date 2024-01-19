@@ -3,11 +3,9 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
-import useBalance from 'src/hooks/useBalance';
 import { hp, wp } from 'src/constants/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
 
-import UnconfirmedIcon from 'src/assets/images/pending.svg';
 import IconSent from 'src/assets/images/icon_sent_red.svg';
 import IconRecieve from 'src/assets/images/icon_recieved_red.svg';
 import TransactionPendingIcon from 'src/assets/images/transaction_pending.svg';
@@ -27,7 +25,6 @@ function TransactionElement({
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  •  HH:mm A');
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
     <TouchableOpacity onPress={onPress} testID={`btn_transaction_${index}`}>
@@ -55,18 +52,6 @@ function TransactionElement({
           </Box>
         </Box>
         <Box style={styles.rowCenter}>
-          {/* {transaction.confirmations > 0 ? null : (
-            <Box testID={`icon_unconfirmed_${index}`} style={styles.unconfirmIconWrapper}>
-              <UnconfirmedIcon />
-            </Box>
-          )} */}
-          {/* <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
-          <Text style={styles.amountText}>
-            {getBalance(transaction?.amount)}
-            <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getSatUnit()}
-            </Text>
-          </Text> */}
           <CurrencyInfo
             hideAmounts={false}
             amount={transaction?.amount}
@@ -114,16 +99,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     opacity: 0.82,
     width: 125,
-  },
-  amountText: {
-    fontSize: 19,
-    letterSpacing: 0.95,
-    marginHorizontal: 3,
-    marginRight: 3,
-  },
-  unitText: {
-    letterSpacing: 0.6,
-    fontSize: hp(12),
   },
   unconfirmIconWrapper: {
     paddingHorizontal: 5,

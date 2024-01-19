@@ -1,19 +1,19 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import { StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from './KeeperText';
 
 type CardPillProps = {
   heading: string;
-  cardStyles?: ViewStyle;
+  backgroundColor?: string;
 };
 
-function CardPill({ heading, cardStyles }: CardPillProps) {
+function CardPill({ heading, backgroundColor }: CardPillProps) {
   const { colorMode } = useColorMode();
   return (
     <Box
-      backgroundColor={`${colorMode}.LightKhaki`}
-      style={[styles.pillContainer, cardStyles && cardStyles]}
+      backgroundColor={backgroundColor ? backgroundColor : `${colorMode}.LightKhaki`}
+      style={styles.pillContainer}
     >
       <Text bold style={styles.heading} color={`${colorMode}.SlateGrey`} numberOfLines={1}>
         {heading}
