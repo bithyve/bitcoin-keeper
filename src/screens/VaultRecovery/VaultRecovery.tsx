@@ -26,10 +26,8 @@ import { addNewVault } from 'src/store/sagaActions/vaults';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
 import Relay from 'src/services/operations/Relay';
 import { generateCosignerMapIds, generateVaultId } from 'src/core/wallets/factories/VaultFactory';
-import config from 'src/core/config';
 import { hash256 } from 'src/services/operations/encryption';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-// import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
 import { setTempShellId } from 'src/store/reducers/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -275,7 +273,7 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const vaultCheck = async () => {
-    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE, vaultRecoveryDetails.scheme);
+    const vaultId = generateVaultId(signersList, vaultRecoveryDetails.scheme);
     const response = await Relay.vaultCheck(vaultId);
     if (response.isVault) {
       setScheme(response.scheme);

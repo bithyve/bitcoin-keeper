@@ -36,6 +36,7 @@ import { DowngradeModal } from './components/DowngradeModal';
 import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
 import HeaderDetails from './components/HeaderDetails';
 import { hp } from 'src/constants/responsive';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -296,7 +297,17 @@ function NewHomeScreen({ navigation }) {
                   tags={tags}
                   walletName={wallet.presentationData.name}
                   walletDescription={wallet.presentationData.description}
-                  icon={wallet.entityKind === EntityKind.VAULT ? <VaultIcon /> : <WalletIcon />}
+                  icon={
+                    wallet.entityKind === EntityKind.VAULT ? (
+                      wallet.type === VaultType.COLLABORATIVE ? (
+                        <CollaborativeIcon />
+                      ) : (
+                        <VaultIcon />
+                      )
+                    ) : (
+                      <WalletIcon />
+                    )
+                  }
                   amount={balance}
                 />
               </TouchableOpacity>

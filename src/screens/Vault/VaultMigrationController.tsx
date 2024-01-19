@@ -18,7 +18,6 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
-import config from 'src/core/config';
 
 function VaultMigrationController({
   vaultCreating,
@@ -163,7 +162,7 @@ function VaultMigrationController({
           description,
         },
       };
-      const generatedVaultId = generateVaultId(signers, config.NETWORK_TYPE, scheme);
+      const generatedVaultId = generateVaultId(signers, scheme);
       setGeneratedVaultId(generatedVaultId);
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       return vaultInfo;

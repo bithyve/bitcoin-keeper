@@ -82,7 +82,7 @@
     "transactions": "Transactions",
     "viewAll": "View All",
     "addNewWalletOrImport": "Add a new wallet or import one",
-    "noTransYet": "No transactions yet.",
+    "noTransYet": "You have no transactions yet",
     "pullDownRefresh": "Pull down to refresh",
     "securityTips": "Security Tip",
     "emptyStateModalSubtitle": "Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step.",

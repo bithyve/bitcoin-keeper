@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, VStack, useColorMode } from 'native-base';
 import Clipboard from '@react-native-community/clipboard';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -30,7 +30,7 @@ import CopyIcon from 'src/assets/images/copy_new.svg';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { TextInput } from 'react-native-gesture-handler';
+import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
@@ -177,29 +177,6 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  function VaultCardHeader() {
-    return (
-      <Box style={styles.walletHeaderWrapper}>
-        <Box style={styles.walletIconWrapper}>
-          <Box
-            style={styles.walletIconView}
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-          >
-            {SDIcons(signer.type, true).Icon}
-          </Box>
-        </Box>
-        <Box style={styles.walletNameWrapper}>
-          <Text color={`${colorMode}.primaryGreenBackground`} style={styles.walletNameText}>
-            Advanced Settings
-          </Text>
-          <Text color={`${colorMode}.textBlack`} style={styles.walletDescText}>
-            {`for ${signer.signerName}`}
-          </Text>
-        </Box>
-      </Box>
-    );
-  }
-
   function WarningContent() {
     return (
       <Box alignItems="center">
@@ -302,34 +279,18 @@ function SignerAdvanceSettings({ route }: any) {
   const { wallet: walletTranslation } = translations;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader />
-      {/* ------------ TODO Pratyaksh ---- add vault details------- */}
-      <VaultCardHeader />
-      {/* <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>
-        <HStack alignItems="center">
-          <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
-          <VStack justifyContent="center" px={4}>
-            <Text color="white" style={[font14]}>
-              {signerName}
-            </Text>
-            <Text color={`${colorMode}.white`} style={[font10]} light>
-              {moment(signer.addedOn).format('DD MMM YYYY, HH:mmA')}
-            </Text>
-            {signer.signerDescription ? (
-              <Text color={`${colorMode}.white`} style={[font12]} light>
-                {signer.signerDescription}
-              </Text>
-            ) : null}
-          </VStack>
-        </HStack>
-      </Box> */}
-      <ScrollView>
+      <KeeperHeader
+        title="Advanced Settings"
+        subtitle={`for ${signer.signerName}`}
+        icon={SDIcons(signer.type, true).Icon}
+      />
+      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
         <OptionCard
           title={'Edit Description'}
           description={`Short description to help you remember`}
           callback={openDescriptionModal}
         />
-        {isInheritanceKey && (
+        {isInheritanceKey && vaultId && (
           <OptionCard
             title={'Registered Email/Phone'}
             description={`Delete or Edit registered email/phone`}
@@ -338,7 +299,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-        {isAssistedKey ? null : (
+        {isAssistedKey || !vaultId ? null : (
           <OptionCard
             title={'Manual Registration'}
             description={`Register your active vault with the ${signer.signerName}`}
@@ -351,7 +312,7 @@ function SignerAdvanceSettings({ route }: any) {
           description="Identify your signer type for enhanced connectivity and communication"
           callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
         /> */}
-        {isPolicyServer && (
+        {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
             description="Restriction and threshold"
@@ -368,41 +329,47 @@ function SignerAdvanceSettings({ route }: any) {
         {/* ---------TODO Pratyaksh--------- */}
         {/* <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} /> */}
       </ScrollView>
-      <Box style={styles.walletUsedText}>
-        {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
-      </Box>
-      <ScrollView horizontal contentContainerStyle={styles.actionCardContainer}>
-        {signerVaults.map((vault) => (
-          <ActionCard
-            key={vault.id}
-            description={vault.presentationData.description || 'Secure your sats'}
-            cardName={vault.presentationData.name}
-            icon={<WalletVault />}
-            callback={() => {}}
-          />
-        ))}
-      </ScrollView>
-      <TouchableOpacity
-        activeOpacity={0.4}
-        testID="btn_copy_address"
-        onPress={() => {
-          Clipboard.setString(signer.masterFingerprint);
-          showToast(walletTranslation.walletIdCopied, <TickIcon />);
-        }}
-        style={styles.inputContainer}
-      >
-        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Box style={styles.fingerprintContainer}>
-            <Text fontSize={14}>Signer Fingerprint</Text>
-            <Text style={styles.w80} numberOfLines={1} color={`${colorMode}.GreenishGrey`}>
-              {signer.masterFingerprint}
-            </Text>
-          </Box>
-          <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
-            <CopyIcon />
-          </Box>
+      <VStack>
+        <Box ml={2} style={{ marginVertical: 20 }}>
+          {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
-      </TouchableOpacity>
+        <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
+          {signerVaults.map((vault) => (
+            <ActionCard
+              key={vault.id}
+              description={vault.presentationData.description || 'Secure your sats'}
+              cardName={vault.presentationData.name}
+              icon={<WalletVault />}
+              callback={() => {}}
+            />
+          ))}
+        </ScrollView>
+        <TouchableOpacity
+          activeOpacity={0.4}
+          testID="btn_copy_address"
+          onPress={() => {
+            Clipboard.setString(signer.masterFingerprint);
+            showToast(walletTranslation.walletIdCopied, <TickIcon />);
+          }}
+          style={styles.inputContainer}
+        >
+          <Box
+            height={60}
+            style={styles.inputWrapper}
+            backgroundColor={`${colorMode}.seashellWhite`}
+          >
+            <Box justifyContent={'center'} paddingLeft={2}>
+              <Text fontSize={14}>Signer Fingerprint</Text>
+              <Text width="80%" numberOfLines={1} color={`${colorMode}.GreenishGrey`}>
+                {signer.masterFingerprint}
+              </Text>
+            </Box>
+            <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
+              <CopyIcon />
+            </Box>
+          </Box>
+        </TouchableOpacity>
+      </VStack>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
@@ -540,7 +507,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomLeftRadius: 10,
     borderTopLeftRadius: 10,
-    marginTop: windowHeight > 600 ? hp(40) : 0,
+    marginTop: '10%',
   },
   inputWrapper: {
     flexDirection: 'row',
