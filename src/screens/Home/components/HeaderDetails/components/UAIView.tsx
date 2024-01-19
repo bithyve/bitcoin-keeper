@@ -2,7 +2,6 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { hp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
 
 function UAIView({
@@ -52,7 +51,6 @@ function UAIView({
 }
 const styles = StyleSheet.create({
   wrapper: {
-    marginTop: hp(20),
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',

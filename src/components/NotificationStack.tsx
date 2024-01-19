@@ -277,6 +277,7 @@ const styles = StyleSheet.create({
     borderRadius: layout.borderRadius,
     width: layout.width,
     height: layout.height,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 12,
