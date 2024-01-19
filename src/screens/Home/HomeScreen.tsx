@@ -240,7 +240,7 @@ function NewHomeScreen({ navigation }) {
         backgroundColor={`${colorMode}.primaryGreenBackground`}
         style={[styles.wrapper, { paddingTop: top }]}
       >
-        <Box width={'100%'} style={styles.padding}>
+        <Box style={styles.headerWrapper}>
           <HeaderDetails />
         </Box>
         <Box style={styles.actionContainer}>
@@ -361,8 +361,9 @@ const getStyles = (colorMode) =>
       gap: 10,
       height: '100%',
     },
-    padding: {
+    headerWrapper: {
       paddingHorizontal: 10,
+      width: '90%',
     },
     wrapper: {
       flex: 0.35,
