@@ -1,4 +1,4 @@
-import { StatusBar, StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -55,6 +55,9 @@ const ManageSigners = () => {
               return (
                 <SignerCard
                   key={signer.masterFingerprint}
+                  onCardSelect={() =>
+                    navigation.dispatch(CommonActions.navigate('SigningDeviceDetails', { signer }))
+                  }
                   name={signer.signerName}
                   description={signer.signerDescription || signer.type}
                   icon={SDIcons(signer.type, colorMode !== 'dark').Icon}

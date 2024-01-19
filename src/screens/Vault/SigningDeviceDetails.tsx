@@ -196,9 +196,9 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId } = route.params;
+  const { vaultKey, vaultId, signer: currentSigner } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerMap[vaultKey.masterFingerprint];
+  const signer = currentSigner ? currentSigner : signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -296,6 +296,18 @@ function SigningDeviceDetails({ route }) {
       },
     },
     {
+      text: 'Settings',
+      Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
+      onPress: () => {
+        navigation.dispatch(
+          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId })
+        );
+      },
+    },
+  ];
+
+  if (vaultKey) {
+    footerItems.push({
       text: 'Change Signer',
       Icon: () => <FooterIcon Icon={Change} />,
       onPress: () =>
@@ -306,18 +318,8 @@ function SigningDeviceDetails({ route }) {
             params: { vaultId, scheme: activeVault.scheme },
           })
         ),
-    },
-
-    {
-      text: 'Settings',
-      Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId })
-        );
-      },
-    },
-  ];
+    });
+  }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -351,8 +353,7 @@ function SigningDeviceDetails({ route }) {
           setSkipHealthCheckModalVisible(true);
         }}
         mode={InteracationMode.HEALTH_CHECK}
-        vaultShellId={activeVault.shellId}
-        isMultisig={activeVault.isMultiSig}
+        isMultisig={activeVault?.isMultiSig || true}
         primaryMnemonic={primaryMnemonic}
         vaultId={vaultId}
         addSignerFlow={false}

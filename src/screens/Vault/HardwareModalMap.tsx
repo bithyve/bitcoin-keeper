@@ -366,6 +366,7 @@ function SignerContent({
         {options &&
           options.map((option, index) => (
             <SignerCard
+              key={option.name}
               isSelected={index === selectInheritanceType}
               isFullText={true}
               name={option.title}
@@ -744,7 +745,6 @@ function HardwareModalMap({
   skipHealthCheckCallBack,
   mode = InteracationMode.VAULT_ADDITION,
   primaryMnemonic,
-  vaultShellId,
   addSignerFlow = false,
   vaultSigners,
   vaultId,
@@ -757,7 +757,6 @@ function HardwareModalMap({
   mode?: InteracationMode;
   isMultisig: boolean;
   primaryMnemonic?: string;
-  vaultShellId?: string;
   addSignerFlow: boolean;
   vaultSigners?: VaultSigner[];
   vaultId: string;
@@ -771,14 +770,8 @@ function HardwareModalMap({
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
 
-  //TODO---need to pass vault id
-  //1- useSigner with vault id and use those signers (complete)
-  //2- useSigner without vault id when there is no vault (Pending Pratyskh)
   const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
-  // const { signingDevices } = useAppSelector((state) => state.bhr);
-  const { signers } = useSigners();
-  const signingDevices = signers;
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   const appId = useAppSelector((state) => state.storage.appId);
@@ -1380,7 +1373,10 @@ function HardwareModalMap({
         dispatch(addSigningDevice([inheritanceKey]));
         dispatch(setInheritanceRequestId('')); // clear approved request
         showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
-        navigation.goBack();
+        const navigationState = addSignerFlow
+          ? { name: 'ManageSigners' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
       }
     } catch (err) {
       showToast(`${err}`, <ToastErrorIcon />);
@@ -1404,6 +1400,10 @@ function HardwareModalMap({
       });
       setInProgress(false);
       dispatch(addSigningDevice([inheritanceKey]));
+      const navigationState = addSignerFlow
+        ? { name: 'ManageSigners' }
+        : { name: 'AddSigningDevice', merge: true, params: {} };
+      navigation.dispatch(CommonActions.navigate(navigationState));
       showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
     } catch (err) {
       console.log({ err });
