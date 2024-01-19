@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   noOfWallet: {
-    // textAlign: 'center',
     fontSize: 27,
     lineHeight: 27,
   },
