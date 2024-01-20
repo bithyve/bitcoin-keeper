@@ -174,7 +174,7 @@ export function* updateVaultImageWorker({
     });
   }
 
-  // TO-DO to be removed
+  // TODO to be removed
   const subscriptionStrings = JSON.stringify(subscription);
 
   try {

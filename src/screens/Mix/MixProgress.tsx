@@ -434,7 +434,7 @@ function MixProgress({
 
   const initiateWhirlpoolMix = async () => {
     try {
-      // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
+      // ToDo: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       const { height } = await ElectrumClient.getBlockchainHeaders();
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(`${utxo.txId}:${utxo.vout}`);
