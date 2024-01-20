@@ -76,7 +76,12 @@ function AppSettings({ navigation }) {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <Box style={styles.actionContainer}>
             {actionCardData.map((card) => (
-              <ActionCard cardName={card.cardName} icon={card.icon} callback={card.callback} />
+              <ActionCard
+                cardName={card.cardName}
+                icon={card.icon}
+                callback={card.callback}
+                key={card.cardName}
+              />
             ))}
           </Box>
         </ScrollView>
