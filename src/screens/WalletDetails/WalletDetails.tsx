@@ -28,6 +28,8 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { AppStackParams } from 'src/navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -56,13 +58,14 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
   );
 }
 
-function WalletDetails({ route }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'WalletDetails'>;
+function WalletDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { autoRefresh, walletId } = route?.params || {};
+  const { autoRefresh = false, walletId } = route.params || {};
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },

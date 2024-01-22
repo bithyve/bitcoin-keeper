@@ -8,17 +8,18 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import SignerIcon from 'src/assets/images/signer_white.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { globalStyles } from 'src/constants/globalStyles';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
-const ManageSigners = () => {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
+const ManageSigners = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { params } = useRoute() as { params: { vaultId: string; vaultKeys: VaultSigner[] } };
-  const { vaultId, vaultKeys } = params || { vaultId: '', vaultKeys: [] };
+  const { vaultId = '', vaultKeys = [] } = route.params;
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
 

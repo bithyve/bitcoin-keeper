@@ -35,6 +35,8 @@ import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
 import useVault from 'src/hooks/useVault';
+import { AppStackParams } from 'src/navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -132,22 +134,12 @@ function Footer({
     />
   );
 }
-
-function UTXOManagement({ route, navigation }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOManagement'>;
+function UTXOManagement({ route, navigation }: ScreenProps) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const styles = getStyles();
-  const {
-    data,
-    routeName,
-    accountType,
-    vaultId = '',
-  }: {
-    data: Wallet | Vault;
-    routeName: string;
-    accountType: string;
-    vaultId: string;
-  } = route.params || {};
+  const { data, routeName, accountType, vaultId = '' } = route.params || {};
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});

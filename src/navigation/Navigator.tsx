@@ -1,5 +1,6 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
+import { AppStackParams } from './types';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/services/sentry';
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
@@ -151,7 +152,7 @@ function LoginStack() {
 }
 
 function AppStack() {
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator<AppStackParams>();
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>

@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -36,6 +36,8 @@ import useSigners from 'src/hooks/useSigners';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
 function Footer({
   vault,
@@ -168,18 +170,12 @@ function TransactionList({
   );
 }
 
-function VaultDetails({ navigation }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultDetails'>;
+
+const VaultDetails = ({ navigation, route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
-  const route = useRoute() as {
-    params: {
-      vaultId: string;
-      vaultTransferSuccessful: boolean;
-      autoRefresh: boolean;
-      collaborativeWalletId: string;
-    };
-  };
 
   const {
     vaultTransferSuccessful = false,
@@ -399,7 +395,7 @@ function VaultDetails({ navigation }) {
       />
     </Box>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
