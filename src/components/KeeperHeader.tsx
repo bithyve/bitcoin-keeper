@@ -77,7 +77,7 @@ function KeeperHeader({
             {title && (
               <Text
                 numberOfLines={1}
-                style={[styles.addWalletText, { fontSize: 16 }]}
+                style={styles.addWalletText}
                 color={titleColor ? titleColor : `${colorMode}.headerText`}
                 testID="text_header_title"
               >
@@ -109,10 +109,10 @@ const getStyles = (marginLeft: boolean) =>
     addWalletText: {
       lineHeight: 26,
       letterSpacing: 0.8,
-      fontSize: 16,
+      fontSize: 18,
     },
     addWalletDescription: {
-      fontSize: 12,
+      fontSize: 14,
       lineHeight: 20,
       letterSpacing: 0.5,
     },

@@ -7,6 +7,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Text from './KeeperText';
+import { hp } from 'src/constants/responsive';
 
 type Props = {
   fingerprint: string;
@@ -51,6 +52,7 @@ const styles = StyleSheet.create({
     width: '90%',
     borderRadius: 10,
     height: 60,
+    marginVertical: hp(20),
   },
   heading: {
     fontSize: 14,
