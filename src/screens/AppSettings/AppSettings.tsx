@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
@@ -22,12 +22,20 @@ import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { CommonActions } from '@react-navigation/native';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useQuery } from '@realm/react';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import KeeperModal from 'src/components/KeeperModal';
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const dispatch = useAppDispatch();
 
@@ -43,7 +51,7 @@ function AppSettings({ navigation }) {
       cardName: settings.appBackup,
       icon: <AppBackupIcon />,
       callback: () => {
-        navigation.navigate('BackupWallet');
+        setConfirmPassVisible(true);
       },
     },
     {
@@ -164,6 +172,34 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
       </Box>
+
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title={'Confirm Passcode'}
+        subTitleWidth={wp(240)}
+        subTitle={'To backup app recovery phrase'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={() => {
+              navigation.dispatch(
+                CommonActions.navigate('ExportSeed', {
+                  seed: primaryMnemonic,
+                  next: true,
+                })
+              );
+            }}
+          />
+        )}
+      />
     </ScreenWrapper>
   );
 }
