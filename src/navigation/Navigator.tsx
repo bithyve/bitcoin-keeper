@@ -52,7 +52,6 @@ import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
 import VaultDetails from 'src/screens/Vault/VaultDetails';
-import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import AllTransactions from 'src/screens/Vault/AllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
@@ -60,10 +59,8 @@ import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
-import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
-import VaultConfigurationRecovery from 'src/screens/Vault/VaultConfigurationRecreation';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
@@ -91,7 +88,6 @@ import InputSeedWordSigner from 'src/screens/SigningDevices/InputSeedWordSigner'
 import SetupOtherSDScreen from 'src/screens/SigningDevices/SetupOtherSDScreen';
 import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
-import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListRecovery';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
@@ -238,7 +234,6 @@ function AppStack() {
         <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
         <Stack.Screen name="VaultSetup" component={VaultSetup} />
         <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
-
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}
@@ -247,7 +242,6 @@ function AppStack() {
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="NFCScanner" component={NFCScanner} />
         <Stack.Screen name="AddWallet" component={AddWallet} />
-        {/* Add Signers Screen for new Flow */}
         <Stack.Screen name="AddSigner" component={AddSigner} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
       </Stack.Navigator>
