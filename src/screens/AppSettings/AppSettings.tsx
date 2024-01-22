@@ -87,6 +87,7 @@ function AppSettings({ navigation }) {
                 icon={card.icon}
                 callback={card.callback}
                 key={card.cardName}
+                customStyle={{ justifyContent: 'flex-end' }}
               />
             ))}
           </Box>

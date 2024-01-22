@@ -1,7 +1,7 @@
 import { Box, useColorMode } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
 type ActionCardProps = {
   cardName: string;
@@ -37,7 +37,7 @@ function ActionCard({
           {cardName}
         </Text>
         {description && (
-          <Text fontSize={11} color={`${colorMode}.GreenishGrey`}>
+          <Text fontSize={11} numberOfLines={2} color={`${colorMode}.GreenishGrey`}>
             {description}
           </Text>
         )}
@@ -48,9 +48,11 @@ function ActionCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: windowWidth / 3.3,
-    height: windowHeight / 6.5,
-    padding: 10,
+    width: wp(114),
+    height: hp(125),
+    paddingVertical: hp(10),
+    paddingLeft: 10,
+    paddingRight: 6,
     borderRadius: 10,
   },
   circle: {
@@ -59,8 +61,8 @@ const styles = StyleSheet.create({
     borderRadius: 34 / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 15,
-    marginBottom: 10,
+    marginTop: hp(25),
+    marginBottom: hp(10),
   },
   dottedBorder: {
     position: 'absolute',
