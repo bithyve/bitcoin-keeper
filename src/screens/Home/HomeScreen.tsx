@@ -1,17 +1,11 @@
-/* eslint-disable react/no-unstable-nested-components */
-import { FlatList, Linking, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import ActionCard from 'src/components/ActionCard';
-import WalletInfoCard from 'src/screens/Home/components/WalletInfoCard';
-import AddCard from 'src/components/AddCard';
-import WalletIcon from 'src/assets/images/daily_wallet.svg';
-import VaultIcon from 'src/assets/images/vault_icon.svg';
 import React, { useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { EntityKind, VaultType, VisibilityType, WalletType } from 'src/core/wallets/enums';
+import { VisibilityType, WalletType } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
@@ -28,15 +22,10 @@ import InheritanceIcon from 'src/assets/images/inheri.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import AddWalletModal from './components/AddWalletModal';
-import BalanceComponent from './components/BalanceComponent';
-import RampModal from '../WalletDetails/components/RampModal';
 import { urlParamsToObj } from 'src/core/utils';
-import { DowngradeModal } from './components/DowngradeModal';
-import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
-import HeaderDetails from './components/HeaderDetails';
-import { hp } from 'src/constants/responsive';
-import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import { HomeModals } from './components/HomeModals';
+import { TopSection } from './components/TopSection';
+import { WalletsList } from './components/WalletList';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -79,22 +68,15 @@ function NewHomeScreen({ navigation }) {
 
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
   const { showToast } = useToastMessage();
+  const { top } = useSafeAreaInsets();
+  const { plan } = usePlan();
   const electrumClientConnectionStatus = useAppSelector(
     (state) => state.login.electrumClientConnectionStatus
   );
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  // const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
-
-  useEffect(() => {
-    Linking.addEventListener('url', handleDeepLinkEvent);
-    handleDeepLinking();
-    return () => {
-      Linking.removeAllListeners('url');
-    };
-  }, []);
 
   function handleDeepLinkEvent({ url }) {
     if (url) {
@@ -156,6 +138,14 @@ function NewHomeScreen({ navigation }) {
   }
 
   useEffect(() => {
+    Linking.addEventListener('url', handleDeepLinkEvent);
+    handleDeepLinking();
+    return () => {
+      Linking.removeAllListeners('url');
+    };
+  }, []);
+
+  useEffect(() => {
     if (electrumClientConnectionStatus.success) {
       showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
       if (electrumErrorVisible) setElectrumErrorVisible(false);
@@ -194,8 +184,6 @@ function NewHomeScreen({ navigation }) {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  const { top } = useSafeAreaInsets();
-  const { plan } = usePlan();
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const cardsData = [
     {
@@ -234,156 +222,35 @@ function NewHomeScreen({ navigation }) {
 
   return (
     <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
-      <Box
-        backgroundColor={`${colorMode}.primaryGreenBackground`}
-        style={[styles.wrapper, { paddingTop: top }]}
-      >
-        <Box style={styles.headerContainer}>
-          <HeaderDetails />
-        </Box>
-        <Box style={styles.actionContainer}>
-          {cardsData.map((data, index) => (
-            <ActionCard
-              key={`${index}_${data.name}`}
-              cardName={data.name}
-              callback={data.callback}
-              icon={data.icon}
-              dottedBorder
-            />
-          ))}
-        </Box>
-      </Box>
-      <Box style={styles.valueWrapper}>
-        <BalanceComponent
-          count={allWallets.length}
-          balance={netBalanceWallets + netBalanceAllVaults}
-        />
-        <FlatList
-          contentContainerStyle={styles.walletDetailWrapper}
-          horizontal
-          data={allWallets}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item: wallet }) => {
-            const { confirmed, unconfirmed } = wallet.specs.balances;
-            const balance = confirmed + unconfirmed;
-            const tags =
-              wallet.entityKind === EntityKind.VAULT
-                ? [
-                    `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
-                    `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
-                  ]
-                : ['SINGLE SIG', wallet.type];
-            return (
-              <TouchableOpacity
-                style={styles.wallerCardWrapper}
-                onPress={() => {
-                  if (wallet.entityKind === EntityKind.VAULT) {
-                    switch (wallet.type) {
-                      case VaultType.COLLABORATIVE:
-                        navigation.navigate('VaultDetails', {
-                          collaborativeWalletId: (wallet as Vault).collaborativeWalletId,
-                        });
-                        return;
-                      case VaultType.DEFAULT:
-                      default:
-                        navigation.navigate('VaultDetails', { vaultId: wallet.id });
-                    }
-                  } else {
-                    navigation.navigate('WalletDetails', { walletId: wallet.id });
-                  }
-                }}
-              >
-                <WalletInfoCard
-                  tags={tags}
-                  walletName={wallet.presentationData.name}
-                  walletDescription={wallet.presentationData.description}
-                  icon={
-                    wallet.entityKind === EntityKind.VAULT ? (
-                      wallet.type === VaultType.COLLABORATIVE ? (
-                        <CollaborativeIcon />
-                      ) : (
-                        <VaultIcon />
-                      )
-                    ) : (
-                      <WalletIcon />
-                    )
-                  }
-                  amount={balance}
-                />
-              </TouchableOpacity>
-            );
-          }}
-          ListFooterComponent={() => (
-            <AddCard
-              name="Add"
-              cardStyles={{ height: 260, width: 130 }}
-              callback={() => navigation.navigate('AddWallet')}
-              iconWidth={44}
-              iconHeight={38}
-            />
-          )}
-        />
-      </Box>
-      <AddWalletModal
+      <TopSection colorMode={colorMode} top={top} cardsData={cardsData} />
+      <WalletsList
+        allWallets={allWallets}
         navigation={navigation}
-        visible={addImportVisible}
+        totalBalance={netBalanceWallets + netBalanceAllVaults}
+      />
+      <HomeModals
+        addImportVisible={addImportVisible}
+        electrumErrorVisible={electrumErrorVisible}
+        showBuyRampModal={showBuyRampModal}
         setAddImportVisible={setAddImportVisible}
+        setElectrumErrorVisible={setElectrumErrorVisible}
+        setShowBuyRampModal={setShowBuyRampModal}
+        receivingAddress={receivingAddress}
+        balance={balance}
+        presentationName={presentationName}
+        navigation={navigation}
         wallets={wallets}
         collaborativeWallets={collaborativeWallets}
         setDefaultWalletCreation={setDefaultWalletCreation}
       />
-      <RampModal
-        showBuyRampModal={showBuyRampModal}
-        setShowBuyRampModal={setShowBuyRampModal}
-        receivingAddress={receivingAddress}
-        balance={balance}
-        name={presentationName}
-      />
-      <DowngradeModal navigation={navigation} />
-      <ElectrumDisconnectModal
-        electrumErrorVisible={electrumErrorVisible}
-        setElectrumErrorVisible={setElectrumErrorVisible}
-      />
     </Box>
   );
 }
+
 export default NewHomeScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  valueWrapper: {
-    flex: 0.65,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: '35%',
-    gap: 10,
-    height: '100%',
-  },
-  headerContainer: {
-    paddingHorizontal: 10,
-    width: '100%',
-  },
-  wrapper: {
-    flex: 0.35,
-    width: '100%',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  actionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-    position: 'absolute',
-    top: Platform.OS === 'android' ? hp(200) : hp(220),
-  },
-  walletDetailWrapper: {
-    marginTop: 20,
-    paddingHorizontal: 10,
-  },
-  wallerCardWrapper: {
-    marginRight: 10,
   },
 });

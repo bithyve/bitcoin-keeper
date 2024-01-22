@@ -47,7 +47,7 @@ function MockWrapper({
         const { signer } = data;
         dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
-          ? { name: 'Home' }
+          ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         nav.dispatch(CommonActions.navigate(navigationState));
 

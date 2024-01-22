@@ -1,5 +1,5 @@
-import { StatusBar, StyleSheet } from 'react-native';
 import React from 'react';
+import { StatusBar, StyleSheet } from 'react-native';
 import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Text from 'src/components/KeeperText';
@@ -8,94 +8,116 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import SignerIcon from 'src/assets/images/signer_white.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useSignerMap from 'src/hooks/useSignerMap';
+import { globalStyles } from 'src/constants/globalStyles';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
-const ManageSigners = () => {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
+const ManageSigners = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { params } = useRoute() as { params: { vaultId: string; vaultKeys: VaultSigner[] } };
-  const { vaultId, vaultKeys } = params || { vaultId: '', vaultKeys: [] };
+  const { vaultId = '', vaultKeys = [] } = route.params;
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
+
+  const handleLearnMorePressed = () => {
+    //TODO: Implement learn more action
+  };
+
+  const handleCardSelect = (signer, item) => {
+    navigation.dispatch(
+      CommonActions.navigate('SigningDeviceDetails', {
+        signer,
+        vaultId,
+        vaultKey: vaultKeys.length ? item : undefined,
+      })
+    );
+  };
+
+  const handleAddSigner = () => {
+    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
+  };
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.learnMoreBorder`}>
       <StatusBar barStyle="light-content" />
-      <Box style={styles.header}>
-        <KeeperHeader learnMore learnMorePressed={() => {}} contrastScreen={true} />
-        <VStack paddingBottom={10} paddingLeft={5}>
-          <HStack alignItems="center">
-            <Box style={styles.iconWrapper} backgroundColor={`${colorMode}.RussetBrown`}>
-              <SignerIcon />
-            </Box>
-            <VStack>
-              <Text
-                color={`${colorMode}.white`}
-                style={styles.infoText}
-                fontSize={18}
-                testID={'text_vaultName'}
-              >
-                {'Manage Signers'}
-              </Text>
-              <Text
-                color={`${colorMode}.white`}
-                style={styles.infoText}
-                fontSize={14}
-                testID={'text_vaultDescription'}
-                numberOfLines={2}
-              >
-                {'Add, remove, change or check on signers'}
-              </Text>
-            </VStack>
-          </HStack>
-        </VStack>
-      </Box>
-      <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.body}>
-        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-          <Box style={styles.signerContainer}>
-            {(vaultKeys.length ? vaultKeys : signers).map((item) => {
-              const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
-              return (
-                <SignerCard
-                  key={signer.masterFingerprint}
-                  onCardSelect={() =>
-                    navigation.dispatch(
-                      CommonActions.navigate('SigningDeviceDetails', {
-                        signer,
-                        vaultId,
-                        vaultKey: vaultKeys.length ? item : undefined,
-                      })
-                    )
-                  }
-                  name={signer.signerName}
-                  description={signer.signerDescription || signer.type}
-                  icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-                  isSelected={false}
-                  showSelection={false}
-                  colorVarient="green"
-                />
-              );
-            })}
-            <AddCard
-              name={'Add Signer'}
-              cardStyles={styles.addCard}
-              callback={() =>
-                navigation.dispatch(
-                  CommonActions.navigate('SigningDeviceList', { addSignerFlow: true })
-                )
-              }
-            />
-          </Box>
-        </ScrollView>
-      </VStack>
+      <HeaderSection colorMode={colorMode} handleLearnMorePressed={handleLearnMorePressed} />
+      <SignersList
+        colorMode={colorMode}
+        vaultKeys={vaultKeys}
+        signers={signers}
+        signerMap={signerMap}
+        handleCardSelect={handleCardSelect}
+        handleAddSigner={handleAddSigner}
+      />
     </Box>
   );
 };
 
-export default ManageSigners;
+const HeaderSection = ({ colorMode, handleLearnMorePressed }) => (
+  <Box style={styles.header}>
+    <KeeperHeader learnMore learnMorePressed={handleLearnMorePressed} contrastScreen={true} />
+    <VStack paddingBottom={10} paddingLeft={5}>
+      <HStack alignItems="center">
+        <Box style={styles.iconWrapper} backgroundColor={`${colorMode}.RussetBrown`}>
+          <SignerIcon />
+        </Box>
+        <VStack>
+          <Text
+            color={`${colorMode}.white`}
+            style={[styles.infoText, globalStyles.font18]}
+            testID={'text_vaultName'}
+          >
+            {'Manage Signers'}
+          </Text>
+          <Text
+            color={`${colorMode}.white`}
+            style={[styles.infoText, globalStyles.font14]}
+            testID={'text_vaultDescription'}
+            numberOfLines={2}
+          >
+            {'Add, remove, change or check on signers'}
+          </Text>
+        </VStack>
+      </HStack>
+    </VStack>
+  </Box>
+);
+
+const SignersList = ({
+  colorMode,
+  vaultKeys,
+  signers,
+  signerMap,
+  handleCardSelect,
+  handleAddSigner,
+}) => (
+  <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.body}>
+    <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <Box style={styles.signerContainer}>
+        {(vaultKeys.length ? vaultKeys : signers).map((item) => {
+          const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+          return (
+            <SignerCard
+              key={signer.masterFingerprint}
+              onCardSelect={() => handleCardSelect(signer, item)}
+              name={signer.signerName}
+              description={signer.signerDescription || signer.type}
+              icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+              isSelected={false}
+              showSelection={false}
+              colorVarient="green"
+            />
+          );
+        })}
+        <AddCard name={'Add Signer'} cardStyles={styles.addCard} callback={handleAddSigner} />
+      </Box>
+    </ScrollView>
+  </VStack>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -139,3 +161,5 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
+
+export default ManageSigners;

@@ -50,15 +50,8 @@ function EnterSeedScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
 
-  const {
-    isSoftKeyRecovery = false,
-    type,
-    mode,
-    isHealthCheck,
-    signer,
-    isMultisig,
-    setupSeedWordsBasedSigner,
-  } = route.params || {};
+  const { type, mode, signer, isMultisig, setupSeedWordsBasedSigner, mapUnknownSigner } =
+    route.params || {};
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -135,7 +128,7 @@ function EnterSeedScreen({ route }) {
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
   const inputRef = useRef([]);
-  const { mapUnknownSigner } = useUnkownSigners();
+  const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -180,68 +173,6 @@ function EnterSeedScreen({ route }) {
       seedWord += `${seedData[i].name} `;
     }
     return seedWord.trim();
-  };
-
-  const setupSeedWordsBasedKey = (mnemonic: string) => {
-    try {
-      const networkType = config.NETWORK_TYPE;
-      // fetched multi-sig seed words based key
-      const {
-        xpub: multiSigXpub,
-        derivationPath: multiSigPath,
-        masterFingerprint,
-      } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
-      // fetched single-sig seed words based key
-      const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
-        mnemonic,
-        networkType,
-        EntityKind.WALLET
-      );
-
-      const xpubDetails: XpubDetailsType = {};
-      xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
-      xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
-
-      const { signer: softSigner } = generateSignerFromMetaData({
-        xpub: isMultisig ? multiSigXpub : singleSigXpub,
-        derivationPath: isMultisig ? multiSigPath : singleSigPath,
-        masterFingerprint,
-        signerType: SignerType.SEED_WORDS,
-        storageType: SignerStorage.WARM,
-        isMultisig,
-        xpubDetails,
-      });
-      dispatch(setSigningDevices(softSigner));
-      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-    } catch (err) {
-      navigation.dispatch(CommonActions.navigate('SignersList'));
-      captureError(err);
-    }
-  };
-
-  const onPressNextSoftReocvery = () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
-        const seedWord = getSeedWord();
-        if (type === SignerType.SEED_WORDS) {
-          setupSeedWordsBasedKey(seedWord);
-        } else if (type === SignerType.MOBILE_KEY) {
-          Alert.alert('Warning', 'Entire app will be restored', [
-            {
-              text: 'OK',
-              onPress: () => {
-                setRecoveryLoading(true);
-                dispatch(getAppImage(seedWord));
-              },
-            },
-          ]);
-        }
-      } else {
-        ref.current.scrollToIndex({ index: 5, animated: true });
-      }
-    } else {
-      showToast('Enter correct seedwords', <ToastErrorIcon />);
-    }
   };
 
   const onPressNextSeedReocvery = async () => {
@@ -373,14 +304,7 @@ function EnterSeedScreen({ route }) {
       >
         <StatusBarComponent />
         <Box marginX={10} mt={25}>
-          {isSoftKeyRecovery ? (
-            <SeedWordsView
-              title="Enter Seed Words"
-              onPressHandler={() =>
-                navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' })
-              }
-            />
-          ) : isHealthCheck ? (
+          {isHealthCheck ? (
             <SeedWordsView
               title={'Seed key health check'}
               subtitle={'Enter the seed key'}
@@ -518,13 +442,7 @@ function EnterSeedScreen({ route }) {
               <View style={activePage === 1 ? styles.dash : styles.dot} />
             </Box>
 
-            {isSoftKeyRecovery ? (
-              <Buttons
-                primaryCallback={onPressNextSoftReocvery}
-                primaryText="Next"
-                primaryLoading={recoveryLoading}
-              />
-            ) : isHealthCheck ? (
+            {isHealthCheck ? (
               <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
             ) : (
               <Buttons

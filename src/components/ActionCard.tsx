@@ -33,7 +33,9 @@ function ActionCard({
           )}
           {icon && icon}
         </Box>
-        <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
+        <Text numberOfLines={2} color={`${colorMode}.primaryText`}>
+          {cardName}
+        </Text>
         {description && (
           <Text fontSize={11} color={`${colorMode}.GreenishGrey`}>
             {description}

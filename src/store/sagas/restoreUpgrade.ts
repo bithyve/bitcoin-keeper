@@ -43,7 +43,7 @@ function* additionOfVaultShellId(vaultImage, appImage, encryptionKey) {
 }
 
 //while restoring, updating the version on the appImage
-//TO-DO
+//TODO
 function* updateVersion(appImage, newVersion) {
   try {
     yield call(Relay.updateAppImage, {

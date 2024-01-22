@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, HStack, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -12,10 +12,11 @@ import Buttons from 'src/components/Buttons';
 import { setVaultRecoveryDetails } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import config, { APP_STAGE } from 'src/core/config';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -41,16 +42,12 @@ function NumberInput({ value, onDecrease, onIncrease }) {
   );
 }
 
-function VaultSetup() {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultSetup'>;
+const VaultSetup = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { params } = useRoute();
-  const {
-    isRecreation,
-    scheme: preDefinedScheme,
-    vaultId,
-  } = (params as { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string }) || {};
+  const { isRecreation, scheme: preDefinedScheme, vaultId } = route.params || {};
   const dispatch = useDispatch();
   const { activeVault } = useVault({ vaultId });
   const [vaultName, setVaultName] = useState(
@@ -159,7 +156,7 @@ function VaultSetup() {
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
-}
+};
 
 export default VaultSetup;
 

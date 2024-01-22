@@ -469,6 +469,7 @@
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Backup Phrase",
+    "backupPhrase": "Backup Phrase",
     "enterRecoveryPhrase": "Recover an existing Keeper App",
     "enterRecoveryPhraseSubTitle": "Enter existing 12-word recovery phrase below",
     "enterRecoveryPhraseNote": "Make sure to use the 12-word recovery phrase in private",

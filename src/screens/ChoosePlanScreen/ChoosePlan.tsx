@@ -7,6 +7,7 @@ import RNIap, {
   purchaseUpdatedListener,
   getAvailablePurchases,
   SubscriptionPurchase,
+  requestSubscription,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
@@ -274,13 +275,10 @@ function ChoosePlan() {
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
-        processPurchase({
-          productId: sku,
-          transactionReceipt: 'keeper-dev-mock-purchase',
-          autoRenewingAndroid: true,
-          isCanceledAmazon: false,
-          transactionDate: Date.now(),
-          transactionId: `keeper-dev-mock-purchase-${Date.now()}`,
+        requestSubscription({
+          sku,
+          subscriptionOffers: [{ sku, offerToken }],
+          purchaseTokenAndroid,
         });
       }
     } catch (err) {

@@ -824,6 +824,7 @@ function HardwareModalMap({
           type,
           mode,
           signer,
+          addSignerFlow,
         },
       })
     );
@@ -924,11 +925,11 @@ function HardwareModalMap({
           name: 'EnterSeedScreen',
           params: {
             mode,
-            isHealthCheck: true,
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
             addSignerFlow,
+            mapUnknownSigner,
           },
         })
       );

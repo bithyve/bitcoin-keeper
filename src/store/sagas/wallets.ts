@@ -606,7 +606,7 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
     for (const newSigner of signers) {
       const existingSigner = signerMap[newSigner.masterFingerprint];
       if (existingSigner) {
-        // TO-DO: we're not YET supporting multiple keys (accounts) for the same script type
+        // TODO: we're not YET supporting multiple keys (accounts) for the same script type
         if (
           (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
             existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
@@ -1114,7 +1114,7 @@ function* updateWalletDetailsWorker({ payload }) {
       shell: wallet.presentationData.shell,
     };
     yield put(setRelayWalletUpdateLoading(true));
-    // API-TO-DO: based on response call the DB
+    // API-TODO: based on response call the DB
     wallet.presentationData = presentationData;
     const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
     if (response.updated) {
@@ -1158,7 +1158,7 @@ function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
     ); // recreate the specs
 
     yield put(setRelayWalletUpdateLoading(true));
-    // API-TO-DO: based on response call the DB
+    // API-TODO: based on response call the DB
     wallet.derivationDetails = derivationDetails;
     wallet.specs = specs;
 

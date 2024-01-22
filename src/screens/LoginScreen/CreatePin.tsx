@@ -260,6 +260,9 @@ export default function CreatePin(props) {
           dispatch(storeCreds(passcode));
           setCreatePassword(false);
         }}
+        secondaryCallback={() => {
+          setCreatePassword(false);
+        }}
         Content={CreatePassModalContent}
         showButtons
         subTitleWidth={wp(250)}
