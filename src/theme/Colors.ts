@@ -67,6 +67,7 @@ const Colors = {
   PaleTurquoise: 'rgba(184,214,207,1)',
   darkGreen: 'rgb(46, 103, 89)',
   PearlWhite: 'rgba(252, 252, 252, 1)',
+  deepTeal: 'rgba(28,73,64,1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',

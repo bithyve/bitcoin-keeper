@@ -133,7 +133,7 @@ function AppSettings({ navigation }) {
           />
           <NavButton
             icon={<Twitter />}
-            heading="Keeper Twitter"
+            heading="Keeper X"
             link="https://twitter.com/bitcoinKeeper_"
           />
         </Box>
