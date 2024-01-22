@@ -109,6 +109,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
               'Your Auto-transfer policy has triggered a transaction that needs your approval',
             btnText: ' Transfer Now',
           },
+          heading: 'Trasfer to Vault',
           cta: () => {
             activeVault
               ? navigtaion.navigate('SendConfirmation', {
@@ -123,6 +124,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.SECURE_VAULT:
         return {
+          heading: 'Secure you vault',
           cta: () => {
             navigtaion.dispatch(
               CommonActions.navigate({ name: 'VaultSetup', merge: true, params: {} })
@@ -131,6 +133,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
         return {
+          heading: 'Pending healthcheck',
           cta: () => {
             navigtaion.navigate('VaultDetails', { vaultId: activeVault.id });
           },
@@ -144,6 +147,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
               'There is a request by someone for accessing the Inheritance Key you have set up using this app',
             btnText: 'Decline',
           },
+          heading: 'Inheritance Key request',
           cta: async (entityId) => {
             try {
               setmodalActionLoader(true);
@@ -167,10 +171,9 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.DEFAULT:
         return {
+          heading: 'Secure you vault',
           cta: () => {
-            activeVault
-              ? navigtaion.navigate('VaultDetails', { vaultId: activeVault.id })
-              : showToast('No vaults found', <ToastErrorIcon />);
+            navigtaion.navigate('ManageSigners');
           },
         };
       default:
@@ -200,14 +203,16 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
     }
   };
 
+  console.log({ info });
+
   return (
     <>
       <Animated.View style={[animations]}>
         <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
           <UAIView
-            title={'Add signers to setup vault'}
+            title={uaiConfig.heading}
             subTitle={info?.title}
-            primaryCallbackText="ADD NOW"
+            primaryCallbackText={'Continue'}
             secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
             secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
             primaryCallback={pressHandler}
