@@ -42,6 +42,7 @@ import {
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerList from './SignerList';
 import SignerModals from './SignerModals';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -401,6 +402,7 @@ function SignTransactionScreen() {
   };
   return (
     <ScreenWrapper>
+      <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
         subtitle={`Chose at least ${scheme.m} to sign the transaction`}

@@ -88,21 +88,7 @@ function InheritanceStatus({ route }) {
               ? 'Please create a 3 of 5 vault to proceed with adding inheritance support'
               : 'Add an assisted key to create a 3 of 6 vault'
           }
-          isSetupDone={isSetupDone}
-          onPress={() => {
-            if (isSetupDone) {
-              showToast('You have successfully added the Inheritance Key.', <TickIcon />);
-              return;
-            }
-            navigtaion.dispatch(
-              CommonActions.navigate({
-                name: 'AddSigningDevice',
-                merge: true,
-                params: { isInheritance: true },
-              })
-            );
-          }}
-          disableCallback={disableInheritance}
+          disableCallback={true}
         />
         <Box style={styles.sectionTitleWrapper}>
           <Text style={styles.sectionTitle}>Tips</Text>

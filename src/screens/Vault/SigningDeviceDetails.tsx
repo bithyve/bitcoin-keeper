@@ -348,7 +348,7 @@ function SigningDeviceDetails({ route }) {
           ))}
         </Box>
       </ScrollView>
-      <KeeperFooter items={footerItems} />
+      <KeeperFooter marginX={5} items={footerItems} />
       <HardwareModalMap
         type={signer?.type}
         visible={visible}

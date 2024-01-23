@@ -14,8 +14,10 @@ type FooterItem = {
 export function KeeperFooter({
   items,
   wrappedScreen = true,
+  marginX = 10,
 }: {
   items: FooterItem[];
+  marginX?: number;
   wrappedScreen?: boolean;
 }) {
   const { colorMode } = useColorMode();
@@ -26,7 +28,7 @@ export function KeeperFooter({
       <Box
         flexDirection="row"
         justifyContent={footerItemsToRender.length > 2 ? 'space-between' : 'space-around'}
-        marginX={10}
+        marginX={marginX}
         marginTop={3}
         alignItems="flex-start"
       >
@@ -67,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   IconWrapper: {
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
   border: {
