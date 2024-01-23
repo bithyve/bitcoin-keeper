@@ -19,11 +19,13 @@ import { QRreader } from 'react-native-qr-decode-image-camera';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
-import IconWallet from 'src/assets/images/icon_wallet.svg';
-import IconVault from 'src/assets/images/icon_vault2.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { PaymentInfoKind, VisibilityType } from 'src/core/wallets/enums';
+import { EntityKind, PaymentInfoKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -42,6 +44,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -145,6 +148,18 @@ function SendScreen({ route }) {
     });
   };
 
+  const getWalletIcon = (wallet) => {
+    return wallet.entityKind === EntityKind.VAULT ? (
+      wallet.type === VaultType.COLLABORATIVE ? (
+        <CollaborativeIcon />
+      ) : (
+        <VaultIcon />
+      )
+    ) : (
+      <WalletIcon />
+    );
+  };
+
   const handleTextChange = (info: string) => {
     info = info.trim();
     const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
@@ -171,7 +186,7 @@ function SendScreen({ route }) {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      if (sender.entityKind === 'VAULT') {
+      if (sender.entityKind === EntityKind.VAULT) {
         navigateToNext(
           WalletOperations.getNextFreeAddress(item),
           TransferType.VAULT_TO_WALLET,
@@ -195,7 +210,12 @@ function SendScreen({ route }) {
         width={wp(60)}
       >
         <TouchableOpacity onPress={onPress} style={styles.buttonBackground}>
-          {item?.entityKind === 'VAULT' ? <IconVault /> : <IconWallet />}
+          <HexagonIcon
+            width={44}
+            height={38}
+            backgroundColor={Colors.RussetBrown}
+            icon={getWalletIcon(item)}
+          />
         </TouchableOpacity>
         <Box>
           <Text light fontSize={12} mt="1" numberOfLines={1}>

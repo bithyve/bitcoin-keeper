@@ -70,7 +70,7 @@ const getWalletTags = (wallet) => {
 
 const getWalletIcon = (wallet) => {
   return wallet.entityKind === EntityKind.VAULT ? (
-    wallet.type === VaultType.COLLABORATIVE ? (
+    wallet?.type === VaultType?.COLLABORATIVE ? (
       <CollaborativeIcon />
     ) : (
       <VaultIcon />

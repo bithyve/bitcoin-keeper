@@ -34,9 +34,12 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { Satoshis } from 'src/models/types/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
-import { EntityKind, TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
@@ -228,6 +231,17 @@ function AddSendAmount({ route }) {
   //   labelsToAdd.splice(index, 1);
   //   setLabelsToAdd([...labelsToAdd]);
   // };
+  const getWalletIcon = (wallet) => {
+    return wallet.entityKind === EntityKind.VAULT ? (
+      wallet.type === VaultType.COLLABORATIVE ? (
+        <CollaborativeIcon />
+      ) : (
+        <VaultIcon />
+      )
+    ) : (
+      <WalletIcon />
+    );
+  };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -262,7 +276,7 @@ function AddSendAmount({ route }) {
           </Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
-            entityType={sender?.entityKind}
+            icon={getWalletIcon(sender)}
             availableAmt={sender?.specs.balances.confirmed}
             walletName={sender?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}

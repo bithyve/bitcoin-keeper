@@ -6,12 +6,13 @@ import { hp, wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import BTCWhite from 'src/assets/images/btc_white.svg';
-import IconWallet from 'src/assets/images/icon_wallet.svg';
-import IconVault from 'src/assets/images/icon_vault2.svg';
 
 import { SatsToBtc } from 'src/constants/Bitcoin';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { EntityKind } from 'src/core/wallets/enums';
+import Colors from 'src/theme/Colors';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 function WalletSendInfo({
   availableAmt = '',
@@ -20,17 +21,18 @@ function WalletSendInfo({
   isSats = false,
   currencyIcon = BTCIcon,
   selectedUTXOs = [],
-  entityType,
+  icon,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
+
   return (
     <Box testID="view_wallet_info" style={styles.container}>
       <Box style={styles.wrapper}>
         <Box w={'15%'}>
-          <TouchableOpacity style={styles.buttonBackground}>
-            {entityType === 'VAULT' ? <IconVault /> : <IconWallet />}
+          <TouchableOpacity>
+            <HexagonIcon width={44} height={38} backgroundColor={Colors.RussetBrown} icon={icon} />
           </TouchableOpacity>
         </Box>
         <Box style={styles.walletSendInfoWrapper}>
@@ -110,7 +112,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
     width: '100%',
-    gap: 10,
   },
   walletNameText: {
     marginTop: 3,
