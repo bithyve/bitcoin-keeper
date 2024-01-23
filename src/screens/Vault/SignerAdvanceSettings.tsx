@@ -197,7 +197,7 @@ function SignerAdvanceSettings({ route }: any) {
         <Box>
           <TextInput
             style={styles.textInput}
-            placeholder="disa@khazadum.com"
+            placeholder="pleb@bitcoin.com"
             value={email}
             onChangeText={(value) => {
               setEmail(value);
