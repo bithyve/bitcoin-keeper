@@ -577,6 +577,8 @@
     "ChangeCurrency": "Currency & Language",
     "Chooseyourcurrency": "Choose your currency & language",
     "AlternateCurrency": "Alternate Currency",
+    "FiatCurrency": "Fiat Currency",
+    "Seebalance": "See balance in your local fiat currency",
     "LanguageSettings": "Language Settings",
     "Chooseyourlanguage": "Choose your language preference",
     "HelpUstranslate": "Help us translate better",

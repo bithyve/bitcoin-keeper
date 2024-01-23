@@ -1,6 +1,7 @@
 import React from 'react';
-import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { StyleSheet } from 'react-native';
 
 function CountrySwitchCard(props) {
   const { colorMode } = useColorMode();
@@ -14,15 +15,26 @@ function CountrySwitchCard(props) {
       {...props}
     >
       <Box flex={1.5}>
-        <Text color={`${colorMode}.greenText2`} letterSpacing={1.12} fontSize={14}>
+        <Text color={`${colorMode}.primaryText`} style={styles.titleText}>
           {props.title}
         </Text>
-        <Text color={`${colorMode}.GreyText`} letterSpacing={0.6} fontSize={12}>
+        <Text color={`${colorMode}.GreyText`} style={styles.descriptionText}>
           {props.description}
         </Text>
       </Box>
     </Box>
   );
 }
+
+const styles = StyleSheet.create({
+  titleText: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  descriptionText: {
+    fontSize: 12,
+    letterSpacing: 0.12,
+  },
+});
 
 export default CountrySwitchCard;
