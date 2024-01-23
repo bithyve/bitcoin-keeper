@@ -26,9 +26,16 @@ function AddWallet({ navigation }) {
     selectCard(id);
   };
 
+  //TODO: add learn more modal
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
-      <KeeperHeader title={wallet.AddWallet} subtitle={wallet.chooseFromTemplate} />
+      <KeeperHeader
+        title={wallet.AddWallet}
+        subtitle={wallet.chooseFromTemplate}
+        learnMore
+        learnBackgroundColor={`${colorMode}.RussetBrown`}
+        learnTextColor={`${colorMode}.white`}
+      />
       <Box style={styles.container}>
         <ScrollView
           horizontal
@@ -37,7 +44,7 @@ function AddWallet({ navigation }) {
         >
           <WalletCard
             id={1}
-            walletName="Wallets"
+            walletName="New"
             walletDescription="Single/Multi sig"
             icon={<WalletActiveIcon />}
             selectedIcon={<WalletGreenIcon />}
@@ -47,16 +54,6 @@ function AddWallet({ navigation }) {
           />
           <WalletCard
             id={2}
-            walletName="Advanced"
-            walletDescription="For seasoned plebs"
-            icon={<AdvancedIcon />}
-            selectedIcon={<AdvancedGreenIcon />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-            arrowStyles={{ alignSelf: 'center' }}
-          />
-          <WalletCard
-            id={3}
             walletName="Import"
             walletDescription="Other wallets"
             icon={<ImportIcon />}
@@ -65,10 +62,20 @@ function AddWallet({ navigation }) {
             onCardSelect={onCardSelect}
             arrowStyles={{ marginLeft: 10 }}
           />
+          <WalletCard
+            id={3}
+            walletName="Advanced"
+            walletDescription="For seasoned plebs"
+            icon={<AdvancedIcon />}
+            selectedIcon={<AdvancedGreenIcon />}
+            selectedCard={selectedCard}
+            onCardSelect={onCardSelect}
+            arrowStyles={{ alignSelf: 'center' }}
+          />
         </ScrollView>
         {selectedCard === 1 && <Wallets navigation={navigation} />}
-        {selectedCard === 2 && <AdvancedWallets navigation={navigation} />}
-        {selectedCard === 3 && <ImportWallets navigation={navigation} />}
+        {selectedCard === 2 && <ImportWallets navigation={navigation} />}
+        {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
       </Box>
     </ScreenWrapper>
   );

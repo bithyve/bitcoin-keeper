@@ -417,7 +417,8 @@
   },
   "vault": {
     "SetupyourVault": "Setup a vault",
-    "configureScheme": "Configure your scheme",
+    "AddCustomMultiSig": "Add Custom MultiSig",
+    "configureScheme": "Create an m-of-n multisig vault",
     "VaultDesc": "A signer is an an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",

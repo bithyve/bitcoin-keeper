@@ -156,7 +156,8 @@ export default function CreatePin(props) {
           </Text>
         </Box>
         <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
-          Please remember your passcode and backup your wallet by writing down the seed words
+          Please remember your passcode and backup your wallet by writing down the 12-word Recovery
+          Phrase
         </Text>
         <Box style={styles.passImg}>
           <Passwordlock />
