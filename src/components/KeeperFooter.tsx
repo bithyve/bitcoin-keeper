@@ -26,9 +26,9 @@ export function KeeperFooter({
       <Box
         flexDirection="row"
         justifyContent={footerItemsToRender.length > 2 ? 'space-between' : 'space-around'}
-        marginX={10}
         marginTop={3}
         alignItems="flex-start"
+        width={'100%'}
       >
         {footerItemsToRender.map((item) => {
           return (
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
     textAlign: 'center',
     paddingHorizontal: 5,
+    marginTop: 5,
   },
   IconWrapper: {
     justifyContent: 'center',
