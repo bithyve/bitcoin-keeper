@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
-import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
+import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import CountryCode from 'src/constants/CountryCode';
@@ -15,6 +15,9 @@ import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
 import FiatCurrencies from 'src/constants/FiatCurrencies';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import Switch from 'src/components/Switch/Switch';
+import OptionCard from 'src/components/OptionCard';
 
 const styles = StyleSheet.create({
   btn: {
@@ -153,11 +156,19 @@ const styles = StyleSheet.create({
   countryCodeText: {
     textTransform: 'uppercase',
   },
+  contentContainer: {
+    flex: 1,
+    marginTop: 20,
+    alignItems: 'center',
+  },
 });
 
 function ChangeLanguage() {
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
   const { currencyCode, language } = useAppSelector((state) => state.settings);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
   const dispatch = useAppDispatch();
 
   const [currencyList] = useState(FiatCurrencies);
@@ -174,6 +185,10 @@ function ChangeLanguage() {
 
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
+
+  const changeSatsMode = () => {
+    dispatch(setSatsEnabled(!satsEnabled));
+  };
 
   function Menu({ label, value, onPress, arrow }) {
     return (
@@ -205,8 +220,23 @@ function ChangeLanguage() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.LanguageCountry} subtitle={settings.biometricsDesc} />
-      <Box flex={1}>
+      <KeeperHeader
+        title={settings.CurrencyDefaults}
+        subtitle={settings.CurrencyDefaultsSubtitle}
+      />
+      <Box style={styles.contentContainer}>
+        <OptionCard
+          title={settings.SatsMode}
+          description={settings.satsModeSubTitle}
+          callback={() => changeSatsMode()}
+          Icon={
+            <Switch
+              value={satsEnabled}
+              onValueChange={() => changeSatsMode()}
+              testID="switch_darkmode"
+            />
+          }
+        />
         <CountrySwitchCard
           title={settings.AlternateCurrency}
           description={settings.Selectyourlocalcurrency}

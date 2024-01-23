@@ -539,6 +539,8 @@
     "VersionHistorySubTitle": "View the app's version history",
     "LanguageCountry": "Language & Currency",
     "LanguageCountrySubTitle": "Select language and currency",
+    "CurrencyDefaults": "Currency Defaults",
+    "CurrencyDefaultsSubtitle": "Set preferred defaults",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
     "Questionsfeedbackandmore": "Questions, feedback and more",
     "biometricsDesc": "Select app settings",
@@ -601,8 +603,9 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition",
     "nodeSettings": "Node Settings",
     "nodeSettingsSubtitle": "Configure your node settings",
-    "PrivacyAndDisplay": "Privacy & Display",
-    "PrivacySettingsSubtitle": "Dark mode and biometrics",
+    "SecurityAndLogin": "Security & Login",
+    "SecurityAndLoginSubtitle": "App improvement and ease of access",
+    "AppLevelSettings": "App-level settings",
     "nodeSettingUsedSoFar": "Node settings used so far",
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
@@ -648,7 +651,7 @@
     "shareAnalytics": "Share Analytics & App Data",
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
-    "changePasscodeDescription": "Change Passcode Description"
+    "changePasscodeDescription": "Easy to remember; hard to guess"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
