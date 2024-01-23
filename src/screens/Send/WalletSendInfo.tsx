@@ -7,6 +7,8 @@ import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import BTCWhite from 'src/assets/images/btc_white.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
+import IconVault from 'src/assets/images/icon_vault2.svg';
+
 import { SatsToBtc } from 'src/constants/Bitcoin';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -18,28 +20,20 @@ function WalletSendInfo({
   isSats = false,
   currencyIcon = BTCIcon,
   selectedUTXOs = [],
+  entityType,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
   return (
-    <Box
-      testID="view_wallet_info"
-      style={styles.container}
-      // backgroundColor={`${colorMode}.seashellWhite`}
-    >
+    <Box testID="view_wallet_info" style={styles.container}>
       <Box style={styles.wrapper}>
         <Box w={'15%'}>
           <TouchableOpacity style={styles.buttonBackground}>
-            <IconWallet />
+            {entityType === 'VAULT' ? <IconVault /> : <IconWallet />}
           </TouchableOpacity>
         </Box>
-        <Box
-          style={{
-            marginLeft: wp(10),
-            width: '55%',
-          }}
-        >
+        <Box style={styles.walletSendInfoWrapper}>
           <Text color={`${colorMode}.primaryText`} numberOfLines={1} style={styles.walletNameText}>
             {walletName}
           </Text>
@@ -116,6 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
     width: '100%',
+    gap: 10,
   },
   walletNameText: {
     marginTop: 3,
@@ -134,6 +129,10 @@ const styles = StyleSheet.create({
   advanceText: {
     fontSize: 12,
     letterSpacing: 0.6,
+  },
+  walletSendInfoWrapper: {
+    marginLeft: wp(10),
+    width: '55%',
   },
 });
 export default WalletSendInfo;

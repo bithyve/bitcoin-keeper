@@ -256,10 +256,13 @@ function AddSendAmount({ route }) {
           }}
         >
           <Box style={styles.sendingFromWrapper}>
-            <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>{walletTranslation.sendingFrom}</Text>
+            <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>
+              {walletTranslation.sendingFrom}
+            </Text>
           </Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
+            entityType={sender?.entityKind}
             availableAmt={sender?.specs.balances.confirmed}
             walletName={sender?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
@@ -492,7 +495,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(10),
     paddingVertical: hp(3),
     borderRadius: 5,
-    borderWidth: 1
+    borderWidth: 1,
   },
   sendMaxText: {
     fontSize: 12,
@@ -552,12 +555,12 @@ const styles = StyleSheet.create({
     width: '25%',
   },
   sendingFromWrapper: {
-    marginLeft: wp(20)
+    marginLeft: wp(20),
   },
   sendingFromText: {
     fontSize: 12,
     fontFamily: Fonts.FiraSansCondensedRegular,
-    letterSpacing: 0.80,
-  }
+    letterSpacing: 0.8,
+  },
 });
 export default AddSendAmount;

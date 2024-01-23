@@ -20,6 +20,7 @@ import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
+import IconVault from 'src/assets/images/icon_vault2.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { PaymentInfoKind, VisibilityType } from 'src/core/wallets/enums';
@@ -194,7 +195,7 @@ function SendScreen({ route }) {
         width={wp(60)}
       >
         <TouchableOpacity onPress={onPress} style={styles.buttonBackground}>
-          <IconWallet />
+          {item?.entityKind === 'VAULT' ? <IconVault /> : <IconWallet />}
         </TouchableOpacity>
         <Box>
           <Text light fontSize={12} mt="1" numberOfLines={1}>
