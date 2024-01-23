@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { StyleSheet, Text } from 'react-native';
+
 import { hp } from 'src/constants/responsive';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
@@ -21,6 +22,7 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 function IKSAddEmailPhone({ route }) {
   const navigtaion = useNavigation();
   const [email, setEmail] = useState('');
+  const [emailStatusFail, setEmailStatusFail] = useState(false);
   const { vaultId } = route.params;
   const vault: Vault = useVault({ vaultId }).activeVault;
   const { showToast } = useToastMessage();
@@ -72,21 +74,27 @@ function IKSAddEmailPhone({ route }) {
 
   return (
     <ScreenWrapper>
-      <KeeperHeader title="Add Phone/Email" subtitle="To receive periodic notifications" />
+      <KeeperHeader title="Add Email" subtitle="To receive periodic notifications" />
       <Box style={styles.inputWrapper}>
         <Input
           placeholderTextColor="grey"
           backgroundColor="light.primaryBackground"
-          placeholder="Add phone number / email Id"
-          placeholderTextColor={'rgba(165, 180, 174, 1)'}
+          placeholder="Add email Id"
+          placeholderTextColor={`${colorMode}.SlateGreen`}
           style={styles.input}
           borderWidth={0}
           height={50}
           value={email}
           onChangeText={(text) => {
             setEmail(text);
+            emailStatusFail && setEmailStatusFail(false);
           }}
         />
+        {emailStatusFail && (
+          <Text style={[styles.errorStyle, { color: `${colorMode}.errorRed` }]}>
+            Email is not correct
+          </Text>
+        )}
       </Box>
       <Box>
         <Text style={[styles.consentNotes, { color: `${colorMode}.pantoneGreen` }]}>
@@ -103,7 +111,12 @@ function IKSAddEmailPhone({ route }) {
       <Buttons
         primaryText="Confirm"
         primaryCallback={() => {
-          updateIKSPolicy(email);
+          let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+          if (reg.test(email) === false) {
+            setEmailStatusFail(true);
+          } else {
+            updateIKSPolicy(email);
+          }
         }}
       />
     </ScreenWrapper>
@@ -121,5 +134,6 @@ const styles = StyleSheet.create({
   },
   consentNotes: { fontWeight: '500' },
   notesDescription: { marginVertical: 10, fontSize: 12, lineHeight: 20 },
+  errorStyle: { marginTop: 10 },
 });
 export default IKSAddEmailPhone;

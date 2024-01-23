@@ -54,7 +54,7 @@ const Colors = {
   learMoreTextcolor: 'rgba(242, 237, 230, 1)',
   Linen: 'rgba(240, 235, 230, 1)',
   LightBrown: 'rgba(145, 120, 93, 0.08)',
-
+  SlateGreen: 'rgba(165, 180, 174, 1)',
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',
   SlateGrey: 'rgba(36,49,46,1)',
