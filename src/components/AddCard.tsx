@@ -1,33 +1,47 @@
 import React from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
-import { StyleSheet, ViewStyle } from 'react-native';
-import AddCardIcon from 'src/assets/images/addCardIcon.svg';
+import { Box, useColorMode } from 'native-base';
+import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import AddCardIcon from 'src/assets/images/add_white.svg';
 import Text from './KeeperText';
+import Colors from 'src/theme/Colors';
+import HexagonIcon from './HexagonIcon';
 
 type AddSignerCardProps = {
   name: string;
   callback?: (param: any) => void;
   cardStyles?: ViewStyle;
+  iconWidth?: number;
+  iconHeight?: number;
 };
 
-function AddCard({ name, callback, cardStyles }: AddSignerCardProps) {
+function AddCard({
+  name,
+  callback,
+  cardStyles,
+  iconWidth = 40,
+  iconHeight = 34,
+}: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <Pressable
-      backgroundColor={`${colorMode}.pantoneGreenLight`}
-      borderColor={`${colorMode}.pantoneGreen`}
-      style={[styles.AddCardContainer, cardStyles && cardStyles]}
-      onPress={() => callback(name)}
-    >
-      <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.iconWrapper}>
-          <AddCardIcon />
+    <TouchableOpacity onPress={() => callback(name)}>
+      <Box
+        backgroundColor={`${colorMode}.pantoneGreenLight`}
+        borderColor={`${colorMode}.pantoneGreen`}
+        style={[styles.AddCardContainer, cardStyles && cardStyles]}
+      >
+        <Box style={styles.detailContainer}>
+          <HexagonIcon
+            width={iconWidth}
+            height={iconHeight}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<AddCardIcon />}
+          />
+          <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>
+            {name}
+          </Text>
         </Box>
-        <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>
-          {name}
-        </Text>
       </Box>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
