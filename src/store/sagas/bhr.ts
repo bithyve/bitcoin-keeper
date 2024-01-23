@@ -427,7 +427,7 @@ function* recoverApp(
   }
 
   // Vault recreation
-  if (allvaultImages.length > 0) {
+  if (allVaultImages.length > 0) {
     for (const vaultImage of allVaultImages) {
       const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
 
