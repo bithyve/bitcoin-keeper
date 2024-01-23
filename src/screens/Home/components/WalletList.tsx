@@ -69,15 +69,11 @@ const getWalletTags = (wallet) => {
 };
 
 const getWalletIcon = (wallet) => {
-  return wallet.entityKind === EntityKind.VAULT ? (
-    wallet?.type === VaultType?.COLLABORATIVE ? (
-      <CollaborativeIcon />
-    ) : (
-      <VaultIcon />
-    )
-  ) : (
-    <WalletIcon />
-  );
+  if (wallet.entityKind === EntityKind.VAULT) {
+    return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+  } else {
+    return <WalletIcon />;
+  }
 };
 
 const calculateWalletBalance = (wallet) => {

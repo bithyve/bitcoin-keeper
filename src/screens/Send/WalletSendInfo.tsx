@@ -10,7 +10,6 @@ import BTCWhite from 'src/assets/images/btc_white.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { EntityKind } from 'src/core/wallets/enums';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
 
