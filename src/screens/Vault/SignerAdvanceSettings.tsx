@@ -34,6 +34,7 @@ import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
+import { emailCheck } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('screen');
 
@@ -242,8 +243,7 @@ function SignerAdvanceSettings({ route }: any) {
           <TouchableOpacity
             style={styles.updateBtnCtaStyle}
             onPress={() => {
-              let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-              if (reg.test(email) === false) {
+              if (!emailCheck(email)) {
                 setEmailStatusFail(true);
               } else {
                 updateIKSPolicy(currentEmail, email);

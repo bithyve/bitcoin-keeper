@@ -18,6 +18,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { emailCheck } from 'src/utils/utilities';
 
 function IKSAddEmailPhone({ route }) {
   const navigtaion = useNavigation();
@@ -111,8 +112,7 @@ function IKSAddEmailPhone({ route }) {
       <Buttons
         primaryText="Confirm"
         primaryCallback={() => {
-          let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-          if (reg.test(email) === false) {
+          if (!emailCheck(email)) {
             setEmailStatusFail(true);
           } else {
             updateIKSPolicy(email);
