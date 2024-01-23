@@ -27,13 +27,14 @@ import WalletVault from 'src/assets/images/wallet_vault.svg';
 import DeleteIcon from 'src/assets/images/delete_phone.svg';
 import CopyIcon from 'src/assets/images/copy_new.svg';
 
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
+import { emailCheck } from 'src/utils/utilities';
 
 const { width } = Dimensions.get('screen');
 
@@ -47,7 +48,6 @@ function SignerAdvanceSettings({ route }: any) {
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
 
   const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
-  const [email, setEmail] = useState(currentEmail);
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
@@ -191,7 +191,9 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  const EditModalContent = useCallback(() => {
+  const EditModalContent = () => {
+    const [email, setEmail] = useState(currentEmail);
+    const [emailStatusFail, setEmailStatusFail] = useState(false);
     return (
       <Box style={styles.editModalContainer}>
         <Box>
@@ -201,8 +203,14 @@ function SignerAdvanceSettings({ route }: any) {
             value={email}
             onChangeText={(value) => {
               setEmail(value);
+              emailStatusFail && setEmailStatusFail(false);
             }}
           />
+          {emailStatusFail && (
+            <Text color={`${colorMode}.errorRed`} style={styles.errorStyle}>
+              Email is not correct
+            </Text>
+          )}
           <TouchableOpacity
             onPress={() => {
               setEditEmailModal(false);
@@ -231,9 +239,27 @@ function SignerAdvanceSettings({ route }: any) {
             If notification is not declined continuously for 30 days, the Key would be activated
           </Text>
         </Box>
+        {currentEmail !== email && (
+          <TouchableOpacity
+            style={styles.updateBtnCtaStyle}
+            onPress={() => {
+              if (!emailCheck(email)) {
+                setEmailStatusFail(true);
+              } else {
+                updateIKSPolicy(currentEmail, email);
+              }
+            }}
+          >
+            <Box backgroundColor={`${colorMode}.greenButtonBackground`} style={styles.cta}>
+              <Text style={styles.ctaText} color={'light.white'} bold>
+                Update
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        )}
       </Box>
     );
-  }, [email]);
+  };
 
   function DeleteEmailModalContent() {
     return (
@@ -292,8 +318,8 @@ function SignerAdvanceSettings({ route }: any) {
         />
         {isInheritanceKey && vaultId && (
           <OptionCard
-            title={'Registered Email/Phone'}
-            description={`Delete or Edit registered email/phone`}
+            title={'Registered Email'}
+            description={`Delete or Edit registered email`}
             callback={() => {
               setEditEmailModal(true);
             }}
@@ -403,15 +429,6 @@ function SignerAdvanceSettings({ route }: any) {
         buttonTextColor="light.white"
         textColor="light.primaryText"
         Content={EditModalContent}
-        buttonText={currentEmail !== email ? 'Update' : ''}
-        buttonCallback={() => {
-          let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-          if (reg.test(email) === false) {
-            showToast(`Email is incorrect`);
-          } else {
-            updateIKSPolicy(currentEmail, email);
-          }
-        }}
       />
       <KeeperModal
         visible={deleteEmailModal}
@@ -473,7 +490,6 @@ const styles = StyleSheet.create({
     width: width * 0.8,
   },
   textInput: {
-    width: '100%',
     height: 55,
     padding: 20,
     backgroundColor: 'rgba(253, 247, 240, 1)',
@@ -546,9 +562,7 @@ const styles = StyleSheet.create({
     padding: 1,
     letterSpacing: 0.65,
   },
-  editModalContainer: {
-    height: hp(400),
-  },
+  editModalContainer: {},
   fw800: {
     fontWeight: '800',
   },
@@ -571,4 +585,17 @@ const styles = StyleSheet.create({
   actionCardContainer: {
     gap: 5,
   },
+  cta: {
+    borderRadius: 10,
+    width: wp(120),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ctaText: {
+    fontSize: 13,
+    letterSpacing: 1,
+  },
+  updateBtnCtaStyle: { alignItems: 'flex-end', marginTop: 10 },
+  errorStyle: { marginTop: 10 },
 });
