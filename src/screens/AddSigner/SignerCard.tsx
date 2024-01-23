@@ -61,7 +61,8 @@ function SignerCard({
           {name}
         </Text>
         <Text
-          style={[{ color: `${colorMode}.GreenishGrey` }, styles.walletDescription]}
+          style={styles.walletDescription}
+          color={`${colorMode}.GreenishGrey`}
           numberOfLines={1}
         >
           {description}

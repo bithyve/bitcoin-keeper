@@ -182,7 +182,7 @@ function SignerAdvanceSettings({ route }: any) {
       <Box alignItems="center">
         <WarningIllustration />
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color="light.greenText" style={styles.warningText}>
             If the signer is identified incorrectly there may be repurcusssions with general signer
             interactions like signing etc.
           </Text>
@@ -193,7 +193,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const EditModalContent = useCallback(() => {
     return (
-      <Box height={400}>
+      <Box style={styles.editModalContainer}>
         <Box>
           <TextInput
             style={styles.textInput}
@@ -203,53 +203,31 @@ function SignerAdvanceSettings({ route }: any) {
               setEmail(value);
             }}
           />
-
           <TouchableOpacity
             onPress={() => {
               setEditEmailModal(false);
               setDeleteEmailModal(true);
             }}
           >
-            <Box
-              flexDirection={'row'}
-              gap={2}
-              alignItems={'center'}
-              height={70}
-              padding={5}
-              style={{
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderRadius: 10,
-                marginVertical: 10,
-                backgroundColor: 'rgba(145, 120, 93, 0.08)',
-              }}
-            >
+            <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
               <Box>
                 <DeleteIcon />
               </Box>
               <Box>
-                <Text
-                  style={{ fontWeight: '800' }}
-                  color={`${colorMode}.RussetBrown`}
-                  fontSize={13}
-                >
+                <Text style={styles.fw800} color={`${colorMode}.RussetBrown`} fontSize={13}>
                   Delete Email
                 </Text>
                 <Box fontSize={12}>This is a irreversible action</Box>
               </Box>
             </Box>
           </TouchableOpacity>
-          <Box alignItems={'center'} marginVertical={20}>
+          <Box style={styles.warningIconWrapper}>
             <WarningIllustration />
           </Box>
-          <Text
-            style={{ fontWeight: '900' }}
-            color={`${colorMode}.primaryGreenBackground`}
-            fontSize={14}
-          >
+          <Text style={styles.noteText} color={`${colorMode}.primaryGreenBackground`}>
             Note:
           </Text>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color="light.greenText" style={styles.noteDescription}>
             If notification is not declined continuously for 30 days, the Key would be activated
           </Text>
         </Box>
@@ -537,10 +515,60 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 10,
+    height: 60,
   },
   copyIconWrapper: {
     padding: 10,
     borderRadius: 10,
     marginRight: 5,
+  },
+  deleteContentWrapper: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    marginVertical: hp(10),
+    gap: 10,
+    padding: 10,
+    height: hp(70),
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  warningIconWrapper: {
+    alignItems: 'center',
+    marginVertical: hp(20),
+  },
+  noteText: {
+    fontWeight: '900',
+    fontSize: 14,
+  },
+  noteDescription: {
+    fontSize: 13,
+    padding: 1,
+    letterSpacing: 0.65,
+  },
+  editModalContainer: {
+    height: hp(400),
+  },
+  fw800: {
+    fontWeight: '800',
+  },
+  fingerprintContainer: {
+    justifyContent: 'center',
+    paddingLeft: 2,
+  },
+  w80: {
+    width: '80%',
+  },
+  warningText: {
+    fontSize: 13,
+    padding: 1,
+    letterSpacing: 0.65,
+  },
+  walletUsedText: {
+    marginLeft: 2,
+    marginVertical: 20,
+  },
+  actionCardContainer: {
+    gap: 5,
   },
 });

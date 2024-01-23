@@ -19,7 +19,7 @@ type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 const ManageSigners = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { vaultId = '', vaultKeys = [] } = route.params;
+  const { vaultId = '', vaultKeys = [] } = route.params || {};
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
 

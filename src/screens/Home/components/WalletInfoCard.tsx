@@ -5,6 +5,8 @@ import { StyleSheet } from 'react-native';
 import CardPill from 'src/components/CardPill';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { useAppSelector } from 'src/store/hooks';
+import Colors from 'src/theme/Colors';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 type WalletInfoCardProps = {
   walletName: string;
@@ -38,9 +40,7 @@ function WalletInfoCard({
         })}
       </Box>
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.textBlack`} style={styles.iconWrapper}>
-          {icon}
-        </Box>
+        <HexagonIcon width={44} height={38} backgroundColor={Colors.DarkGreen} icon={icon} />
         <Box>
           <Text color={`${colorMode}.white`} numberOfLines={1}>
             {walletDescription}
@@ -73,13 +73,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     justifyContent: 'flex-end',
-  },
-  iconWrapper: {
-    width: 34,
-    height: 34,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   detailContainer: {
     alignItems: 'flex-start',

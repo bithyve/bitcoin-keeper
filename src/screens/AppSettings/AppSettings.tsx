@@ -28,6 +28,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
@@ -74,7 +75,12 @@ function AppSettings({ navigation }) {
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
         learnTextColor={`${colorMode}.white`}
-        icon={<SettingsIcon />}
+        icon={
+          <CircleIconWrapper
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+            icon={<SettingsIcon />}
+          />
+        }
         rightComponent={<CurrencyTypeSwitch />}
       />
       <ScrollView
@@ -89,6 +95,7 @@ function AppSettings({ navigation }) {
                 icon={card.icon}
                 callback={card.callback}
                 key={card.cardName}
+                customStyle={{ justifyContent: 'flex-end' }}
               />
             ))}
           </Box>
@@ -140,7 +147,7 @@ function AppSettings({ navigation }) {
           />
           <NavButton
             icon={<Twitter />}
-            heading="Keeper Twitter"
+            heading="Keeper X"
             link="https://twitter.com/bitcoinKeeper_"
           />
         </Box>

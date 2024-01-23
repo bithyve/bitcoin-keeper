@@ -203,8 +203,6 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
     }
   };
 
-  console.log({ info });
-
   return (
     <>
       <Animated.View style={[animations]}>

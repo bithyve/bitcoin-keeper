@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import LinkIcon from 'src/assets/images/link.svg';
 import openLink from 'src/utils/OpenLink';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 
@@ -16,11 +16,11 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
   const { colorMode } = useColorMode();
 
   return (
-    <Pressable onPress={() => openLink(link)}>
+    <TouchableOpacity onPress={() => openLink(link)}>
       <Box style={styles.NavButtonContainer} backgroundColor={`${colorMode}.seashellWhite`}>
         <Box style={styles.headingWrapper}>
           {icon}
-          <Box style={{ marginLeft: wp(10) }}>
+          <Box>
             <Text color={`${colorMode}.textColor2`} style={styles.heading}>
               {heading}
             </Text>
@@ -30,14 +30,15 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
           <LinkIcon />
         </Box>
       </Box>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   NavButtonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
     height: hp(45),
     width: wp(166),
     borderRadius: 8,
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
   headingWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: wp(3),
+    gap: 7,
   },
   heading: {
     fontWeight: '400',
