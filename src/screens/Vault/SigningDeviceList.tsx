@@ -105,7 +105,7 @@ function SigningDeviceList() {
     SignerType.SPECTER,
     SignerType.OTHER_SD,
     SignerType.SEED_WORDS,
-    SignerType.MOBILE_KEY,
+    // SignerType.MOBILE_KEY,
     SignerType.KEEPER,
     SignerType.POLICY_SERVER,
     SignerType.INHERITANCEKEY,

@@ -51,7 +51,7 @@ function AssignSignerType({ route }: IProps) {
     SignerType.BITBOX02,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
-    SignerType.MOBILE_KEY,
+    // SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
   ];
   const [isNfcSupported, setNfcSupport] = useState(true);
