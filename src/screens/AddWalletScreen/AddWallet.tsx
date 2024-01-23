@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   walletType: {
     justifyContent: 'space-between',
-    width: '100%',
+    gap: 10,
   },
   note: {
     position: 'absolute',

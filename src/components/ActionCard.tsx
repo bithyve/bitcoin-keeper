@@ -2,6 +2,7 @@ import { Box, useColorMode } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
 
 type ActionCardProps = {
   cardName: string;
@@ -33,7 +34,7 @@ function ActionCard({
           )}
           {icon && icon}
         </Box>
-        <Text numberOfLines={2} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={2} style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
         </Text>
         {description && (
@@ -71,6 +72,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderStyle: 'dotted',
+  },
+  cardName: {
+    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontSize: 12,
   },
 });
 

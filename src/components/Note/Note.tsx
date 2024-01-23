@@ -2,6 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
+import Fonts from 'src/constants/Fonts';
 
 type Props = {
   title?: string;
@@ -40,6 +41,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 1.12,
   },
   subTitle: {
