@@ -76,12 +76,27 @@ import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
 import SignerCard from '../AddSigner/SignerCard';
-import useSigners from 'src/hooks/useSigners';
-import { formatDuration } from '../VaultRecovery/VaultRecovery';
-import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import moment from 'moment';
 
 const RNBiometrics = new ReactNativeBiometrics();
+
+const getnavigationState = (type) => ({
+  index: 5,
+  routes: [
+    { name: 'NewKeeperApp' },
+    { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false, type } },
+    { name: 'OtherRecoveryMethods' },
+    { name: 'VaultRecoveryAddSigner' },
+    { name: 'SigningDeviceListRecovery' },
+    { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: true, type } },
+  ],
+});
+
+function formatDuration(ms) {
+  const duration = moment.duration(ms);
+  return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
+}
 
 export const enum InteracationMode {
   VAULT_ADDITION = 'VAULT_ADDITION',
