@@ -14,7 +14,7 @@ import SettingIcon from 'src/assets/images/settings_footer.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
-import VaultIcon from 'src/assets/images/wallet_vault.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
 import { SignerType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
@@ -36,6 +36,8 @@ import useSigners from 'src/hooks/useSigners';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 
@@ -289,7 +291,15 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
             title={vault.presentationData.name}
             titleColor={`${colorMode}.seashellWhite`}
             subTitleColor={`${colorMode}.seashellWhite`}
-            icon={!!collaborativeWalletId ? <CollaborativeIcon /> : <VaultIcon />}
+            //TODO: Add collaborativeWalletIcon
+            icon={
+              <HexagonIcon
+                width={58}
+                height={50}
+                backgroundColor={Colors.deepTeal}
+                icon={!!collaborativeWalletId ? <CollaborativeIcon /> : <VaultIcon />}
+              />
+            }
             subtitle={vault.presentationData.description}
             learnMore
             learnTextColor="light.white"

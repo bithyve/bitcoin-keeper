@@ -33,6 +33,7 @@ import { useQuery } from '@realm/react';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
 import TierUpgradeModal from './TierUpgradeModal';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function ChoosePlan() {
   const route = useRoute();
@@ -370,7 +371,12 @@ function ChoosePlan() {
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
         learnTextColor={`${colorMode}.white`}
-        icon={<SettingsIcon />}
+        icon={
+          <CircleIconWrapper
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+            icon={<SettingsIcon />}
+          />
+        }
       />
       <KeeperModal
         visible={requesting}

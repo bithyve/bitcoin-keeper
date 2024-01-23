@@ -53,6 +53,7 @@ const Colors = {
   brownColor: 'rgba(145, 120, 92, 1)',
   learMoreTextcolor: 'rgba(242, 237, 230, 1)',
   Linen: 'rgba(240, 235, 230, 1)',
+  LightBrown: 'rgba(145, 120, 93, 0.08)',
 
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',
@@ -65,6 +66,8 @@ const Colors = {
   PaleKhaki: 'rgba(95,106,103,1)',
   PaleTurquoise: 'rgba(184,214,207,1)',
   darkGreen: 'rgb(46, 103, 89)',
+  PearlWhite: 'rgba(252, 252, 252, 1)',
+  deepTeal: 'rgba(28,73,64,1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',

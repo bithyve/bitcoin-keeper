@@ -20,6 +20,7 @@ export const TopSection = ({ colorMode, top, cardsData }) => (
           cardName={data.name}
           callback={data.callback}
           icon={data.icon}
+          dottedBorder
         />
       ))}
     </Box>
