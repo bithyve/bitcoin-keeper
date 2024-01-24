@@ -58,7 +58,6 @@ function NewHomeScreen({ navigation }) {
     (item) => item !== null
   );
 
-  const [addImportVisible, setAddImportVisible] = useState(false);
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
@@ -229,19 +228,14 @@ function NewHomeScreen({ navigation }) {
         totalBalance={netBalanceWallets + netBalanceAllVaults}
       />
       <HomeModals
-        addImportVisible={addImportVisible}
         electrumErrorVisible={electrumErrorVisible}
         showBuyRampModal={showBuyRampModal}
-        setAddImportVisible={setAddImportVisible}
         setElectrumErrorVisible={setElectrumErrorVisible}
         setShowBuyRampModal={setShowBuyRampModal}
         receivingAddress={receivingAddress}
         balance={balance}
         presentationName={presentationName}
         navigation={navigation}
-        wallets={wallets}
-        collaborativeWallets={collaborativeWallets}
-        setDefaultWalletCreation={setDefaultWalletCreation}
       />
     </Box>
   );
