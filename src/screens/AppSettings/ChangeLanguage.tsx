@@ -30,7 +30,6 @@ const styles = StyleSheet.create({
   },
   textCurrency: {
     fontSize: 18,
-    fontFamily: Fonts.FiraSansCondensedBold,
   },
   icArrow: {
     marginLeft: wp('3%'),
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     marginTop: 20,
-    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 });
 
@@ -193,7 +192,7 @@ function ChangeLanguage() {
       <TouchableOpacity onPress={onPress}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.btn}>
           <Box style={styles.menuWrapper}>
-            <Text color={`${colorMode}.SlateGrey`} style={styles.textCurrency}>
+            <Text color={`${colorMode}.SlateGrey`} bold style={styles.textCurrency}>
               {label}
             </Text>
           </Box>

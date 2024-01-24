@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     borderStyle: 'dotted',
   },
   cardName: {
-    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
   },
 });

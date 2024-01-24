@@ -53,6 +53,7 @@ function WalletCard({
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
               numberOfLines={1}
               fontSize={11}
+              light
             >
               {walletDescription}
             </Text>
@@ -100,7 +101,6 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
   },
   walletName: {
-    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
   },
 });

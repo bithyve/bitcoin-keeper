@@ -27,6 +27,7 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '1
           width={width}
           color={`${colorMode}.${subtitleColor}`}
           style={styles.subTitle}
+          light
         >
           {subtitle}
         </Text>
@@ -41,7 +42,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 1.12,
   },
   subTitle: {
