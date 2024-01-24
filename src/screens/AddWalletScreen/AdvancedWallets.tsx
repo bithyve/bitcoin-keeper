@@ -21,14 +21,14 @@ function AdvancedWallets({ navigation }) {
         disabled
       />
       <OptionCard
-        title="Degrading Multi-sig"
-        description="Time based sig"
+        title="Degrading Multisig"
+        description="Time-based signature"
         LeftIcon={<MultiSigIcon />}
         callback={() => navigateToVaultSetup()}
         disabled
       />
       <OptionCard
-        title="Custom Multi-sig"
+        title="Custom Multisig"
         description="Build your own"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup()}

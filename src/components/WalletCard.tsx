@@ -1,6 +1,7 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import React, { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';
+import Fonts from 'src/constants/Fonts';
 
 type WalletCardProps = {
   id: number;
@@ -31,7 +32,7 @@ function WalletCard({
       <Box
         borderColor={`${colorMode}.Eggshell`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
-        style={[styles.walletContainer, !isSelected && { opacity: 0.7 }]}
+        style={[styles.walletContainer, !isSelected && { opacity: 0.5 }]}
       >
         <Box style={styles.detailContainer}>
           <Box
@@ -44,6 +45,7 @@ function WalletCard({
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
               numberOfLines={1}
+              style={styles.walletName}
             >
               {walletName}
             </Text>
@@ -51,6 +53,7 @@ function WalletCard({
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
               numberOfLines={1}
               fontSize={11}
+              light
             >
               {walletDescription}
             </Text>
@@ -73,9 +76,9 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
   },
   circle: {
-    width: 40,
-    height: 40,
-    borderRadius: 40 / 2,
+    width: 34,
+    height: 34,
+    borderRadius: 34 / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -96,6 +99,9 @@ const styles = StyleSheet.create({
     borderRightWidth: 10,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
+  },
+  walletName: {
+    fontSize: 12,
   },
 });
 
