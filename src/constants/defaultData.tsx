@@ -7,13 +7,13 @@ export const securityTips = [
   {
     title: 'Introducing Whirlpool',
     subTitle:
-      'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones',
+      'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones.',
     assert: <WhirlpoolLoader />,
     message:
-      'For increased privacy and security, remix sats a few times, then transfer them to the vault',
+      'For increased privacy and security, remix sats a few times, then transfer them to the vault.',
   },
   {
-    title: 'Connecting to Node',
+    title: 'Connecting to a bitcoin node',
     subTitle: 'Interact with the bitcoin network more privately and securely',
     assert: <LoadingAnimation />,
     message:
@@ -37,7 +37,8 @@ export const securityTips = [
     title: 'Keep your signers safe',
     subTitle: 'Signers are what control your funds.',
     assert: <LoadingAnimation />,
-    message: 'These are generally offline and to keep them secure is your responsibility. ',
+    message:
+      'These are generally offline and to keep them secure is your responsibility. Losing them may lead to permanent loss of your bitcoin.',
   },
   {
     title: 'Security Tip',
