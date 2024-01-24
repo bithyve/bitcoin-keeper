@@ -556,6 +556,8 @@
     "walletSettings": "Wallet Settings",
     "walletSettingsSub": "Your wallet settings & preferences",
     "walletSettingSubTitle": "Setting for the wallet only",
+    "BackupSettings": "Backup Settings",
+    "BackupSettingSubTitle": "Setting your backup",
     "AppInfo": "App Info",
     "AppInfoSub": "Hexa app version number and details",
     "Disconnectyour": "Disconnect your own node and connect to Hexa node",
