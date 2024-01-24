@@ -189,7 +189,7 @@ function AppSettings({ navigation }) {
         close={() => setConfirmPassVisible(false)}
         title={'Confirm Passcode'}
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery phrase'}
+        subTitle={'To backup app recovery key'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
