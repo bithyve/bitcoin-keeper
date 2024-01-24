@@ -32,7 +32,6 @@ function BackupWallet() {
   const navigation = useNavigation();
 
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (

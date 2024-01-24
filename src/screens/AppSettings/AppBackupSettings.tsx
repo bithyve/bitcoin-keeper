@@ -31,7 +31,7 @@ function AppBackupSettings() {
         showsVerticalScrollIndicator={false}
       >
         <OptionCard
-          title={'View Keys'}
+          title={'View Recovery Keys'}
           description={'you can view keys'}
           callback={() => {
             setConfirmPassVisible(true);
@@ -58,7 +58,8 @@ function AppBackupSettings() {
               navigation.dispatch(
                 CommonActions.navigate('ExportSeed', {
                   seed: primaryMnemonic,
-                  next: true,
+                  next: false,
+                  viewRecoveryKeys: true,
                 })
               );
             }}

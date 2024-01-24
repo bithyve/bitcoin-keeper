@@ -40,6 +40,9 @@ function AppSettings({ navigation }) {
 
   const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
+  const data = useQuery(RealmSchema.BackupHistory);
+  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const changeSatsMode = () => {
     dispatch(setSatsEnabled(!satsEnabled));
@@ -50,7 +53,11 @@ function AppSettings({ navigation }) {
       cardName: settings.appBackup,
       icon: <AppBackupIcon />,
       callback: () => {
-        navigation.navigate('WalletBackHistory');
+        if (data.length === 0) {
+          setConfirmPassVisible(true);
+        } else {
+          navigation.navigate('WalletBackHistory');
+        }
       },
     },
     {
@@ -177,6 +184,33 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
       </Box>
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title={'Confirm Passcode'}
+        subTitleWidth={wp(240)}
+        subTitle={'To backup app recovery phrase'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={() => {
+              navigation.dispatch(
+                CommonActions.navigate('ExportSeed', {
+                  seed: primaryMnemonic,
+                  next: true,
+                })
+              );
+            }}
+          />
+        )}
+      />
     </ScreenWrapper>
   );
 }
