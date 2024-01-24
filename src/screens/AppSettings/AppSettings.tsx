@@ -26,14 +26,21 @@ import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import { useAppSelector } from 'src/store/hooks';
 
 function AppSettings({ navigation }) {
-  const { colorMode, toggleColorMode } = useColorMode();
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  // const { colorMode } = useColorMode();
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
 
+  const { colorMode, toggleColorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
+  const data = useQuery(RealmSchema.BackupHistory);
+  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const changeThemeMode = () => {
     toggleColorMode();
@@ -44,7 +51,11 @@ function AppSettings({ navigation }) {
       cardName: settings.appBackup,
       icon: <AppBackupIcon />,
       callback: () => {
-        setConfirmPassVisible(true);
+        if (data.length === 0) {
+          setConfirmPassVisible(true);
+        } else {
+          navigation.navigate('WalletBackHistory');
+        }
       },
     },
     {
@@ -172,14 +183,13 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
       </Box>
-
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
         title={'Confirm Passcode'}
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery phrase'}
+        subTitle={'To backup app recovery key'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
