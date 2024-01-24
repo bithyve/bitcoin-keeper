@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -17,21 +17,19 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { ImportedKeyType, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 
-function ImportWalletScreen({ route }) {
+function ImportWalletScreen() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
   const { translations } = useContext(LocalizationContext);
-  const { common, importWallet, home } = translations;
-  // const { sender } = route.params as { sender: Wallet | Vault };
-  // const network = WalletUtilities.getNetworkByType(sender.networkType);
+  const { common, importWallet, wallet } = translations;
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
 
   const handleChooseImage = () => {
@@ -82,6 +80,7 @@ function ImportWalletScreen({ route }) {
     }
   };
 
+  //TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -90,7 +89,13 @@ function ImportWalletScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.scanSeedWord} />
+        <KeeperHeader
+          title={wallet.ImportWallet}
+          subtitle={importWallet.usingWalletConfigurationFile}
+          learnMore
+          learnBackgroundColor={`${colorMode}.RussetBrown`}
+          learnTextColor={`${colorMode}.white`}
+        />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>

@@ -15,7 +15,7 @@ function ImportWallets({ navigation }) {
         callback={() => navigation.navigate('ImportWallet')}
       />
       <OptionCard
-        title="Vault Configuration File"
+        title="Wallet Configuration File"
         description="Text in your Recovery Instructions (Inheritance)"
         LeftIcon={<ConfigurationIcon />}
         callback={() => navigation.navigate('VaultConfigurationCreation')}

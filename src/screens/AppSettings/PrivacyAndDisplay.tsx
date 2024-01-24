@@ -27,8 +27,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function PrivacyAndDisplay({ navigation }) {
-  const { colorMode, toggleColorMode } = useColorMode();
+function PrivacyAndDisplay() {
+  const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
 
@@ -113,27 +113,11 @@ function PrivacyAndDisplay({ navigation }) {
     }
   };
 
-  const changeThemeMode = () => {
-    toggleColorMode();
-  };
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.PrivacyDisplay} subtitle={settings.PrivacyDisplaySubTitle} />
+      <KeeperHeader title={settings.SecurityAndLogin} subtitle={settings.AppLevelSettings} />
       <ScrollView>
         <Box style={styles.wrapper}>
-          <OptionCard
-            title={settings.DarkMode}
-            description={settings.DarkModeSubTitle}
-            callback={() => changeThemeMode()}
-            Icon={
-              <Switch
-                onValueChange={(value) => changeThemeMode()}
-                value={colorMode === 'dark'}
-                testID="switch_darkmode"
-              />
-            }
-          />
           <Box>
             <OptionCard
               title={sensorType}
@@ -172,7 +156,7 @@ function PrivacyAndDisplay({ navigation }) {
       <Box style={styles.note}>
         <Note
           title={common.note}
-          subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          subtitle="These settings are not carried over when the app is restored using the Recovery Phrase"
           subtitleColor="GreyText"
         />
       </Box>

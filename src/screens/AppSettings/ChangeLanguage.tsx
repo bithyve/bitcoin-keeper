@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
-import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
+import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import CountryCode from 'src/constants/CountryCode';
@@ -15,18 +15,21 @@ import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
 import FiatCurrencies from 'src/constants/FiatCurrencies';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import Switch from 'src/components/Switch/Switch';
+import OptionCard from 'src/components/OptionCard';
 
 const styles = StyleSheet.create({
   btn: {
     flexDirection: 'row',
+    width: '90%',
     height: wp('13%'),
     position: 'relative',
     marginHorizontal: 12,
+    borderRadius: 10,
   },
   textCurrency: {
     fontSize: 18,
-    color: '#00836A',
-    fontWeight: '700',
   },
   icArrow: {
     marginLeft: wp('3%'),
@@ -64,8 +67,6 @@ const styles = StyleSheet.create({
   menuWrapper: {
     height: wp('13%'),
     width: wp('15%'),
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -77,10 +78,9 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   },
   emptyView: {
-    height: '65%',
-    marginTop: 10,
+    height: '55%',
+    alignSelf: 'center',
     width: 2,
-    backgroundColor: '#D8A572',
   },
   textValueWrapper: {
     flex: 1,
@@ -153,11 +153,19 @@ const styles = StyleSheet.create({
   countryCodeText: {
     textTransform: 'uppercase',
   },
+  contentContainer: {
+    flex: 1,
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
 });
 
 function ChangeLanguage() {
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
   const { currencyCode, language } = useAppSelector((state) => state.settings);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
   const dispatch = useAppDispatch();
 
   const [currencyList] = useState(FiatCurrencies);
@@ -175,28 +183,36 @@ function ChangeLanguage() {
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
 
+  const changeSatsMode = () => {
+    dispatch(setSatsEnabled(!satsEnabled));
+  };
+
   function Menu({ label, value, onPress, arrow }) {
     return (
-      <TouchableOpacity onPress={onPress} style={styles.btn}>
-        <Box style={styles.menuWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text style={styles.textCurrency}>{label}</Text>
-        </Box>
-        <Box style={styles.emptyView} />
-        <Box style={styles.textValueWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
-            {value}
-          </Text>
-        </Box>
-        <Box style={styles.dropdownIconWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Box
-            style={[
-              styles.icArrow,
-              {
-                transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-              },
-            ]}
-          >
-            <RightArrowIcon />
+      <TouchableOpacity onPress={onPress}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.btn}>
+          <Box style={styles.menuWrapper}>
+            <Text color={`${colorMode}.SlateGrey`} bold style={styles.textCurrency}>
+              {label}
+            </Text>
+          </Box>
+          <Box backgroundColor={`${colorMode}.PaleIvory`} style={styles.emptyView} />
+          <Box style={styles.textValueWrapper}>
+            <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
+              {value}
+            </Text>
+          </Box>
+          <Box style={styles.dropdownIconWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+            <Box
+              style={[
+                styles.icArrow,
+                {
+                  transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
+                },
+              ]}
+            >
+              <RightArrowIcon />
+            </Box>
           </Box>
         </Box>
       </TouchableOpacity>
@@ -205,11 +221,26 @@ function ChangeLanguage() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={settings.LanguageCountry} subtitle={settings.biometricsDesc} />
-      <Box flex={1}>
+      <KeeperHeader
+        title={settings.CurrencyDefaults}
+        subtitle={settings.CurrencyDefaultsSubtitle}
+      />
+      <Box style={styles.contentContainer}>
+        <OptionCard
+          title={settings.SatsMode}
+          description={settings.satsModeSubTitle}
+          callback={() => changeSatsMode()}
+          Icon={
+            <Switch
+              value={satsEnabled}
+              onValueChange={() => changeSatsMode()}
+              testID="switch_darkmode"
+            />
+          }
+        />
         <CountrySwitchCard
-          title={settings.AlternateCurrency}
-          description={settings.Selectyourlocalcurrency}
+          title={settings.FiatCurrency}
+          description={settings.Seebalance}
           my={2}
           bgColor={`${colorMode}.backgroundColor2`}
           icon={false}

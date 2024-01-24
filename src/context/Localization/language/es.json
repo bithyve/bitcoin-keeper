@@ -417,7 +417,8 @@
   },
   "vault": {
     "SetupyourVault": "Setup a vault",
-    "configureScheme": "Configure your scheme",
+    "AddCustomMultiSig": "Add Custom MultiSig",
+    "configureScheme": "Create an m-of-n multisig vault",
     "VaultDesc": "A signer is an an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",
@@ -432,8 +433,8 @@
     "VaultCreationDesc": "Your Basic vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View vault",
     "AddNow": "Add Now",
-    "SelectSigner": "Select a signers",
-    "ForVault": "For your vault",
+    "SelectSigner": "Select a signer",
+    "SelectSignerSubtitle": "To store one private key",
     "VaultInfo": "A signer can be a hardware wallet or a signer or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
@@ -534,6 +535,8 @@
     "VersionHistorySubTitle": "View the app's version history",
     "LanguageCountry": "Language & Currency",
     "LanguageCountrySubTitle": "Select language and currency",
+    "CurrencyDefaults": "Currency Defaults",
+    "CurrencyDefaultsSubtitle": "Set preferred defaults",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
     "Questionsfeedbackandmore": "Questions, feedback and more",
     "biometricsDesc": "Select app settings",
@@ -576,6 +579,8 @@
     "ChangeCurrency": "Currency & Language",
     "Chooseyourcurrency": "Choose your currency & language",
     "AlternateCurrency": "Alternate Currency",
+    "FiatCurrency": "Fiat Currency",
+    "Seebalance": "See balance in your local fiat currency",
     "LanguageSettings": "Language Settings",
     "Chooseyourlanguage": "Choose your language preference",
     "HelpUstranslate": "Help us translate better",
@@ -598,8 +603,9 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition",
     "nodeSettings": "Node Settings",
     "nodeSettingsSubtitle": "Configure your node settings",
-    "PrivacyAndDisplay": "Privacy & Display",
-    "PrivacySettingsSubtitle": "Dark mode and biometrics",
+    "SecurityAndLogin": "Security & Login",
+    "SecurityAndLoginSubtitle": "App improvement and ease of access",
+    "AppLevelSettings": "App-level settings",
     "nodeSettingUsedSoFar": "Node settings used so far",
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
@@ -645,7 +651,7 @@
     "shareAnalytics": "Share Analytics & App Data",
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
-    "changePasscodeDescription": "Change Passcode Description"
+    "changePasscodeDescription": "Easy to remember; hard to guess"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -720,6 +726,7 @@
     "walletBalance": "When the wallet balance crosses this amount, a transfer to the vault is initiated for user approval",
     "IWNoteDescription": "Make sure that the QR is well aligned, focused and visible as a whole",
     "scanSeedWord": "Scan your seed words/Backup Phrase",
+    "usingWalletConfigurationFile": "Using wallet configuration file",
     "uploadFromGallery": "Upload from gallery",
     "AddImportModalTitle": "Add or Import Wallet",
     "AddImportModalSubTitle": "Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them",
@@ -734,6 +741,7 @@
   },
   "signer": {
     "addSigner": "Add Signer",
-    "addSignerSubTitle": "to Valinor"
+    "addSignerSubTitle": "to Valinor",
+    "addSigners": "Add Signers"
   }
 }
