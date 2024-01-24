@@ -27,6 +27,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { captureError } from 'src/services/sentry';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import idx from 'idx';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -38,13 +39,14 @@ function WalletSettings({ route }) {
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
-
-  const { wallets } = useWallets();
-  const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
   const { settings, common } = translations;
+
+  const { wallets } = useWallets();
+  const wallet = wallets.find((item) => item.id === walletRoute.id);
+  const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
 
   const getTestSats = () => {
     dispatch(testSatsRecieve(wallet));
@@ -125,13 +127,15 @@ function WalletSettings({ route }) {
             navigation.navigate('WalletDetailsSettings', { wallet });
           }}
         />
-        <OptionCard
-          title={walletTranslation.walletSeedWord}
-          description={walletTranslation.walletSeedWordSubTitle}
-          callback={() => {
-            setConfirmPassVisible(true);
-          }}
-        />
+        {walletMnemonic && (
+          <OptionCard
+            title={walletTranslation.walletSeedWord}
+            description={walletTranslation.walletSeedWordSubTitle}
+            callback={() => {
+              setConfirmPassVisible(true);
+            }}
+          />
+        )}
         <OptionCard
           title={walletTranslation.showCoSignerDetails}
           description={walletTranslation.showCoSignerDetailsSubTitle}
@@ -221,11 +225,13 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
-              navigation.navigate('ExportSeed', {
-                seed: wallet?.derivationDetails?.mnemonic,
-                next: false,
-                wallet,
-              });
+              if (walletMnemonic)
+                navigation.navigate('ExportSeed', {
+                  seed: walletMnemonic,
+                  next: false,
+                  wallet,
+                });
+              else showToast("Mnemonic doesn't exists");
             }}
           />
         )}
