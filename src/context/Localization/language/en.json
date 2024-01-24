@@ -501,7 +501,7 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Keep your Coldcard ready",
+    "SetupTitle": "Setting up Coldcard",
     "SetupDescription": "Keep your Coldcard ready before proceeding"
   },
   "ledger": {
@@ -660,9 +660,9 @@
     "security": "security",
     "slide01Title": "for\n your bitcoin keys",
     "privacy": "privacy",
-    "slide01Paragraph": "Use trusted signers for air-gapped signing. Use them to create singlesig hot wallets or multisig cold vaults.",
+    "slide01Paragraph": "Use trusted signers (hardware or software) for air-gapped signing and setting up multisig vaults. Use health check to verify access to keys",
     "slide02Title": "Security should not\ncome at the cost of",
-    "slide02Paragraph": "You do not need to register or provide any PII to use Keeper. Run your own node. Connect via Tor.",
+    "slide02Paragraph": "No account creation needed. Run your own node. Connect via Tor.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
