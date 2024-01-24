@@ -133,8 +133,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
-    subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
-    message: 'Stack sats, whirlpool them, hod long term and plan your inheritance with Keeper.',
+    subTitle: 'Keeper allows you to create single sig wallets and a multisig vault',
+    message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
   function SignUpModalContent() {

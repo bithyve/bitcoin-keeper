@@ -117,7 +117,7 @@ const getSignerContent = (
   switch (type) {
     case SignerType.COLDCARD:
       const ccInstructions =
-        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.';
+        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n';
       return {
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
@@ -151,7 +151,7 @@ const getSignerContent = (
       return {
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a wallet or create a new one from your Hot Wallets',
+          'Choose a wallet or create a new one from your Linked Wallets',
           'Within settings choose Show co-signer Details to scan the QR',
         ],
         title: 'Keep your Device Ready',
@@ -230,8 +230,9 @@ const getSignerContent = (
         options: [],
       };
     case SignerType.SPECTER:
-      const specterInstructions =
-        'Make sure the seed is loaded and export the xPub by going to Master Keys > Multisig/Singlesig > Native Segwit';
+      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit.\n`;
       return {
         Illustration: <SpecterSetupImage />,
         Instructions: isTestnet()
