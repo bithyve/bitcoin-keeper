@@ -2,7 +2,6 @@ import { Box, useColorMode } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
-import Fonts from 'src/constants/Fonts';
 
 type ActionCardProps = {
   cardName: string;

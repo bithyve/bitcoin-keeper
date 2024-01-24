@@ -3,14 +3,18 @@ import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import React from 'react';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { windowWidth } from 'src/constants/responsive';
+import { StyleSheet } from 'react-native';
 
 type OptionProps = {
   title: string;
   description: string;
   callback?: () => void;
+  titleColor?: string;
+  descriptionColor?: string;
   Icon?: Element;
   LeftIcon?: Element;
   disabled?: boolean;
+  CardPill?: Element;
 };
 
 export function OptionCard({
@@ -18,8 +22,11 @@ export function OptionCard({
   description,
   Icon,
   callback = null,
+  titleColor,
+  descriptionColor,
   LeftIcon,
   disabled = false,
+  CardPill,
 }: OptionProps) {
   const { colorMode } = useColorMode();
   return (
@@ -32,30 +39,44 @@ export function OptionCard({
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
-        {LeftIcon && LeftIcon}
-        <VStack>
-          <Text
-            color={`${colorMode}.primaryText`}
-            testID={`text_${title.replace(/ /g, '_')}`}
-            style={{ fontSize: 14, letterSpacing: 1.04 }}
-          >
-            {title}
-          </Text>
-          {description && (
+        <HStack style={styles.iconContainer}>
+          {LeftIcon && LeftIcon}
+          <VStack>
             <Text
-              color={`${colorMode}.GreyText`}
-              style={{ fontSize: 12, letterSpacing: 0.36, width: windowWidth * 0.7 }}
+              color={titleColor ? titleColor : `${colorMode}.primaryText`}
+              testID={`text_${title.replace(/ /g, '_')}`}
+              style={{ fontSize: 14, letterSpacing: 1.04 }}
             >
-              {description}
+              {title}
             </Text>
-          )}
-        </VStack>
-        <Box justifyContent="center" alignItems="flex-end">
-          {Icon || <RightArrowIcon />}
-        </Box>
+            {description && (
+              <Text
+                color={descriptionColor ? descriptionColor : `${colorMode}.GreyText`}
+                style={{ fontSize: 12, letterSpacing: 0.36 }}
+              >
+                {description}
+              </Text>
+            )}
+          </VStack>
+        </HStack>
+        {CardPill ? (
+          CardPill
+        ) : (
+          <Box justifyContent="center" alignItems="flex-end">
+            {Icon || <RightArrowIcon />}
+          </Box>
+        )}
       </HStack>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+});
 
 export default OptionCard;
