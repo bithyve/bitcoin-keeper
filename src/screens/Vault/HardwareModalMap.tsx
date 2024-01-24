@@ -117,12 +117,13 @@ const getSignerContent = (
   switch (type) {
     case SignerType.COLDCARD:
       const ccInstructions =
-        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n';
+        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.';
       return {
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
           ? [
               ccInstructions,
+              'From here choose the account number and transfer over NFC',
               'Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.',
             ]
           : [ccInstructions],
@@ -161,7 +162,7 @@ const getSignerContent = (
       return {
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          "Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.",
+          'Make sure that this wallet’s Recovery Phrase is backed-up properly to secure this key.',
         ],
         title: isHealthcheck ? 'Verify Mobile Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
@@ -229,19 +230,18 @@ const getSignerContent = (
         options: [],
       };
     case SignerType.SPECTER:
-      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit.\n`;
+      const specterInstructions =
+        'Make sure the seed is loaded and export the xPub by going to Master Keys > Multisig/Singlesig > Native Segwit';
       return {
         Illustration: <SpecterSetupImage />,
         Instructions: isTestnet()
           ? [
               specterInstructions,
-              `Make sure you enable Testnet mode on the Specter if you are running the app in the Testnet by selecting Switch network (Testnet) on the home screen.`,
+              `Make sure you enable Testnet mode on the Specter if you are running the app in the Testnet by selecting Switch network (Testnet) on the home screen`,
             ]
           : [specterInstructions],
-        title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter',
-        subTitle: 'Keep your Specter ready and powered before proceeding',
+        title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
+        subTitle: 'Keep your device ready and powered on before proceeding',
         options: [],
       };
     case SignerType.BITBOX02:
@@ -281,8 +281,8 @@ const getSignerContent = (
       return {
         Illustration: <SeedWordsIllustration />,
         Instructions: [
-          'Once the transaction is signed the key is not stored on the app.',
-          "Make sure that you're noting down the words in private as exposing them will compromise the Seed Key",
+          'This mnemonic (12 words) needs to be noted down and kept offline (the private keys are not stored on the app)',
+          'Make sure that you’re noting down the words in private as exposing them will compromise the Seed Key',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
@@ -292,8 +292,8 @@ const getSignerContent = (
       return {
         Illustration: <TapsignerSetupImage />,
         Instructions: [
-          'You will need the Pin/CVC at the back of TAPSIGNER',
-          'You should generally not use the same signer on multiple wallets/apps',
+          'You will need the Pin/CVC at the back of the TAPSIGNER',
+          'Make sure that the TAPSIGNER has not been used as a signer in other apps',
         ],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
@@ -310,7 +310,6 @@ const getSignerContent = (
         subTitle: 'Keep your signer ready before proceeding',
         options: [],
       };
-
     case SignerType.INHERITANCEKEY:
       return {
         Illustration: <InhertanceKeyIcon />,
@@ -1496,17 +1495,10 @@ function HardwareModalMap({
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
+        showCloseIcon={false}
         Content={Content}
-        secondaryButtonText={
-          isHealthcheck ? 'Skip' : type === SignerType.INHERITANCEKEY ? 'cancel' : null
-        }
-        secondaryCallback={
-          isHealthcheck
-            ? skipHealthCheckCallBack
-            : type === SignerType.INHERITANCEKEY
-            ? close
-            : null
-        }
+        secondaryButtonText={isHealthcheck ? 'Skip' : 'Cancel'}
+        secondaryCallback={isHealthcheck ? skipHealthCheckCallBack : close}
       />
       <KeeperModal
         visible={passwordModal && mode === InteracationMode.VAULT_ADDITION}

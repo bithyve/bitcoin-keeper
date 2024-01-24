@@ -501,7 +501,7 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Keep your Coldcard ready",
+    "SetupTitle": "Setting up Coldcard",
     "SetupDescription": "Keep your Coldcard ready before proceeding"
   },
   "ledger": {
