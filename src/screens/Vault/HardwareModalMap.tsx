@@ -303,11 +303,11 @@ const getSignerContent = (
       return {
         Illustration: <OtherSDSetup />,
         Instructions: [
-          'Manually provide the signer details',
-          'The hardened part of the derivation path of the xpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
+          'Provide the Signer details either by entering them or scanning',
+          'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
         ],
-        title: 'Keep your signer ready',
-        subTitle: 'Keep your signer ready before proceeding',
+        title: 'Setting up Signer',
+        subTitle: 'Keep your Signer ready before proceeding',
         options: [],
       };
     case SignerType.INHERITANCEKEY:
