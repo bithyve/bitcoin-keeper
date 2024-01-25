@@ -62,6 +62,7 @@ function ImportDescriptorScreen({ navigation }) {
       if (parsedText) {
         const signers: VaultSigner[] = [];
         parsedText.signersDetails.forEach((config) => {
+          // TODO: check for my cosigner key
           const { key } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,

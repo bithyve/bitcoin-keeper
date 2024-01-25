@@ -91,6 +91,7 @@ export enum VaultMigrationType {
 export enum SignerType {
   TAPSIGNER = 'TAPSIGNER',
   KEEPER = 'KEEPER',
+  MY_KEEPER = 'MY_KEEPER',
   TREZOR = 'TREZOR',
   LEDGER = 'LEDGER',
   COLDCARD = 'COLDCARD',

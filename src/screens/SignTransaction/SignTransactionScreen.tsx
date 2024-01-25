@@ -344,7 +344,10 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (vaultKey.masterFingerprint === collaborativeWalletId) {
+        if (
+          vaultKey.masterFingerprint === collaborativeWalletId ||
+          signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER
+        ) {
           signTransaction({ xfp: vaultKey.xfp });
           return;
         }

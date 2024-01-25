@@ -738,7 +738,7 @@ function SignerModals({
             />
           );
         }
-        if (signer.type === SignerType.KEEPER) {
+        if ([SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type)) {
           return (
             <KeeperModal
               key={vaultKey.xfp}

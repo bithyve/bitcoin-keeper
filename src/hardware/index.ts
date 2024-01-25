@@ -26,6 +26,7 @@ export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
   SignerType.TREZOR,
   SignerType.KEEPER,
+  SignerType.MY_KEEPER,
   SignerType.MOBILE_KEY,
   SignerType.POLICY_SERVER,
   SignerType.SEED_WORDS,
@@ -105,6 +106,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.JADE:
       name = 'Jade';
       break;
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       name = 'Collaborative Key';
       break;
@@ -252,6 +254,7 @@ export const getDeviceStatus = (
       } else {
         return { message: '', disabled: false };
       }
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       return addSignerFlow || scheme?.n < 2
         ? {
@@ -343,6 +346,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.JADE: {
       return 'Optional registration';
     }
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
       return 'Use Collaborative Key as signer';
     }

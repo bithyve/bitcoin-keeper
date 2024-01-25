@@ -125,6 +125,7 @@ const getSignerContent = (type: SignerType) => {
           '\u2022Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
         FAQ: '',
       };
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       return {
         title: 'Keeper as signer',

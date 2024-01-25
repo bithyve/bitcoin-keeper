@@ -101,7 +101,7 @@ function SignWithQR() {
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
-        {signer.type === SignerType.KEEPER ? (
+        {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
           <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
             <ShareWithNfc data={serializedPSBT} />
           </ScrollView>

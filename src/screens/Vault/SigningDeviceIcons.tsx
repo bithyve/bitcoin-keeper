@@ -67,6 +67,7 @@ export const SDIcons = (type: SignerType, light = false) => {
         Logo: <JADELOGO />,
         type: SignerStorage.COLD,
       };
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
