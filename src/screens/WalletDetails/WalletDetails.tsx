@@ -69,7 +69,7 @@ function WalletDetails({ route }: ScreenProps) {
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
-    specs: { balances: { confirmed } } = {
+    specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = wallet;
@@ -137,7 +137,7 @@ function WalletDetails({ route }: ScreenProps) {
             <Box style={styles.availableBalanceView}>
               <CurrencyInfo
                 hideAmounts={false}
-                amount={confirmed}
+                amount={unconfirmed + confirmed}
                 fontSize={22}
                 color={`${colorMode}.white`}
                 variation={colorMode === 'light' ? 'light' : 'dark'}
