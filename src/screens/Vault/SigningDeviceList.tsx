@@ -236,7 +236,7 @@ function SigningDeviceList() {
       <Box style={styles.noteContainer}>
         <Note
           title="Security Tip"
-          subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
+          subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
           subtitleColor="GreyText"
         />
       </Box>

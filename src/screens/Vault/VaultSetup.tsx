@@ -57,7 +57,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
       : ''
   );
   const [vaultDescription, setVaultDescription] = useState(
-    activeVault?.presentationData?.description || 'Secure your sats'
+    activeVault?.presentationData?.description
   );
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
   const { translations } = useContext(LocalizationContext);

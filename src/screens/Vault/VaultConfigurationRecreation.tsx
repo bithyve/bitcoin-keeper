@@ -24,12 +24,12 @@ function VaultConfigurationCreation() {
       >
         <View style={styles.wrapper}>
           <KeeperHeader
-            title="Recovery through vault configuration"
-            subtitle="Recover the vault from output descriptor or configuration"
+            title="Recover Using Wallet Configuration File"
+            subtitle="Recover the vault from output descriptor/configuration/BSMS File"
           />
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
             <TextInput
-              placeholder="Enter the vault configuration or output descriptor"
+              placeholder="Enter the Wallet Configuration File"
               placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
               style={styles.textInput}
               value={inputText}

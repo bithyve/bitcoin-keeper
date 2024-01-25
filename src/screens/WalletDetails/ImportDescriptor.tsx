@@ -116,7 +116,7 @@ function ImportDescriptorScreen({ navigation }) {
           />
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput
-              placeholder="Enter the output descriptor"
+              placeholder="Enter the Wallet Configuration File"
               placeholderTextColor={Colors.Feldgrau} // TODO: change this to colorMode
               style={styles.textInput}
               value={inputText}

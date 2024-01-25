@@ -1,7 +1,7 @@
 import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import OptionCard from 'src/components/OptionCard';
-import TimeLockIcon from 'src/assets/images/time_lock_disabled.svg';
+import TimeLockIcon from 'src/assets/images/calendar_disabled.svg';
 import MultiSigIcon from 'src/assets/images/degrading_multisig_disabled.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import { CommonActions } from '@react-navigation/native';
