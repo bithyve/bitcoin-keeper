@@ -60,7 +60,7 @@ function AddWallet({ navigation }) {
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
             onCardSelect={onCardSelect}
-            arrowStyles={{ marginLeft: 10 }}
+            arrowStyles={{ alignSelf: 'center' }}
           />
           <WalletCard
             id={3}
@@ -70,7 +70,7 @@ function AddWallet({ navigation }) {
             selectedIcon={<AdvancedGreenIcon />}
             selectedCard={selectedCard}
             onCardSelect={onCardSelect}
-            arrowStyles={{ alignSelf: 'center' }}
+            arrowStyles={{ marginLeft: 10 }}
           />
         </ScrollView>
         {selectedCard === 1 && <Wallets navigation={navigation} />}

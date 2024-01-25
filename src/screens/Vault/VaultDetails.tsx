@@ -325,7 +325,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         />
         <ActionCard
           cardName="Manage Signers"
-          description="Manage for this wallet"
+          description="For this vault"
           callback={() =>
             navigation.dispatch(
               CommonActions.navigate({
