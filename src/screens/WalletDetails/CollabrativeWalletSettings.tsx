@@ -23,26 +23,26 @@ function CollabrativeWalletSettings() {
   const descriptorString = genrateOutputDescriptors(activeVault);
   const { showToast } = useToastMessage();
 
-  const signPSBT = (serializedPSBT, resetQR) => {
-    try {
-      const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
-    } catch (e) {
-      resetQR();
-      showToast('Please scan a valid PSBT', null, 3000, true);
-    }
-  };
+  // const signPSBT = (serializedPSBT, resetQR) => {
+  //   try {
+  //     const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+  //     navigation.dispatch(
+  //       CommonActions.navigate({
+  //         name: 'ShowQR',
+  //         params: {
+  //           data: signedSerialisedPSBT,
+  //           encodeToBytes: false,
+  //           title: 'Signed PSBT',
+  //           subtitle: 'Please scan until all the QR data has been retrieved',
+  //           type: SignerType.KEEPER,
+  //         },
+  //       })
+  //     );
+  //   } catch (e) {
+  //     resetQR();
+  //     showToast('Please scan a valid PSBT', null, 3000, true);
+  //   }
+  // };
 
   return (
     <ScreenWrapper>
@@ -62,7 +62,7 @@ function CollabrativeWalletSettings() {
             navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
           }}
         />
-        <OptionCard
+        {/* <OptionCard
           title="Sign a PSBT"
           description="Sign a transaction"
           callback={() => {
@@ -78,7 +78,7 @@ function CollabrativeWalletSettings() {
               })
             );
           }}
-        />
+        /> */}
         <OptionCard
           title="Exporting Output Descriptor/ BSMS"
           description="To recreate collaborative wallet"

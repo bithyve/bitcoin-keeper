@@ -14,27 +14,23 @@ import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
 import { extractKeyFromDescriptor, generateSignerFromMetaData } from 'src/hardware';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import OptionCTA from 'src/components/OptionCTA';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
-import { useQuery } from '@realm/react';
 import { globalStyles } from 'src/constants/globalStyles';
 import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
 const { width } = Dimensions.get('screen');
 
@@ -191,62 +187,63 @@ function SignerItem({
   );
 }
 
-function Spacer() {
-  return <Box style={styles.space} />;
-}
+// function Spacer() {
+//   return <Box style={styles.space} />;
+// }
 
-function ListFooter(wallet: Wallet, signPSBT: any) {
-  const navigation = useNavigation();
-  const { id } = wallet;
-  return (
-    <Box style={globalStyles.centerColumn}>
-      <Spacer />
-      <OptionCTA
-        icon={null}
-        title="Show co-signer Details"
-        subtitle="Add to another Collaborative Wallet"
-        callback={() => {
-          navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
-        }}
-      />
-      <Spacer />
-      <OptionCTA
-        icon={null}
-        title="Import Collaborative Wallet"
-        subtitle="To view wallet on this app"
-        callback={() => {
-          navigation.dispatch(CommonActions.navigate('ImportDescriptorScreen', { walletId: id }));
-        }}
-      />
-      <Spacer />
-      <OptionCTA
-        icon={null}
-        title="Act as co-signer"
-        subtitle={`Sign transactions (${id})`}
-        callback={() => {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'ScanQR',
-              params: {
-                title: `Scan PSBT to Sign`,
-                subtitle: 'Please scan until all the QR data has been retrieved',
-                onQrScan: signPSBT,
-                type: SignerType.KEEPER,
-              },
-            })
-          );
-        }}
-      />
-    </Box>
-  );
-}
+// function ListFooter(wallet: Wallet, signPSBT: any) {
+//   const navigation = useNavigation();
+//   const { id } = wallet;
+//   return (
+//     <Box style={globalStyles.centerColumn}>
+//       <Spacer />
+//       <OptionCTA
+//         icon={null}
+//         title="Show co-signer Details"
+//         subtitle="Add to another Collaborative Wallet"
+//         callback={() => {
+//           navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
+//         }}
+//       />
+//       <Spacer />
+//       <OptionCTA
+//         icon={null}
+//         title="Import Collaborative Wallet"
+//         subtitle="To view wallet on this app"
+//         callback={() => {
+//           navigation.dispatch(CommonActions.navigate('ImportDescriptorScreen', { walletId: id }));
+//         }}
+//       />
+//       <Spacer />
+//       <OptionCTA
+//         icon={null}
+//         title="Act as co-signer"
+//         subtitle={`Sign transactions (${id})`}
+//         callback={() => {
+//           navigation.dispatch(
+//             CommonActions.navigate({
+//               name: 'ScanQR',
+//               params: {
+//                 title: `Scan PSBT to Sign`,
+//                 subtitle: 'Please scan until all the QR data has been retrieved',
+//                 onQrScan: signPSBT,
+//                 type: SignerType.KEEPER,
+//               },
+//             })
+//           );
+//         }}
+//       />
+//     </Box>
+//   );
+// }
 
-function SetupCollaborativeWallet() {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'SetupCollaborativeWallet'>;
+
+const SetupCollaborativeWallet = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { params } = useRoute() as { params: { coSigner; collaborativeWalletsCount; walletId } };
-  const { coSigner, walletId, collaborativeWalletsCount } = params;
+  const { coSigner, walletId, collaborativeWalletsCount } = route.params || {};
   const { hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, error } = useAppSelector(
     (state) => state.vault
   );
@@ -255,7 +252,6 @@ function SetupCollaborativeWallet() {
     new Array(COLLABORATIVE_SCHEME.n).fill(null)
   );
   const [isCreating, setIsCreating] = useState(false);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { showToast } = useToastMessage();
   const { collaborativeWallet } = useCollaborativeWallet(walletId);
   const { signerMap } = useSignerMap();
@@ -275,28 +271,7 @@ function SetupCollaborativeWallet() {
     setCoSigners(newSigners);
   };
 
-  const signPSBT = (serializedPSBT, resetQR) => {
-    try {
-      const signedSerialisedPSBT = signCosignerPSBT(coSigner, serializedPSBT);
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
-    } catch (err) {
-      resetQR();
-      showToast('Please scan a valid PSBT', null, 3000, true);
-    }
-  };
-
-  const pushSigner = (xpub, derivationPath, masterFingerprint, goBack = true) => {
+  const pushSigner = (xpub, derivationPath, masterFingerprint, goBack = true, mine = false) => {
     try {
       // duplicate check
       if (coSigners.find((item) => item && item.xpub === xpub)) {
@@ -307,7 +282,7 @@ function SetupCollaborativeWallet() {
         xpub,
         derivationPath,
         masterFingerprint,
-        signerType: SignerType.KEEPER,
+        signerType: mine ? SignerType.MY_KEEPER : SignerType.KEEPER,
         storageType: SignerStorage.WARM,
         isMultisig: true,
       });
@@ -336,7 +311,8 @@ function SetupCollaborativeWallet() {
         details.xpubDetails[XpubTypes.P2WSH].xpub,
         details.xpubDetails[XpubTypes.P2WSH].derivationPath,
         details.mfp,
-        false
+        false,
+        true
       );
     }, 200);
     return () => {
@@ -381,8 +357,6 @@ function SetupCollaborativeWallet() {
     />
   );
 
-  const ListFooterComponent = useCallback(() => ListFooter(coSigner, signPSBT), [coSigner]);
-
   const createVault = useCallback(() => {
     try {
       setIsCreating(true);
@@ -416,7 +390,6 @@ function SetupCollaborativeWallet() {
         style={{
           marginTop: hp(52),
         }}
-        ListFooterComponent={ListFooterComponent}
       />
       <FloatingCTA
         primaryText={'Create'}
@@ -427,7 +400,7 @@ function SetupCollaborativeWallet() {
       />
     </ScreenWrapper>
   );
-}
+};
 
 const styles = StyleSheet.create({
   itemContainer: {
