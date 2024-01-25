@@ -380,7 +380,7 @@ function* recoverApp(
         if (parsedText) {
           const signers: VaultSigner[] = [];
           parsedText.signersDetails.forEach((config) => {
-            const { signer } = generateSignerFromMetaData({
+            const { key } = generateSignerFromMetaData({
               xpub: config.xpub,
               derivationPath: config.path,
               masterFingerprint: config.masterFingerprint,
@@ -388,7 +388,7 @@ function* recoverApp(
               storageType: SignerStorage.WARM,
               isMultisig: config.isMultisig,
             });
-            signers.push(signer);
+            signers.push(key);
           });
 
           const { xpubDetails } = getCosignerDetails(decrytpedWallet);
