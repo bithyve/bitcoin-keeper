@@ -458,7 +458,7 @@
     "keeperVault": "Keeper vault",
     "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.",
     "signingOldVault": "Old Vaults with the previous signer configuration will be in the archived list of Vaults",
-    "cvvSigningServerInfo": "If you lose your authenticator app, use the other signers to reset the Signing Server"
+    "cvvSigningServerInfo": "If you lose your authenticator app, use the other signers to reset the signer"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -523,11 +523,11 @@
   },
   "signingServer": {
     "choosePolicy": "Choose Policy",
-    "choosePolicySubTitle": "For the signing server",
+    "choosePolicySubTitle": "For the signer",
     "maxNoCheckAmt": "Max no-check amount",
-    "maxNoCheckAmtSubTitle": "The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code",
+    "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even w/o a 2FA verification code",
     "maxAllowedAmt": "Max allowed amount",
-    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
+    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it"
   },
   "settings": {
     "selectCurrency": "Select currency",

@@ -204,13 +204,13 @@ const getSignerContent = (
       return {
         Illustration: <SigningServerIllustration />,
         Instructions: isHealthcheck
-          ? ['A request to the signing server will be made to checks it health']
+          ? ['A request to the signer will be made to checks it health']
           : [
               `A 2FA authenticator will have to be set up to use this option.`,
-              `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
+              `On providing the correct code from the auth app, the signer will sign the transaction.`,
             ],
-        title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
-        subTitle: 'A Signing Server will hold one of the keys of the vault',
+        title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
+        subTitle: 'A signer will hold one of the keys of the vault',
         options: [],
       };
     case SignerType.SEEDSIGNER:
@@ -1121,7 +1121,7 @@ function HardwareModalMap({
             signerPolicy: response.policy,
           });
           if (mapped) {
-            showToast(`Signing Server verified successfully`, <TickIcon />);
+            showToast(`Signer verified successfully`, <TickIcon />);
           } else {
             showToast(`Something Went Wrong!`, <ToastErrorIcon />);
           }
@@ -1533,7 +1533,7 @@ function HardwareModalMap({
         }
         close={close}
         title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signing server"
+        subTitle="To complete setting up the signer"
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
         Content={fetchSigningServerSetup}

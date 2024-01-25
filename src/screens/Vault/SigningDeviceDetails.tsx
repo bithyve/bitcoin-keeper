@@ -138,7 +138,7 @@ const getSignerContent = (type: SignerType) => {
       return {
         title: 'Signing Server',
         subTitle:
-          'The key on the Signing Server will sign a transaction depending on the policy and authentication',
+          'The key on the signer will sign a transaction depending on the policy and authentication',
         assert: <SigningServerIllustration />,
         description:
           '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',

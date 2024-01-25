@@ -107,7 +107,7 @@ export const signTransactionWithSigningServer = async ({
       childIndexArray,
       outgoing
     );
-    if (!signedPSBT) throw new Error('signing server: failed to sign');
+    if (!signedPSBT) throw new Error('signer: failed to sign');
     return { signedSerializedPSBT: signedPSBT };
   } catch (error) {
     captureError(error);
