@@ -19,7 +19,7 @@ function UAIView({
         <Text style={styles.uaiMessageText} color={`${colorMode}.RussetBrown`}>
           {title}
         </Text>
-        <Text fontSize={14} color={`${colorMode}.primaryText`}>
+        <Text style={styles.uaiSubtitle} color={`${colorMode}.primaryText`} numberOfLines={2}>
           {subTitle}
         </Text>
       </Box>
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
   },
   uaiMessageWrapper: {
     width: '60%',
@@ -63,8 +63,14 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     fontSize: 12,
     width: '100%',
+    fontFamily: Fonts.FiraSansCondensedBold,
+    letterSpacing: 0.12,
+  },
+  uaiSubtitle: {
+    fontSize: 14,
     fontFamily: Fonts.FiraSansCondensedMedium,
-    letterSpacing: 0,
+    letterSpacing: 0.14,
+    width: '100%',
   },
   skipWrapper: {
     width: '16%',

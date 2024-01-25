@@ -405,7 +405,7 @@ function SignTransactionScreen() {
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Chose at least ${scheme.m} to sign the transaction`}
+        subtitle={`Choose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}

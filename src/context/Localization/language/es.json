@@ -417,7 +417,8 @@
   },
   "vault": {
     "SetupyourVault": "Setup a vault",
-    "configureScheme": "Configure your scheme",
+    "AddCustomMultiSig": "Add Custom MultiSig",
+    "configureScheme": "Create an m-of-n multisig vault",
     "VaultDesc": "A signer is an an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",
@@ -432,8 +433,8 @@
     "VaultCreationDesc": "Your Basic vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View vault",
     "AddNow": "Add Now",
-    "SelectSigner": "Select a signers",
-    "ForVault": "For your vault",
+    "SelectSigner": "Select a Signer",
+    "SelectSignerSubtitle": "To store one private key",
     "VaultInfo": "A signer can be a hardware wallet or a signer or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
@@ -455,7 +456,7 @@
     "keeperVault": "Keeper vault",
     "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.",
     "signingOldVault": "Old Vaults with the previous signer configuration will be in the archived list of Vaults",
-    "cvvSigningServerInfo": "If you lose your authenticator app, use the other signers to reset the Signing Server"
+    "cvvSigningServerInfo": "If you lose your authenticator app, use the other signers to reset the signer"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -469,7 +470,7 @@
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Backup Phrase",
-    "backupPhrase": "Backup Phrase",
+    "backupPhrase": "Recovery Key",
     "enterRecoveryPhrase": "Recover an existing Keeper App",
     "enterRecoveryPhraseSubTitle": "Enter existing 12-word recovery phrase below",
     "enterRecoveryPhraseNote": "Make sure to use the 12-word recovery phrase in private",
@@ -496,7 +497,7 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Keep your Coldcard ready",
+    "SetupTitle": "Setting up Coldcard",
     "SetupDescription": "Keep your Coldcard ready before proceeding"
   },
   "ledger": {
@@ -518,11 +519,11 @@
   },
   "signingServer": {
     "choosePolicy": "Choose Policy",
-    "choosePolicySubTitle": "For the signing server",
+    "choosePolicySubTitle": "For the signer",
     "maxNoCheckAmt": "Max no-check amount",
-    "maxNoCheckAmtSubTitle": "The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code",
+    "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even w/o a 2FA verification code",
     "maxAllowedAmt": "Max allowed amount",
-    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
+    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it"
   },
   "settings": {
     "selectCurrency": "Select currency",
@@ -534,6 +535,8 @@
     "VersionHistorySubTitle": "View the app's version history",
     "LanguageCountry": "Language & Currency",
     "LanguageCountrySubTitle": "Select language and currency",
+    "CurrencyDefaults": "Currency Defaults",
+    "CurrencyDefaultsSubtitle": "Set preferred defaults",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
     "Questionsfeedbackandmore": "Questions, feedback and more",
     "biometricsDesc": "Select app settings",
@@ -556,6 +559,8 @@
     "walletSettings": "Wallet Settings",
     "walletSettingsSub": "Your wallet settings & preferences",
     "walletSettingSubTitle": "Setting for the wallet only",
+    "BackupSettings": "Backup Settings",
+    "BackupSettingSubTitle": "Setting your backup",
     "AppInfo": "App Info",
     "AppInfoSub": "Hexa app version number and details",
     "Disconnectyour": "Disconnect your own node and connect to Hexa node",
@@ -574,6 +579,8 @@
     "ChangeCurrency": "Currency & Language",
     "Chooseyourcurrency": "Choose your currency & language",
     "AlternateCurrency": "Alternate Currency",
+    "FiatCurrency": "Fiat Currency",
+    "Seebalance": "See balance in your local fiat currency",
     "LanguageSettings": "Language Settings",
     "Chooseyourlanguage": "Choose your language preference",
     "HelpUstranslate": "Help us translate better",
@@ -596,8 +603,9 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition",
     "nodeSettings": "Node Settings",
     "nodeSettingsSubtitle": "Configure your node settings",
-    "PrivacyAndDisplay": "Privacy & Display",
-    "PrivacySettingsSubtitle": "Dark mode and biometrics",
+    "SecurityAndLogin": "Security & Login",
+    "SecurityAndLoginSubtitle": "App improvement and ease of access",
+    "AppLevelSettings": "App-level settings",
     "nodeSettingUsedSoFar": "Node settings used so far",
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
@@ -618,7 +626,7 @@
     "ManageWallets": "Manage Wallets",
     "ManageWalletsSub": "Hide wallets and unhide them.",
     "settingsSubTitle": "Customize your app",
-    "appBackup": "App Backup",
+    "appBackup": "Recovery Key",
     "torSettingTitle": "Tor Settings",
     "torSettingSubTitle": "Configure in-app Tor and Orbot",
     "keeperTelegram": "Keeper Telegram",
@@ -639,11 +647,11 @@
     "networkSettings": "Network Settings",
     "networkSettingSubTitle": "Node and Tor in Network Setting",
     "networkSettingConfigSubTitle": "Configure your node and tor settings",
-    "satsModeSubTitle": "Use Sats mode to see balance in sats",
+    "satsModeSubTitle": "Enable to see balance in sats",
     "shareAnalytics": "Share Analytics & App Data",
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
-    "changePasscodeDescription": "Change Passcode Description"
+    "changePasscodeDescription": "Easy to remember; hard to guess"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -718,6 +726,7 @@
     "walletBalance": "When the wallet balance crosses this amount, a transfer to the vault is initiated for user approval",
     "IWNoteDescription": "Make sure that the QR is well aligned, focused and visible as a whole",
     "scanSeedWord": "Scan your seed words/Backup Phrase",
+    "usingWalletConfigurationFile": "Using wallet configuration file",
     "uploadFromGallery": "Upload from gallery",
     "AddImportModalTitle": "Add or Import Wallet",
     "AddImportModalSubTitle": "Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them",
@@ -732,6 +741,7 @@
   },
   "signer": {
     "addSigner": "Add Signer",
-    "addSignerSubTitle": "to Valinor"
+    "addSignerSubTitle": "to Valinor",
+    "addSigners": "Add Signers"
   }
 }

@@ -197,7 +197,7 @@ function NewHomeScreen({ navigation }) {
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Security & Inheritance Tools',
+      name: 'Inheritance and Security Tools',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
