@@ -10,7 +10,7 @@ export const TopSection = ({ colorMode, top, cardsData }) => (
     backgroundColor={`${colorMode}.primaryGreenBackground`}
     style={[styles.wrapper, { paddingTop: top }]}
   >
-    <Box width={'100%'} style={styles.padding}>
+    <Box width={'90%'} style={styles.padding}>
       <HeaderDetails />
     </Box>
     <Box style={styles.actionContainer}>

@@ -314,7 +314,7 @@
     "ImportAWallet": "Import a Wallet",
     "AddNewWalletDescription": "Name and description for the wallet",
     "WalletNamePlaceHolder": "Enter wallet name",
-    "WalletDescriptionPlaceholder": "Enter wallet description",
+    "WalletDescriptionPlaceholder": "Add a description (Optional)",
     "AutoTransferInitiated": "Auto transfer initiated at (optional)",
     "AutoTransferInitiatedDesc": "When the wallet balance crosses the amount specified here, a transaction for transferring sats from the wallet to the vault is initiated for user approval",
     "TransferSuccessful": "Transfer Successful!",

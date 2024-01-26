@@ -286,7 +286,7 @@ function AddSigningDevice() {
   };
   const {
     name = 'Vault',
-    description = 'Secure your sats',
+    description = '',
     isInheritance = false,
     vaultId = '',
     scheme,
