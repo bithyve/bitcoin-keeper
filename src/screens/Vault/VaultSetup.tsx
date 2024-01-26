@@ -124,7 +124,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
       />
       <VStack style={{ margin: 20, flex: 1 }}>
         <KeeperTextInput
-          placeholder="Vault name"
+          placeholder="Name your vault"
           value={vaultName}
           onChangeText={(value) => {
             if (vaultName === 'Vault') {

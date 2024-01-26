@@ -47,6 +47,13 @@ export const securityTips = [
     assert: <LoadingAnimation />,
     message: 'Testing out your setup before using it is always a good idea',
   },
+  {
+    title: 'Security Tip',
+    subTitle: 'Check the send-to address on a signer you are going to use to sign the transaction.',
+    assert: <LoadingAnimation />,
+    message:
+      'This ensures that the signed transaction has the intended recipient and the address was not swapped',
+  },
 ];
 export const getSecurityTip = () => {
   const selected = Math.floor(Math.random() * securityTips.length); // Comment for creating wallet modal WP
