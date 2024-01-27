@@ -42,7 +42,7 @@ function WalletInfoCard({
       <Box style={styles.detailContainer}>
         <HexagonIcon width={44} height={38} backgroundColor={Colors.DarkGreen} icon={icon} />
         <Box>
-          <Text color={`${colorMode}.white`} numberOfLines={1}>
+          <Text fontSize={12} color={`${colorMode}.white`} numberOfLines={1}>
             {walletDescription}
           </Text>
           <Text color={`${colorMode}.white`} bold style={{ fontSize: 14 }} numberOfLines={1}>

@@ -161,11 +161,7 @@ function TransactionList({
         keyExtractor={(item) => item.txid}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <EmptyStateView
-            IllustartionImage={NoTransactionIcon}
-            title={common.noTransYet}
-            subTitle={common.pullDownRefresh}
-          />
+          <EmptyStateView IllustartionImage={NoTransactionIcon} title={common.noTransYet} />
         }
       />
     </>

@@ -564,7 +564,7 @@ function SendConfirmation({ route }) {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
-  const [subTitle, setSubTitle] = useState('Choose priority and fee');
+  const [subTitle, setSubTitle] = useState('Review the transaction setup');
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
@@ -732,7 +732,11 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={title} subtitle={subTitle} rightComponent={<CurrencyTypeSwitch />} />
+      <KeeperHeader
+        title={'Send Confirmation'}
+        subtitle={subTitle}
+        rightComponent={<CurrencyTypeSwitch />}
+      />
       <ScrollView marginX={7} flex={1} showsVerticalScrollIndicator={false}>
         <SendingCard
           isSend
