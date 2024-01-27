@@ -1,19 +1,20 @@
 import React from 'react';
-import { StatusBar, StyleSheet } from 'react-native';
-import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
+import { StyleSheet } from 'react-native';
+import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
-import Text from 'src/components/KeeperText';
 import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import SignerIcon from 'src/assets/images/signer_white.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { globalStyles } from 'src/constants/globalStyles';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 const ManageSigners = ({ route }: ScreenProps) => {
@@ -22,10 +23,6 @@ const ManageSigners = ({ route }: ScreenProps) => {
   const { vaultId = '', vaultKeys = [] } = route.params || {};
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
-
-  const handleLearnMorePressed = () => {
-    //TODO: Implement learn more action
-  };
 
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
@@ -42,9 +39,19 @@ const ManageSigners = ({ route }: ScreenProps) => {
   };
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.learnMoreBorder`}>
-      <StatusBar barStyle="light-content" />
-      <HeaderSection colorMode={colorMode} handleLearnMorePressed={handleLearnMorePressed} />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
+        title={'Manage Signers'}
+        subtitle={'Add, remove, change or check on signers'}
+        icon={
+          <HexagonIcon
+            width={44}
+            height={38}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<VaultIcon />}
+          />
+        }
+      />
       <SignersList
         colorMode={colorMode}
         vaultKeys={vaultKeys}
@@ -53,39 +60,9 @@ const ManageSigners = ({ route }: ScreenProps) => {
         handleCardSelect={handleCardSelect}
         handleAddSigner={handleAddSigner}
       />
-    </Box>
+    </ScreenWrapper>
   );
 };
-
-const HeaderSection = ({ colorMode, handleLearnMorePressed }) => (
-  <Box style={styles.header}>
-    <KeeperHeader learnMore learnMorePressed={handleLearnMorePressed} contrastScreen={true} />
-    <VStack paddingBottom={10} paddingLeft={5}>
-      <HStack alignItems="center">
-        <Box style={styles.iconWrapper} backgroundColor={`${colorMode}.RussetBrown`}>
-          <SignerIcon />
-        </Box>
-        <VStack>
-          <Text
-            color={`${colorMode}.white`}
-            style={[styles.infoText, globalStyles.font18]}
-            testID={'text_vaultName'}
-          >
-            {'Manage Signers'}
-          </Text>
-          <Text
-            color={`${colorMode}.white`}
-            style={[styles.infoText, globalStyles.font14]}
-            testID={'text_vaultDescription'}
-            numberOfLines={2}
-          >
-            {'Add, remove, change or check on signers'}
-          </Text>
-        </VStack>
-      </HStack>
-    </VStack>
-  </Box>
-);
 
 const SignersList = ({
   colorMode,
@@ -95,9 +72,9 @@ const SignersList = ({
   handleCardSelect,
   handleAddSigner,
 }) => (
-  <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.body}>
-    <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-      <Box style={styles.signerContainer}>
+  <VStack style={styles.signerContainer}>
+    <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <Box style={styles.addedSignersContainer}>
         {(vaultKeys.length ? vaultKeys : signers).map((item) => {
           const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
           return (
@@ -109,56 +86,30 @@ const SignersList = ({
               icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
               isSelected={false}
               showSelection={false}
-              colorVarient="green"
             />
           );
         })}
-        <AddCard name={'Add Signer'} cardStyles={styles.addCard} callback={handleAddSigner} />
       </Box>
+      <AddCard name={'Add Signer'} cardStyles={styles.addCard} callback={handleAddSigner} />
     </ScrollView>
   </VStack>
 );
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: '10%',
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 15,
-    flex: 0.6,
-  },
-  body: {
-    flex: 1,
-    paddingHorizontal: '5%',
+  signerContainer: {
+    marginTop: 30,
   },
   scrollContainer: {
-    marginTop: '-20%',
+    gap: 40,
   },
-  signerContainer: {
-    width: windowWidth,
+  addedSignersContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingBottom: 20,
-  },
-  infoText: {
-    letterSpacing: 1.28,
-    maxWidth: windowWidth * 0.6,
   },
   addCard: {
     height: 125,
     width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
-  },
-  iconWrapper: {
-    width: 50,
-    height: 50,
-    borderRadius: 50 / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 25,
-    margin: 10,
   },
 });
 
