@@ -9,6 +9,8 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import idx from 'idx';
 export const WalletsList = ({ allWallets, navigation, totalBalance }) => (
   <Box style={styles.valueWrapper}>
     <BalanceComponent count={allWallets.length} balance={totalBalance} />
@@ -60,12 +62,22 @@ const handleWalletPress = (wallet, navigation) => {
 };
 
 const getWalletTags = (wallet) => {
-  return wallet.entityKind === EntityKind.VAULT
-    ? [
-        `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
-        `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
-      ]
-    : ['SINGLE SIG', `${wallet.type === WalletType.DEFAULT ? 'HOT WALLET' : 'WATCH ONLY'}`];
+  if (wallet.entityKind === EntityKind.VAULT) {
+    return [
+      `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
+      `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
+    ];
+  } else {
+    let walletKind;
+    if (wallet.type === WalletType.DEFAULT) walletKind = 'HOT WALLET';
+    else if (wallet.type === WalletType.IMPORTED) {
+      const isWatchOnly = idx(wallet as Wallet, (_) => _.specs.xpriv) ? false : true;
+      if (isWatchOnly) walletKind = 'WATCH ONLY';
+      else walletKind = 'IMPORTED WALLET';
+    }
+
+    return ['SINGLE SIG', walletKind];
+  }
 };
 
 const getWalletIcon = (wallet) => {
