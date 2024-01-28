@@ -5,11 +5,11 @@ import DotView from 'src/components/DotView';
 import moment from 'moment';
 import { Signer } from 'src/core/wallets/interfaces/vault';
 
-function SigningDeviceChecklist({ signer }: { signer: Signer }) {
+function SigningDeviceChecklist({ item }: { item: Signer }) {
   const { colorMode } = useColorMode();
   return (
     <Box padding={1}>
-      {signer && (
+      {item && (
         <Box
           padding={1}
           borderLeftColor={`${colorMode}.RussetBrownLight`}
@@ -32,7 +32,7 @@ function SigningDeviceChecklist({ signer }: { signer: Signer }) {
             Health Check Successful
           </Text>
           <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
-            {moment(signer?.lastHealthCheck).calendar()}
+            {moment(item?.lastHealthCheck).calendar()}
           </Text>
         </Box>
       )}

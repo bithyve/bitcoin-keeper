@@ -355,7 +355,7 @@ function* addNewWallet(
         type: WalletType.DEFAULT,
         instanceNum: defaultWalletInstacnes, // zero-indexed
         walletName: walletName || 'Default Wallet',
-        walletDescription: walletDescription || 'Bitcoin Wallet',
+        walletDescription: walletDescription || '',
         derivationConfig,
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
@@ -368,7 +368,7 @@ function* addNewWallet(
         type: WalletType.IMPORTED,
         instanceNum: null, // bip-85 instance number is null for imported wallets
         walletName: walletName || 'Imported Wallet',
-        walletDescription: walletDescription || 'Bitcoin Wallet',
+        walletDescription: walletDescription || '',
         importDetails,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
@@ -381,7 +381,7 @@ function* addNewWallet(
         type: WalletType.PRE_MIX,
         instanceNum, // deposit account's index
         walletName: 'Pre mix Wallet',
-        walletDescription: 'Bitcoin Wallet',
+        walletDescription: '',
         derivationConfig,
         networkType: config.NETWORK_TYPE,
         parentMnemonic,
@@ -393,7 +393,7 @@ function* addNewWallet(
         type: WalletType.POST_MIX,
         instanceNum, // deposit account's index
         walletName: 'Post mix Wallet',
-        walletDescription: 'Bitcoin Wallet',
+        walletDescription: '',
         derivationConfig,
         networkType: config.NETWORK_TYPE,
         parentMnemonic,
@@ -405,7 +405,7 @@ function* addNewWallet(
         type: WalletType.BAD_BANK,
         instanceNum, // deposit account's index
         walletName: 'Bad Bank Wallet',
-        walletDescription: 'Bitcoin Wallet',
+        walletDescription: '',
         derivationConfig,
         networkType: config.NETWORK_TYPE,
         parentMnemonic,

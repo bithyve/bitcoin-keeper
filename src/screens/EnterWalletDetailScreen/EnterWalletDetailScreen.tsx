@@ -165,7 +165,7 @@ function EnterWalletDetailScreen({ route }) {
           placeholderTextColor={`${colorMode}.GreyText`}
           value={path}
           onChangeText={(value) => {
-            setPath(value)
+            setPath(value);
           }}
           style={styles.inputField}
           width={wp(260)}
@@ -210,12 +210,11 @@ function EnterWalletDetailScreen({ route }) {
             value={walletName}
             onChangeText={(value) => {
               if (route.params?.name === walletName) {
-                setWalletName('')
-                return
+                setWalletName('');
+                return;
               }
-              setWalletName(value)
-            }
-            }
+              setWalletName(value);
+            }}
             style={styles.inputField}
             width={wp(260)}
             autoCorrect={false}
@@ -236,12 +235,11 @@ function EnterWalletDetailScreen({ route }) {
             value={walletDescription}
             onChangeText={(value) => {
               if (route.params?.description === walletDescription) {
-                setWalletDescription('')
-                return
+                setWalletDescription('');
+                return;
               }
-              setWalletDescription(value)
-            }
-            }
+              setWalletDescription(value);
+            }}
             style={styles.inputField}
             width={wp(260)}
             autoCorrect={false}
@@ -343,7 +341,7 @@ function EnterWalletDetailScreen({ route }) {
             }}
             primaryText={`${common.create}`}
             primaryCallback={createNewWallet}
-            primaryDisable={!walletName || !walletDescription}
+            primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
         </View>
@@ -351,7 +349,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => { }}
+        close={() => {}}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"

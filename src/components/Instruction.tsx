@@ -12,6 +12,9 @@ export function Instruction({ text }: { text: string }) {
         backgroundColor={`${colorMode}.greenText`}
         //  style={styles.bulletPoint}
       />
+      <Text bold fontSize={24}>
+        •
+      </Text>
       <Text color={`${colorMode}.greenText`} style={styles.infoText}>
         {text}
       </Text>
@@ -25,6 +28,9 @@ const styles = StyleSheet.create({
   bulletContainer: {
     marginTop: 4,
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
   },
   bulletPoint: {
     marginRight: wp(5),

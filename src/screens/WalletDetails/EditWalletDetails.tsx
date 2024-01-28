@@ -60,18 +60,18 @@ function EditWalletSettings({ route }) {
       <KeeperHeader title={walletText.WalletDetails} subtitle={walletText.EditWalletDeatils} />
       <View style={styles.inputWrapper}>
         <KeeperTextInput
-          value={walletDescription}
-          onChangeText={setWalletDescription}
-          placeholder={''}
-          testID={'walletDescription'}
-          maxLength={40}
-        />
-        <KeeperTextInput
           value={walletName}
           onChangeText={setWalletName}
           placeholder={''}
           testID={'walletName'}
           maxLength={20}
+        />
+        <KeeperTextInput
+          value={walletDescription}
+          onChangeText={setWalletDescription}
+          placeholder={walletText.WalletDescriptionPlaceholder}
+          testID={'walletDescription'}
+          maxLength={40}
         />
         <View style={styles.buttonWrapper}>
           <Buttons
@@ -82,7 +82,7 @@ function EditWalletSettings({ route }) {
             primaryText="Save"
             primaryCallback={editWallet}
             primaryLoading={relayWalletUpdateLoading || relayWalletUpdate}
-            primaryDisable={!walletName || !walletDescription}
+            primaryDisable={!walletName}
           />
         </View>
       </View>

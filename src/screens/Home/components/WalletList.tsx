@@ -4,7 +4,7 @@ import { Box } from 'native-base';
 import AddCard from 'src/components/AddCard';
 import BalanceComponent from './BalanceComponent';
 import WalletInfoCard from './WalletInfoCard';
-import { EntityKind, VaultType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
@@ -62,10 +62,10 @@ const handleWalletPress = (wallet, navigation) => {
 const getWalletTags = (wallet) => {
   return wallet.entityKind === EntityKind.VAULT
     ? [
-        `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
         `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
+        `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
       ]
-    : ['SINGLE SIG', wallet.type];
+    : ['SINGLE SIG', `${wallet.type === WalletType.DEFAULT ? 'HOT WALLET' : 'WATCH ONLY'}`];
 };
 
 const getWalletIcon = (wallet) => {

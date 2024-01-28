@@ -22,6 +22,9 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import useVault from 'src/hooks/useVault';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
 
 const { width } = Dimensions.get('screen');
 
@@ -179,6 +182,14 @@ const Footer = ({
         </Box>
       );
     }
+    notes.push(
+      <Box style={styles.noteContainer}>
+        <Note
+          title="Note"
+          subtitle="You can easily change one or more signers after the vault is setup"
+        />
+      </Box>
+    );
     return notes;
   };
   return (
@@ -241,7 +252,7 @@ const Signers = ({
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
-        {renderSigners()}
+        <Box style={styles.addedSigners}>{renderSigners()}</Box>
         <AddCard
           name={'Add Signer'}
           cardStyles={styles.addCard}
@@ -275,7 +286,7 @@ function AddSigningDevice() {
   };
   const {
     name = 'Vault',
-    description = 'Secure your sats',
+    description = '',
     isInheritance = false,
     vaultId = '',
     scheme,
@@ -283,7 +294,7 @@ function AddSigningDevice() {
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, signer } = translations;
   const { signers } = useSigners();
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
@@ -300,7 +311,6 @@ function AddSigningDevice() {
     setInitialKeys(activeVault, scheme, signerMap, setVaultKeys, setSelectedSigners);
   }, []);
 
-  const preTitle = 'Add vault signers';
   const subtitle =
     scheme.n > 1
       ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
@@ -318,9 +328,24 @@ function AddSigningDevice() {
     }
   }
 
+  //TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={`${preTitle}`} subtitle={subtitle} />
+      <KeeperHeader
+        title={signer.addSigners}
+        subtitle={subtitle}
+        icon={
+          <HexagonIcon
+            width={44}
+            height={38}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<VaultIcon />}
+          />
+        }
+        learnMore
+        learnBackgroundColor={`${colorMode}.RussetBrown`}
+        learnTextColor={`${colorMode}.white`}
+      />
       <VaultMigrationController
         vaultCreating={vaultCreating}
         setCreating={setCreating}
@@ -366,6 +391,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginBottom: hp(25),
   },
+  addedSigners: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -380,6 +409,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     paddingHorizontal: 15,
+    gap: 20,
   },
   noteContainer: {
     width: wp(330),
@@ -405,9 +435,9 @@ const styles = StyleSheet.create({
   },
   signerContainer: {
     width: windowWidth,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    gap: 40,
     paddingBottom: 20,
+    marginTop: 20,
   },
   addCard: {
     height: 125,

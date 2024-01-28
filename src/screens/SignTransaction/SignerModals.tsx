@@ -363,7 +363,7 @@ function OtpContent({ signTransaction }) {
           color="light.greenText"
           marginTop={2}
         >
-          If you lose your authenticator app, use the other signers to reset the Signing Server
+          If you lose your authenticator app, use the other signers to reset the signer
         </Text>
         <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
@@ -596,7 +596,7 @@ function SignerModals({
                 showOTPModal(false);
               }}
               title="Confirm OTP to sign transaction"
-              subTitle="To sign using signing server key"
+              subTitle="To sign using signer key"
               textColor="light.primaryText"
               Content={() => <OtpContent signTransaction={signTransaction} />}
             />

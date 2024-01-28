@@ -151,7 +151,7 @@ function SetupSigningServer({ route }: { route }) {
     <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
-        <KeeperHeader title="Set up 2FA for Signing Server" subtitle="Scan on any 2FA auth app" />
+        <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
         {validationKey === '' ? (
@@ -182,7 +182,7 @@ function SetupSigningServer({ route }: { route }) {
                 width="100%"
                 numberOfLines={1}
               >
-                2FA Signing Server
+                2FA signer
               </Text>
             </Box>
             <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
@@ -246,7 +246,7 @@ function SetupSigningServer({ route }: { route }) {
           showValidationModal(false);
         }}
         title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signing server"
+        subTitle="To complete setting up the signer"
         textColor="light.primaryText"
         Content={otpContent}
       />

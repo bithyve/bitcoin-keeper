@@ -131,6 +131,9 @@ export const customTheme = extendTheme({
       LightBrown: Colors.LightBrown,
       PearlWhite: Colors.PearlWhite,
       PaleTurquoise: Colors.PaleTurquoise,
+      PaleIvory: Colors.PaleIvory,
+      DarkSage: Colors.DarkSage,
+      Smoke: Colors.Smoke,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -212,6 +215,9 @@ export const customTheme = extendTheme({
       LightBrown: Colors.LightBrown,
       PearlWhite: Colors.PearlWhite,
       PaleTurquoise: Colors.PaleTurquoise,
+      PaleIvory: Colors.PaleIvory,
+      DarkSage: Colors.DarkSage,
+      Smoke: Colors.Smoke,
     },
   },
   config: {

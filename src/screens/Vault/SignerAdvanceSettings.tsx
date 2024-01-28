@@ -363,7 +363,7 @@ function SignerAdvanceSettings({ route }: any) {
           {signerVaults.map((vault) => (
             <ActionCard
               key={vault.id}
-              description={vault.presentationData.description || 'Secure your sats'}
+              description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
               callback={() => {}}

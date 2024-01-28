@@ -205,10 +205,10 @@ function SendScreen({ route }) {
         style={{ marginRight: wp(10) }}
         width={wp(60)}
       >
-        <TouchableOpacity onPress={onPress} style={styles.buttonBackground}>
+        <TouchableOpacity onPress={onPress}>
           <HexagonIcon
-            width={44}
-            height={38}
+            width={42}
+            height={36}
             backgroundColor={Colors.RussetBrown}
             icon={getWalletIcon(item)}
           />
@@ -350,14 +350,6 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(10),
     paddingHorizontal: wp(25),
     marginTop: hp(5),
-  },
-  buttonBackground: {
-    backgroundColor: '#FAC48B',
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   noteWrapper: {
     marginLeft: wp(20),
