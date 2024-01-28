@@ -6,9 +6,11 @@ import SettingIcon from 'src/assets/images/settings_footer.svg';
 
 import KeeperFooter from 'src/components/KeeperFooter';
 import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
+import idx from 'idx';
 
 function TransactionFooter({ currentWallet }) {
   const navigation = useNavigation();
+  const isWatchOnly = idx(currentWallet, (_) => _.specs.xpriv) ? false : true;
 
   const footerItems = [
     {
@@ -32,6 +34,7 @@ function TransactionFooter({ currentWallet }) {
     },
   ];
 
+  if (isWatchOnly) footerItems.shift(); // disabling send flow for watch-only wallets
   return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
 
