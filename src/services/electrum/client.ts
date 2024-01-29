@@ -13,10 +13,11 @@ import { NetworkType } from 'src/core/wallets/enums';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
+import { cryptoRandom } from '../operations/encryption';
 
 function shufflePeers(peers) {
   for (let i = peers.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(cryptoRandom() * (i + 1));
     [peers[i], peers[j]] = [peers[j], peers[i]];
   }
   return peers;
