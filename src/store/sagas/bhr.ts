@@ -154,11 +154,12 @@ export function* updateVaultImageWorker({
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
-    Relay.updateVaultImage({
+    const response = Relay.updateVaultImage({
       isUpdate,
       vaultId: vault.id,
       vault: vaultEncrypted,
     });
+    return response;
   }
 
   const signersData: Array<{
