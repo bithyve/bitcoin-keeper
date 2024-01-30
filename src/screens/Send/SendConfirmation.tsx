@@ -1,6 +1,6 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
+import { StyleSheet, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
+import moment from 'moment';
+import { Box, View, useColorMode, ScrollView, Center } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -9,21 +9,26 @@ import {
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import BTC from 'src/assets/images/btc_grey.svg';
 import BitcoinUnit from 'src/models/enums/BitcoinUnit';
+import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
+import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletIcon from 'src/assets/images/icon_wallet.svg';
-import VaultIcon from 'src/assets/images/icon_vault2.svg';
-import moment from 'moment';
+import WalletIcon from 'src/assets/images/wallet_hexa.svg';
+import VaultIcon from 'src/assets/images/wallet_vault.svg';
+import Checked from 'src/assets/images/check.svg';
+import BTC from 'src/assets/images/btc_grey.svg';
+import LabelImg from 'src/assets/images/labels.svg';
+
+import SuccessIcon from 'src/assets/images/successSvg.svg';
+
 import {
   crossTransferReset,
   customPrioritySendPhaseOneReset,
@@ -49,6 +54,9 @@ import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import CustomPriorityModal from './CustomPriorityModal';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import ActionCard from 'src/components/ActionCard';
+import SignerCard from '../AddSigner/SignerCard';
+import AddCard from 'src/components/AddCard';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -69,12 +77,13 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       backgroundColor={`${colorMode}.seashellWhite`}
       flexDirection="row"
       padding={windowHeight * 0.019}
+      alignItems={'center'}
     >
       <Box
-        backgroundColor="light.accent"
-        height={10}
-        width={10}
-        borderRadius={20}
+        // backgroundColor="light.accent"
+        // height={10}
+        // width={10}
+        // borderRadius={20}
         justifyContent="center"
         alignItems="center"
       >
@@ -82,11 +91,11 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       </Box>
       <Box marginLeft={3}>
         <Text
-          color={`${colorMode}.greenText2`}
-          fontSize={14}
+          // color={`${colorMode}.greenText2`}
+          fontSize={12}
           letterSpacing={1.12}
           numberOfLines={showFullAddress ? 2 : 1}
-          maxWidth={200}
+          maxWidth={85}
         >
           {title}
         </Text>
@@ -232,12 +241,29 @@ function TextValue({ amt, getValueIcon }) {
     <Text
       style={{
         ...styles.priorityTableText,
-        flex: 1,
-        textAlign: 'right',
       }}
     >
       {amt} {getValueIcon() === 'sats' ? 'sats' : '$'}
     </Text>
+  );
+}
+
+function DeductAmount({ isSelected = true }) {
+  return (
+    <Box
+      flexDirection={'row'}
+      backgroundColor={'rgba(253, 247, 240, 1)'}
+      height={50}
+      alignItems={'center'}
+      paddingLeft={5}
+      marginTop={50}
+      borderRadius={10}
+    >
+      <Box paddingRight={2}>
+        {isSelected ? <Checked style={{ alignSelf: 'flex-end' }} /> : <Box style={styles.circle} />}
+      </Box>
+      <Text>Deduct Fees from Amount</Text>
+    </Box>
   );
 }
 
@@ -255,24 +281,7 @@ function SendingPriority({
   const { colorMode } = useColorMode();
   return (
     <Box>
-      {/* <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} /> */}
-      <Box flexDirection="row" justifyContent="space-between" width="90%">
-        <Box
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingVertical: 10,
-            marginHorizontal: 20,
-            width: '100%',
-          }}
-        >
-          <Text style={styles.headingLabelText}>Priority</Text>
-          <Text style={styles.headingLabelText}>Arrival Time</Text>
-          <Text style={styles.headingLabelText}>Fees</Text>
-        </Box>
-      </Box>
-
-      <Box mt={hp(1)} width="100%">
+      <Box flexDirection={'row'}>
         {availableTransactionPriorities?.map((priority) => {
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
             return (
@@ -282,42 +291,27 @@ function SendingPriority({
                   setTransactionPriority(priority);
                 }}
               >
-                <Box
-                  style={styles.priorityRowContainer}
-                  opacity={transactionPriority === priority ? 1 : 0.5}
-                  backgroundColor={`${colorMode}.seashellWhite`}
-                >
-                  <Box style={styles.priorityBox}>
-                    <RadioButton
-                      size={20}
-                      isChecked={transactionPriority === priority}
-                      borderColor="#74837F"
-                      onpress={() => {
-                        setTransactionPriority(priority);
-                      }}
-                    />
-                    <Text
-                      style={{
-                        ...styles.priorityTableText,
-                        marginLeft: 12,
-                        fontStyle: 'normal',
-                      }}
-                    >
-                      {String(priority)}
-                    </Text>
-                  </Box>
-                  <Text
-                    style={{
-                      ...styles.priorityTableText,
-                      flex: 1,
+                <Box>
+                  <SignerCard
+                    titleComp={
+                      <TextValue
+                        amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
+                        unit={{
+                          bitcoinUnit: BitcoinUnit.SATS,
+                        }}
+                      />
+                    }
+                    isSelected={transactionPriority === priority}
+                    key={priority}
+                    name={String(priority)}
+                    description={`~${
+                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                    } mins`}
+                    onCardSelect={() => setTransactionPriority(priority)}
+                    customStyle={{
+                      width: windowWidth / 3.4 - windowWidth * 0.05,
+                      opacity: transactionPriority === priority ? 1 : 0.5,
                     }}
-                  >
-                    ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10}{' '}
-                    mins
-                  </Text>
-                  <TextValue
-                    amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
-                    getValueIcon={getSatUnit}
                   />
                 </Box>
               </TouchableOpacity>
@@ -325,18 +319,13 @@ function SendingPriority({
           }
         })}
       </Box>
-      <TouchableOpacity onPress={setVisibleCustomPriorityModal}>
-        <Box
-          backgroundColor={`${colorMode}.lightAccent`}
-          borderColor={`${colorMode}.coffeeBackground`}
-          style={styles.addTransPriority}
-        >
-          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
-          <Text style={[styles.addPriorityText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>
-            {walletTranslation.addCustomPriority}
-          </Text>
-        </Box>
-      </TouchableOpacity>
+      <AddCard
+        cardStyles={{ width: windowWidth / 3.4 - windowWidth * 0.05, marginTop: 5 }}
+        name="Custom Priority"
+        callback={setVisibleCustomPriorityModal}
+      />
+      {/* -------------- TODO Pratyaksh---------- */}
+      <DeductAmount isSelected={true} />
     </Box>
   );
 }
@@ -379,10 +368,38 @@ function SendSuccessfulContent() {
   const { wallet: walletTransactions } = translations;
   return (
     <View>
-      <Box alignSelf="center">
-        <SuccessIcon />
+      {/* ------------TODO @Pratyaksh ----------- */}
+      <Box flexDirection={'row'}>
+        <Box width={'50%'} marginRight={2}>
+          <Text>Sent To</Text>
+          <Card showFullAddress title={'3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5'} />
+        </Box>
+        <Box width={'50%'}>
+          <Text>Sent From</Text>
+          <Card isVault title={'Valinor'} subTitle={'$ 37,896.80'} />
+        </Box>
       </Box>
-      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
+      <AmountDetails
+        title={walletTransactions.totalAmount}
+        fiatAmount={'10,000.00'}
+        // satsAmount={getBalance(amount)}
+      />
+      <AmountDetails
+        title={walletTransactions.totalFees}
+        fiatAmount={'80.00'}
+        // satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+      />
+      <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
+      <AmountDetails
+        title={walletTransactions.total}
+        fiatAmount={'10,080.00'}
+        // satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        fontSize={17}
+        fontWeight={'400'}
+      />
+      <AddLabel />
+
+      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2} marginTop={5}>
         {walletTransactions.sendTransSuccessMsg}
       </Text>
     </View>
@@ -454,32 +471,25 @@ function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance
     </Box>
   );
 }
-function AmountDetails(props) {
+
+function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) {
   return (
-    <Box style={styles.amountDetailsWrapper}>
+    <Box justifyContent={'space-between'} style={[styles.amountDetailsWrapper]}>
       <Box style={styles.amtDetailsTitleWrapper}>
-        <Text
-          style={[
-            styles.amtDetailsText,
-            { fontSize: props.fontSize, fontWeight: props.fontWeight },
-          ]}
-        >
-          {props.title}
+        <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
+          {title}
         </Text>
       </Box>
       <Box style={styles.amtFiatSatsTitleWrapper}>
-        <Text
-          style={[
-            styles.amtDetailsText,
-            { fontSize: props.fontSize, fontWeight: props.fontWeight },
-          ]}
-        >
-          {props.fiatAmount}
+        <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
+          {fiatAmount}
         </Text>
       </Box>
-      <Box style={styles.amtFiatSatsTitleWrapper}>
-        <Text style={styles.amtDetailsText}>{props.satsAmount}</Text>
-      </Box>
+      {satsAmount && (
+        <Box style={styles.amtFiatSatsTitleWrapper}>
+          <Text style={styles.amtDetailsText}>{satsAmount}</Text>
+        </Box>
+      )}
     </Box>
   );
 }
@@ -496,17 +506,47 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
           <Text style={styles.highAlertFiatFee}>{selectedFee}&nbsp;&nbsp;</Text>
-          <Text style={styles.highAlertSatsFee}>{getBalance(selectedFee)}</Text>
+          {/* <Text style={styles.highAlertSatsFee}>{getBalance(selectedFee)}</Text> */}
         </Box>
       </Box>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
           <Text style={styles.highAlertFiatFee}>{amountToSend}&nbsp;&nbsp;</Text>
-          <Text style={styles.highAlertSatsFee}>{getBalance(amountToSend)}</Text>
+          {/* <Text style={styles.highAlertSatsFee}>{getBalance(amountToSend)}</Text> */}
         </Box>
       </Box>
+      <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
     </>
+  );
+}
+
+function AddLabel() {
+  return (
+    <Box
+      flexDirection={'row'}
+      alignItems={'center'}
+      backgroundColor={Colors.MintWhisper}
+      padding={3}
+      borderWidth={1}
+      borderStyle={'dashed'}
+      borderRadius={10}
+      borderColor={Colors.GreenishBlue}
+      marginTop={10}
+    >
+      <Box marginRight={3}>
+        <LabelImg />
+      </Box>
+      <Box>
+        <Text
+          style={{ marginBottom: 3, fontWeight: 'bold', fontSize: 13 }}
+          color={Colors.GreenishBlue}
+        >
+          Add Labels to Transaction
+        </Text>
+        <Box>Lorem ipsum dolor sit amet, consectetu</Box>
+      </Box>
+    </Box>
   );
 }
 
@@ -772,35 +812,19 @@ function SendConfirmation({ route }) {
             getSatUnit={getSatUnit}
           />
         </TouchableOpacity>
-        <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
         <AmountDetails
-          title={walletTransactions.totalFees}
-          satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+          title={walletTransactions.totalAmount}
+          fiatAmount={'10,000.00'}
+          satsAmount={getBalance(amount)}
         />
+        <AmountDetails title={walletTransactions.totalFees} fiatAmount={'80.00'} />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
         <AmountDetails
           title={walletTransactions.total}
-          satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+          fiatAmount={'10,080.00'}
           fontSize={17}
           fontWeight="400"
         />
-        {/* <Box>
-          {customFeeOptionTransfers.includes(transferType) ? (
-            <SendingPriority
-              txFeeInfo={txFeeInfo}
-              transactionPriority={transactionPriority}
-              setTransactionPriority={setTransactionPriority}
-              availableTransactionPriorities={availableTransactionPriorities}
-            />
-          ) : (
-            <FeeInfo
-              txFeeInfo={txFeeInfo}
-              transactionPriority={transactionPriority}
-              transferType={transferType}
-              sendMaxFee={sendMaxFee}
-            />
-          )}
-        </Box> */}
       </ScrollView>
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note title={common.note} subtitle={vault.signingOldVault} />
@@ -864,7 +888,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.transactionPriority}
         subTitleWidth={wp(240)}
-        subTitle=""
+        subTitle={walletTransactions.transactionPrioritySubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -898,12 +922,14 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={`Network fee is greater than ${feePercentage}% of the amount being sent`}
+        subTitle={`Network fee is higher than the amount you are sending`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
         buttonText={common.proceed}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setHighFeeAlertVisible(false)}
         buttonCallback={() => {
           setHighFeeAlertVisible(false);
         }}
@@ -967,9 +993,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   priorityTableText: {
-    fontSize: 10,
-    textAlign: 'center',
-    color: '#656565',
+    fontSize: 16,
+    color: '#24312E',
   },
   gradient: {
     flex: 1,
@@ -1034,7 +1059,6 @@ const styles = StyleSheet.create({
   },
   amountDetailsWrapper: {
     flexDirection: 'row',
-    width: '100%',
     marginTop: 20,
   },
   amtDetailsTitleWrapper: {
@@ -1072,10 +1096,19 @@ const styles = StyleSheet.create({
   highAlertFiatFee: {
     fontSize: 16,
     fontFamily: Fonts.FiraSansCondensedRegular,
+    fontWeight: '700',
   },
   highAlertSatsFee: {
     fontSize: 12,
     fontFamily: Fonts.FiraSansCondensedRegular,
+    color: Colors.GreenishGrey,
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderRadius: 20 / 2,
+    alignSelf: 'flex-end',
+    borderWidth: 1,
   },
   currentTypeSwitchWrapper: {
     alignItems: 'center',
