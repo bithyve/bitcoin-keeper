@@ -5,6 +5,7 @@ import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import Text from './KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useEffect, useState } from 'react';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 type ActionCardProps = {
   cardName: string;
@@ -24,21 +25,7 @@ function ActionCard({
   dottedBorder = false,
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
-  const [isSmallDevice, setIsSmallDevice] = useState(false);
-  useEffect(() => {
-    DeviceInfo.getDeviceName().then((model) => {
-      if (
-        model.includes('mini') ||
-        model.includes('Mini') ||
-        model.includes('SE') ||
-        model.includes('iPhone 7')
-      ) {
-        setIsSmallDevice(true);
-      } else {
-        setIsSmallDevice(false);
-      }
-    });
-  }, []);
+  const isSmallDevice = useIsSmallDevices();
   return (
     <TouchableOpacity onPress={callback}>
       <Box
