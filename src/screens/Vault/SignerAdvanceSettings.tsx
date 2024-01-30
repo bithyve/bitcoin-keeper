@@ -35,6 +35,7 @@ import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 const { width } = Dimensions.get('screen');
 
@@ -308,7 +309,12 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperHeader
         title="Advanced Settings"
         subtitle={`for ${signer.signerName}`}
-        icon={SDIcons(signer.type, true).Icon}
+        icon={
+          <CircleIconWrapper
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+            icon={SDIcons(signer.type, true).Icon}
+          />
+        }
       />
       <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
         <OptionCard

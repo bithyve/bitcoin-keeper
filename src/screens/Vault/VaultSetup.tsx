@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -122,45 +122,47 @@ const VaultSetup = ({ route }: ScreenProps) => {
         learnBackgroundColor={`${colorMode}.RussetBrown`}
         learnTextColor={`${colorMode}.white`}
       />
-      <VStack style={{ margin: 20, flex: 1 }}>
-        <KeeperTextInput
-          placeholder="Name your vault"
-          value={vaultName}
-          onChangeText={(value) => {
-            if (vaultName === 'Vault') {
-              setVaultName('');
-            } else {
-              setVaultName(value);
-            }
-          }}
-          testID="vault_name"
-          maxLength={20}
-        />
-        <Box style={{ height: 20 }} />
-        <KeeperTextInput
-          placeholder="Add a description (Optional)"
-          value={vaultDescription}
-          onChangeText={setVaultDescription}
-          testID="vault_description"
-          maxLength={40}
-          height={20}
-        />
-        <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-        <Text style={{ fontSize: 14 }} testID="text_totalKeys">
-          Total Keys for vault configuration
-        </Text>
-        <Text style={{ fontSize: 12 }} testID="text_totalKeys_subTitle">
-          Select the total number of keys
-        </Text>
-        <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-        <Text style={{ fontSize: 14 }} testID="text_requireKeys">
-          Required Keys
-        </Text>
-        <Text style={{ fontSize: 12 }} testID="text_requireKeys_subTitle">
-          Minimum number of keys to broadcast a transaction
-        </Text>
-        <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
-      </VStack>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <VStack style={{ margin: 20, flex: 1 }}>
+          <KeeperTextInput
+            placeholder="Name your vault"
+            value={vaultName}
+            onChangeText={(value) => {
+              if (vaultName === 'Vault') {
+                setVaultName('');
+              } else {
+                setVaultName(value);
+              }
+            }}
+            testID="vault_name"
+            maxLength={20}
+          />
+          <Box style={{ height: 20 }} />
+          <KeeperTextInput
+            placeholder="Add a description (Optional)"
+            value={vaultDescription}
+            onChangeText={setVaultDescription}
+            testID="vault_description"
+            maxLength={40}
+            height={20}
+          />
+          <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
+          <Text style={{ fontSize: 14 }} testID="text_totalKeys">
+            Total Keys for vault configuration
+          </Text>
+          <Text style={{ fontSize: 12 }} testID="text_totalKeys_subTitle">
+            Select the total number of keys
+          </Text>
+          <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
+          <Text style={{ fontSize: 14 }} testID="text_requireKeys">
+            Required Keys
+          </Text>
+          <Text style={{ fontSize: 12 }} testID="text_requireKeys_subTitle">
+            Minimum number of keys to broadcast a transaction
+          </Text>
+          <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
+        </VStack>
+      </ScrollView>
       {!preDefinedScheme && (
         <Box style={styles.mt20}>
           <Note
