@@ -182,11 +182,6 @@ function ExportSeedScreen({ route, navigation }) {
           </Box>
         )}
       </Box>
-      {!next && (
-        <Text style={styles.seedDescParagraph} color={`${colorMode}.GreyText`}>
-          {seedText.desc}
-        </Text>
-      )}
       {/* Modals */}
       <Box>
         <ModalWrapper

@@ -182,14 +182,16 @@ const Footer = ({
         </Box>
       );
     }
-    notes.push(
-      <Box style={styles.noteContainer}>
-        <Note
-          title="Note"
-          subtitle="You can easily change one or more signers after the vault is setup"
-        />
-      </Box>
-    );
+    if (!notes.length) {
+      notes.push(
+        <Box style={styles.noteContainer}>
+          <Note
+            title="Note"
+            subtitle="You can easily change one or more signers after the vault is setup"
+          />
+        </Box>
+      );
+    }
     return notes;
   };
   return (
