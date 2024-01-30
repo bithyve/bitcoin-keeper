@@ -18,7 +18,6 @@
 		183722142A651CBD00120228 /* FiraSansCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220C2A651CBD00120228 /* FiraSansCondensed-Medium.ttf */; };
 		183722152A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220D2A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf */; };
 		183722162A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */; };
-		183722172A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */; };
 		183A61952A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */; };
 		183A61962A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */; };
 		18788ED8284652050002EFFD /* (null) in Resources */ = {isa = PBXBuildFile; };
