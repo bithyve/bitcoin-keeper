@@ -535,7 +535,7 @@ export function* addNewVaultWorker({
     if (isNewVault || isMigrated) {
       // update IKS, if inheritance key has been added(new Vault) or needs an update(vault migration)
       const [ikVaultKey] = vault.signers.filter(
-        (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
+        (vaultKey) => signerMap[vaultKey.masterFingerprint]?.type === SignerType.INHERITANCEKEY
       );
       if (ikVaultKey) {
         const ikSigner: Signer = signerMap[ikVaultKey.masterFingerprint];
