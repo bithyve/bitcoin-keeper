@@ -39,7 +39,7 @@ function VaultSettings({ route }) {
           title="Vault Details"
           description="Wallet name & description"
           callback={() => {
-            navigation.dispatch(CommonActions.navigate('EditWalletDetails', { vault }));
+            navigation.dispatch(CommonActions.navigate('EditWalletDetails', { wallet: vault }));
           }}
         />
         <OptionCard
