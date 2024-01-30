@@ -61,8 +61,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
   const [modalActionLoader, setmodalActionLoader] = useState(false);
   const [uaiConfig, setUaiConfig] = useState<any>({});
 
-  const vaultId = '';
-  const { activeVault } = useVault({ vaultId }) || '';
+  const { activeVault } = useVault({ getFirst: true });
 
   const animations = useAnimatedStyle(() => {
     return {
