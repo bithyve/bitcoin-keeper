@@ -1,7 +1,10 @@
 import { Box, useColorMode } from 'native-base';
-import Text from './KeeperText';
+import DeviceInfo from 'react-native-device-info';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+
+import Text from './KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import { useEffect, useState } from 'react';
 
 type ActionCardProps = {
   cardName: string;
@@ -21,12 +24,32 @@ function ActionCard({
   dottedBorder = false,
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
+  const [isSmallDevice, setIsSmallDevice] = useState(false);
+  useEffect(() => {
+    DeviceInfo.getDeviceName().then((model) => {
+      if (
+        model.includes('mini') ||
+        model.includes('Mini') ||
+        model.includes('SE') ||
+        model.includes('iPhone 7')
+      ) {
+        setIsSmallDevice(true);
+      } else {
+        setIsSmallDevice(false);
+      }
+    });
+  }, []);
   return (
     <TouchableOpacity onPress={callback}>
       <Box
-        style={[styles.cardContainer, { ...customStyle }]}
+        style={[
+          styles.cardContainer,
+          { ...customStyle },
+          { height: isSmallDevice ? hp(140) : hp(130) },
+        ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
+        {console.log('asasadads-->', isSmallDevice)}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
           {dottedBorder && (
             <Box borderColor={`${colorMode}.PearlWhite`} style={styles.dottedBorder} />
@@ -49,7 +72,6 @@ function ActionCard({
 const styles = StyleSheet.create({
   cardContainer: {
     width: wp(114),
-    height: hp(125),
     paddingVertical: hp(10),
     paddingLeft: 10,
     paddingRight: 6,
