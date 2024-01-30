@@ -49,7 +49,6 @@ function ActionCard({
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
-        {console.log('asasadads-->', isSmallDevice)}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
           {dottedBorder && (
             <Box borderColor={`${colorMode}.PearlWhite`} style={styles.dottedBorder} />
