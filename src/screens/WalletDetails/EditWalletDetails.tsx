@@ -17,8 +17,15 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import KeeperTextInput from 'src/components/KeeperTextInput';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
+import { EntityKind } from 'src/core/wallets/enums';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { updateVaultImage } from 'src/store/sagaActions/bhr';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
-function EditWalletSettings({ route }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'EditWalletDetails'>;
+function EditWalletSettings({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
@@ -26,7 +33,7 @@ function EditWalletSettings({ route }) {
   const walletText = translations.wallet;
   const { common } = translations;
 
-  const { wallet } = route.params;
+  const { wallet } = route.params || {};
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -39,7 +46,15 @@ function EditWalletSettings({ route }) {
       name: walletName,
       description: walletDescription,
     };
-    dispatch(updateWalletDetails(wallet, details));
+    if (wallet.entityKind === EntityKind.VAULT) {
+      const updatedVault = {
+        ...(wallet as Vault),
+        presentationData: { ...wallet.presentationData, ...details },
+      };
+      dispatch(updateVaultImage({ vault: updatedVault, isUpdate: true }));
+    } else {
+      dispatch(updateWalletDetails(wallet as Wallet, details));
+    }
   };
 
   useEffect(() => {
