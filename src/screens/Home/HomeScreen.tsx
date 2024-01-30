@@ -187,17 +187,17 @@ function NewHomeScreen({ navigation }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const cardsData = [
     {
-      name: 'Buy Bitcoin',
+      name: 'Buy\nBitcoin',
       icon: <BTC />,
       callback: onPressBuyBitcoin,
     },
     {
-      name: 'Manage All Signers',
+      name: 'Manage\nAll Signers',
       icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance and Security Tools',
+      name: 'Inheritance & Security Tools',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
