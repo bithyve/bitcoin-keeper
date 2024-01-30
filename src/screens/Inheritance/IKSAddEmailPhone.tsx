@@ -43,9 +43,7 @@ function IKSAddEmailPhone() {
 
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         ikSigner.signerId,
-        {
-          alert: updatedPolicy.alert,
-        },
+        updatedPolicy,
         thresholdDescriptors
       );
 

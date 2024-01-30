@@ -21,11 +21,11 @@ import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupColdCard({ route }) {
   const { colorMode } = useColorMode();
@@ -114,7 +114,7 @@ function SetupColdCard({ route }) {
       if (xpub === signer.xpub) {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
-        showToast(`ColdCard verified successfully`, <TickIcon />);
+        showToast('ColdCard verified successfully', <TickIcon />);
       } else {
         showToast('Something went wrong!', <ToastErrorIcon />, 3000);
       }
@@ -127,7 +127,8 @@ function SetupColdCard({ route }) {
     }
   };
 
-  const instructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n`;
+  const instructions =
+    'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={SignerType.COLDCARD}>

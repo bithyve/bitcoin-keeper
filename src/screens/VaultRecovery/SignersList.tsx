@@ -43,11 +43,11 @@ import { generateKey } from 'src/services/operations/encryption';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { close } from '@sentry/react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { generateCosignerMapIds } from 'src/core/wallets/factories/VaultFactory';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { generateCosignerMapIds } from 'src/core/wallets/factories/VaultFactory';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -118,7 +118,7 @@ function TapsignerSetupContent() {
       <TapsignerSetupImage />
       <Box marginTop="4">
         <Text color="light.greenText" fontSize={13} light padding={1}>
-          {`\u2022 You will need the Pin/CVC at the back of TAPSIGNER`}
+          {'\u2022 You will need the Pin/CVC at the back of TAPSIGNER'}
         </Text>
         <Text color="light.greenText" fontSize={13} light padding={1}>
           {'\u2022 Make sure that TAPSIGNER is not used as a Signer on other apps'}
@@ -147,7 +147,9 @@ function LedgerSetupContent() {
           letterSpacing={0.65}
           style={{ paddingVertical: 5 }}
         >
-          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
+          {
+            '\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signer.'
+          }
         </Text>
       </Box>
     </Box>
@@ -161,7 +163,9 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault)`}
+          {
+            'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault)'
+          }
         </Text>
       </Box>
     </View>
@@ -183,7 +187,9 @@ function PassportSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
+          {
+            '\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n'
+          }
         </Text>
         <Text
           color="light.greenText"
@@ -193,7 +199,9 @@ function PassportSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it`}
+          {
+            '\u2022 Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it'
+          }
         </Text>
       </Box>
     </View>
@@ -215,7 +223,9 @@ function SeedSignerSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > Multisig > Nested Segwit > Keeper.\n`}
+          {
+            '\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > Multisig > Nested Segwit > Keeper.\n'
+          }
         </Text>
         <Text
           color="light.greenText"
@@ -225,7 +235,9 @@ function SeedSignerSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it`}
+          {
+            '\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it'
+          }
         </Text>
       </Box>
     </View>
@@ -247,7 +259,9 @@ function KeystoneSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`}
+          {
+            '\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n'
+          }
         </Text>
         <Text
           color="light.greenText"
@@ -257,7 +271,9 @@ function KeystoneSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`}
+          {
+            '\u2022 Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm'
+          }
         </Text>
       </Box>
     </View>
@@ -279,7 +295,9 @@ function JadeSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to Multisig and Native Segwit in the options section.\n`}
+          {
+            '\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to Multisig and Native Segwit in the options section.\n'
+          }
         </Text>
       </Box>
     </View>
@@ -305,7 +323,9 @@ function BitBox02Content() {
           letterSpacing={0.65}
           style={{ paddingVertical: 5 }}
         >
-          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
+          {
+            '\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signer.'
+          }
         </Text>
       </Box>
     </Box>
@@ -331,7 +351,9 @@ function TrezorContent() {
           letterSpacing={0.65}
           style={{ paddingVertical: 5 }}
         >
-          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
+          {
+            '\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signer.'
+          }
         </Text>
       </Box>
     </Box>
@@ -854,8 +876,8 @@ function SignersList({ navigation }) {
   return (
     <ScreenWrapper>
       <KeeperHeader
-        title="Select Signing Device"
-        subtitle="To recover your Vault"
+        title="Select signer"
+        subtitle="To recover your vault"
         onPressHandler={() =>
           navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         }

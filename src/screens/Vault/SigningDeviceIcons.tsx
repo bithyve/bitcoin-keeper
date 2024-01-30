@@ -140,7 +140,7 @@ export const SDIcons = (type: SignerType, light = false) => {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
         Logo: (
           <Text style={styles.text} color="light.secondaryText">
-            Other Signing Device
+            Other signer
           </Text>
         ),
         type: SignerStorage.COLD,

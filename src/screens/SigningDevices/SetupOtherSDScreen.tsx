@@ -14,8 +14,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -28,6 +26,8 @@ import OptionCard from 'src/components/OptionCard';
 import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/keystone';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { getJadeDetails } from 'src/hardware/jade';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -64,13 +64,14 @@ function SetupOtherSDScreen({ route }) {
         );
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(signer.signerId);
-        if (exsists)
+        if (exsists) {
           showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        }
       } else if (mode === InteracationMode.HEALTH_CHECK) {
         if (signer.xpub === hcSigner.xpub) {
           dispatch(healthCheckSigner([signer]));
           navigation.dispatch(CommonActions.goBack());
-          showToast(`Other SD verified successfully`, <TickIcon />);
+          showToast('Other SD verified successfully', <TickIcon />);
         } else {
           showToast('Something went wrong!', <ToastErrorIcon />, 3000);
         }
@@ -124,7 +125,7 @@ function SetupOtherSDScreen({ route }) {
             navigation.dispatch(
               CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
             );
-            showToast(`signer added successfully`, <TickIcon />);
+            showToast('signer added successfully', <TickIcon />);
             resetQR();
           }
         } else {
@@ -242,24 +243,22 @@ function SetupOtherSDScreen({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={`${
-          mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'
-        } other signing device`}
+        title={`${mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'} other signer`}
         subtitle="Manually provide the signer details"
       />
       <Box style={styles.flex}>
-        <KeeperTextInput placeholder="xPub" value={xpub} onChangeText={setXpub} testID={'xPub'} />
+        <KeeperTextInput placeholder="xPub" value={xpub} onChangeText={setXpub} testID="xPub" />
         <KeeperTextInput
           placeholder="Derivation path (m/84h/0h/0h)"
           value={derivationPath}
           onChangeText={setDerivationPath}
-          testID={'derivationPath'}
+          testID="derivationPath"
         />
         <KeeperTextInput
           placeholder="Master fingerprint"
           value={masterFingerprint}
           onChangeText={setMasterFingerprint}
-          testID={'masterFingerprint'}
+          testID="masterFingerprint"
         />
         <OptionCard
           title="Pick a file"

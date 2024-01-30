@@ -34,17 +34,17 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
-import { SDIcons } from './SigningDeviceIcons';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import IdentifySignerModal from './components/IdentifySignerModal';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { SDIcons } from './SigningDeviceIcons';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -55,7 +55,7 @@ const getSignerContent = (type: SignerType) => {
           'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
         assert: <ColdCardSetupImage />,
         description:
-          '\u2022 Coldcard provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
+          '\u2022 Coldcard provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signer (hardware wallet) with the option to avoid ever being connected to a computer.',
         FAQ: 'https://coldcard.com/docs/faq',
       };
     case SignerType.TAPSIGNER:
@@ -81,7 +81,7 @@ const getSignerContent = (type: SignerType) => {
       return {
         title: 'SeedSigner',
         subTitle:
-          'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signing device using inexpensive, publicly available hardware components (usually < $50).',
+          'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50).',
         assert: <SeedSigner />,
         description:
           '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022  It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
@@ -127,7 +127,7 @@ const getSignerContent = (type: SignerType) => {
       };
     case SignerType.KEEPER:
       return {
-        title: 'Keeper as signing device',
+        title: 'Keeper as signer',
         subTitle: 'You can use a specific BIP-85 wallet on Collaborative Signer as a signer',
         assert: <KeeperSetupImage />,
         description:
@@ -141,7 +141,7 @@ const getSignerContent = (type: SignerType) => {
           'The key on the Signing Server will sign a transaction depending on the policy and authentication',
         assert: <SigningServerIllustration />,
         description:
-          '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signing devices, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
+          '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
         FAQ: '',
       };
     case SignerType.BITBOX02:
@@ -243,14 +243,14 @@ function SigningDeviceDetails({ route }) {
           <SkipHealthCheck />
         </Box>
         <Text>
-          You can choose to manually confirm the health of the Signing Device if you are sure that
-          they are secure and accessible. Or you can choose to do the Health Check when you can
+          You can choose to manually confirm the health of the signer if you are sure that they are
+          secure and accessible. Or you can choose to do the Health Check when you can
         </Text>
       </Box>
     );
   }
 
-  const FooterIcon = ({ Icon }) => {
+  function FooterIcon({ Icon }) {
     return (
       <Box
         margin="1"
@@ -265,13 +265,13 @@ function SigningDeviceDetails({ route }) {
         <Icon />
       </Box>
     );
-  };
+  }
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
 
   const footerItems = [
     {
-      text: 'Change signing device',
+      text: 'Change signer',
       Icon: () => <FooterIcon Icon={Change} />,
       onPress: () =>
         navigation.dispatch(
@@ -368,7 +368,7 @@ function SigningDeviceDetails({ route }) {
           visible={skipHealthCheckModalVisible}
           close={() => setSkipHealthCheckModalVisible(false)}
           title="Skipping Health Check"
-          subTitle="It is very important that you keep your Signing Devices secure and fairly accessible at all times."
+          subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
           buttonText="Do Later"
           secondaryButtonText="Confirm Access"
           buttonTextColor="light.white"
