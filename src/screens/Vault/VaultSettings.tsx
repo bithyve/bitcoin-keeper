@@ -37,7 +37,7 @@ function VaultSettings({ route }) {
       <ScrollView contentContainerStyle={styles.optionViewWrapper}>
         <OptionCard
           title="Vault Details"
-          description="Wallet name & description"
+          description="Vault name & description"
           callback={() => {
             navigation.dispatch(CommonActions.navigate('EditWalletDetails', { wallet: vault }));
           }}

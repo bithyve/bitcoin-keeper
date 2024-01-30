@@ -17,6 +17,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import config, { APP_STAGE } from 'src/core/config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
+import Note from 'src/components/Note/Note';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -56,7 +57,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
       : ''
   );
   const [vaultDescription, setVaultDescription] = useState(
-    activeVault?.presentationData?.description || 'Secure your sats'
+    activeVault?.presentationData?.description || ''
   );
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
   const { translations } = useContext(LocalizationContext);
@@ -100,7 +101,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
             params: {
               scheme,
               name: vaultName,
-              description: vaultDescription || 'Secure your sats',
+              description: vaultDescription,
               vaultId,
             },
           })
@@ -111,12 +112,19 @@ const VaultSetup = ({ route }: ScreenProps) => {
     }
   };
 
+  //TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={vault.SetupyourVault} subtitle={vault.configureScheme} />
+      <KeeperHeader
+        title={preDefinedScheme ? vault.SetupyourVault : vault.AddCustomMultiSig}
+        subtitle={vault.configureScheme}
+        learnMore
+        learnBackgroundColor={`${colorMode}.RussetBrown`}
+        learnTextColor={`${colorMode}.white`}
+      />
       <VStack style={{ margin: 20, flex: 1 }}>
         <KeeperTextInput
-          placeholder="Vault name"
+          placeholder="Name your vault"
           value={vaultName}
           onChangeText={(value) => {
             if (vaultName === 'Vault') {
@@ -130,7 +138,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
         />
         <Box style={{ height: 20 }} />
         <KeeperTextInput
-          placeholder="Vault description (Optional)"
+          placeholder="Add a description (Optional)"
           value={vaultDescription}
           onChangeText={setVaultDescription}
           testID="vault_description"
@@ -139,7 +147,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
         <Text style={{ fontSize: 14 }} testID="text_totalKeys">
-          Total Keys for vault Configuration
+          Total Keys for vault configuration
         </Text>
         <Text style={{ fontSize: 12 }} testID="text_totalKeys_subTitle">
           Select the total number of keys
@@ -149,10 +157,20 @@ const VaultSetup = ({ route }: ScreenProps) => {
           Required Keys
         </Text>
         <Text style={{ fontSize: 12 }} testID="text_requireKeys_subTitle">
-          Select number of keys to broadcast transaction
+          Minimum number of keys to broadcast a transaction
         </Text>
         <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
       </VStack>
+      {!preDefinedScheme && (
+        <Box style={styles.mt20}>
+          <Note
+            title={'Note'}
+            subtitle={
+              'Please ensure you have a specific reason to create a non-standard multisig setup'
+            }
+          />
+        </Box>
+      )}
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
@@ -180,5 +198,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: windowWidth * 0.4,
     marginVertical: 20,
+  },
+  mt20: {
+    margin: 20,
   },
 });

@@ -11,11 +11,8 @@ import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import LoginMethod from 'src/models/enums/LoginMethod';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
-import { setSatsEnabled } from 'src/store/reducers/settings';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
 import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
@@ -29,22 +26,24 @@ import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import { useAppSelector } from 'src/store/hooks';
 
 function AppSettings({ navigation }) {
-  const { colorMode } = useColorMode();
+  // const { colorMode } = useColorMode();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
-  const dispatch = useAppDispatch();
-
+  const { colorMode, toggleColorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
+  const data = useQuery(RealmSchema.BackupHistory);
+  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
-  const changeSatsMode = () => {
-    dispatch(setSatsEnabled(!satsEnabled));
+  const changeThemeMode = () => {
+    toggleColorMode();
   };
 
   const actionCardData = [
@@ -52,7 +51,11 @@ function AppSettings({ navigation }) {
       cardName: settings.appBackup,
       icon: <AppBackupIcon />,
       callback: () => {
-        setConfirmPassVisible(true);
+        if (data.length === 0) {
+          setConfirmPassVisible(true);
+        } else {
+          navigation.navigate('WalletBackHistory');
+        }
       },
     },
     {
@@ -67,6 +70,7 @@ function AppSettings({ navigation }) {
     },
   ];
 
+  //TODO: add learn more modal
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -101,20 +105,20 @@ function AppSettings({ navigation }) {
           </Box>
         </ScrollView>
         <OptionCard
-          title={settings.SatsMode}
-          description={settings.satsModeSubTitle}
-          callback={() => changeSatsMode()}
+          title={settings.DarkMode}
+          description={settings.DarkModeSubTitle}
+          callback={() => changeThemeMode()}
           Icon={
             <Switch
-              value={satsEnabled}
-              onValueChange={() => changeSatsMode()}
+              onValueChange={() => changeThemeMode()}
+              value={colorMode === 'dark'}
               testID="switch_darkmode"
             />
           }
         />
         <OptionCard
-          title={settings.PrivacyAndDisplay}
-          description={settings.PrivacySettingsSubtitle}
+          title={settings.SecurityAndLogin}
+          description={settings.SecurityAndLoginSubtitle}
           callback={() => navigation.navigate('PrivacyAndDisplay')}
         />
         <OptionCard
@@ -123,18 +127,18 @@ function AppSettings({ navigation }) {
           callback={() => navigation.navigate('NodeSettings')}
         />
         <OptionCard
-          title={settings.VersionHistory}
-          description={settings.VersionHistorySubTitle}
-          callback={() => navigation.navigate('AppVersionHistory')}
-        />
-        <OptionCard
           title={settings.torSettingTitle}
           description={settings.torSettingSubTitle}
           callback={() => navigation.navigate('TorSettings')}
         />
         <OptionCard
-          title={settings.LanguageCountry}
-          description={settings.LanguageCountrySubTitle}
+          title={settings.VersionHistory}
+          description={settings.VersionHistorySubTitle}
+          callback={() => navigation.navigate('AppVersionHistory')}
+        />
+        <OptionCard
+          title={settings.CurrencyDefaults}
+          description={settings.CurrencyDefaultsSubtitle}
           callback={() => navigation.navigate('ChangeLanguage')}
         />
       </ScrollView>
@@ -179,14 +183,13 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
       </Box>
-
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
         title={'Confirm Passcode'}
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery phrase'}
+        subTitle={'To backup app recovery key'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -294,6 +297,7 @@ const styles = StyleSheet.create({
   actionContainer: {
     flexDirection: 'row',
     gap: 5,
+    marginBottom: 20,
   },
   bottomNav: {
     flexDirection: 'row',

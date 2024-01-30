@@ -110,6 +110,7 @@ export type AppStackParams = {
     vaultId: string;
     vaultKeys: VaultSigner[];
   };
+  AppBackupSettings: undefined;
 };
 
 // Usage:

@@ -161,11 +161,7 @@ function TransactionList({
         keyExtractor={(item) => item.txid}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <EmptyStateView
-            IllustartionImage={NoTransactionIcon}
-            title={common.noTransYet}
-            subTitle={common.pullDownRefresh}
-          />
+          <EmptyStateView IllustartionImage={NoTransactionIcon} title={common.noTransYet} />
         }
       />
     </>
@@ -325,7 +321,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         />
         <ActionCard
           cardName="Manage Signers"
-          description="Manage for this wallet"
+          description="For this vault"
           callback={() =>
             navigation.dispatch(
               CommonActions.navigate({

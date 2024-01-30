@@ -168,8 +168,10 @@ function SigningDeviceList() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={vault.SelectSigner}
-        subtitle={vault.ForVault}
+        subtitle={vault.SelectSignerSubtitle}
         learnMore
+        learnBackgroundColor={`${colorMode}.RussetBrown`}
+        learnTextColor={`${colorMode}.white`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
@@ -231,12 +233,13 @@ function SigningDeviceList() {
           }
         />
       </Box>
-      <Note
-        title="Security Tip"
-        subtitle="Please use the Health Check feature to ensure that your device is working and available as expected"
-        subtitleColor="GreyText"
-        width={windowWidth * 0.8}
-      />
+      <Box style={styles.noteContainer}>
+        <Note
+          title="Security Tip"
+          subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
+          subtitleColor="GreyText"
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -298,6 +301,9 @@ const styles = StyleSheet.create({
   },
   italics: {
     fontStyle: 'italic',
+  },
+  noteContainer: {
+    paddingHorizontal: 20,
   },
 });
 export default SigningDeviceList;

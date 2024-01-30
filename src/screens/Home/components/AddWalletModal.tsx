@@ -21,7 +21,7 @@ const addNewDefaultWallet = (walletsCount, dispatch) => {
     walletType: WalletType.DEFAULT,
     walletDetails: {
       name: `Wallet ${walletsCount + 1} `,
-      description: `Single-sig Wallet`,
+      description: ``,
       transferPolicy: {
         id: uuidv4(),
         threshold: defaultTransferPolicyThreshold,
@@ -66,7 +66,7 @@ function AddImportWallet({
           setAddImportVisible(false);
           navigation.navigate('EnterWalletDetail', {
             name: `Wallet ${wallets.length + 1}`,
-            description: 'Single-sig Wallet',
+            description: '',
             type: WalletType.DEFAULT,
           });
         }}

@@ -365,18 +365,10 @@ function ChoosePlan() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        subtitle={`The subscription will be \nconfirmed on the ${
-          Platform.OS === 'android' ? 'Play' : 'App'
-        } Store`}
+        subtitle={'Upgrade or downgrade'}
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
         learnTextColor={`${colorMode}.white`}
-        icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={<SettingsIcon />}
-          />
-        }
       />
       <KeeperModal
         visible={requesting}

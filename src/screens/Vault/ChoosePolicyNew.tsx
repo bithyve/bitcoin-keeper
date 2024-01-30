@@ -239,7 +239,7 @@ function ChoosePolicyNew({ navigation, route }) {
           showValidationModal(false);
         }}
         title="Confirm OTP to change policy"
-        subTitle="To complete setting up the signing server"
+        subTitle="To complete setting up the signer"
         textColor="light.primaryText"
         Content={otpContent}
       />

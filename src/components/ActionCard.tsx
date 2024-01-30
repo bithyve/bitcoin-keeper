@@ -33,7 +33,7 @@ function ActionCard({
           )}
           {icon && icon}
         </Box>
-        <Text numberOfLines={2} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={2} style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
         </Text>
         {description && (
@@ -71,6 +71,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderStyle: 'dotted',
+  },
+  cardName: {
+    fontSize: 12,
   },
 });
 
