@@ -197,7 +197,7 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId, signer: currentSigner } = route.params;
+  const { vaultKey, vaultId, signer: currentSigner, vaultSigners } = route.params;
   const { signerMap } = useSignerMap();
   const signer = currentSigner ? currentSigner : signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
@@ -363,6 +363,7 @@ function SigningDeviceDetails({ route }) {
         primaryMnemonic={primaryMnemonic}
         vaultId={vaultId}
         addSignerFlow={false}
+        vaultSigners={vaultSigners}
       />
       <KeeperModal
         visible={skipHealthCheckModalVisible}
