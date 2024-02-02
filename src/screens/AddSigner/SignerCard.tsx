@@ -17,6 +17,7 @@ type SignerCardProps = {
   isFullText?: boolean;
   titleComp?: any;
   customStyle?: ViewStyle;
+  numberOfLines?: number;
 };
 
 function SignerCard({
@@ -31,6 +32,7 @@ function SignerCard({
   disabled = false,
   isFullText = false,
   customStyle,
+  numberOfLines = 1,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -53,9 +55,12 @@ function SignerCard({
           <Box style={styles.circle} />
         ))}
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
-          {icon}
-        </Box>
+        {icon && (
+          <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
+            {icon}
+          </Box>
+        )}
+        {titleComp && titleComp}
         <Text
           color={`${colorMode}.SlateGrey`}
           style={styles.walletName}
@@ -67,7 +72,7 @@ function SignerCard({
         <Text
           style={styles.walletDescription}
           color={`${colorMode}.GreenishGrey`}
-          numberOfLines={1}
+          numberOfLines={numberOfLines}
         >
           {description}
         </Text>

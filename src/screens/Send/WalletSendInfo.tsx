@@ -36,7 +36,7 @@ function WalletSendInfo({
         </Box>
         <Box style={styles.walletSendInfoWrapper}>
           <Text color={`${colorMode}.primaryText`} numberOfLines={1} style={styles.walletNameText}>
-            {walletName}
+            Sending To
           </Text>
           {selectedUTXOs.length ? (
             <Text fontSize={12} numberOfLines={1} color={`${colorMode}.primaryText`}>
@@ -49,8 +49,8 @@ function WalletSendInfo({
             </Text>
           ) : (
             <Box>
-              <Text fontSize={12} numberOfLines={1}>
-                {walletTranslation.AvailableToSpend}
+              <Text fontSize={14} numberOfLines={1}>
+                {walletName}
               </Text>
               <CurrencyInfo
                 hideAmounts={false}
@@ -114,9 +114,10 @@ const styles = StyleSheet.create({
   },
   walletNameText: {
     marginTop: 3,
-    fontSize: 14,
+    fontSize: 12,
     letterSpacing: 1.12,
     width: wp(100),
+    fontWeight: 500,
   },
   advanceWrapper: {
     width: '100%',

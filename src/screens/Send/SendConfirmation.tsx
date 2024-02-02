@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
 import moment from 'moment';
-import { Box, View, useColorMode, ScrollView, Center } from 'native-base';
+import { Box, View, useColorMode, ScrollView, Center, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -236,7 +236,7 @@ function Transaction({ txFeeInfo, transactionPriority }) {
   );
 }
 
-function TextValue({ amt, getValueIcon }) {
+function TextValue({ amt, getValueIcon, inverted = false }) {
   return (
     <Text
       style={{
@@ -276,9 +276,6 @@ function SendingPriority({
   getBalance,
   getSatUnit,
 }) {
-  const { translations } = useContext(LocalizationContext);
-  const { settings, wallet: walletTranslation } = translations;
-  const { colorMode } = useColorMode();
   return (
     <Box>
       <Box flexDirection={'row'}>
@@ -296,9 +293,7 @@ function SendingPriority({
                     titleComp={
                       <TextValue
                         amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
-                        unit={{
-                          bitcoinUnit: BitcoinUnit.SATS,
-                        }}
+                        getValueIcon={getSatUnit}
                       />
                     }
                     isSelected={transactionPriority === priority}
@@ -307,9 +302,11 @@ function SendingPriority({
                     description={`~${
                       txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
                     } mins`}
+                    numberOfLines={2}
                     onCardSelect={() => setTransactionPriority(priority)}
                     customStyle={{
                       width: windowWidth / 3.4 - windowWidth * 0.05,
+                      height: 135,
                       opacity: transactionPriority === priority ? 1 : 0.5,
                     }}
                   />
@@ -442,29 +439,32 @@ function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance
         </Text>
       </Box>
       <Box style={styles.transPriorityWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-        <Box>
-          <Text style={styles.transLabelText}>{walletTransactions.PRIORITY}</Text>
-          <Text style={styles.transLabelText}>{walletTransactions.ARRIVALTIME}</Text>
-          <Text style={styles.transLabelText}>{walletTransactions.FEE}</Text>
-        </Box>
-        <Box>
-          <Text style={styles.transLabelText}>{transactionPriority.toUpperCase()}</Text>
-          <Text style={styles.transLabelText}>
-            ~{' '}
-            {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10}{' '}
-            mins
-          </Text>
+        <HStack style={styles.priorityWrapper}>
           <Box>
-            <Box style={styles.transSatsFeeWrapper}>
-              {getSatUnit() === 'sats' ? <BTC /> : <Text style={{ fontSize: 8 }}>$</Text>}
-              &nbsp;
-              <Text style={styles.transSatsFeeText}>
-                {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
-              </Text>
+            <Text style={styles.transLabelText}>{walletTransactions.PRIORITY}</Text>
+            <Text style={styles.transLabelText}>{walletTransactions.ARRIVALTIME}</Text>
+            <Text style={styles.transLabelText}>{walletTransactions.FEE}</Text>
+          </Box>
+          <Box>
+            <Text style={styles.transLabelText}>{transactionPriority.toUpperCase()}</Text>
+            <Text style={styles.transLabelText}>
+              ~{' '}
+              {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
+                10}{' '}
+              mins
+            </Text>
+            <Box>
+              <Box style={styles.transSatsFeeWrapper}>
+                {getSatUnit() === 'sats' ? <BTC /> : <Text style={{ fontSize: 8 }}>$</Text>}
+                &nbsp;
+                <Text color={`${colorMode}.GreenishGrey`} style={styles.transSatsFeeText}>
+                  {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+                </Text>
+              </Box>
             </Box>
           </Box>
-        </Box>
-        <Box style={{ width: '5%' }}>
+        </HStack>
+        <Box>
           <Text style={{ fontSize: 20 }}>...</Text>
         </Box>
       </Box>
@@ -587,7 +587,6 @@ function SendConfirmation({ route }) {
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item.id === walletId);
@@ -812,11 +811,7 @@ function SendConfirmation({ route }) {
             getSatUnit={getSatUnit}
           />
         </TouchableOpacity>
-        <AmountDetails
-          title={walletTransactions.totalAmount}
-          fiatAmount={'10,000.00'}
-          satsAmount={getBalance(amount)}
-        />
+        <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
         <AmountDetails title={walletTransactions.totalFees} fiatAmount={'80.00'} />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
         <AmountDetails
@@ -986,6 +981,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
   },
+  priorityWrapper: {
+    gap: 10,
+  },
   priorityBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1036,7 +1034,8 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.FiraSansCondensedMedium,
   },
   transSatsFeeText: {
-    fontSize: 12,
+    fontSize: 16,
+    fontWeight: '500',
   },
   transSatsFeeWrapper: {
     width: '60%',
