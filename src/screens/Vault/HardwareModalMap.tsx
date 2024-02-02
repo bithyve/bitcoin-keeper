@@ -138,14 +138,14 @@ const getSignerContent = (
           'Within settings choose Show co-signer Details to scan the QR',
         ],
         title: 'Keep your Device Ready',
-        subTitle: 'Keep your Collaborative Signer ready before proceeding',
+        subTitle: 'Keep your Collaborative Key ready before proceeding',
         options: [],
       };
     case SignerType.MOBILE_KEY:
       return {
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          "Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.",
+          'Make sure that this wallet’s Recovery Phrase is backed-up properly to secure this key.',
         ],
         title: isHealthcheck ? 'Verify Mobile Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
@@ -187,13 +187,13 @@ const getSignerContent = (
       return {
         Illustration: <SigningServerIllustration />,
         Instructions: isHealthcheck
-          ? ['A request to the signing server will be made to checks it health']
+          ? ['A request to the signer will be made to checks it health']
           : [
               `A 2FA authenticator will have to be set up to use this option.`,
-              `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
+              `On providing the correct code from the auth app, the signer will sign the transaction.`,
             ],
-        title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
-        subTitle: 'A Signing Server will hold one of the keys of the vault',
+        title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
+        subTitle: 'A signer will hold one of the keys of the vault',
         options: [],
       };
     case SignerType.SEEDSIGNER:
@@ -224,8 +224,8 @@ const getSignerContent = (
               `Make sure you enable Testnet mode on the Specter if you are running the app in the Testnet by selecting Switch network (Testnet) on the home screen.`,
             ]
           : [specterInstructions],
-        title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter',
-        subTitle: 'Keep your Specter ready and powered before proceeding',
+        title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
+        subTitle: 'Keep your device ready and powered before proceeding',
         options: [],
       };
     case SignerType.BITBOX02:
@@ -265,8 +265,8 @@ const getSignerContent = (
       return {
         Illustration: <SeedWordsIllustration />,
         Instructions: [
-          'Once the transaction is signed the key is not stored on the app.',
-          "Make sure that you're noting down the words in private as exposing them will compromise the Seed Key",
+          'This mnemonic (12 words) needs to be noted down and kept offline (the private keys are not stored on the app',
+          'Make sure that you’re noting down the words in private as exposing them will compromise the Seed Key',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
@@ -276,8 +276,8 @@ const getSignerContent = (
       return {
         Illustration: <TapsignerSetupImage />,
         Instructions: [
-          'You will need the Pin/CVC at the back of TAPSIGNER',
-          'You should generally not use the same signer on multiple wallets/apps',
+          'You will need the Pin/CVC at the back of the TAPSIGNER',
+          'Make sure that the TAPSIGNER has not been used as a signer in other apps',
         ],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
@@ -287,11 +287,11 @@ const getSignerContent = (
       return {
         Illustration: <OtherSDSetup />,
         Instructions: [
-          'Manually provide the signer details',
-          'The hardened part of the derivation path of the xpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
+          'Provide the Signer details either by entering them or scanning',
+          'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
         ],
-        title: 'Keep your signer ready',
-        subTitle: 'Keep your signer ready before proceeding',
+        title: 'Setting up Signer',
+        subTitle: 'Keep your Signer ready before proceeding',
         options: [],
       };
 
@@ -1535,7 +1535,7 @@ function HardwareModalMap({
         }
         close={close}
         title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signing server"
+        subTitle="To complete setting up the signer"
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
         Content={fetchSigningServerSetup}
