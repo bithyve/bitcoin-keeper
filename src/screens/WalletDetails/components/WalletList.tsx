@@ -23,7 +23,7 @@ function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
       onPress={() =>
         navigation.navigate('EnterWalletDetail', {
           name: `Wallet ${walletIndex + 1}`,
-          description: 'Single-sig Wallet',
+          description: '',
           type: WalletType.DEFAULT,
         })
       }

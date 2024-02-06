@@ -6,10 +6,12 @@ import { hp, wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import BTCWhite from 'src/assets/images/btc_white.svg';
-import IconWallet from 'src/assets/images/icon_wallet.svg';
+
 import { SatsToBtc } from 'src/constants/Bitcoin';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Colors from 'src/theme/Colors';
+import HexagonIcon from 'src/components/HexagonIcon';
 
 function WalletSendInfo({
   availableAmt = '',
@@ -18,28 +20,21 @@ function WalletSendInfo({
   isSats = false,
   currencyIcon = BTCIcon,
   selectedUTXOs = [],
+  icon,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
+
   return (
-    <Box
-      testID="view_wallet_info"
-      style={styles.container}
-      // backgroundColor={`${colorMode}.seashellWhite`}
-    >
+    <Box testID="view_wallet_info" style={styles.container}>
       <Box style={styles.wrapper}>
         <Box w={'15%'}>
-          <TouchableOpacity style={styles.buttonBackground}>
-            <IconWallet />
+          <TouchableOpacity>
+            <HexagonIcon width={44} height={38} backgroundColor={Colors.RussetBrown} icon={icon} />
           </TouchableOpacity>
         </Box>
-        <Box
-          style={{
-            marginLeft: wp(10),
-            width: '55%',
-          }}
-        >
+        <Box style={styles.walletSendInfoWrapper}>
           <Text color={`${colorMode}.primaryText`} numberOfLines={1} style={styles.walletNameText}>
             {walletName}
           </Text>
@@ -134,6 +129,10 @@ const styles = StyleSheet.create({
   advanceText: {
     fontSize: 12,
     letterSpacing: 0.6,
+  },
+  walletSendInfoWrapper: {
+    marginLeft: wp(10),
+    width: '55%',
   },
 });
 export default WalletSendInfo;

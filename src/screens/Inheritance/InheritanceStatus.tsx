@@ -18,7 +18,6 @@ import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
-// import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
@@ -31,8 +30,11 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { Signer } from 'src/core/wallets/interfaces/vault';
 
-function InheritanceStatus() {
+function InheritanceStatus({ route }) {
+  const { vaultId } = route.params;
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
@@ -43,18 +45,19 @@ function InheritanceStatus() {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId, getFirst: true });
   const fingerPrints = activeVault.signers.map((signer) => signer.masterFingerprint);
 
   const descriptorString = genrateOutputDescriptors(activeVault);
   const [isSetupDone, setIsSetupDone] = useState(false);
+  const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   useEffect(() => {
     if (activeVault && activeVault.signers) {
-      const [ikSigner] = activeVault.signers.filter(
-        (signer) => signer.type === SignerType.INHERITANCEKEY
+      const [ikVaultKey] = activeVault.signers.filter(
+        (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
       );
-      if (ikSigner) setIsSetupDone(true);
+      if (ikVaultKey) setIsSetupDone(true);
       else setIsSetupDone(false);
     }
   }, [activeVault]);
@@ -85,21 +88,7 @@ function InheritanceStatus() {
               ? 'Please create a 3 of 5 vault to proceed with adding inheritance support'
               : 'Add an assisted key to create a 3 of 6 vault'
           }
-          isSetupDone={isSetupDone}
-          onPress={() => {
-            if (isSetupDone) {
-              showToast('You have successfully added the Inheritance Key.', <TickIcon />);
-              return;
-            }
-            navigtaion.dispatch(
-              CommonActions.navigate({
-                name: 'AddSigningDevice',
-                merge: true,
-                params: { isInheritance: true },
-              })
-            );
-          }}
-          disableCallback={disableInheritance}
+          disableCallback={true}
         />
         <Box style={styles.sectionTitleWrapper}>
           <Text style={styles.sectionTitle}>Tips</Text>

@@ -10,7 +10,6 @@ import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
-
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 import { Alert, StyleSheet } from 'react-native';
@@ -35,6 +34,9 @@ import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
+import useVault from 'src/hooks/useVault';
+import { AppStackParams } from 'src/navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -71,6 +73,7 @@ function Footer({
   isRemix,
   setRemixingToVault,
   remixingToVault,
+  vaultId,
 }) {
   const navigation = useNavigation();
 
@@ -127,30 +130,31 @@ function Footer({
       wallet={wallet}
       utxos={utxos}
       setRemixingToVault={setRemixingToVault}
+      vaultId={vaultId}
     />
   );
 }
-
-function UTXOManagement({ route, navigation }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOManagement'>;
+function UTXOManagement({ route, navigation }: ScreenProps) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const styles = getStyles();
-  const {
-    data,
-    routeName,
-    accountType,
-  }: { data: Wallet | Vault; routeName: string; accountType: string } = route.params || {};
+  const { data, routeName, accountType, vaultId = '' } = route.params || {};
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const { id } = data;
-  const wallet = useWallets({ walletIds: [id] }).wallets[0];
+  const wallet = vaultId
+    ? useVault({ vaultId }).activeVault
+    : useWallets({ walletIds: [id] }).wallets[0];
 
   const whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface = useWhirlpoolWallets({
     wallets: [wallet],
   })?.[wallet.id];
 
-  const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const isWhirlpoolWallet = vaultId
+    ? false
+    : Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedAccount, setSelectedAccount] = useState<string>();
   const [depositWallet, setDepositWallet] = useState<any>();
@@ -307,6 +311,7 @@ function UTXOManagement({ route, navigation }) {
           selectedAccount={selectedAccount}
           setRemixingToVault={setRemixingToVault}
           remixingToVault={remixingToVault}
+          vaultId={vaultId}
         />
       ) : null}
       <KeeperModal

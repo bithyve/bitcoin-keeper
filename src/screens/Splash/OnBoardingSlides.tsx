@@ -15,7 +15,7 @@ import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Illustration1 from 'src/assets/images/illustration_1.svg';
 import Illustration2 from 'src/assets/images/illustration_2.svg';
-import Illustration7 from 'src/assets/images/illustration_7.svg';
+import Illustration8 from 'src/assets/images/illustration_8.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
@@ -60,16 +60,9 @@ function OnBoardingSlides({ navigation }) {
     },
     {
       id: 3,
-      title: (
-        <>
-          {`${onboarding.slide07Title} `}
-          <Text italic style={styles.info}>
-            {onboarding.whirlpool}
-          </Text>
-        </>
-      ),
-      paragraph: onboarding.slide07Paragraph,
-      illustration: <Illustration7 />,
+      title: onboarding.slide08Title,
+      paragraph: onboarding.slide08Paragraph,
+      illustration: <Illustration8 />,
     },
   ]);
 

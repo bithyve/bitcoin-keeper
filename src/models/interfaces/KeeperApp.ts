@@ -19,4 +19,5 @@ export interface KeeperApp {
   networkType: NetworkType;
   backup: AppBackup;
   subscription: SubScription;
+  enableAnalytics: boolean;
 }

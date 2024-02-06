@@ -1,37 +1,31 @@
 import React from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import Recieve from 'src/assets/images/receive.svg';
-import Send from 'src/assets/images/send.svg';
-import IconSettings from 'src/assets/images/icon_settings.svg';
-import BuyBitcoin from 'src/assets/images/icon_buy.svg';
-import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
-import KeeperFooter from 'src/components/KeeperFooter';
+import SendIcon from 'src/assets/images/icon_sent_footer.svg';
+import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
+import SettingIcon from 'src/assets/images/settings_footer.svg';
 
-function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
+import KeeperFooter from 'src/components/KeeperFooter';
+import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
+
+function TransactionFooter({ currentWallet }) {
   const navigation = useNavigation();
 
   const footerItems = [
     {
-      Icon: Send,
+      Icon: SendIcon,
       text: 'Send',
       onPress: () => navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet })),
       hideItems: !allowedSendTypes.includes(currentWallet.type),
     },
     {
-      Icon: Recieve,
+      Icon: RecieveIcon,
       text: 'Receive',
       onPress: () =>
         navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet })),
       hideItems: !allowedRecieveTypes.includes(currentWallet.type),
     },
     {
-      Icon: BuyBitcoin,
-      text: 'Buy',
-      onPress: onPressBuyBitcoin,
-      hideItems: !allowedRecieveTypes.includes(currentWallet.type),
-    },
-    {
-      Icon: IconSettings,
+      Icon: SettingIcon,
       text: 'Settings',
       onPress: () =>
         navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet: currentWallet })),

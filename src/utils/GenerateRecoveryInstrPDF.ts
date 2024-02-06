@@ -65,32 +65,32 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
             <p>Twitter: https://twitter.com/bitcoinkeeper_ </p>
             <p>Email: info@bithyve.com  </p><br>
             <p>Restoring the vault:</p>
-            <p>We have attached the Output Descriptor file as an Annexure to this document. To recover the vault, please input the Output Descriptor file in a wallet (such as Electrum or Sparrow) that supports a multi-sig setup. You could, of course, use Keeper to recover the vault, but it’s not necessary that you do. Look for the “Recovery” button/section when setting up a wallet. Follow the steps from there.</p>
+            <p>We have attached the Wallet Configuration File as an Annexure to this document. To recover the vault, please input the Wallet Configuration File in a wallet (such as Electrum or Sparrow) that supports a multi-sig setup. You could, of course, use Keeper to recover the vault, but it’s not necessary that you do. Look for the “Recovery” button/section when setting up a wallet. Follow the steps from there.</p>
             <p>Please note that the funds associated with these keys may be in any combination of single-key or multi-signature (multisig) wallets. </p>
             <p>A) Key: Type Details </p>
             ${signers
               .map(
                 (keys, index) =>
-                  `<p>Key ${index + 1}: ${keys.signerId}</p>
+                  `<p>Key ${index + 1}: ${keys.xfp}</p>
                <p>Type: ${keys.type}</p>`
               )
               .join('')}<br>
             ${signers
               .map(
                 (keys, index) =>
-                  `<p>Key ${index + 1}: ${keys.signerId}</p>
+                  `<p>Key ${index + 1}: ${keys.xfp}</p>
               <p>Location details: </p>
               <p>Access details: </p><br>`
               )
               .join('')}
             <p>Any other information:</p> <br><br><br><br><br>
             <p>----------------------------------------------------------------------------------------------------</p>
-            <p>With the Output Descriptor file and the keys with you, you now have complete access to the vault.</p>
+            <p>With the Wallet Configuration File and the keys with you, you now have complete access to the vault.</p>
             <p>----------------------------------------------------------------------------------------------------</p>
             <p>This document is one of three Inheritance Planning documents provided by Keeper. The other 2 are Letter to the Attorney and Key Security Tips. This document is auto-produced by the Bitcoin Keeper app. The data shared in this document is sensitive. Please be cautious about revealing part or all of its contents to anyone. To learn more, please visit bitcoinkeeper.app.</p>
             <p>----------------------------------------------------------------------------------------------------</p>
             <p>Annexure 1</p>
-            <p>Output Descriptor</p>
+            <p>Wallet Configuration File</p>
             <p style="font-size: 15px">${descriptorString}</p>
             </body>
         </html>

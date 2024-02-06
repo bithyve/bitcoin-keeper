@@ -9,7 +9,9 @@ import Text from 'src/components/KeeperText';
 
 type Props = {
   title?: string;
+  titleColor?: string;
   subtitle?: string;
+  subTitleColor?: string;
   onPressHandler?: () => void;
   enableBack?: boolean;
   learnMore?: boolean;
@@ -19,26 +21,31 @@ type Props = {
   rightComponent?: Element;
   contrastScreen?: boolean;
   marginLeft?: boolean;
+  icon?: Element;
 };
 function KeeperHeader({
   title = '',
   subtitle = '',
+  titleColor,
+  subTitleColor,
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   learnBackgroundColor = 'light.lightAccent',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
   contrastScreen = false,
-  marginLeft = true
+  marginLeft = true,
+  icon = null,
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const styles = getStyles(marginLeft);
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <Box style={[styles.backContainer]}>
+        <Box style={styles.backContainer}>
           <TouchableOpacity
             testID="btn_back"
             onPress={onPressHandler || navigation.goBack}
@@ -64,26 +71,28 @@ function KeeperHeader({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box style={{ paddingLeft: marginLeft ? '10%' : 0 }}>
-          {title && (
-            <Text
-              numberOfLines={1}
-              style={[styles.addWalletText, { fontSize: 16 }]}
-              color={`${colorMode}.headerText`}
-              testID={`text_header_title`}
-            >
-              {title}
-            </Text>
-          )}
-          {subtitle && (
-            <Text
-              style={[styles.addWalletDescription]}
-              color={`${colorMode}.black`}
-              testID={`text_header_subtitle`}
-            >
-              {subtitle}
-            </Text>
-          )}
+        <Box style={styles.headerInfo}>
+          {icon && icon}
+          <Box>
+            {title && (
+              <Text
+                style={styles.addWalletText}
+                color={titleColor ? titleColor : `${colorMode}.headerText`}
+                testID="text_header_title"
+              >
+                {title}
+              </Text>
+            )}
+            {subtitle && (
+              <Text
+                style={[styles.addWalletDescription]}
+                color={subTitleColor ? subTitleColor : `${colorMode}.black`}
+                testID="text_header_subtitle"
+              >
+                {subtitle}
+              </Text>
+            )}
+          </Box>
         </Box>
         <Box>{rightComponent}</Box>
       </Box>
@@ -91,50 +100,57 @@ function KeeperHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'transparent',
-  },
-  addWalletText: {
-    lineHeight: 26,
-    letterSpacing: 0.8,
-  },
-  addWalletDescription: {
-    fontSize: 12,
-    lineHeight: 20,
-    letterSpacing: 0.5,
-  },
-  backContainer: {
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 5,
-    paddingVertical: windowHeight > 680 ? 15 : 7,
-  },
-  backButton: {
-    height: 20,
-    width: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  learnMoreContainer: {
-    borderWidth: 0.5,
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  learnMoreText: {
-    fontSize: 12,
-    letterSpacing: 0.6,
-    alignSelf: 'center',
-  },
-  headerContainer: {
-    width: windowWidth * 0.85,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-});
+const getStyles = (marginLeft: boolean) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: 'transparent',
+    },
+    addWalletText: {
+      lineHeight: 26,
+      letterSpacing: 0.8,
+      fontSize: 18,
+    },
+    addWalletDescription: {
+      fontSize: 14,
+      lineHeight: 20,
+      letterSpacing: 0.5,
+    },
+    backContainer: {
+      justifyContent: 'space-between',
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 5,
+      paddingVertical: windowHeight > 680 ? 15 : 7,
+    },
+    backButton: {
+      height: 20,
+      width: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    learnMoreContainer: {
+      borderWidth: 0.5,
+      borderRadius: 5,
+      paddingHorizontal: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    learnMoreText: {
+      fontSize: 12,
+      letterSpacing: 0.6,
+      alignSelf: 'center',
+    },
+    headerContainer: {
+      width: windowWidth * 0.85,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    headerInfo: {
+      paddingLeft: marginLeft ? '10%' : 0,
+      flexDirection: 'row',
+      gap: 10,
+    },
+  });
 export default KeeperHeader;

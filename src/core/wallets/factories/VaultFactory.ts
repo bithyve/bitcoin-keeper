@@ -11,6 +11,7 @@ import {
   VisibilityType,
 } from '../enums';
 import {
+  Signer,
   Vault,
   VaultPresentationData,
   VaultScheme,
@@ -38,13 +39,16 @@ const STANDARD_VAULT_SCHEME = [
   { m: 3, n: 5 },
 ];
 
-export const generateVaultId = (signers, networkType, scheme) => {
-  const network = WalletUtilities.getNetworkByType(networkType);
+export const generateVaultId = (signers: VaultSigner[], scheme) => {
   const xpubs = signers.map((signer) => signer.xpub).sort();
-  const fingerprints = [];
-  xpubs.forEach((xpub) =>
-    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
-  );
+  const xpubMap = {};
+  signers.forEach((signer) => {
+    xpubMap[signer.xpub] = signer;
+  });
+  const fingerprints = xpubs.map((xpub) => {
+    const signer = xpubMap[xpub];
+    return signer.xfp;
+  });
   STANDARD_VAULT_SCHEME.forEach((s) => {
     if (s.m !== scheme.m || s.n !== scheme.n) {
       fingerprints.push(JSON.stringify(scheme));
@@ -64,6 +68,7 @@ export const generateVault = async ({
   networkType,
   vaultShellId,
   collaborativeWalletId,
+  signerMap,
 }: {
   type: VaultType;
   vaultName: string;
@@ -73,8 +78,9 @@ export const generateVault = async ({
   networkType: NetworkType;
   vaultShellId?: string;
   collaborativeWalletId?: string;
+  signerMap: { [key: string]: Signer };
 }): Promise<Vault> => {
-  const id = generateVaultId(signers, networkType, scheme);
+  const id = generateVaultId(signers, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
@@ -125,7 +131,7 @@ export const generateVault = async ({
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 
   // update cosigners map(if one of the signers is an assisted key)
-  await updateCosignersMapForAssistedKeys(signers);
+  await updateCosignersMapForAssistedKeys(signers, signerMap);
 
   return vault;
 };
@@ -227,10 +233,14 @@ export const generateMockExtendedKey = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateCosignerMapIds = (signers: VaultSigner[], except: SignerType) => {
+export const generateCosignerMapIds = (
+  signerMap: { [key: string]: Signer },
+  keys: VaultSigner[],
+  except: SignerType
+) => {
   const cosignerIds = [];
-  signers.forEach((signer) => {
-    if (signer.type !== except) cosignerIds.push(signer.signerId);
+  keys.forEach((signer) => {
+    if (signerMap[signer.masterFingerprint].type !== except) cosignerIds.push(signer.xfp);
   });
 
   cosignerIds.sort();
@@ -245,28 +255,30 @@ export const generateCosignerMapIds = (signers: VaultSigner[], except: SignerTyp
 };
 
 export const generateCosignerMapUpdates = (
-  signers: VaultSigner[],
+  signerMap: { [key: string]: Signer },
+  keys: VaultSigner[],
   assistedKey: VaultSigner
 ): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
-  const cosignersMapIds = generateCosignerMapIds(signers, assistedKey.type);
+  const assistedKeyType = signerMap[assistedKey.masterFingerprint].type;
+  const cosignersMapIds = generateCosignerMapIds(signerMap, keys, assistedKeyType);
 
-  if (assistedKey.type === SignerType.POLICY_SERVER) {
+  if (assistedKeyType === SignerType.POLICY_SERVER) {
     const cosignersMapUpdates: CosignersMapUpdate[] = [];
     for (let id of cosignersMapIds) {
       cosignersMapUpdates.push({
         cosignersId: id,
-        signerId: assistedKey.signerId,
+        signerId: assistedKey.xfp,
         action: CosignersMapUpdateAction.ADD,
       });
     }
 
     return cosignersMapUpdates;
-  } else if (assistedKey.type === SignerType.INHERITANCEKEY) {
+  } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
     const cosignersMapUpdates: IKSCosignersMapUpdate[] = [];
     for (let id of cosignersMapIds) {
       cosignersMapUpdates.push({
         cosignersId: id,
-        inheritanceKeyId: assistedKey.signerId,
+        inheritanceKeyId: assistedKey.xfp,
         action: IKSCosignersMapUpdateAction.ADD,
       });
     }
@@ -275,20 +287,26 @@ export const generateCosignerMapUpdates = (
   } else throw new Error('Non-supported signer type');
 };
 
-const updateCosignersMapForAssistedKeys = async (signers) => {
-  for (let signer of signers) {
-    if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
-      const cosignersMapUpdates = generateCosignerMapUpdates(signers, signer);
+const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
+  for (let key of keys) {
+    const assistedKeyType = signerMap[key.masterFingerprint]?.type;
+    if (
+      assistedKeyType === SignerType.POLICY_SERVER ||
+      assistedKeyType === SignerType.INHERITANCEKEY
+    ) {
+      // creates maps per signer type
+      const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, keys, key);
 
-      if (signer.type === SignerType.POLICY_SERVER) {
+      // updates our backend with the cosigners map
+      if (assistedKeyType === SignerType.POLICY_SERVER) {
         const { updated } = await SigningServer.updateCosignersToSignerMap(
-          signer.signerId,
+          key.xfp,
           cosignersMapUpdates as CosignersMapUpdate[]
         );
         if (!updated) throw new Error('Failed to update cosigners-map for SS Assisted Keys');
-      } else if (signer.type === SignerType.INHERITANCEKEY) {
+      } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
         const { updated } = await InheritanceKeyServer.updateCosignersToSignerMapIKS(
-          signer.signerId,
+          key.xfp,
           cosignersMapUpdates as IKSCosignersMapUpdate[]
         );
         if (!updated) throw new Error('Failed to update cosigners-map for IKS Assisted Keys');
@@ -316,6 +334,8 @@ export const MOCK_SD_MNEMONIC_MAP = {
     'equal gospel mirror humor early liberty finger breeze super celery invite proof',
   [SignerType.BITBOX02]:
     'journey gospel position invite winter pattern inquiry scrub sorry early enable badge',
+  [SignerType.SPECTER]:
+    'journey invite inquiry day among poverty inquiry affair keen pave nasty position',
 };
 
 export const generateMockExtendedKeyForSigner = (
@@ -324,6 +344,9 @@ export const generateMockExtendedKeyForSigner = (
   networkType = NetworkType.TESTNET
 ) => {
   const mockMnemonic = MOCK_SD_MNEMONIC_MAP[signer];
+  if (!mockMnemonic) {
+    throw new Error(`We don't support mock flow for soft keys`);
+  }
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, 123);

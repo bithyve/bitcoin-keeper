@@ -1,132 +1,81 @@
-import { useEffect, useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-
-import { useAppSelector } from 'src/store/hooks';
-import useVault from 'src/hooks/useVault';
-import { getSignerNameFromType, getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
-import idx from 'idx';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
-import useSubscription from './useSubscription';
+import { SignerType } from 'src/core/wallets/enums';
+import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import useSignerMap from './useSignerMap';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import usePlan from './usePlan';
 
-const getPrefillForSignerList = (scheme, vaultSigners) => {
-  let fills = [];
-  if (vaultSigners.length < scheme.n) {
-    fills = new Array(scheme.n - vaultSigners.length).fill(null);
-  }
-  return fills;
-};
-
-const signerLimitMatchesSubscriptionScheme = ({ vaultSigners, currentSignerLimit }) =>
-  vaultSigners && vaultSigners.length !== currentSignerLimit;
-
-const areSignersSame = ({ activeVault, signersState }) => {
-  if (!activeVault) {
+const areSignersSame = ({ existingKeys, vaultKeys }) => {
+  if (!existingKeys.length || !vaultKeys.length) {
     return false;
   }
-  const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
-  const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
-  return currentSignerIds.sort().join() === activeSignerIds.sort().join();
+  const currentXfps = vaultKeys.map((signer) => (signer ? signer.xfp : ''));
+  const activeXfps = existingKeys.map((signer) => signer.xfp);
+  return currentXfps.sort().join() === activeXfps.sort().join();
 };
 
-export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
-  const xPubTypeToSwitch = schemeN === 1 ? XpubTypes.P2WPKH : XpubTypes.P2WSH;
-  const completeSigner =
-    !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WPKH].xpub) &&
-    !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
-  const shouldSwitchXpub =
-    completeSigner && signer.xpub !== signer.xpubDetails[xPubTypeToSwitch].xpub;
-  if (shouldSwitchXpub) {
-    const switchedXpub = signer.xpubDetails[xPubTypeToSwitch].xpub;
-    const switchedDerivation = signer.xpubDetails[xPubTypeToSwitch].derivationPath;
-    const switchedXpriv = signer.xpubDetails[xPubTypeToSwitch].xpriv;
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-    return {
-      ...signer,
-      xpub: switchedXpub,
-      derivationPath: switchedDerivation,
-      xpriv: switchedXpriv,
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(switchedXpub, network),
-    };
-  }
-  return signer;
-};
-
-const useSignerIntel = ({ scheme }) => {
-  const { activeVault } = useVault();
-  const vaultSigners = useAppSelector((state) => state.vault.signers);
-  const [signersState, setSignersState] = useState(vaultSigners);
-  const { validSigners } = useSubscription();
-
-  useEffect(() => {
-    const fills = getPrefillForSignerList(scheme, vaultSigners);
-    setSignersState(
-      vaultSigners.map((signer) => updateSignerForScheme(signer, scheme.n)).concat(fills)
-    );
-  }, [vaultSigners]);
+const useSignerIntel = ({
+  scheme,
+  vaultKeys,
+  selectedSigners,
+  existingKeys,
+}: {
+  scheme: VaultScheme;
+  vaultKeys: VaultSigner[];
+  selectedSigners;
+  existingKeys: VaultSigner[];
+}) => {
+  const { signerMap } = useSignerMap();
+  const { plan } = usePlan();
+  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
 
   const amfSigners = [];
-  const misMatchedSigners = [];
-  signersState.forEach((signer: VaultSigner) => {
-    if (signer) {
-      if (isSignerAMF(signer)) amfSigners.push(signer.type);
-      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
-      if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
-        misMatchedSigners.push(signer.masterFingerprint);
-      }
-    }
-  });
+  for (let mfp of selectedSigners.keys()) {
+    const signer = signerMap[mfp];
+    if (isSignerAMF(signer)) amfSigners.push(signer.type);
+  }
 
   let invalidIKS = false;
   let invalidSS = false;
   let invalidMessage = '';
 
-  signersState.forEach((signer) => {
-    if (signer) {
-      if (signer.type === SignerType.INHERITANCEKEY) {
-        if (!validSigners.includes(signer.type)) {
-          invalidIKS = true;
-          invalidMessage = `${getSignerNameFromType(signer.type)} is not allowed in ${
-            SubscriptionTier.L2
-          } Please upgrade your plan or remove them`;
-        } else if (vaultSigners.length < 5) {
-          invalidIKS = true;
-          invalidMessage = `You need at least 5 signers to use ${getSignerNameFromType(
-            signer.type
-          )}. Please add more signers`;
+  vaultKeys.forEach((key) => {
+    if (key) {
+      const isIKS = signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY;
+      const isSS = signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER;
+      const signerName = getSignerNameFromType(signerMap[key.masterFingerprint].type);
+      if (isSS) {
+        if (isOnL1) {
+          invalidSS = true;
+          invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L2} Please upgrade your plan or remove them`;
+        } else if (scheme.m < 2 || scheme.n < 3) {
+          invalidSS = true;
+          invalidMessage = `You need at least 3 signers and 2 required signers to use ${signerName}. Please add more signers`;
         }
       }
-      if (signer.type === SignerType.POLICY_SERVER) {
-        if (!validSigners.includes(signer.type)) {
-          invalidSS = true;
-          invalidMessage = `${getSignerNameFromType(signer.type)} is not allowed in ${
-            SubscriptionTier.L1
-          } Please upgrade your plan or remove them`;
-        } else if (vaultSigners.length < 3) {
-          invalidSS = true;
-          invalidMessage = `You need at least 3 signers to use ${getSignerNameFromType(
-            signer.type
-          )}. Please add more signers`;
+      if (isIKS) {
+        if (!isOnL3) {
+          invalidIKS = true;
+          invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L3} Please upgrade your plan or remove them`;
+        } else if (scheme.m < 3 || scheme.n < 5) {
+          invalidIKS = true;
+          invalidMessage = `You need at least 5 signers and 3 required signers to use ${signerName}. Please add more signers`;
         }
       }
     }
   });
 
   const areSignersValid =
-    signersState.every((signer) => !signer) ||
-    signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit: scheme.n }) ||
-    areSignersSame({ activeVault, signersState }) ||
-    !!misMatchedSigners.length ||
+    vaultKeys.every((signer) => !signer) ||
+    scheme.n !== vaultKeys.length ||
+    areSignersSame({ existingKeys, vaultKeys }) ||
     invalidIKS ||
     invalidSS;
 
   return {
-    signersState,
     areSignersValid,
     amfSigners,
-    misMatchedSigners,
     invalidSS,
     invalidIKS,
     invalidMessage,

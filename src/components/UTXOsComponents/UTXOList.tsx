@@ -17,7 +17,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Label({
@@ -124,10 +124,7 @@ function UTXOElement({
       style={styles.utxoCardContainer}
       onPress={() => {
         if (enableSelection && !item.confirmed) {
-          showToast(
-            walletTranslation.intiatePremixToastMsg,
-            <ToastErrorIcon />
-          );
+          showToast(walletTranslation.intiatePremixToastMsg, <ToastErrorIcon />);
           return;
         }
         if (allowSelection) {

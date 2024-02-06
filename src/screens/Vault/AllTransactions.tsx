@@ -15,11 +15,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function AllTransactions({ route }) {
   const dispatch = useDispatch();
-  const title = route?.params?.title;
-  const entityKind = route?.params?.entityKind;
-  const subtitle = route?.params?.subtitle;
-  const collaborativeWalletId = route?.params?.collaborativeWalletId;
-  const { activeVault: vault } = useVault(collaborativeWalletId);
+  const { title, entityKind, subtitle, collaborativeWalletId = '', vaultId = '' } = route?.params;
+  const { activeVault: vault } = useVault({ collaborativeWalletId, vaultId });
 
   const wallet: Wallet = useQuery(RealmSchema.Wallet)
     .map(getJSONFromRealmObject)

@@ -18,7 +18,7 @@ export const getLedgerDetailsFromChannel = (data, isMultisig) => {
     return {
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint: xfp,
       xpubDetails,
     };
   } catch (error) {

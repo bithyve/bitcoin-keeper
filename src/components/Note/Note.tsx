@@ -2,6 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
+import Fonts from 'src/constants/Fonts';
 
 type Props = {
   title?: string;
@@ -16,7 +17,7 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '1
   return (
     <Box style={styles.container}>
       <Box>
-        <Text testID="text_note_title" color={`${colorMode}.primaryText`} style={styles.title}>
+        <Text testID="text_note_title" color={`${colorMode}.headerText`} style={styles.title}>
           {title}
         </Text>
       </Box>
@@ -26,6 +27,7 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '1
           width={width}
           color={`${colorMode}.${subtitleColor}`}
           style={styles.subTitle}
+          light
         >
           {subtitle}
         </Text>
