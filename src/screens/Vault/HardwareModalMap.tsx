@@ -781,12 +781,8 @@ function HardwareModalMap({
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
 
-  //TODO---need to pass vault id
-  //1- useSigner with vault id and use those signers (complete)
-  //2- useSigner without vault id when there is no vault (Pending Pratyskh)
   const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
-  // const { signingDevices } = useAppSelector((state) => state.bhr);
   const { signers } = useSigners();
   const signingDevices = signers;
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
