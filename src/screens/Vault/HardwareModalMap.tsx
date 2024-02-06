@@ -76,8 +76,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
 import SignerCard from '../AddSigner/SignerCard';
 import useSigners from 'src/hooks/useSigners';
-// import { formatDuration } from '../VaultRecovery/VaultRecovery';
-// import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
+
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 
 const RNBiometrics = new ReactNativeBiometrics();
