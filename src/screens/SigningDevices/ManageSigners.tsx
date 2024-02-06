@@ -15,12 +15,16 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import { UNVERIFYING_SIGNERS } from 'src/hardware';
+import useVault from 'src/hooks/useVault';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 const ManageSigners = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { vaultId = '', vaultKeys = [] } = route.params || {};
+  const { vaultId = '' } = route.params || {};
+  const { activeVault } = useVault({ vaultId });
+  const { signers: vaultKeys } = activeVault ? activeVault : { signers: [] };
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
 
@@ -59,6 +63,7 @@ const ManageSigners = ({ route }: ScreenProps) => {
         signerMap={signerMap}
         handleCardSelect={handleCardSelect}
         handleAddSigner={handleAddSigner}
+        vault={activeVault}
       />
     </ScreenWrapper>
   );
@@ -71,12 +76,23 @@ const SignersList = ({
   signerMap,
   handleCardSelect,
   handleAddSigner,
+  vault,
 }) => (
   <VStack style={styles.signerContainer}>
     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       <Box style={styles.addedSignersContainer}>
         {(vaultKeys.length ? vaultKeys : signers).map((item) => {
           const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+          const isRegistered = vaultKeys.length
+            ? item.registeredVaults.find((info) => info.vaultId === vault.id)
+            : false;
+          const showDot =
+            vaultKeys.length &&
+            !UNVERIFYING_SIGNERS.includes(signer.type) &&
+            !isRegistered &&
+            !signer.isMock &&
+            vault.isMultisig;
+
           return (
             <SignerCard
               key={signer.masterFingerprint}
@@ -86,6 +102,7 @@ const SignersList = ({
               icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
               isSelected={false}
               showSelection={false}
+              showDot={showDot}
             />
           );
         })}
