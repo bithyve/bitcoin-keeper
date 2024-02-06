@@ -49,12 +49,14 @@ export type AppStackParams = {
         routeName: string;
         accountType?: string;
         vaultId: string;
+        collaborativeWalletId?: string;
       }
     | {
         data: Wallet | Vault;
         routeName: string;
         accountType: string;
         vaultId?: string;
+        collaborativeWalletId?: string;
       };
   WalletSettings: undefined;
   BackupWallet: undefined;

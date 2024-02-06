@@ -28,6 +28,7 @@ import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
 import { windowHeight } from 'src/constants/responsive';
+import { TransferType } from 'src/models/enums/TransferType';
 
 const { width } = Dimensions.get('window');
 
@@ -109,11 +110,11 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
             btnText: ' Transfer Now',
           },
           heading: 'Trasfer to Vault',
-          cta: () => {
+          cta: (info) => {
             activeVault
               ? navigtaion.navigate('SendConfirmation', {
                   uaiSetActionFalse,
-                  walletId: uai?.entityId,
+                  walletId: info.entityId,
                   transferType: TransferType.WALLET_TO_VAULT,
                 })
               : showToast('No vaults found', <ToastErrorIcon />);
@@ -198,7 +199,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
     if (info?.isDisplay) {
       setShowModal(true);
     } else {
-      uaiConfig?.cta();
+      uaiConfig?.cta(info);
     }
   };
 
