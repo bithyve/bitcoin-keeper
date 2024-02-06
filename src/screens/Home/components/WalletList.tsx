@@ -44,16 +44,7 @@ export const WalletsList = ({ allWallets, navigation, totalBalance }) => (
 
 const handleWalletPress = (wallet, navigation) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    switch (wallet.type) {
-      case VaultType.COLLABORATIVE:
-        navigation.navigate('VaultDetails', {
-          collaborativeWalletId: (wallet as Vault).collaborativeWalletId,
-        });
-        return;
-      case VaultType.DEFAULT:
-      default:
-        navigation.navigate('VaultDetails', { vaultId: wallet.id });
-    }
+    navigation.navigate('VaultDetails', { vaultId: wallet.id });
   } else {
     navigation.navigate('WalletDetails', { walletId: wallet.id });
   }
