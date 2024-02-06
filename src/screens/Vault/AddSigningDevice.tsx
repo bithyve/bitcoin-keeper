@@ -229,12 +229,8 @@ const Footer = ({
       <Buttons
         primaryDisable={!!areSignersValid || !!trezorIncompatible}
         primaryLoading={relayVaultUpdateLoading}
-        primaryText="Create Vault"
+        primaryText="Proceed"
         primaryCallback={() => setCreating(true)}
-        secondaryText="Cancel"
-        secondaryCallback={() => {
-          navigation.goBack();
-        }}
         paddingHorizontal={wp(30)}
       />
     </Box>
@@ -375,9 +371,7 @@ function AddSigningDevice() {
             icon={<VaultIcon />}
           />
         }
-        learnMore
-        learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor={`${colorMode}.white`}
+        //To-Do-Learn-More
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}

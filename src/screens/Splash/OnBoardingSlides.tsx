@@ -35,26 +35,13 @@ function OnBoardingSlides({ navigation }) {
   const [items] = useState([
     {
       id: 1,
-      title: (
-        <>
-          <Text italic style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
-          {onboarding.security}
-          {` ${onboarding.slide01Title}`}
-        </>
-      ),
+      title: `${onboarding.Comprehensive} ${onboarding.security} ${onboarding.slide01Title}`,
       paragraph: onboarding.slide01Paragraph,
       illustration: <Illustration1 />,
     },
     {
       id: 2,
-      title: (
-        <>
-          {`${onboarding.slide02Title} `}
-          <Text italic style={styles.info}>
-            {onboarding.privacy}
-          </Text>
-        </>
-      ),
+      title: <>{`${onboarding.slide02Title} ${onboarding.privacy}`}</>,
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration2 />,
     },
@@ -131,7 +118,7 @@ function OnBoardingSlides({ navigation }) {
                 </Box>
               </TouchableOpacity>
             </Box>
-            <Box flexDirection="row" height={5}>
+            <Box alignItems="center" flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => (
                   <Box

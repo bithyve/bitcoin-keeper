@@ -420,7 +420,7 @@
   "vault": {
     "SetupyourVault": "Setup a vault",
     "AddCustomMultiSig": "Add Custom MultiSig",
-    "configureScheme": "Create an m-of-n multisig vault",
+    "configureScheme": "Create an m-of-n vault",
     "VaultDesc": "A signer is an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",

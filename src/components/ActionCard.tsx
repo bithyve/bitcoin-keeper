@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: hp(25),
     marginBottom: hp(10),
+    marginLeft: 2,
   },
   dottedBorder: {
     position: 'absolute',

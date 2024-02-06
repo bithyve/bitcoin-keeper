@@ -112,39 +112,27 @@ function WalletDetails({ route }: ScreenProps) {
           learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
+          title={name}
+          titleColor={`${colorMode}.seashellWhite`}
+          subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
+          subTitleColor={`${colorMode}.seashellWhite`}
+          icon={isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletIcon />}
         />
-        <VStack>
-          <Box style={styles.walletHeaderWrapper}>
-            <Box style={styles.walletIconWrapper}>
-              <Box style={styles.walletIconView}>
-                {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletIcon />}
-              </Box>
-            </Box>
-            <Box style={styles.walletNameWrapper}>
-              <Text color={`${colorMode}.white`} style={styles.walletNameText}>
-                {name}
-              </Text>
-              <Text color={`${colorMode}.white`} style={styles.walletDescText}>
-                {walletType === 'IMPORTED' ? 'Imported wallet' : description}
-              </Text>
-            </Box>
+        <Box style={styles.balanceWrapper}>
+          <Box style={styles.unconfirmBalanceView}>
+            <CardPill heading="SINGLE SIG" backgroundColor={`${colorMode}.PaleTurquoise`} />
+            <CardPill heading={wallet.type} />
           </Box>
-          <Box style={styles.balanceWrapper}>
-            <Box style={styles.unconfirmBalanceView}>
-              <CardPill heading="SINGLE SIG" backgroundColor={`${colorMode}.PaleTurquoise`} />
-              <CardPill heading={wallet.type} />
-            </Box>
-            <Box style={styles.availableBalanceView}>
-              <CurrencyInfo
-                hideAmounts={false}
-                amount={unconfirmed + confirmed}
-                fontSize={22}
-                color={`${colorMode}.white`}
-                variation={colorMode === 'light' ? 'light' : 'dark'}
-              />
-            </Box>
+          <Box style={styles.availableBalanceView}>
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={unconfirmed + confirmed}
+              fontSize={22}
+              color={`${colorMode}.white`}
+              variation={colorMode === 'light' ? 'light' : 'dark'}
+            />
           </Box>
-        </VStack>
+        </Box>
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
@@ -215,7 +203,7 @@ const styles = StyleSheet.create({
   },
   walletContainer: {
     paddingHorizontal: wp(28),
-    paddingTop: wp(45),
+    paddingTop: wp(60),
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
@@ -261,7 +249,7 @@ const styles = StyleSheet.create({
   balanceWrapper: {
     flexDirection: 'row',
     width: '90%',
-    marginVertical: wp(20),
+    marginVertical: wp(30),
     marginHorizontal: wp(20),
   },
   unconfirmBalanceView: {
@@ -280,7 +268,7 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   actionCard: {
-    marginTop: 40,
+    marginTop: 20,
     marginBottom: -50,
     zIndex: 10,
     flexDirection: 'row',

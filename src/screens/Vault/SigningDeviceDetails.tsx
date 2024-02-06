@@ -45,6 +45,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -326,6 +327,7 @@ function SigningDeviceDetails({ route }) {
       <KeeperHeader
         learnMore
         learnMorePressed={() => setDetailModal(true)}
+        learnTextColor={`${colorMode}.white`}
         title={signer.signerName}
         subtitle={
           signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
@@ -336,6 +338,7 @@ function SigningDeviceDetails({ route }) {
             icon={SDIcons(signer.type, true).Icon}
           />
         }
+        rightComponent={<CurrencyTypeSwitch />}
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>
@@ -347,7 +350,7 @@ function SigningDeviceDetails({ route }) {
           ))}
         </Box>
       </ScrollView>
-      <KeeperFooter marginX={5} items={footerItems} />
+      <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
       <HardwareModalMap
         type={signer?.type}
         visible={visible}

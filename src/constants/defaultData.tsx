@@ -14,10 +14,9 @@ export const securityTips = [
   },
   {
     title: 'Connecting to a bitcoin node',
-    subTitle: 'Interact with the bitcoin network more privately and securely',
+    subTitle: 'Interact with the bitcoin network more privately and securely.',
     assert: <LoadingAnimation />,
-    message:
-      'Eliminate reliance on third parties to validate financial transactions and hold your funds.',
+    message: 'Eliminate reliance on third parties to hold your funds and validating transactions.',
   },
   {
     title: 'Security Tip',
@@ -29,9 +28,9 @@ export const securityTips = [
   {
     title: 'Introducing Inheritance Tools',
     subTitle:
-      'Use Inheritance documents for your inheritance planning. Inheritance Key is an assisted key that can be availed by your heir',
+      'Use Inheritance documents for your inheritance planning. Inheritance Key is an assisted key that can be availed by your heir.',
     assert: <InheritanceToolsIllustartion />,
-    message: 'Consult your estate planner for incorporating documents from this app in your will',
+    message: 'Consult your estate planner for incorporating documents from this app in your will.',
   },
   {
     title: 'Keep your signers safe',
@@ -49,10 +48,32 @@ export const securityTips = [
   },
   {
     title: 'Security Tip',
-    subTitle: 'Check the send-to address on a signer you are going to use to sign the transaction.',
+    subTitle:
+      'Check the send-to address on a signing device you are going to use to sign the transaction.',
     assert: <LoadingAnimation />,
     message:
       'This ensures that the signed transaction has the intended recipient and the address was not swapped',
+  },
+  {
+    title: 'Logging in to your Keeper app',
+    subTitle: 'Shake your device or take a screenshot to send feedback.',
+    assert: <LoadingAnimation />,
+    message:
+      'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.',
+  },
+  {
+    title: 'Confirming your subscription',
+    subTitle: 'Unlock inheritance planning at the Diamond Hands tier.',
+    assert: <LoadingAnimation />,
+    message:
+      'You can change your subscription at anytime from within the app or from the subscription details in your profile.',
+  },
+  {
+    title: 'Keep your signing devices safe',
+    subTitle: 'Signing devices are what control your funds.',
+    assert: <LoadingAnimation />,
+    message:
+      'These are generally offline and to keep them secure is your responsibility. Losing them may lead to permanent loss of your bitcoin.',
   },
 ];
 export const getSecurityTip = () => {
