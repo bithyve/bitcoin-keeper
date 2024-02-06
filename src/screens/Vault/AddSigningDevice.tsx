@@ -2,7 +2,13 @@ import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Signer, VaultScheme, VaultSigner, signerXpubs } from 'src/core/wallets/interfaces/vault';
+import {
+  Signer,
+  Vault,
+  VaultScheme,
+  VaultSigner,
+  signerXpubs,
+} from 'src/core/wallets/interfaces/vault';
 import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -97,7 +103,7 @@ const onSignerSelect = (
   }
 };
 
-const isSignerValidForScheme = (signer: Signer, scheme) => {
+const isSignerValidForScheme = (signer: Signer, scheme, allVaults: Vault[], signerMap) => {
   const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
   const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
   const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -106,12 +112,35 @@ const isSignerValidForScheme = (signer: Signer, scheme) => {
     (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
   ) {
     return false;
-  } else {
-    return true;
   }
+
+  if (signer.type === SignerType.POLICY_SERVER) {
+    if (scheme.m < 2 || scheme.n < 3) return false; // signing server key can be added for Vaults w/ m: 2 and n:3
+  } else if (signer.type === SignerType.INHERITANCEKEY) {
+    // inheritance key can be added for Vaults w/ at least 5 keys
+    if (scheme.m < 3 || scheme.n < 5) return false;
+
+    // TEMP: Disabling multiple IKS
+    let IKSExists = false;
+    for (const vault of allVaults) {
+      vault.signers.forEach((key) => {
+        if (signerMap[key.masterFingerprint]?.type === SignerType.INHERITANCEKEY) IKSExists = true;
+      });
+    }
+    if (IKSExists) return false;
+  }
+
+  return true;
 };
 
-const setInitialKeys = (activeVault, scheme, signerMap, setVaultKeys, setSelectedSigners) => {
+const setInitialKeys = (
+  activeVault,
+  scheme,
+  allVaults,
+  signerMap,
+  setVaultKeys,
+  setSelectedSigners
+) => {
   if (activeVault) {
     // setting initital keys (update if scheme has changed)
     const vaultKeys = activeVault.signers;
@@ -120,7 +149,7 @@ const setInitialKeys = (activeVault, scheme, signerMap, setVaultKeys, setSelecte
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
       const signer = signerMap[key.masterFingerprint];
-      if (isSignerValidForScheme(signer, scheme)) {
+      if (isSignerValidForScheme(signer, scheme, allVaults, signerMap)) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
           updatedSignerMap.set(key.masterFingerprint, true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -223,10 +252,12 @@ const Signers = ({
   showToast,
   navigation,
   vaultId,
+  allVaults,
+  signerMap,
 }) => {
   const renderSigners = () => {
     return signers.map((signer) => {
-      const disabled = !isSignerValidForScheme(signer, scheme);
+      const disabled = !isSignerValidForScheme(signer, scheme, allVaults, signerMap);
       return (
         <SignerCard
           disabled={disabled}
@@ -301,7 +332,7 @@ function AddSigningDevice() {
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
-  const { activeVault } = useVault({ vaultId });
+  const { activeVault, allVaults } = useVault({ vaultId });
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
     vaultKeys,
@@ -310,7 +341,7 @@ function AddSigningDevice() {
   });
 
   useEffect(() => {
-    setInitialKeys(activeVault, scheme, signerMap, setVaultKeys, setSelectedSigners);
+    setInitialKeys(activeVault, scheme, allVaults, signerMap, setVaultKeys, setSelectedSigners);
   }, []);
 
   const subtitle =
@@ -368,6 +399,8 @@ function AddSigningDevice() {
         showToast={showToast}
         navigation={navigation}
         vaultId={vaultId}
+        allVaults={allVaults}
+        signerMap={signerMap}
       />
       <Footer
         amfSigners={amfSigners}
