@@ -57,7 +57,7 @@ function NewHomeScreen({ navigation }) {
   const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
     (item) => item !== null
   );
-
+  const [isShowAmount, setIsShowAmount] = useState(false);
   const [addImportVisible, setAddImportVisible] = useState(false);
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
@@ -227,6 +227,8 @@ function NewHomeScreen({ navigation }) {
         allWallets={allWallets}
         navigation={navigation}
         totalBalance={netBalanceWallets + netBalanceAllVaults}
+        isShowAmount={isShowAmount}
+        setIsShowAmount={() => setIsShowAmount(!isShowAmount)}
       />
       <HomeModals
         addImportVisible={addImportVisible}
