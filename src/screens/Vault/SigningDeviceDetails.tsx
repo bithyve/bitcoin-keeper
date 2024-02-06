@@ -225,7 +225,6 @@ function SigningDeviceDetails({ route }) {
   }
 
   const { title, subTitle, assert, description, FAQ } = getSignerContent(signer?.type);
-
   function SignerContent() {
     return (
       <Box>
