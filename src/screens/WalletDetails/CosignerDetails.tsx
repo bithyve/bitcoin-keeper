@@ -16,6 +16,8 @@ import Note from 'src/components/Note/Note';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { useQuery } from '@realm/react';
+import { getKeyExpression } from 'src/core/utils';
+import { XpubTypes } from 'src/core/wallets/enums';
 
 function CosignerDetails() {
   const { colorMode } = useColorMode();
@@ -29,8 +31,14 @@ function CosignerDetails() {
 
   useEffect(() => {
     setTimeout(() => {
-      const details = getCosignerDetails(wallet, keeper.id);
-      setDetails(JSON.stringify(details));
+      const details = getCosignerDetails(wallet);
+      const keyDescriptor = getKeyExpression(
+        details.mfp,
+        details.xpubDetails[XpubTypes.P2WSH].derivationPath,
+        details.xpubDetails[XpubTypes.P2WSH].xpub,
+        false
+      );
+      setDetails(keyDescriptor);
     }, 200);
   }, []);
 

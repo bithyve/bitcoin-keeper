@@ -5,36 +5,36 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { getDeviceStatus, getSDMessage, getSignerNameFromType } from 'src/hardware';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { getDeviceStatus, getSDMessage } from 'src/hardware';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
-import useVault from 'src/hooks/useVault';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import useSigners from 'src/hooks/useSigners';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 type IProps = {
   navigation: any;
   route: {
     params: {
-      signer: VaultSigner;
-      parentNavigation: any;
+      vault: Vault;
     };
   };
 };
-function AssignSignerType({ navigation, route }: IProps) {
-  const dispatch = useDispatch();
-  const { signer, parentNavigation } = route.params;
+function AssignSignerType({ route }: IProps) {
+  const { vault } = route.params;
+  const { signers: appSigners } = useSigners();
+  const [visible, setVisible] = useState(false);
+  const [signerType, setSignerType] = useState<SignerType>();
   const assignSignerType = (type: SignerType) => {
-    parentNavigation.setParams({
-      signer: { ...signer, type, signerName: getSignerNameFromType(type) },
-    });
-    dispatch(updateSignerDetails(signer, 'type', type));
-    dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type)));
-    navigation.goBack();
+    setSignerType(type);
+    setVisible(true);
   };
   const { plan } = usePlan();
 
@@ -42,6 +42,7 @@ function AssignSignerType({ navigation, route }: IProps) {
     SignerType.TAPSIGNER,
     SignerType.COLDCARD,
     SignerType.SEEDSIGNER,
+    SignerType.SPECTER,
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
@@ -50,16 +51,18 @@ function AssignSignerType({ navigation, route }: IProps) {
     SignerType.BITBOX02,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
-    SignerType.MOBILE_KEY,
+    // SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
   ];
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
-  const {
-    activeVault: { signers, scheme },
-  } = useVault();
+  const { scheme } = vault;
 
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
@@ -77,11 +80,6 @@ function AssignSignerType({ navigation, route }: IProps) {
         title="Identify your signer"
         subtitle="for better communication and conectivity"
       />
-      <VStack paddingLeft="10%" paddingTop="5%">
-        <Text>Master fingerprint: {signer.masterFingerprint}</Text>
-        <Text>Fingerprint: {signer.signerId}</Text>
-        <Text>xPub: {signer.xpub}</Text>
-      </VStack>
       <ScrollView
         contentContainerStyle={{ paddingVertical: '10%' }}
         style={{ height: hp(520) }}
@@ -95,9 +93,10 @@ function AssignSignerType({ navigation, route }: IProps) {
               const { disabled, message: connectivityStatus } = getDeviceStatus(
                 type,
                 isNfcSupported,
-                signers,
                 isOnL1,
-                scheme
+                isOnL2,
+                scheme,
+                appSigners
               );
               let message = connectivityStatus;
               if (!connectivityStatus) {
@@ -109,7 +108,9 @@ function AssignSignerType({ navigation, route }: IProps) {
                 <TouchableOpacity
                   disabled={disabled}
                   activeOpacity={0.7}
-                  onPress={() => assignSignerType(type)}
+                  onPress={() => {
+                    assignSignerType(type);
+                  }}
                   key={type}
                 >
                   <Box
@@ -135,6 +136,21 @@ function AssignSignerType({ navigation, route }: IProps) {
             })}
           </Box>
         )}
+        <HardwareModalMap
+          type={signerType}
+          visible={visible}
+          close={() => setVisible(false)}
+          vaultSigners={vault.signers}
+          skipHealthCheckCallBack={() => {
+            setVisible(false);
+          }}
+          mode={InteracationMode.IDENTIFICATION}
+          vaultShellId={vault?.shellId}
+          isMultisig={vault?.isMultiSig}
+          primaryMnemonic={primaryMnemonic}
+          addSignerFlow={false}
+          vaultId={vault.id}
+        />
       </ScrollView>
     </ScreenWrapper>
   );

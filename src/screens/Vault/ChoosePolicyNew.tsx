@@ -28,6 +28,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import useVault from 'src/hooks/useVault';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -39,7 +40,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const isUpdate = route.params.update;
+  const { isUpdate, addSignerFlow, vaultId } = route.params;
   const existingRestrictions: SignerRestriction = route.params.restrictions;
   const existingMaxTransactionRestriction = idx(
     existingRestrictions,
@@ -54,6 +55,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [minTransaction, setMinTransaction] = useState(
     existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
   );
+  const { activeVault } = useVault({ vaultId });
 
   const dispatch = useDispatch();
 
@@ -82,7 +84,7 @@ function ChoosePolicyNew({ navigation, route }) {
       };
 
       navigation.dispatch(
-        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy, addSignerFlow } })
       );
     }
   };
@@ -104,9 +106,14 @@ function ChoosePolicyNew({ navigation, route }) {
       exceptions,
     };
     const verificationToken = Number(otp);
-    dispatch(updateSignerPolicy(route.params.signer, updates, verificationToken));
+    dispatch(
+      updateSignerPolicy(route.params.signer, route.params.vaultKey, updates, verificationToken)
+    );
     navigation.dispatch(
-      CommonActions.navigate({ name: 'VaultDetails', params: { vaultTransferSuccessful: null } })
+      CommonActions.navigate({
+        name: 'VaultDetails',
+        params: { vaultId: activeVault.id, vaultTransferSuccessful: null },
+      })
     );
   };
 
@@ -232,7 +239,7 @@ function ChoosePolicyNew({ navigation, route }) {
           showValidationModal(false);
         }}
         title="Confirm OTP to change policy"
-        subTitle="To complete setting up the signing server"
+        subTitle="To complete setting up the signer"
         textColor="light.primaryText"
         Content={otpContent}
       />

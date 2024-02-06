@@ -3,7 +3,7 @@ import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useCallback, useRef, useState } from 'react';
 import moment from 'moment';
 
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/core/wallets/interfaces/vault';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -11,7 +11,7 @@ import Colors from 'src/theme/Colors';
 import Fonts from 'src/constants/Fonts';
 import { SDIcons } from '../SigningDeviceIcons';
 
-function SignerData({ signer }: { signer: VaultSigner }) {
+function SignerData({ signer }: { signer: Signer }) {
   const { colorMode } = useColorMode();
   return (
     <HStack>
@@ -28,7 +28,7 @@ function SignerData({ signer }: { signer: VaultSigner }) {
   );
 }
 
-function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
+function Content({ signer, descRef }: { signer: Signer; descRef }) {
   const { colorMode } = useColorMode();
   const updateDescription = useCallback((text) => {
     descRef.current = text;
@@ -68,7 +68,7 @@ function DescriptionModal({
 }: {
   visible: boolean;
   close: () => void;
-  signer: VaultSigner;
+  signer: Signer;
   callback: any;
 }) {
   const { colorMode } = useColorMode();

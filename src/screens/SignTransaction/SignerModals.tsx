@@ -18,6 +18,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
@@ -27,7 +28,7 @@ import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import * as SecureStore from 'src/storage/secure-store';
 import Buttons from 'src/components/Buttons';
 import useAsync from 'src/hooks/useAsync';
@@ -97,6 +98,22 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
           {
             "\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned."
           }
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
+  return (
+    <Box alignItems="center">
+      <SpecterSetupImage />
+      <Box marginTop={2}>
+        {`\u2022 Make sure ${
+          isMultisig ? 'the multisig wallet is registered with the Specter and ' : ''
+        }the right bitcoin network is set before signing the transaction`}
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -346,7 +363,7 @@ function OtpContent({ signTransaction }) {
           color="light.greenText"
           marginTop={2}
         >
-          If you lose your authenticator app, use the other signers to reset the Signing Server
+          If you lose your authenticator app, use the other signers to reset the signer
         </Text>
         <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
@@ -370,7 +387,8 @@ function OtpContent({ signTransaction }) {
 }
 
 function SignerModals({
-  activeSignerId,
+  vaultId,
+  activeXfp,
   coldCardModal,
   tapsignerModal,
   ledgerModal,
@@ -399,11 +417,15 @@ function SignerModals({
   showOTPModal,
   signTransaction,
   textRef,
-  signers,
+  vaultKeys,
   isMultisig,
   collaborativeWalletId,
+  signerMap,
+  specterModal,
+  setSpecterModal,
 }: {
-  activeSignerId: string;
+  vaultId: string;
+  activeXfp: string;
   coldCardModal: boolean;
   tapsignerModal: boolean;
   ledgerModal: boolean;
@@ -432,45 +454,65 @@ function SignerModals({
   showOTPModal: any;
   signTransaction: any;
   textRef: any;
-  signers: VaultSigner[];
+  vaultKeys: VaultSigner[];
   isMultisig: boolean;
   collaborativeWalletId: string;
+  signerMap: { [key: string]: Signer };
+  specterModal: boolean;
+  setSpecterModal: any;
 }) {
   const navigation = useNavigation();
 
-  const navigateToQrSigning = (signer) => {
+  const navigateToQrSigning = (vaultKey: VaultSigner) => {
     setPassportModal(false);
     setSeedSignerModal(false);
     setKeeperModal(false);
     setOtherSDModal(false);
     setJadeModal(false);
+    setSpecterModal(false);
     navigation.dispatch(
-      CommonActions.navigate('SignWithQR', { signTransaction, signer, collaborativeWalletId })
+      CommonActions.navigate('SignWithQR', {
+        signTransaction,
+        vaultKey,
+        collaborativeWalletId,
+        vaultId,
+      })
     );
   };
 
-  const navigateToChannelSigning = (signer) => {
+  const navigateToChannelSigning = (vaultKey: VaultSigner) => {
     setTrezorModal(false);
     setBitbox02Modal(false);
     setLedgerModal(false);
     navigation.dispatch(
-      CommonActions.navigate('SignWithChannel', { signTransaction, signer, collaborativeWalletId })
+      CommonActions.navigate('SignWithChannel', {
+        signTransaction,
+        vaultKey,
+        collaborativeWalletId,
+        vaultId,
+      })
     );
   };
   return (
     <>
-      {signers.map((signer) => {
-        const currentSigner = signer.signerId === activeSignerId;
+      {vaultKeys.map((vaultKey) => {
+        const signer = signerMap[vaultKey.masterFingerprint];
+        const currentSigner = vaultKey.xfp === activeXfp;
         if (signer.type === SignerType.TAPSIGNER) {
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
             navigation.dispatch(
-              CommonActions.navigate('SignWithTapsigner', { signTransaction, signer, textRef })
+              CommonActions.navigate('SignWithTapsigner', {
+                signTransaction,
+                vaultKey,
+                textRef,
+                vaultId,
+              })
             );
           };
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && tapsignerModal}
               close={() => setTapsignerModal(false)}
               title="Keep your TAPSIGNER ready"
@@ -482,17 +524,22 @@ function SignerModals({
           );
         }
         if (signer.type === SignerType.COLDCARD) {
-          const { registered } = signer;
+          const info = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId);
           const navigateToSignWithColdCard = () => {
             setColdCardModal(false);
             navigation.dispatch(
-              CommonActions.navigate('SignWithColdCard', { signTransaction, signer, isMultisig })
+              CommonActions.navigate('SignWithColdCard', {
+                signTransaction,
+                vaultKey,
+                isMultisig,
+                vaultId,
+              })
             );
           };
-          const shouldRegister = !registered && isMultisig;
+          const shouldRegister = isMultisig && !info?.registered;
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && coldCardModal}
               close={() => setColdCardModal(false)}
               title={shouldRegister ? 'Register Coldcard' : 'Keep your Mk4 ready'}
@@ -506,7 +553,7 @@ function SignerModals({
         if (signer.type === SignerType.LEDGER) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && ledgerModal}
               close={() => {
                 setLedgerModal(false);
@@ -516,14 +563,14 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <LedgerContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(signer)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.MOBILE_KEY) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && passwordModal}
               close={() => {
                 setPasswordModal(false);
@@ -531,20 +578,25 @@ function SignerModals({
               title="Enter your password"
               subTitle=""
               textColor="light.primaryText"
-              Content={() => <PasswordEnter signTransaction={signTransaction} />}
+              Content={() => (
+                <PasswordEnter
+                  signTransaction={signTransaction}
+                  setPasswordModal={setPassportModal}
+                />
+              )}
             />
           );
         }
         if (signer.type === SignerType.POLICY_SERVER) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && otpModal}
               close={() => {
                 showOTPModal(false);
               }}
               title="Confirm OTP to sign transaction"
-              subTitle="To sign using signing server key"
+              subTitle="To sign using signer key"
               textColor="light.primaryText"
               Content={() => <OtpContent signTransaction={signTransaction} />}
             />
@@ -553,7 +605,7 @@ function SignerModals({
         if (signer.type === SignerType.PASSPORT) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && passportModal}
               close={() => {
                 setPassportModal(false);
@@ -563,14 +615,14 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <PassportContent isMultisig={isMultisig} />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(signer)}
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.SEEDSIGNER) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && seedSignerModal}
               close={() => {
                 setSeedSignerModal(false);
@@ -580,14 +632,31 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <SeedSignerContent isMultisig={isMultisig} />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(signer)}
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
+            />
+          );
+        }
+        if (signer.type === SignerType.SPECTER) {
+          return (
+            <KeeperModal
+              key={vaultKey.xfp}
+              visible={currentSigner && specterModal}
+              close={() => {
+                setSpecterModal(false);
+              }}
+              title="Keep Specter Ready"
+              subTitle="Keep your Specter ready before proceeding"
+              textColor="light.primaryText"
+              Content={() => <SpecterContent isMultisig={isMultisig} />}
+              buttonText="Proceed"
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.KEYSTONE) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && keystoneModal}
               close={() => {
                 setKeystoneModal(false);
@@ -597,14 +666,14 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <KeystoneContent isMultisig={isMultisig} />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(signer)}
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.JADE) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && jadeModal}
               close={() => {
                 setJadeModal(false);
@@ -614,14 +683,14 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <JadeContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(signer)}
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.TREZOR) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && trezorModal}
               close={() => {
                 setTrezorModal(false);
@@ -631,14 +700,14 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <TrezorContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(signer)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.BITBOX02) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && bitbox02Modal}
               close={() => {
                 setBitbox02Modal(false);
@@ -648,14 +717,14 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <BitBox02Content />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(signer)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.OTHER_SD) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && otherSDModal}
               close={() => {
                 setOtherSDModal(false);
@@ -665,24 +734,24 @@ function SignerModals({
               textColor="light.primaryText"
               Content={() => <OtherSDContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(signer)}
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
           );
         }
         if (signer.type === SignerType.KEEPER) {
           return (
             <KeeperModal
-              key={signer.signerId}
+              key={vaultKey.xfp}
               visible={currentSigner && keeperModal}
               close={() => {
                 setKeeperModal(false);
               }}
               title="Keep your Device Ready"
-              subTitle="Keep your Collaborative Signer ready before proceeding"
+              subTitle="Keep your Collaborative Key ready before proceeding"
               textColor="light.primaryText"
               Content={() => <KeeperContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(signer)}
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
           );
         }

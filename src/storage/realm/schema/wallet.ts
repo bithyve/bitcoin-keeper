@@ -106,7 +106,7 @@ export const WalletDerivationDetailsSchema: ObjectSchema = {
   embedded: true,
   properties: {
     instanceNum: 'int?',
-    mnemonic: 'string',
+    mnemonic: 'string?',
     bip85Config: `${RealmSchema.BIP85Config}?`,
     xDerivationPath: 'string',
   },

@@ -36,6 +36,7 @@ import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import SwiperModal from './components/SwiperModal';
 import UtxoSummary from './UtxoSummary';
+import { CommonActions } from '@react-navigation/native';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -237,11 +238,17 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const navigateToWalletDetails = () => {
     setShowBroadcastModal(false);
-    navigation.navigate('UTXOManagement', {
-      data: depositWallet,
-      routeName: 'Wallet',
-      accountType: WalletType.PRE_MIX,
-    });
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'UTXOManagement',
+        params: {
+          data: depositWallet,
+          routeName: 'Wallet',
+          accountType: WalletType.PRE_MIX,
+        },
+        merge: true,
+      })
+    );
   };
 
   return (

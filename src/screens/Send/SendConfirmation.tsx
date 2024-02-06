@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, ScrollView } from 'native-base';
+import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -48,6 +48,7 @@ import AddIcon from 'src/assets/images/add.svg';
 import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import CustomPriorityModal from './CustomPriorityModal';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -226,7 +227,7 @@ function Transaction({ txFeeInfo, transactionPriority }) {
   );
 }
 
-function TextValue({ amt, unit }) {
+function TextValue({ amt, getValueIcon }) {
   return (
     <Text
       style={{
@@ -235,7 +236,7 @@ function TextValue({ amt, unit }) {
         textAlign: 'right',
       }}
     >
-      {amt} sats
+      {amt} {getValueIcon() === 'sats' ? 'sats' : '$'}
     </Text>
   );
 }
@@ -247,6 +248,7 @@ function SendingPriority({
   availableTransactionPriorities,
   setVisibleCustomPriorityModal,
   getBalance,
+  getSatUnit,
 }) {
   const { translations } = useContext(LocalizationContext);
   const { settings, wallet: walletTranslation } = translations;
@@ -315,9 +317,7 @@ function SendingPriority({
                   </Text>
                   <TextValue
                     amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
-                    unit={{
-                      bitcoinUnit: BitcoinUnit.SATS,
-                    }}
+                    getValueIcon={getSatUnit}
                   />
                 </Box>
               </TouchableOpacity>
@@ -412,7 +412,7 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
     </>
   );
 }
-function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance }) {
+function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance, getSatUnit }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -425,24 +425,21 @@ function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance
         </Text>
       </Box>
       <Box style={styles.transPriorityWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-        <Box style={{ width: '30%' }}>
+        <Box>
           <Text style={styles.transLabelText}>{walletTransactions.PRIORITY}</Text>
           <Text style={styles.transLabelText}>{walletTransactions.ARRIVALTIME}</Text>
           <Text style={styles.transLabelText}>{walletTransactions.FEE}</Text>
         </Box>
-        <Box style={{ width: '65%' }}>
+        <Box>
           <Text style={styles.transLabelText}>{transactionPriority.toUpperCase()}</Text>
           <Text style={styles.transLabelText}>
             ~{' '}
             {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10}{' '}
             mins
           </Text>
-          <Box style={{ flexDirection: 'row', width: '100%' }}>
-            <Box style={{ width: '50%' }}>
-              <Text style={styles.transFiatFeeText}>80000000</Text>
-            </Box>
+          <Box>
             <Box style={styles.transSatsFeeWrapper}>
-              <BTC />
+              {getSatUnit() === 'sats' ? <BTC /> : <Text style={{ fontSize: 8 }}>$</Text>}
               &nbsp;
               <Text style={styles.transSatsFeeText}>
                 {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
@@ -554,7 +551,7 @@ function SendConfirmation({ route }) {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item.id === walletId);
-  const { activeVault: defaultVault } = useVault();
+  const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
@@ -567,7 +564,7 @@ function SendConfirmation({ route }) {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
-  const [subTitle, setSubTitle] = useState('Choose priority and fee');
+  const [subTitle, setSubTitle] = useState('Review the transaction setup');
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
@@ -662,12 +659,10 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
-  let collaborativeWalletId;
-  if (transferType !== TransferType.WALLET_TO_VAULT) {
+  const collaborativeWalletId =
     sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
       ? sender.collaborativeWalletId
       : '';
-  }
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -677,6 +672,7 @@ function SendConfirmation({ route }) {
           note,
           label,
           collaborativeWalletId,
+          vaultId: sender.id,
         })
       );
     }
@@ -684,12 +680,18 @@ function SendConfirmation({ route }) {
 
   const viewDetails = () => {
     setVisibleModal(false);
-    if (vaultTransfers.includes(transferType)) {
+    if (vaultTransfers.includes(transferType) && collaborativeWalletId) {
       const navigationState = {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+          {
+            name: 'VaultDetails',
+            params: {
+              autoRefresh: true,
+              collaborativeWalletId,
+            },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -730,7 +732,11 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={title} subtitle={subTitle} />
+      <KeeperHeader
+        title={'Send Confirmation'}
+        subtitle={subTitle}
+        rightComponent={<CurrencyTypeSwitch />}
+      />
       <ScrollView marginX={7} flex={1} showsVerticalScrollIndicator={false}>
         <SendingCard
           isSend
@@ -763,22 +769,17 @@ function SendConfirmation({ route }) {
             transactionPriority={transactionPriority}
             txFeeInfo={txFeeInfo}
             getBalance={getBalance}
+            getSatUnit={getSatUnit}
           />
         </TouchableOpacity>
-        <AmountDetails
-          title={walletTransactions.totalAmount}
-          fiatAmount="10,000.00"
-          satsAmount={getBalance(amount)}
-        />
+        <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
         <AmountDetails
           title={walletTransactions.totalFees}
-          fiatAmount="80.00"
           satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
         <AmountDetails
           title={walletTransactions.total}
-          fiatAmount="10,080.00"
           satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
           fontSize={17}
           fontWeight="400"
@@ -881,6 +882,7 @@ function SendConfirmation({ route }) {
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
+            getSatUnit={getSatUnit}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
               dispatch(customPrioritySendPhaseOneReset());
@@ -990,6 +992,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: windowHeight * 0.019,
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   transTitleWrapper: {
     marginVertical: 10,
@@ -1073,5 +1076,10 @@ const styles = StyleSheet.create({
   highAlertSatsFee: {
     fontSize: 12,
     fontFamily: Fonts.FiraSansCondensedRegular,
+  },
+  currentTypeSwitchWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '25%',
   },
 });
