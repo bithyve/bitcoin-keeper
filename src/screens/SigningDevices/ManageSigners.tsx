@@ -17,6 +17,7 @@ import Colors from 'src/theme/Colors';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 const ManageSigners = ({ route }: ScreenProps) => {
@@ -77,21 +78,30 @@ const SignersList = ({
   handleCardSelect,
   handleAddSigner,
   vault,
+}: {
+  colorMode: string;
+  vaultKeys: VaultSigner[];
+  signers: Signer[];
+  signerMap: any;
+  handleCardSelect: any;
+  handleAddSigner: any;
+  vault: Vault;
 }) => (
   <VStack style={styles.signerContainer}>
     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       <Box style={styles.addedSignersContainer}>
-        {(vaultKeys.length ? vaultKeys : signers).map((item) => {
+        {(vaultKeys.length ? vaultKeys : signers).map((item, i) => {
           const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
           const isRegistered = vaultKeys.length
             ? item.registeredVaults.find((info) => info.vaultId === vault.id)
             : false;
+
           const showDot =
             vaultKeys.length &&
             !UNVERIFYING_SIGNERS.includes(signer.type) &&
             !isRegistered &&
             !signer.isMock &&
-            vault.isMultisig;
+            vault.isMultiSig;
 
           return (
             <SignerCard
