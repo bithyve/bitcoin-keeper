@@ -30,6 +30,7 @@ const ManageSigners = ({ route }: ScreenProps) => {
         signer,
         vaultId,
         vaultKey: vaultKeys.length ? item : undefined,
+        vaultSigners: vaultKeys,
       })
     );
   };

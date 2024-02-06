@@ -1,10 +1,11 @@
 import { Box, HStack, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 
-function BalanceComponent({ balance, count }) {
+function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.walletWrapper}>
@@ -12,15 +13,15 @@ function BalanceComponent({ balance, count }) {
         <Text style={[styles.noOfWallet, { fontWeight: 'bold' }]}>{count}</Text>
         <Text style={styles.noOfWallet}>Wallet{count > 1 && 's'}</Text>
       </HStack>
-      <Box style={styles.amount}>
+      <TouchableOpacity onPress={setIsShowAmount} style={styles.amount}>
         <CurrencyInfo
           hideAmounts={false}
-          amount={balance}
+          amount={isShowAmount ? balance : '*****'}
           fontSize={27}
           color={`${colorMode}.primaryText`}
           variation="dark"
         />
-      </Box>
+      </TouchableOpacity>
     </Box>
   );
 }
