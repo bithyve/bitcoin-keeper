@@ -435,9 +435,9 @@ const setupSeedSigner = (qrData, isMultisig) => {
   throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const verifySeedSigner = (qrData, signer) => {
-  const { xpub } = getSeedSignerDetails(qrData);
-  return xpub === signer.xpub;
+const verifySeedSigner = (qrData: any, signer: VaultSigner) => {
+  const { masterFingerprint } = getSeedSignerDetails(qrData);
+  return masterFingerprint === signer.masterFingerprint;
 };
 
 const setupSpecter = (qrData, isMultisig) => {
@@ -458,8 +458,8 @@ const setupSpecter = (qrData, isMultisig) => {
 };
 
 const verifySpecter = (qrData, signer) => {
-  const { xpub } = getSpecterDetails(qrData);
-  return xpub === signer.xpub;
+  const { masterFingerprint } = getSpecterDetails(qrData);
+  return masterFingerprint === signer.masterFingerprint;
 };
 
 const setupKeystone = (qrData, isMultisig) => {
@@ -480,8 +480,8 @@ const setupKeystone = (qrData, isMultisig) => {
 };
 
 const verifyKeystone = (qrData, signer) => {
-  const { xpub } = getKeystoneDetails(qrData);
-  return xpub === signer.xpub;
+  const { masterFingerprint } = getKeystoneDetails(qrData);
+  return masterFingerprint === signer.masterFingerprint;
 };
 
 const setupJade = (qrData, isMultisig) => {
@@ -502,8 +502,8 @@ const setupJade = (qrData, isMultisig) => {
 };
 
 const verifyJade = (qrData, signer) => {
-  const { xpub } = getJadeDetails(qrData);
-  return xpub === signer.xpub;
+  const { masterFingerprint } = getJadeDetails(qrData);
+  return masterFingerprint === signer.masterFingerprint;
 };
 
 const setupKeeperSigner = (qrData) => {
@@ -533,8 +533,8 @@ const setupKeeperSigner = (qrData) => {
 
 const verifyKeeperSigner = (qrData, signer) => {
   try {
-    const { xpub } = JSON.parse(qrData);
-    return xpub === signer.xpub;
+    const { masterFingerprint } = extractKeyFromDescriptor(qrData);
+    return masterFingerprint === signer.masterFingerprint;
   } catch (err) {
     const message = crossInteractionHandler(err);
     throw new Error(message);
@@ -849,9 +849,11 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       try {
         setInProgress(true);
-        const { isSignerAvailable } = await SigningServer.checkSignerHealth(
-          signer.masterFingerprint
+        const signerXfp = WalletUtilities.getFingerprintFromExtendedKey(
+          signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
         );
+        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp);
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
@@ -862,6 +864,7 @@ function HardwareModalMap({
         }
         setInProgress(false);
       } catch (err) {
+        console.log(err);
         setInProgress(false);
         close();
         showToast('Error in Health check', <ToastErrorIcon />, 3000);
