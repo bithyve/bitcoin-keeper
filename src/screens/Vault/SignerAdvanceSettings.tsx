@@ -36,21 +36,22 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer, vaultKey, vaultId }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } =
+  const { vaultKey, vaultId }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } =
     route.params;
+  const { signerMap } = useSignerMap();
+  const signer = signerMap[vaultKey.masterFingerprint];
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
 
-  const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails.at(-1)) || '';
-  //TODO--Need to confirm with Parsh
-  // const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
+  const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
