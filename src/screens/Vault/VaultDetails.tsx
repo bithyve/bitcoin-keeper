@@ -289,12 +289,16 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
             subTitleColor={`${colorMode}.seashellWhite`}
             //TODO: Add collaborativeWalletIcon
             icon={
-              <HexagonIcon
-                width={58}
-                height={50}
-                backgroundColor={Colors.deepTeal}
-                icon={!!collaborativeWalletId ? <CollaborativeIcon /> : <VaultIcon />}
-              />
+              !!collaborativeWalletId ? (
+                <CollaborativeIcon />
+              ) : (
+                <HexagonIcon
+                  width={58}
+                  height={50}
+                  backgroundColor={Colors.deepTeal}
+                  icon={<VaultIcon />}
+                />
+              )
             }
             subtitle={vault.presentationData.description}
             learnMore

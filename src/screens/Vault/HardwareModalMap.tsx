@@ -116,19 +116,16 @@ const getSignerContent = (
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
     case SignerType.COLDCARD:
-      const ccInstructions =
-        'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n';
       return {
         Illustration: <ColdCardSetupImage />,
-        Instructions: isTestnet()
-          ? [
-              ccInstructions,
-              'From here choose the account number and transfer over NFC',
-              'Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.',
-            ]
-          : [ccInstructions],
+        Instructions: [
+          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
+          'From here choose the account number and transfer over NFC',
+        ],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
+        sepInstruction:
+          'Make sure you remember the account you had chosen (This is important for vault recovery)',
         options: [],
       };
     case SignerType.JADE:
@@ -162,7 +159,7 @@ const getSignerContent = (
       return {
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          'Make sure that this wallet’s Recovery Phrase is backed-up properly to secure this key.',
+          'Make sure that this wallet’s Recovery Key is backed-up properly to secure this key.',
         ],
         title: isHealthcheck ? 'Verify Mobile Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
@@ -238,7 +235,7 @@ const getSignerContent = (
         Instructions: isTestnet()
           ? [
               specterInstructions,
-              `Make sure you enable Testnet mode on the Specter if you are running the app in the Testnet by selecting Switch network (Testnet) on the home screen`,
+              `Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen`,
             ]
           : [specterInstructions],
         title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
@@ -286,15 +283,15 @@ const getSignerContent = (
           'Make sure that you’re noting down the words in private as exposing them will compromise the Seed Key',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
+        subTitle: 'Seed Key is a 12 word Recovery Key.\nPlease note them down and store safely',
         options: [],
       };
     case SignerType.TAPSIGNER:
       return {
         Illustration: <TapsignerSetupImage />,
         Instructions: [
-          'You will need the Pin/CVC at the back of the TAPSIGNER',
-          'Make sure that the TAPSIGNER has not been used as a signer in other apps',
+          'You will need the Pin/CVC given at\n the back of the TAPSIGNER',
+          'Make sure that the TAPSIGNER has not\n been used as a signer in other apps',
         ],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
@@ -352,6 +349,7 @@ function SignerContent({
   options,
   setSelectInheritanceType,
   selectInheritanceType,
+  sepInstruction = '',
 }: {
   Illustration: Element;
   Instructions: Array<string>;
@@ -359,7 +357,9 @@ function SignerContent({
   options?: any;
   setSelectInheritanceType: (index) => any;
   selectInheritanceType: any;
+  sepInstruction?: String;
 }) {
+  const { colorMode } = useColorMode();
   return (
     <View>
       <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
@@ -370,6 +370,11 @@ function SignerContent({
         {Instructions?.map((instruction) => (
           <Instruction text={instruction} key={instruction} />
         ))}
+        {sepInstruction && (
+          <Text fontSize={13} color={`${colorMode}.SlateGrey`}>
+            {sepInstruction}
+          </Text>
+        )}
       </Box>
       <View
         style={{
@@ -1427,12 +1432,15 @@ function HardwareModalMap({
     }
   };
 
-  const { Illustration, Instructions, title, subTitle, unsupported, options } = getSignerContent(
-    type,
-    isMultisig,
-    translations,
-    isHealthcheck
-  );
+  const {
+    Illustration,
+    Instructions,
+    title,
+    subTitle,
+    unsupported,
+    options,
+    sepInstruction = '',
+  } = getSignerContent(type, isMultisig, translations, isHealthcheck);
 
   const [selectInheritanceType, setSelectInheritanceType] = useState(1);
   const Content = useCallback(
@@ -1444,6 +1452,7 @@ function HardwareModalMap({
         options={options}
         setSelectInheritanceType={setSelectInheritanceType}
         selectInheritanceType={selectInheritanceType}
+        sepInstruction={sepInstruction}
       />
     ),
     [selectInheritanceType]

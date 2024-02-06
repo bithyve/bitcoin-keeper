@@ -257,7 +257,11 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <KeeperHeader learnMore learnMorePressed={() => setLearnModalVisible(true)} />
+      <KeeperHeader
+        learnMore
+        learnMorePressed={() => setLearnModalVisible(true)}
+        learnTextColor={`${colorMode}.white`}
+      />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab
           selectedAccount={selectedAccount}

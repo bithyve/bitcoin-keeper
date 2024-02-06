@@ -366,9 +366,7 @@ function ChoosePlan() {
       <KeeperHeader
         title={choosePlan.choosePlantitle}
         subtitle={'Upgrade or downgrade'}
-        learnMore
-        learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor={`${colorMode}.white`}
+        //To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}
@@ -477,14 +475,14 @@ const styles = StyleSheet.create({
   noteWrapper: {
     bottom: 1,
     margin: 1,
-    alignItems: 'center',
+    alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
   },
   restorePurchaseWrapper: {
     padding: 1,
-    margin: 1,
+    marginBottom: 10,
     borderRadius: 5,
     borderWidth: 0.7,
     alignItems: 'center',

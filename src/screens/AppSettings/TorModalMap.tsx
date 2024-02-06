@@ -31,7 +31,7 @@ function TorConnectionFailed() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
-          This can be due to the network or other conditions
+          This can be due to network or other conditions.
         </Text>
       </Box>
     </Box>
@@ -62,7 +62,7 @@ function TorModalMap({ visible, close }) {
         visible={visible && torStatus === TorStatus.ERROR}
         close={close}
         title="Connection Error"
-        subTitle="There was an error when connecting via Tor You could continue without Connecting to Tor or try after sometime"
+        subTitle="There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
         subTitleColor="light.secondaryText"
         buttonText="Close"
         buttonTextColor="light.white"

@@ -11,9 +11,10 @@ import { hp } from 'src/constants/responsive';
 
 type Props = {
   fingerprint: string;
+  title?: string;
 };
 
-function WalletFingerprint({ fingerprint }: Props) {
+function WalletFingerprint({ title, fingerprint }: Props) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
@@ -24,7 +25,7 @@ function WalletFingerprint({ fingerprint }: Props) {
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box style={styles.textContainer}>
         <Text color={`${colorMode}.black`} style={styles.heading}>
-          Wallet Fingerprint
+          {title ? title : 'Wallet Fingerprint'}
         </Text>
         <Text color={`${colorMode}.GreenishGrey`} style={styles.value}>
           {fingerprint}

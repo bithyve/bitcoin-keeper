@@ -32,7 +32,7 @@ function KeeperHeader({
   enableBack = true,
   learnMore = false,
   learnMorePressed = () => {},
-  learnBackgroundColor = 'light.lightAccent',
+  learnBackgroundColor = 'light.RussetBrown',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
   contrastScreen = false,
