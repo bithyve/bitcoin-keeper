@@ -56,7 +56,6 @@ function AssignSignerType({ route }: IProps) {
   ];
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
-  const { scheme } = vault;
 
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
   const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
@@ -95,7 +94,7 @@ function AssignSignerType({ route }: IProps) {
                 isNfcSupported,
                 isOnL1,
                 isOnL2,
-                scheme,
+                { m: 2, n: 3 },
                 appSigners
               );
               let message = connectivityStatus;
@@ -140,7 +139,7 @@ function AssignSignerType({ route }: IProps) {
           type={signerType}
           visible={visible}
           close={() => setVisible(false)}
-          vaultSigners={vault.signers}
+          vaultSigners={vault?.signers}
           skipHealthCheckCallBack={() => {
             setVisible(false);
           }}
@@ -149,7 +148,7 @@ function AssignSignerType({ route }: IProps) {
           isMultisig={vault?.isMultiSig}
           primaryMnemonic={primaryMnemonic}
           addSignerFlow={false}
-          vaultId={vault.id}
+          vaultId={vault?.id}
         />
       </ScrollView>
     </ScreenWrapper>
