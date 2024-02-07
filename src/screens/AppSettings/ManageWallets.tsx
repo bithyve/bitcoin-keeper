@@ -238,7 +238,7 @@ function ManageWallets() {
           <TouchableOpacity
             style={styles.cancelBtn}
             onPress={() => {
-              hideWallet(selectedWallet, false);
+              updateWalletVisibility(selectedWallet, true, false);
               setShowBalanceAlert(false);
             }}
             activeOpacity={0.5}
