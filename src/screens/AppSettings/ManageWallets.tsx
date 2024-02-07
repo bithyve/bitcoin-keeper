@@ -11,7 +11,7 @@ import { EntityKind, VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
-import UnhideWalletIcon from 'src/assets/images/unhide.svg';
+import ShowIcon from 'src/assets/images/show.svg';
 import ShowAllIcon from 'src/assets/images/eye_folder.svg';
 import AlignIcon from 'src/assets/images/align_right.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
@@ -140,7 +140,7 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
             backgroundColor="light.RussetBrown"
             style={styles.learnMoreContainer}
           >
-            {isHidden ? <UnhideWalletIcon /> : <HideWalletIcon />}
+            {isHidden ? <ShowIcon /> : <HideWalletIcon />}
             <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
               {isHidden ? 'Unhide' : 'Hide'}
             </Text>
