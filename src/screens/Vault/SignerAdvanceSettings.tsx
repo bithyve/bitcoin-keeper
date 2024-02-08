@@ -41,10 +41,13 @@ const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { vaultKey, vaultId }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } =
-    route.params;
+  const {
+    vaultKey,
+    vaultId,
+    signer: signerFromParam,
+  }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerMap[vaultKey.masterFingerprint];
+  const signer = signerFromParam ? signerFromParam : signerMap[vaultKey.masterFingerprint];
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
