@@ -123,7 +123,7 @@ function TransactionList({
   pullDownRefresh,
   pullRefresh,
   vault,
-  collaborativeWalletId,
+  isCollaborativeWallet,
 }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -144,7 +144,7 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (collaborativeWalletId ? 0.03 : 0.1) }}>
+      <VStack style={{ paddingTop: windowHeight * (isCollaborativeWallet ? 0.03 : 0.1) }}>
         <Text
           color={`${colorMode}.black`}
           style={styles.transactionHeading}
@@ -175,22 +175,18 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
 
-  const {
-    vaultTransferSuccessful = false,
-    autoRefresh = false,
-    collaborativeWalletId = '',
-    vaultId = '',
-  } = route.params || {};
+  const { vaultTransferSuccessful = false, autoRefresh = false, vaultId = '' } = route.params || {};
 
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { activeVault: vault } = useVault({ collaborativeWalletId, vaultId });
+  const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(true);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const { vaultSigners: keys } = useSigners(vault.id);
-  const inheritanceSigner = keys.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
+  const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
   const transactions = vault?.specs?.transactions || [];
+  const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
 
   useEffect(() => {
     if (autoRefresh) syncVault();
@@ -209,18 +205,18 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
           <VaultSetupIcon />
         </Box>
         <Text color="white" style={styles.modalContent}>
-          {collaborativeWalletId
+          {isCollaborativeWallet
             ? vaultTranslation.walletSetupDetails
             : vaultTranslation.keeperSupportSigningDevice}
         </Text>
-        {!collaborativeWalletId ? (
+        {!isCollaborativeWallet ? (
           <Text color="white" style={styles.descText}>
             {vaultTranslation.additionalOptionForSignDevice}
           </Text>
         ) : null}
       </View>
     ),
-    [collaborativeWalletId]
+    [isCollaborativeWallet]
   );
 
   const NewVaultContent = useCallback(
@@ -277,26 +273,30 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
     <Box
       style={styles.container}
       backgroundColor={
-        collaborativeWalletId ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
+        isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.pantoneGreen`
       }
     >
       <StatusBar barStyle="light-content" />
       <VStack zIndex={1}>
         <VStack style={styles.topSection}>
           <KeeperHeader
-            title={vault.presentationData.name}
+            title={vault.presentationData?.name}
             titleColor={`${colorMode}.seashellWhite`}
             subTitleColor={`${colorMode}.seashellWhite`}
             //TODO: Add collaborativeWalletIcon
             icon={
-              <HexagonIcon
-                width={58}
-                height={50}
-                backgroundColor={Colors.deepTeal}
-                icon={!!collaborativeWalletId ? <CollaborativeIcon /> : <VaultIcon />}
-              />
+              !!isCollaborativeWallet ? (
+                <CollaborativeIcon />
+              ) : (
+                <HexagonIcon
+                  width={58}
+                  height={50}
+                  backgroundColor={Colors.deepTeal}
+                  icon={<VaultIcon />}
+                />
+              )
             }
-            subtitle={vault.presentationData.description}
+            subtitle={vault.presentationData?.description}
             learnMore
             learnTextColor="light.white"
             learnBackgroundColor="rgba(0,0,0,.2)"
@@ -339,11 +339,11 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
           vault={vault}
-          collaborativeWalletId={collaborativeWalletId}
+          isCollaborativeWallet={isCollaborativeWallet}
         />
         <Footer
           vault={vault}
-          isCollaborativeWallet={!!collaborativeWalletId}
+          isCollaborativeWallet={isCollaborativeWallet}
           identifySigner={identifySigner}
           setIdentifySignerModal={setIdentifySignerModal}
         />
@@ -371,12 +371,12 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
           dispatch(setIntroModal(false));
         }}
         title={
-          collaborativeWalletId
+          isCollaborativeWallet
             ? vaultTranslation.collaborativeWallet
             : vaultTranslation.keeperVault
         }
         subTitle={
-          collaborativeWalletId
+          isCollaborativeWallet
             ? vaultTranslation.collaborativeWalletMultipleUsers
             : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`
         }
@@ -393,7 +393,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         learnMore
         learnMoreCallback={() =>
           openLink(
-            collaborativeWalletId
+            isCollaborativeWallet
               ? `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-wallet/`
               : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`
           )

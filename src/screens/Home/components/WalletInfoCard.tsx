@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import CardPill from 'src/components/CardPill';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { useAppSelector } from 'src/store/hooks';
@@ -14,6 +14,8 @@ type WalletInfoCardProps = {
   icon: Element;
   amount: number;
   tags: string[];
+  isShowAmount: boolean;
+  setIsShowAmount: () => void;
 };
 
 function WalletInfoCard({
@@ -22,6 +24,8 @@ function WalletInfoCard({
   icon,
   amount,
   tags,
+  isShowAmount = false,
+  setIsShowAmount,
 }: WalletInfoCardProps) {
   const { colorMode } = useColorMode();
   const { satsEnabled } = useAppSelector((state) => state.settings);
@@ -34,7 +38,7 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              backgroundColor={index % 2 === 0 ? null : `${colorMode}.white`}
+              backgroundColor={index % 2 === 0 ? `${colorMode}.PaleTurquoise` : null}
             />
           );
         })}
@@ -49,13 +53,15 @@ function WalletInfoCard({
             {walletName}
           </Text>
         </Box>
-        <CurrencyInfo
-          hideAmounts={false}
-          amount={amount}
-          fontSize={satsEnabled ? 17 : 20}
-          color={`${colorMode}.white`}
-          variation={colorMode === 'light' ? 'light' : 'dark'}
-        />
+        <TouchableOpacity onPress={setIsShowAmount}>
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={isShowAmount ? amount : '****'}
+            fontSize={satsEnabled ? 17 : 20}
+            color={`${colorMode}.white`}
+            variation={colorMode === 'light' ? 'light' : 'dark'}
+          />
+        </TouchableOpacity>
       </Box>
     </Box>
   );

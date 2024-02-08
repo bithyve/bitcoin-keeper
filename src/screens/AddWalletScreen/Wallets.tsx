@@ -68,13 +68,13 @@ function Wallets({ navigation }) {
         callback={navigateToWalletCreation}
       />
       <OptionCard
-        title="2-of-3 Multisig Vault"
+        title="2-of-3 Vault"
         description="Occasional use wallet"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup({ m: 2, n: 3 })}
       />
       <OptionCard
-        title="3-of-5 Multisig Vault"
+        title="3-of-5 Vault"
         description="Deep cold storage"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup({ m: 3, n: 5 })}

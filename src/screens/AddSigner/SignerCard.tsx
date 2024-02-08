@@ -15,9 +15,7 @@ type SignerCardProps = {
   colorVarient?: string;
   disabled?: boolean;
   isFullText?: boolean;
-  titleComp?: any;
-  customStyle?: ViewStyle;
-  numberOfLines?: number;
+  showDot?: boolean;
 };
 
 function SignerCard({
@@ -31,8 +29,7 @@ function SignerCard({
   colorVarient = 'brown',
   disabled = false,
   isFullText = false,
-  customStyle,
-  numberOfLines = 1,
+  showDot = false,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -55,12 +52,10 @@ function SignerCard({
           <Box style={styles.circle} />
         ))}
       <Box style={styles.detailContainer}>
-        {icon && (
-          <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
-            {icon}
-          </Box>
-        )}
-        {titleComp && titleComp}
+        <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
+          {icon}
+          {showDot ? <Box style={styles.redDot} /> : null}
+        </Box>
         <Text
           color={`${colorMode}.SlateGrey`}
           style={styles.walletName}
@@ -115,6 +110,17 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
 

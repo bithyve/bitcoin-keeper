@@ -14,9 +14,6 @@ import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
 import { extractKeyFromDescriptor, generateSignerFromMetaData } from 'src/hardware';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -31,7 +28,6 @@ import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
-import { useQuery } from '@realm/react';
 import { globalStyles } from 'src/constants/globalStyles';
 import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -255,7 +251,6 @@ function SetupCollaborativeWallet() {
     new Array(COLLABORATIVE_SCHEME.n).fill(null)
   );
   const [isCreating, setIsCreating] = useState(false);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { showToast } = useToastMessage();
   const { collaborativeWallet } = useCollaborativeWallet(walletId);
   const { signerMap } = useSignerMap();
@@ -352,7 +347,7 @@ function SetupCollaborativeWallet() {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { collaborativeWalletId: walletId } },
+          { name: 'VaultDetails', params: { vaultId: collaborativeWallet.id } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));

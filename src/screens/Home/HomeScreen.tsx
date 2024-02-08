@@ -57,7 +57,7 @@ function NewHomeScreen({ navigation }) {
   const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
     (item) => item !== null
   );
-
+  const [isShowAmount, setIsShowAmount] = useState(false);
   const [addImportVisible, setAddImportVisible] = useState(false);
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
@@ -187,17 +187,17 @@ function NewHomeScreen({ navigation }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const cardsData = [
     {
-      name: 'Buy Bitcoin',
+      name: 'Buy\nBitcoin',
       icon: <BTC />,
       callback: onPressBuyBitcoin,
     },
     {
-      name: 'Manage All Signers',
+      name: 'Manage\nAll Signers',
       icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance and Security Tools',
+      name: 'Inheritance & Security Tools',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
@@ -227,6 +227,8 @@ function NewHomeScreen({ navigation }) {
         allWallets={allWallets}
         navigation={navigation}
         totalBalance={netBalanceWallets + netBalanceAllVaults}
+        isShowAmount={isShowAmount}
+        setIsShowAmount={() => setIsShowAmount(!isShowAmount)}
       />
       <HomeModals
         addImportVisible={addImportVisible}

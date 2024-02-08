@@ -45,6 +45,7 @@ import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
 import HexagonIcon from 'src/components/HexagonIcon';
+import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -267,6 +268,16 @@ function SendScreen({ route }) {
                     keyExtractor={(item) => item.id}
                     horizontal
                     showsHorizontalScrollIndicator={false}
+                    ListEmptyComponent={
+                      <Box style={styles.emptyWalletsContainer}>
+                        <EmptyWalletIcon />
+                        <Box style={styles.emptyWalletText}>
+                          <Text color={`${colorMode}.deepTeal`}>
+                            You don't have any wallets yet
+                          </Text>
+                        </Box>
+                      </Box>
+                    }
                   />
                 </View>
               </View>
@@ -359,6 +370,15 @@ const styles = StyleSheet.create({
   },
   sendToWalletWrapper: {
     marginTop: windowHeight > 680 ? hp(20) : hp(10),
+  },
+  emptyWalletsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyWalletText: {
+    position: 'absolute',
+    width: 100,
+    opacity: 0.8,
   },
 });
 export default SendScreen;

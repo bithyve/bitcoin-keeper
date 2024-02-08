@@ -1,21 +1,18 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 
 export function Instruction({ text }: { text: string }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.bulletContainer}>
-      <Box
-        backgroundColor={`${colorMode}.greenText`}
-        //  style={styles.bulletPoint}
-      />
+      <Box backgroundColor={`${colorMode}.greenText`} />
       <Text bold fontSize={24}>
         •
       </Text>
-      <Text color={`${colorMode}.greenText`} style={styles.infoText}>
+      <Text color={`${colorMode}.SlateGrey`} style={styles.infoText}>
         {text}
       </Text>
     </Box>
@@ -31,13 +28,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-  },
-  bulletPoint: {
-    marginRight: wp(5),
-    height: hp(5),
-    width: hp(5),
-    borderRadius: 10,
-    top: 12,
   },
   infoText: {
     letterSpacing: 0.65,

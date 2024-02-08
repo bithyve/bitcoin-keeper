@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   ctcWrapper: {
+    marginTop: 20,
     paddingRight: 5,
   },
 });

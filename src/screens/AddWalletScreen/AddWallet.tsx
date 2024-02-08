@@ -32,9 +32,7 @@ function AddWallet({ navigation }) {
       <KeeperHeader
         title={wallet.AddWallet}
         subtitle={wallet.chooseFromTemplate}
-        learnMore
-        learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor={`${colorMode}.white`}
+        //To-Do-Learn-More
       />
       <Box style={styles.container}>
         <ScrollView
@@ -44,8 +42,8 @@ function AddWallet({ navigation }) {
         >
           <WalletCard
             id={1}
-            walletName="New"
-            walletDescription="Single/Multi sig"
+            walletName="Create New"
+            walletDescription="Singlesig / Multisig"
             icon={<WalletActiveIcon />}
             selectedIcon={<WalletGreenIcon />}
             selectedCard={selectedCard}
@@ -55,7 +53,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={2}
             walletName="Import"
-            walletDescription="Other wallets"
+            walletDescription="Recover / Recreate"
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}

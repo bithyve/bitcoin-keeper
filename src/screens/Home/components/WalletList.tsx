@@ -9,9 +9,20 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-export const WalletsList = ({ allWallets, navigation, totalBalance }) => (
+export const WalletsList = ({
+  allWallets,
+  navigation,
+  totalBalance,
+  isShowAmount,
+  setIsShowAmount,
+}) => (
   <Box style={styles.valueWrapper}>
-    <BalanceComponent count={allWallets.length} balance={totalBalance} />
+    <BalanceComponent
+      setIsShowAmount={setIsShowAmount}
+      isShowAmount={isShowAmount}
+      count={allWallets.length}
+      balance={totalBalance}
+    />
     <FlatList
       contentContainerStyle={styles.walletDetailWrapper}
       horizontal
@@ -23,6 +34,8 @@ export const WalletsList = ({ allWallets, navigation, totalBalance }) => (
           onPress={() => handleWalletPress(wallet, navigation)}
         >
           <WalletInfoCard
+            isShowAmount={isShowAmount}
+            setIsShowAmount={setIsShowAmount}
             tags={getWalletTags(wallet)}
             walletName={wallet.presentationData.name}
             walletDescription={wallet.presentationData.description}
@@ -44,16 +57,7 @@ export const WalletsList = ({ allWallets, navigation, totalBalance }) => (
 
 const handleWalletPress = (wallet, navigation) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    switch (wallet.type) {
-      case VaultType.COLLABORATIVE:
-        navigation.navigate('VaultDetails', {
-          collaborativeWalletId: (wallet as Vault).collaborativeWalletId,
-        });
-        return;
-      case VaultType.DEFAULT:
-      default:
-        navigation.navigate('VaultDetails', { vaultId: wallet.id });
-    }
+    navigation.navigate('VaultDetails', { vaultId: wallet.id });
   } else {
     navigation.navigate('WalletDetails', { walletId: wallet.id });
   }
