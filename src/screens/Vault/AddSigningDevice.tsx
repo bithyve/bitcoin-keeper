@@ -34,7 +34,17 @@ import Colors from 'src/theme/Colors';
 
 const { width } = Dimensions.get('screen');
 
-const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub) => {
+const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) => {
+  if (amfXpub) {
+    return {
+      ...amfXpub,
+      masterFingerprint: signer.masterFingerprint,
+      xfp: WalletUtilities.getFingerprintFromExtendedKey(
+        amfXpub.xpub,
+        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      ),
+    };
+  }
   if (isMock || isMultisig) {
     return {
       ...msXpub,
@@ -70,16 +80,18 @@ const onSignerSelect = (
   const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
   const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
 
-  const isMock = !!amfXpub || signer.isMock;
+  const isMock = signer.isMock;
+  const isAmf = !!amfXpub;
   const isMultisig = msXpub && scheme.n > 1;
 
   if (selected) {
     const updated = selectedSigners.delete(signer.masterFingerprint);
     if (updated) {
       if (isMock) {
-        const updatedKeys = vaultKeys.filter(
-          (key) => (msXpub && key.xpub !== msXpub.xpub) || (amfXpub && key.xpub !== amfXpub.xpub)
-        );
+        const updatedKeys = vaultKeys.filter((key) => msXpub && key.xpub !== msXpub.xpub);
+        setVaultKeys(updatedKeys);
+      } else if (isAmf) {
+        const updatedKeys = vaultKeys.filter((key) => amfXpub && key.xpub !== amfXpub.xpub);
         setVaultKeys(updatedKeys);
       } else if (isMultisig) {
         const updatedKeys = vaultKeys.filter((key) => key.xpub !== msXpub.xpub);
@@ -95,7 +107,7 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
-    const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub);
+    const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
     const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
@@ -154,7 +166,15 @@ const setInitialKeys = (
           updatedSignerMap.set(key.masterFingerprint, true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
-          const scriptKey = getKeyForScheme(signer.isMock, isMultisig, signer, msXpub, ssXpub);
+          const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
+          const scriptKey = getKeyForScheme(
+            signer.isMock,
+            isMultisig,
+            signer,
+            msXpub,
+            ssXpub,
+            amfXpub
+          );
           if (scriptKey) {
             modifiedVaultKeysForScriptType.push(scriptKey);
           }
