@@ -199,13 +199,14 @@ function EnterSeedScreen({ route }) {
     };
 
     const handleFailure = () => {
-      showToast(`Health check failed`, <TickIcon />);
+      showToast(`Health check failed`);
     };
+
     try {
       if (isSeedFilled(6)) {
         if (isSeedFilled(12)) {
           const seedWord = getSeedWord();
-          const softSigner: Signer = setupSeedWordsBasedSigner(seedWord, isMultisig);
+          const { signer: softSigner } = setupSeedWordsBasedSigner(seedWord, isMultisig);
           if (mode === InteracationMode.IDENTIFICATION) {
             const mapped = mapUnknownSigner({
               masterFingerprint: softSigner.masterFingerprint,
