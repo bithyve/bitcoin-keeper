@@ -202,42 +202,37 @@ const Footer = ({
   const renderNotes = () => {
     let notes = [];
     if (!!amfSigners.length) {
+      const message = `* ${amfSigners.join(
+        ' and '
+      )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`;
       notes.push(
-        <Box style={styles.noteContainer}>
-          <Note
-            title={common.note}
-            subtitle={`* ${amfSigners.join(
-              ' and '
-            )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`}
-          />
+        <Box style={styles.noteContainer} key={message}>
+          <Note title={common.note} subtitle={message} />
         </Box>
       );
     }
     if (invalidSS || invalidIKS) {
+      const message = invalidMessage;
       notes.push(
-        <Box style={styles.noteContainer}>
-          <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
+        <Box style={styles.noteContainer} key={message}>
+          <Note title="WARNING" subtitle={message} subtitleColor="error" />
         </Box>
       );
     }
     if (trezorIncompatible) {
+      const message =
+        'Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault';
       notes.push(
-        <Box style={styles.noteContainer} testID="view_warning02">
-          <Note
-            title="WARNING"
-            subtitle="Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault"
-            subtitleColor="error"
-          />
+        <Box style={styles.noteContainer} testID="view_warning02" key={message}>
+          <Note title="WARNING" subtitle={message} subtitleColor="error" />
         </Box>
       );
     }
     if (!notes.length) {
+      const message = 'You can easily change one or more signers after the vault is setup';
       notes.push(
-        <Box style={styles.noteContainer}>
-          <Note
-            title="Note"
-            subtitle="You can easily change one or more signers after the vault is setup"
-          />
+        <Box style={styles.noteContainer} key={message}>
+          <Note title="Note" subtitle={message} />
         </Box>
       );
     }
