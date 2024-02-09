@@ -11,7 +11,7 @@ function OnboardingSlideComponent(props) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
-        <Text fontSize={18} color="light.primaryBackground" textAlign="center" letterSpacing={1.8}>
+        <Text fontSize={20} color="light.primaryBackground" textAlign="center" letterSpacing={1.8}>
           {props.title}
         </Text>
       </Box>
@@ -42,11 +42,12 @@ const styles = StyleSheet.create({
     width,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 5,
+    paddingHorizontal: 5,
+    paddingBottom: 5,
+    paddingTop: 40,
     flex: 1,
   },
   titleWrapper: {
-    flex: 0.2,
     marginHorizontal: hp(20),
   },
   illustartionWrapper: {

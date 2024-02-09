@@ -42,7 +42,10 @@ function ImportDescriptorScreen({ navigation }) {
       setWalletCreationLoading(false);
       const navigationState = {
         index: 1,
-        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { collaborativeWalletId } }],
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { vaultId: collaborativeWalletId } },
+        ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetVaultFlags());

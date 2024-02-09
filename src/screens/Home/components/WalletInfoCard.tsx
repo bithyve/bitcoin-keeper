@@ -56,9 +56,9 @@ function WalletInfoCard({
         <TouchableOpacity onPress={setIsShowAmount}>
           <CurrencyInfo
             hideAmounts={false}
-            amount={isShowAmount ? amount : '****'}
+            amount={amount}
+            hideAmounts={isShowAmount ? false : true}
             fontSize={satsEnabled ? 17 : 20}
-            color={`${colorMode}.white`}
             variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </TouchableOpacity>

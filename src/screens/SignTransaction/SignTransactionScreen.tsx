@@ -128,7 +128,6 @@ function SignTransactionScreen() {
             params: {
               vaultTransferSuccessful: true,
               autoRefresh: true,
-              collaborativeWalletId,
               vaultId: intrimVault?.id || '',
             },
           },
@@ -161,7 +160,9 @@ function SignTransactionScreen() {
         signTransaction({ xfp: vaultKey.xfp });
       }
     });
-    return () => dispatch(sendPhaseThreeReset());
+    return () => {
+      dispatch(sendPhaseThreeReset());
+    };
   }, []);
 
   useEffect(() => {
