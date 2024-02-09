@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
+import Colors from 'src/theme/Colors';
 
 function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
   const { colorMode } = useColorMode();
@@ -16,9 +17,10 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
       <TouchableOpacity onPress={setIsShowAmount} style={styles.amount}>
         <CurrencyInfo
           hideAmounts={false}
-          amount={isShowAmount ? balance : '*****'}
+          amount={balance}
+          hideAmounts={isShowAmount ? false : true}
           fontSize={27}
-          color={`${colorMode}.primaryText`}
+          color={Colors.RichBlack}
           variation="dark"
         />
       </TouchableOpacity>
