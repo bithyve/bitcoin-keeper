@@ -44,7 +44,11 @@ import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interface
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
-import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
+import {
+  extractKeyFromDescriptor,
+  generateSignerFromMetaData,
+  getSignerNameFromType,
+} from 'src/hardware';
 import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
@@ -1050,7 +1054,7 @@ function HardwareModalMap({
         showToast('Health check done successfully', <TickIcon />);
       } else {
         navigation.dispatch(CommonActions.goBack());
-        showToast('Error in Health check', <ToastErrorIcon />, 3000);
+        showToast('Health check Failed', <ToastErrorIcon />, 3000);
       }
     } catch (error) {
       console.log('err');
