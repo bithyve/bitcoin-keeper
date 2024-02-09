@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { getColdcardDetails } from 'src/hardware/coldcard';
+import { getColdcardDetails, getConfigDetails } from 'src/hardware/coldcard';
 
 import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -21,11 +21,23 @@ import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/core/wallets/interfaces/vault';
+import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+
+const getTitle = (mode) => {
+  switch (mode) {
+    case InteracationMode.CONFIG_RECOVERY:
+      return 'Recover Using Configuration';
+    case InteracationMode.VAULT_ADDITION:
+      return 'Setting up Coldcard';
+    case InteracationMode.HEALTH_CHECK || InteracationMode.IDENTIFICATION:
+      return 'Verify Coldcard';
+  }
+};
 
 function SetupColdCard({ route }) {
   const { colorMode } = useColorMode();
@@ -35,19 +47,26 @@ function SetupColdCard({ route }) {
     mode,
     signer,
     isMultisig,
+    addSignerFlow = false,
   }: {
     mode: InteracationMode;
-    signer: VaultSigner;
+    signer: Signer;
     isMultisig: boolean;
+    addSignerFlow?: boolean;
   } = route.params;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
+  const { initateRecovery } = useConfigRecovery();
+  const { mapUnknownSigner } = useUnkownSigners();
   const { start } = useAsync();
+  const isConfigRecovery = mode === InteracationMode.CONFIG_RECOVERY;
 
   useEffect(() => {
     NfcManager.isSupported().then((supported) => {
       if (supported) {
         if (mode === InteracationMode.HEALTH_CHECK) verifyColdCardWithProgress();
+        else if (mode === InteracationMode.CONFIG_RECOVERY) recoverConfigforCC();
+        else if (mode === InteracationMode.IDENTIFICATION) verifyColdCardWithProgress();
         else {
           addColdCardWithProgress();
         }
@@ -70,17 +89,22 @@ function SetupColdCard({ route }) {
   };
 
   const verifyColdCardWithProgress = async () => {
-    await start(verifyColdCard);
+    await start(() => verifyColdCard(mode));
+  };
+
+  const recoverConfigforCC = async () => {
+    const config = await withNfcModal(async () => getConfigDetails());
+    initateRecovery(config);
   };
 
   const addColdCard = async (mode) => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
-      const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-      const coldcard = generateSignerFromMetaData({
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
+      const { signer: coldcard } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         isMultisig,
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,
@@ -93,30 +117,43 @@ function SetupColdCard({ route }) {
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else {
-        dispatch(addSigningDevice(coldcard));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        dispatch(addSigningDevice([coldcard]));
+        const navigationState = addSignerFlow
+          ? { name: 'ManageSigners' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
       }
 
       showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
-      const exists = await checkSigningDevice(coldcard.signerId);
-      if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
     } catch (error) {
       handleNFCError(error);
     }
   };
-
-  const verifyColdCard = async () => {
+  const verifyColdCard = async (mode) => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
-      const { xpub } = ccDetails;
-      if (xpub === signer.xpub) {
+      const { masterFingerprint } = ccDetails;
+      const ColdCardVerified = () => {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
         showToast(`ColdCard verified successfully`, <TickIcon />);
-      } else {
+      };
+      const showVerificationError = () => {
         showToast('Something went wrong!', <ToastErrorIcon />, 3000);
+      };
+      if (mode === InteracationMode.IDENTIFICATION) {
+        const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.COLDCARD });
+        if (mapped) {
+          ColdCardVerified();
+        } else {
+          showVerificationError();
+        }
+      } else {
+        if (masterFingerprint === signer.masterFingerprint) {
+          ColdCardVerified();
+        } else {
+          showVerificationError();
+        }
       }
     } catch (error) {
       if (error instanceof HWError) {
@@ -127,17 +164,19 @@ function SetupColdCard({ route }) {
     }
   };
 
-  const instructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n`;
+  const instructions = isConfigRecovery
+    ? `Export the Vault config by going to Setting > Multisig > Then select the wallet > Export`
+    : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n`;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={SignerType.COLDCARD}>
+      <MockWrapper
+        signerType={SignerType.COLDCARD}
+        addSignerFlow={addSignerFlow}
+        signerXfp={signer?.masterFingerprint}
+        mode={mode}
+      >
         <Box style={styles.header}>
-          <KeeperHeader
-            title={
-              mode === InteracationMode.HEALTH_CHECK ? 'Verify Coldcard' : 'Setting up Coldcard'
-            }
-            subtitle={instructions}
-          />
+          <KeeperHeader title={getTitle(mode)} subtitle={instructions} />
         </Box>
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </MockWrapper>

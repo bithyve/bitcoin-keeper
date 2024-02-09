@@ -36,9 +36,9 @@ function SetupSigningServer({ route }: { route }) {
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
+  const { policy, addSignerFlow = false } = route.params;
 
   const registerSigningServer = async () => {
-    const { policy } = route.params;
     try {
       const { setupData } = await SigningServer.register(policy);
       setSetupData(setupData);
@@ -66,21 +66,22 @@ function SetupSigningServer({ route }: { route }) {
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
     const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
-    const signingServerKey = generateSignerFromMetaData({
+    const { signer: signingServerKey } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
-      signerId: id,
+      xfp: id,
       signerPolicy: policy,
     });
 
-    dispatch(addSigningDevice(signingServerKey));
-    navigation.dispatch(
-      CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-    );
+    dispatch(addSigningDevice([signingServerKey]));
+    const navigationState = addSignerFlow
+      ? { name: 'ManageSigners' }
+      : { name: 'AddSigningDevice', merge: true, params: {} };
+    navigation.dispatch(CommonActions.navigate(navigationState));
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 
@@ -150,7 +151,7 @@ function SetupSigningServer({ route }: { route }) {
     <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
-        <KeeperHeader title="Set up 2FA for Signing Server" subtitle="Scan on any 2FA auth app" />
+        <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
         {validationKey === '' ? (
@@ -181,7 +182,7 @@ function SetupSigningServer({ route }: { route }) {
                 width="100%"
                 numberOfLines={1}
               >
-                2FA Signing Server
+                2FA signer
               </Text>
             </Box>
             <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
@@ -245,7 +246,7 @@ function SetupSigningServer({ route }: { route }) {
           showValidationModal(false);
         }}
         title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signing server"
+        subTitle="To complete setting up the signer"
         textColor="light.primaryText"
         Content={otpContent}
       />

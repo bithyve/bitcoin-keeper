@@ -17,7 +17,6 @@ import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { checkSigningDevice } from './AddSigningDevice';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/services/sentry';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -28,29 +27,29 @@ const NFCScanner = ({ route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const { isMultisig }: { isMultisig: boolean } = route.params;
+  const { isMultisig, addSignerFlow = false }: { isMultisig: boolean; addSignerFlow?: boolean } =
+    route.params;
 
   const addColdCard = async () => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
-      const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-      const coldcard = generateSignerFromMetaData({
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
+      const { signer } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         isMultisig,
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,
         xpubDetails,
       });
 
-      dispatch(addSigningDevice(coldcard));
-      navigation.dispatch(
-        CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-      );
-      showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
-      const exists = await checkSigningDevice(coldcard.signerId);
-      if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
+      dispatch(addSigningDevice([signer]));
+      const navigationState = addSignerFlow
+        ? { name: 'ManageSigners' }
+        : { name: 'AddSigningDevice', merge: true, params: {} };
+      navigation.dispatch(CommonActions.navigate(navigationState));
+      showToast(`${signer.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);

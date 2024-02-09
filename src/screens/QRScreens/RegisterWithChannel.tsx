@@ -16,7 +16,7 @@ import {
   REGISTRATION_SUCCESS,
 } from 'src/services/channel/constants';
 import { captureError } from 'src/services/sentry';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
@@ -24,6 +24,7 @@ import Text from 'src/components/KeeperText';
 import { SignerType } from 'src/core/wallets/enums';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/core/utils';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 const ScanAndInstruct = ({ onBarCodeRead }) => {
   const { colorMode } = useColorMode();
@@ -58,7 +59,8 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
 
 function RegisterWithChannel() {
   const { params } = useRoute();
-  const { signer } = params as { signer: VaultSigner };
+  const { vaultKey, vaultId } = params as { vaultKey: VaultSigner; vaultId: string };
+  const { signer } = useSignerFromKey(vaultKey);
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
@@ -66,7 +68,7 @@ function RegisterWithChannel() {
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
-  const { activeVault: vault } = useVault();
+  const { activeVault: vault } = useVault({ vaultId });
 
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;
@@ -79,12 +81,17 @@ function RegisterWithChannel() {
   useEffect(() => {
     channel.on(BITBOX_REGISTER, async ({ room }) => {
       try {
-        const walletConfig = getWalletConfigForBitBox02({ vault });
+        const walletConfig = getWalletConfigForBitBox02({ vault, signer });
         channel.emit(BITBOX_REGISTER, {
           data: createCipheriv(JSON.stringify(walletConfig), decryptionKey.current),
           room,
         });
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            vaultId: vault.id,
+          })
+        );
         navgation.goBack();
       } catch (error) {
         captureError(error);
@@ -106,9 +113,12 @@ function RegisterWithChannel() {
       switch (signerType) {
         case SignerType.LEDGER:
           dispatch(
-            updateSignerDetails(signer, 'deviceInfo', { registeredWallet: policy.policyHmac })
+            updateKeyDetails(vaultKey, 'registered', {
+              registered: true,
+              vaultId: vault.id,
+              registrationInfo: JSON.stringify({ registeredWallet: policy.policyHmac }),
+            })
           );
-          dispatch(updateSignerDetails(signer, 'registered', true));
           navgation.goBack();
       }
     });

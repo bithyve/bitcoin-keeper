@@ -29,7 +29,7 @@ appId: ${APPID}
 - tapOn:
     id: 'btn_Vault'
 - assertVisible:
-    text: 'Add Signing Device to activate your Vault'
+    text: 'Add signer to activate your Vault'
     index: 1
 - assertVisible:
     id: 'btn_Inheritance_Tools'

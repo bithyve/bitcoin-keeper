@@ -31,8 +31,7 @@ function TorConnectionFailed() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
-          Could not established connection with Whirlpool client over in-app Tor. Try again later or
-          use other options
+          This can be due to network or other conditions.
         </Text>
       </Box>
     </Box>
@@ -54,7 +53,7 @@ function TorModalMap({ visible, close }) {
         visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
         title="Connecting to Tor"
-        subTitle="Network calls and some functions may work slower when enabled"
+        subTitle="Network calls and some function may work slower when enabled"
         textColor="light.primaryText"
         subTitleColor="light.secondaryText"
         Content={TorConnectionContent}
@@ -63,7 +62,7 @@ function TorModalMap({ visible, close }) {
         visible={visible && torStatus === TorStatus.ERROR}
         close={close}
         title="Connection Error"
-        subTitle="This can be due to the network or other conditions "
+        subTitle="There was an error when connecting via Tor. You could continue without connecting to Tor or try after sometime."
         subTitleColor="light.secondaryText"
         buttonText="Close"
         buttonTextColor="light.white"

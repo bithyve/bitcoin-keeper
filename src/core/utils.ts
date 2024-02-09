@@ -14,8 +14,15 @@ export const getMultiKeyExpressions = (signers: VaultSigner[]) => {
   return keyExpressions.join();
 };
 
-export const getKeyExpression = (masterFingerprint: string, derivationPath: string, xpub: string) =>
-  `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}/**`;
+export const getKeyExpression = (
+  masterFingerprint: string,
+  derivationPath: string,
+  xpub: string,
+  withPathRestrictions: boolean = true
+) =>
+  `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
+    withPathRestrictions ? '/**' : ''
+  }`;
 
 export const genrateOutputDescriptors = (
   wallet: Vault | Wallet,
@@ -176,7 +183,7 @@ export const parseTextforVaultConfig = (secret: string) => {
   throw Error('Unsupported format!');
 };
 
-export const urlParamsToObj = (url: string): object => {
+export const urlParamsToObj = (url: string): any => {
   try {
     const regex = /[?&]([^=#]+)=([^&#]*)/g;
     const params = {};
