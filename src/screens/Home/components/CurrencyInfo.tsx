@@ -22,7 +22,6 @@ function CurrencyInfo({
   variation = 'grey',
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
-
   return (
     <HStack style={styles.vaultBalanceContainer} testID="view_currencyView">
       {getCurrencyIcon(BTC, variation)}
@@ -42,7 +41,7 @@ function CurrencyInfo({
           style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}
           testID="view_hideCurrencyView"
         >
-          <Hidden style={{ color }} />
+          <Hidden color={`${color}`} />
         </Box>
       )}
     </HStack>
