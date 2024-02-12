@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -18,6 +18,10 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { useDispatch } from 'react-redux';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 const ManageSigners = ({ route }: ScreenProps) => {
@@ -28,6 +32,19 @@ const ManageSigners = ({ route }: ScreenProps) => {
   const { signers: vaultKeys } = activeVault ? activeVault : { signers: [] };
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
+  const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
+  const { showToast } = useToastMessage();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (realySignersUpdateErrorMessage) {
+      showToast(realySignersUpdateErrorMessage);
+      dispatch(resetSignersUpdateState());
+    }
+    return () => {
+      dispatch(resetSignersUpdateState());
+    };
+  }, [realySignersUpdateErrorMessage]);
 
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(

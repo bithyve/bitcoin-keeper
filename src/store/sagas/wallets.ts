@@ -615,21 +615,20 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       if (existingSigner) {
         // TODO: we're not YET supporting multiple keys (accounts) for the same script type
         if (
-          (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
-            existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
           (newSigner.signerXpubs[XpubTypes.P2WPKH].length &&
+            existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
+          (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
             existingSigner.signerXpubs[XpubTypes.P2WSH].length)
         ) {
           yield put(
             relaySignersUpdateFail(
-              'A different account has already been added. Please use the existing for this signer.'
+              'A different account has already been added. Please use the existing key for this signer.'
             )
           );
           return false;
         }
       }
     }
-
     yield put(setRelaySignersUpdateLoading(true));
     const response = yield call(updateAppImageWorker, { payload: { signers } });
     if (response.updated) {

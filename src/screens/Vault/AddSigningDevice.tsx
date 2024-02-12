@@ -31,6 +31,8 @@ import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
+import { useDispatch } from 'react-redux';
+import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 
 const { width } = Dimensions.get('screen');
 
@@ -350,6 +352,19 @@ function AddSigningDevice() {
     selectedSigners,
     existingKeys: activeVault?.signers || [],
   });
+
+  const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (realySignersUpdateErrorMessage) {
+      showToast(realySignersUpdateErrorMessage);
+      dispatch(resetSignersUpdateState());
+    }
+    return () => {
+      dispatch(resetSignersUpdateState());
+    };
+  }, [realySignersUpdateErrorMessage]);
 
   useEffect(() => {
     setInitialKeys(activeVault, scheme, allVaults, signerMap, setVaultKeys, setSelectedSigners);
