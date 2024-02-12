@@ -34,7 +34,17 @@ import Colors from 'src/theme/Colors';
 
 const { width } = Dimensions.get('screen');
 
-const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub) => {
+const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) => {
+  if (amfXpub) {
+    return {
+      ...amfXpub,
+      masterFingerprint: signer.masterFingerprint,
+      xfp: WalletUtilities.getFingerprintFromExtendedKey(
+        amfXpub.xpub,
+        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      ),
+    };
+  }
   if (isMock || isMultisig) {
     return {
       ...msXpub,
@@ -70,16 +80,18 @@ const onSignerSelect = (
   const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
   const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
 
-  const isMock = !!amfXpub || signer.isMock;
+  const isMock = signer.isMock;
+  const isAmf = !!amfXpub;
   const isMultisig = msXpub && scheme.n > 1;
 
   if (selected) {
     const updated = selectedSigners.delete(signer.masterFingerprint);
     if (updated) {
       if (isMock) {
-        const updatedKeys = vaultKeys.filter(
-          (key) => (msXpub && key.xpub !== msXpub.xpub) || (amfXpub && key.xpub !== amfXpub.xpub)
-        );
+        const updatedKeys = vaultKeys.filter((key) => msXpub && key.xpub !== msXpub.xpub);
+        setVaultKeys(updatedKeys);
+      } else if (isAmf) {
+        const updatedKeys = vaultKeys.filter((key) => amfXpub && key.xpub !== amfXpub.xpub);
         setVaultKeys(updatedKeys);
       } else if (isMultisig) {
         const updatedKeys = vaultKeys.filter((key) => key.xpub !== msXpub.xpub);
@@ -95,7 +107,7 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
-    const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub);
+    const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
     const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
@@ -154,7 +166,15 @@ const setInitialKeys = (
           updatedSignerMap.set(key.masterFingerprint, true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
-          const scriptKey = getKeyForScheme(signer.isMock, isMultisig, signer, msXpub, ssXpub);
+          const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
+          const scriptKey = getKeyForScheme(
+            signer.isMock,
+            isMultisig,
+            signer,
+            msXpub,
+            ssXpub,
+            amfXpub
+          );
           if (scriptKey) {
             modifiedVaultKeysForScriptType.push(scriptKey);
           }
@@ -182,42 +202,37 @@ const Footer = ({
   const renderNotes = () => {
     let notes = [];
     if (!!amfSigners.length) {
+      const message = `* ${amfSigners.join(
+        ' and '
+      )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`;
       notes.push(
-        <Box style={styles.noteContainer}>
-          <Note
-            title={common.note}
-            subtitle={`* ${amfSigners.join(
-              ' and '
-            )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`}
-          />
+        <Box style={styles.noteContainer} key={message}>
+          <Note title={common.note} subtitle={message} />
         </Box>
       );
     }
     if (invalidSS || invalidIKS) {
+      const message = invalidMessage;
       notes.push(
-        <Box style={styles.noteContainer}>
-          <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
+        <Box style={styles.noteContainer} key={message}>
+          <Note title="WARNING" subtitle={message} subtitleColor="error" />
         </Box>
       );
     }
     if (trezorIncompatible) {
+      const message =
+        'Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault';
       notes.push(
-        <Box style={styles.noteContainer} testID="view_warning02">
-          <Note
-            title="WARNING"
-            subtitle="Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault"
-            subtitleColor="error"
-          />
+        <Box style={styles.noteContainer} testID="view_warning02" key={message}>
+          <Note title="WARNING" subtitle={message} subtitleColor="error" />
         </Box>
       );
     }
     if (!notes.length) {
+      const message = 'You can easily change one or more signers after the vault is setup';
       notes.push(
-        <Box style={styles.noteContainer}>
-          <Note
-            title="Note"
-            subtitle="You can easily change one or more signers after the vault is setup"
-          />
+        <Box style={styles.noteContainer} key={message}>
+          <Note title="Note" subtitle={message} />
         </Box>
       );
     }
