@@ -769,6 +769,23 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
+  const addNumbers = (str1, str2) => {
+    // Convert strings to numbers
+    const num1 = parseFloat(str1.replace(/,/g, ''));
+    const num2 = parseFloat(str2.replace(/,/g, ''));
+
+    // Check if the conversion is successful
+    if (!isNaN(num1) && !isNaN(num2)) {
+      // Add the numbers
+      const sum = num1 + num2;
+      return sum;
+    } else {
+      // Handle invalid input
+      console.error('Invalid input. Please provide valid numeric strings.');
+      return null;
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -812,11 +829,17 @@ function SendConfirmation({ route }) {
           />
         </TouchableOpacity>
         <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
-        <AmountDetails title={walletTransactions.totalFees} fiatAmount={'80.00'} />
+        <AmountDetails
+          title={walletTransactions.totalFees}
+          satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
         <AmountDetails
           title={walletTransactions.total}
-          fiatAmount={'10,080.00'}
+          satsAmount={addNumbers(
+            getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+            getBalance(amount)
+          )}
           fontSize={17}
           fontWeight="400"
         />
@@ -1036,6 +1059,7 @@ const styles = StyleSheet.create({
   transSatsFeeText: {
     fontSize: 16,
     fontWeight: '500',
+    width: 100,
   },
   transSatsFeeWrapper: {
     width: '60%',

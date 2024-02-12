@@ -16,6 +16,8 @@ type SignerCardProps = {
   disabled?: boolean;
   isFullText?: boolean;
   showDot?: boolean;
+  customStyle?: ViewStyle;
+  numberOfLines?: number;
 };
 
 function SignerCard({
@@ -30,6 +32,8 @@ function SignerCard({
   disabled = false,
   isFullText = false,
   showDot = false,
+  customStyle,
+  numberOfLines,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
