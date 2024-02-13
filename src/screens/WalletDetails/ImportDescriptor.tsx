@@ -42,7 +42,10 @@ function ImportDescriptorScreen({ navigation }) {
       setWalletCreationLoading(false);
       const navigationState = {
         index: 1,
-        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { collaborativeWalletId } }],
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { vaultId: collaborativeWalletId } },
+        ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetVaultFlags());
@@ -117,7 +120,7 @@ function ImportDescriptorScreen({ navigation }) {
           />
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput
-              placeholder="Enter the output descriptor"
+              placeholder="Enter the Wallet Configuration File"
               placeholderTextColor={Colors.Feldgrau} // TODO: change this to colorMode
               style={styles.textInput}
               value={inputText}

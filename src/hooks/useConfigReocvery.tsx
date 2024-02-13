@@ -11,6 +11,7 @@ import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import useToastMessage from './useToastMessage';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate, realyVaultErrorMessage } = useAppSelector(
@@ -54,11 +55,12 @@ const useConfigRecovery = () => {
 
   useEffect(() => {
     if (relayVaultUpdate) {
-      setRecoveryLoading(false);
       const navigationState = {
         index: 0,
         routes: [{ name: 'Home' }],
       };
+      dispatch(resetRealyVaultState());
+      setRecoveryLoading(false);
       showToast('Vault Imported Successfully!');
       navigation.dispatch(CommonActions.reset(navigationState));
     }

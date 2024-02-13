@@ -328,7 +328,7 @@ const SetupCollaborativeWallet = ({ route }: ScreenProps) => {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { collaborativeWalletId: walletId } },
+          { name: 'VaultDetails', params: { vaultId: collaborativeWallet.id } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));

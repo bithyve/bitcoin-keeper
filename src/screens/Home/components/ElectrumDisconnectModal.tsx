@@ -19,7 +19,7 @@ function ElectrumErrorContent() {
       </Box>
       <Box>
         <Text color={`${colorMode}.greenText`} style={styles.networkText}>
-          {common.changeNetwork}
+          Please try again later
         </Text>
       </Box>
     </Box>

@@ -15,7 +15,7 @@ import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
-import EditWalletSettings from 'src/screens/WalletDetails/EditWalletDetails';
+import EditWalletDetails from 'src/screens/WalletDetails/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
@@ -100,6 +100,7 @@ import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
 import AddSigner from 'src/screens/AddSigner/AddSigner';
 import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
+import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -175,7 +176,7 @@ function AppStack() {
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
-        <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
+        <Stack.Screen name="EditWalletDetails" component={EditWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
         <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
@@ -193,6 +194,7 @@ function AppStack() {
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
+        <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />

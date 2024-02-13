@@ -128,7 +128,6 @@ function SignTransactionScreen() {
             params: {
               vaultTransferSuccessful: true,
               autoRefresh: true,
-              collaborativeWalletId,
               vaultId: intrimVault?.id || '',
             },
           },
@@ -161,7 +160,9 @@ function SignTransactionScreen() {
         signTransaction({ xfp: vaultKey.xfp });
       }
     });
-    return () => dispatch(sendPhaseThreeReset());
+    return () => {
+      dispatch(sendPhaseThreeReset());
+    };
   }, []);
 
   useEffect(() => {
@@ -408,7 +409,7 @@ function SignTransactionScreen() {
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Chose at least ${scheme.m} to sign the transaction`}
+        subtitle={`Choose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}

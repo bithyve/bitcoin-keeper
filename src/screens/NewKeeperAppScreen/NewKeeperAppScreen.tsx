@@ -133,7 +133,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
-    subTitle: 'Keeper allows you to create single sig wallets and a multisig vault',
+    subTitle: 'Keeper allows you to create single sig wallets and multisig wallets called Vaults',
     message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
@@ -176,7 +176,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Box style={styles.tileContainer} testID="view_startNewTile">
           <Tile
             title="Start New"
-            subTitle="New wallets and vault"
+            subTitle="New wallets and vaults"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -197,8 +197,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
         </Box>
         <Box style={styles.tileContainer} testID="view_recoverTile">
           <Tile
-            title="Recover Existing App"
-            subTitle="For self or inherited vault"
+            title="Recover an existing app"
+            subTitle="Enter 12-word Recovery Phrase"
             Icon={<Recover />}
             onPress={() => {
               navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
@@ -209,8 +209,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.footerContainer}>
         <Box style={styles.noteContainer}>
           <Box opacity={1}>
-            <Text color="light.black" style={styles.title} testID="text_termOfService">
-              Terms of Service
+            <Text
+              color={`${colorMode}.headerText`}
+              style={styles.title}
+              testID="text_termOfService"
+            >
+              Note
             </Text>
           </Box>
           <Box style={styles.subTitleWrapper}>
@@ -220,13 +224,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <TouchableOpacity
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             >
-              <Text color="#2D6759" italic style={styles.termOfServiceText}>
+              <Text color={`${colorMode}.headerText`} italic style={styles.termOfServiceText}>
                 Terms of Service
               </Text>
             </TouchableOpacity>
             <Text color="light.secondaryText" style={styles.subTitle}>
               {' '}
-              and{' '}
+              and our{' '}
             </Text>
             <TouchableOpacity onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}>
               <Text color="#2D6759" italic style={styles.termOfServiceText}>
@@ -312,7 +316,7 @@ const styles = StyleSheet.create({
     width: wp(290),
   },
   title: {
-    fontSize: 15,
+    fontSize: 14,
     letterSpacing: 1.12,
   },
   subTitle: {

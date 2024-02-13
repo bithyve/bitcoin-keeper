@@ -15,7 +15,7 @@ import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Illustration1 from 'src/assets/images/illustration_1.svg';
 import Illustration2 from 'src/assets/images/illustration_2.svg';
-import Illustration7 from 'src/assets/images/illustration_7.svg';
+import Illustration8 from 'src/assets/images/illustration_8.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
@@ -35,41 +35,21 @@ function OnBoardingSlides({ navigation }) {
   const [items] = useState([
     {
       id: 1,
-      title: (
-        <>
-          <Text italic style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
-          {onboarding.security}
-          {` ${onboarding.slide01Title}`}
-        </>
-      ),
+      title: `${onboarding.Comprehensive} ${onboarding.security} ${onboarding.slide01Title}`,
       paragraph: onboarding.slide01Paragraph,
       illustration: <Illustration1 />,
     },
     {
       id: 2,
-      title: (
-        <>
-          {`${onboarding.slide02Title} `}
-          <Text italic style={styles.info}>
-            {onboarding.privacy}
-          </Text>
-        </>
-      ),
+      title: <>{`${onboarding.slide02Title} ${onboarding.privacy}`}</>,
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration2 />,
     },
     {
       id: 3,
-      title: (
-        <>
-          {`${onboarding.slide07Title} `}
-          <Text italic style={styles.info}>
-            {onboarding.whirlpool}
-          </Text>
-        </>
-      ),
-      paragraph: onboarding.slide07Paragraph,
-      illustration: <Illustration7 />,
+      title: onboarding.slide08Title,
+      paragraph: onboarding.slide08Paragraph,
+      illustration: <Illustration8 />,
     },
   ]);
 
@@ -138,7 +118,7 @@ function OnBoardingSlides({ navigation }) {
                 </Box>
               </TouchableOpacity>
             </Box>
-            <Box flexDirection="row" height={5}>
+            <Box alignItems="center" flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => (
                   <Box

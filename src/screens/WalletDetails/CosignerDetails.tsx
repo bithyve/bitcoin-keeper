@@ -55,11 +55,6 @@ function CosignerDetails() {
       </ScrollView>
       <Box style={styles.bottom}>
         <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
-        <Note
-          title="Note"
-          subtitle="The co-signer details are for the selected wallet only"
-          subtitleColor="GreyText"
-        />
       </Box>
     </ScreenWrapper>
   );
@@ -74,5 +69,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     marginHorizontal: '5%',
+    marginBottom: 25,
   },
 });

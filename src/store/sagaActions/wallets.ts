@@ -30,6 +30,7 @@ export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
 export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
+export const UPDATE_VAULT_DETAILS = 'UPDATE_VAULT_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
 export const UPDATE_KEY_DETAILS = 'UPDATE_KEY_DETAILS';
 export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
@@ -300,6 +301,20 @@ export const updateWalletDetails = (
   type: UPDATE_WALLET_DETAILS,
   payload: {
     wallet,
+    details,
+  },
+});
+
+export const updateVaultDetails = (
+  vault: Vault,
+  details: {
+    name: string;
+    description: string;
+  }
+) => ({
+  type: UPDATE_VAULT_DETAILS,
+  payload: {
+    vault,
     details,
   },
 });

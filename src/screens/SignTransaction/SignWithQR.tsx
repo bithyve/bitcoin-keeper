@@ -95,7 +95,7 @@ function SignWithQR() {
 
   const encodeToBytes = signer.type === SignerType.PASSPORT;
   const navigateToVaultRegistration = () =>
-    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey }));
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
     <ScreenWrapper>
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />

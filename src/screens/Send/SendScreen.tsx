@@ -45,6 +45,7 @@ import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
 import HexagonIcon from 'src/components/HexagonIcon';
+import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -205,10 +206,10 @@ function SendScreen({ route }) {
         style={{ marginRight: wp(10) }}
         width={wp(60)}
       >
-        <TouchableOpacity onPress={onPress} style={styles.buttonBackground}>
+        <TouchableOpacity onPress={onPress}>
           <HexagonIcon
-            width={44}
-            height={38}
+            width={42}
+            height={36}
             backgroundColor={Colors.RussetBrown}
             icon={getWalletIcon(item)}
           />
@@ -267,6 +268,16 @@ function SendScreen({ route }) {
                     keyExtractor={(item) => item.id}
                     horizontal
                     showsHorizontalScrollIndicator={false}
+                    ListEmptyComponent={
+                      <Box style={styles.emptyWalletsContainer}>
+                        <EmptyWalletIcon />
+                        <Box style={styles.emptyWalletText}>
+                          <Text color={`${colorMode}.deepTeal`}>
+                            You don't have any wallets yet
+                          </Text>
+                        </Box>
+                      </Box>
+                    }
                   />
                 </View>
               </View>
@@ -351,14 +362,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(25),
     marginTop: hp(5),
   },
-  buttonBackground: {
-    backgroundColor: '#FAC48B',
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   noteWrapper: {
     marginLeft: wp(20),
     position: 'absolute',
@@ -367,6 +370,15 @@ const styles = StyleSheet.create({
   },
   sendToWalletWrapper: {
     marginTop: windowHeight > 680 ? hp(20) : hp(10),
+  },
+  emptyWalletsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyWalletText: {
+    position: 'absolute',
+    width: 100,
+    opacity: 0.8,
   },
 });
 export default SendScreen;

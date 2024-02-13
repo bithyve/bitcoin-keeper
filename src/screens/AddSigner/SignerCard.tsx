@@ -15,6 +15,7 @@ type SignerCardProps = {
   colorVarient?: string;
   disabled?: boolean;
   isFullText?: boolean;
+  showDot?: boolean;
 };
 
 function SignerCard({
@@ -27,6 +28,7 @@ function SignerCard({
   colorVarient = 'brown',
   disabled = false,
   isFullText = false,
+  showDot = false,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -51,6 +53,7 @@ function SignerCard({
       <Box style={styles.detailContainer}>
         <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
           {icon}
+          {showDot ? <Box style={styles.redDot} /> : null}
         </Box>
         <Text
           color={`${colorMode}.SlateGrey`}
@@ -106,6 +109,17 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
 

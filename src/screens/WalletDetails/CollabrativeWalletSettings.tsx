@@ -80,7 +80,7 @@ function CollabrativeWalletSettings() {
           }}
         /> */}
         <OptionCard
-          title="Exporting Output Descriptor/ BSMS"
+          title="Exporting Wallet Configuration File"
           description="To recreate collaborative wallet"
           callback={() => {
             navigation.dispatch(
@@ -92,7 +92,7 @@ function CollabrativeWalletSettings() {
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
           title="Note"
-          subtitle="Keeper supports ONE collaborative wallet per hot wallet only. So if you import another Output Descriptor, you will see a new Collaborative Wallet"
+          subtitle="Keeper only supports one Collaborative wallet, per hot wallet. So if you import another Wallet Configuration File, you will see a new Collaborative Wallet"
           subtitleColor="GreyText"
         />
       </Box>

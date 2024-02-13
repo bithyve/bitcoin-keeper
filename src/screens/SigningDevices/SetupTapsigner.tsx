@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -163,8 +163,9 @@ function SetupTapsigner({ route }) {
 
   const verifyTapsginer = React.useCallback(async () => {
     try {
-      const { xfp } = await withModal(async () => getTapsignerDetails(card, cvc, isMultisig))();
-
+      const { masterFingerprint } = await withModal(async () =>
+        getTapsignerDetails(card, cvc, isMultisig)
+      )();
       const handleSuccess = () => {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
@@ -176,14 +177,14 @@ function SetupTapsigner({ route }) {
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {
-        const mapped = mapUnknownSigner({ masterFingerprint: xfp, type: SignerType.COLDCARD });
+        const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.COLDCARD });
         if (mapped) {
           handleSuccess();
         } else {
           handleFailure();
         }
       } else {
-        if (xfp === signer.masterFingerprint) {
+        if (masterFingerprint === signer.masterFingerprint) {
           handleSuccess();
         } else {
           handleFailure();

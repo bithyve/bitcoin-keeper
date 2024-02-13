@@ -32,7 +32,7 @@ function KeeperHeader({
   enableBack = true,
   learnMore = false,
   learnMorePressed = () => {},
-  learnBackgroundColor = 'light.lightAccent',
+  learnBackgroundColor = 'light.RussetBrown',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
   contrastScreen = false,
@@ -76,7 +76,6 @@ function KeeperHeader({
           <Box>
             {title && (
               <Text
-                numberOfLines={1}
                 style={styles.addWalletText}
                 color={titleColor ? titleColor : `${colorMode}.headerText`}
                 testID="text_header_title"

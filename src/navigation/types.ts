@@ -25,7 +25,7 @@ export type AppStackParams = {
   ChoosePlan: undefined;
   EnterWalletDetail: undefined;
   UpdateWalletDetails: undefined;
-  EditWalletDetails: undefined;
+  EditWalletDetails: { wallet: Wallet | Vault };
   WalletDetailsSettings: undefined;
   ImportDescriptorScreen: undefined;
   CollaborativeWalletSettings: undefined;
@@ -49,12 +49,14 @@ export type AppStackParams = {
         routeName: string;
         accountType?: string;
         vaultId: string;
+        collaborativeWalletId?: string;
       }
     | {
         data: Wallet | Vault;
         routeName: string;
         accountType: string;
         vaultId?: string;
+        collaborativeWalletId?: string;
       };
   WalletSettings: undefined;
   BackupWallet: undefined;
@@ -114,6 +116,7 @@ export type AppStackParams = {
     vaultId: string;
     vaultKeys: VaultSigner[];
   };
+  AppBackupSettings: undefined;
 };
 
 // Usage:

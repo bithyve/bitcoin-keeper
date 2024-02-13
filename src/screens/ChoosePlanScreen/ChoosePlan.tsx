@@ -365,18 +365,8 @@ function ChoosePlan() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        subtitle={`The subscription will be \nconfirmed on the ${
-          Platform.OS === 'android' ? 'Play' : 'App'
-        } Store`}
-        learnMore
-        learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor={`${colorMode}.white`}
-        icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={<SettingsIcon />}
-          />
-        }
+        subtitle={'Upgrade or downgrade'}
+        //To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}
@@ -485,14 +475,14 @@ const styles = StyleSheet.create({
   noteWrapper: {
     bottom: 1,
     margin: 1,
-    alignItems: 'center',
+    alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
   },
   restorePurchaseWrapper: {
     padding: 1,
-    margin: 1,
+    marginBottom: 10,
     borderRadius: 5,
     borderWidth: 0.7,
     alignItems: 'center',

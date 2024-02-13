@@ -71,6 +71,7 @@ function InheritanceStatus({ route }) {
         learnMorePressed={() => {
           dispatch(setInheritance(true));
         }}
+        learnTextColor={`${colorMode}.white`}
       />
       <InheritanceSupportView
         title="Inheritance Support"
