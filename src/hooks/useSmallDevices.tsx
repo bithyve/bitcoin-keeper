@@ -11,7 +11,8 @@ const useIsSmallDevices = () => {
         model.includes('mini') ||
           model.includes('Mini') ||
           model.includes('SE') ||
-          model.includes('iPhone 7')
+          model.includes('iPhone 7') ||
+          model.includes('iPhone 6')
       );
     };
 
