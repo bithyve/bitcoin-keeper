@@ -9,6 +9,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import { hp, wp } from 'src/constants/responsive';
 export const WalletsList = ({
   allWallets,
   navigation,
@@ -47,7 +48,7 @@ export const WalletsList = ({
       ListFooterComponent={() => (
         <AddCard
           name="Add"
-          cardStyles={{ height: 260, width: 130 }}
+          cardStyles={{ height: hp(260), width: wp(130) }}
           callback={() => navigation.navigate('AddWallet')}
         />
       )}
