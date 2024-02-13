@@ -32,7 +32,7 @@ function ActionCard({
         style={[
           styles.cardContainer,
           { ...customStyle },
-          { height: isSmallDevice ? hp(140) : hp(130) },
+          { minHeight: isSmallDevice ? hp(140) : hp(130) },
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
