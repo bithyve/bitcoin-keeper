@@ -65,8 +65,8 @@ function SetupColdCard({ route }) {
     NfcManager.isSupported().then((supported) => {
       if (supported) {
         if (mode === InteracationMode.HEALTH_CHECK) verifyColdCardWithProgress();
-        if (mode === InteracationMode.CONFIG_RECOVERY) recoverConfigforCC();
-        if (mode === InteracationMode.IDENTIFICATION) verifyColdCardWithProgress();
+        else if (mode === InteracationMode.CONFIG_RECOVERY) recoverConfigforCC();
+        else if (mode === InteracationMode.IDENTIFICATION) verifyColdCardWithProgress();
         else {
           addColdCardWithProgress();
         }
@@ -132,7 +132,7 @@ function SetupColdCard({ route }) {
   const verifyColdCard = async (mode) => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
-      const { xfp } = ccDetails;
+      const { masterFingerprint } = ccDetails;
       const ColdCardVerified = () => {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
@@ -142,14 +142,14 @@ function SetupColdCard({ route }) {
         showToast('Something went wrong!', <ToastErrorIcon />, 3000);
       };
       if (mode === InteracationMode.IDENTIFICATION) {
-        const mapped = mapUnknownSigner({ masterFingerprint: xfp, type: SignerType.COLDCARD });
+        const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.COLDCARD });
         if (mapped) {
           ColdCardVerified();
         } else {
           showVerificationError();
         }
       } else {
-        if (xfp === signer.masterFingerprint) {
+        if (masterFingerprint === signer.masterFingerprint) {
           ColdCardVerified();
         } else {
           showVerificationError();

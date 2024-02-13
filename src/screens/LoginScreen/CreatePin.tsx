@@ -149,16 +149,7 @@ export default function CreatePin(props) {
   }
   function CreatePassModalContent() {
     return (
-      <Box width={235}>
-        <Box>
-          <Text color={`${colorMode}.greenText`} style={{ fontSize: 19, marginBottom: 8 }}>
-            Remember your passcode
-          </Text>
-        </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
-          Please remember your passcode and backup your wallet by writing down the 12-word Recovery
-          Phrase
-        </Text>
+      <Box>
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
@@ -249,10 +240,11 @@ export default function CreatePin(props) {
       <KeeperModal
         visible={createPassword}
         close={() => {}}
-        title=""
-        subTitle=""
+        title="Remember your passcode"
+        subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
+        Phrase"
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
         buttonText="Continue"
@@ -266,7 +258,7 @@ export default function CreatePin(props) {
         }}
         Content={CreatePassModalContent}
         showButtons
-        subTitleWidth={wp(250)}
+        subTitleWidth={wp(60)}
       />
     </Box>
   );
@@ -289,11 +281,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   labelText: {
-    fontSize: 12,
+    fontSize: 14,
     marginLeft: 18,
   },
   errorText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '400',
     width: wp('68%'),
     textAlign: 'right',
@@ -308,7 +300,6 @@ const styles = StyleSheet.create({
   modalMessageText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    // width: wp(275),
   },
   passImg: {
     alignItems: 'center',

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import CardPill from 'src/components/CardPill';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { useAppSelector } from 'src/store/hooks';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
+import { hp, wp } from 'src/constants/responsive';
 
 type WalletInfoCardProps = {
   walletName: string;
@@ -14,6 +15,8 @@ type WalletInfoCardProps = {
   icon: Element;
   amount: number;
   tags: string[];
+  isShowAmount: boolean;
+  setIsShowAmount: () => void;
 };
 
 function WalletInfoCard({
@@ -22,6 +25,8 @@ function WalletInfoCard({
   icon,
   amount,
   tags,
+  isShowAmount = false,
+  setIsShowAmount,
 }: WalletInfoCardProps) {
   const { colorMode } = useColorMode();
   const { satsEnabled } = useAppSelector((state) => state.settings);
@@ -49,13 +54,15 @@ function WalletInfoCard({
             {walletName}
           </Text>
         </Box>
-        <CurrencyInfo
-          hideAmounts={false}
-          amount={amount}
-          fontSize={satsEnabled ? 17 : 20}
-          color={`${colorMode}.white`}
-          variation={colorMode === 'light' ? 'light' : 'dark'}
-        />
+        <TouchableOpacity onPress={setIsShowAmount}>
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={amount}
+            hideAmounts={isShowAmount ? false : true}
+            fontSize={satsEnabled ? 17 : 20}
+            variation={colorMode === 'light' ? 'light' : 'dark'}
+          />
+        </TouchableOpacity>
       </Box>
     </Box>
   );
@@ -63,8 +70,8 @@ function WalletInfoCard({
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: 160,
-    height: 260,
+    width: wp(160),
+    height: hp(260),
     padding: 10,
     borderRadius: 10,
     justifyContent: 'space-between',

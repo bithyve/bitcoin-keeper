@@ -1,9 +1,8 @@
 import Text from 'src/components/KeeperText';
 import { Box, VStack, useColorMode } from 'native-base';
-import Clipboard from '@react-native-community/clipboard';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -25,7 +24,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
 import WalletVault from 'src/assets/images/wallet_vault.svg';
 import DeleteIcon from 'src/assets/images/delete_phone.svg';
-import CopyIcon from 'src/assets/images/copy_new.svg';
 
 import { hp, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
@@ -35,13 +33,21 @@ import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import WalletFingerprint from 'src/components/WalletFingerPrint';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer, vaultKey, vaultId }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } =
-    route.params;
+  const {
+    vaultKey,
+    vaultId,
+    signer: signerFromParam,
+  }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
+  const { signerMap } = useSignerMap();
+  const signer = signerFromParam ? signerFromParam : signerMap[vaultKey.masterFingerprint];
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
@@ -308,7 +314,12 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperHeader
         title="Advanced Settings"
         subtitle={`for ${signer.signerName}`}
-        icon={SDIcons(signer.type, true).Icon}
+        icon={
+          <CircleIconWrapper
+            backgroundColor={`${colorMode}.primaryGreenBackground`}
+            icon={SDIcons(signer.type, true).Icon}
+          />
+        }
       />
       <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
         <OptionCard
@@ -328,7 +339,7 @@ function SignerAdvanceSettings({ route }: any) {
         {isAssistedKey || !vaultId ? null : (
           <OptionCard
             title={'Manual Registration'}
-            description={`Register your active vault with the ${signer.signerName}`}
+            description={`Register your active vault`}
             callback={registerSigner}
           />
         )}
@@ -383,31 +394,9 @@ function SignerAdvanceSettings({ route }: any) {
             />
           ))}
         </ScrollView>
-        <TouchableOpacity
-          activeOpacity={0.4}
-          testID="btn_copy_address"
-          onPress={() => {
-            Clipboard.setString(signer.masterFingerprint);
-            showToast(walletTranslation.walletIdCopied, <TickIcon />);
-          }}
-          style={styles.inputContainer}
-        >
-          <Box
-            height={60}
-            style={styles.inputWrapper}
-            backgroundColor={`${colorMode}.seashellWhite`}
-          >
-            <Box justifyContent={'center'} paddingLeft={2}>
-              <Text fontSize={14}>Signer Fingerprint</Text>
-              <Text width="80%" numberOfLines={1} color={`${colorMode}.GreenishGrey`}>
-                {signer.masterFingerprint}
-              </Text>
-            </Box>
-            <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
-              <CopyIcon />
-            </Box>
-          </Box>
-        </TouchableOpacity>
+        <Box style={styles.fingerprint}>
+          <WalletFingerprint title="Signer Fingerprint" fingerprint={vaultId} />
+        </Box>
       </VStack>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
@@ -610,5 +599,10 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   updateBtnCtaStyle: { alignItems: 'flex-end', marginTop: 10 },
-  errorStyle: { marginTop: 10 },
+  errorStyle: {
+    marginTop: 10,
+  },
+  fingerprint: {
+    alignItems: 'center',
+  },
 });

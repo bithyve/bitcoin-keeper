@@ -76,9 +76,7 @@ function AppSettings({ navigation }) {
       <KeeperHeader
         title={`Keeper ${common.settings}`}
         subtitle={settings.settingsSubTitle}
-        learnMore
-        learnBackgroundColor={`${colorMode}.RussetBrown`}
-        learnTextColor={`${colorMode}.white`}
+        //To-Do-Learn-More
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}

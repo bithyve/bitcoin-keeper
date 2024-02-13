@@ -45,6 +45,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -197,7 +198,7 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId, signer: currentSigner } = route.params;
+  const { vaultKey, vaultId, signer: currentSigner, vaultSigners } = route.params;
   const { signerMap } = useSignerMap();
   const signer = currentSigner ? currentSigner : signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
@@ -225,7 +226,6 @@ function SigningDeviceDetails({ route }) {
   }
 
   const { title, subTitle, assert, description, FAQ } = getSignerContent(signer?.type);
-
   function SignerContent() {
     return (
       <Box>
@@ -327,6 +327,7 @@ function SigningDeviceDetails({ route }) {
       <KeeperHeader
         learnMore
         learnMorePressed={() => setDetailModal(true)}
+        learnTextColor={`${colorMode}.white`}
         title={signer.signerName}
         subtitle={
           signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
@@ -337,6 +338,7 @@ function SigningDeviceDetails({ route }) {
             icon={SDIcons(signer.type, true).Icon}
           />
         }
+        rightComponent={<CurrencyTypeSwitch />}
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>
@@ -344,11 +346,11 @@ function SigningDeviceDetails({ route }) {
       <ScrollView contentContainerStyle={{ flex: 1 }}>
         <Box mx={5}>
           {healthCheckArray.map((_, index) => (
-            <SigningDeviceChecklist signer={signer} key={index.toString()} />
+            <SigningDeviceChecklist item={signer} key={index.toString()} />
           ))}
         </Box>
       </ScrollView>
-      <KeeperFooter marginX={5} items={footerItems} />
+      <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
       <HardwareModalMap
         type={signer?.type}
         visible={visible}
@@ -363,6 +365,7 @@ function SigningDeviceDetails({ route }) {
         primaryMnemonic={primaryMnemonic}
         vaultId={vaultId}
         addSignerFlow={false}
+        vaultSigners={vaultSigners}
       />
       <KeeperModal
         visible={skipHealthCheckModalVisible}

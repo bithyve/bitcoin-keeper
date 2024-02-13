@@ -4,10 +4,13 @@ import { Box, useColorMode } from 'native-base';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import Text from 'src/components/KeeperText';
+import useVault from 'src/hooks/useVault';
 
 const IdentifySignerModal = ({ visible, close, signer, secondaryCallback, vaultId }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+
+  const { activeVault } = useVault({ vaultId });
   const Content = useCallback(() => {
     return (
       <Box alignItems="center">
@@ -29,9 +32,7 @@ const IdentifySignerModal = ({ visible, close, signer, secondaryCallback, vaultI
       CommonActions.navigate({
         name: 'AssignSignerType',
         params: {
-          parentNavigation: navigation,
-          signer,
-          vaultId,
+          vault: activeVault,
         },
       })
     );

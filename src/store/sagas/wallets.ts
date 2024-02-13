@@ -18,7 +18,13 @@ import {
   SignerException,
   SignerRestriction,
 } from 'src/services/interfaces';
-import { Signer, Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import {
+  Signer,
+  Vault,
+  VaultPresentationData,
+  VaultScheme,
+  VaultSigner,
+} from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
   Wallet,
@@ -84,6 +90,7 @@ import {
   UPDATE_WALLET_PATH_PURPOSE_DETAILS,
   INCREMENT_ADDRESS_INDEX,
   UPDATE_KEY_DETAILS,
+  UPDATE_VAULT_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -535,7 +542,7 @@ export function* addNewVaultWorker({
     if (isNewVault || isMigrated) {
       // update IKS, if inheritance key has been added(new Vault) or needs an update(vault migration)
       const [ikVaultKey] = vault.signers.filter(
-        (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
+        (vaultKey) => signerMap[vaultKey.masterFingerprint]?.type === SignerType.INHERITANCEKEY
       );
       if (ikVaultKey) {
         const ikSigner: Signer = signerMap[ikVaultKey.masterFingerprint];
@@ -608,21 +615,20 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       if (existingSigner) {
         // TODO: we're not YET supporting multiple keys (accounts) for the same script type
         if (
-          (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
-            existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
           (newSigner.signerXpubs[XpubTypes.P2WPKH].length &&
+            existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
+          (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
             existingSigner.signerXpubs[XpubTypes.P2WSH].length)
         ) {
           yield put(
             relaySignersUpdateFail(
-              'A different account has already been added. Please use the existing for this signer.'
+              'A different account has already been added. Please use the existing key for this signer.'
             )
           );
           return false;
         }
       }
     }
-
     yield put(setRelaySignersUpdateLoading(true));
     const response = yield call(updateAppImageWorker, { payload: { signers } });
     if (response.updated) {
@@ -1133,6 +1139,51 @@ function* updateWalletDetailsWorker({ payload }) {
 export const updateWalletDetailWatcher = createWatcher(
   updateWalletDetailsWorker,
   UPDATE_WALLET_DETAILS
+);
+
+function* updateVaultDetailsWorker({ payload }) {
+  const {
+    vault,
+    details,
+  }: {
+    vault: Vault;
+    details: {
+      name: string;
+      description: string;
+    };
+  } = payload;
+  try {
+    const presentationData: VaultPresentationData = {
+      name: details.name,
+      description: details.description,
+      visibility: vault.presentationData.visibility,
+      shell: vault.presentationData.shell,
+    };
+    yield put(setRelayVaultUpdateLoading(true));
+    // API-TODO: based on response call the DB
+    vault.presentationData = presentationData;
+
+    console.log(vault.presentationData);
+    const response = yield call(updateVaultImageWorker, {
+      payload: { vault: vault },
+    });
+    if (response.updated) {
+      yield put(relayVaultUpdateSuccess());
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, {
+        presentationData,
+      });
+    } else {
+      yield put(relayVaultUpdateFail(response.error));
+    }
+  } catch (err) {
+    console.log('err', err);
+    yield put(relayVaultUpdateFail('Something went wrong!'));
+  }
+}
+
+export const updateVaultDetailsWatcher = createWatcher(
+  updateVaultDetailsWorker,
+  UPDATE_VAULT_DETAILS
 );
 
 function* updateWalletPathAndPuposeDetailsWorker({ payload }) {

@@ -294,7 +294,7 @@ export const generateCosignerMapUpdates = (
 
 const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
   for (let key of keys) {
-    const assistedKeyType = signerMap[key.masterFingerprint].type;
+    const assistedKeyType = signerMap[key.masterFingerprint]?.type;
     if (
       assistedKeyType === SignerType.POLICY_SERVER ||
       assistedKeyType === SignerType.INHERITANCEKEY
