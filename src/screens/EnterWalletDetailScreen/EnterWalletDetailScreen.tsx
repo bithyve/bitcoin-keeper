@@ -236,9 +236,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
             primaryCallback={() =>
               walletType === WalletType.DEFAULT
                 ? createNewWallet()
-                : navigation.navigate('EnterWalletPath', {
-                    createNewWallet,
-                  })
+                : navigation.navigate('EnterWalletPath')
             }
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}

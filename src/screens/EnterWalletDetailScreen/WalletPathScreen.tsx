@@ -65,7 +65,7 @@ function WalletPathScreen({ route }) {
           <Breadcrumbs totalScreens={4} currentScreen={3} />
           <Buttons
             primaryText={`${common.proceed}`}
-            primaryCallback={() => route.params.createNewWallet(path, purpose)}
+            primaryCallback={() => {}}
             primaryDisable={!path}
             // primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
