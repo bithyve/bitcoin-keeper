@@ -5,6 +5,7 @@ import KeeperText from './KeeperText';
 
 const KeeperTextInput = ({
   placeholder,
+  placeholderTextColor = null,
   onChangeText,
   testID,
   value = null,
@@ -20,7 +21,9 @@ const KeeperTextInput = ({
         defaultValue={defaultValue}
         ref={inputRef}
         placeholder={placeholder}
-        placeholderTextColor={`${colorMode}.greenText`}
+        placeholderTextColor={
+          placeholderTextColor ? placeholderTextColor : `${colorMode}.greenText`
+        }
         value={value}
         onChangeText={onChangeText}
         style={styles.inputField}

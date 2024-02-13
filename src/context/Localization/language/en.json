@@ -89,7 +89,7 @@
     "addSignDeviceUpgrade": "Add signer to upgrade",
     "path": "Path",
     "purpose": "Purpose",
-    "choosePurpose": "Choose Purpose",
+    "choosePurpose": "Choose Wallet purpose",
     "chooseService": "Choose Service",
     "pleaseWait": "Please Wait",
     "receiveTestSats": "Receiving test sats",
