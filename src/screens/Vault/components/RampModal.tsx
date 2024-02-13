@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     color: '#00836A',
   },
   addressWrapper: {
-    marginVertical: 4,
+    marginVertical: 10,
     alignItems: 'center',
     borderRadius: 10,
     paddingHorizontal: 4,

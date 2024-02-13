@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { BtcToSats } from 'src/constants/Bitcoin';
+import { BtcToSats, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 
 import { hp, wp, windowWidth } from 'src/constants/responsive';
@@ -19,25 +19,42 @@ import { TxPriority, WalletType } from 'src/core/wallets/enums';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
-function UTXOSelection({ route }: any) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOSelection'>;
+const UTXOSelection = ({ route }: ScreenProps) => {
   const navigation = useNavigation();
-  const { sender, amount, address } = route.params;
+  const { sender, amount, address } = route.params || {};
   const utxos = _.clone(sender.specs.confirmedUTXOs);
   const { colorMode } = useColorMode();
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { averageTxFees } = useAppSelector((state) => state.network);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
-  const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const areEnoughUTXOsSelected =
-    selectionTotal >= Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
-  const showFeeErrorMessage =
-    selectionTotal >= Number(BtcToSats(amount)) &&
-    selectionTotal < Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
+  const [areEnoughUTXOsSelected, setAreEnoughUTXOsSelected] = useState(false);
+  const [showFeeErrorMessage, setShowFeeErrorMessage] = useState(false);
+
+  useEffect(() => {
+    let minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+
+    let outgoingAmount = Number(amount);
+    // all comparisons are done in sats
+    if (satsEnabled === false) {
+      outgoingAmount = Number(BtcToSats(amount));
+    }
+    const enoughSelected = selectionTotal >= outgoingAmount + minimumAvgFeeRequired;
+    setAreEnoughUTXOsSelected(enoughSelected);
+
+    const showFeeErr =
+      outgoingAmount <= selectionTotal && selectionTotal < outgoingAmount + minimumAvgFeeRequired;
+
+    setShowFeeErrorMessage(showFeeErr);
+  }, [satsEnabled, selectionTotal, amount]);
+
   const executeSendPhaseOne = () => {
     const recipients = [];
     if (!selectionTotal) {
@@ -46,7 +63,7 @@ function UTXOSelection({ route }: any) {
     }
     recipients.push({
       address,
-      amount: BtcToSats(amount),
+      amount: satsEnabled ? amount : BtcToSats(amount),
     });
     dispatch(
       sendPhaseOne({
@@ -102,7 +119,7 @@ function UTXOSelection({ route }: any) {
       </Box>
     </ScreenWrapper>
   );
-}
+};
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#FDF7F0',

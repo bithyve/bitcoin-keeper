@@ -110,7 +110,7 @@ function ShareWithNfc({ data }: { data: string }) {
       <OptionCTA
         icon={<NFCIcon />}
         title={`or share on Tap${isIos ? ' to Anroid' : ''}`}
-        subtitle="Bring device close to use NFC"
+        subtitle="Bring devices close to use NFC"
         callback={shareWithNFC}
       />
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />

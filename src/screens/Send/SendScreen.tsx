@@ -19,10 +19,13 @@ import { QRreader } from 'react-native-qr-decode-image-camera';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
-import IconWallet from 'src/assets/images/icon_wallet.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { PaymentInfoKind } from 'src/core/wallets/enums';
+import { EntityKind, PaymentInfoKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -40,6 +43,9 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/core/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
+import useVault from 'src/hooks/useVault';
+import HexagonIcon from 'src/components/HexagonIcon';
+import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -58,10 +64,15 @@ function SendScreen({ route }) {
   const [paymentInfo, setPaymentInfo] = useState('');
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
-  const { wallets: allWallets } = useWallets();
-  const otherWallets: Wallet[] = allWallets.filter(
-    (existingWallet) => existingWallet.id !== sender.id
+  const { wallets } = useWallets({ getAll: true });
+  const { allVaults } = useVault({ includeArchived: false });
+  const nonHiddenWallets = wallets.filter(
+    (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
+  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
+    (item) => item !== null
+  );
+  const otherWallets = allWallets.filter((existingWallet) => existingWallet.id !== sender.id);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -138,6 +149,14 @@ function SendScreen({ route }) {
     });
   };
 
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else {
+      return <WalletIcon />;
+    }
+  };
+
   const handleTextChange = (info: string) => {
     info = info.trim();
     const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
@@ -164,7 +183,7 @@ function SendScreen({ route }) {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      if (sender.entityKind === 'VAULT') {
+      if (sender.entityKind === EntityKind.VAULT) {
         navigateToNext(
           WalletOperations.getNextFreeAddress(item),
           TransferType.VAULT_TO_WALLET,
@@ -187,8 +206,13 @@ function SendScreen({ route }) {
         style={{ marginRight: wp(10) }}
         width={wp(60)}
       >
-        <TouchableOpacity onPress={onPress} style={styles.buttonBackground}>
-          <IconWallet />
+        <TouchableOpacity onPress={onPress}>
+          <HexagonIcon
+            width={42}
+            height={36}
+            backgroundColor={Colors.RussetBrown}
+            icon={getWalletIcon(item)}
+          />
         </TouchableOpacity>
         <Box>
           <Text light fontSize={12} mt="1" numberOfLines={1}>
@@ -244,6 +268,16 @@ function SendScreen({ route }) {
                     keyExtractor={(item) => item.id}
                     horizontal
                     showsHorizontalScrollIndicator={false}
+                    ListEmptyComponent={
+                      <Box style={styles.emptyWalletsContainer}>
+                        <EmptyWalletIcon />
+                        <Box style={styles.emptyWalletText}>
+                          <Text color={`${colorMode}.deepTeal`}>
+                            You don't have any wallets yet
+                          </Text>
+                        </Box>
+                      </Box>
+                    }
                   />
                 </View>
               </View>
@@ -257,7 +291,7 @@ function SendScreen({ route }) {
             title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
             subtitle={
               sender.entityKind === 'VAULT'
-                ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
+                ? 'Check the send-to address on a signer you are going to use to sign the transaction.'
                 : 'Make sure the address or QR is the one where you want to send the funds to'
             }
             subtitleColor="GreyText"
@@ -328,14 +362,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(25),
     marginTop: hp(5),
   },
-  buttonBackground: {
-    backgroundColor: '#FAC48B',
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   noteWrapper: {
     marginLeft: wp(20),
     position: 'absolute',
@@ -344,6 +370,15 @@ const styles = StyleSheet.create({
   },
   sendToWalletWrapper: {
     marginTop: windowHeight > 680 ? hp(20) : hp(10),
+  },
+  emptyWalletsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyWalletText: {
+    position: 'absolute',
+    width: 100,
+    opacity: 0.8,
   },
 });
 export default SendScreen;

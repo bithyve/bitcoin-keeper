@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
-import { WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetails/WalletDetails';
@@ -17,11 +17,13 @@ function UTXOFooter({
   wallet,
   utxos,
   setRemixingToVault,
+  vaultId,
 }) {
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
+
   const footerItems = [
     {
       text: walletTranslation.selectForMix,
@@ -31,10 +33,13 @@ function UTXOFooter({
         setInitiateWhirlpool(true);
       },
       disabled: !utxos.length,
-      hideItem: !allowedMixTypes.includes(wallet?.type),
+      hideItem: !allowedMixTypes.includes(wallet?.type) || wallet?.entityKind === EntityKind.VAULT,
     },
     {
-      text: wallet.type === WalletType.POST_MIX ? walletTranslation.selectForRemix : walletTranslation.selectForMix,
+      text:
+        wallet.type === WalletType.POST_MIX
+          ? walletTranslation.selectForRemix
+          : walletTranslation.selectForMix,
       Icon: MixIcon,
       onPress: () => {
         setEnableSelection(!enableSelection);

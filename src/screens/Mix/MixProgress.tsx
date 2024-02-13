@@ -43,6 +43,7 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { useQuery } from '@realm/react';
+import { CommonActions } from '@react-navigation/native';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -66,6 +67,7 @@ function MixProgress({
       walletPoolMap: any;
       isRemix: boolean;
       remixingToVault: boolean;
+      vaultId: string;
     };
   };
   navigation: any;
@@ -85,7 +87,7 @@ function MixProgress({
   });
   const styles = getStyles(clock);
 
-  const { selectedUTXOs, depositWallet, isRemix, remixingToVault } = route.params;
+  const { selectedUTXOs, depositWallet, isRemix, remixingToVault, vaultId } = route.params;
   const statusData = [
     {
       title: 'Subscribing',
@@ -132,7 +134,7 @@ function MixProgress({
     {
       title: isRemix
         ? remixingToVault
-          ? 'Remix to Vault successful'
+          ? 'Remix to vault successful'
           : 'Remix completed successful'
         : 'Mix completed successfully',
       subTitle: 'Mixed UTXO available in Postmix',
@@ -155,7 +157,7 @@ function MixProgress({
   const { postmixWallet, premixWallet } = useWhirlpoolWallets({ wallets: [depositWallet] })[
     depositWallet.id
   ];
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const source = isRemix ? postmixWallet : premixWallet;
   const destination = isRemix && remixingToVault ? activeVault : postmixWallet;
   const { labels } = useLabelsNew({ utxos: selectedUTXOs, wallet: depositWallet });
@@ -361,11 +363,17 @@ function MixProgress({
       } finally {
         setTimeout(async () => {
           dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-          navigation.navigate('UTXOManagement', {
-            data: depositWallet,
-            accountType: WalletType.POST_MIX,
-            routeName: 'Wallet',
-          });
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'UTXOManagement',
+              params: {
+                data: depositWallet,
+                accountType: WalletType.POST_MIX,
+                routeName: 'Wallet',
+              },
+              merge: true,
+            })
+          );
         }, 3000);
       }
     }
@@ -426,7 +434,7 @@ function MixProgress({
 
   const initiateWhirlpoolMix = async () => {
     try {
-      // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
+      // ToDo: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       const { height } = await ElectrumClient.getBlockchainHeaders();
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(`${utxo.txId}:${utxo.vout}`);
@@ -485,7 +493,7 @@ function MixProgress({
         />
         <Box style={styles.currentUtxo}>
           <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
-            {`Current UTXO: `}
+            {'Current UTXO: '}
           </Text>
           <Text
             numberOfLines={1}

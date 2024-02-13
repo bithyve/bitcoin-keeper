@@ -18,11 +18,11 @@ import Instruction from 'src/components/Instruction';
 const config = {
   Illustration: <InheritanceKeyIllustration />,
   Instructions: [
-    'Manually provide the signing device details',
-    `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+    'Manually provide the signer details',
+    'The hardened part of the derivation path of the xpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
   ],
   title: 'Setting up the Inheritance Key',
-  subTitle: 'Keep your signing device ready before proceeding',
+  subTitle: 'Keep your signer ready before proceeding',
 };
 function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; close: () => void }) {
   const dispatch = useDispatch();
@@ -58,7 +58,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
               }}
             />
           )}
-          <Text style={{ fontSize: 14, marginLeft: 15 }}>Backup Vault Config (BSMS)</Text>
+          <Text style={{ fontSize: 14, marginLeft: 15 }}>Backup vault Config (BSMS)</Text>
         </Pressable>
         <Box marginTop="4">
           {config.Instructions.map((instruction) => (
@@ -76,21 +76,21 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
       setInProgress(true);
       const { setupData } = await InheritanceKeyServer.initializeIKSetup();
       const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
-      const inheritanceKey = generateSignerFromMetaData({
+      const { signer: inheritanceKey } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp: masterFingerprint,
+        masterFingerprint,
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
-        signerId: id,
+        xfp: id,
         isMultisig: true,
       });
       setInProgress(false);
-      dispatch(addSigningDevice(inheritanceKey));
+      dispatch(addSigningDevice([inheritanceKey]));
       showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
     } catch (err) {
       console.log({ err });
-      showToast(`Failed to add inheritance key`, <TickIcon />);
+      showToast('Failed to add inheritance key', <TickIcon />);
     }
   };
 

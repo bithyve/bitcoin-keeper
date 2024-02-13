@@ -14,13 +14,13 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import openLink from 'src/utils/OpenLink';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import Fonts from 'src/constants/Fonts';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import BounceLoader from 'src/components/BounceLoader';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -133,7 +133,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
-    subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
+    subTitle: 'Keeper allows you to create single sig wallets and multisig wallets called Vaults',
     message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
@@ -165,17 +165,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
-        <Box style={styles.headerContainer}>
+        <Box style={styles.headerContainer} testID="view_newKeeperHeader">
           <KeeperHeader
+            enableBack={false}
+            marginLeft={false}
             title="New Keeper App"
             subtitle="Choose this option when you want to start with a fresh app"
-            enableBack={false}
           />
         </Box>
-        <Box style={styles.tileContainer}>
+        <Box style={styles.tileContainer} testID="view_startNewTile">
           <Tile
             title="Start New"
-            subTitle="New wallets and Vault"
+            subTitle="New wallets and vaults"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -186,17 +187,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
 
       <Box style={styles.titleWrapper02}>
-        <Box style={styles.headerContainer}>
+        <Box style={styles.headerContainer} testID="view_restore">
           <KeeperHeader
-            title="Restore"
-            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
             enableBack={false}
+            marginLeft={false}
+            title="Restore"
+            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the vault"
           />
         </Box>
-        <Box style={styles.tileContainer}>
+        <Box style={styles.tileContainer} testID="view_recoverTile">
           <Tile
-            title="Recover Existing App"
-            subTitle="For self or inherited Vault"
+            title="Recover an existing app"
+            subTitle="Enter 12-word Recovery Phrase"
             Icon={<Recover />}
             onPress={() => {
               navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
@@ -207,8 +209,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.footerContainer}>
         <Box style={styles.noteContainer}>
           <Box opacity={1}>
-            <Text color="light.black" style={styles.title}>
-              Terms of Service
+            <Text
+              color={`${colorMode}.headerText`}
+              style={styles.title}
+              testID="text_termOfService"
+            >
+              Note
             </Text>
           </Box>
           <Box style={styles.subTitleWrapper}>
@@ -218,13 +224,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <TouchableOpacity
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             >
-              <Text color="#2D6759" italic style={styles.termOfServiceText}>
+              <Text color={`${colorMode}.headerText`} italic style={styles.termOfServiceText}>
                 Terms of Service
               </Text>
             </TouchableOpacity>
             <Text color="light.secondaryText" style={styles.subTitle}>
               {' '}
-              and{' '}
+              and our{' '}
             </Text>
             <TouchableOpacity onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}>
               <Text color="#2D6759" italic style={styles.termOfServiceText}>
@@ -237,7 +243,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -252,7 +258,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -268,7 +274,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -294,7 +300,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   tileContainer: {
-    marginTop: hp(20),
+    marginTop: hp(5),
   },
   headerContainer: {
     // width: wp(280),
@@ -310,7 +316,7 @@ const styles = StyleSheet.create({
     width: wp(290),
   },
   title: {
-    fontSize: 15,
+    fontSize: 14,
     letterSpacing: 1.12,
   },
   subTitle: {
@@ -329,17 +335,26 @@ const styles = StyleSheet.create({
   modalMessageWrapper: {
     flexDirection: 'row',
     width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   modalMessageText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    paddingTop: 5
+    paddingTop: 5,
   },
   contentText: {
     fontSize: 13,
     letterSpacing: 0.65,
-  }
+  },
+  addWalletText: {
+    lineHeight: 26,
+    letterSpacing: 0.8,
+  },
+  addWalletDescription: {
+    fontSize: 12,
+    lineHeight: 20,
+    letterSpacing: 0.5,
+  },
 });
 
 export default NewKeeperApp;

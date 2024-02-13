@@ -1,5 +1,5 @@
 import { Box, ScrollView, View } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -15,6 +15,7 @@ import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
   switch (type) {
@@ -59,7 +60,9 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the Vault config by going to Setting > Multisig > Then select the wallet > Export `}
+          {
+            'Export the vault config by going to Setting > Multisig > Then select the wallet > Export '
+          }
         </Text>
       </Box>
     </View>
@@ -81,7 +84,9 @@ function PassportSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
+          {
+            '\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n'
+          }
         </Text>
       </Box>
     </View>
@@ -156,10 +161,12 @@ function SigningDeviceConfigRecovery({ navigation }) {
           buttonText="Proceed"
           buttonTextColor="light.white"
           buttonCallback={() => {
-            navigate('LoginStack', {
-              screen: 'ColdCardReocvery',
-              params: { isConfigRecovery: true },
-            });
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddColdCard',
+                params: { mode: InteracationMode.CONFIG_RECOVERY },
+              })
+            );
             close();
           }}
           textColor="light.primaryText"
@@ -191,9 +198,9 @@ function SigningDeviceConfigRecovery({ navigation }) {
   return (
     <ScreenWrapper>
       <KeeperHeader
-        title="Select Signing Device"
-        subtitle="To recover your Vault"
-        onPressHandler={() => navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' })}
+        title="Select signer"
+        subtitle="To recover your vault"
+        onPressHandler={() => navigation.goBack()}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">

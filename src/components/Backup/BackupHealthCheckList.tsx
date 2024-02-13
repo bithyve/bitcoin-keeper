@@ -13,12 +13,17 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/constants/responsive';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import DotView from 'src/components/DotView';
 import Buttons from 'src/components/Buttons';
 import { useQuery } from '@realm/react';
+import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
+import KeeperFooter from '../KeeperFooter';
+
+import HealthCheck from 'src/assets/images/healthcheck_light.svg';
+import AdvnaceOptions from 'src/assets/images/settings.svg';
 
 function BackupHealthCheckList() {
   const { colorMode } = useColorMode();
@@ -53,62 +58,77 @@ function BackupHealthCheckList() {
     };
   }, [seedConfirmed]);
 
+  function FooterIcon({ Icon }) {
+    return (
+      <Box
+        margin="1"
+        width="12"
+        height="12"
+        borderRadius={30}
+        backgroundColor={`${colorMode}.RussetBrown`}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Icon />
+      </Box>
+    );
+  }
+
+  const footerItems = [
+    {
+      text: 'Health Check',
+      Icon: () => <FooterIcon Icon={HealthCheck} />,
+      onPress: () => {
+        onPressConfirm();
+      },
+    },
+    {
+      text: 'Settings',
+      Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
+      onPress: () => {
+        navigtaion.dispatch(CommonActions.navigate('AppBackupSettings', {}));
+      },
+    },
+  ];
+
   return (
     <Box>
-      <Box height={hp(530)}>
+      <Box height={hp(520)}>
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
           renderItem={({ item, index }) => (
-            <Box key={index}>
+            <Box
+              padding={1}
+              marginLeft={2}
+              borderLeftColor={`${colorMode}.RussetBrownLight`}
+              borderLeftWidth={1}
+              width="100%"
+              position="relative"
+              key={index}
+            >
               <Box
                 zIndex={999}
                 position="absolute"
                 left={-8}
-                backgroundColor={`${colorMode}.primaryBackground`}
-                padding={2}
+                backgroundColor={`${colorMode}.RussetBrownLight`}
+                padding={1}
                 borderRadius={15}
               >
-                <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
+                <DotView height={2} width={2} color={`${colorMode}.RussetBrown`} />
               </Box>
-              <Text
-                color={`${colorMode}.GreyText`}
-                fontSize={10}
-                bold
-                ml={5}
-                opacity={0.7}
-                letterSpacing={0.6}
-              >
+              <Text color={`${colorMode}.GreenishGrey`} fontSize={12} bold ml={5} opacity={0.7}>
+                {item?.title}
+              </Text>
+              <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
                 {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
               </Text>
-              <Box
-                backgroundColor={`${colorMode}.seashellWhite`}
-                padding={5}
-                borderRadius={1}
-                my={2}
-                borderLeftColor={`${colorMode}.lightAccent`}
-                borderLeftWidth={2}
-                width="100%"
-                ml={wp(3.5)}
-                position="relative"
-              >
-                <Text color={`${colorMode}.headerText`} fontSize={14} letterSpacing={1}>
-                  {strings[item.title]}
-                </Text>
-                {item.subtitle !== '' && (
-                  <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
-                    {item.subtitle}
-                  </Text>
-                )}
-              </Box>
             </Box>
           )}
         />
       </Box>
 
-      <Box alignItems="flex-start">
-        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
-      </Box>
+      <KeeperFooter marginX={0} items={footerItems} />
 
       <ModalWrapper
         visible={showConfirmSeedModal}

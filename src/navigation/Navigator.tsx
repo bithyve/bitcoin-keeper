@@ -1,5 +1,8 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
+import { AppStackParams } from './types';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { routingInstrumentation } from 'src/services/sentry';
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -12,7 +15,7 @@ import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
-import EditWalletSettings from 'src/screens/WalletDetails/EditWalletDetails';
+import EditWalletDetails from 'src/screens/WalletDetails/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
@@ -49,21 +52,15 @@ import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
 import VaultDetails from 'src/screens/Vault/VaultDetails';
-import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import AllTransactions from 'src/screens/Vault/AllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { routingInstrumentation } from 'src/services/sentry';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
-import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
-import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
-import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
@@ -91,11 +88,19 @@ import InputSeedWordSigner from 'src/screens/SigningDevices/InputSeedWordSigner'
 import SetupOtherSDScreen from 'src/screens/SigningDevices/SetupOtherSDScreen';
 import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
-import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListRecovery';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
+import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
+import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
+import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
+import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
+import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
+import AddSigner from 'src/screens/AddSigner/AddSigner';
+import HomeScreen from 'src/screens/Home/HomeScreen';
+import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
+import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -125,17 +130,6 @@ function LoginStack() {
         component={NewKeeperApp}
       />
 
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="VaultRecoveryAddSigner"
-        component={VaultRecovery}
-      />
-      <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
-      <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
-      <Stack.Screen name="SigningDeviceListRecovery" component={SigningDeviceListRecovery} />
-      <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
-      <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
-
       {/* Cold Card */}
       <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
       {/* Tap Signer  */}
@@ -155,7 +149,7 @@ function LoginStack() {
 }
 
 function AppStack() {
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator<AppStackParams>();
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -182,7 +176,7 @@ function AppStack() {
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
-        <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
+        <Stack.Screen name="EditWalletDetails" component={EditWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
         <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
@@ -200,6 +194,7 @@ function AppStack() {
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
+        <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
@@ -221,6 +216,8 @@ function AppStack() {
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
+        <Stack.Screen name="PrivacyAndDisplay" component={PrivacyAndDisplay} />
+        <Stack.Screen name="NetworkSetting" component={NetworkSetting} />
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
@@ -234,7 +231,11 @@ function AppStack() {
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
         <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
+        <Stack.Screen name="VaultCreationOptions" component={VaultCreationOptions} />
+        <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
+        <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
         <Stack.Screen name="VaultSetup" component={VaultSetup} />
+        <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}
@@ -242,6 +243,9 @@ function AppStack() {
         />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="NFCScanner" component={NFCScanner} />
+        <Stack.Screen name="AddWallet" component={AddWallet} />
+        <Stack.Screen name="AddSigner" component={AddSigner} />
+        <Stack.Screen name="ManageSigners" component={ManageSigners} />
       </Stack.Navigator>
     </RealmProvider>
   );

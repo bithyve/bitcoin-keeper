@@ -517,11 +517,11 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal && !internalCheck}
-        close={() => { }}
+        close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
@@ -534,7 +534,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -548,7 +548,7 @@ function LoginScreen({ navigation, route }) {
       />
       <KeeperModal
         visible={incorrectPassword}
-        close={() => { }}
+        close={() => {}}
         title={'Incorrect Password'}
         subTitle={
           'You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow'
@@ -646,7 +646,6 @@ const styles = StyleSheet.create({
   modalMessageText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    // width: wp(275),
   },
   modalMessageWrapper: {
     flexDirection: 'row',
