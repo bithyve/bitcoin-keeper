@@ -260,7 +260,7 @@ export const getDeviceStatus = (
     case SignerType.KEEPER:
       return addSignerFlow || scheme?.n < 2
         ? {
-            message: `You can add a ${getSignerNameFromType(
+            message: `You can add an ${getSignerNameFromType(
               type
             )} in a multisig configuration only`,
             disabled: true,
@@ -350,7 +350,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     }
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
-      return 'Use Collaborative Key as signer';
+      return 'Use App Key as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';
