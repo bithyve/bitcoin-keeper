@@ -47,9 +47,7 @@ platform :android do
     key_password = ENV["KEY_PASSWORD"]
     key_alias = ENV["KEY_ALIAS"]
     releaseFilePath = File.join(Dir.pwd, "../app", "release.keystore")
-
     gradle(task: 'clean')
-    
     gradle(
       task: 'bundle',
       build_type: 'productionRelease',
@@ -64,7 +62,18 @@ platform :android do
     upload_to_play_store(
       track: 'internal'
     )
-    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH]})
+    gradle(
+      task: 'assemble',
+      build_type: 'productionRelease',
+      print_command: false,
+      properties: {
+        "android.injected.signing.store.file" => releaseFilePath,
+        "android.injected.signing.store.password" => store_password,
+        "android.injected.signing.key.alias" => key_alias,
+        "android.injected.signing.key.password" => key_password,
+      }
+    )
+    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]})
   end
 end
 
