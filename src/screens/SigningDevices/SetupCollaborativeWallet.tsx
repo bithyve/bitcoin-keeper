@@ -1,19 +1,20 @@
-import { ActivityIndicator, Dimensions, Pressable, StyleSheet } from 'react-native';
-import Text from 'src/components/KeeperText';
-import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { StyleSheet } from 'react-native';
+import { FlatList, useColorMode } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import AddIcon from 'src/assets/images/green_add.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
-import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
-import { extractKeyFromDescriptor, generateSignerFromMetaData } from 'src/hardware';
-import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import {
+  extractKeyFromDescriptor,
+  generateSignerFromMetaData,
+  getSignerNameFromType,
+} from 'src/hardware';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -25,21 +26,18 @@ import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
-import DescriptionModal from '../Vault/components/EditDescriptionModal';
-import { globalStyles } from 'src/constants/globalStyles';
 import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-
-const { width } = Dimensions.get('screen');
+import AddCard from 'src/components/AddCard';
+import SignerCard from '../AddSigner/SignerCard';
 
 function SignerItem({
   vaultKey,
   index,
   onQRScan,
   removeSigner,
-  updateSigner,
   coSignerFingerprint,
   signerMap,
 }: {
@@ -47,13 +45,11 @@ function SignerItem({
   index: number;
   onQRScan: any;
   removeSigner: any;
-  updateSigner: any;
   coSignerFingerprint: string;
   signerMap: { [key: string]: Signer };
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const [visible, setVisible] = useState(false);
   const signer = vaultKey ? signerMap[vaultKey.masterFingerprint] : null;
 
   const navigateToAddQrBasedSigner = () => {
@@ -77,165 +73,30 @@ function SignerItem({
   const callback = () => {
     navigateToAddQrBasedSigner();
   };
-  const openDescriptionModal = () => setVisible(true);
-  const closeDescriptionModal = () => setVisible(false);
 
   if (!signer || !vaultKey) {
     return (
-      <Pressable onPress={callback}>
-        <Box style={styles.signerItemContainer}>
-          <HStack style={styles.signerItem}>
-            <HStack alignItems="center">
-              <AddIcon />
-              <VStack marginX="4" maxWidth="64">
-                <Text
-                  color={`${colorMode}.primaryText`}
-                  numberOfLines={2}
-                  style={[globalStyles.font15, { letterSpacing: 1.12, alignItems: 'center' }]}
-                >
-                  {`Add ${getPlaceholder(index)} co-signer`}
-                </Text>
-                <Text
-                  color={`${colorMode}.GreyText`}
-                  style={[globalStyles.font13, { letterSpacing: 0.06 }]}
-                >
-                  {index === 0 ? 'Adding your key...' : 'Add a co-signer'}
-                </Text>
-              </VStack>
-            </HStack>
-            <Box style={styles.backArrow}>
-              {index === 0 ? <ActivityIndicator /> : <IconArrowBlack />}
-            </Box>
-          </HStack>
-        </Box>
-      </Pressable>
+      <AddCard
+        name={index === 0 ? 'Adding your key...' : `Add ${getPlaceholder(index)} cosigner`}
+        cardStyles={styles.addCard}
+        callback={callback}
+      />
     );
   }
 
   return (
-    <Box style={styles.itemContainer}>
-      <HStack style={styles.signerItem}>
-        <HStack>
-          <Box
-            width="8"
-            height="8"
-            borderRadius={30}
-            backgroundColor="#725436"
-            justifyContent="center"
-            alignItems="center"
-            alignSelf="center"
-          >
-            {SDIcons(signer.type, true).Icon}
-          </Box>
-          <VStack marginLeft="4" maxWidth="80%">
-            <Text
-              color={`${colorMode}.primaryText`}
-              numberOfLines={1}
-              style={[
-                globalStyles.font15,
-                { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
-              ]}
-            >
-              {`${
-                coSignerFingerprint === signer.masterFingerprint
-                  ? 'My co-signer'
-                  : signer.signerName
-              }`}
-              <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
-            </Text>
-            <Text
-              color={`${colorMode}.GreyText`}
-              style={[globalStyles.font12, { letterSpacing: 0.6 }]}
-            >
-              {`Added ${moment(signer.lastHealthCheck).calendar()}`}
-            </Text>
-            <Pressable onPress={openDescriptionModal}>
-              <Box style={styles.descriptionBox} backgroundColor={`${colorMode}.seashellWhite`}>
-                <Text
-                  numberOfLines={1}
-                  color={signer.signerDescription ? '#6A7772' : '#387F6A'}
-                  style={[
-                    globalStyles.font12,
-                    { letterSpacing: 0.6, fontStyle: signer.signerDescription ? null : 'italic' },
-                  ]}
-                  bold={!signer.signerDescription}
-                >
-                  {signer.signerDescription ? signer.signerDescription : 'Add Description'}
-                </Text>
-              </Box>
-            </Pressable>
-          </VStack>
-        </HStack>
-        {index !== 0 && (
-          <Pressable style={styles.remove} onPress={() => removeSigner(index)}>
-            <Text
-              color={`${colorMode}.black`}
-              style={[globalStyles.font12, { letterSpacing: 0.6 }]}
-            >
-              Remove
-            </Text>
-          </Pressable>
-        )}
-      </HStack>
-      <DescriptionModal
-        visible={visible}
-        close={closeDescriptionModal}
-        signer={signer}
-        callback={(value: any) => updateSigner({ signer, key: 'signerDescription', value })}
-      />
-    </Box>
+    <SignerCard
+      key={signer.masterFingerprint}
+      name={getSignerNameFromType(signer.type, signer.isMock)}
+      description={`Added ${moment(signer.addedOn).calendar()}`}
+      icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+      isSelected={false}
+      showSelection={false}
+      colorVarient="green"
+      isFullText
+    />
   );
 }
-
-// function Spacer() {
-//   return <Box style={styles.space} />;
-// }
-
-// function ListFooter(wallet: Wallet, signPSBT: any) {
-//   const navigation = useNavigation();
-//   const { id } = wallet;
-//   return (
-//     <Box style={globalStyles.centerColumn}>
-//       <Spacer />
-//       <OptionCTA
-//         icon={null}
-//         title="Show co-signer Details"
-//         subtitle="Add to another Collaborative Wallet"
-//         callback={() => {
-//           navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
-//         }}
-//       />
-//       <Spacer />
-//       <OptionCTA
-//         icon={null}
-//         title="Import Collaborative Wallet"
-//         subtitle="To view wallet on this app"
-//         callback={() => {
-//           navigation.dispatch(CommonActions.navigate('ImportDescriptorScreen', { walletId: id }));
-//         }}
-//       />
-//       <Spacer />
-//       <OptionCTA
-//         icon={null}
-//         title="Act as co-signer"
-//         subtitle={`Sign transactions (${id})`}
-//         callback={() => {
-//           navigation.dispatch(
-//             CommonActions.navigate({
-//               name: 'ScanQR',
-//               params: {
-//                 title: `Scan PSBT to Sign`,
-//                 subtitle: 'Please scan until all the QR data has been retrieved',
-//                 onQrScan: signPSBT,
-//                 type: SignerType.KEEPER,
-//               },
-//             })
-//           );
-//         }}
-//       />
-//     </Box>
-//   );
-// }
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'SetupCollaborativeWallet'>;
 
@@ -258,16 +119,6 @@ const SetupCollaborativeWallet = ({ route }: ScreenProps) => {
 
   const removeSigner = (index: number) => {
     const newSigners = coSigners.filter((_, i) => i !== index || index === 0);
-    setCoSigners(newSigners);
-  };
-
-  const updateSigner = ({ signer, key, value }) => {
-    const newSigners = coSigners.map((item) => {
-      if (item && item.xfp === signer.xfp) {
-        return { ...item, [key]: value };
-      }
-      return item;
-    });
     setCoSigners(newSigners);
   };
 
@@ -350,7 +201,6 @@ const SetupCollaborativeWallet = ({ route }: ScreenProps) => {
         const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
         pushSigner(xpub, derivationPath, masterFingerprint);
       }}
-      updateSigner={updateSigner}
       removeSigner={removeSigner}
       coSignerFingerprint={coSigner.id}
       signerMap={signerMap}
@@ -382,6 +232,7 @@ const SetupCollaborativeWallet = ({ route }: ScreenProps) => {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Add Signers" subtitle="A 2 of 3 collaborative wallet will be created" />
       <FlatList
+        horizontal
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         data={coSigners}
@@ -396,7 +247,7 @@ const SetupCollaborativeWallet = ({ route }: ScreenProps) => {
         primaryCallback={createVault}
         secondaryText="Cancel"
         primaryLoading={isCreating}
-        primaryDisable={coSigners.filter((item) => item).length < 2}
+        primaryDisable={coSigners.filter((item) => item)?.length < 2}
       />
     </ScreenWrapper>
   );
@@ -443,6 +294,11 @@ const styles = StyleSheet.create({
   },
   space: {
     marginVertical: 10,
+  },
+  addCard: {
+    height: 125,
+    width: windowWidth / 3 - windowWidth * 0.05,
+    margin: 3,
   },
 });
 
