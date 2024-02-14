@@ -8,7 +8,7 @@ import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -36,6 +36,8 @@ import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
+import { getSignerNameFromType } from 'src/hardware';
+import config from 'src/core/config';
 
 const { width } = Dimensions.get('screen');
 
@@ -309,11 +311,16 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
+
+  const isAMF =
+    signer.type === SignerType.TAPSIGNER &&
+    config.NETWORK_TYPE === NetworkType.TESTNET &&
+    !signer.isMock;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Advanced Settings"
-        subtitle={`for ${signer.signerName}`}
+        subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}

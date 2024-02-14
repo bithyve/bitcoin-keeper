@@ -56,8 +56,14 @@ import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
-import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
+import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
+import {
+  NetworkType,
+  SignerStorage,
+  SignerType,
+  VaultType,
+  XpubTypes,
+} from 'src/core/wallets/enums';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { NewVaultInfo, addNewVaultWorker } from './wallets';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -468,10 +474,14 @@ function* recoverApp(
                 }
               }
             });
+            const isAMF =
+              signer.type === SignerType.TAPSIGNER &&
+              config.NETWORK_TYPE === NetworkType.TESTNET &&
+              !signer.isMock;
             const signerObject = {
               masterFingerprint: signer.masterFingerprint,
               type: signer.type,
-              signerName: signer.signerName,
+              signerName: getSignerNameFromType(signer.type, signer.isMock, isAMF),
               signerDescription: signer.signerDescription,
               lastHealthCheck: signer.lastHealthCheck,
               addedOn: signer.addedOn,

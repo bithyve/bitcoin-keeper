@@ -9,7 +9,7 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -33,6 +33,8 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { getSignerNameFromType } from 'src/hardware';
+import moment from 'moment';
 
 const { width } = Dimensions.get('screen');
 
@@ -271,12 +273,16 @@ const Signers = ({
   const renderSigners = () => {
     return signers.map((signer) => {
       const disabled = !isSignerValidForScheme(signer, scheme, allVaults, signerMap);
+      const isAMF =
+        signer.type === SignerType.TAPSIGNER &&
+        config.NETWORK_TYPE === NetworkType.TESTNET &&
+        !signer.isMock;
       return (
         <SignerCard
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={signer.signerName}
-          description={signer.signerDescription || signer.type}
+          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          description={`Added ${moment(signer.addedOn).calendar()}`}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) =>

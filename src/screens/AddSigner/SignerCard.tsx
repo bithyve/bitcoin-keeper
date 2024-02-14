@@ -41,7 +41,7 @@ function SignerCard({
       borderColor={`${colorMode}.Eggshell`}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
       onPress={() => {
-        onCardSelect(isSelected);
+        if (onCardSelect) onCardSelect(isSelected);
       }}
     >
       {showSelection &&

@@ -107,8 +107,10 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.MY_KEEPER:
+      name = 'App Key (This App)';
+      break;
     case SignerType.KEEPER:
-      name = 'Collaborative Key';
+      name = 'App Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
