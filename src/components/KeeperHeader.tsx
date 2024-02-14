@@ -19,6 +19,7 @@ type Props = {
   learnBackgroundColor?: string;
   learnTextColor?: string;
   rightComponent?: Element;
+  topRightComponent?: Element;
   contrastScreen?: boolean;
   marginLeft?: boolean;
   icon?: Element;
@@ -35,6 +36,7 @@ function KeeperHeader({
   learnBackgroundColor = 'light.RussetBrown',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
+  topRightComponent = null,
   contrastScreen = false,
   marginLeft = true,
   icon = null,
@@ -53,6 +55,7 @@ function KeeperHeader({
           >
             {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
+          {topRightComponent && topRightComponent}
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
               <Box
@@ -63,7 +66,7 @@ function KeeperHeader({
                 style={styles.learnMoreContainer}
               >
                 <Text color={learnTextColor} style={styles.learnMoreText}>
-                  Learn More
+                  Need Help?
                 </Text>
               </Box>
             </TouchableOpacity>

@@ -22,7 +22,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
-import { Linking, StyleSheet } from 'react-native';
+import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';
 import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
@@ -30,6 +30,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Breadcrumbs from 'src/components/Breadcrumbs';
+import SettingsIcon from 'src/assets/images/settings_brown_small.svg';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ navigation, route }) {
@@ -158,7 +159,18 @@ function EnterWalletDetailScreen({ navigation, route }) {
       <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
-        //To-Do-Learn-More
+        topRightComponent={
+          walletType === WalletType.DEFAULT ? null : (
+            <TouchableOpacity onPress={() => navigation.navigate('EnterWalletPath')}>
+              <Box style={styles.topRightComponentContainer}>
+                <SettingsIcon />
+                <Text bold color={`${colorMode}.RussetBrown`} fontSize={13}>
+                  Advanced
+                </Text>
+              </Box>
+            </TouchableOpacity>
+          )
+        }
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
@@ -230,14 +242,8 @@ function EnterWalletDetailScreen({ navigation, route }) {
         <Box style={styles.footer}>
           <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />
           <Buttons
-            primaryText={
-              walletType === WalletType.DEFAULT ? `${common.create}` : `${common.proceed}`
-            }
-            primaryCallback={() =>
-              walletType === WalletType.DEFAULT
-                ? createNewWallet()
-                : navigation.navigate('EnterWalletPath')
-            }
+            primaryText={common.proceed}
+            primaryCallback={() => createNewWallet()}
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
@@ -281,7 +287,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,
-    marginHorizontal: 10,
   },
   fieldsContainer: {
     marginVertical: 40,
@@ -294,6 +299,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  topRightComponentContainer: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center',
+    marginHorizontal: 5,
   },
 });
 
