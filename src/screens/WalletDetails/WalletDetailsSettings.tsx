@@ -22,6 +22,7 @@ function WalletDetailsSettings({ route }) {
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
   const { importWallet, common } = translations;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader

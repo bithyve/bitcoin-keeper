@@ -413,7 +413,9 @@
     "sendingFromUtxo": "Sending from selected UTXOs of",
     "AvailableToSpend": "Available to spend",
     "advanced": "Advanced",
-    "chooseFromTemplate": "Choose from a template"
+    "chooseFromTemplate": "Choose from a template",
+    "walletPathPurpose": "Wallet path and purpose",
+    "walletPathPurposeDesc": "Wallet path and purpose"
   },
   "vault": {
     "SetupyourVault": "Setup a vault",
@@ -721,6 +723,7 @@
   "importWallet": {
     "addDetails": "Add details",
     "derivationPath": "Derivation Path",
+    "changePath": "Change or update path and purpose",
     "enterWalletName": "Enter wallet name",
     "addDescription": "Add Description",
     "enterAmount": "Enter Amount",

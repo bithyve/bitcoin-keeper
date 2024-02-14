@@ -15,9 +15,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { EntityKind, NetworkType, SignerType, WalletType } from 'src/core/wallets/enums';
 import useWallets from 'src/hooks/useWallets';
 import { AppContext } from 'src/context/AppContext';
 import { StyleSheet } from 'react-native';
@@ -27,6 +25,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { captureError } from 'src/services/sentry';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import WalletPath from './components/WalletPathModal';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -38,13 +37,14 @@ function WalletSettings({ route }) {
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const [walletPathVisible, setWalletPathVisible] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
-  const { settings, common } = translations;
+  const { settings, common, importWallet } = translations;
 
   const getTestSats = () => {
     dispatch(testSatsRecieve(wallet));
@@ -126,6 +126,13 @@ function WalletSettings({ route }) {
           }}
         />
         <OptionCard
+          title={walletTranslation.walletPathPurpose}
+          description={walletTranslation.walletPathPurposeDesc}
+          callback={() => {
+            setWalletPathVisible(true);
+          }}
+        />
+        <OptionCard
           title={walletTranslation.walletSeedWord}
           description={walletTranslation.walletSeedWordSubTitle}
           callback={() => {
@@ -179,6 +186,28 @@ function WalletSettings({ route }) {
       <Box style={styles.fingerprint}>
         <WalletFingerprint fingerprint={wallet.id} />
       </Box>
+
+      {/* Wallet path and purpose Modal */}
+      <KeeperModal
+        visible={walletPathVisible}
+        close={() => {
+          setWalletPathVisible(false);
+        }}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        title={importWallet.derivationPath}
+        subTitle={importWallet.changePath}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        showCloseIcon={false}
+        Content={() => (
+          <WalletPath
+            wallet={wallet}
+            secondaryBtnPress={() => {
+              setWalletPathVisible(false);
+            }}
+          />
+        )}
+      />
 
       <KeeperModal
         visible={transferPolicyVisible}
