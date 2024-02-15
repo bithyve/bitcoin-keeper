@@ -9,6 +9,7 @@ import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useVault from 'src/hooks/useVault';
+import useTestSats from 'src/hooks/useTestSats';
 
 function CollabrativeWalletSettings() {
   const route = useRoute();
@@ -16,6 +17,7 @@ function CollabrativeWalletSettings() {
   const { activeVault } = useVault({ vaultId });
   const navigation = useNavigation();
   const descriptorString = genrateOutputDescriptors(activeVault);
+  const TestSatsComponent = useTestSats({ wallet: activeVault });
 
   return (
     <ScreenWrapper>
@@ -37,6 +39,7 @@ function CollabrativeWalletSettings() {
             );
           }}
         />
+        {TestSatsComponent}
       </ScrollView>
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note

@@ -1,80 +1,37 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { testSatsRecieve } from 'src/store/sagaActions/wallets';
-import { useAppSelector } from 'src/store/hooks';
-import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
 import useWallets from 'src/hooks/useWallets';
-import { AppContext } from 'src/context/AppContext';
 import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import useTestSats from 'src/hooks/useTestSats';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
   const { wallet: walletRoute, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
-  const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
-  const { settings, common } = translations;
-
-  const getTestSats = () => {
-    dispatch(testSatsRecieve(wallet));
-  };
-
-  useEffect(() => {
-    setLoadingContent({
-      title: common.pleaseWait,
-      subtitle: common.receiveTestSats,
-      message: '',
-    });
-
-    return () => {
-      setLoadingContent({
-        title: '',
-        subTitle: '',
-        message: '',
-      });
-      setAppLoading(false);
-    };
-  }, []);
-
-  useEffect(() => {
-    setAppLoading(false);
-    if (testCoinsReceived) {
-      showToast('5000 Sats Received', <TickIcon />);
-      setTimeout(() => {
-        dispatch(setTestCoinsReceived(false));
-        navigation.goBack();
-      }, 3000);
-    } else if (testCoinsFailed) {
-      showToast('Process Failed');
-      dispatch(setTestCoinsFailed(false));
-    }
-  }, [testCoinsReceived, testCoinsFailed]);
+  const { settings } = translations;
+  const TestSatsComponent = useTestSats({ wallet });
 
   // const signPSBT = (serializedPSBT, resetQR) => {
   //   try {
@@ -134,18 +91,7 @@ function WalletSettings({ route }) {
             setTransferPolicyVisible(true);
           }}
         />
-        {config.NETWORK_TYPE === NetworkType.TESTNET && (
-          <Box style={{ marginVertical: 40 }}>
-            <OptionCard
-              title={walletTranslation.recieveTestSats}
-              description={walletTranslation.recieveTestSatSubTitle}
-              callback={() => {
-                setAppLoading(true);
-                getTestSats();
-              }}
-            />
-          </Box>
-        )}
+        {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
         <WalletFingerprint fingerprint={wallet.id} />
