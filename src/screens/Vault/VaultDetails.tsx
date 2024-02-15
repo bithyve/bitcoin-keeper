@@ -91,7 +91,7 @@ function Footer({
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
   const {
-    specs: { balances: { confirmed } } = {
+    specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = vault;
@@ -109,7 +109,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
       </HStack>
       <CurrencyInfo
         hideAmounts={false}
-        amount={confirmed}
+        amount={confirmed + unconfirmed}
         fontSize={24}
         color={`${colorMode}.white`}
         variation={colorMode === 'light' ? 'light' : 'dark'}
