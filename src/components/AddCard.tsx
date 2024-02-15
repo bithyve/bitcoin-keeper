@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
 import Text from './KeeperText';
 import Colors from 'src/theme/Colors';
@@ -12,6 +12,7 @@ type AddSignerCardProps = {
   cardStyles?: ViewStyle;
   iconWidth?: number;
   iconHeight?: number;
+  loading?: boolean;
 };
 
 function AddCard({
@@ -20,6 +21,7 @@ function AddCard({
   cardStyles,
   iconWidth = 40,
   iconHeight = 34,
+  loading = false,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
@@ -39,6 +41,7 @@ function AddCard({
           <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>
             {name}
           </Text>
+          {loading ? <ActivityIndicator /> : null}
         </Box>
       </Box>
     </TouchableOpacity>
