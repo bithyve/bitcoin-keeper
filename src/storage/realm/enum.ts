@@ -39,5 +39,4 @@ export enum RealmSchema {
   StoreSubscription = 'StoreSubscription',
   WhirlpoolConfig = 'WhirlpoolConfig',
   WhirlpoolWalletDetails = 'WhirlpoolWalletDetails',
-  CollaborativeWalletDetails = 'CollaborativeWalletDetails',
 }

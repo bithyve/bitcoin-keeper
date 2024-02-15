@@ -486,7 +486,6 @@ export interface NewVaultInfo {
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
   vaultDetails?: NewVaultDetails;
-  collaborativeWalletId?: string;
 }
 
 export function* addNewVaultWorker({
@@ -515,7 +514,6 @@ export function* addNewVaultWorker({
         vaultScheme,
         vaultSigners,
         vaultDetails,
-        collaborativeWalletId,
       } = newVaultInfo;
 
       if (vaultScheme.n !== vaultSigners.length)
@@ -526,14 +524,13 @@ export function* addNewVaultWorker({
 
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
-        type: collaborativeWalletId ? VaultType.COLLABORATIVE : vaultType,
+        type: vaultType,
         vaultName: vaultDetails.name,
         vaultDescription: vaultDetails.description,
         scheme: vaultScheme,
         signers: vaultSigners,
         networkType,
         vaultShellId,
-        collaborativeWalletId,
         signerMap,
       });
       isNewVault = true;
@@ -550,27 +547,9 @@ export function* addNewVaultWorker({
       }
     }
 
-    if (newVaultInfo && newVaultInfo.collaborativeWalletId && !isRecreation) {
-      const hotWallet = yield call(
-        dbManager.getObjectById,
-        RealmSchema.Wallet,
-        newVaultInfo.collaborativeWalletId
-      );
-      const descriptor = genrateOutputDescriptors(vault);
-      yield call(updateWalletsPropertyWorker, {
-        payload: {
-          walletId: hotWallet.id,
-          key: 'collaborativeWalletDetails',
-          value: { descriptor },
-        },
-      });
-    }
-
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
       ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : newVaultInfo && newVaultInfo.collaborativeWalletId
-      ? { updated: true }
       : yield call(updateVaultImageWorker, { payload: { vault } });
 
     if (response.updated) {

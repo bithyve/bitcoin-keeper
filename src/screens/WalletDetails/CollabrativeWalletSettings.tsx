@@ -4,12 +4,8 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
-import { SignerType } from 'src/core/wallets/enums';
-import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import useWallets from 'src/hooks/useWallets';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { StyleSheet } from 'react-native';
-import useToastMessage from 'src/hooks/useToastMessage';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useVault from 'src/hooks/useVault';
@@ -19,30 +15,7 @@ function CollabrativeWalletSettings() {
   const { vaultId } = route.params as { vaultId: string };
   const { activeVault } = useVault({ vaultId });
   const navigation = useNavigation();
-  const wallet = useWallets({ walletIds: [activeVault.collaborativeWalletId] }).wallets[0];
   const descriptorString = genrateOutputDescriptors(activeVault);
-  const { showToast } = useToastMessage();
-
-  // const signPSBT = (serializedPSBT, resetQR) => {
-  //   try {
-  //     const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-  //     navigation.dispatch(
-  //       CommonActions.navigate({
-  //         name: 'ShowQR',
-  //         params: {
-  //           data: signedSerialisedPSBT,
-  //           encodeToBytes: false,
-  //           title: 'Signed PSBT',
-  //           subtitle: 'Please scan until all the QR data has been retrieved',
-  //           type: SignerType.KEEPER,
-  //         },
-  //       })
-  //     );
-  //   } catch (e) {
-  //     resetQR();
-  //     showToast('Please scan a valid PSBT', null, 3000, true);
-  //   }
-  // };
 
   return (
     <ScreenWrapper>
@@ -55,30 +28,15 @@ function CollabrativeWalletSettings() {
         contentContainerStyle={styles.optionsListContainer}
         showsVerticalScrollIndicator={false}
       >
-        <OptionCard
+        {/* TODO: check if we need this option here */}
+        {/* <OptionCard
           title="View co-signer Details"
           description="View co-signer Details"
           callback={() => {
             navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
           }}
-        />
-        {/* <OptionCard
-          title="Sign a PSBT"
-          description="Sign a transaction"
-          callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ScanQR',
-                params: {
-                  title: `Scan PSBT to Sign`,
-                  subtitle: 'Please scan until all the QR data has been retrieved',
-                  onQrScan: signPSBT,
-                  type: SignerType.KEEPER,
-                },
-              })
-            );
-          }}
         /> */}
+
         <OptionCard
           title="Exporting Wallet Configuration File"
           description="To recreate collaborative wallet"

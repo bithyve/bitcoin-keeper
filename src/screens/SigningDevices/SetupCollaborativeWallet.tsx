@@ -262,7 +262,6 @@ const SetupCollaborativeWallet = () => {
           name: `Collaborative Wallet ${collaborativeWalletsCount + 1}`,
           description: '2 of 3 multisig',
         },
-        collaborativeWalletId: walletId,
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       return vaultInfo;

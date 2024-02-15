@@ -67,7 +67,6 @@ export const generateVault = async ({
   signers,
   networkType,
   vaultShellId,
-  collaborativeWalletId,
   signerMap,
 }: {
   type: VaultType;
@@ -77,7 +76,6 @@ export const generateVault = async ({
   signers: VaultSigner[];
   networkType: NetworkType;
   vaultShellId?: string;
-  collaborativeWalletId?: string;
   signerMap: { [key: string]: Signer };
 }): Promise<Vault> => {
   const id = generateVaultId(signers, scheme);
@@ -126,7 +124,6 @@ export const generateVault = async ({
     specs,
     archived: false,
     scriptType,
-    collaborativeWalletId,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 

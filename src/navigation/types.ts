@@ -27,7 +27,6 @@ export type AppStackParams = {
   UpdateWalletDetails: undefined;
   EditWalletDetails: { wallet: Wallet | Vault };
   WalletDetailsSettings: undefined;
-  ImportDescriptorScreen: undefined;
   CollaborativeWalletSettings: undefined;
   AddAmount: undefined;
   ExportSeed: undefined;
@@ -41,7 +40,6 @@ export type AppStackParams = {
     vaultId: string;
     vaultTransferSuccessful: boolean;
     autoRefresh: boolean;
-    collaborativeWalletId: string;
   };
   UTXOManagement:
     | {
@@ -49,14 +47,12 @@ export type AppStackParams = {
         routeName: string;
         accountType?: string;
         vaultId: string;
-        collaborativeWalletId?: string;
       }
     | {
         data: Wallet | Vault;
         routeName: string;
         accountType: string;
         vaultId?: string;
-        collaborativeWalletId?: string;
       };
   WalletSettings: undefined;
   BackupWallet: undefined;
