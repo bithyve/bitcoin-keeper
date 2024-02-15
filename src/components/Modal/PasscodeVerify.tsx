@@ -21,6 +21,7 @@ interface Props {
   useBiometrics: boolean;
   close?: Function;
   onSuccess?: Function;
+  primaryText?: string;
 }
 
 const defaultProps: Props = {
@@ -144,7 +145,7 @@ function PasscodeVerifyModal(props: Props) {
               setLoginError(false);
               attemptLogin(passcode);
             }}
-            primaryText={common.proceed}
+            primaryText={props.primaryText ? props.primaryText : common.proceed}
             activeOpacity={0.5}
             primaryDisable={btnDisable}
           />

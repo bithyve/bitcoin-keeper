@@ -15,7 +15,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import { StyleSheet } from 'react-native';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { sentryConfig } from 'src/services/sentry';
 import useAsync from 'src/hooks/useAsync';
@@ -24,8 +24,69 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import KeeperModal from 'src/components/KeeperModal';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import HealthCheckComponent from 'src/components/Backup/HealthCheckComponent';
+import { BackupType } from 'src/models/enums/BHR';
+import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
+
+const ConfirmPasscode = () => {
+  const [passcode, setPasscode] = useState('');
+
+  const onPressNumber = (text) => {
+    let tmpPasscode = passcode;
+    if (passcode.length < 4) {
+      if (text !== 'x') {
+        tmpPasscode += text;
+        setPasscode(tmpPasscode);
+      }
+    }
+    if (passcode && text === 'x') {
+      setPasscode(passcode.slice(0, -1));
+    }
+  };
+  const onDeletePressed = (text) => {
+    setPasscode(passcode.slice(0, passcode.length - 1));
+  };
+
+  return (
+    <Box>
+      <Box>
+        Enter a NEW passcode
+        <PinInputsView
+          backgroundColor={true}
+          passCode={passcode}
+          passcodeFlag={true}
+          borderColor={'transparent'}
+          textColor={true}
+        />
+      </Box>
+      <Box>
+        Confirm the new passcode
+        <PinInputsView
+          backgroundColor={true}
+          passCode={passcode}
+          passcodeFlag={true}
+          borderColor={'transparent'}
+          textColor={true}
+        />
+      </Box>
+      <KeyPadView
+        disabled={false}
+        onDeletePressed={onDeletePressed}
+        onPressNumber={onPressNumber}
+        ClearIcon={<DeleteIcon />}
+        keyColor="light.primaryText"
+      />
+    </Box>
+  );
+};
 
 function PrivacyAndDisplay() {
   const { colorMode } = useColorMode();
@@ -33,8 +94,16 @@ function PrivacyAndDisplay() {
   const { showToast } = useToastMessage();
 
   const [sensorType, setSensorType] = useState('Biometrics');
+  const [visiblePasscode, setVisiblePassCode] = useState(false);
+  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
+  const [confirmPasscode, setConfirmPasscode] = useState(false);
+
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common } = translations;
+  const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
+  const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const { inProgress, start } = useAsync();
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -133,7 +202,7 @@ function PrivacyAndDisplay() {
             />
             <OptionCard
               title={settings.shareAnalytics}
-              description={settings.analyticsDescription}
+              description={settings.rememberPasscode}
               Icon={
                 <Switch
                   onValueChange={async () => await toggleSentryReports()}
@@ -143,14 +212,14 @@ function PrivacyAndDisplay() {
               }
             />
           </Box>
-          {/*
-            TODO: missing functionality
-            */}
-          {/* <OptionCard
+
+          <OptionCard
             title={settings.changePasscode}
             description={settings.changePasscodeDescription}
-            callback={() => navigation.navigate('NodeSettings')}
-          /> */}
+            callback={() => {
+              setVisiblePassCode(true);
+            }}
+          />
         </Box>
       </ScrollView>
       <Box style={styles.note}>
@@ -160,6 +229,65 @@ function PrivacyAndDisplay() {
           subtitleColor="GreyText"
         />
       </Box>
+      <KeeperModal
+        visible={visiblePasscode}
+        closeOnOverlayClick={false}
+        close={() => setVisiblePassCode(false)}
+        title={'Change passcode'}
+        subTitleWidth={wp(240)}
+        subTitle={'Enter your existing passcode'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            primaryText={'Confirm'}
+            close={() => {
+              setVisiblePassCode(false);
+            }}
+            onSuccess={() => {
+              setShowConfirmSeedModal(true);
+            }}
+          />
+        )}
+      />
+      <ModalWrapper
+        visible={showConfirmSeedModal}
+        onSwipeComplete={() => setShowConfirmSeedModal(false)}
+        position="center"
+      >
+        <HealthCheckComponent
+          closeBottomSheet={() => {
+            setShowConfirmSeedModal(false);
+            if (backupMethod === BackupType.SEED) {
+              dispatch(seedBackedConfirmed(false));
+            }
+          }}
+          type={backupMethod}
+          password={backup.password}
+          hint={backup.hint}
+          words={primaryMnemonic.split(' ')}
+          onConfirmed={(password) => {
+            if (backupMethod === BackupType.SEED) {
+              setShowConfirmSeedModal(false);
+              dispatch(seedBackedConfirmed(true));
+              setConfirmPasscode(true);
+            }
+          }}
+        />
+      </ModalWrapper>
+      <KeeperModal
+        visible={confirmPasscode}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPasscode(false)}
+        title={'Change passcode'}
+        subTitleWidth={wp(240)}
+        modalBackground={`${colorMode}.learMoreTextcolor`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => <ConfirmPasscode />}
+      />
     </ScreenWrapper>
   );
 }
