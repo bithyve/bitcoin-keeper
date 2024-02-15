@@ -133,30 +133,6 @@ function WalletSettings({ route }) {
           }}
         />
         <OptionCard
-          title={walletTranslation.showCoSignerDetails}
-          description={walletTranslation.showCoSignerDetailsSubTitle}
-          callback={() => {
-            navigation.navigate('CosignerDetails', { wallet });
-          }}
-        />
-        {/* <OptionCard
-          title={walletTranslation.actCoSigner}
-          description={`Sign transactions (${wallet.id})`}
-          callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ScanQR',
-                params: {
-                  title: 'Scan PSBT to Sign',
-                  subtitle: 'Please scan until all the QR data has been retrieved',
-                  onQrScan: signPSBT,
-                  type: SignerType.KEEPER,
-                },
-              })
-            );
-          }}
-        /> */}
-        <OptionCard
           title={walletTranslation.TransferPolicy}
           description={walletTranslation.TransferPolicyDesc}
           callback={() => {
