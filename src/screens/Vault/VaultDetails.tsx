@@ -144,7 +144,7 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (isCollaborativeWallet ? 0.03 : 0.1) }}>
+      <VStack style={{ paddingTop: windowHeight * 0.1 }}>
         <Text
           color={`${colorMode}.black`}
           style={styles.transactionHeading}
