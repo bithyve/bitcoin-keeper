@@ -1,6 +1,5 @@
 /* eslint-disable guard-for-in */
 import * as bip39 from 'bip39';
-
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
@@ -55,18 +54,8 @@ import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
-import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
-import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
-import {
-  NetworkType,
-  SignerStorage,
-  SignerType,
-  VaultType,
-  XpubTypes,
-} from 'src/core/wallets/enums';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import { NewVaultInfo, addNewVaultWorker } from './wallets';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getSignerNameFromType } from 'src/hardware';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
 
 export function* updateAppImageWorker({
@@ -369,6 +358,7 @@ function* recoverApp(
   };
 
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+
   // Wallet recreation
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
@@ -376,50 +366,6 @@ function* recoverApp(
       yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
       if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
         yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
-      }
-      //Collobrative Wallet Recreation
-      if (
-        decrytpedWallet?.collaborativeWalletDetails &&
-        decrytpedWallet?.collaborativeWalletDetails?.descriptor
-      ) {
-        const descriptor = decrytpedWallet?.collaborativeWalletDetails?.descriptor;
-        const parsedText: ParsedVauleText = parseTextforVaultConfig(descriptor);
-        if (parsedText) {
-          const signers: VaultSigner[] = [];
-          parsedText.signersDetails.forEach((config) => {
-            const { key } = generateSignerFromMetaData({
-              xpub: config.xpub,
-              derivationPath: config.path,
-              masterFingerprint: config.masterFingerprint,
-              signerType: SignerType.KEEPER,
-              storageType: SignerStorage.WARM,
-              isMultisig: config.isMultisig,
-            });
-            signers.push(key);
-          });
-
-          const { xpubDetails } = getCosignerDetails(decrytpedWallet);
-          const isValidDescriptor = signers.find(
-            (signer) => signer.xpub === xpubDetails[XpubTypes.P2WSH].xpub
-          );
-          if (!isValidDescriptor) {
-            throw new Error('Descriptor does not contain your key');
-          }
-
-          const vaultInfo: NewVaultInfo = {
-            vaultType: VaultType.COLLABORATIVE,
-            vaultScheme: parsedText.scheme,
-            vaultSigners: signers,
-            vaultDetails: {
-              name: 'Collborative Wallet',
-              description: `${parsedText.scheme.m} of ${parsedText.scheme.n} Multisig`,
-            },
-            collaborativeWalletId: decrytpedWallet.id,
-          };
-          yield call(addNewVaultWorker, {
-            payload: { newVaultInfo: vaultInfo, isRecreation: true },
-          });
-        }
       }
       yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
     }

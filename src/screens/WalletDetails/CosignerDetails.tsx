@@ -6,34 +6,40 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Buttons from 'src/components/Buttons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import Note from 'src/components/Note/Note';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { getKeyExpression } from 'src/core/utils';
-import { XpubTypes } from 'src/core/wallets/enums';
+import { SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import useSigners from 'src/hooks/useSigners';
 
 function CosignerDetails() {
   const { colorMode } = useColorMode();
-  const { params } = useRoute();
-  const { wallet } = params as { wallet: Wallet };
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
   const navgation = useNavigation();
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const { signers } = useSigners();
+  const myAppKeyCount = signers.filter((signer) => signer.type === SignerType.MY_KEEPER).length;
 
   useEffect(() => {
-    setTimeout(() => {
-      const details = getCosignerDetails(wallet);
-      const keyDescriptor = getKeyExpression(
-        details.mfp,
-        details.xpubDetails[XpubTypes.P2WSH].derivationPath,
-        details.xpubDetails[XpubTypes.P2WSH].xpub,
-        false
-      );
-      setDetails(keyDescriptor);
-    }, 200);
+    if (!details) {
+      setTimeout(() => {
+        getCosignerDetails(primaryMnemonic, myAppKeyCount).then((details) => {
+          const keyDescriptor = getKeyExpression(
+            details.mfp,
+            details.xpubDetails[XpubTypes.P2WSH].derivationPath,
+            details.xpubDetails[XpubTypes.P2WSH].xpub,
+            false
+          );
+          setDetails(keyDescriptor);
+        });
+      }, 200);
+    }
   }, []);
 
   return (

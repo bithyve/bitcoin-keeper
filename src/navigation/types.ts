@@ -94,11 +94,7 @@ export type AppStackParams = {
   WhirlpoolConfiguration: undefined;
   CosignerDetails: undefined;
   GenerateVaultDescriptor: undefined;
-  SetupCollaborativeWallet: {
-    coSigner: Wallet;
-    walletId: string;
-    collaborativeWalletsCount: number;
-  };
+  SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
   UnlockTapsigner: undefined;
   UTXOSelection: { sender: Wallet | Vault; amount: string; address: string };

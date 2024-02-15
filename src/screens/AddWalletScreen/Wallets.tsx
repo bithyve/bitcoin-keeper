@@ -49,11 +49,7 @@ function Wallets({ navigation }) {
   };
   const handleCollaaborativeWalletCreation = () => {
     if (collaborativeWalletsCount < walletsCount) {
-      navigation.navigate('SetupCollaborativeWallet', {
-        coSigner: wallets[collaborativeWalletsCount],
-        walletId: wallets[collaborativeWalletsCount].id,
-        collaborativeWalletsCount,
-      });
+      navigation.navigate('SetupCollaborativeWallet');
     } else {
       addNewDefaultWallet(wallets.length, dispatch);
     }

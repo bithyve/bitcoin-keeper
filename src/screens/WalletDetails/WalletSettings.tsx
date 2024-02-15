@@ -248,7 +248,6 @@ function WalletSettings({ route }) {
               showToast(walletTranslation.xPubCopyToastMsg, <TickIcon />);
             }}
             copyable
-            close={() => setXPubVisible(false)}
             subText={walletTranslation?.AccountXpub}
             noteSubText={walletTranslation?.AccountXpubNote}
           />

@@ -164,11 +164,7 @@ function NewHomeScreen({ navigation }) {
   useEffect(() => {
     if (relayWalletUpdate) {
       if (defaultWalletCreation && wallets[collaborativeWallets.length]) {
-        navigation.navigate('SetupCollaborativeWallet', {
-          coSigner: wallets[collaborativeWallets.length],
-          walletId: wallets[collaborativeWallets.length].id,
-          collaborativeWalletsCount: collaborativeWallets.length,
-        });
+        navigation.navigate('SetupCollaborativeWallet');
         dispatch(resetRealyWalletState());
         setDefaultWalletCreation(false);
       }
