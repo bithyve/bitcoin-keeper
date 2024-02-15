@@ -242,7 +242,7 @@ export default function CreatePin(props) {
         close={() => {}}
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
-        Phrase"
+        Key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}

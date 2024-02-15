@@ -43,7 +43,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={1}
             walletName="Create New"
-            walletDescription="Singlesig / Multisig"
+            walletDescription="Single or multi-key"
             icon={<WalletActiveIcon />}
             selectedIcon={<WalletGreenIcon />}
             selectedCard={selectedCard}
@@ -53,7 +53,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={2}
             walletName="Import"
-            walletDescription="Recover / Recreate"
+            walletDescription="Recover / recreate"
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
@@ -63,7 +63,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={3}
             walletName="Advanced"
-            walletDescription="For seasoned plebs"
+            walletDescription="For professionals"
             icon={<AdvancedIcon />}
             selectedIcon={<AdvancedGreenIcon />}
             selectedCard={selectedCard}

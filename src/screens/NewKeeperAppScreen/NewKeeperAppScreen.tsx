@@ -133,7 +133,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
-    subTitle: 'Keeper allows you to create single sig wallets and multisig wallets called Vaults',
+    subTitle:
+      'Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets called vaults.',
     message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
