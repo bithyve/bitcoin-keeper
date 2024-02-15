@@ -9,7 +9,6 @@ import { wp, hp } from 'src/constants/responsive';
 
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Note from '../Note/Note';
 
 function ShowXPub({
@@ -20,7 +19,6 @@ function ShowXPub({
   copyable = true,
 }: {
   data: string;
-  wallet?: Wallet;
   copy?: Function;
   subText: string;
   noteSubText?: string;

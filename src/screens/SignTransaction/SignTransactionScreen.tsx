@@ -261,7 +261,7 @@ function SignTransactionScreen() {
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
-        } else if (SignerType.KEEPER === signerType) {
+        } else if (SignerType.MY_KEEPER === signerType) {
           const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));

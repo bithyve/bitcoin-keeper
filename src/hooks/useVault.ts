@@ -16,12 +16,6 @@ type Params =
       includeArchived?: boolean;
       getFirst?: boolean;
       getHiddenWallets?: boolean;
-    }
-  | {
-      vaultId?: string;
-      includeArchived?: boolean;
-      getFirst?: boolean;
-      getHiddenWallets?: boolean;
     };
 
 const useVault = ({

@@ -125,9 +125,9 @@ const SetupCollaborativeWallet = () => {
 
   const pushSigner = (
     xpub,
-    xpriv = '',
     derivationPath,
     masterFingerprint,
+    xpriv = '',
     goBack = true,
     mine = false
   ) => {
@@ -139,9 +139,9 @@ const SetupCollaborativeWallet = () => {
       }
       const { key, signer } = generateSignerFromMetaData({
         xpub,
-        xpriv,
         derivationPath,
         masterFingerprint,
+        xpriv,
         signerType: mine ? SignerType.MY_KEEPER : SignerType.KEEPER,
         storageType: SignerStorage.WARM,
         isMultisig: true,
@@ -200,9 +200,9 @@ const SetupCollaborativeWallet = () => {
           getCosignerDetails(primaryMnemonic, myAppKeyCount).then((details) => {
             pushSigner(
               details.xpubDetails[XpubTypes.P2WSH].xpub,
-              details.xpubDetails[XpubTypes.P2WSH].xpriv,
               details.xpubDetails[XpubTypes.P2WSH].derivationPath,
               details.mfp,
+              details.xpubDetails[XpubTypes.P2WSH].xpriv,
               false,
               true
             );
@@ -223,10 +223,18 @@ const SetupCollaborativeWallet = () => {
     ) {
       setIsCreating(false);
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
-      const navigationState = {
-        index: 1,
-        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: generatedVaultId } }],
-      };
+      const navigationState = generatedVaultId
+        ? {
+            index: 1,
+            routes: [{ name: 'Home' }],
+          }
+        : {
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              { name: 'VaultDetails', params: { vaultId: generatedVaultId } },
+            ],
+          };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetVaultFlags());
       dispatch(resetRealyVaultState());
@@ -244,7 +252,7 @@ const SetupCollaborativeWallet = () => {
       index={index}
       onQRScan={(data) => {
         const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
-        pushSigner(xpub, '', derivationPath, masterFingerprint);
+        pushSigner(xpub, derivationPath, masterFingerprint, '');
       }}
       removeSigner={removeSigner}
       signerMap={signerMap}

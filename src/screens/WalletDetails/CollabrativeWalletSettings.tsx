@@ -28,15 +28,6 @@ function CollabrativeWalletSettings() {
         contentContainerStyle={styles.optionsListContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* TODO: check if we need this option here */}
-        {/* <OptionCard
-          title="View co-signer Details"
-          description="View co-signer Details"
-          callback={() => {
-            navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
-          }}
-        /> */}
-
         <OptionCard
           title="Exporting Wallet Configuration File"
           description="To recreate collaborative wallet"

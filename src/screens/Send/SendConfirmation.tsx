@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
+import { Box, View, useColorMode, ScrollView } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -10,7 +10,6 @@ import {
 } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import BTC from 'src/assets/images/btc_grey.svg';
-import BitcoinUnit from 'src/models/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -18,7 +17,7 @@ import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
-import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
+import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
