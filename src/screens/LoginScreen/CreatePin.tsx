@@ -182,8 +182,7 @@ export default function CreatePin(props) {
                 passcodeFlag={passcodeFlag}
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
-                    ? // ? '#FF8F79'
-                      'light.error'
+                    ? `${colorMode}.error`
                     : 'transparent'
                 }
               />
@@ -200,11 +199,6 @@ export default function CreatePin(props) {
                     passCode={confirmPasscode}
                     passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
                     borderColor={
-                      passcode !== confirmPasscode && confirmPasscode.length === 4
-                        ? '#FF8F79'
-                        : 'transparent'
-                    }
-                    borderColor={
                       passcode != confirmPasscode && confirmPasscode.length === 4
                         ? `${colorMode}.error`
                         : 'transparent'
@@ -217,18 +211,18 @@ export default function CreatePin(props) {
                     </Text>
                   )}
                 </Box>
-                <Box alignSelf="flex-end" mr={5} mt={5}>
-                  <CustomButton
-                    disabled={isDisabled}
-                    testID="button"
-                    onPress={() => {
-                      setCreatePassword(true);
-                    }}
-                    value={common.create}
-                  />
-                </Box>
               </Box>
             ) : null}
+          </Box>
+          <Box alignSelf="flex-end" mr={5} mt={5}>
+            <CustomButton
+              disabled={isDisabled}
+              testID="button"
+              onPress={() => {
+                setCreatePassword(true);
+              }}
+              value={common.create}
+            />
           </Box>
           <KeyPadView
             onDeletePressed={onDeletePressed}
@@ -274,7 +268,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 0.7,
+    flex: 0.9,
   },
   welcomeText: {
     marginLeft: 18,
