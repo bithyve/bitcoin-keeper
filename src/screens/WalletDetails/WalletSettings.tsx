@@ -16,6 +16,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useTestSats from 'src/hooks/useTestSats';
+import idx from 'idx';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -28,6 +29,8 @@ function WalletSettings({ route }) {
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
+  const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
+
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
   const { settings } = translations;
@@ -47,13 +50,15 @@ function WalletSettings({ route }) {
             navigation.navigate('WalletDetailsSettings', { wallet });
           }}
         />
-        <OptionCard
-          title={walletTranslation.walletSeedWord}
-          description={walletTranslation.walletSeedWordSubTitle}
-          callback={() => {
-            setConfirmPassVisible(true);
-          }}
-        />
+        {walletMnemonic && (
+          <OptionCard
+            title={walletTranslation.walletSeedWord}
+            description={walletTranslation.walletSeedWordSubTitle}
+            callback={() => {
+              setConfirmPassVisible(true);
+            }}
+          />
+        )}
         <OptionCard
           title={walletTranslation.TransferPolicy}
           description={walletTranslation.TransferPolicyDesc}
@@ -108,11 +113,13 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
-              navigation.navigate('ExportSeed', {
-                seed: wallet?.derivationDetails?.mnemonic,
-                next: false,
-                wallet,
-              });
+              if (walletMnemonic)
+                navigation.navigate('ExportSeed', {
+                  seed: walletMnemonic,
+                  next: false,
+                  wallet,
+                });
+              else showToast("Mnemonic doesn't exists");
             }}
           />
         )}

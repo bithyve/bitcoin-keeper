@@ -1,7 +1,12 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import { generateEncryptionKey, generateKey, hash256 } from 'src/services/operations/encryption';
+import {
+  cryptoRandom,
+  generateEncryptionKey,
+  generateKey,
+  hash256,
+} from 'src/services/operations/encryption';
 import {
   EntityKind,
   NetworkType,
@@ -215,7 +220,7 @@ export const generateMockExtendedKey = (
   const mockMnemonic = bip39.entropyToMnemonic(randomBytes.toString('hex'));
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
-  const randomWalletNumber = Math.floor(Math.random() * 10e5);
+  const randomWalletNumber = Math.floor(cryptoRandom() * 10e5);
   const xDerivationPath = WalletUtilities.getDerivationPath(
     entity,
     networkType,

@@ -132,7 +132,7 @@ export const generateWallet = async ({
   let specs: WalletSpecs;
 
   if (type === WalletType.IMPORTED) {
-    // case: adding imported wallet
+    // case: import wallet via mnemonic
     if (!importDetails) throw new Error('Import details are missing');
     const { importedKey, importedKeyDetails, derivationConfig } = importDetails;
 
