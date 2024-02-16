@@ -16,6 +16,7 @@ type SignerCardProps = {
   disabled?: boolean;
   isFullText?: boolean;
   showDot?: boolean;
+  StaticIcon?: any;
 };
 
 function SignerCard({
@@ -29,6 +30,7 @@ function SignerCard({
   disabled = false,
   isFullText = false,
   showDot = false,
+  StaticIcon = null,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -47,6 +49,8 @@ function SignerCard({
       {showSelection &&
         (isSelected ? (
           <Checked style={{ alignSelf: 'flex-end' }} />
+        ) : StaticIcon ? (
+          <StaticIcon style={{ alignSelf: 'flex-end' }} />
         ) : (
           <Box style={styles.circle} />
         ))}
