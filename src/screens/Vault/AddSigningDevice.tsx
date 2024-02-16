@@ -35,6 +35,7 @@ import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
+import Text from 'src/components/KeeperText';
 
 const { width } = Dimensions.get('screen');
 
@@ -313,20 +314,30 @@ const Signers = ({
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
-        <Box style={styles.addedSigners}>{renderSigners()}</Box>
-        <AddCard
-          name={'Add Signer'}
-          cardStyles={styles.addCard}
-          callback={() =>
-            navigation.dispatch(
-              CommonActions.navigate('SigningDeviceList', {
-                scheme,
-                vaultId,
-                vaultSigners: vaultKeys,
-              })
-            )
-          }
-        />
+        <Box style={styles.gap10}>
+          <Text color={`${colorMode}.headerText`} style={styles.title}>
+            Choose from already added keys
+          </Text>
+          <Box style={styles.addedSigners}>{renderSigners()}</Box>
+        </Box>
+        <Box style={styles.gap10}>
+          <Text color={`${colorMode}.headerText`} style={styles.title}>
+            or add a new key
+          </Text>
+          <AddCard
+            name={'Add Signer'}
+            cardStyles={styles.addCard}
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.navigate('SigningDeviceList', {
+                  scheme,
+                  vaultId,
+                  vaultSigners: vaultKeys,
+                })
+              )
+            }
+          />
+        </Box>
       </Box>
     </ScrollView>
   );
@@ -402,11 +413,10 @@ function AddSigningDevice() {
     }
   }
 
-  //TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={signer.addSigners}
+        title={signer.addKeys}
         subtitle={subtitle}
         icon={
           <HexagonIcon
@@ -509,7 +519,7 @@ const styles = StyleSheet.create({
   },
   signerContainer: {
     width: windowWidth,
-    gap: 40,
+    gap: 60,
     paddingBottom: 20,
     marginTop: 20,
   },
@@ -517,6 +527,13 @@ const styles = StyleSheet.create({
     height: 125,
     width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
+  },
+  gap10: {
+    gap: 10,
+  },
+  title: {
+    marginLeft: 15,
+    fontSize: 14,
   },
 });
 

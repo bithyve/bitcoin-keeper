@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { Box, ScrollView, VStack, useColorMode } from 'native-base';
+import { Box, ScrollView, StatusBar, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
@@ -11,11 +11,9 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import ScreenWrapper from 'src/components/ScreenWrapper';
-import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
-import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { UNVERIFYING_SIGNERS, getSignerNameFromType } from 'src/hardware';
+import SignerIcon from 'src/assets/images/signer_brown.svg';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -25,8 +23,11 @@ import { useDispatch } from 'react-redux';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import config from 'src/core/config';
 import moment from 'moment';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
+
 const ManageSigners = ({ route }: ScreenProps) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -65,29 +66,40 @@ const ManageSigners = ({ route }: ScreenProps) => {
   };
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={'Manage Signers'}
-        subtitle={'Add, remove, change or check on signers'}
-        icon={
-          <HexagonIcon
-            width={44}
-            height={38}
-            backgroundColor={Colors.pantoneGreen}
-            icon={<VaultIcon />}
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar
+          barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
+          backgroundColor={Colors.RussetBrown}
+        />
+        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.topSection}>
+          <KeeperHeader
+            title={'Manage Signers'}
+            subtitle={'View and change key details'}
+            titleColor={`${colorMode}.seashellWhite`}
+            subTitleColor={`${colorMode}.PearlGrey`}
+            icon={
+              <CircleIconWrapper
+                backgroundColor={`${colorMode}.seashellWhite`}
+                icon={<SignerIcon />}
+              />
+            }
+            contrastScreen
           />
-        }
-      />
-      <SignersList
-        colorMode={colorMode}
-        vaultKeys={vaultKeys}
-        signers={signers}
-        signerMap={signerMap}
-        handleCardSelect={handleCardSelect}
-        handleAddSigner={handleAddSigner}
-        vault={activeVault}
-      />
-    </ScreenWrapper>
+        </Box>
+        <Box style={styles.signersContainer}>
+          <SignersList
+            colorMode={colorMode}
+            vaultKeys={vaultKeys}
+            signers={signers}
+            signerMap={signerMap}
+            handleCardSelect={handleCardSelect}
+            handleAddSigner={handleAddSigner}
+            vault={activeVault}
+          />
+        </Box>
+      </SafeAreaView>
+    </Box>
   );
 };
 
@@ -143,15 +155,31 @@ const SignersList = ({
             />
           );
         })}
+        <AddCard name={'Add Signer'} cardStyles={styles.addCard} callback={handleAddSigner} />
       </Box>
-      <AddCard name={'Add Signer'} cardStyles={styles.addCard} callback={handleAddSigner} />
     </ScrollView>
   </VStack>
 );
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    position: 'relative',
+  },
+  topSection: {
+    height: '35%',
+    paddingLeft: 10,
+    paddingTop: 20,
+  },
+  signersContainer: {
+    marginTop: '-25%',
+    marginHorizontal: 10,
+  },
   signerContainer: {
-    marginTop: 30,
+    marginVertical: 30,
   },
   scrollContainer: {
     gap: 40,

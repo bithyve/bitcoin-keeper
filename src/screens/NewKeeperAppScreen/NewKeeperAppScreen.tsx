@@ -1,11 +1,11 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unstable-nested-components */
-import { ActivityIndicator, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import App from 'src/assets/images/app.svg';
+import AppIcon from 'src/assets/images/app.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Recover from 'src/assets/images/recover.svg';
@@ -14,13 +14,9 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from 'native-base';
-import openLink from 'src/utils/OpenLink';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
-import Fonts from 'src/constants/Fonts';
-import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import BounceLoader from 'src/components/BounceLoader';
-import KeeperHeader from 'src/components/KeeperHeader';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -66,9 +62,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -133,7 +127,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
-    subTitle: 'Keeper allows you to create single sig wallets and multisig wallets called Vaults',
+    subTitle:
+      'Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets called vaults.',
     message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
@@ -164,81 +159,69 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box style={{ marginTop: hp(30) }}>
-        <Box style={styles.headerContainer} testID="view_newKeeperHeader">
-          <KeeperHeader
-            enableBack={false}
-            marginLeft={false}
-            title="New Keeper App"
-            subtitle="Choose this option when you want to start with a fresh app"
-          />
-        </Box>
-        <Box style={styles.tileContainer} testID="view_startNewTile">
-          <Tile
-            title="Start New"
-            subTitle="New wallets and vaults"
-            Icon={<App />}
+      <Pressable
+        backgroundColor={`${colorMode}.brownColor`}
+        borderColor={`${colorMode}.brownColor`}
+        style={styles.learnMoreContainer}
+        //learn more modal
+      >
+        <Text style={styles.learnMoreText} color={`${colorMode}.primaryBackground`}>
+          Need Help?
+        </Text>
+      </Pressable>
+      <Box style={styles.contentContainer}>
+        <Box>
+          <Box style={styles.headingContainer}>
+            <Text color={`${colorMode}.headerText`} fontSize={18}>
+              Welcome
+            </Text>
+            <Text fontSize={14} color={`${colorMode}.SlateGrey`}>
+              Create a fresh app or recover an exisiting one
+            </Text>
+          </Box>
+          <Pressable
+            backgroundColor={`${colorMode}.seashellWhite`}
+            style={styles.tileContainer}
+            testID="view_startNewTile"
             onPress={() => {
               setInitiating(true);
             }}
-            loading={keeperInitiating}
-          />
-        </Box>
-      </Box>
-
-      <Box style={styles.titleWrapper02}>
-        <Box style={styles.headerContainer} testID="view_restore">
-          <KeeperHeader
-            enableBack={false}
-            marginLeft={false}
-            title="Restore"
-            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the vault"
-          />
-        </Box>
-        <Box style={styles.tileContainer} testID="view_recoverTile">
-          <Tile
-            title="Recover an existing app"
-            subTitle="Enter 12-word Recovery Phrase"
-            Icon={<Recover />}
+          >
+            <AppIcon />
+            <Box>
+              <Text fontSize={13}>Start New</Text>
+              <Text fontSize={12} color={`${colorMode}.GreyText`}>
+                New wallets and vaults
+              </Text>
+            </Box>
+          </Pressable>
+          <Pressable
+            backgroundColor={`${colorMode}.seashellWhite`}
+            style={styles.tileContainer}
+            testID="view_recoverTile"
             onPress={() => {
               navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
             }}
-          />
+          >
+            <Recover />
+            <Box>
+              <Text fontSize={13}>Recover an existing app</Text>
+              <Text fontSize={12} color={`${colorMode}.GreyText`}>
+                Enter 12-word Recovery Phrase
+              </Text>
+            </Box>
+          </Pressable>
         </Box>
-      </Box>
-      <Box style={styles.footerContainer}>
-        <Box style={styles.noteContainer}>
-          <Box opacity={1}>
-            <Text
-              color={`${colorMode}.headerText`}
-              style={styles.title}
-              testID="text_termOfService"
-            >
-              Note
-            </Text>
-          </Box>
-          <Box style={styles.subTitleWrapper}>
-            <Text color="light.secondaryText" style={styles.subTitle}>
-              By proceeding, you agree to our{' '}
-            </Text>
-            <TouchableOpacity
-              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
-            >
-              <Text color={`${colorMode}.headerText`} italic style={styles.termOfServiceText}>
-                Terms of Service
-              </Text>
-            </TouchableOpacity>
-            <Text color="light.secondaryText" style={styles.subTitle}>
-              {' '}
-              and our{' '}
-            </Text>
-            <TouchableOpacity onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}>
-              <Text color="#2D6759" italic style={styles.termOfServiceText}>
-                {' '}
-                Privacy Policy
-              </Text>
-            </TouchableOpacity>
-          </Box>
+        <Box>
+          <Text color={`${colorMode}.headerText`} bold fontSize={14}>
+            Note
+          </Text>
+          <Text>
+            By proceeding you agree to our
+            <Text color={`${colorMode}.headerText`}> Terms of Service </Text>
+            and our
+            <Text color={`${colorMode}.headerText`}> Privacy Policy</Text>
+          </Text>
         </Box>
       </Box>
       <KeeperModal
@@ -292,28 +275,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
 }
 
 const styles = StyleSheet.create({
-  titleWrapper02: {
-    marginTop: hp(70),
-  },
   iconContainer: {
     marginRight: 20,
     flexDirection: 'row-reverse',
   },
   tileContainer: {
-    marginTop: hp(5),
-  },
-  headerContainer: {
-    // width: wp(280),
-  },
-  footerContainer: {
-    position: 'absolute',
-    bottom: 10,
-    width: wp(375),
-    margin: 20,
-  },
-  noteContainer: {
-    padding: 4,
-    width: wp(290),
+    marginBottom: hp(40),
+    width: '100%',
+    height: hp(125),
+    paddingTop: 20,
+    paddingHorizontal: 30,
+    gap: 10,
+    justifyContent: 'center',
+    borderRadius: 10,
   },
   title: {
     fontSize: 14,
@@ -322,15 +296,6 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 12,
     letterSpacing: 0.6,
-  },
-  termOfServiceText: {
-    fontSize: 12,
-    fontWeight: '400',
-    fontFamily: Fonts.FiraSansCondensedMediumItalic,
-  },
-  subTitleWrapper: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
   },
   modalMessageWrapper: {
     flexDirection: 'row',
@@ -346,14 +311,28 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.65,
   },
-  addWalletText: {
-    lineHeight: 26,
-    letterSpacing: 0.8,
+  learnMoreContainer: {
+    marginTop: hp(30),
+    alignSelf: 'flex-end',
+    borderRadius: 5,
+    borderWidth: 0.5,
+    paddingVertical: 2,
+    paddingHorizontal: 5,
   },
-  addWalletDescription: {
+  learnMoreText: {
     fontSize: 12,
-    lineHeight: 20,
-    letterSpacing: 0.5,
+    letterSpacing: 0.24,
+  },
+  contentContainer: {
+    justifyContent: 'space-between',
+    flex: 1,
+    marginHorizontal: 10,
+    marginBottom: 20,
+  },
+  headingContainer: {
+    marginTop: 20,
+    marginBottom: 30,
+    marginLeft: 10,
   },
 });
 

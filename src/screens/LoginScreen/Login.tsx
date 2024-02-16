@@ -298,14 +298,14 @@ function LoginScreen({ navigation, route }) {
     return (
       <Box style={{ width: wp(280) }}>
         <Box style={styles.modalAssetsWrapper}>{modelAsset}</Box>
-        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+        <Text color={`${colorMode}.SlateGrey`} style={styles.modalMessageText}>
           {modelMessage}
         </Text>
         {modelButtonText === null ? (
           <Box style={styles.modalMessageWrapper}>
             <Box style={{ width: '80%' }}>
               <Text
-                color={`${colorMode}.greenText`}
+                color={`${colorMode}.SlateGrey`}
                 style={[styles.modalMessageText, { paddingTop: hp(20) }]}
               >
                 This step will take a few seconds. You would be able to proceed soon
@@ -520,7 +520,7 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
+        modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}
         buttonBackground={`${colorMode}.greenButtonBackground`}

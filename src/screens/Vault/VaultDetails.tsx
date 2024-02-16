@@ -15,7 +15,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { SignerType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -285,16 +285,12 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
             subTitleColor={`${colorMode}.seashellWhite`}
             //TODO: Add collaborativeWalletIcon
             icon={
-              !!isCollaborativeWallet ? (
-                <CollaborativeIcon />
-              ) : (
-                <HexagonIcon
-                  width={58}
-                  height={50}
-                  backgroundColor={Colors.deepTeal}
-                  icon={<VaultIcon />}
-                />
-              )
+              <HexagonIcon
+                width={58}
+                height={50}
+                backgroundColor={Colors.deepTeal}
+                icon={!!isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
+              />
             }
             subtitle={vault.presentationData?.description}
             learnMore

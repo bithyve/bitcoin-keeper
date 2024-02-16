@@ -194,7 +194,7 @@ const getStyles = (subTitleWidth) =>
       letterSpacing: 1,
     },
     subTitle: {
-      fontSize: 12,
+      fontSize: 13,
       letterSpacing: 1,
       width: subTitleWidth,
     },
