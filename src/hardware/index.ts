@@ -258,7 +258,7 @@ export const getDeviceStatus = (
       }
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
-      return addSignerFlow || scheme?.n < 2
+      return !addSignerFlow && scheme?.n < 2
         ? {
             message: `You can add an ${getSignerNameFromType(
               type
