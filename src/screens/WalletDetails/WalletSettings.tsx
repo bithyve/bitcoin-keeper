@@ -33,36 +33,6 @@ function WalletSettings({ route }) {
   const { settings } = translations;
   const TestSatsComponent = useTestSats({ wallet });
 
-  // const signPSBT = (serializedPSBT, resetQR) => {
-  //   try {
-  //     let signedSerialisedPSBT;
-  //     try {
-  //       signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-  //     } catch (e) {
-  //       captureError(e);
-  //     }
-  //     // try signing with single sig key
-  //     if (!signedSerialisedPSBT) {
-  //       signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT, EntityKind.WALLET);
-  //     }
-  //     navigation.dispatch(
-  //       CommonActions.navigate({
-  //         name: 'ShowQR',
-  //         params: {
-  //           data: signedSerialisedPSBT,
-  //           encodeToBytes: false,
-  //           title: 'Signed PSBT',
-  //           subtitle: 'Please scan until all the QR data has been retrieved',
-  //           type: SignerType.KEEPER,
-  //         },
-  //       })
-  //     );
-  //   } catch (e) {
-  //     resetQR();
-  //     showToast('Please scan a valid PSBT', null, 3000, true);
-  //   }
-  // };
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={settings.walletSettings} subtitle={settings.walletSettingSubTitle} />

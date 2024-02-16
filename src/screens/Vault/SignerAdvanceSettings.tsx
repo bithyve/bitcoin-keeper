@@ -8,7 +8,7 @@ import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -38,6 +38,7 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/core/config';
+import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 
 const { width } = Dimensions.get('screen');
 
@@ -49,7 +50,7 @@ function SignerAdvanceSettings({ route }: any) {
     signer: signerFromParam,
   }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerFromParam ? signerFromParam : signerMap[vaultKey.masterFingerprint];
+  const signer: Signer = signerFromParam ? signerFromParam : signerMap[vaultKey.masterFingerprint];
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
@@ -301,9 +302,65 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const signPSBT = (serializedPSBT, resetQR) => {
+    try {
+      let signedSerialisedPSBT;
+      try {
+        const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+      } catch (e) {
+        captureError(e);
+      }
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ShowQR',
+          params: {
+            data: signedSerialisedPSBT,
+            encodeToBytes: false,
+            title: 'Signed PSBT',
+            subtitle: 'Please scan until all the QR data has been retrieved',
+            type: SignerType.KEEPER,
+          },
+        })
+      );
+    } catch (e) {
+      resetQR();
+      showToast('Please scan a valid PSBT', null, 3000, true);
+    }
+  };
+
+  const navigateToScanPSBT = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ScanQR',
+        params: {
+          title: `Scan a PSBT file`,
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          onQrScan: signPSBT,
+          setup: true,
+          type: SignerType.KEEPER,
+          isHealthcheck: true,
+          signer,
+          disableMockFlow: true,
+        },
+      })
+    );
+  };
+
+  const navigateToCosignerDetails = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'CosignerDetails',
+        params: { signer },
+      })
+    );
+  };
+
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
-  const isAssistedKey = isPolicyServer || isInheritanceKey;
+  const isAppKey = signer.type === SignerType.KEEPER;
+  const isMyAppKey = signer.type === SignerType.MY_KEEPER;
+  const isAssistedKey = isPolicyServer || isInheritanceKey || isAppKey || isMyAppKey;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
@@ -370,8 +427,20 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToUnlockTapsigner}
           />
         )}
-        {/* ---------TODO Pratyaksh--------- */}
-        {/* <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} /> */}
+        {(isAppKey || isMyAppKey) && (
+          <OptionCard
+            title="Show cosigner details"
+            description="Export this key to collaborate with other wallets"
+            callback={navigateToCosignerDetails}
+          />
+        )}
+        {isMyAppKey && (
+          <OptionCard
+            title="Sign a Transaction"
+            description="Using a PSBT file"
+            callback={navigateToScanPSBT}
+          />
+        )}
       </ScrollView>
       <VStack>
         <Box ml={2} style={{ marginVertical: 20 }}>
@@ -389,7 +458,7 @@ function SignerAdvanceSettings({ route }: any) {
           ))}
         </ScrollView>
         <Box style={styles.fingerprint}>
-          <WalletFingerprint title="Signer Fingerprint" fingerprint={vaultId} />
+          <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
         </Box>
       </VStack>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />

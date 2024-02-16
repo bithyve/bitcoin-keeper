@@ -1,4 +1,4 @@
-import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 export type AppStackParams = {
@@ -88,7 +88,7 @@ export type AppStackParams = {
   PoolSelection: undefined;
   BroadcastPremix: undefined;
   WhirlpoolConfiguration: undefined;
-  CosignerDetails: undefined;
+  CosignerDetails: { signer: Signer };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
