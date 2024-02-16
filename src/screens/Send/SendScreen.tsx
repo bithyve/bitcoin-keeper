@@ -45,6 +45,7 @@ import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
 import HexagonIcon from 'src/components/HexagonIcon';
+import idx from 'idx';
 import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 
 function SendScreen({ route }) {
@@ -79,6 +80,17 @@ function SendScreen({ route }) {
       dispatch(sendPhasesReset());
     });
   }, []);
+
+  useEffect(() => {
+    if (sender.entityKind === EntityKind.WALLET) {
+      // disabling send flow for watch-only wallets
+      const isWatchOnly = idx(sender as Wallet, (_) => _.specs.xpriv) ? false : true;
+      if (isWatchOnly) {
+        showToast('Cannot send via Watch-only wallet', <ToastErrorIcon />);
+        navigation.goBack();
+      }
+    }
+  }, [sender]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {

@@ -356,6 +356,19 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToPolicyChange}
           />
         )}
+        {isPolicyServer && vaultId && (
+          <OptionCard
+            title="Forgot 2FA"
+            description="Lost access to the 2FA app"
+            callback={() => {
+              showToast(
+                'If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again',
+                null,
+                7000
+              );
+            }}
+          />
+        )}
         {isTapsigner && (
           <OptionCard
             title="Unlock card"

@@ -2,6 +2,7 @@ import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import React from 'react';
 import LoadingAnimation from 'src/components/Loader';
 import InheritanceToolsIllustartion from 'src/components/SVGComponents/InheritanceToolsIllustartion';
+import { cryptoRandom } from 'src/services/operations/encryption';
 
 export const securityTips = [
   {
@@ -77,6 +78,6 @@ export const securityTips = [
   },
 ];
 export const getSecurityTip = () => {
-  const selected = Math.floor(Math.random() * securityTips.length); // Comment for creating wallet modal WP
+  const selected = Math.floor(cryptoRandom() * securityTips.length); // Comment for creating wallet modal WP
   return securityTips[selected];
 };

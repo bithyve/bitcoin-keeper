@@ -12,16 +12,19 @@ import Note from 'src/components/Note/Note';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 
 function WalletDetailsSettings({ route }) {
   const { colorMode } = useColorMode();
-  const { wallet } = route.params || {};
+  const { wallet }: { wallet: Wallet } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
   const { importWallet, common } = translations;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -76,7 +79,7 @@ function WalletDetailsSettings({ route }) {
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <ShowXPub
-              data={wallet?.specs?.xpub}
+              data={wallet ? WalletUtilities.getExtendedPubKeyFromWallet(wallet) : ''}
               copy={() => {
                 setXPubVisible(false);
                 showToast(walletTranslation.xPubCopyToastMsg, <TickIcon />);

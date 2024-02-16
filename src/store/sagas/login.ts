@@ -2,6 +2,7 @@
 /* eslint-disable no-plusplus */
 import { call, put, select } from 'redux-saga/effects';
 import {
+  cryptoRandom,
   decrypt,
   encrypt,
   generateEncryptionKey,
@@ -255,7 +256,7 @@ function* generateSeedHash() {
       RealmSchema.KeeperApp
     );
     const words = primaryMnemonic.split(' ');
-    const random = Math.floor(Math.random() * words.length);
+    const random = Math.floor(cryptoRandom() * words.length);
     const hash = yield call(hash512, words[random]);
     yield put(setPinResetCreds({ hash, index: random }));
     yield put(resetPinFailAttempts());

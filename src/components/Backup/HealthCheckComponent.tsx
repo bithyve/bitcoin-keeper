@@ -7,6 +7,7 @@ import { BackupType } from 'src/models/enums/BHR';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
+import { cryptoRandom } from 'src/services/operations/encryption';
 
 function HealthCheckComponent(props) {
   const navigation = useNavigation();
@@ -17,7 +18,7 @@ function HealthCheckComponent(props) {
   const [seedWord, setSeedWord] = useState('');
   const [strongPassword, setStrongPassword] = useState('');
   const { words } = props;
-  const [index] = useState(Math.floor(Math.random() * words.length));
+  const [index] = useState(Math.floor(cryptoRandom() * words.length));
   const [invalid, setInvalid] = useState(false);
 
   const getSeedNumber = (seedNumber) => {
