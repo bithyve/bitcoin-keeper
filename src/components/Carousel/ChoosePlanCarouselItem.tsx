@@ -152,7 +152,8 @@ function ChoosePlanCarouselItem({
           <Text bold fontSize={10} color={`${colorMode}.white`} my={2}>
             {getFreeTrail}
           </Text>
-          {canSelectPlan === true ? (
+          {canSelectPlan === true &&
+          !item.productIds.includes(subscription.productId.toLowerCase()) ? (
             <Box
               style={{
                 marginTop: hp(10),
@@ -164,6 +165,7 @@ function ChoosePlanCarouselItem({
                 disabled={!item.isActive || requesting}
                 titleColor={`${colorMode}.pantoneGreen`}
                 backgroundColor={`${colorMode}.seashellWhite`}
+                boldTitle
               />
             </Box>
           ) : null}

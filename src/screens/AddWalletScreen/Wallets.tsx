@@ -63,7 +63,7 @@ function Wallets({ navigation }) {
     <Box>
       <OptionCard
         title="Hot Wallet"
-        description="App’s Mobile Key"
+        description="Using App’s hot keys"
         LeftIcon={<WalletGreenIcon />}
         callback={navigateToWalletCreation}
       />

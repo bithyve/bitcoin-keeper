@@ -1,7 +1,6 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import React, { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';
-import Fonts from 'src/constants/Fonts';
 
 type WalletCardProps = {
   id: number;

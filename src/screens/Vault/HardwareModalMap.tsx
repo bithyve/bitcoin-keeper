@@ -135,7 +135,7 @@ const getSignerContent = (
       return {
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a wallet or create a new one from your Linked Wallets',
+          'Choose a wallet or create a new one from your Hot Wallets',
           'Within settings choose Show co-signer Details to scan the QR',
         ],
         title: 'Keep your Device Ready',

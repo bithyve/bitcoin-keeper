@@ -27,7 +27,7 @@ function ActionCard({
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
   return (
-    <TouchableOpacity onPress={callback}>
+    <TouchableOpacity activeOpacity={0.95} onPress={callback}>
       <Box
         style={[
           styles.cardContainer,
