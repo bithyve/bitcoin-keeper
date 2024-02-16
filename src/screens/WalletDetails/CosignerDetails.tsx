@@ -8,36 +8,30 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { getKeyExpression } from 'src/core/utils';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { useQuery } from '@realm/react';
-import { RealmSchema } from 'src/storage/realm/enum';
-import useSigners from 'src/hooks/useSigners';
+import { XpubTypes } from 'src/core/wallets/enums';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
-function CosignerDetails() {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
+function CosignerDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
   const navgation = useNavigation();
-  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const { signers } = useSigners();
-  const myAppKeyCount = signers.filter((signer) => signer.type === SignerType.MY_KEEPER).length;
+  const { signer } = route.params;
 
   useEffect(() => {
     if (!details) {
       setTimeout(() => {
-        getCosignerDetails(primaryMnemonic, myAppKeyCount).then((details) => {
-          const keyDescriptor = getKeyExpression(
-            details.mfp,
-            details.xpubDetails[XpubTypes.P2WSH].derivationPath,
-            details.xpubDetails[XpubTypes.P2WSH].xpub,
-            false
-          );
-          setDetails(keyDescriptor);
-        });
+        const keyDescriptor = getKeyExpression(
+          signer.masterFingerprint,
+          signer.signerXpubs[XpubTypes.P2WSH][0].derivationPath,
+          signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+          false
+        );
+        setDetails(keyDescriptor);
       }, 200);
     }
   }, []);
