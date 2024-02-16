@@ -124,6 +124,25 @@ export default class WalletUtilities {
     }
   };
 
+  static getVersionBytesFromPurpose = (
+    purpose: DerivationPurpose,
+    network: bitcoinJS.networks.Network
+  ) => {
+    switch (purpose) {
+      case DerivationPurpose.BIP84:
+        return network === bitcoinJS.networks.bitcoin ? '04b24746' : '045f1cf6'; // zpub/vpub
+
+      case DerivationPurpose.BIP49:
+        return network === bitcoinJS.networks.bitcoin ? '049d7cb2' : '044a5262'; // ypub/upub
+
+      case DerivationPurpose.BIP44:
+        return network === bitcoinJS.networks.bitcoin ? '0488b21e' : '043587cf'; // xpub/tpub
+
+      default:
+        throw new Error(`Unsupported derivation type, purpose: ${purpose}`);
+    }
+  };
+
   static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
     ECPair.fromWIF(privateKey, network);
 
@@ -342,6 +361,27 @@ export default class WalletUtilities {
     const versionBytes = bitcoinJS.networks.bitcoin === network ? '0488b21e' : '043587cf';
     data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
+  };
+
+  static getExtendedPubKeyFromXpub = (
+    xpub: string,
+    purpose: DerivationPurpose,
+    network: bitcoinJS.Network
+  ) => {
+    // case: extended pub corresponding to supplied xpub(based on purpose)
+    let data = bs58check.decode(xpub);
+    const versionBytes = WalletUtilities.getVersionBytesFromPurpose(purpose, network);
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static getExtendedPubKeyFromWallet = (wallet: Wallet) => {
+    const purpose = WalletUtilities.getPurpose(
+      (wallet as Wallet).derivationDetails.xDerivationPath // exists even for imported wallet
+    );
+
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    return WalletUtilities.getExtendedPubKeyFromXpub(wallet.specs.xpub, purpose, network);
   };
 
   static addressToKey = (
