@@ -176,3 +176,12 @@ export enum ImportedKeyType {
   UPRV = 'uprv',
   VPRV = 'vprv',
 }
+
+export enum KeyGenerationMode {
+  NEW = 'NEW',
+  RECOVER = 'RECOVER',
+  IMPORT = 'IMPORT',
+  NFC = 'NFC',
+  FILE = 'FILE',
+  QR = 'QR',
+}
