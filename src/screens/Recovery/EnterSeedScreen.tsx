@@ -39,23 +39,19 @@ import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Fonts from 'src/constants/Fonts';
-import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
 
-  const {
-    isSoftKeyRecovery = false,
-    type,
-    isHealthCheck,
-    signer,
-    isMultisig,
-    setupSeedWordsBasedSigner,
-  } = route.params || {};
+  const { type, mode, signer, isMultisig, setupSeedWordsBasedSigner, mapUnknownSigner } =
+    route.params || {};
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -132,6 +128,7 @@ function EnterSeedScreen({ route }) {
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
   const inputRef = useRef([]);
+  const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -178,68 +175,6 @@ function EnterSeedScreen({ route }) {
     return seedWord.trim();
   };
 
-  const setupSeedWordsBasedKey = (mnemonic: string) => {
-    try {
-      const networkType = config.NETWORK_TYPE;
-      // fetched multi-sig seed words based key
-      const {
-        xpub: multiSigXpub,
-        derivationPath: multiSigPath,
-        masterFingerprint,
-      } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
-      // fetched single-sig seed words based key
-      const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
-        mnemonic,
-        networkType,
-        EntityKind.WALLET
-      );
-
-      const xpubDetails: XpubDetailsType = {};
-      xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
-      xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
-
-      const softSigner = generateSignerFromMetaData({
-        xpub: isMultisig ? multiSigXpub : singleSigXpub,
-        derivationPath: isMultisig ? multiSigPath : singleSigPath,
-        xfp: masterFingerprint,
-        signerType: SignerType.SEED_WORDS,
-        storageType: SignerStorage.WARM,
-        isMultisig,
-        xpubDetails,
-      });
-      dispatch(setSigningDevices(softSigner));
-      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-    } catch (err) {
-      navigation.dispatch(CommonActions.navigate('SignersList'));
-      captureError(err);
-    }
-  };
-
-  const onPressNextSoftReocvery = () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
-        const seedWord = getSeedWord();
-        if (type === SignerType.SEED_WORDS) {
-          setupSeedWordsBasedKey(seedWord);
-        } else if (type === SignerType.MOBILE_KEY) {
-          Alert.alert('Warning', 'Entire app will be restored', [
-            {
-              text: 'OK',
-              onPress: () => {
-                setRecoveryLoading(true);
-                dispatch(getAppImage(seedWord));
-              },
-            },
-          ]);
-        }
-      } else {
-        ref.current.scrollToIndex({ index: 5, animated: true });
-      }
-    } else {
-      showToast('Enter correct seedwords', <ToastErrorIcon />);
-    }
-  };
-
   const onPressNextSeedReocvery = async () => {
     if (isSeedFilled(6)) {
       if (isSeedFilled(12)) {
@@ -256,17 +191,38 @@ function EnterSeedScreen({ route }) {
 
   const onPressHealthCheck = () => {
     setHcLoading(true);
+
+    const handleSuccess = () => {
+      dispatch(healthCheckSigner([signer]));
+      showToast(`Seed Key health check successfull`, <TickIcon />);
+      navigation.dispatch(CommonActions.goBack());
+    };
+
+    const handleFailure = () => {
+      showToast(`Health check failed`);
+    };
+
     try {
       if (isSeedFilled(6)) {
         if (isSeedFilled(12)) {
           const seedWord = getSeedWord();
-          const softSigner: VaultSigner = setupSeedWordsBasedSigner(seedWord, isMultisig);
-          if (softSigner.xpub === signer.xpub) {
-            dispatch(healthCheckSigner([signer]));
-            showToast(`Seed Key health check successfull`, <TickIcon />);
-            navigation.dispatch(CommonActions.goBack());
+          const { signer: softSigner } = setupSeedWordsBasedSigner(seedWord, isMultisig);
+          if (mode === InteracationMode.IDENTIFICATION) {
+            const mapped = mapUnknownSigner({
+              masterFingerprint: softSigner.masterFingerprint,
+              type: SignerType.COLDCARD,
+            });
+            if (mapped) {
+              handleSuccess();
+            } else {
+              handleFailure();
+            }
           } else {
-            showToast(`Health check failed`, <TickIcon />);
+            if (softSigner.masterFingerprint === signer.masterFingerprint) {
+              handleSuccess();
+            } else {
+              handleFailure();
+            }
           }
         }
       }
@@ -349,14 +305,7 @@ function EnterSeedScreen({ route }) {
       >
         <StatusBarComponent />
         <Box marginX={10} mt={25}>
-          {isSoftKeyRecovery ? (
-            <SeedWordsView
-              title="Enter Seed Words"
-              onPressHandler={() =>
-                navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' })
-              }
-            />
-          ) : isHealthCheck ? (
+          {isHealthCheck ? (
             <SeedWordsView
               title={'Seed key health check'}
               subtitle={'Enter the seed key'}
@@ -365,7 +314,7 @@ function EnterSeedScreen({ route }) {
           ) : (
             <SeedWordsView
               title={seed?.enterRecoveryPhrase}
-              subtitle={seed.recoverWallet}
+              subtitle={seed.enterRecoveryPhraseSubTitle}
               onPressHandler={() =>
                 navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
               }
@@ -443,6 +392,7 @@ function EnterSeedScreen({ route }) {
                     setSuggestedWords([]);
                     Keyboard.dismiss();
                   }}
+                  testID={`input_seedWord${getPlaceholder(index)}`}
                 />
               </View>
             )}
@@ -458,6 +408,7 @@ function EnterSeedScreen({ route }) {
               ]}
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
+              testID={'view_suggestionView'}
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
@@ -483,8 +434,8 @@ function EnterSeedScreen({ route }) {
           ) : null}
         </View>
         <View style={styles.bottomContainerView}>
-          <Text style={styles.seedDescText} color="light.GreyText">
-            {seed.seedDescription}
+          <Text style={styles.seedDescText} color="light.GreyText" testID={'text_enterSeedNote'}>
+            {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
@@ -492,22 +443,12 @@ function EnterSeedScreen({ route }) {
               <View style={activePage === 1 ? styles.dash : styles.dot} />
             </Box>
 
-            {isSoftKeyRecovery ? (
-              <Buttons
-                primaryCallback={onPressNextSoftReocvery}
-                primaryText="Next"
-                primaryLoading={recoveryLoading}
-              />
-            ) : isHealthCheck ? (
+            {isHealthCheck ? (
               <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
             ) : (
               <Buttons
                 primaryCallback={onPressNextSeedReocvery}
                 primaryText="Next"
-                secondaryCallback={() => {
-                  navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' });
-                }}
-                secondaryText="Other Methods"
                 primaryLoading={recoveryLoading}
               />
             )}

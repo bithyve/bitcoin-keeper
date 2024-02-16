@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -28,15 +28,15 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -44,8 +44,21 @@ function SetupTapsigner({ route }) {
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
-  const { mode, signer, isMultisig } = route.params;
+  const {
+    mode,
+    signer,
+    isMultisig,
+    addSignerFlow = false,
+  }: {
+    mode: InteracationMode;
+    signer: Signer;
+    isMultisig: boolean;
+    addSignerFlow?: boolean;
+  } = route.params;
+  const { mapUnknownSigner } = useUnkownSigners();
+  const isConfigRecovery = mode === InteracationMode.CONFIG_RECOVERY;
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
+
   const onPressHandler = (digit) => {
     let temp = cvc;
     if (digit !== 'x') {
@@ -79,20 +92,21 @@ function SetupTapsigner({ route }) {
 
   const addTapsigner = React.useCallback(async () => {
     try {
-      const { xpub, derivationPath, xfp, xpubDetails } = await withModal(async () =>
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = await withModal(async () =>
         getTapsignerDetails(card, cvc, isMultisig)
       )();
-      let tapsigner: VaultSigner;
+      let tapsigner: Signer;
+      let vaultKey: VaultSigner;
       if (isAMF) {
         const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
           EntityKind.VAULT,
           SignerType.TAPSIGNER,
           config.NETWORK_TYPE
         );
-        tapsigner = generateSignerFromMetaData({
+        const { signer, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp: masterFingerprint,
+          masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
           isMultisig,
@@ -100,35 +114,34 @@ function SetupTapsigner({ route }) {
           isMock: false,
           xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
         });
+        tapsigner = signer;
+        vaultKey = key;
       } else {
-        tapsigner = generateSignerFromMetaData({
+        const { signer, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
           isMultisig,
           xpubDetails,
         });
+        tapsigner = signer;
+        vaultKey = key;
       }
-      if (mode === InteracationMode.SIGNING) {
-        dispatch(addSigningDevice(tapsigner));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
-      } else {
+      if (mode === InteracationMode.RECOVERY) {
         dispatch(setSigningDevices(tapsigner));
         navigation.dispatch(
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
+      } else {
+        dispatch(addSigningDevice([tapsigner]));
+        const navigationState = addSignerFlow
+          ? { name: 'ManageSigners' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
       }
-
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-      if (!isSignerAMF(tapsigner)) {
-        const exsists = await checkSigningDevice(tapsigner.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
-      }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {
@@ -150,13 +163,32 @@ function SetupTapsigner({ route }) {
 
   const verifyTapsginer = React.useCallback(async () => {
     try {
-      const { xpub } = await withModal(async () => getTapsignerDetails(card, cvc, isMultisig))();
-      if (xpub === signer.xpub) {
+      const { masterFingerprint } = await withModal(async () =>
+        getTapsignerDetails(card, cvc, isMultisig)
+      )();
+      const handleSuccess = () => {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
         showToast(`Tapsigner verified successfully`, <TickIcon />);
-      } else {
+      };
+
+      const handleFailure = () => {
         showToast('Something went wrong, please try again!', null, 2000, true);
+      };
+
+      if (mode === InteracationMode.IDENTIFICATION) {
+        const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.COLDCARD });
+        if (mapped) {
+          handleSuccess();
+        } else {
+          handleFailure();
+        }
+      } else {
+        if (masterFingerprint === signer.masterFingerprint) {
+          handleSuccess();
+        } else {
+          handleFailure();
+        }
       }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
@@ -183,7 +215,12 @@ function SetupTapsigner({ route }) {
         title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
         subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
       />
-      <MockWrapper signerType={SignerType.TAPSIGNER}>
+      <MockWrapper
+        signerType={SignerType.TAPSIGNER}
+        addSignerFlow={addSignerFlow}
+        mode={mode}
+        signerXfp={signer?.masterFingerprint}
+      >
         <ScrollView>
           <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput

@@ -1,5 +1,3 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable no-restricted-syntax */
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { EntityKind, LabelRefType, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
@@ -12,12 +10,13 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
 import { TransferType } from 'src/models/enums/TransferType';
-import {
+import ElectrumClient, {
+  ELECTRUM_CLIENT,
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
-import { createWatcher } from '../utilities';
 import dbManager from 'src/storage/realm/dbManager';
+import { createWatcher } from '../utilities';
 import {
   SendPhaseOneExecutedPayload,
   sendPhaseOneExecuted,
@@ -27,6 +26,7 @@ import {
   crossTransferExecuted,
   crossTransferFailed,
   sendPhaseTwoStarted,
+  customFeeCalculated,
 } from '../reducers/send_and_receive';
 import { setAverageTxFee, setExchangeRates } from '../reducers/network';
 import {
@@ -44,11 +44,11 @@ import {
   SendPhaseOneAction,
   SendPhaseThreeAction,
   SendPhaseTwoAction,
-  customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
 import { addLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
+import { connectToNodeWorker } from './network';
 
 export function* fetchFeeRatesWorker() {
   try {
@@ -125,23 +125,40 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
 export const sendPhaseOneWatcher = createWatcher(sendPhaseOneWorker, SEND_PHASE_ONE);
 
 function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
+  if (!ELECTRUM_CLIENT.isClientConnected) {
+    ElectrumClient.resetCurrentPeerIndex();
+    yield call(connectToNodeWorker);
+  }
   yield put(sendPhaseTwoStarted());
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
+  const customSendPhaseOneResults = yield select(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne
+  );
+
   const { wallet, txnPriority, note, label, transferType } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
+  const customTxPrerequisites = _.cloneDeep(
+    idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
+  );
+
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
-  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const signerMap = {};
+  if (wallet.entityKind === EntityKind.VAULT) {
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+  }
   try {
     const { txid, serializedPSBTEnvelops, finalOutputs } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
       txnPriority,
-      network,
-      recipients
-      // customTxPrerequisites
+      recipients,
+      customTxPrerequisites,
+      signerMap
     );
 
     switch (wallet.entityKind) {
@@ -170,8 +187,9 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       case EntityKind.VAULT:
-        if (!serializedPSBTEnvelops.length)
+        if (!serializedPSBTEnvelops.length) {
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
+        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -181,7 +199,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       default:
-        throw new Error('Invalid Entity: not a Vault/Wallet');
+        throw new Error('Invalid Entity: not a vault/Wallet');
     }
     if (wallet.entityKind === EntityKind.WALLET) {
       const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
@@ -202,8 +220,9 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       }
     }
   } catch (err) {
-    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(setElectrumNotConnectedErr(err?.message));
+    }
 
     yield put(
       sendPhaseTwoExecuted({
@@ -220,10 +239,18 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
+  const customSendPhaseOneResults = yield select(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne
+  );
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = yield select(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
+  const customTxPrerequisites = _.cloneDeep(
+    idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
+  );
+
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const { wallet, txnPriority, note, label } = payload;
   try {
@@ -238,10 +265,11 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
         txHex = serializedPSBTEnvelop.txHex; // txHex is given out by COLDCARD, KEYSTONE and TREZOR post signing
       }
     }
-    if (availableSignatures < threshold)
+    if (availableSignatures < threshold) {
       throw new Error(
         `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
       );
+    }
 
     const { txid, finalOutputs } = yield call(
       WalletOperations.transferST3,
@@ -249,6 +277,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       serializedPSBTEnvelops,
       txPrerequisites,
       txnPriority,
+      customTxPrerequisites,
       txHex
     );
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
@@ -286,8 +315,9 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       });
     }
   } catch (err) {
-    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(setElectrumNotConnectedErr(err?.message));
+    }
 
     yield put(
       sendPhaseThreeExecuted({
@@ -331,13 +361,11 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     );
 
     if (txPrerequisites) {
-      const network = WalletUtilities.getNetworkByType(sender.networkType);
       const { txid } = yield call(
         WalletOperations.transferST2,
         sender,
         txPrerequisites,
         TxPriority.LOW,
-        network,
         recipients
       );
 
@@ -385,12 +413,11 @@ export const calculateSendMaxFeeWatcher = createWatcher(
 );
 
 function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
-  // feerate should be > minimum relay feerate(default: 1000 satoshis per kB or 1 sat/byte).
   if (parseInt(payload.feePerByte, 10) < 1) {
     yield put(
       customFeeCalculated({
         successful: false,
-        carryOver: {
+        outputs: {
           customTxPrerequisites: null,
         },
         err: 'Custom fee minimum: 1 sat/byte',
@@ -399,12 +426,14 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
     return;
   }
 
-  const { wallet, recipients, feePerByte, customEstimatedBlocks } = payload;
-  const sending: any = {};
-  const txPrerequisites = idx(sending, (_) => _.sendST1.carryOver.txPrerequisites);
+  const { wallet, recipients, feePerByte, customEstimatedBlocks, selectedUTXOs } = payload;
+  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
+    (state) => state.sendAndReceive.sendPhaseOne
+  );
+  const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
 
   let outputs;
-  if (sending.feeIntelMissing) {
+  if (!txPrerequisites) {
     // process recipients & generate outputs(normally handled by transfer ST1 saga)
     const outputsArray = [];
     for (const recipient of recipients) {
@@ -414,24 +443,24 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       });
     }
     outputs = outputsArray;
-  } else {
-    if (!txPrerequisites) throw new Error('ST1 carry-over missing');
-    outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
-  }
+  } else outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
 
   const customTxPrerequisites = WalletOperations.prepareCustomTransactionPrerequisites(
     wallet,
     outputs,
-    parseInt(feePerByte, 10)
+    parseInt(feePerByte, 10),
+    selectedUTXOs
   );
 
-  if (customTxPrerequisites.inputs) {
-    customTxPrerequisites.estimatedBlocks = parseInt(customEstimatedBlocks, 10);
+  if (customTxPrerequisites[TxPriority.CUSTOM]?.inputs) {
+    customTxPrerequisites[TxPriority.CUSTOM].estimatedBlocks = parseInt(customEstimatedBlocks, 10);
+
     yield put(
       customFeeCalculated({
         successful: true,
-        carryOver: {
+        outputs: {
           customTxPrerequisites,
+          recipients,
         },
         err: null,
       })
@@ -444,7 +473,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
     yield put(
       customFeeCalculated({
         successful: false,
-        carryOver: {
+        outputs: {
           customTxPrerequisites: null,
         },
         err: `Insufficient balance to pay: amount ${totalAmount} + fee(${customTxPrerequisites.fee}) at ${feePerByte} sats/byte`,

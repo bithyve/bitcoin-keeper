@@ -174,7 +174,6 @@ function* credentialsAuthWorker({ payload }) {
             uaiChecks([
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               uaiType.SECURE_VAULT,
-              uaiType.VAULT_MIGRATION,
               uaiType.DEFAULT,
               uaiType.VAULT_TRANSFER,
             ])

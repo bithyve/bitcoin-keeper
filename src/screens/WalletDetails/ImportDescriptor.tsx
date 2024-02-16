@@ -42,7 +42,10 @@ function ImportDescriptorScreen({ navigation }) {
       setWalletCreationLoading(false);
       const navigationState = {
         index: 1,
-        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { collaborativeWalletId } }],
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { vaultId: collaborativeWalletId } },
+        ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetVaultFlags());
@@ -62,15 +65,15 @@ function ImportDescriptorScreen({ navigation }) {
       if (parsedText) {
         const signers: VaultSigner[] = [];
         parsedText.signersDetails.forEach((config) => {
-          const signer = generateSignerFromMetaData({
+          const { key } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,
-            xfp: config.masterFingerprint,
+            masterFingerprint: config.masterFingerprint,
             signerType: SignerType.KEEPER,
             storageType: SignerStorage.WARM,
             isMultisig: config.isMultisig,
           });
-          signers.push(signer);
+          signers.push(key);
         });
 
         const parentCollaborativeWallet =
@@ -116,7 +119,7 @@ function ImportDescriptorScreen({ navigation }) {
           />
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput
-              placeholder="Enter the output descriptor"
+              placeholder="Enter the Wallet Configuration File"
               placeholderTextColor={Colors.Feldgrau} // TODO: change this to colorMode
               style={styles.textInput}
               value={inputText}

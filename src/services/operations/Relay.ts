@@ -1,13 +1,12 @@
-/* eslint-disable consistent-return */
 import { NetworkType } from 'src/core/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork, UTXOInfo } from 'src/core/wallets/interfaces';
+import config from 'src/core/config';
 import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
-import config from 'src/core/config';
 
 const { HEXA_ID, RELAY } = config;
 const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
@@ -392,7 +391,7 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
-      throw new Error('Failed get Vault Meta Data');
+      throw new Error('Failed get vault Meta Data');
     }
   };
 

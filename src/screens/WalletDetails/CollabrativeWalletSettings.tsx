@@ -7,19 +7,20 @@ import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/core/wallets/enums';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { StyleSheet } from 'react-native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import useVault from 'src/hooks/useVault';
 
 function CollabrativeWalletSettings() {
   const route = useRoute();
-  const { wallet: collaborativeWallet } = route.params as { wallet: Vault };
+  const { vaultId } = route.params as { vaultId: string };
+  const { activeVault } = useVault({ vaultId });
   const navigation = useNavigation();
-  const wallet = useWallets({ walletIds: [collaborativeWallet.collaborativeWalletId] }).wallets[0];
-  const descriptorString = genrateOutputDescriptors(collaborativeWallet);
+  const wallet = useWallets({ walletIds: [activeVault.collaborativeWalletId] }).wallets[0];
+  const descriptorString = genrateOutputDescriptors(activeVault);
   const { showToast } = useToastMessage();
 
   const signPSBT = (serializedPSBT, resetQR) => {
@@ -47,7 +48,7 @@ function CollabrativeWalletSettings() {
     <ScreenWrapper>
       <KeeperHeader
         title="Collaborative Wallet Settings"
-        subtitle={collaborativeWallet.presentationData.description}
+        subtitle={activeVault.presentationData.description}
       />
 
       <ScrollView
@@ -79,7 +80,7 @@ function CollabrativeWalletSettings() {
           }}
         />
         <OptionCard
-          title="Exporting Output Descriptor/ BSMS"
+          title="Exporting Wallet Configuration File"
           description="To recreate collaborative wallet"
           callback={() => {
             navigation.dispatch(
@@ -91,7 +92,7 @@ function CollabrativeWalletSettings() {
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
           title="Note"
-          subtitle="Keeper supports ONE collaborative wallet per hot wallet only. So if you import another Output Descriptor, you will see a new Collaborative Wallet"
+          subtitle="Keeper only supports one Collaborative wallet, per hot wallet. So if you import another Wallet Configuration File, you will see a new Collaborative Wallet"
           subtitleColor="GreyText"
         />
       </Box>

@@ -1,9 +1,4 @@
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text, View, useColorMode, ScrollView, Input } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -29,6 +24,12 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { v4 as uuidv4 } from 'uuid';
 
+const derivationPurposeToLabel = {
+  [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
+  [DerivationPurpose.BIP49]: 'P2SH-P2WPKH: wrapped segwit, single-sig',
+  [DerivationPurpose.BIP44]: 'P2PKH: legacy, single-sig',
+};
+
 function AddDetailsFinalScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -37,24 +38,25 @@ function AddDetailsFinalScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet } = translations;
   const [arrow, setArrow] = useState(false);
-  const [showPurpose, setShowPurpose] = useState(false);
-  const [purposeList, setPurposeList] = useState([
-    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
-    { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
-    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-  ]);
-  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
-  const [purposeLbl, setPurposeLbl] = useState('P2PKH: legacy, single-sig');
-  const [path, setPath] = useState(
-    route.params?.path
-      ? route.params?.path
-      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
-  );
+
+  const { importedKey, importedKeyDetails } = route.params;
   const [walletType, setWalletType] = useState(route.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route.params?.seed);
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
   const [transferPolicy, setTransferPolicy] = useState(route.params?.policy);
+
+  const [showPurpose, setShowPurpose] = useState(false);
+  const [purposeList, setPurposeList] = useState([
+    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
+    { label: 'P2SH-P2WPKH: wrapped segwit, single-sig', value: DerivationPurpose.BIP49 },
+    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
+  ]);
+  const [purpose, setPurpose] = useState(importedKeyDetails?.purpose || DerivationPurpose.BIP84);
+  const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
+  const [path, setPath] = useState(
+    route.params?.path ||
+      WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+  );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
   );
@@ -66,7 +68,7 @@ function AddDetailsFinalScreen({ route }) {
       EntityKind.WALLET,
       config.NETWORK_TYPE,
       0,
-      Number(purpose)
+      purpose
     );
     setPath(path);
   }, [purpose]);
@@ -77,7 +79,7 @@ function AddDetailsFinalScreen({ route }) {
     setTimeout(() => {
       const derivationConfig: DerivationConfig = {
         path,
-        purpose: Number(purpose),
+        purpose,
       };
 
       const newWallet: NewWalletInfo = {
@@ -92,8 +94,9 @@ function AddDetailsFinalScreen({ route }) {
           },
         },
         importDetails: {
+          importedKey,
+          importedKeyDetails,
           derivationConfig,
-          mnemonic: importedSeed,
         },
       };
       dispatch(addNewWallets([newWallet]));
@@ -154,7 +157,9 @@ function AddDetailsFinalScreen({ route }) {
             </Box>
             <TouchableOpacity onPress={onDropDownClick}>
               <Box style={styles.dropDownContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-                <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>{purposeLbl}</Text>
+                <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
+                  {purposeLbl}
+                </Text>
                 <Box
                   style={[
                     styles.icArrow,
@@ -169,7 +174,10 @@ function AddDetailsFinalScreen({ route }) {
             </TouchableOpacity>
           </Box>
           {showPurpose && (
-            <ScrollView style={styles.langScrollViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+            <ScrollView
+              style={styles.langScrollViewWrapper}
+              backgroundColor={`${colorMode}.seashellWhite`}
+            >
               {purposeList.map((item) => (
                 <TouchableOpacity
                   key={item.value}

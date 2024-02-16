@@ -21,16 +21,15 @@ import { WalletType } from 'src/core/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 
-function ImportWalletScreen({ route }) {
+function ImportWalletScreen() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
   const { translations } = useContext(LocalizationContext);
-  const { common, importWallet, home } = translations;
-  // const { sender } = route.params as { sender: Wallet | Vault };
-  // const network = WalletUtilities.getNetworkByType(sender.networkType);
+  const { common, importWallet, wallet } = translations;
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
 
   const handleChooseImage = () => {
@@ -56,7 +55,7 @@ function ImportWalletScreen({ route }) {
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
-            handleTextChange(data);
+            initiateWalletImport(data);
           })
           .catch((err) => {
             showToast('Invalid or No related QR code');
@@ -65,16 +64,23 @@ function ImportWalletScreen({ route }) {
     });
   };
 
-  const handleTextChange = (info: string) => {
-    info = info.trim();
-    navigation.navigate('ImportWalletDetails', {
-      seed: info,
-      type: WalletType.IMPORTED,
-      name: `Wallet ${wallets.length + 1}`,
-      description: 'Single-sig Wallet',
-    });
+  const initiateWalletImport = (data: string) => {
+    try {
+      const importedKey = data.trim();
+      const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+      navigation.navigate('ImportWalletDetails', {
+        importedKey,
+        importedKeyDetails,
+        type: WalletType.IMPORTED,
+        name: `Wallet ${wallets.length + 1}`,
+        description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
+      });
+    } catch (err) {
+      showToast('Invalid Import Key');
+    }
   };
 
+  //TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -83,7 +89,13 @@ function ImportWalletScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.scanSeedWord} />
+        <KeeperHeader
+          title={wallet.ImportWallet}
+          subtitle={importWallet.usingWalletConfigurationFile}
+          learnMore
+          learnBackgroundColor={`${colorMode}.RussetBrown`}
+          learnTextColor={`${colorMode}.white`}
+        />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
@@ -91,7 +103,7 @@ function ImportWalletScreen({ route }) {
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
-                  handleTextChange(data.data);
+                  initiateWalletImport(data.data);
                 }}
                 notAuthorizedView={<CameraUnauthorized />}
               />

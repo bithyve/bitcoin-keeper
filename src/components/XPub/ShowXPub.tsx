@@ -9,10 +9,11 @@ import { wp, hp } from 'src/constants/responsive';
 
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Note from '../Note/Note';
+import { getKeyExpression } from 'src/core/utils';
+import { XpubTypes } from 'src/core/wallets/enums';
 
 function ShowXPub({
   wallet,
@@ -22,7 +23,6 @@ function ShowXPub({
   noteSubText,
   copyable = true,
   cosignerDetails = false,
-  keeper,
 }: {
   data: string;
   wallet?: Wallet;
@@ -31,7 +31,6 @@ function ShowXPub({
   noteSubText?: string;
   copyable: boolean;
   cosignerDetails?: boolean;
-  keeper?: KeeperApp;
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -41,7 +40,15 @@ function ShowXPub({
   useEffect(() => {
     if (cosignerDetails) {
       setTimeout(() => {
-        setDetails(JSON.stringify(getCosignerDetails(wallet, keeper.id)));
+        const details = getCosignerDetails(wallet, true);
+        setDetails(
+          getKeyExpression(
+            details.mfp,
+            details.xpubDetails[XpubTypes.P2WPKH].derivationPath,
+            details.xpubDetails[XpubTypes.P2WPKH].xpub,
+            false
+          )
+        );
       }, 200);
     } else {
       setDetails(data);

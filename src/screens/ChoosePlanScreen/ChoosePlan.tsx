@@ -5,9 +5,9 @@ import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
   getAvailablePurchases,
   SubscriptionPurchase,
+  requestSubscription,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
@@ -21,7 +21,6 @@ import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscripti
 import dbManager from 'src/storage/realm/dbManager';
 import { wp } from 'src/constants/responsive';
 import Relay from 'src/services/operations/Relay';
-import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';
@@ -30,12 +29,15 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useQuery } from '@realm/react';
-import { useRoute } from '@react-navigation/native';
+import SettingsIcon from 'src/assets/images/settings_white.svg';
+import TierUpgradeModal from './TierUpgradeModal';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 function ChoosePlan() {
   const route = useRoute();
+  const navigation = useNavigation();
   const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
@@ -55,6 +57,7 @@ function ChoosePlan() {
   const [isMonthly, setIsMonthly] = useState(true);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
+  const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -80,13 +83,14 @@ function ChoosePlan() {
   }, []);
 
   async function init() {
+    let data = [];
     try {
       const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
       if (getPlansResponse.plans) {
+        data = getPlansResponse.plans;
         const skus = [];
         getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
-        const data = getPlansResponse.plans;
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
           const monthlyPlans = [];
@@ -134,6 +138,15 @@ function ChoosePlan() {
       }
     } catch (error) {
       console.log('error', error);
+      if (error.message.includes('Billing is unavailable.')) {
+        setItems(data);
+        setLoading(false);
+        showToast(error.message);
+        setIsServiceUnavailible(true);
+      } else {
+        navigation.goBack();
+        showToast(error.message);
+      }
     }
   }
 
@@ -160,7 +173,7 @@ function ChoosePlan() {
       } else if (response.error) {
         showToast(response.error);
       }
-      await RNIap.finishTransaction({ purchase, isConsumable: false });
+      if (receipt) await RNIap.finishTransaction({ purchase, isConsumable: false });
     } catch (error) {
       setRequesting(false);
       console.log(error);
@@ -248,11 +261,17 @@ function ChoosePlan() {
           ]);
         }
       } else {
+        if (isServiceUnavailible) {
+          showToast(
+            'It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon'
+          );
+          return;
+        }
         setRequesting(true);
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
         const sku = plan.productId;
         const { offerToken } = plan;
-        var purchaseTokenAndroid = null;
+        let purchaseTokenAndroid = null;
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
@@ -309,7 +328,6 @@ function ChoosePlan() {
       if (purchases.length === 0) {
         showToast('No purchases found');
       } else {
-        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < purchases.length; i++) {
           const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {
@@ -347,14 +365,8 @@ function ChoosePlan() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        subtitle={
-          subscription.name === 'Diamond Hands'
-            ? `You are currently a ${subscription.name}`
-            : `You are currently a ${subscription.name}`
-        }
-        rightComponent={
-          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
-        }
+        subtitle={'Upgrade or downgrade'}
+        //To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}
@@ -405,7 +417,7 @@ function ChoosePlan() {
 
           <Box ml={5}>
             <Box>
-              <Text fontSize={14} color={`${colorMode}.modalGreenTitle`} letterSpacing={1.12}>
+              <Text fontSize={14} color={`${colorMode}.pantoneGreen`} letterSpacing={1.12}>
                 {getBenifitsTitle(items[currentPosition].name)}:
               </Text>
             </Box>
@@ -447,10 +459,10 @@ function ChoosePlan() {
         >
           <Box
             borderColor={`${colorMode}.learnMoreBorder`}
-            backgroundColor={`${colorMode}.lightAccent`}
+            backgroundColor={`${colorMode}.RussetBrown`}
             style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color={colorMode === 'light' ? 'light.learnMoreBorder' : '#24312E'}>
+            <Text fontSize={12} color={colorMode === 'light' ? 'light.white' : '#24312E'}>
               {choosePlan.restorePurchases}
             </Text>
           </Box>
@@ -463,14 +475,14 @@ const styles = StyleSheet.create({
   noteWrapper: {
     bottom: 1,
     margin: 1,
-    alignItems: 'center',
+    alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
   },
   restorePurchaseWrapper: {
     padding: 1,
-    margin: 1,
+    marginBottom: 10,
     borderRadius: 5,
     borderWidth: 0.7,
     alignItems: 'center',

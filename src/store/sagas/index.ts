@@ -14,11 +14,12 @@ import {
   updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
   updateSignerDetails,
+  updateKeyDetails,
   updateWalletsPropertyWatcher,
   addWhirlpoolWalletsWatcher,
   addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
-  finaliseIKSetupWatcher,
+  updateVaultDetailsWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -98,8 +99,9 @@ const rootSaga = function* () {
     addSigningDeviceWatcher,
     migrateVaultWatcher,
     finaliseVaultMigrationWatcher,
-    finaliseIKSetupWatcher,
+    updateVaultDetailsWatcher,
     updateSignerDetails,
+    updateKeyDetails,
 
     // send and receive
     fetchExchangeRatesWatcher,

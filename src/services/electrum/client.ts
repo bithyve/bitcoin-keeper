@@ -222,6 +222,10 @@ export default class ElectrumClient {
     return peers[ELECTRUM_CLIENT.currentPeerIndex];
   }
 
+  public static resetCurrentPeerIndex() {
+    ELECTRUM_CLIENT.currentPeerIndex = -1;
+  }
+
   // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
   // if current peer to use is provided, it will use that peer
   public static setActivePeer(

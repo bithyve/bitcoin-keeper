@@ -45,17 +45,17 @@ import {
   TransactionType,
   TxPriority,
 } from '../enums';
-import { Vault, VaultScheme, VaultSigner, VaultSpecs } from '../interfaces/vault';
+import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import RestClient from 'src/services/rest/RestClient';
+import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 
 const ECPair = ECPairFactory(ecc);
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
-const feeSurcharge = (wallet: Wallet | Vault) =>
+const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
   /* !! TESTNET ONLY !!
      as the redeem script for vault is heavy(esp. 3-of-5/3-of-6), 
      the nodes reject the tx if the overall fee for the tx is low(which is the case w/ electrum)
@@ -470,8 +470,8 @@ export default class WalletOperations {
         estimatedBlocks: lowFeeBlockEstimate,
       };
 
-    const feeRatesByPriority = { high, medium, low };
-    return feeRatesByPriority;
+      const feeRatesByPriority = { high, medium, low };
+      return feeRatesByPriority;
     } catch (err) {
       console.log('Failed to fetch fee via Fulcrum', { err });
       throw new Error('Failed to fetch fee');
@@ -485,7 +485,12 @@ export default class WalletOperations {
       return WalletOperations.mockFeeRatesForTestnet();
 
     try {
-      const res = await RestClient.get(`https://mempool.space/api/v1/fees/recommended`);
+      const endpoint =
+        RestClient.getTorStatus() === TorStatus.CONNECTED
+          ? 'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/api/v1/fees/recommended'
+          : 'https://mempool.space/api/v1/fees/recommended';
+      const res = await RestClient.get(endpoint);
+
       const mempoolFee: {
         economyFee: number;
         fastestFee: number;
@@ -579,7 +584,11 @@ export default class WalletOperations {
         }).address,
       });
     }
-    const { fee } = coinselectSplit(inputUTXOs, outputUTXOs, feePerByte + feeSurcharge(wallet));
+    const { fee } = coinselectSplit(
+      inputUTXOs,
+      outputUTXOs,
+      feePerByte + testnetFeeSurcharge(wallet)
+    );
 
     return {
       fee,
@@ -593,7 +602,7 @@ export default class WalletOperations {
       amount: number;
     }[],
     averageTxFees: AverageTxFees,
-    selectedUTXOs?: any
+    selectedUTXOs?: UTXO[]
   ):
     | {
         fee: number;
@@ -624,7 +633,11 @@ export default class WalletOperations {
     const defaultFeePerByte = averageTxFees[defaultTxPriority].feePerByte;
     const defaultEstimatedBlocks = averageTxFees[defaultTxPriority].estimatedBlocks;
 
-    const assets = coinselect(inputUTXOs, outputUTXOs, defaultFeePerByte + feeSurcharge(wallet));
+    const assets = coinselect(
+      inputUTXOs,
+      outputUTXOs,
+      defaultFeePerByte + testnetFeeSurcharge(wallet)
+    );
     const defaultPriorityInputs = assets.inputs;
     const defaultPriorityOutputs = assets.outputs;
     const defaultPriorityFee = assets.fee;
@@ -657,7 +670,7 @@ export default class WalletOperations {
         const { inputs, outputs, fee } = coinselect(
           inputUTXOs,
           outputUTXOs,
-          averageTxFees[priority].feePerByte + feeSurcharge(wallet)
+          averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
         );
         const debitedAmount = netAmount + fee;
         if (!inputs || debitedAmount > confirmedBalance) {
@@ -688,21 +701,25 @@ export default class WalletOperations {
       address: string;
       value: number;
     }[],
-    customTxFeePerByte: number
-  ): TransactionPrerequisiteElements => {
-    const inputUTXOs = wallet.specs.confirmedUTXOs;
+    customTxFeePerByte: number,
+    selectedUTXOs?: UTXO[]
+  ): TransactionPrerequisite => {
+    const inputUTXOs =
+      selectedUTXOs && selectedUTXOs.length ? selectedUTXOs : wallet.specs.confirmedUTXOs;
     const { inputs, outputs, fee } = coinselect(
       inputUTXOs,
       outputUTXOs,
-      customTxFeePerByte + feeSurcharge(wallet)
+      customTxFeePerByte + testnetFeeSurcharge(wallet)
     );
 
     if (!inputs) return { fee };
 
     return {
-      inputs,
-      outputs,
-      fee,
+      [TxPriority.CUSTOM]: {
+        inputs,
+        outputs,
+        fee,
+      },
     };
   };
 
@@ -747,7 +764,7 @@ export default class WalletOperations {
       const bip32Derivation = [
         {
           masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
-          path,
+          path: path.replaceAll('h', "'"),
           pubkey: publicKey,
         },
       ];
@@ -852,7 +869,7 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
-    customTxPrerequisites?: TransactionPrerequisiteElements,
+    customTxPrerequisites?: TransactionPrerequisite,
     derivationPurpose?: DerivationPurpose,
     scriptType?: BIP48ScriptTypes
   ): Promise<{
@@ -864,9 +881,10 @@ export default class WalletOperations {
     try {
       let inputs;
       let outputs;
-      if (txnPriority === TxPriority.CUSTOM && customTxPrerequisites) {
-        inputs = customTxPrerequisites.inputs;
-        outputs = customTxPrerequisites.outputs;
+      if (txnPriority === TxPriority.CUSTOM) {
+        if (!customTxPrerequisites) throw new Error('Tx-prerequisites missing for custom fee');
+        inputs = customTxPrerequisites[txnPriority].inputs;
+        outputs = customTxPrerequisites[txnPriority].outputs;
       } else {
         inputs = txPrerequisites[txnPriority].inputs;
         outputs = txPrerequisites[txnPriority].outputs;
@@ -1024,10 +1042,11 @@ export default class WalletOperations {
     wallet: Vault,
     inputs: InputUTXOs[],
     PSBT: bitcoinJS.Psbt,
-    signer: VaultSigner,
+    vaultKey: VaultSigner,
     outgoing: number,
     outputs: OutputUTXOs[],
-    change: string
+    change: string,
+    signerMap?: { [key: string]: Signer }
   ):
     | {
         signedPSBT: bitcoinJS.Psbt;
@@ -1038,15 +1057,16 @@ export default class WalletOperations {
         serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
     const signingPayload: SigningPayload[] = [];
+    const signer = signerMap[vaultKey.masterFingerprint];
     const payloadTarget = signer.type;
     let isSigned = false;
-    if (signer.isMock && signer.xpriv) {
+    if (signer.isMock && vaultKey.xpriv) {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
       const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
         wallet,
         inputs,
         PSBT.toBase64(),
-        signer.xpriv
+        vaultKey.xpriv
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
       isSigned = true;
@@ -1065,7 +1085,7 @@ export default class WalletOperations {
             inputs[inputIndex].address,
             wallet
           );
-          publicKey = multisigAddress.signerPubkeyMap.get(signer.xpub);
+          publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
           subPath = multisigAddress.subPath;
         } else {
           const singlesigAddress = WalletUtilities.addressToKey(
@@ -1120,7 +1140,7 @@ export default class WalletOperations {
 
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
-      signerId: signer.signerId,
+      xfp: vaultKey.xfp,
       signerType: signer.type,
       serializedPSBT,
       signingPayload,
@@ -1209,12 +1229,12 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
-    network: bitcoinJS.networks.Network,
     recipients: {
       address: string;
       amount: number;
     }[],
-    customTxPrerequisites?: TransactionPrerequisiteElements
+    customTxPrerequisites?: TransactionPrerequisite,
+    signerMap?: { [key: string]: Signer }
   ): Promise<
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
@@ -1236,22 +1256,23 @@ export default class WalletOperations {
 
     if (wallet.entityKind === EntityKind.VAULT) {
       // case: vault(single/multi-sig)
-      const { signers } = wallet as Vault;
+      const { signers: vaultKeys } = wallet as Vault;
       const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = [];
       let outgoing = 0;
       recipients.forEach((recipient) => {
         outgoing += recipient.amount;
       });
 
-      for (const signer of signers) {
+      for (const vaultKey of vaultKeys) {
         const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
           wallet as Vault,
           inputs,
           PSBT,
-          signer,
+          vaultKey,
           outgoing,
           outputs,
-          change
+          change,
+          signerMap
         );
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
@@ -1284,12 +1305,18 @@ export default class WalletOperations {
     serializedPSBTEnvelops: SerializedPSBTEnvelop[],
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
+    customTxPrerequisites?: TransactionPrerequisite,
     txHex?: string
   ): Promise<{
     txid: string;
     finalOutputs: bitcoinJS.TxOutput[];
   }> => {
-    const { inputs } = txPrerequisites[txnPriority];
+    let inputs;
+    if (txnPriority === TxPriority.CUSTOM) {
+      if (!customTxPrerequisites) throw new Error('Tx-prerequisites missing for custom fee');
+      inputs = customTxPrerequisites[txnPriority].inputs;
+    } else inputs = txPrerequisites[txnPriority].inputs;
+
     let combinedPSBT: bitcoinJS.Psbt = null;
     let finalOutputs: bitcoinJS.TxOutput[];
 

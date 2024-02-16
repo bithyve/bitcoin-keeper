@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -25,7 +25,7 @@ export const getBitbox02Details = (data, isMultisig) => {
     return {
       xpub,
       derivationPath,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       xpubDetails,
     };
   } catch (_) {
@@ -33,10 +33,14 @@ export const getBitbox02Details = (data, isMultisig) => {
   }
 };
 
-export const getWalletConfigForBitBox02 = ({ vault }: { vault: Vault }) => {
-  const ourXPubIndex = vault.signers.findIndex((signer) => signer.type === SignerType.BITBOX02);
+export const getWalletConfigForBitBox02 = ({ vault, signer }: { vault: Vault; signer: Signer }) => {
+  const ourXPubIndex = vault.signers.findIndex(
+    (vaultKey) =>
+      signer.type === SignerType.BITBOX02 && signer.masterFingerprint === vaultKey.masterFingerprint
+  );
   const keypathAccountDerivation = vault.signers.find(
-    (signer) => signer.type === SignerType.BITBOX02
+    (vaultKey) =>
+      signer.type === SignerType.BITBOX02 && signer.masterFingerprint === vaultKey.masterFingerprint
   ).derivationPath;
   return {
     ourXPubIndex,
@@ -49,9 +53,10 @@ export const getWalletConfigForBitBox02 = ({ vault }: { vault: Vault }) => {
 export const getTxForBitBox02 = async (
   serializedPSBT: string,
   signingPayload: SigningPayload[],
-  signer: VaultSigner,
+  vaultKey: VaultSigner,
   isMultisig: boolean,
-  vault: Vault
+  vault: Vault,
+  signer: Signer
 ) => {
   try {
     const payload = signingPayload[0];
@@ -62,7 +67,7 @@ export const getTxForBitBox02 = async (
       change: changeAddress,
       inputsToSign,
     } = payload;
-    const keypathAccount = getKeypathFromString(signer.derivationPath);
+    const keypathAccount = getKeypathFromString(vaultKey.derivationPath);
     const inputs = [];
     let index = 0;
     const { version, locktime } = psbt;
@@ -111,7 +116,7 @@ export const getTxForBitBox02 = async (
             payload: WalletUtilities.getPubkeyHashFromScript(output.address, output.script),
           };
     });
-    const walletConfig = isMultisig ? getWalletConfigForBitBox02({ vault }) : null;
+    const walletConfig = isMultisig ? getWalletConfigForBitBox02({ vault, signer }) : null;
     return {
       inputs,
       outputs,
@@ -119,7 +124,7 @@ export const getTxForBitBox02 = async (
       walletConfig,
       version,
       locktime,
-      derivationPath: signer.derivationPath,
+      derivationPath: vaultKey.derivationPath,
     };
   } catch (error) {
     captureError(error);

@@ -25,10 +25,12 @@ import SigningServer from 'src/services/operations/SigningServer';
 import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
+import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
 export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
+export const KEY_MANAGEMENT_VERSION = '1.1.9';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -46,6 +48,10 @@ export function* applyUpgradeSequence({
     yield put(migrateLabelsToBip329());
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
+  if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
+    yield call(migrateStructureforSignersInAppImage);
+    yield call(migrateStructureforVaultInAppImage);
+  }
 
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
@@ -149,11 +155,18 @@ function* migrateAssistedKeys() {
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
     const { signers } = activeVault;
+    const signerMap = {};
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
     for (let signer of signers) {
-      if (signer.type === SignerType.POLICY_SERVER) {
+      const signerType = signerMap[signer.masterFingerprint].type;
+
+      if (signerType === SignerType.POLICY_SERVER) {
         const cosignersMapUpdates: CosignersMapUpdate[] = yield call(
           generateCosignerMapUpdates,
+          signerMap,
           signers,
           signer
         );
@@ -165,9 +178,10 @@ function* migrateAssistedKeys() {
         );
 
         if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(SS)');
-      } else if (signer.type === SignerType.INHERITANCEKEY) {
+      } else if (signerType === SignerType.INHERITANCEKEY) {
         const cosignersMapUpdates: IKSCosignersMapUpdate[] = yield call(
           generateCosignerMapUpdates,
+          signerMap,
           signers,
           signer
         );
@@ -182,5 +196,30 @@ function* migrateAssistedKeys() {
     }
   } catch (error) {
     console.log({ error });
+  }
+}
+
+function* migrateStructureforSignersInAppImage() {
+  try {
+    const response = yield call(updateAppImageWorker, { payload: {} });
+    if (response.updated) {
+      console.log('Updated the Signers in app image');
+    } else {
+      console.log('Failed to update the update the app image with the updated the structure');
+    }
+  } catch (err) {}
+}
+
+function* migrateStructureforVaultInAppImage() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
+
+    console.log('updating vault');
+    const vaultResponse = yield call(updateVaultImageWorker, {
+      payload: { isUpdate: true, vault: activeVault },
+    });
+  } catch (err) {
+    console.log('Something went wrong in updating the vault image', err);
   }
 }

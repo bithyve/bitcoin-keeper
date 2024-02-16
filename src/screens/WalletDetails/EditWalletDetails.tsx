@@ -9,16 +9,22 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
-import { updateWalletDetails } from 'src/store/sagaActions/wallets';
+import { updateVaultDetails, updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
-import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import { resetRealyVaultState, resetRealyWalletState } from 'src/store/reducers/bhr';
 import KeeperTextInput from 'src/components/KeeperTextInput';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
+import { EntityKind } from 'src/core/wallets/enums';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
-function EditWalletSettings({ route }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'EditWalletDetails'>;
+function EditWalletSettings({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
@@ -26,9 +32,11 @@ function EditWalletSettings({ route }) {
   const walletText = translations.wallet;
   const { common } = translations;
 
-  const { wallet } = route.params;
+  const { wallet } = route.params || {};
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage, relayVaultUpdateLoading } =
     useAppSelector((state) => state.bhr);
 
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
@@ -39,7 +47,11 @@ function EditWalletSettings({ route }) {
       name: walletName,
       description: walletDescription,
     };
-    dispatch(updateWalletDetails(wallet, details));
+    if (wallet.entityKind === EntityKind.VAULT) {
+      dispatch(updateVaultDetails(wallet as Vault, details));
+    } else {
+      dispatch(updateWalletDetails(wallet as Wallet, details));
+    }
   };
 
   useEffect(() => {
@@ -54,24 +66,36 @@ function EditWalletSettings({ route }) {
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
+  useEffect(() => {
+    if (relayVaultError) {
+      showToast(realyVaultErrorMessage, <ToastErrorIcon />);
+      dispatch(resetRealyVaultState());
+    }
+    if (relayVaultUpdate) {
+      navigtaion.goBack();
+      showToast('Vault details updated', <TickIcon />);
+      dispatch(resetRealyVaultState());
+    }
+  }, [relayVaultUpdate, relayVaultError, realyVaultErrorMessage]);
+
   return (
     <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <KeeperHeader title={walletText.WalletDetails} subtitle={walletText.EditWalletDeatils} />
       <View style={styles.inputWrapper}>
         <KeeperTextInput
-          value={walletDescription}
-          onChangeText={setWalletDescription}
-          placeholder={''}
-          testID={'walletDescription'}
-          maxLength={40}
-        />
-        <KeeperTextInput
           value={walletName}
           onChangeText={setWalletName}
           placeholder={''}
           testID={'walletName'}
           maxLength={20}
+        />
+        <KeeperTextInput
+          value={walletDescription}
+          onChangeText={setWalletDescription}
+          placeholder={walletText.WalletDescriptionPlaceholder}
+          testID={'walletDescription'}
+          maxLength={40}
         />
         <View style={styles.buttonWrapper}>
           <Buttons
@@ -81,8 +105,13 @@ function EditWalletSettings({ route }) {
             }}
             primaryText="Save"
             primaryCallback={editWallet}
-            primaryLoading={relayWalletUpdateLoading || relayWalletUpdate}
-            primaryDisable={!walletName || !walletDescription}
+            primaryLoading={
+              relayWalletUpdateLoading ||
+              relayWalletUpdate ||
+              relayVaultUpdateLoading ||
+              relayVaultUpdate
+            }
+            primaryDisable={!walletName}
           />
         </View>
       </View>

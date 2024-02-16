@@ -31,7 +31,7 @@ function UploadFile({ fileHandler }) {
     >
       <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
         <Text style={styles.text} color={'light.white'}>
-          Import a BSMS or Output Descriptor File
+          Import a BSMS or Wallet Configuration File
         </Text>
       </Box>
     </TouchableOpacity>

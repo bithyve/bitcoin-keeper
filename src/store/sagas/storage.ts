@@ -23,6 +23,8 @@ import { resetRealyWalletState } from '../reducers/bhr';
 export const defaultTransferPolicyThreshold =
   config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
 
+export const maxTransferPolicyThreshold = 1e11;
+
 export function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
@@ -76,7 +78,7 @@ export function* setupKeeperAppWorker({ payload }) {
         walletType: WalletType.DEFAULT,
         walletDetails: {
           name: 'Wallet 1',
-          description: 'Single-sig bitcoin wallet',
+          description: '',
           transferPolicy: {
             id: uuidv4(),
             threshold: defaultTransferPolicyThreshold,
@@ -138,7 +140,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       walletType: WalletType.DEFAULT,
       walletDetails: {
         name: 'Mobile Wallet',
-        description: 'Single-sig bitcoin wallet',
+        description: '',
         transferPolicy: {
           id: uuidv4(),
           threshold: defaultTransferPolicyThreshold,
