@@ -891,7 +891,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1023,7 +1023,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1287,7 +1287,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1422,7 +1422,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

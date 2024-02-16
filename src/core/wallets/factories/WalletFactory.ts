@@ -224,7 +224,7 @@ export const generateWallet = async ({
   return wallet;
 };
 
-const generateExtendedKeysForCosigner = (
+export const generateExtendedKeysForCosigner = (
   mnemonic: string,
   entityKind: EntityKind = EntityKind.VAULT
 ) => {

@@ -1211,7 +1211,7 @@ export const updateWalletPathAndPuposeDetailWatcher = createWatcher(
   UPDATE_WALLET_PATH_PURPOSE_DETAILS
 );
 
-function* updateSignerDetailsWorker({ payload }) {
+export function* updateSignerDetailsWorker({ payload }) {
   const {
     signer,
     key,
