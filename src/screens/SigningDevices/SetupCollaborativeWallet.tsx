@@ -127,6 +127,15 @@ const SetupCollaborativeWallet = () => {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
         return;
       }
+      // only use one of my app keys
+      if (
+        coSigners.find(
+          (item) => item && signerMap[item.masterFingerprint]?.type === SignerType.MY_KEEPER
+        )
+      ) {
+        showToast('You cannot use more than one of your own App Keys!', <ToastErrorIcon />);
+        return;
+      }
       const { key, signer } = generateSignerFromMetaData({
         xpub,
         derivationPath,

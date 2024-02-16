@@ -190,6 +190,10 @@ const setInitialKeys = (
   }
 };
 
+const getSelectedKeysByType = (vaultKeys, signerMap, type) => {
+  return vaultKeys.filter((key) => signerMap[key.masterFingerprint].type === type);
+};
+
 const Footer = ({
   amfSigners,
   invalidSS,
@@ -271,8 +275,13 @@ const Signers = ({
   signerMap,
 }) => {
   const renderSigners = () => {
+    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     return signers.map((signer) => {
-      const disabled = !isSignerValidForScheme(signer, scheme, allVaults, signerMap);
+      const disabled =
+        !isSignerValidForScheme(signer, scheme, allVaults, signerMap) ||
+        (signer.type === SignerType.MY_KEEPER &&
+          myAppKeys.length >= 1 &&
+          myAppKeys[0].masterFingerprint !== signer.masterFingerprint);
       const isAMF =
         signer.type === SignerType.TAPSIGNER &&
         config.NETWORK_TYPE === NetworkType.TESTNET &&
