@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -14,7 +14,6 @@ import {
   generateSignerFromMetaData,
   getSignerNameFromType,
 } from 'src/hardware';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -30,25 +29,21 @@ import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
 import AddCard from 'src/components/AddCard';
 import SignerCard from '../AddSigner/SignerCard';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { useQuery } from '@realm/react';
-import { RealmSchema } from 'src/storage/realm/enum';
 import useSigners from 'src/hooks/useSigners';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import Delete from 'src/assets/images/delete_signer.svg';
 
 function SignerItem({
   vaultKey,
   index,
   onQRScan,
-  removeSigner,
   signerMap,
 }: {
   vaultKey: VaultSigner | undefined;
   index: number;
   onQRScan: any;
-  removeSigner: any;
   signerMap: { [key: string]: Signer };
 }) {
   const { colorMode } = useColorMode();
@@ -95,7 +90,7 @@ function SignerItem({
       description={`Added ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       isSelected={false}
-      showSelection={false}
+      showSelection={index === 0}
       colorVarient="green"
       isFullText
     />
@@ -117,11 +112,6 @@ const SetupCollaborativeWallet = () => {
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
-
-  const removeSigner = (index: number) => {
-    const newSigners = coSigners.filter((_, i) => i !== index || index === 0);
-    setCoSigners(newSigners);
-  };
 
   const pushSigner = (
     xpub,
@@ -164,50 +154,29 @@ const SetupCollaborativeWallet = () => {
     }
   };
 
-  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const { signers } = useSigners();
   const myAppKeys = signers.filter((signer) => signer.type === SignerType.MY_KEEPER);
   const myAppKeyCount = myAppKeys.length;
-  const collaborativeWalletsCount = collaborativeWallets?.length || 0;
 
   useEffect(() => {
     if (!coSigners[0]) {
       setTimeout(() => {
-        if (myAppKeyCount > collaborativeWalletsCount) {
-          let doneAdding = false;
-          const updatedSigners = coSigners.map((item) => {
-            if (!item && !doneAdding) {
-              doneAdding = true;
-              const signer = myAppKeys[myAppKeyCount - 1];
-              const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
-              const appKey = {
-                ...msXpub,
-                masterFingerprint: signer.masterFingerprint,
-                xfp: WalletUtilities.getFingerprintFromExtendedKey(
-                  msXpub.xpub,
-                  WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-                ),
-              };
-              return appKey;
-            } else {
-              return item;
-            }
-          });
-          if (doneAdding) {
-            setCoSigners(updatedSigners);
+        const updatedSigners = coSigners.map((item, index) => {
+          if (index === 0 && myAppKeyCount > 0) {
+            const signer = myAppKeys[myAppKeyCount - 1];
+            const msXpub: signerXpubs[XpubTypes.P2WSH][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
+            const appKey = {
+              ...msXpub,
+              masterFingerprint: signer.masterFingerprint,
+              xfp: WalletUtilities.getFingerprintFromExtendedKey(
+                msXpub.xpub,
+                WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+              ),
+            };
+            return appKey;
           }
-        } else {
-          getCosignerDetails(primaryMnemonic, myAppKeyCount).then((details) => {
-            pushSigner(
-              details.xpubDetails[XpubTypes.P2WSH].xpub,
-              details.xpubDetails[XpubTypes.P2WSH].derivationPath,
-              details.mfp,
-              details.xpubDetails[XpubTypes.P2WSH].xpriv,
-              false,
-              true
-            );
-          });
-        }
+        });
+        setCoSigners(updatedSigners);
       }, 200);
     }
     return () => {
@@ -254,7 +223,6 @@ const SetupCollaborativeWallet = () => {
         const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
         pushSigner(xpub, derivationPath, masterFingerprint, '');
       }}
-      removeSigner={removeSigner}
       signerMap={signerMap}
     />
   );
@@ -267,7 +235,7 @@ const SetupCollaborativeWallet = () => {
         vaultScheme: COLLABORATIVE_SCHEME,
         vaultSigners: coSigners,
         vaultDetails: {
-          name: `Collaborative Wallet ${collaborativeWalletsCount + 1}`,
+          name: `Collaborative Wallet ${collaborativeWallets.length + 1}`,
           description: '2 of 3 multisig',
         },
       };
