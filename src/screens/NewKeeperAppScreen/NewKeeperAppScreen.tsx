@@ -283,9 +283,11 @@ const styles = StyleSheet.create({
     marginBottom: hp(40),
     width: '100%',
     height: hp(125),
+    paddingTop: 20,
     paddingHorizontal: 30,
     gap: 10,
     justifyContent: 'center',
+    borderRadius: 10,
   },
   title: {
     fontSize: 14,
