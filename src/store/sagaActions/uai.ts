@@ -6,12 +6,12 @@ export const UAI_CHECKS = 'UAI_CHECKS';
 export const UAI_ACTIONED_ENTITY = 'UAI_ACTIONED_ENTITY';
 
 export const addToUaiStack = (payload: {
-  title: string;
-  isDisplay: boolean;
   uaiType: uaiType;
-  prirority: number;
-  displayText?: string;
   entityId?: string;
+  uaiDetails?: {
+    heading?: string;
+    body?: string;
+  };
 }) => {
   return {
     type: ADD_TO_UAI_STACK,

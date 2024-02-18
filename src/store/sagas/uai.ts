@@ -37,18 +37,11 @@ const healthCheckReminderHours = (signer: VaultSigner) => {
 };
 
 function* addToUaiStackWorker({ payload }) {
-  const { title, isDisplay, displayText, prirority, entityId, uaiType } = payload;
+  const { entityId, uaiType } = payload;
   const uai: UAI = {
     id: uuidv4(),
-    title,
-    isActioned: false,
-    isDisplay,
-    displayText,
-    displayCount: 0,
-    uaiType,
-    prirority,
     entityId,
-    timeStamp: new Date(),
+    uaiType,
   };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uai);
@@ -90,11 +83,11 @@ function* uaiChecksWorker({ payload }) {
             if (!uais.length) {
               yield put(
                 addToUaiStack({
-                  title: `Health check for ${signer.signerName} is due`,
-                  isDisplay: false,
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-                  prirority: 100,
                   entityId: signer.signerId,
+                  uaiDetails: {
+                    body: `Health check for ${signer.signerName} is due`,
+                  },
                 })
               );
             } else {
@@ -119,10 +112,7 @@ function* uaiChecksWorker({ payload }) {
       if (!secureVaultUai) {
         yield put(
           addToUaiStack({
-            title: 'Add a signer to activate your Vault',
-            isDisplay: false,
             uaiType: uaiType.SECURE_VAULT,
-            prirority: 100,
           })
         );
       }
@@ -152,11 +142,11 @@ function* uaiChecksWorker({ payload }) {
             } else {
               yield put(
                 addToUaiStack({
-                  title: `Transfer fund to vault from ${wallet.presentationData.name}`,
-                  isDisplay: false,
                   uaiType: uaiType.VAULT_TRANSFER,
-                  prirority: 80,
                   entityId: wallet.id,
+                  uaiDetails: {
+                    body: `Transfer fund to vault from ${wallet.presentationData.name}`,
+                  },
                 })
               );
             }
@@ -164,52 +154,6 @@ function* uaiChecksWorker({ payload }) {
             yield put(uaiActionedEntity(uai.entityId, true));
           }
         }
-      }
-    }
-
-    if (checkForTypes.includes(uaiType.VAULT_MIGRATION)) {
-      if (vault) {
-        const currentScheme = vault.scheme;
-        const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-        const plan = app.subscription.name.toUpperCase();
-        const subscriptionScheme: VaultScheme = SUBSCRIPTION_SCHEME_MAP[plan];
-
-        const migrationUai = dbManager.getObjectByField(
-          RealmSchema.UAI,
-          uaiType.VAULT_MIGRATION,
-          'uaiType'
-        )[0];
-
-        if (currentScheme.m > subscriptionScheme.m || currentScheme.m < subscriptionScheme.m) {
-          if (!migrationUai) {
-            yield put(
-              addToUaiStack({
-                title: 'To use the vault, reconfigure signer',
-                isDisplay: false,
-                uaiType: uaiType.VAULT_MIGRATION,
-                prirority: 100,
-              })
-            );
-          } else {
-            yield put(uaiActioned(migrationUai.id, false));
-          }
-        } else if (migrationUai) {
-          yield put(uaiActioned(migrationUai.id));
-        }
-      }
-    }
-
-    if (checkForTypes.includes(uaiType.DEFAULT)) {
-      const defaultUai = dbManager.getObjectByField(RealmSchema.UAI, uaiType.DEFAULT, 'uaiType')[0];
-      if (!defaultUai) {
-        yield put(
-          addToUaiStack({
-            title: 'Make sure your signers are safe and accessible',
-            isDisplay: false,
-            uaiType: uaiType.DEFAULT,
-            prirority: 10,
-          })
-        );
       }
     }
   } catch (err) {
