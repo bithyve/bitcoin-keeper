@@ -76,7 +76,7 @@ export const runRealmMigrations = ({
     const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
     const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
     for (const objectIndex in newUAIs) {
-      newUAIs[objectIndex].uaiDetails.heading = oldUAIs[objectIndex].title;
+      newUAIs[objectIndex].uaiDetails = { heading: oldUAIs[objectIndex].title };
     }
   }
 };

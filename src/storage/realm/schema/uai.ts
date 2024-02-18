@@ -13,7 +13,7 @@ export const UAISchema: ObjectSchema = {
   primaryKey: 'id',
 };
 
-export const UAIDetails: ObjectSchema = {
+export const UAIDetailsSchema: ObjectSchema = {
   name: RealmSchema.UAIDetails,
   embedded: true,
   properties: {
