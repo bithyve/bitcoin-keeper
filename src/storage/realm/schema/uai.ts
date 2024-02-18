@@ -5,15 +5,19 @@ export const UAISchema: ObjectSchema = {
   name: RealmSchema.UAI,
   properties: {
     id: 'string',
-    title: 'string',
-    isActioned: 'bool',
-    isDisplay: 'bool',
-    displayText: 'string?',
-    displayCount: 'int',
-    timeStamp: 'date',
     uaiType: 'string',
-    prirority: 'int',
     entityId: 'string?',
+    lastActioned: 'date?',
+    uaiDetails: `${RealmSchema.UAIDetails}?`,
   },
   primaryKey: 'id',
+};
+
+export const UAIDetails: ObjectSchema = {
+  name: RealmSchema.UAIDetails,
+  embedded: true,
+  properties: {
+    heading: 'string?',
+    body: 'string?',
+  },
 };
