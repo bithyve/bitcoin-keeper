@@ -218,9 +218,10 @@ function* changeAuthCredWorker({ payload }) {
     if (!(yield call(SecureStore.store, newHash, newEncryptedKey))) {
       return;
     }
+    console.log('Successfully changed');
     // todo
   } catch (err) {
-    console.log({
+    console.log('ERROR---->', {
       err,
     });
     yield put(pinChangedFailed(true));
