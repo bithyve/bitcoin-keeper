@@ -3,8 +3,8 @@ import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { windowWidth, hp } from 'src/constants/responsive';
-import Text from './KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Text from './KeeperText';
 
 HexaToastMessages.defaultProps = {
   Image: null,

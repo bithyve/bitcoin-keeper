@@ -276,7 +276,7 @@ export const signCosignerPSBT = (
   const { extendedKeys } = generateExtendedKeysForCosigner(wallet, entityKind);
 
   let vin = 0;
-  // eslint-disable-next-line consistent-return
+
   PSBT.data.inputs.forEach((input) => {
     if (!input.bip32Derivation) return 'signing failed: bip32Derivation missing';
 

@@ -44,7 +44,7 @@ function NumberInput({ value, onDecrease, onIncrease }) {
 }
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultSetup'>;
-const VaultSetup = ({ route }: ScreenProps) => {
+function VaultSetup({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -54,10 +54,10 @@ const VaultSetup = ({ route }: ScreenProps) => {
   const [vaultName, setVaultName] = useState(
     activeVault?.presentationData?.name || config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
       ? 'Vault'
-      : ''
+      : '',
   );
   const [vaultDescription, setVaultDescription] = useState(
-    activeVault?.presentationData?.description || ''
+    activeVault?.presentationData?.description || '',
   );
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
   const { translations } = useContext(LocalizationContext);
@@ -91,7 +91,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
             scheme,
             name: vaultName,
             description: vaultDescription,
-          })
+          }),
         );
         navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       } else {
@@ -104,7 +104,7 @@ const VaultSetup = ({ route }: ScreenProps) => {
               description: vaultDescription,
               vaultId,
             },
-          })
+          }),
         );
       }
     } else {
@@ -112,13 +112,13 @@ const VaultSetup = ({ route }: ScreenProps) => {
     }
   };
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={preDefinedScheme ? vault.SetupyourVault : vault.AddCustomMultiSig}
         subtitle={vault.configureScheme}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <VStack style={{ margin: 20, flex: 1 }}>
@@ -172,17 +172,15 @@ const VaultSetup = ({ route }: ScreenProps) => {
       {!preDefinedScheme && (
         <Box style={styles.mt20}>
           <Note
-            title={'Note'}
-            subtitle={
-              'Please ensure you have a specific reason to create a non-standard multisig setup'
-            }
+            title="Note"
+            subtitle="Please ensure you have a specific reason to create a non-standard multisig setup"
           />
         </Box>
       )}
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
-};
+}
 
 export default VaultSetup;
 

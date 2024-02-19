@@ -19,8 +19,8 @@ import config, { APP_STAGE } from 'src/core/config';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import idx from 'idx';
-import HWError from './HWErrorState';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,

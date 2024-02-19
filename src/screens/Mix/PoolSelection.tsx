@@ -20,9 +20,9 @@ import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import Note from 'src/components/Note/Note';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LearnMoreModal from './components/LearnMoreModal';
 import UtxoSummary from './UtxoSummary';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
@@ -134,7 +134,7 @@ export default function PoolSelection({ route, navigation }) {
       await WhirlpoolClient.estimateTx0Size(
         inputStructure,
         Math.floor(inputsValue / pool.mustMixBalanceMin) + 2
-      )
+      ),
     );
     const tx0Fee = premixFee.fee * approximateTx0Size;
     const coordinatorFee = pool.feeValue;
@@ -300,7 +300,7 @@ export default function PoolSelection({ route, navigation }) {
         title="Select Pool"
         subTitle="Determins the pool you want to mix your sats in. Bigger the pool, lesser the Doxxic"
         subTitleColor="#5F6965"
-        modalBackground={'#F7F2EC'}
+        modalBackground="#F7F2EC"
         buttonBackground={`${colorMode}.gradientStart`}
         buttonText=""
         buttonTextColor="#FAFAFA"

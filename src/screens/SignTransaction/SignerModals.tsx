@@ -113,7 +113,9 @@ function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
           isMultisig ? 'the multisig wallet is registered with the Specter and ' : ''
         }the right bitcoin network is set before signing the transaction`}
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned.`}
+          {
+            "\u2022 On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned."
+          }
         </Text>
       </Box>
     </Box>

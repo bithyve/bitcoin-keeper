@@ -23,7 +23,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOSelection'>;
-const UTXOSelection = ({ route }: ScreenProps) => {
+function UTXOSelection({ route }: ScreenProps) {
   const navigation = useNavigation();
   const { sender, amount, address } = route.params || {};
   const utxos = _.clone(sender.specs.confirmedUTXOs);
@@ -39,7 +39,7 @@ const UTXOSelection = ({ route }: ScreenProps) => {
   const [showFeeErrorMessage, setShowFeeErrorMessage] = useState(false);
 
   useEffect(() => {
-    let minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+    const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
 
     let outgoingAmount = Number(amount);
     // all comparisons are done in sats
@@ -70,7 +70,7 @@ const UTXOSelection = ({ route }: ScreenProps) => {
         wallet: sender,
         recipients,
         selectedUTXOs: utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]),
-      })
+      }),
     );
   };
   return (
@@ -119,7 +119,7 @@ const UTXOSelection = ({ route }: ScreenProps) => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#FDF7F0',

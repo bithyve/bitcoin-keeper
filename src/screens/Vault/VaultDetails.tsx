@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -35,11 +34,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 function Footer({
   vault,
@@ -80,7 +79,7 @@ function Footer({
           CommonActions.navigate(
             isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
             { vaultId: vault.id }
-          )
+          ),
         );
       },
     },
@@ -170,7 +169,7 @@ function TransactionList({
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultDetails'>;
 
-const VaultDetails = ({ navigation, route }: ScreenProps) => {
+function VaultDetails({ navigation, route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
@@ -216,7 +215,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         ) : null}
       </View>
     ),
-    [isCollaborativeWallet]
+    [isCollaborativeWallet],
   );
 
   const NewVaultContent = useCallback(
@@ -262,7 +261,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         )}
       </Box>
     ),
-    []
+    [],
   );
 
   const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
@@ -283,13 +282,13 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
             title={vault.presentationData?.name}
             titleColor={`${colorMode}.seashellWhite`}
             subTitleColor={`${colorMode}.seashellWhite`}
-            //TODO: Add collaborativeWalletIcon
+            // TODO: Add collaborativeWalletIcon
             icon={
               <HexagonIcon
                 width={58}
                 height={50}
                 backgroundColor={Colors.deepTeal}
-                icon={!!isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
+                icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
               />
             }
             subtitle={vault.presentationData?.description}
@@ -323,7 +322,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
               CommonActions.navigate({
                 name: 'ManageSigners',
                 params: { vaultId, vaultKeys: vault.signers },
-              })
+              }),
             )
           }
           icon={<SignerIcon />}
@@ -348,7 +347,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         visible={vaultCreated}
         title={vaultTranslation.newVaultCreated}
         subTitle={subtitle}
-        buttonText={'Confirm'}
+        buttonText="Confirm"
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
@@ -356,7 +355,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         buttonCallback={() => {
           setVaultCreated(false);
         }}
-        secondaryButtonText={'Cancel'}
+        secondaryButtonText="Cancel"
         secondaryCallback={() => setVaultCreated(false)}
         close={() => setVaultCreated(false)}
         Content={NewVaultContent}
@@ -391,13 +390,13 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
           openLink(
             isCollaborativeWallet
               ? `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-wallet/`
-              : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`
+              : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`,
           )
         }
       />
     </Box>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

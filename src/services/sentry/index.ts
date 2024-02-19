@@ -27,7 +27,6 @@ export const identifyUser = (id: string) => {
 export const captureError = (error: Error, context?: CaptureContext) => {
   try {
     if (__DEV__) {
-      // eslint-disable-next-line no-console
       console.log('@captureError: ', error);
     }
     return Sentry.captureException(error, context);

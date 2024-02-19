@@ -18,10 +18,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
-import { SDIcons } from './SigningDeviceIcons';
-import VaultMigrationController from './VaultMigrationController';
 import useSigners from 'src/hooks/useSigners';
-import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -34,6 +31,9 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
+import SignerCard from '../AddSigner/SignerCard';
+import VaultMigrationController from './VaultMigrationController';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -83,7 +83,7 @@ const onSignerSelect = (
   const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
   const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
 
-  const isMock = signer.isMock;
+  const { isMock } = signer;
   const isAmf = !!amfXpub;
   const isMultisig = msXpub && scheme.n > 1;
 
@@ -189,7 +189,7 @@ const setInitialKeys = (
   }
 };
 
-const Footer = ({
+function Footer({
   amfSigners,
   invalidSS,
   invalidIKS,
@@ -201,17 +201,17 @@ const Footer = ({
   colorMode,
   setCreating,
   navigation,
-}) => {
+}) {
   const renderNotes = () => {
-    let notes = [];
-    if (!!amfSigners.length) {
+    const notes = [];
+    if (amfSigners.length) {
       const message = `* ${amfSigners.join(
-        ' and '
+        ' and ',
       )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`;
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title={common.note} subtitle={message} />
-        </Box>
+        </Box>,
       );
     }
     if (invalidSS || invalidIKS) {
@@ -219,7 +219,7 @@ const Footer = ({
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>
+        </Box>,
       );
     }
     if (trezorIncompatible) {
@@ -228,7 +228,7 @@ const Footer = ({
       notes.push(
         <Box style={styles.noteContainer} testID="view_warning02" key={message}>
           <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>
+        </Box>,
       );
     }
     if (!notes.length) {
@@ -236,7 +236,7 @@ const Footer = ({
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title="Note" subtitle={message} />
-        </Box>
+        </Box>,
       );
     }
     return notes;
@@ -253,9 +253,9 @@ const Footer = ({
       />
     </Box>
   );
-};
+}
 
-const Signers = ({
+function Signers({
   signers,
   selectedSigners,
   setSelectedSigners,
@@ -268,7 +268,7 @@ const Signers = ({
   vaultId,
   allVaults,
   signerMap,
-}) => {
+}) {
   const renderSigners = () => {
     return signers.map((signer) => {
       const disabled = !isSignerValidForScheme(signer, scheme, allVaults, signerMap);
@@ -289,7 +289,7 @@ const Signers = ({
               setVaultKeys,
               selectedSigners,
               setSelectedSigners,
-              showToast
+              showToast,
             )
           }
         />
@@ -310,7 +310,7 @@ const Signers = ({
             or add a new key
           </Text>
           <AddCard
-            name={'Add Signer'}
+            name="Add Signer"
             cardStyles={styles.addCard}
             callback={() =>
               navigation.dispatch(
@@ -318,7 +318,7 @@ const Signers = ({
                   scheme,
                   vaultId,
                   vaultSigners: vaultKeys,
-                })
+                }),
               )
             }
           />
@@ -326,7 +326,7 @@ const Signers = ({
       </Box>
     </ScrollView>
   );
-};
+}
 
 function AddSigningDevice() {
   const { colorMode } = useColorMode();
@@ -411,7 +411,7 @@ function AddSigningDevice() {
             icon={<VaultIcon />}
           />
         }
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}

@@ -21,7 +21,7 @@ const addNewDefaultWallet = (walletsCount, dispatch) => {
     walletType: WalletType.DEFAULT,
     walletDetails: {
       name: `Wallet ${walletsCount + 1} `,
-      description: ``,
+      description: '',
       transferPolicy: {
         id: uuidv4(),
         threshold: defaultTransferPolicyThreshold,
@@ -101,14 +101,14 @@ function AddImportWallet({
   );
 }
 
-const AddWalletModal = ({
+function AddWalletModal({
   navigation,
   visible,
   setAddImportVisible,
   wallets,
   collaborativeWallets,
   setDefaultWalletCreation,
-}) => {
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { importWallet } = translations;
@@ -134,7 +134,7 @@ const AddWalletModal = ({
       )}
     />
   );
-};
+}
 
 export default AddWalletModal;
 

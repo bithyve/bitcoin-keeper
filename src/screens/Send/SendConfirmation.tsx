@@ -47,8 +47,8 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import AddIcon from 'src/assets/images/add.svg';
 import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
-import CustomPriorityModal from './CustomPriorityModal';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -733,7 +733,7 @@ function SendConfirmation({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={'Send Confirmation'}
+        title="Send Confirmation"
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
       />

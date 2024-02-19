@@ -10,8 +10,8 @@ import { captureError } from 'src/services/sentry';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
-import useToastMessage from './useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import useToastMessage from './useToastMessage';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate, realyVaultErrorMessage } = useAppSelector(
@@ -26,7 +26,7 @@ const useConfigRecovery = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  let recoveryError = {
+  const recoveryError = {
     failed: false,
     message: '',
   };

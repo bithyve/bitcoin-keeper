@@ -70,7 +70,7 @@ function CollabrativeWalletSettings() {
               CommonActions.navigate({
                 name: 'ScanQR',
                 params: {
-                  title: `Scan PSBT to Sign`,
+                  title: 'Scan PSBT to Sign',
                   subtitle: 'Please scan until all the QR data has been retrieved',
                   onQrScan: signPSBT,
                   type: SignerType.KEEPER,

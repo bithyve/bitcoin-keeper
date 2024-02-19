@@ -14,10 +14,10 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Note from 'src/components/Note/Note';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { useQuery } from '@realm/react';
 import { getKeyExpression } from 'src/core/utils';
 import { XpubTypes } from 'src/core/wallets/enums';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 function CosignerDetails() {
   const { colorMode } = useColorMode();

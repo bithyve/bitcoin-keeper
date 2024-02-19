@@ -12,19 +12,19 @@ import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
 import { LabelRefType, SignerType } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { setAppVersion, setPinHash } from '../reducers/storage';
-import { createWatcher } from '../utilities';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import SigningServer from 'src/services/operations/SigningServer';
+import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
   migrateLabelsToBip329,
   MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import SigningServer from 'src/services/operations/SigningServer';
-import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
+import { createWatcher } from '../utilities';
+import { setAppVersion, setPinHash } from '../reducers/storage';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
@@ -44,8 +44,9 @@ export function* applyUpgradeSequence({
   if (
     semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION) &&
     semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION)
-  )
+  ) {
     yield put(migrateLabelsToBip329());
+  }
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
@@ -160,7 +161,7 @@ function* migrateAssistedKeys() {
       .getCollection(RealmSchema.Signer)
       .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
-    for (let signer of signers) {
+    for (const signer of signers) {
       const signerType = signerMap[signer.masterFingerprint].type;
 
       if (signerType === SignerType.POLICY_SERVER) {

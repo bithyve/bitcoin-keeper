@@ -45,7 +45,7 @@ export class CryptoECKey extends RegistryItem implements ICryptoKey {
     return new DataItem(map);
   };
 
-  getOutputDescriptorContent = () => this.data.toString('hex')
+  getOutputDescriptorContent = () => this.data.toString('hex');
 
   static fromDataItem = (dataItem: DataItem) => {
     const map = dataItem.getData();

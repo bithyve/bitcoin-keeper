@@ -24,12 +24,7 @@ export abstract class RegistryItem {
     minFragmentLength?: number,
   ) => {
     const ur = this.toUR();
-    const urEncoder = new UREncoder(
-      ur,
-      maxFragmentLength,
-      firstSeqNum,
-      minFragmentLength,
-    );
+    const urEncoder = new UREncoder(ur, maxFragmentLength, firstSeqNum, minFragmentLength);
     return urEncoder;
   };
 }

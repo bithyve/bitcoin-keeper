@@ -31,9 +31,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan() {
   const route = useRoute();
@@ -366,8 +366,8 @@ function ChoosePlan() {
       <KeeperHeader
         title={choosePlan.choosePlantitle}
         boldTitle
-        subtitle={'Upgrade or downgrade'}
-        //To-Do-Learn-More
+        subtitle="Upgrade or downgrade"
+        // To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}

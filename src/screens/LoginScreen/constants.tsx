@@ -12,6 +12,6 @@ export const authStatus = {
 };
 
 export enum QR_TYPES {
-   SECURE_WITH_HEXA = 'SECURE_WITH_HEXA',
-   LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA'
+  SECURE_WITH_HEXA = 'SECURE_WITH_HEXA',
+  LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA',
 }

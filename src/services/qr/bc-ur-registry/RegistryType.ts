@@ -19,5 +19,5 @@ export const RegistryTypes = {
   CRYPTO_OUTPUT: new RegistryType('crypto-output', 308),
   CRYPTO_PSBT: new RegistryType('crypto-psbt', 310),
   CRYPTO_ACCOUNT: new RegistryType('crypto-account', 311),
-  CRYPTO_MULTI_ACCOUNTS: new RegistryType("crypto-multi-accounts", 1103),
+  CRYPTO_MULTI_ACCOUNTS: new RegistryType('crypto-multi-accounts', 1103),
 };

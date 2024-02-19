@@ -19,7 +19,15 @@ export interface Props {
   height?: any;
   width?: any;
 }
-function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, length = 6, height = wp('8%'), width = wp('8%') }: Props) {
+function CVVInputsView({
+  passCode,
+  passcodeFlag,
+  backgroundColor,
+  textColor,
+  length = 6,
+  height = wp('8%'),
+  width = wp('8%'),
+}: Props) {
   const [hide, setHide] = useState(false);
   const { colorMode } = useColorMode();
 
@@ -33,8 +41,7 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
     }
   }, [passCode]);
 
-  const getBackgroundColor = () =>
-    backgroundColor ? Colors.White : 'rgba(253,247,240, 0.2)';
+  const getBackgroundColor = () => (backgroundColor ? Colors.White : 'rgba(253,247,240, 0.2)');
 
   const getTextColor = () => (textColor ? `${colorMode}.textBlack` : `${colorMode}.white`);
 
@@ -58,10 +65,12 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
   };
 
   return (
-    <Box alignSelf="baseline"
+    <Box
+      alignSelf="baseline"
       style={{
-        marginLeft: -25
-      }}>
+        marginLeft: -25,
+      }}
+    >
       <Box flexDirection="row" mt={hp('2%')} marginBottom={hp('2.5%')} width="auto">
         <Box
           height={height}

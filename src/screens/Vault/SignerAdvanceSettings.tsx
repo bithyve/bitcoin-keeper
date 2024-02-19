@@ -17,8 +17,6 @@ import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wal
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
-import { SDIcons } from './SigningDeviceIcons';
-import DescriptionModal from './components/EditDescriptionModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
@@ -36,6 +34,8 @@ import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
+import DescriptionModal from './components/EditDescriptionModal';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -47,7 +47,7 @@ function SignerAdvanceSettings({ route }: any) {
     signer: signerFromParam,
   }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerFromParam ? signerFromParam : signerMap[vaultKey.masterFingerprint];
+  const signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
@@ -90,8 +90,9 @@ function SignerAdvanceSettings({ route }: any) {
 
       const thresholdDescriptors = activeVault.signers.map((signer) => signer.xfp).slice(0, 2);
 
-      if (signer.inheritanceKeyInfo === undefined)
+      if (signer.inheritanceKeyInfo === undefined) {
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+      }
 
       const existingPolicy: InheritancePolicy = signer.inheritanceKeyInfo.policy;
       const existingAlert: InheritanceAlert | any =
@@ -197,7 +198,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  const EditModalContent = () => {
+  function EditModalContent() {
     const [email, setEmail] = useState(currentEmail);
     const [emailStatusFail, setEmailStatusFail] = useState(false);
     return (
@@ -257,7 +258,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           >
             <Box backgroundColor={`${colorMode}.greenButtonBackground`} style={styles.cta}>
-              <Text style={styles.ctaText} color={'light.white'} bold>
+              <Text style={styles.ctaText} color="light.white" bold>
                 Update
               </Text>
             </Box>
@@ -265,11 +266,11 @@ function SignerAdvanceSettings({ route }: any) {
         )}
       </Box>
     );
-  };
+  }
 
   function DeleteEmailModalContent() {
     return (
-      <Box height={200} justifyContent={'flex-end'}>
+      <Box height={200} justifyContent="flex-end">
         <Box>
           <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
             You would not receive daily reminders about your Inheritance Key if it is used
@@ -323,14 +324,14 @@ function SignerAdvanceSettings({ route }: any) {
       />
       <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
         <OptionCard
-          title={'Edit Description'}
-          description={`Short description to help you remember`}
+          title="Edit Description"
+          description="Short description to help you remember"
           callback={openDescriptionModal}
         />
         {isInheritanceKey && vaultId && (
           <OptionCard
-            title={'Registered Email'}
-            description={`Delete or Edit registered email`}
+            title="Registered Email"
+            description="Delete or Edit registered email"
             callback={() => {
               setEditEmailModal(true);
             }}
@@ -338,8 +339,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isAssistedKey || !vaultId ? null : (
           <OptionCard
-            title={'Manual Registration'}
-            description={`Register your active vault`}
+            title="Manual Registration"
+            description="Register your active vault"
             callback={registerSigner}
           />
         )}

@@ -84,7 +84,7 @@ function SendScreen({ route }) {
   useEffect(() => {
     if (sender.entityKind === EntityKind.WALLET) {
       // disabling send flow for watch-only wallets
-      const isWatchOnly = idx(sender as Wallet, (_) => _.specs.xpriv) ? false : true;
+      const isWatchOnly = !idx(sender as Wallet, (_) => _.specs.xpriv);
       if (isWatchOnly) {
         showToast('Cannot send via Watch-only wallet', <ToastErrorIcon />);
         navigation.goBack();

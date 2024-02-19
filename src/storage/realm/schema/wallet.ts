@@ -142,7 +142,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     nextFreeChangeAddressIndex: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
-    addressPubs: `{}?`,
+    addressPubs: '{}?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
@@ -174,7 +174,7 @@ export const CollaborativeWalletDetailsSchema: ObjectSchema = {
   name: RealmSchema.CollaborativeWalletDetails,
   embedded: true,
   properties: {
-    descriptor: `string`,
+    descriptor: 'string',
   },
 };
 
@@ -191,7 +191,7 @@ export const WalletSchema: ObjectSchema = {
     specs: RealmSchema.WalletSpecs,
     scriptType: 'string',
     transferPolicy: `${RealmSchema.TransferPolicy}?`,
-    depositWalletId: `string?`,
+    depositWalletId: 'string?',
     whirlpoolConfig: `${RealmSchema.WhirlpoolConfig}?`,
     collaborativeWalletDetails: `${RealmSchema.CollaborativeWalletDetails}?`,
   },

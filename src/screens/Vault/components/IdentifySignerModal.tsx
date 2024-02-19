@@ -6,7 +6,7 @@ import WarningIllustration from 'src/assets/images/warning.svg';
 import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
 
-const IdentifySignerModal = ({ visible, close, signer, secondaryCallback, vaultId }) => {
+function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultId }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
@@ -34,7 +34,7 @@ const IdentifySignerModal = ({ visible, close, signer, secondaryCallback, vaultI
         params: {
           vault: activeVault,
         },
-      })
+      }),
     );
   };
   const cleanedSecondaryCallback = () => {
@@ -58,6 +58,6 @@ const IdentifySignerModal = ({ visible, close, signer, secondaryCallback, vaultI
       buttonCallback={callback}
     />
   );
-};
+}
 
 export default IdentifySignerModal;

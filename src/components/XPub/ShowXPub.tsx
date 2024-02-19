@@ -11,9 +11,9 @@ import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import Note from '../Note/Note';
 import { getKeyExpression } from 'src/core/utils';
 import { XpubTypes } from 'src/core/wallets/enums';
+import Note from '../Note/Note';
 
 function ShowXPub({
   wallet,
@@ -47,7 +47,7 @@ function ShowXPub({
             details.xpubDetails[XpubTypes.P2WPKH].derivationPath,
             details.xpubDetails[XpubTypes.P2WPKH].xpub,
             false
-          )
+          ),
         );
       }, 200);
     } else {

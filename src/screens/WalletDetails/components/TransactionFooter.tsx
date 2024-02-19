@@ -5,12 +5,12 @@ import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
 import SettingIcon from 'src/assets/images/settings_footer.svg';
 
 import KeeperFooter from 'src/components/KeeperFooter';
-import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 import idx from 'idx';
+import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 
 function TransactionFooter({ currentWallet }) {
   const navigation = useNavigation();
-  const isWatchOnly = idx(currentWallet, (_) => _.specs.xpriv) ? false : true;
+  const isWatchOnly = !idx(currentWallet, (_) => _.specs.xpriv);
 
   const footerItems = [
     {

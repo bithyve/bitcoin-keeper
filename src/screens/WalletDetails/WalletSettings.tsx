@@ -225,13 +225,13 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
-              if (walletMnemonic)
+              if (walletMnemonic) {
                 navigation.navigate('ExportSeed', {
                   seed: walletMnemonic,
                   next: false,
                   wallet,
                 });
-              else showToast("Mnemonic doesn't exists");
+              } else showToast("Mnemonic doesn't exists");
             }}
           />
         )}

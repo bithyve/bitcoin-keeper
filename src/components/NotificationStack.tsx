@@ -23,12 +23,12 @@ import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import Text from './KeeperText';
-import KeeperModal from './KeeperModal';
-import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
 import { windowHeight } from 'src/constants/responsive';
 import { TransferType } from 'src/models/enums/TransferType';
+import Text from './KeeperText';
+import KeeperModal from './KeeperModal';
+import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 
 const { width } = Dimensions.get('window');
 
@@ -210,7 +210,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
           <UAIView
             title={uaiConfig.heading}
             subTitle={info?.title}
-            primaryCallbackText={'Continue'}
+            primaryCallbackText="Continue"
             secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
             secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
             primaryCallback={pressHandler}

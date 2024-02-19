@@ -25,7 +25,7 @@ function Socket() {
   this.setKeepAlive = () => {};
 
   // proxying call to real socket object:
-  this.setNoDelay = noDelay => {
+  this.setNoDelay = (noDelay) => {
     if (this._socket) this._socket.setNoDelay(noDelay);
     this._noDelay = noDelay;
   };
@@ -40,20 +40,20 @@ function Socket() {
       callback,
     );
 
-    this._socket.on('data', data => {
+    this._socket.on('data', (data) => {
       this._passOnEvent('data', data);
     });
-    this._socket.on('error', data => {
+    this._socket.on('error', (data) => {
       this._passOnEvent('error', data);
     });
-    this._socket.on('close', data => {
+    this._socket.on('close', (data) => {
       this._passOnEvent('close', data);
     });
-    this._socket.on('connect', data => {
+    this._socket.on('connect', (data) => {
       this._passOnEvent('connect', data);
       this._socket.setNoDelay(this._noDelay);
     });
-    this._socket.on('connection', data => {
+    this._socket.on('connection', (data) => {
       this._passOnEvent('connection', data);
     });
   };
@@ -102,7 +102,7 @@ function Socket() {
     this._socket.destroy();
   };
 
-  this.write = data => {
+  this.write = (data) => {
     this._socket.write(data);
   };
 }

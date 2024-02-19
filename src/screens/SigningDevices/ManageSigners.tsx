@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 import { Box, ScrollView, StatusBar, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
-import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
@@ -22,15 +21,16 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import SignerCard from '../AddSigner/SignerCard';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
-const ManageSigners = ({ route }: ScreenProps) => {
+function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { vaultId = '' } = route.params || {};
   const { activeVault } = useVault({ vaultId });
-  const { signers: vaultKeys } = activeVault ? activeVault : { signers: [] };
+  const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
   const { signers } = useSigners();
   const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
@@ -54,7 +54,7 @@ const ManageSigners = ({ route }: ScreenProps) => {
         vaultId,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
-      })
+      }),
     );
   };
 
@@ -71,8 +71,8 @@ const ManageSigners = ({ route }: ScreenProps) => {
         />
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.topSection}>
           <KeeperHeader
-            title={'Manage Signers'}
-            subtitle={'View and change key details'}
+            title="Manage Signers"
+            subtitle="View and change key details"
             titleColor={`${colorMode}.seashellWhite`}
             subTitleColor={`${colorMode}.PearlGrey`}
             icon={
@@ -98,9 +98,9 @@ const ManageSigners = ({ route }: ScreenProps) => {
       </SafeAreaView>
     </Box>
   );
-};
+}
 
-const SignersList = ({
+function SignersList({
   colorMode,
   vaultKeys,
   signers,
@@ -116,41 +116,46 @@ const SignersList = ({
   handleCardSelect: any;
   handleAddSigner: any;
   vault: Vault;
-}) => (
-  <VStack style={styles.signerContainer}>
-    <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-      <Box style={styles.addedSignersContainer}>
-        {(vaultKeys.length ? vaultKeys : signers).map((item, i) => {
-          const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
-          const isRegistered = vaultKeys.length
-            ? item.registeredVaults.find((info) => info.vaultId === vault.id)
-            : false;
+}) {
+  return (
+    <VStack style={styles.signerContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Box style={styles.addedSignersContainer}>
+          {(vaultKeys.length ? vaultKeys : signers).map((item, i) => {
+            const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            const isRegistered = vaultKeys.length
+              ? item.registeredVaults.find((info) => info.vaultId === vault.id)
+              : false;
 
-          const showDot =
-            vaultKeys.length &&
-            !UNVERIFYING_SIGNERS.includes(signer.type) &&
-            !isRegistered &&
-            !signer.isMock &&
-            vault.isMultiSig;
+            const showDot =
+              vaultKeys.length &&
+              !UNVERIFYING_SIGNERS.includes(signer.type) &&
+              !isRegistered &&
+              !signer.isMock &&
+              vault.isMultiSig;
 
-          return (
-            <SignerCard
-              key={signer.masterFingerprint}
-              onCardSelect={() => handleCardSelect(signer, item)}
-              name={signer.signerName}
-              description={signer.signerDescription || signer.type}
-              icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-              isSelected={false}
-              showSelection={false}
-              showDot={showDot}
-            />
-          );
-        })}
-        <AddCard name={'Add Signer'} cardStyles={styles.addCard} callback={handleAddSigner} />
-      </Box>
-    </ScrollView>
-  </VStack>
-);
+            return (
+              <SignerCard
+                key={signer.masterFingerprint}
+                onCardSelect={() => handleCardSelect(signer, item)}
+                name={signer.signerName}
+                description={signer.signerDescription || signer.type}
+                icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                isSelected={false}
+                showSelection={false}
+                showDot={showDot}
+              />
+            );
+          })}
+          <AddCard name="Add Signer" cardStyles={styles.addCard} callback={handleAddSigner} />
+        </Box>
+      </ScrollView>
+    </VStack>
+  );
+}
 
 const styles = StyleSheet.create({
   wrapper: {

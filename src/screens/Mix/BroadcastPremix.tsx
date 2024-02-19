@@ -34,9 +34,9 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import { CommonActions } from '@react-navigation/native';
 import SwiperModal from './components/SwiperModal';
 import UtxoSummary from './UtxoSummary';
-import { CommonActions } from '@react-navigation/native';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -362,7 +362,7 @@ export default function BroadcastPremix({ route, navigation }) {
         title="Broadcasting Tx0"
         subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
         subTitleColor="#5F6965"
-        modalBackground={'#F7F2EC'}
+        modalBackground="#F7F2EC"
         buttonBackground={`${colorMode}.gradientStart`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}

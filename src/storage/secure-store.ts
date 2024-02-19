@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as Keychain from 'react-native-keychain';
 import NodeRSA from 'node-rsa';
 import config from '../core/config';
@@ -29,7 +27,8 @@ export const fetch = async (hash_current: string) => {
       const password = JSON.parse(credentials.password);
       if (hash_current === '') {
         return password.enc_key;
-      } if (hash_current !== password.hash) {
+      }
+      if (hash_current !== password.hash) {
         throw new Error('Incorrect Passcode');
       } else {
         return password.enc_key;
@@ -105,11 +104,10 @@ export const verifyBiometricAuth = async (signature: string, payload: string) =>
         encryptedKey: credentials.enc_key,
         hash: credentials.hash,
       };
-    } 
-      return {
-        success: false,
-      };
-    
+    }
+    return {
+      success: false,
+    };
   } catch (error) {
     console.log(error);
     return {

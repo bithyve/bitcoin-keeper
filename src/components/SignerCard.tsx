@@ -1,6 +1,6 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import Text from './KeeperText';
 import { StyleSheet } from 'react-native';
+import Text from './KeeperText';
 
 type SignerCardProps = {
   walletName: string;

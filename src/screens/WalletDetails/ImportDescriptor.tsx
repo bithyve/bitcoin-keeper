@@ -17,16 +17,16 @@ import useWallets from 'src/hooks/useWallets';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import NFCOption from '../NFCChannel/NFCOption';
 import { useAppSelector } from 'src/store/hooks';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { captureError } from 'src/services/sentry';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import NFCOption from '../NFCChannel/NFCOption';
 
 function ImportDescriptorScreen({ navigation }) {
   const { colorMode } = useColorMode();
-  const [inputText, setInputText] = useState(``);
+  const [inputText, setInputText] = useState('');
   const [walletCreationLoading, setWalletCreationLoading] = useState(false);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();

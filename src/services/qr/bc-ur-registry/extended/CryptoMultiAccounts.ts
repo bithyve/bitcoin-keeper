@@ -1,8 +1,8 @@
-import {RegistryTypes} from "../RegistryType";
-import {CryptoHDKey} from "../CryptoHDKey";
-import {RegistryItem} from "../RegistryItem";
-import {decodeToDataItem,DataItem} from '../lib';
-import {DataItemMap} from '../types';
+import { RegistryTypes } from '../RegistryType';
+import { CryptoHDKey } from '../CryptoHDKey';
+import { RegistryItem } from '../RegistryItem';
+import { decodeToDataItem, DataItem } from '../lib';
+import { DataItemMap } from '../types';
 
 enum Keys {
   masterFingerprint = 1,

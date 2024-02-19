@@ -26,11 +26,11 @@ import { useAppSelector } from 'src/store/hooks';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
-import DescriptionModal from '../Vault/components/EditDescriptionModal';
 import { globalStyles } from 'src/constants/globalStyles';
 import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
+import DescriptionModal from '../Vault/components/EditDescriptionModal';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -61,7 +61,7 @@ function SignerItem({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Add a co-signer`,
+          title: 'Add a co-signer',
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: onQRScan,
           setup: true,
@@ -224,7 +224,7 @@ function ListFooter(wallet: Wallet, signPSBT: any) {
             CommonActions.navigate({
               name: 'ScanQR',
               params: {
-                title: `Scan PSBT to Sign`,
+                title: 'Scan PSBT to Sign',
                 subtitle: 'Please scan until all the QR data has been retrieved',
                 onQrScan: signPSBT,
                 type: SignerType.KEEPER,
@@ -414,7 +414,7 @@ function SetupCollaborativeWallet() {
         ListFooterComponent={ListFooterComponent}
       />
       <FloatingCTA
-        primaryText={'Create'}
+        primaryText="Create"
         primaryCallback={createVault}
         secondaryText="Cancel"
         primaryLoading={isCreating}
