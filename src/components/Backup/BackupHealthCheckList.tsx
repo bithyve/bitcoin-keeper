@@ -14,16 +14,16 @@ import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import DotView from 'src/components/DotView';
 import Buttons from 'src/components/Buttons';
 import { useQuery } from '@realm/react';
 import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
-import KeeperFooter from '../KeeperFooter';
 
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import AdvnaceOptions from 'src/assets/images/settings.svg';
+import KeeperFooter from '../KeeperFooter';
+import HealthCheckComponent from './HealthCheckComponent';
 
 function BackupHealthCheckList() {
   const { colorMode } = useColorMode();

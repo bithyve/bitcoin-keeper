@@ -1,9 +1,5 @@
-/* eslint-disable no-return-assign */
-/* eslint-disable no-plusplus */
 /* eslint-disable prefer-destructuring */
-/* eslint-disable camelcase */
-/* eslint-disable consistent-return */
-/* eslint-disable no-restricted-syntax */
+
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
@@ -18,6 +14,7 @@ import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
+import config from 'src/core/config';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
@@ -31,7 +28,6 @@ import {
   XpubTypes,
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
-import config from 'src/core/config';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 
 const ECPair = ECPairFactory(ecc);
@@ -677,8 +673,9 @@ export default class WalletUtilities {
     }
 
     let purpose;
-    if (wallet.entityKind === EntityKind.WALLET)
+    if (wallet.entityKind === EntityKind.WALLET) {
       purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+    }
 
     for (const output of outputs) {
       if (!output.address) {
@@ -837,17 +834,19 @@ export default class WalletUtilities {
   };
 
   static isExtendedPrvKey = (keyType: ImportedKeyType) => {
-    if (config.NETWORK === bitcoinJS.networks.bitcoin)
+    if (config.NETWORK === bitcoinJS.networks.bitcoin) {
       return [ImportedKeyType.XPRV, ImportedKeyType.YPRV, ImportedKeyType.ZPRV].includes(keyType);
-    else
+    } else {
       return [ImportedKeyType.TPRV, ImportedKeyType.UPRV, ImportedKeyType.VPRV].includes(keyType);
+    }
   };
 
   static isExtendedPubKey = (keyType: ImportedKeyType) => {
-    if (config.NETWORK === bitcoinJS.networks.bitcoin)
+    if (config.NETWORK === bitcoinJS.networks.bitcoin) {
       return [ImportedKeyType.XPUB, ImportedKeyType.YPUB, ImportedKeyType.ZPUB].includes(keyType);
-    else
+    } else {
       return [ImportedKeyType.TPUB, ImportedKeyType.UPUB, ImportedKeyType.VPUB].includes(keyType);
+    }
   };
 
   static getImportedKeyDetails = (
@@ -865,84 +864,96 @@ export default class WalletUtilities {
         // attempt to create an extended key from the input
         if (config.NETWORK === bitcoinJS.networks.bitcoin) {
           // extended public keys (mainnet)
-          if (input.startsWith(ImportedKeyType.XPUB))
+          if (input.startsWith(ImportedKeyType.XPUB)) {
             return {
               importedKeyType: ImportedKeyType.XPUB,
               watchOnly: true,
               purpose: DerivationPurpose.BIP44,
             };
-          if (input.startsWith(ImportedKeyType.YPUB))
+          }
+          if (input.startsWith(ImportedKeyType.YPUB)) {
             return {
               importedKeyType: ImportedKeyType.YPUB,
               watchOnly: true,
               purpose: DerivationPurpose.BIP49,
             };
-          if (input.startsWith(ImportedKeyType.ZPUB))
+          }
+          if (input.startsWith(ImportedKeyType.ZPUB)) {
             return {
               importedKeyType: ImportedKeyType.ZPUB,
               watchOnly: true,
               purpose: DerivationPurpose.BIP84,
             };
+          }
 
           // extended private keys (mainnet)
-          if (input.startsWith(ImportedKeyType.XPRV))
+          if (input.startsWith(ImportedKeyType.XPRV)) {
             return {
               importedKeyType: ImportedKeyType.XPRV,
               watchOnly: false,
               purpose: DerivationPurpose.BIP44,
             };
-          if (input.startsWith(ImportedKeyType.YPRV))
+          }
+          if (input.startsWith(ImportedKeyType.YPRV)) {
             return {
               importedKeyType: ImportedKeyType.YPRV,
               watchOnly: false,
               purpose: DerivationPurpose.BIP49,
             };
-          if (input.startsWith(ImportedKeyType.ZPRV))
+          }
+          if (input.startsWith(ImportedKeyType.ZPRV)) {
             return {
               importedKeyType: ImportedKeyType.ZPRV,
               watchOnly: false,
               purpose: DerivationPurpose.BIP84,
             };
+          }
         } else {
           // extended public keys (testnet)
-          if (input.startsWith(ImportedKeyType.TPUB))
+          if (input.startsWith(ImportedKeyType.TPUB)) {
             return {
               importedKeyType: ImportedKeyType.TPUB,
               watchOnly: true,
               purpose: DerivationPurpose.BIP44,
             };
-          if (input.startsWith(ImportedKeyType.UPUB))
+          }
+          if (input.startsWith(ImportedKeyType.UPUB)) {
             return {
               importedKeyType: ImportedKeyType.UPUB,
               watchOnly: true,
               purpose: DerivationPurpose.BIP49,
             };
-          if (input.startsWith(ImportedKeyType.VPUB))
+          }
+          if (input.startsWith(ImportedKeyType.VPUB)) {
             return {
               importedKeyType: ImportedKeyType.VPUB,
               watchOnly: true,
               purpose: DerivationPurpose.BIP84,
             };
+          }
 
           // extended private keys (testnet)
-          if (input.startsWith(ImportedKeyType.TPRV))
+          if (input.startsWith(ImportedKeyType.TPRV)) {
             return {
               importedKeyType: ImportedKeyType.TPRV,
               watchOnly: false,
               purpose: DerivationPurpose.BIP44,
             };
-          if (input.startsWith(ImportedKeyType.UPRV))
+          }
+          if (input.startsWith(ImportedKeyType.UPRV)) {
             return {
               importedKeyType: ImportedKeyType.UPRV,
               watchOnly: false,
               purpose: DerivationPurpose.BIP49,
             };
-          if (input.startsWith(ImportedKeyType.VPRV))
+          }
+          if (input.startsWith(ImportedKeyType.VPRV)) {
             return {
               importedKeyType: ImportedKeyType.VPRV,
               watchOnly: false,
               purpose: DerivationPurpose.BIP84,
             };
+          }
         }
       } catch (err) {
         // if neither mnemonic nor extended key, consider it an invalid input

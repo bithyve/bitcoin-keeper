@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { InheritanceKeyInfo, SignerPolicy } from 'src/services/interfaces';
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {

@@ -1,4 +1,3 @@
-/* eslint-disable guard-for-in */
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
@@ -23,6 +22,9 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
+import { getSignerNameFromType } from 'src/hardware';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import {
   refreshWallets,
   updateSignerDetails,
@@ -50,12 +52,9 @@ import {
   UPDATE_VAULT_IMAGE,
   getAppImage,
 } from '../sagaActions/bhr';
-import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
-import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
 
 export function* updateAppImageWorker({
@@ -85,7 +84,7 @@ export function* updateAppImageWorker({
       signersObjects[signer.masterFingerprint] = encrytedWallet;
     }
   } else {
-    //update all wallets and signers
+    // update all wallets and signers
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
       const wallet = wallets[index];
@@ -371,7 +370,7 @@ function* recoverApp(
     }
   }
 
-  //Signers recreatin
+  // Signers recreatin
   if (appImage.signers) {
     for (const [key, value] of Object.entries(appImage.signers)) {
       const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
@@ -454,7 +453,7 @@ function* recoverApp(
   }
   yield put(setAppId(appID));
 
-  //Labels Restore
+  // Labels Restore
   if (labels) {
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, labels);
   }

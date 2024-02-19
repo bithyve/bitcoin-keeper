@@ -108,9 +108,9 @@ function VaultMigrationController({
         })
       );
     } else if (sendPhaseOneState.hasFailed) {
-      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
         showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
-      else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
+      } else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
     }
   }, [sendPhaseOneState]);
 

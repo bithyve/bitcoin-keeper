@@ -8,10 +8,10 @@ import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import config from 'src/core/config';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 

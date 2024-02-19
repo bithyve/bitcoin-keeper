@@ -54,8 +54,8 @@ const useTestSats = ({ wallet }) => {
 
   return config.NETWORK_TYPE === NetworkType.TESTNET ? (
     <OptionCard
-      title={'Recieve Test Sats'}
-      description={'Recieve test sats to your vault'}
+      title="Recieve Test Sats"
+      description="Recieve test sats to your vault"
       callback={() => {
         setAppLoading(true);
         dispatch(testSatsRecieve(wallet));

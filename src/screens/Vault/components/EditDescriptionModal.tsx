@@ -9,10 +9,10 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/constants/Fonts';
-import { SDIcons } from '../SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import config from 'src/core/config';
+import { SDIcons } from '../SigningDeviceIcons';
 
 function SignerData({ signer }: { signer: Signer }) {
   const { colorMode } = useColorMode();

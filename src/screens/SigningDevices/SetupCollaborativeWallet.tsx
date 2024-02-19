@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -24,16 +24,15 @@ import { useAppSelector } from 'src/store/hooks';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
 import AddCard from 'src/components/AddCard';
-import SignerCard from '../AddSigner/SignerCard';
 import useSigners from 'src/hooks/useSigners';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
-import Delete from 'src/assets/images/delete_signer.svg';
+import SignerCard from '../AddSigner/SignerCard';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 function SignerItem({
   vaultKey,
@@ -55,7 +54,7 @@ function SignerItem({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Add a co-signer`,
+          title: 'Add a co-signer',
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: onQRScan,
           setup: true,
@@ -97,7 +96,7 @@ function SignerItem({
   );
 }
 
-const SetupCollaborativeWallet = () => {
+function SetupCollaborativeWallet() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -271,7 +270,7 @@ const SetupCollaborativeWallet = () => {
         }}
       />
       <FloatingCTA
-        primaryText={'Create'}
+        primaryText="Create"
         primaryCallback={createVault}
         secondaryText="Cancel"
         primaryLoading={isCreating}
@@ -279,7 +278,7 @@ const SetupCollaborativeWallet = () => {
       />
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   itemContainer: {

@@ -163,7 +163,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         backgroundColor={`${colorMode}.brownColor`}
         borderColor={`${colorMode}.brownColor`}
         style={styles.learnMoreContainer}
-        //learn more modal
+        // learn more modal
       >
         <Text style={styles.learnMoreText} color={`${colorMode}.primaryBackground`}>
           Need Help?

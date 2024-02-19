@@ -16,7 +16,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 
-const InititalAppController = ({ navigation, electrumErrorVisible, setElectrumErrorVisible }) => {
+function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
     (state) => state.login.electrumClientConnectionStatus
   );
@@ -132,6 +132,6 @@ const InititalAppController = ({ navigation, electrumErrorVisible, setElectrumEr
   }, []);
 
   return null;
-};
+}
 
 export default InititalAppController;

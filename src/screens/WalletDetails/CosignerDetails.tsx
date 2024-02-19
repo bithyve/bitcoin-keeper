@@ -8,11 +8,11 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { getKeyExpression } from 'src/core/utils';
 import { XpubTypes } from 'src/core/wallets/enums';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
 function CosignerDetails({ route }: ScreenProps) {

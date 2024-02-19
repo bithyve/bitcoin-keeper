@@ -1,6 +1,5 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
-import { AppStackParams } from './types';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/services/sentry';
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
@@ -79,7 +78,6 @@ import CosignerDetails from 'src/screens/WalletDetails/CosignerDetails';
 import WalletDetailsSettings from 'src/screens/WalletDetails/WalletDetailsSettings';
 import CollabrativeWalletSettings from 'src/screens/WalletDetails/CollabrativeWalletSettings';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
-import Login from '../screens/LoginScreen/Login';
 import { AppContext } from 'src/context/AppContext';
 import SetupTapsigner from 'src/screens/SigningDevices/SetupTapsigner';
 import SetupSeedWordSigner from 'src/screens/SigningDevices/SetupSeedWordSigner';
@@ -101,6 +99,8 @@ import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
+import Login from '../screens/LoginScreen/Login';
+import { AppStackParams } from './types';
 
 const defaultTheme = {
   ...DefaultTheme,

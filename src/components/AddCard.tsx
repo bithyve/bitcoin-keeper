@@ -2,8 +2,8 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
-import Text from './KeeperText';
 import Colors from 'src/theme/Colors';
+import Text from './KeeperText';
 import HexagonIcon from './HexagonIcon';
 
 type AddSignerCardProps = {

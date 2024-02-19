@@ -86,11 +86,11 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
 import Import from 'src/assets/images/import.svg';
 import Add from 'src/assets/images/add_white.svg';
-import SignerCard from '../AddSigner/SignerCard';
 import useSigners from 'src/hooks/useSigners';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -230,8 +230,8 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks it health']
           : [
-              `A 2FA authenticator will have to be set up to use this option.`,
-              `On providing the correct code from the auth app, the signer will sign the transaction.`,
+              'A 2FA authenticator will have to be set up to use this option.',
+              'On providing the correct code from the auth app, the signer will sign the transaction.',
             ],
         title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
         subTitle: 'A signer will hold one of the keys of the vault',
@@ -264,7 +264,7 @@ const getSignerContent = (
         Instructions: isTestnet()
           ? [
               specterInstructions,
-              `Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen`,
+              'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
             ]
           : [specterInstructions],
         title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
@@ -352,7 +352,7 @@ const getSignerContent = (
         subTitle: 'This step will add an additional, mandatory key to your m-of-n vault',
         Instructions: [
           'This Key would only get activated after the other two Keys have signed',
-          `On activation the Key would send emails to your email id for 30 days for you to decline using it`,
+          'On activation the Key would send emails to your email id for 30 days for you to decline using it',
         ],
         options: [
           {
@@ -1188,8 +1188,9 @@ function HardwareModalMap({
     const findSigningServer = async (otp) => {
       try {
         setInProgress(true);
-        if (vaultSigners.length <= 1)
+        if (vaultSigners.length <= 1) {
           throw new Error('Add two other devices first to do a health check');
+        }
         const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
         const ids = vaultSigners.map((signer) =>
           WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network)
@@ -1202,9 +1203,9 @@ function HardwareModalMap({
             signerPolicy: response.policy,
           });
           if (mapped) {
-            showToast(`Signing Server verified successfully`, <TickIcon />);
+            showToast('Signing Server verified successfully', <TickIcon />);
           } else {
-            showToast(`Something Went Wrong!`, <ToastErrorIcon />);
+            showToast('Something Went Wrong!', <ToastErrorIcon />);
           }
         }
       } catch (err) {
@@ -1497,7 +1498,7 @@ function HardwareModalMap({
       showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
     } catch (err) {
       console.log({ err });
-      showToast(`Failed to add inheritance key`, <TickIcon />);
+      showToast('Failed to add inheritance key', <TickIcon />);
     }
   };
 

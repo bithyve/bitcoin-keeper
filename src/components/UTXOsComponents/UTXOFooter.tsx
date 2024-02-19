@@ -5,8 +5,8 @@ import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetails/WalletDetails';
-import KeeperFooter from '../KeeperFooter';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import KeeperFooter from '../KeeperFooter';
 
 function UTXOFooter({
   setEnableSelection,

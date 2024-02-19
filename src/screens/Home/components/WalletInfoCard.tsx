@@ -58,7 +58,7 @@ function WalletInfoCard({
           <CurrencyInfo
             hideAmounts={false}
             amount={amount}
-            hideAmounts={isShowAmount ? false : true}
+            hideAmounts={!isShowAmount}
             fontSize={satsEnabled ? 17 : 20}
             variation={colorMode === 'light' ? 'light' : 'dark'}
           />

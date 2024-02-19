@@ -278,7 +278,7 @@ export const getCosignerDetails = async (
 export const signCosignerPSBT = (xpriv: string, serializedPSBT: string) => {
   const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
   let vin = 0;
-  // eslint-disable-next-line consistent-return
+
   PSBT.data.inputs.forEach((input) => {
     if (!input.bip32Derivation) return 'signing failed: bip32Derivation missing';
 

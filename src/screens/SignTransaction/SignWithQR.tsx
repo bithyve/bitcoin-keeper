@@ -18,9 +18,9 @@ import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
-import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(

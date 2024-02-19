@@ -38,14 +38,14 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
-import IdentifySignerModal from './components/IdentifySignerModal';
-import { SDIcons } from './SigningDeviceIcons';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import IdentifySignerModal from './components/IdentifySignerModal';
+import { SDIcons } from './SigningDeviceIcons';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -201,7 +201,7 @@ function SigningDeviceDetails({ route }) {
   const dispatch = useDispatch();
   const { vaultKey, vaultId, signer: currentSigner, vaultSigners } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = currentSigner ? currentSigner : signerMap[vaultKey.masterFingerprint];
+  const signer = currentSigner || signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);

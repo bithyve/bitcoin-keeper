@@ -29,6 +29,8 @@ import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSignerMap from 'src/hooks/useSignerMap';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import {
   signTransactionWithColdCard,
   signTransactionWithInheritanceKey,
@@ -37,10 +39,8 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import useSignerMap from 'src/hooks/useSignerMap';
 import SignerList from './SignerList';
 import SignerModals from './SignerModals';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function SignTransactionScreen() {
   const route = useRoute();

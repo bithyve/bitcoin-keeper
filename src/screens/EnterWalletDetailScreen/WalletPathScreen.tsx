@@ -27,22 +27,22 @@ function WalletPathScreen({ route }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={'Import'}
+        title="Import"
         subtitle={wallet.AddNewWalletDescription}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
           <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
             <KeeperTextInput
-              placeholder={'Paste Wallet Path'}
+              placeholder="Paste Wallet Path"
               placeholderTextColor={`${colorMode}.SlateGreen`}
               height={10}
               value={path}
               onChangeText={(value) => {
                 setPath(value);
               }}
-              testID={`import_wallet_path`}
+              testID="import_wallet_path"
             />
           </Box>
           <Select

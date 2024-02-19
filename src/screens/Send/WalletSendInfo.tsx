@@ -8,10 +8,10 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import BTCWhite from 'src/assets/images/btc_white.svg';
 
 import { SatsToBtc } from 'src/constants/Bitcoin';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 function WalletSendInfo({
   availableAmt = '',
@@ -29,7 +29,7 @@ function WalletSendInfo({
   return (
     <Box testID="view_wallet_info" style={styles.container}>
       <Box style={styles.wrapper}>
-        <Box w={'15%'}>
+        <Box w="15%">
           <TouchableOpacity>
             <HexagonIcon width={44} height={38} backgroundColor={Colors.RussetBrown} icon={icon} />
           </TouchableOpacity>
@@ -62,7 +62,7 @@ function WalletSendInfo({
             </Box>
           )}
         </Box>
-        <Box w={'25%'}>
+        <Box w="25%">
           {/* <Pressable
             onPress={() => console.log('pressed')}
             backgroundColor={`${colorMode}.accent`}

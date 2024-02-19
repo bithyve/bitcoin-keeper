@@ -12,22 +12,21 @@ import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
 import { LabelRefType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { setAppVersion } from '../reducers/storage';
-import { createWatcher } from '../utilities';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import SigningServer from 'src/services/operations/SigningServer';
+import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
+import { generateExtendedKeysForCosigner } from 'src/core/wallets/factories/WalletFactory';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
   migrateLabelsToBip329,
   MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import SigningServer from 'src/services/operations/SigningServer';
-import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
-import { updateSignerDetailsWorker } from './wallets';
-import { generateExtendedKeysForCosigner } from 'src/core/wallets/factories/WalletFactory';
+import { createWatcher } from '../utilities';
+import { setAppVersion } from '../reducers/storage';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -47,8 +46,9 @@ export function* applyUpgradeSequence({
   if (
     semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION) &&
     semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION)
-  )
+  ) {
     yield put(migrateLabelsToBip329());
+  }
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
@@ -166,7 +166,7 @@ function* migrateAssistedKeys() {
       .getCollection(RealmSchema.Signer)
       .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
-    for (let signer of signers) {
+    for (const signer of signers) {
       const signerType = signerMap[signer.masterFingerprint].type;
 
       if (signerType === SignerType.POLICY_SERVER) {
@@ -262,7 +262,7 @@ function mapAppKeysToWallets(wallets, keeperSigners) {
 function generateExtendedKeysForSigners(signers, appKeyWalletMap) {
   const extendedKeyMap = {};
   signers.forEach((signer) => {
-    const mnemonic = appKeyWalletMap[signer.masterFingerprint].derivationDetails.mnemonic;
+    const { mnemonic } = appKeyWalletMap[signer.masterFingerprint].derivationDetails;
     const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic);
     extendedKeyMap[signer.masterFingerprint] = extendedKeys;
   });
@@ -274,7 +274,7 @@ function updateVaultSigners(extendedKeyMap, signers) {
   const signerMap = {};
   signers.forEach((signer) => (signerMap[signer.masterFingerprint] = signer));
   const vaultKeys: VaultSigner[] = dbManager.getCollection(RealmSchema.VaultSigner);
-  for (let vaultKey of vaultKeys) {
+  for (const vaultKey of vaultKeys) {
     const signer = signerMap[vaultKey.masterFingerprint];
     console.log('extendedKeys', extendedKeyMap[vaultKey.masterFingerprint]);
     if (signer && signer.type === SignerType.KEEPER && extendedKeyMap[vaultKey.masterFingerprint]) {
@@ -286,7 +286,7 @@ function updateVaultSigners(extendedKeyMap, signers) {
 }
 
 function updateSignerDetails(signers, extendedKeyMap) {
-  for (let signer of signers) {
+  for (const signer of signers) {
     // Update the signer type to MY_KEEPER and the extended keys
     dbManager.updateObjectByPrimaryId(
       RealmSchema.Signer,
@@ -314,7 +314,7 @@ function updateSignerXpubs(signer, xpriv) {
     [XpubTypes.P2WSH]: [
       {
         ...signer.signerXpubs[XpubTypes.P2WSH][0],
-        xpriv: xpriv,
+        xpriv,
       },
     ],
   };

@@ -9,15 +9,13 @@ import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { Signer, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import useToastMessage from './useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import useToastMessage from './useToastMessage';
 import useVault from './useVault';
 
 const useConfigRecovery = () => {
-  const { relayVaultError, relayVaultUpdate, realyVaultErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
 
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [scheme, setScheme] = useState<VaultScheme>();
@@ -28,7 +26,7 @@ const useConfigRecovery = () => {
   const dispatch = useDispatch();
   const { allVaults } = useVault({});
 
-  let recoveryError = {
+  const recoveryError = {
     failed: false,
     message: '',
   };

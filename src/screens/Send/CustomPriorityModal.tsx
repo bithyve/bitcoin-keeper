@@ -132,9 +132,9 @@ function CustomPriorityModal(props) {
               borderBottomWidth={0}
               backgroundColor="transparent"
               width="100%"
-              flexDirection={'row'}
+              flexDirection="row"
             >
-              <Box w={'80%'}>
+              <Box w="80%">
                 <Text style={styles.title} color={textColor} paddingBottom={2}>
                   {title}
                 </Text>
@@ -142,7 +142,7 @@ function CustomPriorityModal(props) {
                   {subTitle}
                 </Text>
               </Box>
-              <Box w={'20%'}>
+              <Box w="20%">
                 <CurrencyTypeSwitch />
               </Box>
             </Modal.Header>
@@ -164,12 +164,7 @@ function CustomPriorityModal(props) {
                 value={customPriorityFee}
               />
             </Box>
-            <Box
-              my={windowHeight * 0.03}
-              flexDirection={'row'}
-              justifyContent={'space-between'}
-              mx={1}
-            >
+            <Box my={windowHeight * 0.03} flexDirection="row" justifyContent="space-between" mx={1}>
               <Text color={`${colorMode}.greenText`}>{walletTranslation.estimateArrvlTime}</Text>
               <Text>{customEstBlocks ? `${estimationSign} ${customEstBlocks * 10} mins` : ''}</Text>
             </Box>

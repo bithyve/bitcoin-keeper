@@ -83,7 +83,6 @@ export const signWithTapsigner = async (
   const status = await card.first_look();
   try {
     if (status.path) {
-      // eslint-disable-next-line no-restricted-syntax
       for (const input of inputsToSign) {
         const digest = Buffer.from(input.digest, 'hex');
         const subpath = input.subPath;
