@@ -36,14 +36,11 @@ function IKSAddEmailPhone({ route }) {
 
   const updateIKSPolicy = async (email: string) => {
     try {
-      const thresholdDescriptors = vault.signers.map((signer) => signer.xfp).slice(0, 2);
       const IKSigner = signerMap[ikVaultKey.masterFingerprint];
-
       if (IKSigner.inheritanceKeyInfo === undefined)
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
 
       const existingPolicy: InheritancePolicy = IKSigner.inheritanceKeyInfo.policy;
-
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
         alert: {
@@ -54,7 +51,7 @@ function IKSAddEmailPhone({ route }) {
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         ikVaultKey.xfp,
         updatedPolicy,
-        thresholdDescriptors
+        IKSigner.inheritanceKeyInfo.configuration
       );
 
       if (updated) {

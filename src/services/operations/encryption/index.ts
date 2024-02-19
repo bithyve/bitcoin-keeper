@@ -26,6 +26,7 @@ export const generateKey = (length: number): string => {
   return result;
 };
 
-export const asymmetricEncrypt = (data: string, publicKey: string): Promise<string> => {
-  return RSA.encrypt(data, publicKey);
+export const asymmetricEncrypt = async (data: string, publicKey: string): Promise<string> => {
+  const encrypted = await RSA.encrypt(data, publicKey);
+  return encrypted;
 };

@@ -88,8 +88,6 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       }
 
-      const thresholdDescriptors = activeVault.signers.map((signer) => signer.xfp).slice(0, 2);
-
       if (signer.inheritanceKeyInfo === undefined)
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
 
@@ -117,7 +115,7 @@ function SignerAdvanceSettings({ route }: any) {
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         vaultKey.xfp,
         updatedPolicy,
-        thresholdDescriptors
+        signer.inheritanceKeyInfo.configuration
       );
 
       if (updated) {
