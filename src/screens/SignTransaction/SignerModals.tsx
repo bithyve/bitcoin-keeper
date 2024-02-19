@@ -421,7 +421,6 @@ function SignerModals({
   textRef,
   vaultKeys,
   isMultisig,
-  collaborativeWalletId,
   signerMap,
   specterModal,
   setSpecterModal,
@@ -458,7 +457,6 @@ function SignerModals({
   textRef: any;
   vaultKeys: VaultSigner[];
   isMultisig: boolean;
-  collaborativeWalletId: string;
   signerMap: { [key: string]: Signer };
   specterModal: boolean;
   setSpecterModal: any;
@@ -476,7 +474,6 @@ function SignerModals({
       CommonActions.navigate('SignWithQR', {
         signTransaction,
         vaultKey,
-        collaborativeWalletId,
         vaultId,
       })
     );
@@ -490,7 +487,6 @@ function SignerModals({
       CommonActions.navigate('SignWithChannel', {
         signTransaction,
         vaultKey,
-        collaborativeWalletId,
         vaultId,
       })
     );
@@ -740,7 +736,7 @@ function SignerModals({
             />
           );
         }
-        if (signer.type === SignerType.KEEPER) {
+        if ([SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type)) {
           return (
             <KeeperModal
               key={vaultKey.xfp}
@@ -749,7 +745,7 @@ function SignerModals({
                 setKeeperModal(false);
               }}
               title="Keep your Device Ready"
-              subTitle="Keep your Collaborative Key ready before proceeding"
+              subTitle="Keep your App Key ready before proceeding"
               textColor="light.primaryText"
               Content={() => <KeeperContent />}
               buttonText="Proceed"

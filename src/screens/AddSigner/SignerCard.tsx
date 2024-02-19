@@ -16,6 +16,7 @@ type SignerCardProps = {
   disabled?: boolean;
   isFullText?: boolean;
   showDot?: boolean;
+  StaticIcon?: any;
 };
 
 function SignerCard({
@@ -29,6 +30,7 @@ function SignerCard({
   disabled = false,
   isFullText = false,
   showDot = false,
+  StaticIcon = null,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -41,12 +43,14 @@ function SignerCard({
       borderColor={`${colorMode}.Eggshell`}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
       onPress={() => {
-        onCardSelect(isSelected);
+        if (onCardSelect) onCardSelect(isSelected);
       }}
     >
       {showSelection &&
         (isSelected ? (
           <Checked style={{ alignSelf: 'flex-end' }} />
+        ) : StaticIcon ? (
+          <StaticIcon style={{ alignSelf: 'flex-end' }} />
         ) : (
           <Box style={styles.circle} />
         ))}

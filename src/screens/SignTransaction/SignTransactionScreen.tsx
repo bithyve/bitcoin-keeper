@@ -26,8 +26,6 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import useWallets from 'src/hooks/useWallets';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -48,34 +46,23 @@ function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, collaborativeWalletId, vaultId } = (route.params || {
+  const { note, label, vaultId } = (route.params || {
     note: '',
     label: [],
-    collaborativeWalletId: '',
     vaultId: '',
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
-    collaborativeWalletId: string;
     vaultId: string;
   };
 
   const { activeVault: defaultVault } = useVault({
-    collaborativeWalletId,
     vaultId,
   });
 
   const { signers: vaultKeys, scheme } = defaultVault;
 
   const { signerMap } = useSignerMap();
-  const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
-  let parentCollaborativeWallet: Wallet;
-  if (collaborativeWalletId) {
-    parentCollaborativeWallet = wallets.find(
-      (wallet) => wallet && wallet.id === collaborativeWalletId
-    );
-  }
-
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions, common } = translations;
 
@@ -154,7 +141,7 @@ function SignTransactionScreen() {
 
   useEffect(() => {
     defaultVault.signers.forEach((vaultKey) => {
-      const isCoSignerMyself = vaultKey.masterFingerprint === collaborativeWalletId;
+      const isCoSignerMyself = signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER;
       if (isCoSignerMyself) {
         // self sign PSBT
         signTransaction({ xfp: vaultKey.xfp });
@@ -274,8 +261,8 @@ function SignTransactionScreen() {
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
-        } else if (SignerType.KEEPER === signerType) {
-          const signedSerializedPSBT = signCosignerPSBT(parentCollaborativeWallet, serializedPSBT);
+        } else if (SignerType.MY_KEEPER === signerType) {
+          const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         }
@@ -345,7 +332,7 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (vaultKey.masterFingerprint === collaborativeWalletId) {
+        if (signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER) {
           signTransaction({ xfp: vaultKey.xfp });
           return;
         }
@@ -396,7 +383,7 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId, vaultId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, vaultId } },
         ],
       })
     );
@@ -483,7 +470,6 @@ function SignTransactionScreen() {
         signTransaction={signTransaction}
         textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
-        collaborativeWalletId={collaborativeWalletId}
         signerMap={signerMap}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />

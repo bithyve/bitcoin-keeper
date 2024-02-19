@@ -77,7 +77,6 @@ import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import CosignerDetails from 'src/screens/WalletDetails/CosignerDetails';
 import WalletDetailsSettings from 'src/screens/WalletDetails/WalletDetailsSettings';
 import CollabrativeWalletSettings from 'src/screens/WalletDetails/CollabrativeWalletSettings';
-import ImportDescriptorScreen from 'src/screens/WalletDetails/ImportDescriptor';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
 import { AppContext } from 'src/context/AppContext';
 import SetupTapsigner from 'src/screens/SigningDevices/SetupTapsigner';
@@ -180,7 +179,6 @@ function AppStack() {
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
-        <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
         <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />

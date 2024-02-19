@@ -90,6 +90,7 @@ export enum VaultMigrationType {
 export enum SignerType {
   TAPSIGNER = 'TAPSIGNER',
   KEEPER = 'KEEPER',
+  MY_KEEPER = 'MY_KEEPER',
   TREZOR = 'TREZOR',
   LEDGER = 'LEDGER',
   COLDCARD = 'COLDCARD',
@@ -173,4 +174,13 @@ export enum ImportedKeyType {
   TPRV = 'tprv',
   UPRV = 'uprv',
   VPRV = 'vprv',
+}
+
+export enum KeyGenerationMode {
+  NEW = 'NEW',
+  RECOVER = 'RECOVER',
+  IMPORT = 'IMPORT',
+  NFC = 'NFC',
+  FILE = 'FILE',
+  QR = 'QR',
 }

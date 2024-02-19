@@ -1,5 +1,5 @@
 import { Box, Modal, Pressable, useColorMode } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/modal_close.svg';
@@ -35,6 +35,7 @@ type ModalProps = {
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
+  loading?: boolean;
 };
 
 KeeperModal.defaultProps = {
@@ -60,6 +61,7 @@ KeeperModal.defaultProps = {
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
+  loading: false,
 };
 
 function KeeperModal(props: ModalProps) {
@@ -88,6 +90,7 @@ function KeeperModal(props: ModalProps) {
     closeOnOverlayClick,
     showCloseIcon,
     justifyContent,
+    loading,
   } = props;
   const { colorMode } = useColorMode();
   const subTitleColor = ignored || textColor;
@@ -164,6 +167,7 @@ function KeeperModal(props: ModalProps) {
                       <Text style={styles.ctaText} color={buttonTextColor} bold>
                         {showButtons ? buttonText : null}
                       </Text>
+                      {loading ? <ActivityIndicator /> : null}
                     </Box>
                   </TouchableOpacity>
                 )}

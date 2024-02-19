@@ -11,14 +11,17 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import Colors from 'src/theme/Colors';
+import { UNVERIFYING_SIGNERS, getSignerNameFromType } from 'src/hardware';
 import SignerIcon from 'src/assets/images/signer_brown.svg';
-import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import config from 'src/core/config';
+import moment from 'moment';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import SignerCard from '../AddSigner/SignerCard';
@@ -137,16 +140,22 @@ function SignersList({
               !signer.isMock &&
               vault.isMultiSig;
 
+            const isAMF =
+              signer.type === SignerType.TAPSIGNER &&
+              config.NETWORK_TYPE === NetworkType.TESTNET &&
+              !signer.isMock;
+
             return (
               <SignerCard
                 key={signer.masterFingerprint}
                 onCardSelect={() => handleCardSelect(signer, item)}
-                name={signer.signerName}
-                description={signer.signerDescription || signer.type}
+                name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+                description={`Added ${moment(signer.addedOn).calendar()}`}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
                 isSelected={false}
                 showSelection={false}
                 showDot={showDot}
+                isFullText
               />
             );
           })}

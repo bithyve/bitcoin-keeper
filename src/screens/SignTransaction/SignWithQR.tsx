@@ -31,17 +31,15 @@ function SignWithQR() {
   const dispatch = useDispatch();
   const {
     vaultKey,
-    collaborativeWalletId = '',
     vaultId = '',
   }: {
     vaultKey: VaultSigner;
-    collaborativeWalletId: string;
     vaultId: string;
   } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
     (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
-  const { activeVault } = useVault({ collaborativeWalletId, vaultId });
+  const { activeVault } = useVault({ vaultId });
   const isSingleSig = activeVault.scheme.n === 1;
   const { signer } = useSignerFromKey(vaultKey);
 
@@ -101,7 +99,7 @@ function SignWithQR() {
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
-        {signer.type === SignerType.KEEPER ? (
+        {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
           <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
             <ShareWithNfc data={serializedPSBT} />
           </ScrollView>

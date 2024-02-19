@@ -26,6 +26,7 @@ export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
   SignerType.TREZOR,
   SignerType.KEEPER,
+  SignerType.MY_KEEPER,
   SignerType.MOBILE_KEY,
   SignerType.POLICY_SERVER,
   SignerType.SEED_WORDS,
@@ -105,8 +106,11 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.JADE:
       name = 'Jade';
       break;
+    case SignerType.MY_KEEPER:
+      name = 'App Key (This App)';
+      break;
     case SignerType.KEEPER:
-      name = 'Collaborative Key';
+      name = 'App Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -252,10 +256,11 @@ export const getDeviceStatus = (
       } else {
         return { message: '', disabled: false };
       }
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
-      return addSignerFlow || scheme?.n < 2
+      return !addSignerFlow && scheme?.n < 2
         ? {
-            message: `You can add a ${getSignerNameFromType(
+            message: `You can add an ${getSignerNameFromType(
               type
             )} in a multisig configuration only`,
             disabled: true,
@@ -343,8 +348,9 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.JADE: {
       return 'Optional registration';
     }
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
-      return 'Use Collaborative Key as signer';
+      return 'Use App Key as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';

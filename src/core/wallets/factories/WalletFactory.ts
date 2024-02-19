@@ -224,14 +224,14 @@ export const generateWallet = async ({
   return wallet;
 };
 
-const generateExtendedKeysForCosigner = (
-  wallet: Wallet,
+export const generateExtendedKeysForCosigner = (
+  mnemonic: string,
   entityKind: EntityKind = EntityKind.VAULT
 ) => {
-  const seed = bip39.mnemonicToSeedSync(wallet.derivationDetails.mnemonic).toString('hex');
-  const xDerivationPath = WalletUtilities.getDerivationPath(entityKind, wallet.networkType);
+  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
+  const xDerivationPath = WalletUtilities.getDerivationPath(entityKind, config.NETWORK_TYPE);
 
-  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed,
     network,
@@ -240,11 +240,17 @@ const generateExtendedKeysForCosigner = (
   return { extendedKeys, xDerivationPath };
 };
 
-export const getCosignerDetails = (wallet: Wallet, singleSig: boolean = false) => {
-  const masterFingerprint = wallet.id;
+export const getCosignerDetails = async (
+  primaryMnemonic: string,
+  instanceNum: number,
+  singleSig: boolean = false
+) => {
+  const bip85Config = BIP85.generateBIP85Configuration(WalletType.DEFAULT, instanceNum);
+  const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
+  const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
 
   const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(
-    wallet,
+    mnemonic,
     singleSig ? EntityKind.WALLET : EntityKind.VAULT
   );
 
@@ -253,28 +259,24 @@ export const getCosignerDetails = (wallet: Wallet, singleSig: boolean = false) =
     xpubDetails[XpubTypes.P2WPKH] = {
       xpub: extendedKeys.xpub,
       derivationPath: xDerivationPath,
+      xpriv: extendedKeys.xpriv,
     };
   } else {
     xpubDetails[XpubTypes.P2WSH] = {
       xpub: extendedKeys.xpub,
       derivationPath: xDerivationPath,
+      xpriv: extendedKeys.xpriv,
     };
   }
 
   return {
-    mfp: masterFingerprint,
+    mfp: WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic),
     xpubDetails,
   };
 };
 
-export const signCosignerPSBT = (
-  wallet: Wallet,
-  serializedPSBT: string,
-  entityKind: EntityKind = EntityKind.VAULT
-) => {
+export const signCosignerPSBT = (xpriv: string, serializedPSBT: string) => {
   const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
-  const { extendedKeys } = generateExtendedKeysForCosigner(wallet, entityKind);
-
   let vin = 0;
 
   PSBT.data.inputs.forEach((input) => {
@@ -286,14 +288,13 @@ export const signCosignerPSBT = (
     const internal = parseInt(pathLevels[pathLevels.length - 2], 10) === 1;
     const childIndex = parseInt(pathLevels[pathLevels.length - 1], 10);
 
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
     const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-      extendedKeys.xpriv,
+      xpriv,
       internal,
       childIndex,
-      network
+      config.NETWORK
     );
-    const keyPair = WalletUtilities.getKeyPair(privateKey, network);
+    const keyPair = WalletUtilities.getKeyPair(privateKey, config.NETWORK);
     PSBT.signInput(vin, keyPair);
     vin += 1;
   });

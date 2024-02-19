@@ -90,7 +90,7 @@ function Footer({
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
   const {
-    specs: { balances: { confirmed } } = {
+    specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = vault;
@@ -108,7 +108,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
       </HStack>
       <CurrencyInfo
         hideAmounts={false}
-        amount={confirmed}
+        amount={confirmed + unconfirmed}
         fontSize={24}
         color={`${colorMode}.white`}
         variation={colorMode === 'light' ? 'light' : 'dark'}
@@ -143,7 +143,7 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (isCollaborativeWallet ? 0.03 : 0.1) }}>
+      <VStack style={{ paddingTop: windowHeight * 0.1 }}>
         <Text
           color={`${colorMode}.black`}
           style={styles.transactionHeading}

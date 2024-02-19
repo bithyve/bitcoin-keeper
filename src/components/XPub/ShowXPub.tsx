@@ -9,28 +9,20 @@ import { wp, hp } from 'src/constants/responsive';
 
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { getKeyExpression } from 'src/core/utils';
-import { XpubTypes } from 'src/core/wallets/enums';
 import Note from '../Note/Note';
 
 function ShowXPub({
-  wallet,
   data,
   copy = () => {},
   subText,
   noteSubText,
   copyable = true,
-  cosignerDetails = false,
 }: {
   data: string;
-  wallet?: Wallet;
   copy?: Function;
   subText: string;
   noteSubText?: string;
   copyable: boolean;
-  cosignerDetails?: boolean;
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -38,22 +30,8 @@ function ShowXPub({
   const [details, setDetails] = useState('');
 
   useEffect(() => {
-    if (cosignerDetails) {
-      setTimeout(() => {
-        const details = getCosignerDetails(wallet, true);
-        setDetails(
-          getKeyExpression(
-            details.mfp,
-            details.xpubDetails[XpubTypes.P2WPKH].derivationPath,
-            details.xpubDetails[XpubTypes.P2WPKH].xpub,
-            false
-          )
-        );
-      }, 200);
-    } else {
-      setDetails(data);
-    }
-  }, [cosignerDetails, data]);
+    setDetails(data);
+  }, [data]);
 
   return (
     <>
