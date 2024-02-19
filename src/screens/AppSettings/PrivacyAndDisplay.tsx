@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, Button, ScrollView, useColorMode } from 'native-base';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -9,12 +9,12 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Switch from 'src/components/Switch/Switch';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import { changeLoginMethod } from 'src/store/sagaActions/login';
+import { changeAuthCred, changeLoginMethod } from 'src/store/sagaActions/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { sentryConfig } from 'src/services/sentry';
@@ -36,47 +36,132 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-const ConfirmPasscode = () => {
-  const [passcode, setPasscode] = useState('');
+const ConfirmPasscode = ({ oldPassword }) => {
+  const { translations } = useContext(LocalizationContext);
+  const { login, common } = translations;
+  const dispatch = useAppDispatch();
 
-  const onPressNumber = (text) => {
+  const [passcode, setPasscode] = useState('');
+  const [confirmPasscode, setConfirmPasscode] = useState('');
+  const [passcodeFlag, setPasscodeFlag] = useState(true);
+  const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
+
+  function onPressNumber(text) {
     let tmpPasscode = passcode;
-    if (passcode.length < 4) {
-      if (text !== 'x') {
-        tmpPasscode += text;
-        setPasscode(tmpPasscode);
+    let tmpConfirmPasscode = confirmPasscode;
+    if (passcodeFlag) {
+      if (passcode.length < 4) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setPasscode(tmpPasscode);
+        }
+      } else if (passcode.length === 4 && passcodeFlag) {
+        setPasscodeFlag(false);
+        setConfirmPasscodeFlag(1);
+        setPasscode(passcode);
+      }
+      if (passcode && text === 'x') {
+        const passcodeTemp = passcode.slice(0, -1);
+        setPasscode(passcodeTemp);
+        if (passcodeTemp.length === 0) {
+          setConfirmPasscodeFlag(0);
+        }
+      }
+    } else if (confirmPasscodeFlag) {
+      if (confirmPasscode.length < 4) {
+        if (text !== 'x') {
+          tmpConfirmPasscode += text;
+          setConfirmPasscode(tmpConfirmPasscode);
+        }
+      }
+      if (confirmPasscode && text === 'x') {
+        setConfirmPasscode(confirmPasscode.slice(0, -1));
+      } else if (!confirmPasscode && text === 'x') {
+        setPasscodeFlag(true);
+        setConfirmPasscodeFlag(0);
+        setConfirmPasscode(confirmPasscode);
       }
     }
-    if (passcode && text === 'x') {
+  }
+  const onDeletePressed = (text) => {
+    if (passcodeFlag) {
       setPasscode(passcode.slice(0, -1));
+    } else {
+      setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
     }
   };
-  const onDeletePressed = (text) => {
-    setPasscode(passcode.slice(0, passcode.length - 1));
-  };
+
+  useEffect(() => {
+    if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length === 4) {
+      setPasscodeFlag(false);
+      setConfirmPasscodeFlag(2);
+    } else if (passcode.length === 4 && confirmPasscodeFlag !== 2) {
+      setPasscodeFlag(false);
+      setConfirmPasscodeFlag(1);
+    } else if (
+      !confirmPasscode &&
+      passcode.length > 0 &&
+      passcode.length <= 4 &&
+      confirmPasscodeFlag === 2
+    ) {
+      setPasscodeFlag(true);
+      setConfirmPasscodeFlag(0);
+    } else if (!confirmPasscode && passcode.length > 0 && passcode.length <= 4) {
+      setPasscodeFlag(true);
+      setConfirmPasscodeFlag(0);
+    }
+  }, [passcode, confirmPasscode]);
 
   return (
     <Box>
       <Box>
-        Enter a NEW passcode
+        {login.newPasscode}
         <PinInputsView
           backgroundColor={true}
           passCode={passcode}
-          passcodeFlag={true}
+          passcodeFlag={passcodeFlag}
           borderColor={'transparent'}
           textColor={true}
         />
       </Box>
-      <Box>
-        Confirm the new passcode
-        <PinInputsView
-          backgroundColor={true}
-          passCode={passcode}
-          passcodeFlag={true}
-          borderColor={'transparent'}
-          textColor={true}
-        />
-      </Box>
+      {passcode.length === 4 && (
+        <>
+          <Box>
+            {login.confirmNewPasscode}
+            <PinInputsView
+              backgroundColor={true}
+              passCode={confirmPasscode}
+              passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
+              borderColor={'transparent'}
+              textColor={true}
+            />
+            <Box mb={5}>
+              {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
+                <Text style={[styles.errorText, { color: `light.CongoPink` }]}>
+                  {login.MismatchPasscode}
+                </Text>
+              )}
+            </Box>
+          </Box>
+
+          <Box alignItems={'flex-end'}>
+            {passcode.length === 4 && (
+              <TouchableOpacity
+                onPress={() => {
+                  //-------TODO Shashank--------
+                  dispatch(changeAuthCred(oldPassword, passcode));
+                }}
+              >
+                <Box style={styles.cta} backgroundColor={`light.primaryGreenBackground`}>
+                  <Text style={styles.ctaText} bold>
+                    {common.confirm}
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            )}
+          </Box>
+        </>
+      )}
       <KeyPadView
         disabled={false}
         onDeletePressed={onDeletePressed}
@@ -97,6 +182,7 @@ function PrivacyAndDisplay() {
   const [visiblePasscode, setVisiblePassCode] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const [confirmPasscode, setConfirmPasscode] = useState(false);
+  const [oldPassword, setOldPassword] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common } = translations;
@@ -246,7 +332,8 @@ function PrivacyAndDisplay() {
             close={() => {
               setVisiblePassCode(false);
             }}
-            onSuccess={() => {
+            onSuccess={(password) => {
+              setOldPassword(password);
               setShowConfirmSeedModal(true);
             }}
           />
@@ -286,7 +373,7 @@ function PrivacyAndDisplay() {
         modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        Content={() => <ConfirmPasscode />}
+        Content={() => <ConfirmPasscode oldPassword={oldPassword} />}
       />
     </ScreenWrapper>
   );
@@ -301,6 +388,24 @@ const styles = StyleSheet.create({
     bottom: 50,
     width: '95%',
     alignSelf: 'center',
+  },
+  cta: {
+    borderRadius: 10,
+    width: wp(120),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ctaText: {
+    fontSize: 13,
+    letterSpacing: 1,
+    color: 'white',
+  },
+  errorText: {
+    fontSize: 11,
+    fontWeight: '400',
+    textAlign: 'right',
+    fontStyle: 'italic',
   },
 });
 export default PrivacyAndDisplay;

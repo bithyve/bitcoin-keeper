@@ -117,6 +117,8 @@
     "EnterNew": "Enter New",
     "Passcode": "Passcode",
     "ReEnter": "Re Enter",
+    "newPasscode": "Enter a New passcode",
+    "confirmNewPasscode": "Confirm the new passcode",
     "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
     "ForgotPasscode": "Forgot Passcode?",

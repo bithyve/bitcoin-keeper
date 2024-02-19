@@ -112,7 +112,7 @@ function PasscodeVerifyModal(props: Props) {
 
   useEffect(() => {
     if (isAuthenticated) {
-      props.onSuccess();
+      props.onSuccess(passcode);
       props.close();
       dispatch(credsAuthenticated(false));
     }
