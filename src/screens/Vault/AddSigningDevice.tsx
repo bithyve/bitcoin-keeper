@@ -206,12 +206,12 @@ function Footer({
     const notes = [];
     if (amfSigners.length) {
       const message = `* ${amfSigners.join(
-        ' and ',
+        ' and '
       )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`;
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title={common.note} subtitle={message} />
-        </Box>,
+        </Box>
       );
     }
     if (invalidSS || invalidIKS) {
@@ -219,7 +219,7 @@ function Footer({
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>,
+        </Box>
       );
     }
     if (trezorIncompatible) {
@@ -228,7 +228,7 @@ function Footer({
       notes.push(
         <Box style={styles.noteContainer} testID="view_warning02" key={message}>
           <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>,
+        </Box>
       );
     }
     if (!notes.length) {
@@ -236,7 +236,7 @@ function Footer({
       notes.push(
         <Box style={styles.noteContainer} key={message}>
           <Note title="Note" subtitle={message} />
-        </Box>,
+        </Box>
       );
     }
     return notes;
@@ -289,7 +289,7 @@ function Signers({
               setVaultKeys,
               selectedSigners,
               setSelectedSigners,
-              showToast,
+              showToast
             )
           }
         />
@@ -318,7 +318,7 @@ function Signers({
                   scheme,
                   vaultId,
                   vaultSigners: vaultKeys,
-                }),
+                })
               )
             }
           />

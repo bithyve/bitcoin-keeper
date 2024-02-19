@@ -152,7 +152,7 @@ const rootSaga = function* () {
           }
         }
       })
-    ),
+    )
   );
 };
 

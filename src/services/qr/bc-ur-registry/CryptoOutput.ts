@@ -11,7 +11,7 @@ export class CryptoOutput extends RegistryItem {
 
   constructor(
     private scriptExpressions: ScriptExpression[],
-    private cryptoKey: CryptoHDKey | CryptoECKey | MultiKey,
+    private cryptoKey: CryptoHDKey | CryptoECKey | MultiKey
   ) {
     super();
   }
@@ -46,7 +46,7 @@ export class CryptoOutput extends RegistryItem {
       return this.cryptoKey.getOutputDescriptorContent();
     }
     return `${this.scriptExpressions[seIndex].getExpression()}(${this._toOutputDescriptor(
-      seIndex + 1,
+      seIndex + 1
     )})`;
   };
 

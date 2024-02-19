@@ -47,7 +47,7 @@ function ShowXPub({
             details.xpubDetails[XpubTypes.P2WPKH].derivationPath,
             details.xpubDetails[XpubTypes.P2WPKH].xpub,
             false
-          ),
+          )
         );
       }, 200);
     } else {

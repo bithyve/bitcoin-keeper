@@ -70,7 +70,7 @@ function UTXOSelection({ route }: ScreenProps) {
         wallet: sender,
         recipients,
         selectedUTXOs: utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]),
-      }),
+      })
     );
   };
   return (

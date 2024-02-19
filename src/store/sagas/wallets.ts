@@ -623,7 +623,7 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
           yield put(
             relaySignersUpdateFail(
               'A different account has already been added. Please use the existing key for this signer.'
-            ),
+            )
           );
           return false;
         }
@@ -897,7 +897,7 @@ function* refreshWalletsWorker({
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(
         setElectrumNotConnectedErr(
-          'Network error: please check your network/ node connection and try again',
+          'Network error: please check your network/ node connection and try again'
         )
       );
     } else captureError(err);

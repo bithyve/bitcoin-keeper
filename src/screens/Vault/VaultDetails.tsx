@@ -79,7 +79,7 @@ function Footer({
           CommonActions.navigate(
             isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
             { vaultId: vault.id }
-          ),
+          )
         );
       },
     },
@@ -215,7 +215,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         ) : null}
       </View>
     ),
-    [isCollaborativeWallet],
+    [isCollaborativeWallet]
   );
 
   const NewVaultContent = useCallback(
@@ -261,7 +261,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         )}
       </Box>
     ),
-    [],
+    []
   );
 
   const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
@@ -322,7 +322,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               CommonActions.navigate({
                 name: 'ManageSigners',
                 params: { vaultId, vaultKeys: vault.signers },
-              }),
+              })
             )
           }
           icon={<SignerIcon />}
@@ -390,7 +390,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           openLink(
             isCollaborativeWallet
               ? `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-wallet/`
-              : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`,
+              : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`
           )
         }
       />

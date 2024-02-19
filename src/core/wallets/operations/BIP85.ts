@@ -127,7 +127,7 @@ export default class BIP85 {
     const { series, upperBound } = config.WALLET_INSTANCE_SERIES[walletType];
     if (instanceNumber > upperBound - 1) {
       throw new Error(
-        `Cannot create new instance of type ${walletType}, exceeds instance upper bound`,
+        `Cannot create new instance of type ${walletType}, exceeds instance upper bound`
       );
     }
     const index = series + instanceNumber;

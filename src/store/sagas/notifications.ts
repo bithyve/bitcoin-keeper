@@ -106,7 +106,7 @@ export function* getMessageWorker() {
   const newMessageArray = storedMessages.concat(
     messages.filter(
       ({ notificationId }) => !storedMessages.find((f) => f.notificationId === notificationId)
-    ),
+    )
   );
   // TO--DO: NOTIFICATION_UAI_BINDING without the notifaction schema
   // for (let i = 0; i < messages.length; i++) {

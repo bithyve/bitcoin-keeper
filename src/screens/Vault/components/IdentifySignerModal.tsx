@@ -34,7 +34,7 @@ function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultI
         params: {
           vault: activeVault,
         },
-      }),
+      })
     );
   };
   const cleanedSecondaryCallback = () => {

@@ -54,10 +54,10 @@ function VaultSetup({ route }: ScreenProps) {
   const [vaultName, setVaultName] = useState(
     activeVault?.presentationData?.name || config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
       ? 'Vault'
-      : '',
+      : ''
   );
   const [vaultDescription, setVaultDescription] = useState(
-    activeVault?.presentationData?.description || '',
+    activeVault?.presentationData?.description || ''
   );
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
   const { translations } = useContext(LocalizationContext);
@@ -91,7 +91,7 @@ function VaultSetup({ route }: ScreenProps) {
             scheme,
             name: vaultName,
             description: vaultDescription,
-          }),
+          })
         );
         navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       } else {
@@ -104,7 +104,7 @@ function VaultSetup({ route }: ScreenProps) {
               description: vaultDescription,
               vaultId,
             },
-          }),
+          })
         );
       }
     } else {

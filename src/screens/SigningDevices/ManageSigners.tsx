@@ -54,7 +54,7 @@ function ManageSigners({ route }: ScreenProps) {
         vaultId,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
-      }),
+      })
     );
   };
 

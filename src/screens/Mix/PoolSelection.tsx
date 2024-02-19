@@ -134,7 +134,7 @@ export default function PoolSelection({ route, navigation }) {
       await WhirlpoolClient.estimateTx0Size(
         inputStructure,
         Math.floor(inputsValue / pool.mustMixBalanceMin) + 2
-      ),
+      )
     );
     const tx0Fee = premixFee.fee * approximateTx0Size;
     const coordinatorFee = pool.feeValue;

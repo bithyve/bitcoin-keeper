@@ -17,7 +17,7 @@ export class CryptoPSBT extends RegistryItem {
     const psbt = dataItem.getData();
     if (!psbt) {
       throw new Error(
-        `#[ur-registry][CryptoPSBT][fn.fromDataItem]: decoded [dataItem][#data] is undefined: ${dataItem}`,
+        `#[ur-registry][CryptoPSBT][fn.fromDataItem]: decoded [dataItem][#data] is undefined: ${dataItem}`
       );
     }
     return new CryptoPSBT(psbt);

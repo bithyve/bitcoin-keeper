@@ -122,7 +122,7 @@ export class CryptoHDKey extends RegistryItem implements ICryptoKey {
         indexBuffer,
         chainCode as Buffer,
         key as Buffer,
-      ]),
+      ])
     );
   };
 

@@ -37,7 +37,7 @@ function Socket() {
         host,
         tls: false,
       },
-      callback,
+      callback
     );
 
     this._socket.on('data', (data) => {
