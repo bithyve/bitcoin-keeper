@@ -14,7 +14,7 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import Relay from 'src/services/operations/Relay';
 import semver from 'semver';
-import { uaiType } from 'src/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';
 
 import dbManager from 'src/storage/realm/dbManager';
@@ -53,6 +53,7 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
+import { createUaiMap } from '../reducers/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -169,14 +170,19 @@ function* credentialsAuthWorker({ payload }) {
 
           yield put(fetchExchangeRates());
           yield put(getMessages());
+
           yield put(
             uaiChecks([
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               uaiType.SECURE_VAULT,
-              uaiType.DEFAULT,
               uaiType.VAULT_TRANSFER,
+              uaiType.DEFAULT,
             ])
           );
+          const UAIs: UAI[] = yield call(dbManager.getCollection, RealmSchema.UAI);
+
+          yield put(createUaiMap(UAIs));
+
           yield put(resetSyncing());
           yield call(generateSeedHash);
           yield put(setRecepitVerificationFailed(!response.isValid));
