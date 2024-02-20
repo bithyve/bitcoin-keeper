@@ -20,12 +20,12 @@ import { Transaction } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import useTransactionLabels from 'src/hooks/useTransactionLabels';
-import LabelItem from '../UTXOManagement/components/LabelItem';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
+import LabelItem from '../UTXOManagement/components/LabelItem';
 
 function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -38,7 +38,7 @@ function EditNoteContent({ existingNote, noteRef }: { existingNote: string; note
         defaultValue={existingNote}
         onChangeText={updateNote}
         placeholder="Add transaction note"
-        testID={'tx_note'}
+        testID="tx_note"
       />
     </VStack>
   );
@@ -133,7 +133,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };

@@ -43,7 +43,7 @@ function BackupWallet() {
       <Box style={styles.optionWrapper}>
         <OptionCard
           title={BackupWallet.exportAppSeed}
-          description={''}
+          description=""
           callback={() => {
             setConfirmPassVisible(true);
           }}
@@ -99,9 +99,9 @@ function BackupWallet() {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery key'}
+        subTitle="To backup app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

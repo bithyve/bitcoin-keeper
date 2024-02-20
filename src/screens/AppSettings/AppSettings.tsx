@@ -70,13 +70,13 @@ function AppSettings({ navigation }) {
     },
   ];
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`Keeper ${common.settings}`}
         subtitle={settings.settingsSubTitle}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -185,9 +185,9 @@ function AppSettings({ navigation }) {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery key'}
+        subTitle="To backup app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

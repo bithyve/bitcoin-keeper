@@ -1,7 +1,21 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import { generateEncryptionKey, generateKey, hash256 } from 'src/services/operations/encryption';
+import {
+  cryptoRandom,
+  generateEncryptionKey,
+  generateKey,
+  hash256,
+} from 'src/services/operations/encryption';
+import config from 'src/core/config';
+import {
+  CosignersMapUpdate,
+  CosignersMapUpdateAction,
+  IKSCosignersMapUpdate,
+  IKSCosignersMapUpdateAction,
+} from 'src/services/interfaces';
+import SigningServer from 'src/services/operations/SigningServer';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import {
   EntityKind,
   NetworkType,
@@ -20,16 +34,7 @@ import {
 } from '../interfaces/vault';
 
 import WalletUtilities from '../operations/utils';
-import config from 'src/core/config';
 import WalletOperations from '../operations';
-import {
-  CosignersMapUpdate,
-  CosignersMapUpdateAction,
-  IKSCosignersMapUpdate,
-  IKSCosignersMapUpdateAction,
-} from 'src/services/interfaces';
-import SigningServer from 'src/services/operations/SigningServer';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 
 const crypto = require('crypto');
 
@@ -67,7 +72,6 @@ export const generateVault = async ({
   signers,
   networkType,
   vaultShellId,
-  collaborativeWalletId,
   signerMap,
 }: {
   type: VaultType;
@@ -77,7 +81,6 @@ export const generateVault = async ({
   signers: VaultSigner[];
   networkType: NetworkType;
   vaultShellId?: string;
-  collaborativeWalletId?: string;
   signerMap: { [key: string]: Signer };
 }): Promise<Vault> => {
   const id = generateVaultId(signers, scheme);
@@ -126,7 +129,6 @@ export const generateVault = async ({
     specs,
     archived: false,
     scriptType,
-    collaborativeWalletId,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 
@@ -218,7 +220,7 @@ export const generateMockExtendedKey = (
   const mockMnemonic = bip39.entropyToMnemonic(randomBytes.toString('hex'));
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
-  const randomWalletNumber = Math.floor(Math.random() * 10e5);
+  const randomWalletNumber = Math.floor(cryptoRandom() * 10e5);
   const xDerivationPath = WalletUtilities.getDerivationPath(
     entity,
     networkType,
@@ -268,7 +270,7 @@ export const generateCosignerMapUpdates = (
 
   if (assistedKeyType === SignerType.POLICY_SERVER) {
     const cosignersMapUpdates: CosignersMapUpdate[] = [];
-    for (let id of cosignersMapIds) {
+    for (const id of cosignersMapIds) {
       cosignersMapUpdates.push({
         cosignersId: id,
         signerId: assistedKey.xfp,
@@ -279,7 +281,7 @@ export const generateCosignerMapUpdates = (
     return cosignersMapUpdates;
   } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
     const cosignersMapUpdates: IKSCosignersMapUpdate[] = [];
-    for (let id of cosignersMapIds) {
+    for (const id of cosignersMapIds) {
       cosignersMapUpdates.push({
         cosignersId: id,
         inheritanceKeyId: assistedKey.xfp,
@@ -292,7 +294,7 @@ export const generateCosignerMapUpdates = (
 };
 
 const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
-  for (let key of keys) {
+  for (const key of keys) {
     const assistedKeyType = signerMap[key.masterFingerprint]?.type;
     if (
       assistedKeyType === SignerType.POLICY_SERVER ||
@@ -349,7 +351,7 @@ export const generateMockExtendedKeyForSigner = (
 ) => {
   const mockMnemonic = MOCK_SD_MNEMONIC_MAP[signer];
   if (!mockMnemonic) {
-    throw new Error(`We don't support mock flow for soft keys`);
+    throw new Error("We don't support mock flow for soft keys");
   }
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);

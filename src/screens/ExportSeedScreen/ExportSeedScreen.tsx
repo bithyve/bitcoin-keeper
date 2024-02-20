@@ -159,7 +159,7 @@ function ExportSeedScreen({ route, navigation }) {
                     {common.showAsQR}
                   </Text>
                   {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-              
+
                 </Text> */}
                 </VStack>
               </HStack>

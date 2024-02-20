@@ -89,7 +89,7 @@
     "addSignDeviceUpgrade": "Add signer to upgrade",
     "path": "Path",
     "purpose": "Purpose",
-    "choosePurpose": "Choose Purpose",
+    "choosePurpose": "Choose Wallet purpose",
     "chooseService": "Choose Service",
     "pleaseWait": "Please Wait",
     "receiveTestSats": "Receiving test sats",
@@ -660,11 +660,11 @@
   "onboarding": {
     "Comprehensive": "Comprehensive",
     "security": "security",
-    "slide01Title": "for\n your bitcoin keys",
+    "slide01Title": "for\n your bitcoin",
     "privacy": "privacy",
-    "slide01Paragraph": "Use trusted signers (hardware or software) for air-gapped signing and setting up multisig vaults. Use health check to verify access to keys",
+    "slide01Paragraph": "Create single or multi-key wallets using popular signing devices. Perform air-gapped signing. Do regular health checks for keys.",
     "slide02Title": "Security should not\ncome at the cost of",
-    "slide02Paragraph": "No account creation needed. Run your own node. Connect via Tor.",
+    "slide02Paragraph": "No account creation is needed. Run your own node. Connect via. Tor. Manage UTXOs and perform Whirlpool.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
@@ -677,7 +677,7 @@
     "whirlpool": "Whirlpool",
     "slide07Paragraph": "You can remix your sats for free for enhanced privacy before storing them in your vault",
     "slide08Title": "Upgrade to Diamond Hands for\n generational hodling",
-    "slide08Paragraph": "Plan your inheritance. Access assisted keys.\nAvail priority support services."
+    "slide08Paragraph": "Plan your inheritance. Get access to Assisted Keys. Avail priority support."
   },
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",
@@ -748,6 +748,7 @@
   "signer": {
     "addSigner": "Add Signer",
     "addSignerSubTitle": "to Valinor",
-    "addSigners": "Add Signers"
+    "addSigners": "Add Signers",
+    "addKeys": "Add keys"
   }
 }

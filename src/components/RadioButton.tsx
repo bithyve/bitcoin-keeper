@@ -23,7 +23,7 @@ const RadioButton: React.FC<Props> = ({
   // color = '#00836A',
   borderColor = '#E3E3E3',
   ignoresTouch = false,
-  onpress = () => { },
+  onpress = () => {},
 }: Props) => {
   const containerStyle = useMemo(
     () => ({

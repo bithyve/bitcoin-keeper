@@ -200,7 +200,7 @@ function UpdateWalletDetails({ route }) {
                   setShowPurpose(false);
                   setArrow(false);
                 }}
-                w={'100%'}
+                w="100%"
                 h={10}
                 variant="unstyled"
               />

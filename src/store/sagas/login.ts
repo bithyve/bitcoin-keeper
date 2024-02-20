@@ -1,7 +1,6 @@
-/* eslint-disable no-nested-ternary */
-/* eslint-disable no-plusplus */
 import { call, put, select } from 'redux-saga/effects';
 import {
+  cryptoRandom,
   decrypt,
   encrypt,
   generateEncryptionKey,
@@ -18,6 +17,7 @@ import semver from 'semver';
 import { uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';
 
+import dbManager from 'src/storage/realm/dbManager';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -45,7 +45,6 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import dbManager from 'src/storage/realm/dbManager';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
@@ -255,7 +254,7 @@ function* generateSeedHash() {
       RealmSchema.KeeperApp
     );
     const words = primaryMnemonic.split(' ');
-    const random = Math.floor(Math.random() * words.length);
+    const random = Math.floor(cryptoRandom() * words.length);
     const hash = yield call(hash512, words[random]);
     yield put(setPinResetCreds({ hash, index: random }));
     yield put(resetPinFailAttempts());
