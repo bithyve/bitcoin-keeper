@@ -195,7 +195,7 @@ const getSelectedKeysByType = (vaultKeys, signerMap, type) => {
   return vaultKeys.filter((key) => signerMap[key.masterFingerprint].type === type);
 };
 
-const Footer = ({
+function Footer({
   amfSigners,
   invalidSS,
   invalidIKS,
