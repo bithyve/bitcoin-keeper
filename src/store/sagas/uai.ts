@@ -10,7 +10,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/hooks/usePlan';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { EntityKind, VaultType } from 'src/core/wallets/enums';
-import { setRefreshUai } from '../reducers/uai';
+import { setRefreshUai, updateUaiActionMap } from '../reducers/uai';
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
@@ -54,12 +54,14 @@ function* addToUaiStackWorker({ payload }) {
 function* uaiActionedWorker({ payload }) {
   try {
     const { uaiId, action } = payload;
-    const uai: UAI = dbManager
-      .getCollection(RealmSchema.UAI)
-      .filter((uai: UAI) => uai.id === uaiId)[0];
-    yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, {
-      isActioned: action,
-    });
+
+    if (action) {
+      yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiId);
+    } else {
+      const updateData = { lastActioned: new Date() };
+      yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiId, updateData);
+      yield put(updateUaiActionMap(uaiId));
+    }
     yield put(setRefreshUai());
   } catch (err) {
     console.log(err);
