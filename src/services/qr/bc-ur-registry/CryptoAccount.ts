@@ -93,7 +93,7 @@ class CryptoOutput extends RegistryItem {
     }
     return `${this.scriptExpressions[seIndex].getExpression()}(${this._toOutputDescriptor(
       seIndex + 1
-
+    )})`;
   };
 
   public override toString = () => this._toOutputDescriptor(0);
@@ -121,7 +121,7 @@ class CryptoOutput extends RegistryItem {
   public static fromDataItem = (dataItem: DataItem) => {
     const scriptExpressions: ScriptExpression[] = [];
     let _dataItem = dataItem;
-     
+
     while (true) {
       let _tag = _dataItem.getTag();
       const se = ScriptExpression.fromTag(_tag as number);
