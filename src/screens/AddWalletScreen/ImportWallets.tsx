@@ -16,13 +16,13 @@ function ImportWallets({ navigation }) {
       />
       <OptionCard
         title="Wallet Configuration File"
-        description="Text in your Recovery Instructions (Inheritance)"
+        description="Text in your Recovery Instructions"
         LeftIcon={<ConfigurationIcon />}
         callback={() => navigation.navigate('VaultConfigurationCreation')}
       />
       <OptionCard
-        title="Signers with vault details"
-        description="Signers registered with the vault"
+        title="Signers with Vault details"
+        description="Signers with vault registration"
         LeftIcon={<SignerIcon />}
         callback={() => navigation.navigate('SigningDeviceConfigRecovery')}
       />

@@ -9,7 +9,7 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -18,10 +18,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
-import { SDIcons } from './SigningDeviceIcons';
-import VaultMigrationController from './VaultMigrationController';
 import useSigners from 'src/hooks/useSigners';
-import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -33,6 +30,12 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { getSignerNameFromType } from 'src/hardware';
+import moment from 'moment';
+import Text from 'src/components/KeeperText';
+import SignerCard from '../AddSigner/SignerCard';
+import VaultMigrationController from './VaultMigrationController';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -82,7 +85,7 @@ const onSignerSelect = (
   const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
   const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
 
-  const isMock = signer.isMock;
+  const { isMock } = signer;
   const isAmf = !!amfXpub;
   const isMultisig = msXpub && scheme.n > 1;
 
@@ -188,7 +191,11 @@ const setInitialKeys = (
   }
 };
 
-const Footer = ({
+const getSelectedKeysByType = (vaultKeys, signerMap, type) => {
+  return vaultKeys.filter((key) => signerMap[key.masterFingerprint].type === type);
+};
+
+function Footer({
   amfSigners,
   invalidSS,
   invalidIKS,
@@ -200,10 +207,10 @@ const Footer = ({
   colorMode,
   setCreating,
   navigation,
-}) => {
+}) {
   const renderNotes = () => {
-    let notes = [];
-    if (!!amfSigners.length) {
+    const notes = [];
+    if (amfSigners.length) {
       const message = `* ${amfSigners.join(
         ' and '
       )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`;
@@ -252,9 +259,9 @@ const Footer = ({
       />
     </Box>
   );
-};
+}
 
-const Signers = ({
+function Signers({
   signers,
   selectedSigners,
   setSelectedSigners,
@@ -267,16 +274,25 @@ const Signers = ({
   vaultId,
   allVaults,
   signerMap,
-}) => {
+}) {
   const renderSigners = () => {
+    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     return signers.map((signer) => {
-      const disabled = !isSignerValidForScheme(signer, scheme, allVaults, signerMap);
+      const disabled =
+        !isSignerValidForScheme(signer, scheme, allVaults, signerMap) ||
+        (signer.type === SignerType.MY_KEEPER &&
+          myAppKeys.length >= 1 &&
+          myAppKeys[0].masterFingerprint !== signer.masterFingerprint);
+      const isAMF =
+        signer.type === SignerType.TAPSIGNER &&
+        config.NETWORK_TYPE === NetworkType.TESTNET &&
+        !signer.isMock;
       return (
         <SignerCard
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={signer.signerName}
-          description={signer.signerDescription || signer.type}
+          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          description={`Added ${moment(signer.addedOn).calendar()}`}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) =>
@@ -298,24 +314,34 @@ const Signers = ({
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
-        <Box style={styles.addedSigners}>{renderSigners()}</Box>
-        <AddCard
-          name={'Add Signer'}
-          cardStyles={styles.addCard}
-          callback={() =>
-            navigation.dispatch(
-              CommonActions.navigate('SigningDeviceList', {
-                scheme,
-                vaultId,
-                vaultSigners: vaultKeys,
-              })
-            )
-          }
-        />
+        <Box style={styles.gap10}>
+          <Text color={`${colorMode}.headerText`} style={styles.title}>
+            Choose from already added keys
+          </Text>
+          <Box style={styles.addedSigners}>{renderSigners()}</Box>
+        </Box>
+        <Box style={styles.gap10}>
+          <Text color={`${colorMode}.headerText`} style={styles.title}>
+            or add a new key
+          </Text>
+          <AddCard
+            name="Add Signer"
+            cardStyles={styles.addCard}
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.navigate('SigningDeviceList', {
+                  scheme,
+                  vaultId,
+                  vaultSigners: vaultKeys,
+                })
+              )
+            }
+          />
+        </Box>
       </Box>
     </ScrollView>
   );
-};
+}
 
 function AddSigningDevice() {
   const { colorMode } = useColorMode();
@@ -387,11 +413,10 @@ function AddSigningDevice() {
     }
   }
 
-  //TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={signer.addSigners}
+        title={signer.addKeys}
         subtitle={subtitle}
         icon={
           <HexagonIcon
@@ -401,7 +426,7 @@ function AddSigningDevice() {
             icon={<VaultIcon />}
           />
         }
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}
@@ -494,7 +519,7 @@ const styles = StyleSheet.create({
   },
   signerContainer: {
     width: windowWidth,
-    gap: 40,
+    gap: 60,
     paddingBottom: 20,
     marginTop: 20,
   },
@@ -502,6 +527,13 @@ const styles = StyleSheet.create({
     height: 125,
     width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
+  },
+  gap10: {
+    gap: 10,
+  },
+  title: {
+    marginLeft: 15,
+    fontSize: 14,
   },
 });
 

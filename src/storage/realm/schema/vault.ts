@@ -168,7 +168,7 @@ export const VaultSpecsSchema: ObjectSchema = {
     nextFreeChangeAddressIndex: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
-    addressPubs: `{}?`,
+    addressPubs: '{}?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
@@ -195,7 +195,6 @@ export const VaultSchema: ObjectSchema = {
     specs: RealmSchema.VaultSpecs,
     archived: 'bool',
     scriptType: 'string',
-    collaborativeWalletId: 'string?',
   },
   primaryKey: 'id',
 };

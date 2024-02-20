@@ -62,42 +62,42 @@ function PinInputsView({
 
   return (
     <Box style={styles.container}>
-      <View
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(1)}</Box>
-      </View>
-      <View
+      </Box>
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(2)}</Box>
-      </View>
-      <View
+      </Box>
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(3)}</Box>
-      </View>
-      <View
+      </Box>
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(4)}</Box>
-      </View>
+      </Box>
     </Box>
   );
 }

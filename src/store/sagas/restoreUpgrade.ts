@@ -24,7 +24,7 @@ export function* applyRestoreSequence({
 
 function* additionOfVaultShellId(vaultImage, appImage, encryptionKey) {
   try {
-    //updating Vault Image on Relay first then changing it in local image
+    // updating Vault Image on Relay first then changing it in local image
     const vault: Vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
     vault.shellId = appImage.appId;
     const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
@@ -42,8 +42,8 @@ function* additionOfVaultShellId(vaultImage, appImage, encryptionKey) {
   }
 }
 
-//while restoring, updating the version on the appImage
-//TODO
+// while restoring, updating the version on the appImage
+// TODO
 function* updateVersion(appImage, newVersion) {
   try {
     yield call(Relay.updateAppImage, {

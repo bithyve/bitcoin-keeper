@@ -16,7 +16,7 @@ export class CryptoKeypath extends RegistryItem {
   constructor(
     private components: PathComponent[] = [],
     private sourceFingerprint?: Buffer,
-    private depth?: number,
+    private depth?: number
   ) {
     super();
   }
@@ -26,9 +26,10 @@ export class CryptoKeypath extends RegistryItem {
       return undefined;
     }
 
-    const components = this.components.map((component) => `${component.isWildcard() ? '*' : component.getIndex()}${
-        component.isHardened() ? "'" : ''
-      }`);
+    const components = this.components.map(
+      (component) =>
+        `${component.isWildcard() ? '*' : component.getIndex()}${component.isHardened() ? "'" : ''}`
+    );
     return components.join('/');
   };
 
@@ -69,9 +70,7 @@ export class CryptoKeypath extends RegistryItem {
         const isHardened = components[i + 1];
         const path = components[i];
         if (typeof path === 'number') {
-          pathComponents.push(
-            new PathComponent({ index: path, hardened: isHardened }),
-          );
+          pathComponents.push(new PathComponent({ index: path, hardened: isHardened }));
         } else {
           pathComponents.push(new PathComponent({ hardened: isHardened }));
         }

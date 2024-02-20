@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 export enum RealmSchema {
   KeeperApp = 'KeeperApp',
   Wallet = 'Wallet',
@@ -40,5 +39,4 @@ export enum RealmSchema {
   StoreSubscription = 'StoreSubscription',
   WhirlpoolConfig = 'WhirlpoolConfig',
   WhirlpoolWalletDetails = 'WhirlpoolWalletDetails',
-  CollaborativeWalletDetails = 'CollaborativeWalletDetails',
 }

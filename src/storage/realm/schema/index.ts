@@ -14,7 +14,6 @@ import {
   UTXOInfoSchema,
   Tags,
   AddressCacheSchema,
-  CollaborativeWalletDetailsSchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -79,5 +78,4 @@ export default [
   NodeConnectSchema,
   WhirlpoolConfigSchema,
   WhirlpoolWalletDetailsSchema,
-  CollaborativeWalletDetailsSchema,
 ];

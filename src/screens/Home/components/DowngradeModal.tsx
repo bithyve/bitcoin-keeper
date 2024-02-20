@@ -81,7 +81,7 @@ function DowngradeModalContent({ navigation, app }) {
   );
 }
 
-export const DowngradeModal = ({ navigation }) => {
+export function DowngradeModal({ navigation }) {
   const { colorMode } = useColorMode();
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { recepitVerificationFailed } = useAppSelector((state) => state.login);
@@ -104,7 +104,7 @@ export const DowngradeModal = ({ navigation }) => {
       showCloseIcon={false}
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
   cancelBtn: {

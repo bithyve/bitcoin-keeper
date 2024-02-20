@@ -86,15 +86,15 @@ function EditWalletSettings({ route }: ScreenProps) {
         <KeeperTextInput
           value={walletName}
           onChangeText={setWalletName}
-          placeholder={''}
-          testID={'walletName'}
+          placeholder=""
+          testID="walletName"
           maxLength={20}
         />
         <KeeperTextInput
           value={walletDescription}
           onChangeText={setWalletDescription}
           placeholder={walletText.WalletDescriptionPlaceholder}
-          testID={'walletDescription'}
+          testID="walletDescription"
           maxLength={40}
         />
         <View style={styles.buttonWrapper}>

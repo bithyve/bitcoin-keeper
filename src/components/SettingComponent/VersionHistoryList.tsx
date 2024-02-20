@@ -5,8 +5,8 @@ import moment from 'moment';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import DotView from '../DotView';
 import { useQuery } from '@realm/react';
+import DotView from '../DotView';
 
 function VersionHistoryList() {
   const { colorMode } = useColorMode();

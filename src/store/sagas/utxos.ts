@@ -73,9 +73,9 @@ export function* bulkUpdateLabelsWorker({
     const origin = genrateOutputDescriptors(wallet, false);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
-    const idSuffix = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
+    const idSuffix = txId || `${UTXO.txId}:${UTXO.vout}`;
     if (labelChanges.added) {
-      const ref = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
+      const ref = txId || `${UTXO.txId}:${UTXO.vout}`;
       const type = txId ? LabelRefType.TXN : LabelRefType.OUTPUT;
       addedTags = labelChanges.added.map((label) => ({
         id: `${idSuffix}${label.name}`,

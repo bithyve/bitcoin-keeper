@@ -2,8 +2,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import React from 'react';
 import Selected from 'src/assets/images/selected.svg';
 import UnSelected from 'src/assets/images/unselected.svg';
-import Text from './KeeperText';
 import Fonts from 'src/constants/Fonts';
+import Text from './KeeperText';
 
 function CheckBox(props) {
   const IconName = props.isChecked ? <Selected /> : <UnSelected />;

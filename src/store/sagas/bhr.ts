@@ -1,6 +1,4 @@
-/* eslint-disable guard-for-in */
 import * as bip39 from 'bip39';
-
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
@@ -24,6 +22,9 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
+import { getSignerNameFromType } from 'src/hardware';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import {
   refreshWallets,
   updateSignerDetails,
@@ -51,16 +52,9 @@ import {
   UPDATE_VAULT_IMAGE,
   getAppImage,
 } from '../sagaActions/bhr';
-import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
-import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
-import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import { NewVaultInfo, addNewVaultWorker } from './wallets';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
 
 export function* updateAppImageWorker({
@@ -90,7 +84,7 @@ export function* updateAppImageWorker({
       signersObjects[signer.masterFingerprint] = encrytedWallet;
     }
   } else {
-    //update all wallets and signers
+    // update all wallets and signers
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
       const wallet = wallets[index];
@@ -363,6 +357,7 @@ function* recoverApp(
   };
 
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+
   // Wallet recreation
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
@@ -371,55 +366,11 @@ function* recoverApp(
       if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
         yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
       }
-      //Collobrative Wallet Recreation
-      if (
-        decrytpedWallet?.collaborativeWalletDetails &&
-        decrytpedWallet?.collaborativeWalletDetails?.descriptor
-      ) {
-        const descriptor = decrytpedWallet?.collaborativeWalletDetails?.descriptor;
-        const parsedText: ParsedVauleText = parseTextforVaultConfig(descriptor);
-        if (parsedText) {
-          const signers: VaultSigner[] = [];
-          parsedText.signersDetails.forEach((config) => {
-            const { signer } = generateSignerFromMetaData({
-              xpub: config.xpub,
-              derivationPath: config.path,
-              masterFingerprint: config.masterFingerprint,
-              signerType: SignerType.KEEPER,
-              storageType: SignerStorage.WARM,
-              isMultisig: config.isMultisig,
-            });
-            signers.push(signer);
-          });
-
-          const { xpubDetails } = getCosignerDetails(decrytpedWallet);
-          const isValidDescriptor = signers.find(
-            (signer) => signer.xpub === xpubDetails[XpubTypes.P2WSH].xpub
-          );
-          if (!isValidDescriptor) {
-            throw new Error('Descriptor does not contain your key');
-          }
-
-          const vaultInfo: NewVaultInfo = {
-            vaultType: VaultType.COLLABORATIVE,
-            vaultScheme: parsedText.scheme,
-            vaultSigners: signers,
-            vaultDetails: {
-              name: 'Collborative Wallet',
-              description: `${parsedText.scheme.m} of ${parsedText.scheme.n} Multisig`,
-            },
-            collaborativeWalletId: decrytpedWallet.id,
-          };
-          yield call(addNewVaultWorker, {
-            payload: { newVaultInfo: vaultInfo, isRecreation: true },
-          });
-        }
-      }
       yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
     }
   }
 
-  //Signers recreatin
+  // Signers recreatin
   if (appImage.signers) {
     for (const [key, value] of Object.entries(appImage.signers)) {
       const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
@@ -468,10 +419,14 @@ function* recoverApp(
                 }
               }
             });
+            const isAMF =
+              signer.type === SignerType.TAPSIGNER &&
+              config.NETWORK_TYPE === NetworkType.TESTNET &&
+              !signer.isMock;
             const signerObject = {
               masterFingerprint: signer.masterFingerprint,
               type: signer.type,
-              signerName: signer.signerName,
+              signerName: getSignerNameFromType(signer.type, signer.isMock, isAMF),
               signerDescription: signer.signerDescription,
               lastHealthCheck: signer.lastHealthCheck,
               addedOn: signer.addedOn,
@@ -498,7 +453,7 @@ function* recoverApp(
   }
   yield put(setAppId(appID));
 
-  //Labels Restore
+  // Labels Restore
   if (labels) {
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, labels);
   }

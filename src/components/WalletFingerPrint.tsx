@@ -6,8 +6,8 @@ import Clipboard from '@react-native-community/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Text from './KeeperText';
 import { hp } from 'src/constants/responsive';
+import Text from './KeeperText';
 
 type Props = {
   fingerprint: string;
@@ -25,7 +25,7 @@ function WalletFingerprint({ title, fingerprint }: Props) {
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box style={styles.textContainer}>
         <Text color={`${colorMode}.black`} style={styles.heading}>
-          {title ? title : 'Wallet Fingerprint'}
+          {title || 'Wallet Fingerprint'}
         </Text>
         <Text color={`${colorMode}.GreenishGrey`} style={styles.value}>
           {fingerprint}

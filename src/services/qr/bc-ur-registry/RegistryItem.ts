@@ -10,7 +10,7 @@ export abstract class RegistryItem {
   public toCBOR = () => {
     if (this.toDataItem() === undefined) {
       throw new Error(
-        `#[ur-registry][RegistryItem][fn.toCBOR]: registry ${this.getRegistryType()}'s method toDataItem returns undefined`,
+        `#[ur-registry][RegistryItem][fn.toCBOR]: registry ${this.getRegistryType()}'s method toDataItem returns undefined`
       );
     }
     return encodeDataItem(this.toDataItem());
@@ -21,15 +21,10 @@ export abstract class RegistryItem {
   public toUREncoder = (
     maxFragmentLength?: number,
     firstSeqNum?: number,
-    minFragmentLength?: number,
+    minFragmentLength?: number
   ) => {
     const ur = this.toUR();
-    const urEncoder = new UREncoder(
-      ur,
-      maxFragmentLength,
-      firstSeqNum,
-      minFragmentLength,
-    );
+    const urEncoder = new UREncoder(ur, maxFragmentLength, firstSeqNum, minFragmentLength);
     return urEncoder;
   };
 }

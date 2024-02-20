@@ -2,10 +2,10 @@ import { Box, useColorMode } from 'native-base';
 import DeviceInfo from 'react-native-device-info';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 
-import Text from './KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useEffect, useState } from 'react';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import Text from './KeeperText';
 
 type ActionCardProps = {
   cardName: string;
@@ -27,7 +27,7 @@ function ActionCard({
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
   return (
-    <TouchableOpacity onPress={callback}>
+    <TouchableOpacity activeOpacity={0.95} onPress={callback}>
       <Box
         style={[
           styles.cardContainer,

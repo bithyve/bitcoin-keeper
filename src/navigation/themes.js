@@ -136,6 +136,7 @@ export const customTheme = extendTheme({
       Smoke: Colors.Smoke,
       ForestGreenDark: Colors.ForestGreenDark,
       deepTeal: Colors.deepTeal,
+      PearlGrey: Colors.PearlGrey,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -224,6 +225,7 @@ export const customTheme = extendTheme({
       deepTeal: Colors.deepTeal,
       Champagne: Colors.Champagne,
       Ivory: Colors.Ivory,
+      PearlGrey: Colors.PearlGrey,
     },
   },
   config: {

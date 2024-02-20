@@ -45,7 +45,7 @@ export class CryptoECKey extends RegistryItem implements ICryptoKey {
     return new DataItem(map);
   };
 
-  getOutputDescriptorContent = () => this.data.toString('hex')
+  getOutputDescriptorContent = () => this.data.toString('hex');
 
   static fromDataItem = (dataItem: DataItem) => {
     const map = dataItem.getData();
@@ -54,7 +54,7 @@ export class CryptoECKey extends RegistryItem implements ICryptoKey {
     const data = map[Keys.data];
     if (!data) {
       throw new Error(
-        `#[ur-registry][CryptoECKey][fn.fromDataItem]: decoded [dataItem][#data.data] is undefined: ${dataItem}`,
+        `#[ur-registry][CryptoECKey][fn.fromDataItem]: decoded [dataItem][#data.data] is undefined: ${dataItem}`
       );
     }
     return new CryptoECKey({ data, curve, privateKey });
