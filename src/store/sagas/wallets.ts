@@ -112,6 +112,7 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
+import idx from 'idx';
 
 export interface NewVaultDetails {
   name?: string;
@@ -716,13 +717,21 @@ function* finaliseIKSetupWorker({
   payload: { ikSigner: Signer; ikVaultKey: VaultSigner; vault: Vault };
 }) {
   // finalise the IK setup
-  const { ikSigner, ikVaultKey, vault } = payload;
+  const { ikSigner, ikVaultKey, vault } = payload; // vault here is the new vault
   const backupBSMSForIKS = yield select((state: RootState) => state.vault.backupBSMSForIKS);
   let updatedInheritanceKeyInfo: InheritanceKeyInfo = null;
 
   if (ikSigner.inheritanceKeyInfo) {
     // case: updating config for this new vault which already had IKS as one of its signers
-    const existingConfiguration = ikSigner.inheritanceKeyInfo.configuration;
+    let existingConfiguration: InheritanceConfiguration = idx(
+      // thresholds are constructed using an already existing configuration for IKS
+      ikSigner,
+      (_) => _.inheritanceKeyInfo.configurations[0]
+    );
+
+    if (!existingConfiguration)
+      throw new Error(`Failed to find the existing configuration for IKS`);
+
     const newIKSConfiguration: InheritanceConfiguration = yield call(
       InheritanceKeyServer.generateInheritanceConfiguration,
       vault,
@@ -739,7 +748,7 @@ function* finaliseIKSetupWorker({
     if (updated) {
       updatedInheritanceKeyInfo = {
         ...ikSigner.inheritanceKeyInfo,
-        configuration: newIKSConfiguration,
+        configurations: [...ikSigner.inheritanceKeyInfo.configurations, newIKSConfiguration],
       };
     } else throw new Error('Failed to update the inheritance key configuration');
   } else {
@@ -764,7 +773,7 @@ function* finaliseIKSetupWorker({
 
     if (setupSuccessful) {
       updatedInheritanceKeyInfo = {
-        configuration: config,
+        configurations: [config],
         policy,
       };
     } else throw new Error('Failed to finalise the inheritance key setup');

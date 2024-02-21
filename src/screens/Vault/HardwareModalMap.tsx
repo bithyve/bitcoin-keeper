@@ -1360,13 +1360,14 @@ function HardwareModalMap({
   //       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
   //       const ids = vaultSigners.map((signer) => signer.xfp);
   //       const response = await InheritanceKeyServer.findIKSSetup(ids, thresholdDescriptors);
+  //       note: findIKSSetup will only be able to provide the id in the setupInfo
   //       if (response.setupInfo.id) {
   //         const mapped = mapUnknownSigner({
   //           masterFingerprint: response.setupInfo.masterFingerprint,
   //           type: SignerType.POLICY_SERVER,
   //           inheritanceKeyInfo: {
-  //             configuration: response.setupInfo.configuration,
-  //             policy: response.setupInfo?.policy,
+  //             configuration: response.setupInfo.configuration, // not available
+  //             policy: response.setupInfo?.policy,              // not available
   //           },
   //         });
   //         if (mapped) {
