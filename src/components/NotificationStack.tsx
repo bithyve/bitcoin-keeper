@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Dimensions, StyleSheet, View } from 'react-native';
+import { Alert, Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   Directions,
   Gesture,
@@ -24,7 +24,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
-import { windowHeight } from 'src/constants/responsive';
+import { windowHeight, wp } from 'src/constants/responsive';
 import { TransferType } from 'src/models/enums/TransferType';
 import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
@@ -234,6 +234,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
 }
 
 export default function NotificationStack() {
+  const { colorMode } = useColorMode();
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
 
@@ -249,17 +250,43 @@ export default function NotificationStack() {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
         <View style={styles.viewWrapper}>
-          {(uaiStack || []).map((c, index) => {
-            return (
-              <Card
-                info={c}
-                key={c.id}
-                index={index}
-                totalLength={uaiStack.length - 1}
-                activeIndex={activeIndex}
-              />
-            );
-          })}
+          {uaiStack.length ? (
+            (uaiStack || []).map((c, index) => {
+              return (
+                <Card
+                  info={c}
+                  key={c.id}
+                  index={index}
+                  totalLength={uaiStack.length - 1}
+                  activeIndex={activeIndex}
+                />
+              );
+            })
+          ) : (
+            <Box
+              style={[styles.card, styles.uaiEmptyStateContainer]}
+              backgroundColor={`${colorMode}.lightSeashell`}
+            >
+              <Text fontSize={12} bold color={`${colorMode}.seashellWhite`}>
+                You’re all caught up!
+              </Text>
+              <Box style={styles.rateKeeperContainer}>
+                <Text color={`${colorMode}.seashellWhite`} bold style={styles.rateKeeperText}>
+                  Enjoying our app? Rate Keeper on the App Store
+                </Text>
+                <TouchableOpacity>
+                  <Box
+                    backgroundColor={`${colorMode}.primaryGreenBackground`}
+                    style={styles.appStoreBtn}
+                  >
+                    <Text fontSize={10} bold color={`${colorMode}.Warmbeige`}>
+                      App Store
+                    </Text>
+                  </Box>
+                </TouchableOpacity>
+              </Box>
+            </Box>
+          )}
         </View>
       </GestureDetector>
     </GestureHandlerRootView>
@@ -282,6 +309,10 @@ const styles = StyleSheet.create({
     height: layout.height,
     justifyContent: 'center',
   },
+  uaiEmptyStateContainer: {
+    paddingHorizontal: 15,
+    gap: 5,
+  },
   title: {
     fontSize: 12,
     fontWeight: '600',
@@ -302,5 +333,22 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     gap: 20,
+  },
+  rateKeeperContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 20,
+  },
+  rateKeeperText: {
+    width: wp(180),
+    fontSize: 14,
+  },
+  appStoreBtn: {
+    width: wp(60),
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 7,
+    borderRadius: 8,
   },
 });
