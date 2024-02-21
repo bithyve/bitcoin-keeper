@@ -24,11 +24,12 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
-import { windowHeight } from 'src/constants/responsive';
+import { windowHeight, wp } from 'src/constants/responsive';
 import { TransferType } from 'src/models/enums/TransferType';
 import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
+import UAIEmptyState from './UAIEmptyState';
 
 const { width } = Dimensions.get('window');
 
@@ -234,6 +235,7 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
 }
 
 export default function NotificationStack() {
+  const { colorMode } = useColorMode();
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
 
@@ -249,17 +251,21 @@ export default function NotificationStack() {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
         <View style={styles.viewWrapper}>
-          {(uaiStack || []).map((c, index) => {
-            return (
-              <Card
-                info={c}
-                key={c.id}
-                index={index}
-                totalLength={uaiStack.length - 1}
-                activeIndex={activeIndex}
-              />
-            );
-          })}
+          {uaiStack.length ? (
+            (uaiStack || []).map((c, index) => {
+              return (
+                <Card
+                  info={c}
+                  key={c.id}
+                  index={index}
+                  totalLength={uaiStack.length - 1}
+                  activeIndex={activeIndex}
+                />
+              );
+            })
+          ) : (
+            <UAIEmptyState />
+          )}
         </View>
       </GestureDetector>
     </GestureHandlerRootView>
@@ -285,22 +291,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 12,
     fontWeight: '600',
-  },
-  content: {
-    fontSize: 14,
-    fontWeight: '600',
-    width: '50%',
-  },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  skip: {
-    fontSize: 12,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 20,
   },
 });

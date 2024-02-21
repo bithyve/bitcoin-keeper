@@ -65,7 +65,7 @@ function KeeperHeader({
                 style={styles.learnMoreContainer}
               >
                 <Text color={learnTextColor} style={styles.learnMoreText}>
-                  Learn More
+                  Need Help?
                 </Text>
               </Box>
             </TouchableOpacity>

@@ -240,6 +240,7 @@ export const generateCosignerMapIds = (
   keys: VaultSigner[],
   except: SignerType
 ) => {
+  // generates cosigners map ids using sorted and hashed cosigner ids
   const cosignerIds = [];
   keys.forEach((signer) => {
     if (signerMap[signer.masterFingerprint].type !== except) cosignerIds.push(signer.xfp);
@@ -247,12 +248,15 @@ export const generateCosignerMapIds = (
 
   cosignerIds.sort();
 
+  const hashedCosignerIds = cosignerIds.map((id) => hash256(id));
+
   const cosignersMapIds = [];
-  for (let i = 0; i < cosignerIds.length; i++) {
-    for (let j = i + 1; j < cosignerIds.length; j++) {
-      cosignersMapIds.push(`${cosignerIds[i]}-${cosignerIds[j]}`);
+  for (let i = 0; i < hashedCosignerIds.length; i++) {
+    for (let j = i + 1; j < hashedCosignerIds.length; j++) {
+      cosignersMapIds.push(hashedCosignerIds[i] + '-' + hashedCosignerIds[j]);
     }
   }
+
   return cosignersMapIds;
 };
 
