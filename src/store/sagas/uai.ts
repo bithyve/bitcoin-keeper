@@ -19,7 +19,10 @@ import {
 import { createWatcher } from '../utilities';
 import { BackupHistory } from 'src/models/enums/BHR';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
-const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
+const HEALTH_CHECK_REMINDER_TESTNET = 1; // 3hours
+const healthCheckReminderThreshold = isTestnet()
+  ? HEALTH_CHECK_REMINDER_TESTNET
+  : HEALTH_CHECK_REMINDER_MAINNET;
 
 const healthCheckReminderDays = (lastHealthCheck: Date) => {
   const today = new Date();
@@ -33,6 +36,13 @@ const healthCheckReminderHours = (lastHealthCheck: Date) => {
   const differenceInTime = today.getTime() - lastHealthCheck.getTime();
   const differenceInHours = Math.round(differenceInTime / (1000 * 3600));
   return differenceInHours;
+};
+
+const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
+  const today = new Date();
+  const differenceInTime = today.getTime() - lastHealthCheck.getTime();
+  const differenceInMinutes = Math.round(differenceInTime / (1000 * 60));
+  return differenceInMinutes;
 };
 
 function* addToUaiStackWorker({ payload }) {
@@ -166,10 +176,8 @@ function* uaiChecksWorker({ payload }) {
           const lastHealthCheck = isTestnet()
             ? healthCheckReminderHours(signer.lastHealthCheck)
             : healthCheckReminderDays(signer.lastHealthCheck);
-          if (
-            lastHealthCheck >=
-            (isTestnet() ? HEALTH_CHECK_REMINDER_MAINNET : HEALTH_CHECK_REMINDER_TESTNET)
-          ) {
+
+          if (lastHealthCheck >= healthCheckReminderThreshold) {
             const uaiCollection: UAI[] = dbManager.getObjectByField(
               RealmSchema.UAI,
               signer.masterFingerprint,
@@ -212,10 +220,7 @@ function* uaiChecksWorker({ payload }) {
             const lastHealthCheck = isTestnet()
               ? healthCheckReminderHours(signer.lastHealthCheck)
               : healthCheckReminderDays(signer.lastHealthCheck);
-            if (
-              lastHealthCheck <
-              (isTestnet() ? HEALTH_CHECK_REMINDER_TESTNET : HEALTH_CHECK_REMINDER_MAINNET)
-            ) {
+            if (lastHealthCheck < healthCheckReminderThreshold) {
               yield put(uaiActioned({ uaiId: uai.id, action: true }));
             }
           }
@@ -233,9 +238,6 @@ function* uaiChecksWorker({ payload }) {
         const lastHealthCheck = isTestnet()
           ? healthCheckReminderHours(latestConfirmedBackupDate)
           : healthCheckReminderDays(latestConfirmedBackupDate);
-        const healthCheckReminderThreshold = isTestnet()
-          ? HEALTH_CHECK_REMINDER_MAINNET
-          : HEALTH_CHECK_REMINDER_TESTNET;
 
         shouldAddToUaiStack = lastHealthCheck >= healthCheckReminderThreshold;
       } else {
