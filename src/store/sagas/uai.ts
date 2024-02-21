@@ -53,15 +53,52 @@ function* addToUaiStackWorker({ payload }) {
 
 function* uaiActionedWorker({ payload }) {
   try {
-    const { uaiId, action } = payload;
-
-    if (action) {
-      yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiId);
-    } else {
-      const updateData = { lastActioned: new Date() };
-      yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiId, updateData);
-      yield put(updateUaiActionMap(uaiId));
+    const { uaiId, action, entityId, uaiType } = payload;
+    // Handle action based on entityId
+    if (entityId) {
+      const uaiEntityId: UAI | any = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        entityId,
+        'entityId'
+      )[0];
+      if (uaiEntityId) {
+        if (action) {
+          yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiEntityId.id);
+        } else {
+          const updateData = { lastActioned: new Date() };
+          yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiEntityId.id, updateData);
+          yield put(updateUaiActionMap(uaiEntityId.id));
+        }
+      }
     }
+    // Handle action based on uaiType
+    if (uaiType) {
+      const uaiTypeBased: UAI | any = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType,
+        'uaiType'
+      )[0];
+      if (uaiTypeBased) {
+        if (action) {
+          yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiTypeBased.id);
+        } else {
+          const updateData = { lastActioned: new Date() };
+          yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiTypeBased.id, updateData);
+          yield put(updateUaiActionMap(uaiTypeBased.id));
+        }
+      }
+    }
+    // Handle action based on uaiId
+    if (uaiId) {
+      if (action) {
+        yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiId);
+      } else {
+        const updateData = { lastActioned: new Date() };
+        yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiId, updateData);
+        yield put(updateUaiActionMap(uaiId));
+      }
+    }
+
     yield put(setRefreshUai());
   } catch (err) {
     console.log(err);
@@ -186,11 +223,10 @@ function* uaiChecksWorker({ payload }) {
       }
     }
     if (checkForTypes.includes(uaiType.RECOVERY_PHRASE_HEALTH_CHECK)) {
-      const backupHistory: BackupHistory = dbManager.getCollection(RealmSchema.BackupHealthHistory);
+      const backupHistory: BackupHistory = dbManager.getCollection(RealmSchema.BackupHistory);
       const confirmedBackups = backupHistory.filter((item) => item.confirmed);
 
       let shouldAddToUaiStack = false;
-
       if (confirmedBackups.length > 0) {
         const lastConfirmBackup = confirmedBackups.sort((a, b) => b.date - a.date)[0];
         const latestConfirmedBackupDate = new Date(lastConfirmBackup.date * 1000);
