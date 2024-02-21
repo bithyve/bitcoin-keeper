@@ -65,7 +65,7 @@ function KeeperHeader({
                 style={styles.learnMoreContainer}
               >
                 <Text color={learnTextColor} style={styles.learnMoreText}>
-                  Learn More
+                  Need Help?
                 </Text>
               </Box>
             </TouchableOpacity>
@@ -79,7 +79,7 @@ function KeeperHeader({
             {title && (
               <Text
                 style={styles.addWalletText}
-                color={titleColor ? titleColor : `${colorMode}.headerText`}
+                color={titleColor || `${colorMode}.headerText`}
                 testID="text_header_title"
                 bold={boldTitle}
               >
@@ -89,7 +89,7 @@ function KeeperHeader({
             {subtitle && (
               <Text
                 style={[styles.addWalletDescription]}
-                color={subTitleColor ? subTitleColor : `${colorMode}.black`}
+                color={subTitleColor || `${colorMode}.black`}
                 testID="text_header_subtitle"
               >
                 {subtitle}
