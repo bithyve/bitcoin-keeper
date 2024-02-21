@@ -56,6 +56,7 @@ import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 export function* updateAppImageWorker({
   payload,
@@ -218,6 +219,9 @@ function* seedBackeupConfirmedWorked({
       confirmed,
       subtitle: '',
     });
+    confirmed
+      ? yield put(uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true }))
+      : null;
     yield put(setSeedConfirmed(confirmed));
   } catch (error) {
     //
@@ -239,6 +243,7 @@ function* seedBackedUpWorker() {
       },
     });
     yield put(setBackupType(BackupType.SEED));
+    yield uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true });
   } catch (error) {
     console.log(error);
   }
