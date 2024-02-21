@@ -18,7 +18,12 @@ export const addToUaiStack = (payload: {
   };
 };
 
-export const uaiActioned = (payload: { uaiId?: string; action: boolean; entityId?: string }) => ({
+export const uaiActioned = (payload: {
+  uaiId?: string;
+  action: boolean;
+  entityId?: string;
+  uaiType?: uaiType;
+}) => ({
   type: UAI_ACTIONED,
   payload,
 });
