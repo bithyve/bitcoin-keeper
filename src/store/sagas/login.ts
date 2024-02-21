@@ -176,12 +176,9 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               uaiType.SECURE_VAULT,
               uaiType.VAULT_TRANSFER,
-              uaiType.DEFAULT,
+              uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
             ])
           );
-          const UAIs: UAI[] = yield call(dbManager.getCollection, RealmSchema.UAI);
-
-          yield put(createUaiMap(UAIs));
 
           yield put(resetSyncing());
           yield call(generateSeedHash);

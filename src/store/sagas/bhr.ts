@@ -52,7 +52,7 @@ import {
   UPDATE_VAULT_IMAGE,
   getAppImage,
 } from '../sagaActions/bhr';
-import { uaiActionedEntity } from '../sagaActions/uai';
+import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
@@ -520,7 +520,7 @@ function* healthCheckSignerWorker({
     for (const signer of signers) {
       const date = new Date();
       yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
-      yield put(uaiActionedEntity(signer.signerId, true));
+      yield put(uaiActioned({ entityId: signer.masterFingerprint, action: true }));
     }
   } catch (err) {
     console.log(err);

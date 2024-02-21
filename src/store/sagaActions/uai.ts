@@ -3,7 +3,6 @@ import { uaiType } from 'src/models/interfaces/Uai';
 export const ADD_TO_UAI_STACK = 'ADD_TO_UAI_STACK';
 export const UAI_ACTIONED = 'UAI_ACTIONED';
 export const UAI_CHECKS = 'UAI_CHECKS';
-export const UAI_ACTIONED_ENTITY = 'UAI_ACTIONED_ENTITY';
 
 export const addToUaiStack = (payload: {
   uaiType: uaiType;
@@ -19,25 +18,14 @@ export const addToUaiStack = (payload: {
   };
 };
 
-export const uaiActioned = (uaiId: string, action: boolean = true) => ({
+export const uaiActioned = (payload: { uaiId?: string; action: boolean; entityId?: string }) => ({
   type: UAI_ACTIONED,
-  payload: {
-    uaiId,
-    action,
-  },
+  payload,
 });
 
 export const uaiChecks = (checkForTypes: uaiType[]) => ({
   type: UAI_CHECKS,
   payload: {
     checkForTypes,
-  },
-});
-
-export const uaiActionedEntity = (entityId: string, action: boolean = true) => ({
-  type: UAI_ACTIONED_ENTITY,
-  payload: {
-    entityId,
-    action,
   },
 });
