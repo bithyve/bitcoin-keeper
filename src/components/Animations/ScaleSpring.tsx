@@ -2,7 +2,7 @@ import React from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-const ScaleSpring = ({ children }) => {
+function ScaleSpring({ children }) {
   const initialScale = 1;
   const scale = useSharedValue(initialScale);
   const animatedStyles = useAnimatedStyle(() => ({
@@ -24,6 +24,6 @@ const ScaleSpring = ({ children }) => {
       <Animated.View style={animatedStyles}>{children}</Animated.View>
     </GestureDetector>
   );
-};
+}
 
 export default ScaleSpring;

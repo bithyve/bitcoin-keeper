@@ -7,11 +7,63 @@ import {
   InheritancePolicy,
 } from '../interfaces';
 import RestClient from '../rest/RestClient';
-import { asymmetricEncrypt } from '../operations/encryption/index';
+import { asymmetricEncrypt, hash256 } from '../operations/encryption/index';
+import { Vault } from '../../core/wallets/interfaces/vault';
+import { genrateOutputDescriptors } from 'src/core/utils';
 
 const { HEXA_ID, SIGNING_SERVER, SIGNING_SERVER_RSA_PUBKEY } = config;
 
 export default class InheritanceKeyServer {
+  static getThresholdDescriptors = (
+    existingConfiguration: InheritanceConfiguration,
+    omitDesc: string
+  ): string[] => {
+    const validDescriptors = [];
+    existingConfiguration.descriptors.forEach((desc) => {
+      // omit the one for which the threshold is being set
+      if (desc !== omitDesc) validDescriptors.push(desc);
+    });
+
+    if (validDescriptors.length < existingConfiguration.m)
+      throw new Error('Insufficient threshold descriptors');
+
+    const thresholdDescriptors = validDescriptors.slice(0, existingConfiguration.m);
+    return thresholdDescriptors; // they are hashed and checked against the stored ones; on the backend
+  };
+
+  static generateInheritanceConfiguration = (
+    vault: Vault,
+    backupBSMSForIKS = false
+  ): InheritanceConfiguration => {
+    const descriptors = vault.signers.map((signer) => signer.xfp);
+
+    // const bsms = backupBSMSForIKS ? genrateOutputDescriptors(vault) : null;
+    const bsms = null; // disabled BSMS backup
+
+    return {
+      m: vault.scheme.m,
+      n: vault.scheme.n,
+      descriptors,
+      bsms,
+    };
+  };
+
+  static getEncryptedInheritanceConfiguration = async (
+    inheritanceConfiguration: InheritanceConfiguration
+  ): Promise<InheritanceConfiguration> => {
+    const hashedDescriptor = inheritanceConfiguration.descriptors.map((desc) => hash256(desc));
+    const encryptedBSMS = inheritanceConfiguration.bsms // TODO: encryption for BSMS is not working(to be fixed)
+      ? await asymmetricEncrypt(inheritanceConfiguration.bsms, SIGNING_SERVER_RSA_PUBKEY)
+      : null;
+
+    return {
+      m: inheritanceConfiguration.m,
+      n: inheritanceConfiguration.n,
+      descriptors: hashedDescriptor,
+      bsms: encryptedBSMS,
+    };
+  };
+
   static getEncryptedInheritancePolicy = async (
     policy: InheritancePolicy
   ): Promise<EncryptedInheritancePolicy> => {
@@ -68,13 +120,15 @@ export default class InheritanceKeyServer {
     setupSuccessful: boolean;
   }> => {
     let res: AxiosResponse;
+
+    const encryptedConfiguration = await this.getEncryptedInheritanceConfiguration(configuration);
     const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(policy);
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/finalizeIKSetup`, {
         HEXA_ID,
         id,
-        configuration,
+        configuration: encryptedConfiguration,
         updatedEncryptedPolicy,
       });
     } catch (err) {
@@ -96,18 +150,26 @@ export default class InheritanceKeyServer {
    */
   static updateInheritanceConfig = async (
     id: string,
-    existingThresholdDescriptors: string[],
+    existingConfiguration: InheritanceConfiguration,
     newConfiguration: InheritanceConfiguration
   ): Promise<{
     updated: boolean;
   }> => {
     let res: AxiosResponse;
     try {
+      const encryptedNewConfiguration = await this.getEncryptedInheritanceConfiguration(
+        newConfiguration
+      );
+      const existingThresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+        existingConfiguration,
+        id
+      );
+
       res = await RestClient.post(`${SIGNING_SERVER}v3/updateInheritanceConfig`, {
         HEXA_ID,
         id,
         existingThresholdDescriptors,
-        newConfiguration,
+        newConfiguration: encryptedNewConfiguration,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -124,18 +186,23 @@ export default class InheritanceKeyServer {
   /**
    * @param  {string} id
    * @param  {any} updates
-   * @param {string[]} thresholdDescriptors
+   * @param {InheritanceConfiguration} inheritanceConfiguration
    * @returns {Promise<boolean>} updated
    */
   static updateInheritancePolicy = async (
     id: string,
     updatedPolicy: InheritancePolicy,
-    thresholdDescriptors: string[]
+    inheritanceConfiguration: InheritanceConfiguration
   ): Promise<{
     updated: boolean;
   }> => {
     let res: AxiosResponse;
     const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(updatedPolicy);
+
+    const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+      inheritanceConfiguration,
+      id
+    );
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/updateInheritancePolicy`, {
         HEXA_ID,
@@ -165,12 +232,17 @@ export default class InheritanceKeyServer {
         vout: number;
         value: number;
       };
-    }>,
-    thresholdDescriptors: string[]
+    }>
+    // thresholdDescriptors: string[]
   ): Promise<{
     signedPSBT: string;
   }> => {
     let res: AxiosResponse;
+
+    // const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+    //   inheritanceConfiguration,
+    //   id
+    // );
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/signTransactionViaInheritanceKey`, {
@@ -178,7 +250,7 @@ export default class InheritanceKeyServer {
         id,
         serializedPSBT,
         childIndexArray,
-        thresholdDescriptors,
+        // thresholdDescriptors,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -215,7 +287,7 @@ export default class InheritanceKeyServer {
         HEXA_ID,
         requestId,
         cosignersId,
-        thresholdDescriptors,
+        thresholdDescriptors, // don't need to construct using InheritanceKeyServer.getThresholdDescriptors, as there's nothing to omit(IKS is being requested, its descriptor isn't known)
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -295,7 +367,7 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v3/findIKSSetup`, {
         HEXA_ID,
         ids,
-        thresholdDescriptors,
+        thresholdDescriptors, // don't need to construct using InheritanceKeyServer.getThresholdDescriptors, as there's nothing to omit(IKS is being requested, its descriptor isn't known)
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);

@@ -9,7 +9,7 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -30,6 +30,8 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import { getSignerNameFromType } from 'src/hardware';
+import moment from 'moment';
 import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -189,6 +191,10 @@ const setInitialKeys = (
   }
 };
 
+const getSelectedKeysByType = (vaultKeys, signerMap, type) => {
+  return vaultKeys.filter((key) => signerMap[key.masterFingerprint].type === type);
+};
+
 function Footer({
   amfSigners,
   invalidSS,
@@ -270,14 +276,23 @@ function Signers({
   signerMap,
 }) {
   const renderSigners = () => {
+    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     return signers.map((signer) => {
-      const disabled = !isSignerValidForScheme(signer, scheme, allVaults, signerMap);
+      const disabled =
+        !isSignerValidForScheme(signer, scheme, allVaults, signerMap) ||
+        (signer.type === SignerType.MY_KEEPER &&
+          myAppKeys.length >= 1 &&
+          myAppKeys[0].masterFingerprint !== signer.masterFingerprint);
+      const isAMF =
+        signer.type === SignerType.TAPSIGNER &&
+        config.NETWORK_TYPE === NetworkType.TESTNET &&
+        !signer.isMock;
       return (
         <SignerCard
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={signer.signerName}
-          description={signer.signerDescription || signer.type}
+          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          description={`Added ${moment(signer.addedOn).calendar()}`}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) =>

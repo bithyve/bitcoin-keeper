@@ -1,5 +1,5 @@
 enum LoginMethod {
-    PIN = "PIN",
-    BIOMETRIC = "BIOMETRIC"
+  PIN = 'PIN',
+  BIOMETRIC = 'BIOMETRIC',
 }
-export default LoginMethod
+export default LoginMethod;

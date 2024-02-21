@@ -6,21 +6,12 @@ import { VisibilityType } from 'src/core/wallets/enums';
 
 type Params =
   | {
-      collaborativeWalletId?: string;
       vaultId: string;
       includeArchived?: boolean;
       getFirst?: boolean;
       getHiddenWallets?: boolean;
     }
   | {
-      collaborativeWalletId: string;
-      vaultId?: string;
-      includeArchived?: boolean;
-      getFirst?: boolean;
-      getHiddenWallets?: boolean;
-    }
-  | {
-      collaborativeWalletId?: string;
       vaultId?: string;
       includeArchived?: boolean;
       getFirst?: boolean;

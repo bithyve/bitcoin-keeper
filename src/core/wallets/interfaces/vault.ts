@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { InheritanceKeyInfo, SignerPolicy } from 'src/services/interfaces';
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
@@ -96,5 +95,4 @@ export interface Vault {
   specs: VaultSpecs;
   archived: boolean;
   scriptType: ScriptTypes;
-  collaborativeWalletId?: string; // collaborative wallet id (wallet cosigners (KSDs))
 }

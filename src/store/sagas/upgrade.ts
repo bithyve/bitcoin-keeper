@@ -1,4 +1,4 @@
-import { call, put, select } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
 import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -9,28 +9,30 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
-import { LabelRefType, SignerType } from 'src/core/wallets/enums';
+import { LabelRefType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { setAppVersion, setPinHash } from '../reducers/storage';
-import { createWatcher } from '../utilities';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import SigningServer from 'src/services/operations/SigningServer';
+import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
+import { generateExtendedKeysForCosigner } from 'src/core/wallets/factories/WalletFactory';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
   migrateLabelsToBip329,
   MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import SigningServer from 'src/services/operations/SigningServer';
-import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
+import { createWatcher } from '../utilities';
+import { setAppVersion } from '../reducers/storage';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
 export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
 export const KEY_MANAGEMENT_VERSION = '1.1.9';
+export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -44,13 +46,17 @@ export function* applyUpgradeSequence({
   if (
     semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION) &&
     semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION)
-  )
+  ) {
     yield put(migrateLabelsToBip329());
+  }
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
     yield call(migrateStructureforSignersInAppImage);
     yield call(migrateStructureforVaultInAppImage);
+  }
+  if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION)) {
+    yield call(updateAppKeysToEnableSigning);
   }
 
   yield put(setAppVersion(newVersion));
@@ -160,7 +166,7 @@ function* migrateAssistedKeys() {
       .getCollection(RealmSchema.Signer)
       .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
-    for (let signer of signers) {
+    for (const signer of signers) {
       const signerType = signerMap[signer.masterFingerprint].type;
 
       if (signerType === SignerType.POLICY_SERVER) {
@@ -222,4 +228,94 @@ function* migrateStructureforVaultInAppImage() {
   } catch (err) {
     console.log('Something went wrong in updating the vault image', err);
   }
+}
+
+// This function updates app keys to enable signing by generating and associating extended keys.
+function* updateAppKeysToEnableSigning() {
+  try {
+    const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const signers = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const keeperSigners = signers.filter((signer) => signer.type === SignerType.KEEPER);
+    const { appKeyWalletMap, myAppKeySigners } = mapAppKeysToWallets(wallets, keeperSigners);
+    const extendedKeyMap = generateExtendedKeysForSigners(myAppKeySigners, appKeyWalletMap);
+    updateVaultSigners(extendedKeyMap, signers);
+    updateSignerDetails(myAppKeySigners, extendedKeyMap);
+  } catch (err) {
+    console.log('Error updating app keys', err);
+  }
+}
+
+function mapAppKeysToWallets(wallets, keeperSigners) {
+  const appKeyWalletMap = {};
+  const myAppKeySigners = keeperSigners.filter((signer) => {
+    const walletMatch = wallets.find((wallet) => wallet.id === signer.masterFingerprint);
+    if (walletMatch) {
+      appKeyWalletMap[signer.masterFingerprint] = walletMatch;
+      return true;
+    }
+    return false;
+  });
+
+  return { appKeyWalletMap, myAppKeySigners };
+}
+
+function generateExtendedKeysForSigners(signers, appKeyWalletMap) {
+  const extendedKeyMap = {};
+  signers.forEach((signer) => {
+    const { mnemonic } = appKeyWalletMap[signer.masterFingerprint].derivationDetails;
+    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic);
+    extendedKeyMap[signer.masterFingerprint] = extendedKeys;
+  });
+
+  return extendedKeyMap;
+}
+
+function updateVaultSigners(extendedKeyMap, signers) {
+  const signerMap = {};
+  signers.forEach((signer) => (signerMap[signer.masterFingerprint] = signer));
+  const vaultKeys: VaultSigner[] = dbManager.getCollection(RealmSchema.VaultSigner);
+  for (const vaultKey of vaultKeys) {
+    const signer = signerMap[vaultKey.masterFingerprint];
+    console.log('extendedKeys', extendedKeyMap[vaultKey.masterFingerprint]);
+    if (signer && signer.type === SignerType.KEEPER && extendedKeyMap[vaultKey.masterFingerprint]) {
+      dbManager.updateObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', vaultKey.xpub, {
+        xpriv: extendedKeyMap[vaultKey.masterFingerprint].xpriv,
+      });
+    }
+  }
+}
+
+function updateSignerDetails(signers, extendedKeyMap) {
+  for (const signer of signers) {
+    // Update the signer type to MY_KEEPER and the extended keys
+    dbManager.updateObjectByPrimaryId(
+      RealmSchema.Signer,
+      'masterFingerprint',
+      signer.masterFingerprint,
+      {
+        type: SignerType.MY_KEEPER,
+      }
+    );
+    dbManager.updateObjectByPrimaryId(
+      RealmSchema.Signer,
+      'masterFingerprint',
+      signer.masterFingerprint,
+      {
+        signerXpubs: updateSignerXpubs(signer, extendedKeyMap[signer.masterFingerprint].xpriv),
+      }
+    );
+  }
+}
+
+function updateSignerXpubs(signer, xpriv) {
+  // This function would update the signerXpubs structure with the new xpriv, example provided
+  return {
+    ...signer.signerXpubs,
+    [XpubTypes.P2WSH]: [
+      {
+        ...signer.signerXpubs[XpubTypes.P2WSH][0],
+        xpriv,
+      },
+    ],
+  };
 }

@@ -284,7 +284,7 @@ export const loginWithHexa = (authToken, walletName) => ({
   },
 });
 
-export const testSatsRecieve = (wallet: Wallet) => ({
+export const testSatsRecieve = (wallet: Wallet | Vault) => ({
   type: TEST_SATS_RECIEVE,
   payload: {
     wallet,

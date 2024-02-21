@@ -1,6 +1,5 @@
 /* eslint-disable no-continue */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-restricted-syntax */
+
 /* eslint-disable no-case-declarations */
 import {
   DerivationPurpose,
@@ -486,7 +485,6 @@ export interface NewVaultInfo {
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
   vaultDetails?: NewVaultDetails;
-  collaborativeWalletId?: string;
 }
 
 export function* addNewVaultWorker({
@@ -515,25 +513,24 @@ export function* addNewVaultWorker({
         vaultScheme,
         vaultSigners,
         vaultDetails,
-        collaborativeWalletId,
       } = newVaultInfo;
 
-      if (vaultScheme.n !== vaultSigners.length)
+      if (vaultScheme.n !== vaultSigners.length) {
         throw new Error('Vault schema(n) and signers mismatch');
+      }
 
       const tempShellId = yield select((state: RootState) => state.vault.tempShellId);
       const vaultShellId = tempShellId || generateKey(12);
 
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
-        type: collaborativeWalletId ? VaultType.COLLABORATIVE : vaultType,
+        type: vaultType,
         vaultName: vaultDetails.name,
         vaultDescription: vaultDetails.description,
         scheme: vaultScheme,
         signers: vaultSigners,
         networkType,
         vaultShellId,
-        collaborativeWalletId,
         signerMap,
       });
       isNewVault = true;
@@ -550,27 +547,9 @@ export function* addNewVaultWorker({
       }
     }
 
-    if (newVaultInfo && newVaultInfo.collaborativeWalletId && !isRecreation) {
-      const hotWallet = yield call(
-        dbManager.getObjectById,
-        RealmSchema.Wallet,
-        newVaultInfo.collaborativeWalletId
-      );
-      const descriptor = genrateOutputDescriptors(vault);
-      yield call(updateWalletsPropertyWorker, {
-        payload: {
-          walletId: hotWallet.id,
-          key: 'collaborativeWalletDetails',
-          value: { descriptor },
-        },
-      });
-    }
-
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
       ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : newVaultInfo && newVaultInfo.collaborativeWalletId
-      ? { updated: true }
       : yield call(updateVaultImageWorker, { payload: { vault } });
 
     if (response.updated) {
@@ -604,7 +583,7 @@ export function* addNewVaultWorker({
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
 function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
-  if (!!signers.length) {
+  if (signers.length) {
     const signerMap = {};
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     existingSigners.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
@@ -661,8 +640,9 @@ function* migrateVaultWorker({
     } = payload.newVaultData;
     const { vaultShellId } = payload;
 
-    if (vaultScheme.n !== vaultSigners.length)
+    if (vaultScheme.n !== vaultSigners.length) {
       throw new Error('Vault schema(n) and signers mismatch');
+    }
 
     const networkType = config.NETWORK_TYPE;
 
@@ -743,19 +723,16 @@ function* finaliseIKSetupWorker({
   if (ikSigner.inheritanceKeyInfo) {
     // case: updating config for this new vault which already had IKS as one of its signers
     const existingConfiguration = ikSigner.inheritanceKeyInfo.configuration;
-    const existingThresholdDescriptors = existingConfiguration.descriptors.slice(0, 2);
-
-    const newIKSConfiguration: InheritanceConfiguration = {
-      m: vault.scheme.m,
-      n: vault.scheme.n,
-      descriptors: vault.signers.map((signer) => signer.xfp),
-      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
-    };
+    const newIKSConfiguration: InheritanceConfiguration = yield call(
+      InheritanceKeyServer.generateInheritanceConfiguration,
+      vault,
+      backupBSMSForIKS
+    );
 
     const { updated } = yield call(
       InheritanceKeyServer.updateInheritanceConfig,
       ikVaultKey.xfp,
-      existingThresholdDescriptors,
+      existingConfiguration,
       newIKSConfiguration
     );
 
@@ -767,12 +744,11 @@ function* finaliseIKSetupWorker({
     } else throw new Error('Failed to update the inheritance key configuration');
   } else {
     // case: setting up a vault w/ IKS for the first time
-    const config: InheritanceConfiguration = {
-      m: vault.scheme.m,
-      n: vault.scheme.n,
-      descriptors: vault.signers.map((signer) => signer.xfp),
-      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
-    };
+    const config: InheritanceConfiguration = yield call(
+      InheritanceKeyServer.generateInheritanceConfiguration,
+      vault,
+      backupBSMSForIKS
+    );
 
     const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
     const policy: InheritancePolicy = {
@@ -893,13 +869,13 @@ function* refreshWalletsWorker({
     yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
     yield put(setNetBalance(netBalance));
   } catch (err) {
-    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(
         setElectrumNotConnectedErr(
           'Network error: please check your network/ node connection and try again'
         )
       );
-    else captureError(err);
+    } else captureError(err);
   } finally {
     yield put(setSyncing({ wallets, isSyncing: false }));
   }
@@ -919,7 +895,6 @@ function* autoWalletsSyncWorker({
   const walletsToSync: (Wallet | Vault)[] = [];
   for (const wallet of [...wallets, ...vault]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
-      // eslint-disable-next-line no-continue
       if (!wallet.isUsable) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
@@ -1165,7 +1140,7 @@ function* updateVaultDetailsWorker({ payload }) {
 
     console.log(vault.presentationData);
     const response = yield call(updateVaultImageWorker, {
-      payload: { vault: vault },
+      payload: { vault },
     });
     if (response.updated) {
       yield put(relayVaultUpdateSuccess());
@@ -1232,7 +1207,7 @@ export const updateWalletPathAndPuposeDetailWatcher = createWatcher(
   UPDATE_WALLET_PATH_PURPOSE_DETAILS
 );
 
-function* updateSignerDetailsWorker({ payload }) {
+export function* updateSignerDetailsWorker({ payload }) {
   const {
     signer,
     key,

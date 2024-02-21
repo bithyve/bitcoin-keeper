@@ -1,9 +1,3 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable consistent-return */
-/* eslint-disable camelcase */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-console */
-
 import config from 'src/core/config';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
@@ -134,11 +128,12 @@ export default class ElectrumClient {
       if (timeoutId) clearTimeout(timeoutId);
     }
 
-    if (ELECTRUM_CLIENT.isClientConnected)
+    if (ELECTRUM_CLIENT.isClientConnected) {
       return {
         connected: ELECTRUM_CLIENT.isClientConnected,
         connectedTo: ELECTRUM_CLIENT.activePeer.host,
       };
+    }
     return ElectrumClient.reconnect();
   }
 
@@ -235,14 +230,15 @@ export default class ElectrumClient {
     currentPeerToUse?: NodeDetail
   ) {
     // close previous connection
-    if (ELECTRUM_CLIENT.isClientConnected && ELECTRUM_CLIENT.electrumClient?.close)
+    if (ELECTRUM_CLIENT.isClientConnected && ELECTRUM_CLIENT.electrumClient?.close) {
       ELECTRUM_CLIENT.electrumClient.close();
+    }
 
     // set defaults
     ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS;
-    if (config.NETWORK_TYPE === NetworkType.TESTNET)
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
       ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers = shufflePeers(defaultNodes);
-    else ELECTRUM_CLIENT_CONFIG.predefinedPeers = shufflePeers(defaultNodes);
+    } else ELECTRUM_CLIENT_CONFIG.predefinedPeers = shufflePeers(defaultNodes);
 
     // set active node
     let activeNode = currentPeerToUse || privateNodes.filter((node) => node.isConnected)[0];
@@ -252,8 +248,9 @@ export default class ElectrumClient {
 
   public static splitIntoChunks(arr, chunkSize) {
     const groups = [];
-    for (let itr = 0; itr < arr.length; itr += chunkSize)
+    for (let itr = 0; itr < arr.length; itr += chunkSize) {
       groups.push(arr.slice(itr, itr + chunkSize));
+    }
     return groups;
   }
 
@@ -386,8 +383,9 @@ export default class ElectrumClient {
 
         // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
         for (const vout of res[txdata.param]?.vout || []) {
-          if (vout?.scriptPubKey?.address)
+          if (vout?.scriptPubKey?.address) {
             vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+          }
         }
       }
     }

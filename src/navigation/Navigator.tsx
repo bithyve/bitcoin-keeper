@@ -1,6 +1,5 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
-import { AppStackParams } from './types';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/services/sentry';
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
@@ -78,9 +77,7 @@ import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import CosignerDetails from 'src/screens/WalletDetails/CosignerDetails';
 import WalletDetailsSettings from 'src/screens/WalletDetails/WalletDetailsSettings';
 import CollabrativeWalletSettings from 'src/screens/WalletDetails/CollabrativeWalletSettings';
-import ImportDescriptorScreen from 'src/screens/WalletDetails/ImportDescriptor';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
-import Login from '../screens/LoginScreen/Login';
 import { AppContext } from 'src/context/AppContext';
 import SetupTapsigner from 'src/screens/SigningDevices/SetupTapsigner';
 import SetupSeedWordSigner from 'src/screens/SigningDevices/SetupSeedWordSigner';
@@ -102,6 +99,8 @@ import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
+import Login from '../screens/LoginScreen/Login';
+import { AppStackParams } from './types';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -180,7 +179,6 @@ function AppStack() {
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
-        <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
         <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />

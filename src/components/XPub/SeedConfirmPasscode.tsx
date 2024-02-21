@@ -10,9 +10,9 @@ import { credsAuth } from 'src/store/sagaActions/login';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import Buttons from 'src/components/Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
-import Buttons from 'src/components/Buttons';
 import Text from '../KeeperText';
 
 function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {

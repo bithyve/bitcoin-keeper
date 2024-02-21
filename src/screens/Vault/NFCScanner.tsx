@@ -21,7 +21,7 @@ import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/services/sentry';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
-const NFCScanner = ({ route }) => {
+function NFCScanner({ route }) {
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
@@ -81,7 +81,7 @@ const NFCScanner = ({ route }) => {
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
-};
+}
 
 export default NFCScanner;
 

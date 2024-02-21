@@ -26,13 +26,13 @@ function AddWallet({ navigation }) {
     selectCard(id);
   };
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
       <KeeperHeader
         title={wallet.AddWallet}
         subtitle={wallet.chooseFromTemplate}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <Box style={styles.container}>
         <ScrollView

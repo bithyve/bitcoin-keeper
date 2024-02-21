@@ -75,7 +75,7 @@ function AddDetailsFinalScreen({ route }) {
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
-    //TODO: remove this timeout once the crypto is optimised
+    // TODO: remove this timeout once the crypto is optimised
     setTimeout(() => {
       const derivationConfig: DerivationConfig = {
         path,

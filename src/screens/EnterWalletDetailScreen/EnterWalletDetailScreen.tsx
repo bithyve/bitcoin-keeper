@@ -71,7 +71,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
     setTimeout(() => {
-      //TODO: remove this timeout once the crypto is optimised
+      // TODO: remove this timeout once the crypto is optimised
       const derivationConfig: DerivationConfig = {
         path,
         purpose: Number(purpose),
@@ -158,7 +158,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
       <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
@@ -174,7 +174,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
                 setWalletName(value);
               }}
               maxLength={20}
-              testID={`input_wallet_name`}
+              testID="input_wallet_name"
             />
           </Box>
           <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
@@ -189,7 +189,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
                 setWalletDescription(value);
               }}
               maxLength={40}
-              testID={`input_wallet_description`}
+              testID="input_wallet_description"
             />
           </Box>
           <Box>
