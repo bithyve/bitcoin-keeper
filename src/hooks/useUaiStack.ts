@@ -11,10 +11,11 @@ interface PriorityMap {
 }
 
 const priorityMap: PriorityMap = {
+  [uaiType.IKS_REQUEST]: 100,
   [uaiType.SIGNING_DEVICES_HEALTH_CHECK]: 90,
+  [uaiType.RECOVERY_PHRASE_HEALTH_CHECK]: 90,
   [uaiType.VAULT_TRANSFER]: 80,
-  [uaiType.SECURE_VAULT]: 100,
-  [uaiType.IKS_REQUEST]: 110,
+  [uaiType.SECURE_VAULT]: 70,
   [uaiType.DEFAULT]: 0,
 };
 
@@ -24,7 +25,6 @@ const useUaiStack = (): { uaiStack: UAI[] } => {
   const refreshUai = useAppSelector((state) => state.uai.refreshUai);
   const uaiActionMap = useAppSelector((state) => state.uai.uaiActionMap);
 
-  console.log({ uaiActionMap });
   const nonActionedUais = UAIcollection.filter((uai) => !uaiActionMap[uai.id]);
 
   const sortUAIsByPriorityAndLastActioned = (uaisArray: UAI[]): UAI[] => {
