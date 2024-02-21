@@ -327,7 +327,6 @@ function PrivacyAndDisplay() {
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <PasscodeVerifyModal
-            useBiometrics
             primaryText={'Confirm'}
             close={() => {
               setVisiblePassCode(false);
