@@ -37,6 +37,7 @@ const Colors = {
   OutrageousOrange: 'rgba(248,107,80,1)',
   CarmineRed: 'rgba(255,0,51,1)',
   Seashell: 'rgba(253,247,240,1)',
+  lightSeashell: 'rgba(253,247,240,0.4)',
   FadedGray: 'rgba(242,237,231,1)',
   FadeBlue: 'rgba(183,201,196,1)',
   DustySageGreen: 'rgba(139,160,153,1)',
