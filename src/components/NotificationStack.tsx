@@ -14,7 +14,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { Box, useColorMode } from 'native-base';
-import { uaiType } from 'src/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import useUaiStack from 'src/hooks/useUaiStack';
 import { useDispatch } from 'react-redux';
 import { uaiActioned } from 'src/store/sagaActions/uai';
@@ -48,21 +48,238 @@ const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
 type CardProps = {
   totalLength: number;
   index: number;
-  info: any;
+  uai: any;
   activeIndex: SharedValue<number>;
 };
 
-function Card({ info, index, totalLength, activeIndex }: CardProps) {
-  const { colorMode } = useColorMode();
+interface uaiDefinationInterface {
+  heading: string;
+  body: string;
+  btnConfig: {
+    primary: {
+      text: string;
+      cta: any;
+    };
+    secondary: {
+      text: string;
+      cta: any;
+    };
+  };
+  modalDetails: {
+    heading: string;
+    subTitle: string;
+    body: any;
+    btnConfig: {
+      primary: {
+        text: string;
+        cta: any;
+      };
+      secondary: {
+        text: string;
+        cta: any;
+      };
+    };
+  };
+}
 
+function Card({ uai, index, totalLength, activeIndex }: CardProps) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
   const { showToast } = useToastMessage();
 
   const [showModal, setShowModal] = useState(false);
   const [modalActionLoader, setmodalActionLoader] = useState(false);
-  const [uaiConfig, setUaiConfig] = useState<any>({});
 
+  const skipUaiHandler = (uai: UAI) => {
+    dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+  };
+
+  const skipBtnConfig = (uai) => {
+    return {
+      text: 'Skip',
+      cta: () => skipUaiHandler(uai),
+    };
+  };
+
+  const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
+    switch (uai.uaiType) {
+      case uaiType.SECURE_VAULT:
+        return {
+          heading: 'Create your first vault',
+          body: 'Secure your sats with a vault',
+          btnConfig: {
+            primary: {
+              text: 'Continue',
+              cta: () => {
+                setShowModal(true);
+                navigtaion.navigate('AddWallet');
+              },
+            },
+            secondary: skipBtnConfig(uai),
+          },
+          modalDetails: {
+            heading: 'Set up you first vault',
+            subTitle: 'Create your vault',
+            body: 'Set up vault from these options',
+            btnConfig: {
+              primary: {
+                text: 'Continue',
+                cta: () => {
+                  setShowModal(false);
+                  skipUaiHandler(uai);
+                },
+              },
+              secondary: {
+                text: 'Skip',
+                cta: () => {
+                  navigtaion.goBack(); //TO-DO-UAI
+                  skipUaiHandler(uai);
+                },
+              },
+            },
+          },
+        };
+      case uaiType.VAULT_TRANSFER:
+        return {
+          heading: 'Trasfer to Vault',
+          body: uai.uaiDetails?.body,
+          btnConfig: {
+            primary: {
+              text: 'Continue',
+              cta: () => setShowModal(true),
+            },
+            secondary: skipBtnConfig(uai),
+          },
+          modalDetails: {
+            heading: 'Trasfer to Vault',
+            subTitle: 'Auto-transfer policy has been triggered',
+            body: 'Transfer policy you established has been activated. You can move funds into the Vault for enhanced protection.',
+            btnConfig: {
+              primary: {
+                text: 'Continue',
+                cta: (uai) => {
+                  setShowModal(false);
+                  activeVault
+                    ? navigtaion.navigate('SendConfirmation', {
+                        uaiSetActionFalse,
+                        walletId: uai.entityId,
+                        transferType: TransferType.WALLET_TO_VAULT,
+                      })
+                    : showToast('No vaults found', <ToastErrorIcon />);
+                },
+              },
+              secondary: {
+                text: 'Do it later',
+                cta: () => skipUaiHandler(uai),
+              },
+            },
+          },
+        };
+      case uaiType.IKS_REQUEST:
+        return {
+          heading: 'Inheritance Key request',
+          body: 'Inheritance Key request adsfasdfasdf',
+          btnConfig: {
+            primary: {
+              text: 'Continue',
+              cta: () => {},
+            },
+            secondary: skipBtnConfig(uai),
+          },
+          modalDetails: {
+            heading: 'Inheritance Key request',
+            subTitle: 'Inheritance Key request adsfasdfasdf',
+            body: 'There is a request by someone for accessing the Inheritance Key you have set up using this app',
+            btnConfig: {
+              primary: {
+                text: 'Continue',
+                cta: async (entityId) => {
+                  try {
+                    setmodalActionLoader(true);
+                    if (entityId) {
+                      const res = await InheritanceKeyServer.declineInheritanceKeyRequest(entityId);
+                      if (res?.declined) {
+                        showToast('IKS declined');
+                        uaiSetActionFalse();
+                        setShowModal(false);
+                      } else {
+                        Alert.alert('Something went Wrong!');
+                      }
+                    }
+                  } catch (err) {
+                    Alert.alert('Something went Wrong!');
+                    console.log('Error in declining request');
+                  }
+                  setShowModal(false);
+                  setmodalActionLoader(false);
+                },
+              },
+              secondary: {
+                text: 'Skip',
+                cta: () => {},
+              },
+            },
+          },
+        };
+      case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
+        return {
+          heading: 'Health Check Pending',
+          body: uai.uaiDetails?.body,
+          btnConfig: {
+            primary: {
+              text: 'Continue',
+              cta: () => {},
+            },
+            secondary: skipBtnConfig(uai),
+          },
+          modalDetails: {
+            heading: 'Health Check Pending',
+            subTitle: 'Device health reminder',
+            body: 'Vault Setup Instructions',
+            btnConfig: {
+              primary: {
+                text: 'Continue',
+                cta: () => {},
+              },
+              secondary: {
+                text: 'Skip',
+                cta: () => {},
+              },
+            },
+          },
+        };
+      case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
+        return {
+          heading: 'Backup recoveryphrase',
+          body: 'Backup of reocveryphrase pending',
+          btnConfig: {
+            primary: {
+              text: 'Continue',
+              cta: () => {},
+            },
+            secondary: skipBtnConfig(uai),
+          },
+          modalDetails: {
+            heading: 'Set up Vault',
+            subTitle: 'Vault Setup.....',
+            body: 'Vault Setup Instructions',
+            btnConfig: {
+              primary: {
+                text: 'Continue',
+                cta: () => {},
+              },
+              secondary: {
+                text: 'Skip',
+                cta: () => {},
+              },
+            },
+          },
+        };
+    }
+  };
+
+  const uaiConfig = getUaiTypeDefinations(uai);
   const { activeVault } = useVault({ getFirst: true });
 
   const animations = useAnimatedStyle(() => {
@@ -89,119 +306,8 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
     };
   });
 
-  const getUaiTypeDefinations = (type: string, entityId?: string) => {
-    switch (type) {
-      case uaiType.RELEASE_MESSAGE:
-        return {
-          modalDetails: {
-            heading: 'Update application',
-            btnText: 'Update',
-          },
-          cta: () => {
-            setShowModal(false);
-            uaiSetActionFalse();
-          },
-        };
-      case uaiType.VAULT_TRANSFER:
-        return {
-          modalDetails: {
-            heading: 'Trasfer to Vault',
-            subTitle:
-              'Your Auto-transfer policy has triggered a transaction that needs your approval',
-            btnText: ' Transfer Now',
-          },
-          heading: 'Trasfer to Vault',
-          cta: (info) => {
-            activeVault
-              ? navigtaion.navigate('SendConfirmation', {
-                  uaiSetActionFalse,
-                  walletId: info.entityId,
-                  transferType: TransferType.WALLET_TO_VAULT,
-                })
-              : showToast('No vaults found', <ToastErrorIcon />);
-
-            setShowModal(false);
-          },
-        };
-      case uaiType.SECURE_VAULT:
-        return {
-          heading: 'Secure you vault',
-          cta: () => {
-            navigtaion.dispatch(
-              CommonActions.navigate({ name: 'VaultSetup', merge: true, params: {} })
-            );
-          },
-        };
-      case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
-        return {
-          heading: 'Pending healthcheck',
-          cta: () => {
-            navigtaion.navigate('VaultDetails', { vaultId: activeVault.id });
-          },
-        };
-      case uaiType.IKS_REQUEST:
-        return {
-          modalDetails: {
-            heading: 'Inheritance Key request',
-            subTitle: `Request:${entityId}`,
-            displayText:
-              'There is a request by someone for accessing the Inheritance Key you have set up using this app',
-            btnText: 'Decline',
-          },
-          heading: 'Inheritance Key request',
-          cta: async (entityId) => {
-            try {
-              setmodalActionLoader(true);
-              if (entityId) {
-                const res = await InheritanceKeyServer.declineInheritanceKeyRequest(entityId);
-                if (res?.declined) {
-                  showToast('IKS declined');
-                  uaiSetActionFalse();
-                  setShowModal(false);
-                } else {
-                  Alert.alert('Something went Wrong!');
-                }
-              }
-            } catch (err) {
-              Alert.alert('Something went Wrong!');
-              console.log('Error in declining request');
-            }
-            setShowModal(false);
-            setmodalActionLoader(false);
-          },
-        };
-      case uaiType.DEFAULT:
-        return {
-          heading: 'Secure you vault',
-          cta: () => {
-            navigtaion.navigate('ManageSigners');
-          },
-        };
-      default:
-        return {
-          cta: () => {
-            activeVault
-              ? navigtaion.navigate('VaultDetails', { vaultId: activeVault.id })
-              : showToast('No vaults found', <ToastErrorIcon />);
-          },
-        };
-    }
-  };
-
-  useEffect(() => {
-    setUaiConfig(getUaiTypeDefinations(info?.uaiType, info?.entityId));
-  }, [info]);
-
   const uaiSetActionFalse = () => {
-    dispatch(uaiActioned(info.id));
-  };
-
-  const pressHandler = () => {
-    if (info?.isDisplay) {
-      setShowModal(true);
-    } else {
-      uaiConfig?.cta(info);
-    }
+    dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
 
   return (
@@ -210,11 +316,11 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
         <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
           <UAIView
             title={uaiConfig.heading}
-            subTitle={info?.title}
-            primaryCallbackText="Continue"
-            secondaryCallbackText={!nonSkippableUAIs.includes(info?.uaiType) && 'SKIP'}
-            secondaryCallback={!nonSkippableUAIs.includes(info?.uaiType) && uaiSetActionFalse}
-            primaryCallback={pressHandler}
+            subTitle={uaiConfig.body}
+            primaryCallbackText={uaiConfig.btnConfig.primary.text}
+            secondaryCallbackText={uaiConfig.btnConfig.secondary.text}
+            primaryCallback={uaiConfig.btnConfig.primary.cta}
+            secondaryCallback={uaiConfig.btnConfig.secondary.cta}
           />
         </Box>
       </Animated.View>
@@ -222,12 +328,14 @@ function Card({ info, index, totalLength, activeIndex }: CardProps) {
       <KeeperModal
         visible={showModal}
         close={() => setShowModal(false)}
-        title={uaiConfig?.modalDetails?.heading}
-        subTitle={uaiConfig?.modalDetails?.subTitle}
-        buttonText={uaiConfig?.modalDetails?.btnText}
+        title={uaiConfig.modalDetails.heading}
+        subTitle={uaiConfig.modalDetails.subTitle}
+        buttonText={uaiConfig.modalDetails.btnConfig.primary.text}
+        buttonCallback={uaiConfig.modalDetails.btnConfig.primary.cta}
+        secondaryButtonText={uaiConfig.btnConfig.secondary.text}
+        secondaryCallback={uaiConfig.btnConfig.secondary.cta}
         buttonTextColor="light.white"
-        buttonCallback={() => uaiConfig?.cta(info?.entityId)}
-        Content={() => <Text color="light.greenText">{info?.displayText}</Text>}
+        Content={() => <Text color="light.greenText">{uaiConfig.modalDetails.body}</Text>}
       />
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>
@@ -251,12 +359,12 @@ export default function NotificationStack() {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
         <View style={styles.viewWrapper}>
-          {uaiStack.length ? (
-            (uaiStack || []).map((c, index) => {
+          {uaiStack.length > 0 ? (
+            uaiStack.map((uai, index) => {
               return (
                 <Card
-                  info={c}
-                  key={c.id}
+                  uai={uai}
+                  key={uai.id}
                   index={index}
                   totalLength={uaiStack.length - 1}
                   activeIndex={activeIndex}
