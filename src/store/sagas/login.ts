@@ -212,7 +212,7 @@ function* changeAuthCredWorker({ payload }) {
   try {
     const hash = yield call(hash512, oldPasscode);
     const encryptedKey = yield call(SecureStore.fetch, hash);
-    const decryptedKey = yield call(decrypt, oldPasscode, encryptedKey);
+    const decryptedKey = yield call(decrypt, hash, encryptedKey);
     const newHash = yield call(hash512, newPasscode);
     const newEncryptedKey = yield call(encrypt, newHash, decryptedKey);
     if (!(yield call(SecureStore.store, newHash, newEncryptedKey))) {
