@@ -52,10 +52,11 @@ import {
   UPDATE_VAULT_IMAGE,
   getAppImage,
 } from '../sagaActions/bhr';
-import { uaiActionedEntity } from '../sagaActions/uai';
+import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 export function* updateAppImageWorker({
   payload,
@@ -218,6 +219,9 @@ function* seedBackeupConfirmedWorked({
       confirmed,
       subtitle: '',
     });
+    confirmed
+      ? yield put(uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true }))
+      : null;
     yield put(setSeedConfirmed(confirmed));
   } catch (error) {
     //
@@ -239,6 +243,7 @@ function* seedBackedUpWorker() {
       },
     });
     yield put(setBackupType(BackupType.SEED));
+    yield uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true });
   } catch (error) {
     console.log(error);
   }
@@ -520,7 +525,7 @@ function* healthCheckSignerWorker({
     for (const signer of signers) {
       const date = new Date();
       yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
-      yield put(uaiActionedEntity(signer.signerId, true));
+      yield put(uaiActioned({ entityId: signer.masterFingerprint, action: true }));
     }
   } catch (err) {
     console.log(err);

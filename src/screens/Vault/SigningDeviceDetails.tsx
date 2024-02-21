@@ -46,6 +46,7 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
+import useSigners from 'src/hooks/useSigners';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -199,12 +200,14 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId, signer: currentSigner, vaultSigners } = route.params;
+  const { vaultKey, vaultId, signerId, vaultSigners, isUaiFlow } = route.params;
+  const { signers } = useSigners();
+  const currentSigner = signers.find((signer) => signer.masterFingerprint === signerId);
   const { signerMap } = useSignerMap();
   const signer = currentSigner || signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(isUaiFlow);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
   const { activeVault } = useVault({ vaultId });

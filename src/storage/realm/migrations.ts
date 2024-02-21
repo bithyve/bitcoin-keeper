@@ -1,6 +1,7 @@
 import { Signer } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from './enum';
 import { getJSONFromRealmObject } from './utils';
+import { UAI } from 'src/models/interfaces/Uai';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -68,5 +69,14 @@ export const runRealmMigrations = ({
         });
       }
     });
+  }
+
+  //uai migrations
+  if (oldRealm.schemaVersion < 67) {
+    const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
+    const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
+    for (const objectIndex in newUAIs) {
+      newUAIs[objectIndex].uaiDetails = { heading: oldUAIs[objectIndex].title };
+    }
   }
 };
