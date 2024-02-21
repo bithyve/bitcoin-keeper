@@ -18,7 +18,7 @@ import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import useUaiStack from 'src/hooks/useUaiStack';
 import { useDispatch } from 'react-redux';
 import { uaiActioned } from 'src/store/sagaActions/uai';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -30,6 +30,8 @@ import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import UAIEmptyState from './UAIEmptyState';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const { width } = Dimensions.get('window');
 
@@ -92,7 +94,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const [modalActionLoader, setmodalActionLoader] = useState(false);
 
   const skipUaiHandler = (uai: UAI) => {
-    dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+    dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
 
   const skipBtnConfig = (uai) => {
@@ -101,6 +103,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       cta: () => skipUaiHandler(uai),
     };
   };
+  const backupHistory = useQuery(RealmSchema.BackupHistory);
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     switch (uai.uaiType) {
@@ -121,7 +124,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           modalDetails: {
             heading: 'Set up you first vault',
             subTitle: 'Create your vault',
-            body: 'Set up vault from these options',
+            body: 'Enhance security by creating a vault for your sats. Vaults add extra protection with multi-signature authentication.',
             btnConfig: {
               primary: {
                 text: 'Continue',
@@ -147,7 +150,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           btnConfig: {
             primary: {
               text: 'Continue',
-              cta: () => setShowModal(true),
+              cta: () => {
+                setShowModal(true);
+                skipUaiHandler(uai);
+              },
             },
             secondary: skipBtnConfig(uai),
           },
@@ -158,8 +164,9 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             btnConfig: {
               primary: {
                 text: 'Continue',
-                cta: (uai) => {
+                cta: () => {
                   setShowModal(false);
+                  console.log({ uai: uai });
                   activeVault
                     ? navigtaion.navigate('SendConfirmation', {
                         uaiSetActionFalse,
@@ -167,6 +174,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                         transferType: TransferType.WALLET_TO_VAULT,
                       })
                     : showToast('No vaults found', <ToastErrorIcon />);
+                  skipUaiHandler(uai);
                 },
               },
               secondary: {
@@ -224,17 +232,23 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
         return {
-          heading: 'Health Check Pending',
+          heading: 'Health check pending',
           body: uai.uaiDetails?.body,
           btnConfig: {
             primary: {
               text: 'Continue',
-              cta: () => {},
+              cta: () => {
+                navigtaion.navigate('SigningDeviceDetails', {
+                  signerId: uai.entityId,
+                  isUaiFlow: true,
+                });
+                skipUaiHandler(uai);
+              },
             },
             secondary: skipBtnConfig(uai),
           },
           modalDetails: {
-            heading: 'Health Check Pending',
+            heading: 'Health check pending',
             subTitle: 'Device health reminder',
             body: 'Vault Setup Instructions',
             btnConfig: {
@@ -251,12 +265,22 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
-          heading: 'Backup recoveryphrase',
-          body: 'Backup of reocveryphrase pending',
+          heading: 'Backup recovery key',
+          body: 'Backup of reocvery key is pending',
           btnConfig: {
             primary: {
               text: 'Continue',
-              cta: () => {},
+              cta: () => {
+                if (backupHistory.length === 0) {
+                  navigtaion.navigate('AppSettings', {
+                    isUaiFlow: true,
+                  });
+                  skipUaiHandler(uai);
+                } else {
+                  navigtaion.navigate('WalletBackHistory');
+                  skipUaiHandler(uai);
+                }
+              },
             },
             secondary: skipBtnConfig(uai),
           },
@@ -327,7 +351,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
 
       <KeeperModal
         visible={showModal}
-        close={() => setShowModal(false)}
+        close={() => {
+          setShowModal(false);
+          skipUaiHandler(uai);
+        }}
         title={uaiConfig.modalDetails.heading}
         subTitle={uaiConfig.modalDetails.subTitle}
         buttonText={uaiConfig.modalDetails.btnConfig.primary.text}

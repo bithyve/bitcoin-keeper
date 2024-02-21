@@ -683,7 +683,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              vaultId: recipient.id,
+              vaultId: defaultVault.id,
             },
           },
         ],
@@ -736,14 +736,13 @@ function SendConfirmation({ route }) {
           isSend
           currentCurrency={currentCurrency}
           currencyCode={currencyCode}
-          sender={sender}
+          sender={sender || sourceWallet}
           recipient={recipient}
           address={address}
           amount={amount}
           transferType={transferType}
           getBalance={getBalance}
           getSatUnit={getSatUnit}
-          sourceWallet={sourceWallet}
         />
         <SendingCard
           isSend={false}
@@ -756,7 +755,6 @@ function SendConfirmation({ route }) {
           transferType={transferType}
           getBalance={getBalance}
           getSatUnit={getSatUnit}
-          sourceWallet={sourceWallet}
         />
         <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
           <TransactionPriorityDetails
