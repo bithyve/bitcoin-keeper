@@ -723,19 +723,16 @@ function* finaliseIKSetupWorker({
   if (ikSigner.inheritanceKeyInfo) {
     // case: updating config for this new vault which already had IKS as one of its signers
     const existingConfiguration = ikSigner.inheritanceKeyInfo.configuration;
-    const existingThresholdDescriptors = existingConfiguration.descriptors.slice(0, 2);
-
-    const newIKSConfiguration: InheritanceConfiguration = {
-      m: vault.scheme.m,
-      n: vault.scheme.n,
-      descriptors: vault.signers.map((signer) => signer.xfp),
-      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
-    };
+    const newIKSConfiguration: InheritanceConfiguration = yield call(
+      InheritanceKeyServer.generateInheritanceConfiguration,
+      vault,
+      backupBSMSForIKS
+    );
 
     const { updated } = yield call(
       InheritanceKeyServer.updateInheritanceConfig,
       ikVaultKey.xfp,
-      existingThresholdDescriptors,
+      existingConfiguration,
       newIKSConfiguration
     );
 
@@ -747,12 +744,11 @@ function* finaliseIKSetupWorker({
     } else throw new Error('Failed to update the inheritance key configuration');
   } else {
     // case: setting up a vault w/ IKS for the first time
-    const config: InheritanceConfiguration = {
-      m: vault.scheme.m,
-      n: vault.scheme.n,
-      descriptors: vault.signers.map((signer) => signer.xfp),
-      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
-    };
+    const config: InheritanceConfiguration = yield call(
+      InheritanceKeyServer.generateInheritanceConfiguration,
+      vault,
+      backupBSMSForIKS
+    );
 
     const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
     const policy: InheritancePolicy = {
