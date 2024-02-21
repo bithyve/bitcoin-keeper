@@ -136,15 +136,6 @@ const isSignerValidForScheme = (signer: Signer, scheme, allVaults: Vault[], sign
   } else if (signer.type === SignerType.INHERITANCEKEY) {
     // inheritance key can be added for Vaults w/ at least 5 keys
     if (scheme.m < 3 || scheme.n < 5) return false;
-
-    // TEMP: Disabling multiple IKS
-    let IKSExists = false;
-    for (const vault of allVaults) {
-      vault.signers.forEach((key) => {
-        if (signerMap[key.masterFingerprint]?.type === SignerType.INHERITANCEKEY) IKSExists = true;
-      });
-    }
-    if (IKSExists) return false;
   }
 
   return true;
