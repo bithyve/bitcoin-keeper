@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
   Gesture,
@@ -29,6 +29,7 @@ import { TransferType } from 'src/models/enums/TransferType';
 import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
+import UAIEmptyState from './UAIEmptyState';
 
 const { width } = Dimensions.get('window');
 
@@ -263,29 +264,7 @@ export default function NotificationStack() {
               );
             })
           ) : (
-            <Box
-              style={[styles.card, styles.uaiEmptyStateContainer]}
-              backgroundColor={`${colorMode}.lightSeashell`}
-            >
-              <Text fontSize={12} bold color={`${colorMode}.seashellWhite`}>
-                You’re all caught up!
-              </Text>
-              <Box style={styles.rateKeeperContainer}>
-                <Text color={`${colorMode}.seashellWhite`} bold style={styles.rateKeeperText}>
-                  Enjoying our app? Rate Keeper on the App Store
-                </Text>
-                <TouchableOpacity>
-                  <Box
-                    backgroundColor={`${colorMode}.primaryGreenBackground`}
-                    style={styles.appStoreBtn}
-                  >
-                    <Text fontSize={10} bold color={`${colorMode}.Warmbeige`}>
-                      App Store
-                    </Text>
-                  </Box>
-                </TouchableOpacity>
-              </Box>
-            </Box>
+            <UAIEmptyState />
           )}
         </View>
       </GestureDetector>
@@ -309,46 +288,8 @@ const styles = StyleSheet.create({
     height: layout.height,
     justifyContent: 'center',
   },
-  uaiEmptyStateContainer: {
-    paddingHorizontal: 15,
-    gap: 5,
-  },
   title: {
     fontSize: 12,
     fontWeight: '600',
-  },
-  content: {
-    fontSize: 14,
-    fontWeight: '600',
-    width: '50%',
-  },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  skip: {
-    fontSize: 12,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 20,
-  },
-  rateKeeperContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 20,
-  },
-  rateKeeperText: {
-    width: wp(180),
-    fontSize: 14,
-  },
-  appStoreBtn: {
-    width: wp(60),
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 7,
-    borderRadius: 8,
   },
 });
