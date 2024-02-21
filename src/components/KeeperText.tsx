@@ -8,6 +8,9 @@ interface KeeperTextProps extends TextProps {
   bold?: boolean;
   light?: boolean;
   italic?: boolean;
+  fontSize?: number;
+  width?: string;
+  marginLeft?: number;
 }
 
 function Text(props: KeeperTextProps) {

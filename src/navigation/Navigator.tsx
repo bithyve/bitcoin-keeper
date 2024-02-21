@@ -100,6 +100,9 @@ import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
 import Login from '../screens/LoginScreen/Login';
+import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/InheritanceToolsAndTips';
+import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
+
 import { AppStackParams } from './types';
 
 const defaultTheme = {
@@ -197,6 +200,8 @@ function AppStack() {
         <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
+        <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />

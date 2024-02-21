@@ -5,12 +5,13 @@ import Text from './KeeperText';
 type WalletCardProps = {
   id: number;
   walletName: string;
-  walletDescription: string;
+  walletDescription?: string;
   icon: Element;
   selectedIcon: Element;
   selectedCard: number;
   onCardSelect: (cardName: number) => void;
   arrowStyles: ViewStyle;
+  numberOfLines?: number;
 };
 
 function WalletCard({
@@ -22,6 +23,7 @@ function WalletCard({
   selectedCard,
   onCardSelect,
   arrowStyles,
+  numberOfLines = 1,
 }: WalletCardProps) {
   const { colorMode } = useColorMode();
   const isSelected = selectedCard === id;
@@ -43,8 +45,8 @@ function WalletCard({
           <Box>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              numberOfLines={1}
-              style={styles.walletName}
+              numberOfLines={numberOfLines}
+              style={[styles.walletName, { fontWeight: isSelected ? 'bold' : '300' }]}
             >
               {walletName}
             </Text>
@@ -53,6 +55,7 @@ function WalletCard({
               numberOfLines={1}
               fontSize={11}
               light
+              style={{ fontWeight: isSelected ? 'bold' : '300' }}
             >
               {walletDescription}
             </Text>

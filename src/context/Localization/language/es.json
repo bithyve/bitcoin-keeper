@@ -248,11 +248,17 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions"
   },
+  "DiscountCodes": {
+    "DiscountCodesTitle": "Buy new Hardware Signers",
+    "DiscountCodesDescp": "Discount codes on popular hardware signers"
+  },
   "inheritence": {
     "SetupInheritance": "Setup Inheritance",
     "Handdownyourbitcoin": "Hand down your bitcoin",
     "Chooseyourbeneficiarycarefully": "Make sure your legacy would be alive and glorious. Choose your beneficiary carefully.",
     "AssignBenificiary": "Assign Benificiary",
+    "SecurityAndInheritance": "Security and Inheritance",
+    "SecurityAndInheritanceDescp": "Tools and tips to secure your bitcoin",
     "receivesyourbitcoininheritance": "Select who receives your bitcoin inheritance",
     "AssignBeneficiary": "Assign Beneficiary",
     "hodledforlong": "The one you hodled for so long",

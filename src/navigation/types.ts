@@ -55,6 +55,8 @@ export type AppStackParams = {
         vaultId?: string;
       };
   WalletSettings: undefined;
+  InheritanceToolsAndTips: undefined;
+  DiscountCodes: undefined;
   BackupWallet: undefined;
   SigningDeviceDetails: undefined;
   WalletBackHistory: undefined;

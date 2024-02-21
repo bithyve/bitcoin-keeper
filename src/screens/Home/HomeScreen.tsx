@@ -93,7 +93,7 @@ function NewHomeScreen({ navigation }) {
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance & Security Tools',
+      name: 'Security and Inheritance',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
@@ -104,9 +104,7 @@ function NewHomeScreen({ navigation }) {
           showToast('Please create a vault to setup inheritance');
           navigation.dispatch(
             CommonActions.navigate({
-              name: 'AddSigningDevice',
-              merge: true,
-              params: { scheme: { m: 3, n: 5 } },
+              name: 'InheritanceToolsAndTips',
             })
           );
         } else {
