@@ -12,7 +12,7 @@ import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
 import { LabelRefType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import SigningServer from 'src/services/operations/SigningServer';
 import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
@@ -156,9 +156,11 @@ export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_L
 
 function* migrateAssistedKeys() {
   try {
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
     const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
-    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+    if (!activeVault) throw new Error('No active vault found');
 
     const { signers } = activeVault;
     const signerMap = {};

@@ -1360,13 +1360,14 @@ function HardwareModalMap({
   //       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
   //       const ids = vaultSigners.map((signer) => signer.xfp);
   //       const response = await InheritanceKeyServer.findIKSSetup(ids, thresholdDescriptors);
+  //       note: findIKSSetup will only be able to provide the id in the setupInfo
   //       if (response.setupInfo.id) {
   //         const mapped = mapUnknownSigner({
   //           masterFingerprint: response.setupInfo.masterFingerprint,
   //           type: SignerType.POLICY_SERVER,
   //           inheritanceKeyInfo: {
-  //             configuration: response.setupInfo.configuration,
-  //             policy: response.setupInfo?.policy,
+  //             configuration: response.setupInfo.configuration, // not available
+  //             policy: response.setupInfo?.policy,              // not available
   //           },
   //         });
   //         if (mapped) {
@@ -1458,16 +1459,18 @@ function HardwareModalMap({
           storageType: SignerStorage.WARM,
           isMultisig: true,
           inheritanceKeyInfo: {
-            configuration: setupInfo.configuration,
-            // policy: setupInfo.policy,      // policy doesn't really apply to the heir
+            configurations: setupInfo.configurations,
+            policy: setupInfo.policy,
           },
           xfp: setupInfo.id,
         });
-        if (setupInfo.configuration.bsms) {
-          initateRecovery(setupInfo.configuration.bsms);
-        } else {
-          // showToast('Cannot recreate vault as BSMS was not present', <ToastErrorIcon />);
-        }
+
+        // Recovery flow via BSMS is disabled for now. TODO: once backup via BSMS is enabled, we can enable recovery via BSMS as well
+        // if (setupInfo.configurations[0].bsms) {
+        //   initateRecovery(setupInfo.configurations[0].bsms);
+        // } else {
+        //   // showToast('Cannot recreate vault as BSMS was not present', <ToastErrorIcon />);
+        // }
         dispatch(addSigningDevice([inheritanceKey]));
         dispatch(setInheritanceRequestId('')); // clear approved request
         showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);

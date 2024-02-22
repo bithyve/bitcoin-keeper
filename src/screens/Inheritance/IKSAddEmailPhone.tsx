@@ -10,7 +10,7 @@ import { hp } from 'src/constants/responsive';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
-import { InheritancePolicy } from 'src/services/interfaces';
+import { InheritanceConfiguration, InheritancePolicy } from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
@@ -48,10 +48,22 @@ function IKSAddEmailPhone({ route }) {
         },
       };
 
+      let configurationForVault: InheritanceConfiguration = null;
+      for (const config of IKSigner.inheritanceKeyInfo.configurations) {
+        if (config.id === vault.id) {
+          configurationForVault = config;
+          break;
+        }
+      }
+      if (!configurationForVault) {
+        showToast(`Something went wrong, IKS configuration missing for vault ${vault.id}`);
+        return;
+      }
+
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         ikVaultKey.xfp,
         updatedPolicy,
-        IKSigner.inheritanceKeyInfo.configuration
+        configurationForVault
       );
 
       if (updated) {

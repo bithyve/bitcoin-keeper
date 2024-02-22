@@ -52,7 +52,7 @@ function ManageSigners({ route }: ScreenProps) {
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
-        signer,
+        signerId: signer.masterFingerprint,
         vaultId,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,

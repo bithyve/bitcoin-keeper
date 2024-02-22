@@ -21,12 +21,7 @@ import {
   updateWalletPathAndPuposeDetailWatcher,
   updateVaultDetailsWatcher,
 } from './wallets';
-import {
-  addUaiStackWatcher,
-  uaiActionedEntityWatcher,
-  uaiActionedWatcher,
-  uaiChecksWatcher,
-} from './uai';
+import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
@@ -117,7 +112,6 @@ const rootSaga = function* () {
     uaiChecksWatcher,
     addUaiStackWatcher,
     uaiActionedWatcher,
-    uaiActionedEntityWatcher,
 
     // BHR
     updateAppImageWatcher,
