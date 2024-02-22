@@ -149,7 +149,7 @@ export default function CreatePin(props) {
   }
   function CreatePassModalContent() {
     return (
-      <Box>
+      <Box width={wp(60)}>
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
@@ -237,7 +237,7 @@ export default function CreatePin(props) {
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
         Key"
-        modalBackground={`${colorMode}.modalWhiteBackground`}
+        modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}

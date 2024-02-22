@@ -139,6 +139,7 @@ export const customTheme = extendTheme({
       deepTeal: Colors.deepTeal,
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
+      Crayola: Colors.Crayola,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -230,6 +231,7 @@ export const customTheme = extendTheme({
       Ivory: Colors.Ivory,
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
+      Crayola: Colors.Crayola,
     },
   },
   config: {

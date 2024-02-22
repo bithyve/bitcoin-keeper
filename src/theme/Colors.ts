@@ -73,6 +73,7 @@ const Colors = {
   DarkSage: 'rgba(111,124,119,1)',
   Smoke: 'rgba(162,162,162,1)',
   Taupe: 'rgba(118, 118, 128, 1)',
+  Crayola: 'rgba(227, 190, 150, 1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
