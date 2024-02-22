@@ -106,6 +106,7 @@ export type AppStackParams = {
   NFCScanner: undefined;
   AddWallet: undefined;
   AddSigner: undefined;
+  CanaryWallets: undefined;
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];

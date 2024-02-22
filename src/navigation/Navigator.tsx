@@ -104,6 +104,7 @@ import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/Inherit
 import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 
 import { AppStackParams } from './types';
+import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -202,6 +203,8 @@ function AppStack() {
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
         <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
         <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
+        <Stack.Screen name="CanaryWallets" component={CanaryWallets} />
+
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
