@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Button, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -36,15 +36,24 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-const ConfirmPasscode = ({ oldPassword }) => {
+const ConfirmPasscode = ({ oldPassword, setConfirmPasscodeModal }) => {
   const { translations } = useContext(LocalizationContext);
+
   const { login, common } = translations;
   const dispatch = useAppDispatch();
-
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
+  const { credsChanged } = useAppSelector((state) => state.login);
+  const { showToast } = useToastMessage();
+
+  useEffect(() => {
+    if (credsChanged === 'changed') {
+      setConfirmPasscodeModal(false);
+      showToast('Password Successfully updated!');
+    }
+  }, [credsChanged]);
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -372,7 +381,9 @@ function PrivacyAndDisplay() {
         modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        Content={() => <ConfirmPasscode oldPassword={oldPassword} />}
+        Content={() => (
+          <ConfirmPasscode setConfirmPasscodeModal={setConfirmPasscode} oldPassword={oldPassword} />
+        )}
       />
     </ScreenWrapper>
   );

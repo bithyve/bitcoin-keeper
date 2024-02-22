@@ -218,7 +218,8 @@ function* changeAuthCredWorker({ payload }) {
       return;
     }
     const removedOldKey = yield call(SecureStore.remove, hash);
-    console.log('Successfully changed');
+    yield put(credsChanged('changed'));
+
     // todo
   } catch (err) {
     console.log('ERROR---->', {
