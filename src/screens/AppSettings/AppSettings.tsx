@@ -29,7 +29,7 @@ import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { useAppSelector } from 'src/store/hooks';
 
-function AppSettings({ navigation }) {
+function AppSettings({ navigation, route }) {
   // const { colorMode } = useColorMode();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
@@ -40,7 +40,8 @@ function AppSettings({ navigation }) {
   const { common, settings } = translations;
   const data = useQuery(RealmSchema.BackupHistory);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
+  const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
 
   const changeThemeMode = () => {
     toggleColorMode();

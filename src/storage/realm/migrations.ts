@@ -3,6 +3,7 @@ import { RealmSchema } from './enum';
 import { getJSONFromRealmObject } from './utils';
 import { SignerType } from 'src/core/wallets/enums';
 import { InheritanceKeyInfo } from 'src/services/interfaces';
+import { UAI } from 'src/models/interfaces/Uai';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -112,6 +113,15 @@ export const runRealmMigrations = ({
           }
         }
       }
+    }
+  } // end of IKS migration
+
+  //uai migrations
+  if (oldRealm.schemaVersion < 67) {
+    const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
+    const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
+    for (const objectIndex in newUAIs) {
+      newUAIs[objectIndex].uaiDetails = { heading: oldUAIs[objectIndex].title };
     }
   }
 };

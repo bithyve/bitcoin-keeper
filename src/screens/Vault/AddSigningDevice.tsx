@@ -305,15 +305,17 @@ function Signers({
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
+        {signers.length ? (
+          <Box style={styles.gap10}>
+            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
+              Choose from already added keys
+            </Text>
+            <Box style={styles.addedSigners}>{renderSigners()}</Box>
+          </Box>
+        ) : null}
         <Box style={styles.gap10}>
-          <Text color={`${colorMode}.headerText`} style={styles.title}>
-            Choose from already added keys
-          </Text>
-          <Box style={styles.addedSigners}>{renderSigners()}</Box>
-        </Box>
-        <Box style={styles.gap10}>
-          <Text color={`${colorMode}.headerText`} style={styles.title}>
-            or add a new key
+          <Text color={`${colorMode}.headerText`} bold style={styles.title}>
+            {signers.length ? 'or' : ''} add a new key
           </Text>
           <AddCard
             name="Add Signer"

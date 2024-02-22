@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { Box, ScrollView, StatusBar, VStack, useColorMode } from 'native-base';
+import { Box, ScrollView, StatusBar, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
@@ -10,7 +10,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import Colors from 'src/theme/Colors';
 import { UNVERIFYING_SIGNERS, getSignerNameFromType } from 'src/hardware';
 import SignerIcon from 'src/assets/images/signer_brown.svg';
 import useVault from 'src/hooks/useVault';
@@ -22,7 +21,7 @@ import { useDispatch } from 'react-redux';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import config from 'src/core/config';
 import moment from 'moment';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import SignerCard from '../AddSigner/SignerCard';
 
@@ -53,7 +52,7 @@ function ManageSigners({ route }: ScreenProps) {
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
-        signer,
+        signerId: signer.masterFingerprint,
         vaultId,
         vaultKey: vaultKeys.length ? item : undefined,
         vaultSigners: vaultKeys,
@@ -65,40 +64,36 @@ function ManageSigners({ route }: ScreenProps) {
     navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
   };
 
+  const { top } = useSafeAreaInsets();
+
   return (
-    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
-      <SafeAreaView style={styles.container}>
-        <StatusBar
-          barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
-          backgroundColor={Colors.RussetBrown}
+    <Box backgroundColor={`${colorMode}.RussetBrown`} style={[styles.wrapper, { paddingTop: top }]}>
+      <Box style={styles.topSection}>
+        <KeeperHeader
+          title="Manage Signers"
+          subtitle="View and change key details"
+          titleColor={`${colorMode}.seashellWhite`}
+          subTitleColor={`${colorMode}.PearlGrey`}
+          icon={
+            <CircleIconWrapper
+              backgroundColor={`${colorMode}.seashellWhite`}
+              icon={<SignerIcon />}
+            />
+          }
+          contrastScreen
         />
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.topSection}>
-          <KeeperHeader
-            title="Manage Signers"
-            subtitle="View and change key details"
-            titleColor={`${colorMode}.seashellWhite`}
-            subTitleColor={`${colorMode}.PearlGrey`}
-            icon={
-              <CircleIconWrapper
-                backgroundColor={`${colorMode}.seashellWhite`}
-                icon={<SignerIcon />}
-              />
-            }
-            contrastScreen
-          />
-        </Box>
-        <Box style={styles.signersContainer}>
-          <SignersList
-            colorMode={colorMode}
-            vaultKeys={vaultKeys}
-            signers={signers}
-            signerMap={signerMap}
-            handleCardSelect={handleCardSelect}
-            handleAddSigner={handleAddSigner}
-            vault={activeVault}
-          />
-        </Box>
-      </SafeAreaView>
+      </Box>
+      <Box style={styles.signersContainer} backgroundColor={`${colorMode}.primaryBackground`}>
+        <SignersList
+          colorMode={colorMode}
+          vaultKeys={vaultKeys}
+          signers={signers}
+          signerMap={signerMap}
+          handleCardSelect={handleCardSelect}
+          handleAddSigner={handleAddSigner}
+          vault={activeVault}
+        />
+      </Box>
     </Box>
   );
 }
@@ -121,48 +116,48 @@ function SignersList({
   vault: Vault;
 }) {
   return (
-    <VStack style={styles.signerContainer}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <Box style={styles.addedSignersContainer}>
-          {(vaultKeys.length ? vaultKeys : signers).map((item, i) => {
-            const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
-            const isRegistered = vaultKeys.length
-              ? item.registeredVaults.find((info) => info.vaultId === vault.id)
-              : false;
+    <ScrollView
+      contentContainerStyle={styles.scrollContainer}
+      showsVerticalScrollIndicator={false}
+      style={styles.scrollMargin}
+    >
+      <Box style={styles.addedSignersContainer}>
+        {(vaultKeys.length ? vaultKeys : signers).map((item) => {
+          const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+          const isRegistered = vaultKeys.length
+            ? item.registeredVaults.find((info) => info.vaultId === vault.id)
+            : false;
 
-            const showDot =
-              vaultKeys.length &&
-              !UNVERIFYING_SIGNERS.includes(signer.type) &&
-              !isRegistered &&
-              !signer.isMock &&
-              vault.isMultiSig;
+          const showDot =
+            vaultKeys.length &&
+            !UNVERIFYING_SIGNERS.includes(signer.type) &&
+            !isRegistered &&
+            !signer.isMock &&
+            vault.isMultiSig;
 
-            const isAMF =
-              signer.type === SignerType.TAPSIGNER &&
-              config.NETWORK_TYPE === NetworkType.TESTNET &&
-              !signer.isMock;
+          const isAMF =
+            signer.type === SignerType.TAPSIGNER &&
+            config.NETWORK_TYPE === NetworkType.TESTNET &&
+            !signer.isMock;
 
-            return (
-              <SignerCard
-                key={signer.masterFingerprint}
-                onCardSelect={() => handleCardSelect(signer, item)}
-                name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
-                description={`Added ${moment(signer.addedOn).calendar()}`}
-                icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-                isSelected={false}
-                showSelection={false}
-                showDot={showDot}
-                isFullText
-              />
-            );
-          })}
-          <AddCard name="Add Signer" cardStyles={styles.addCard} callback={handleAddSigner} />
-        </Box>
-      </ScrollView>
-    </VStack>
+          return (
+            <SignerCard
+              key={signer.masterFingerprint}
+              onCardSelect={() => handleCardSelect(signer, item)}
+              name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+              description={`Added ${moment(signer.addedOn).calendar()}`}
+              icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+              isSelected={false}
+              showSelection={false}
+              showDot={showDot}
+              isFullText
+              colorVarient="green"
+            />
+          );
+        })}
+        <AddCard name="Add Signer" cardStyles={styles.addCard} callback={handleAddSigner} />
+      </Box>
+    </ScrollView>
   );
 }
 
@@ -180,14 +175,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   signersContainer: {
-    marginTop: '-25%',
-    marginHorizontal: 10,
-  },
-  signerContainer: {
-    marginVertical: 30,
+    paddingHorizontal: '5%',
+    flex: 1,
   },
   scrollContainer: {
+    zIndex: 2,
     gap: 40,
+    marginVertical: 30,
+  },
+  scrollMargin: {
+    marginTop: '-30%',
   },
   addedSignersContainer: {
     flexDirection: 'row',

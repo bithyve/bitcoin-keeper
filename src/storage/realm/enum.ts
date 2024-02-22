@@ -32,6 +32,7 @@ export enum RealmSchema {
   DefaultNodeConnect = 'DefaultNodeConnect',
   NodeConnect = 'NodeConnect',
   UAI = 'UAI',
+  UAIDetails = 'UAIDetails',
   AdditionalNotes = 'AdditionalNotes',
   VersionHistory = 'VersionHistory',
   BackupHistory = 'BackupHistory',
