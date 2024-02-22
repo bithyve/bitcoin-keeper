@@ -45,8 +45,6 @@ const layout = {
 };
 const maxVisibleItems = 3;
 
-const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
-
 type CardProps = {
   totalLength: number;
   index: number;
@@ -67,7 +65,7 @@ interface uaiDefinationInterface {
       cta: any;
     };
   };
-  modalDetails: {
+  modalDetails?: {
     heading: string;
     subTitle: string;
     body: any;
@@ -300,6 +298,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             },
           },
         };
+      default:
+        return null;
     }
   };
 
@@ -337,30 +337,33 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   return (
     <>
       <Animated.View style={[animations]}>
-        <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
-          <UAIView
-            title={uaiConfig.heading}
-            subTitle={uaiConfig.body}
-            primaryCallbackText={uaiConfig.btnConfig.primary.text}
-            secondaryCallbackText={uaiConfig.btnConfig.secondary.text}
-            primaryCallback={uaiConfig.btnConfig.primary.cta}
-            secondaryCallback={uaiConfig.btnConfig.secondary.cta}
-          />
-        </Box>
+        {uai.uaiType === uaiType.DEFAULT ? (
+          <UAIEmptyState />
+        ) : (
+          <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
+            <UAIView
+              title={uaiConfig.heading}
+              subTitle={uaiConfig.body}
+              primaryCallbackText={uaiConfig.btnConfig.primary.text}
+              secondaryCallbackText={uaiConfig.btnConfig.secondary.text}
+              primaryCallback={uaiConfig.btnConfig.primary.cta}
+              secondaryCallback={uaiConfig.btnConfig.secondary.cta}
+            />
+          </Box>
+        )}
       </Animated.View>
-
       <KeeperModal
         visible={showModal}
         close={() => {
           setShowModal(false);
           skipUaiHandler(uai);
         }}
-        title={uaiConfig.modalDetails.heading}
-        subTitle={uaiConfig.modalDetails.subTitle}
-        buttonText={uaiConfig.modalDetails.btnConfig.primary.text}
-        buttonCallback={uaiConfig.modalDetails.btnConfig.primary.cta}
-        secondaryButtonText={uaiConfig.btnConfig.secondary.text}
-        secondaryCallback={uaiConfig.btnConfig.secondary.cta}
+        title={uaiConfig?.modalDetails.heading}
+        subTitle={uaiConfig?.modalDetails.subTitle}
+        buttonText={uaiConfig?.modalDetails.btnConfig.primary.text}
+        buttonCallback={uaiConfig?.modalDetails.btnConfig.primary.cta}
+        secondaryButtonText={uaiConfig?.modalDetails.btnConfig.secondary.text}
+        secondaryCallback={uaiConfig?.modalDetails.btnConfig.secondary.cta}
         buttonTextColor="light.white"
         Content={() => <Text color="light.greenText">{uaiConfig.modalDetails.body}</Text>}
       />
@@ -386,21 +389,17 @@ export default function NotificationStack() {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
         <View style={styles.viewWrapper}>
-          {uaiStack.length > 0 ? (
-            uaiStack.map((uai, index) => {
-              return (
-                <Card
-                  uai={uai}
-                  key={uai.id}
-                  index={index}
-                  totalLength={uaiStack.length - 1}
-                  activeIndex={activeIndex}
-                />
-              );
-            })
-          ) : (
-            <UAIEmptyState />
-          )}
+          {uaiStack.map((uai, index) => {
+            return (
+              <Card
+                uai={uai}
+                key={uai.id}
+                index={index}
+                totalLength={uaiStack.length - 1}
+                activeIndex={activeIndex}
+              />
+            );
+          })}
         </View>
       </GestureDetector>
     </GestureHandlerRootView>
