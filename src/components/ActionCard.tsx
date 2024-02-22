@@ -42,7 +42,7 @@ function ActionCard({
           )}
           {icon && icon}
         </Box>
-        <Text numberOfLines={2} style={styles.cardName} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={2} bold style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
         </Text>
         {description && (
