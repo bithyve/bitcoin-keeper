@@ -177,6 +177,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.SECURE_VAULT,
               uaiType.VAULT_TRANSFER,
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+              uaiType.DEFAULT,
             ])
           );
 
