@@ -218,12 +218,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Text>
           <Text>
             By proceeding you agree to our
-            <Text color={`${colorMode}.headerText`} bold>
+            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
               {' '}
               Terms of Service{' '}
             </Text>
             {`and\nour`}
-            <Text color={`${colorMode}.headerText`} bold>
+            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
               {' '}
               Privacy Policy
             </Text>
@@ -339,6 +339,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
     marginLeft: 10,
+  },
+  boldText: {
+    fontWeight: '800',
   },
 });
 
