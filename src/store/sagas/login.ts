@@ -222,7 +222,7 @@ function* changeAuthCredWorker({ payload }) {
 
     // todo
   } catch (err) {
-    console.log('ERROR---->', {
+    console.log({
       err,
     });
     yield put(pinChangedFailed(true));
