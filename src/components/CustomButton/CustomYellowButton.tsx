@@ -9,6 +9,7 @@ export interface Props {
   disabled?: boolean;
   titleColor?: string;
   backgroundColor?: string;
+  boldTitle?: boolean;
 }
 function CustomYellowButton(props: Props) {
   const { colorMode } = useColorMode();
@@ -25,7 +26,7 @@ function CustomYellowButton(props: Props) {
         style={styles.buttonContent}
         backgroundColor={props.backgroundColor || `${colorMode}.yellowButtonBackground`}
       >
-        <Text color={props.titleColor} style={styles.btnText}>
+        <Text bold={props.boldTitle} color={props.titleColor} style={styles.btnText}>
           {props.value}
         </Text>
       </Box>

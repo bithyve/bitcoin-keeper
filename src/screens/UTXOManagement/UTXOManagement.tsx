@@ -30,13 +30,13 @@ import useWhirlpoolWallets, {
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { resetSyncing } from 'src/store/reducers/wallets';
+import useVault from 'src/hooks/useVault';
+import { AppStackParams } from 'src/navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
-import useVault from 'src/hooks/useVault';
-import { AppStackParams } from 'src/navigation/types';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -327,7 +327,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         title="Caution during the mix"
         subTitle="The mix may take some time to complete. Please do not close the app or navigate away."
         subTitleColor="#5F6965"
-        modalBackground={'#F7F2EC'}
+        modalBackground="#F7F2EC"
         buttonBackground={`${colorMode}.gradientStart`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}

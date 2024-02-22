@@ -5,11 +5,11 @@ import config, { APP_STAGE } from 'src/core/config';
 import { RealmProvider as Provider, useQuery } from '@realm/react';
 import { stringToArrayBuffer } from 'src/store/sagas/login';
 import { useAppSelector } from 'src/store/hooks';
+import { sentryConfig } from 'src/services/sentry';
 import { RealmDatabase } from './realm';
 import { RealmSchema } from './enum';
 import { getJSONFromRealmObject } from './utils';
 import schema from './schema';
-import { sentryConfig } from 'src/services/sentry';
 import dbManager from './dbManager';
 
 export const realmConfig = (key) => ({

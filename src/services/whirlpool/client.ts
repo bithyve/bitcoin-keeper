@@ -1,6 +1,3 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable no-unused-vars */
-/* eslint-disable camelcase */
 import * as bitcoinJS from 'bitcoinjs-lib';
 import WalletOperations from 'src/core/wallets/operations';
 import { InputUTXOs } from 'src/core/wallets/interfaces';
@@ -131,8 +128,9 @@ export default class WhirlpoolClient {
     },
     network: bitcoinJS.Network
   ): Promise<{ serializedPSBT: string }> => {
-    if (outputProvider.premix.length !== preview.nPremixOutputs)
+    if (outputProvider.premix.length !== preview.nPremixOutputs) {
       throw new Error(`Please supply enough(${preview.nPremixOutputs}) premix addresses`);
+    }
 
     const whirlpoolInputs: WhirlpoolInput[] = inputs.map((input) => {
       const rustInput: WhirlpoolInput = {

@@ -91,4 +91,4 @@ export default [
     code: 'TWD',
     symbol: '$',
   },
-]
+];

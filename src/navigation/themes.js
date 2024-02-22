@@ -110,6 +110,7 @@ export const customTheme = extendTheme({
       forestGreen: Colors.ForestGreen,
       pantoneGreen: Colors.pantoneGreen,
       seashellWhite: Colors.Seashell,
+      lightSeashell: Colors.lightSeashell,
       Champagne: Colors.Champagne,
       RussetBrown: Colors.RussetBrown,
       GreenishGrey: Colors.GreenishGrey,
@@ -137,6 +138,7 @@ export const customTheme = extendTheme({
       ForestGreenDark: Colors.ForestGreenDark,
       deepTeal: Colors.deepTeal,
       ChampagneBliss: Colors.ChampagneBliss,
+      PearlGrey: Colors.PearlGrey,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -199,6 +201,7 @@ export const customTheme = extendTheme({
       forestGreen: Colors.ForestGreen,
       pantoneGreen: Colors.pantoneGreenDark,
       seashellWhite: Colors.SeashellDark,
+      lightSeashell: Colors.lightSeashell,
       RussetBrown: Colors.RussetBrown,
       GreenishGrey: Colors.GreenishGrey,
       RussetBrownLight: Colors.RussetBrownLight,
@@ -226,6 +229,7 @@ export const customTheme = extendTheme({
       Champagne: Colors.Champagne,
       Ivory: Colors.Ivory,
       ChampagneBliss: Colors.ChampagneBliss,
+      PearlGrey: Colors.PearlGrey,
     },
   },
   config: {

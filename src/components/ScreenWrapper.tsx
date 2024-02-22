@@ -18,7 +18,7 @@ function ScreenWrapper({
       <SafeAreaView style={styles.container}>
         <StatusBar
           barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
-          backgroundColor={'transparent'}
+          backgroundColor="transparent"
         />
         {children}
       </SafeAreaView>

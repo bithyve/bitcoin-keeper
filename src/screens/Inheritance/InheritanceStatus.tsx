@@ -27,11 +27,11 @@ import { genrateOutputDescriptors } from 'src/core/utils';
 import GenerateSecurityTipsPDF from 'src/utils/GenerateSecurityTipsPDF';
 import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import KeeperHeader from 'src/components/KeeperHeader';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { Signer } from 'src/core/wallets/interfaces/vault';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
-import useSignerMap from 'src/hooks/useSignerMap';
-import { Signer } from 'src/core/wallets/interfaces/vault';
 
 function InheritanceStatus({ route }) {
   const { vaultId } = route.params;
