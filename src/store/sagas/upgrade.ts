@@ -199,28 +199,7 @@ function* migrateAssistedKeys() {
           cosignersMapUpdates
         );
 
-        if (migrationSuccessful) {
-          // send updates to realm only after the migration has been successfully performed at the backend
-          const IKSSigner: Signer = signerMap[signer.masterFingerprint];
-
-          const previousConfig = (IKSSigner.inheritanceKeyInfo as any).configuration; // previous schema for IKS had single configuration
-          previousConfig.id = activeVault.id;
-
-          const updatedInheritanceKeyInfo = {
-            ...IKSSigner.inheritanceKeyInfo,
-            configurations: [previousConfig],
-          };
-
-          yield call(
-            dbManager.updateObjectByPrimaryId,
-            RealmSchema.Signer,
-            'masterFingerprint',
-            IKSSigner.masterFingerprint,
-            {
-              inheritanceKeyInfo: updatedInheritanceKeyInfo,
-            }
-          );
-        } else throw new Error('Failed to migrate assisted keys(IKS)');
+        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(IKS)');
       }
     }
   } catch (error) {
