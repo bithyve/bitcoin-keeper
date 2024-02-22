@@ -51,7 +51,7 @@ export function WalletsList({
         )}
         ListFooterComponent={() => (
           <AddCard
-            name="Add"
+            name={`Add\nWallet`}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
           />
@@ -84,7 +84,7 @@ const getWalletTags = (wallet) => {
       else walletKind = 'IMPORTED WALLET';
     }
 
-    return ['SINGLE SIG', walletKind];
+    return ['SINGLE-KEY', walletKind];
   }
 };
 

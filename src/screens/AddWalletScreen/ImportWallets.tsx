@@ -21,8 +21,8 @@ function ImportWallets({ navigation }) {
         callback={() => navigation.navigate('VaultConfigurationCreation')}
       />
       <OptionCard
-        title="Signers with Vault details"
-        description="Signers with vault registration"
+        title="Use signers with vault registration"
+        description="COLDCARD, Passport, etc."
         LeftIcon={<SignerIcon />}
         callback={() => navigation.navigate('SigningDeviceConfigRecovery')}
       />

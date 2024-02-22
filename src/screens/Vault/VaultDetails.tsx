@@ -315,7 +315,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           icon={<CoinIcon />}
         />
         <ActionCard
-          cardName="Manage Signers"
+          cardName="Manage Keys"
           description="For this vault"
           callback={() =>
             navigation.dispatch(

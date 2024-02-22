@@ -320,7 +320,7 @@ function Signers({
             {signers.length ? 'or' : ''} add a new key
           </Text>
           <AddCard
-            name="Add Signer"
+            name="Add a key"
             cardStyles={styles.addCard}
             callback={() =>
               navigation.dispatch(
