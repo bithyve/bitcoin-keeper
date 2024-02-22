@@ -263,6 +263,21 @@ function* uaiChecksWorker({ payload }) {
 
       yield put(setRefreshUai());
     }
+    if (checkForTypes.includes(uaiType.DEFAULT)) {
+      const defaultUAI: UAI = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.DEFAULT,
+        'uaiType'
+      )[0];
+
+      if (!defaultUAI) {
+        yield put(
+          addToUaiStack({
+            uaiType: uaiType.DEFAULT,
+          })
+        );
+      }
+    }
   } catch (err) {
     console.error(err);
   } finally {
