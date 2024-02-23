@@ -91,7 +91,13 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchExchangeRates());
 
     yield put(
-      uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT, uaiType.DEFAULT])
+      uaiChecks([
+        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+        uaiType.SECURE_VAULT,
+        uaiType.VAULT_TRANSFER,
+        uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+        uaiType.DEFAULT,
+      ])
     );
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
