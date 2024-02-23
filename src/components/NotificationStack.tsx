@@ -259,15 +259,15 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               text: 'Continue',
               cta: () => {
                 if (backupHistory.length === 0) {
+                  skipUaiHandler(uai);
                   navigtaion.navigate('AppSettings', {
                     isUaiFlow: true,
                   });
-                  skipUaiHandler(uai);
                 } else {
+                  skipUaiHandler(uai);
                   navigtaion.navigate('WalletBackHistory', {
                     isUaiFlow: true,
                   });
-                  skipUaiHandler(uai);
                 }
               },
             },
