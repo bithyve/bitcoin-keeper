@@ -481,7 +481,7 @@ function MixProgress({
     );
   }
 
-  const { colorMode } = useColorMode();
+  // const { colorMode } = useColorMode();
 
   return (
     <Box style={styles.container}>
