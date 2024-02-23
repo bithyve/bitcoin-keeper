@@ -1,11 +1,26 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from './KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Linking, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { windowWidth, wp } from 'src/constants/responsive';
+
+const appStoreLink = 'itms-apps://itunes.apple.com/us/app/apple-store/id1545535925?mt=8';
+const playStoreLink = 'https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper';
 
 function UAIEmptyState() {
   const { colorMode } = useColorMode();
+
+  const openAppInStore = () => {
+    const url = Platform.OS == 'ios' ? appStoreLink : playStoreLink;
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        console.error('Something wrong!');
+      }
+    });
+  };
+
   return (
     <Box style={styles.uaiEmptyStateContainer} backgroundColor={`${colorMode}.lightSeashell`}>
       <Text fontSize={12} bold color={`${colorMode}.seashellWhite`}>
@@ -13,12 +28,12 @@ function UAIEmptyState() {
       </Text>
       <Box style={styles.rateKeeperContainer}>
         <Text color={`${colorMode}.seashellWhite`} bold style={styles.rateKeeperText}>
-          Enjoying our app? Rate Keeper on the App Store
+          Enjoying our app? Rate Keeper on the {Platform.OS == 'ios' ? 'App' : 'Play'} Store
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={openAppInStore}>
           <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.appStoreBtn}>
             <Text fontSize={10} bold color={`${colorMode}.Warmbeige`}>
-              App Store
+              {Platform.OS == 'ios' ? 'App' : 'Play'} Store
             </Text>
           </Box>
         </TouchableOpacity>

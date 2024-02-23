@@ -127,7 +127,7 @@ function WalletDetails({ route }: ScreenProps) {
             <CurrencyInfo
               hideAmounts={false}
               amount={unconfirmed + confirmed}
-              fontSize={22}
+              fontSize={24}
               color={`${colorMode}.white`}
               variation={colorMode === 'light' ? 'light' : 'dark'}
             />
@@ -152,11 +152,13 @@ function WalletDetails({ route }: ScreenProps) {
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
         {wallet ? (
           <>
-            <HStack style={styles.transTitleWrapper}>
-              <Text color={`${colorMode}.black`} style={styles.transactionHeading}>
-                {common.transactions}
-              </Text>
-            </HStack>
+            {wallet?.specs?.transactions?.length ? (
+              <HStack style={styles.transTitleWrapper}>
+                <Text color={`${colorMode}.black`} style={styles.transactionHeading}>
+                  {common.transactions}
+                </Text>
+              </HStack>
+            ) : null}
             <TransactionsAndUTXOs
               transactions={wallet?.specs.transactions}
               setPullRefresh={setPullRefresh}

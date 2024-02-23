@@ -1,9 +1,6 @@
 import { Box, useColorMode } from 'native-base';
-import DeviceInfo from 'react-native-device-info';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-
 import { hp, wp } from 'src/constants/responsive';
-import { useEffect, useState } from 'react';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import Text from './KeeperText';
 
@@ -83,6 +80,8 @@ const styles = StyleSheet.create({
   },
   cardName: {
     fontSize: 12,
+    fontWeight: '700',
+    lineHeight: 16,
   },
 });
 

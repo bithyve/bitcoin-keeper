@@ -88,12 +88,12 @@ function NewHomeScreen({ navigation }) {
       callback: onPressBuyBitcoin,
     },
     {
-      name: 'Manage\nAll Signers',
+      name: 'Manage\nKeys',
       icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance & Security Tools',
+      name: 'Security and Inheritance',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
