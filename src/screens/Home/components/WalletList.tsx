@@ -1,17 +1,32 @@
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, HStack } from 'native-base';
 import AddCard from 'src/components/AddCard';
 import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import EmptyCard from 'src/assets/images/empty_card.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
+import Text from 'src/components/KeeperText';
+
+function EmptyState() {
+  return (
+    <Box backgroundColor={`light.LightLinen`} style={[styles.AddCardContainer]}>
+      <Box style={styles.detailContainer}>
+        <EmptyCard />
+        <Text color={'light.headerText'} style={styles.emptyText}>
+          You don't gave any wallets yet
+        </Text>
+      </Box>
+    </Box>
+  );
+}
 
 export function WalletsList({
   allWallets,
@@ -28,35 +43,46 @@ export function WalletsList({
         count={allWallets.length}
         balance={totalBalance}
       />
-      <FlatList
-        contentContainerStyle={styles.walletDetailWrapper}
-        horizontal
-        data={allWallets}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item: wallet }) => (
-          <TouchableOpacity
-            style={styles.walletCardWrapper}
-            onPress={() => handleWalletPress(wallet, navigation)}
-          >
-            <WalletInfoCard
-              isShowAmount={isShowAmount}
-              setIsShowAmount={setIsShowAmount}
-              tags={getWalletTags(wallet)}
-              walletName={wallet.presentationData.name}
-              walletDescription={wallet.presentationData.description}
-              icon={getWalletIcon(wallet)}
-              amount={calculateWalletBalance(wallet)}
+      {allWallets.length ? (
+        <FlatList
+          contentContainerStyle={styles.walletDetailWrapper}
+          horizontal
+          data={allWallets}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item: wallet }) => (
+            <TouchableOpacity
+              style={styles.walletCardWrapper}
+              onPress={() => handleWalletPress(wallet, navigation)}
+            >
+              <WalletInfoCard
+                isShowAmount={isShowAmount}
+                setIsShowAmount={setIsShowAmount}
+                tags={getWalletTags(wallet)}
+                walletName={wallet.presentationData.name}
+                walletDescription={wallet.presentationData.description}
+                icon={getWalletIcon(wallet)}
+                amount={calculateWalletBalance(wallet)}
+              />
+            </TouchableOpacity>
+          )}
+          ListFooterComponent={() => (
+            <AddCard
+              name={`Add\nWallet`}
+              cardStyles={{ height: hp(260), width: wp(130) }}
+              callback={() => navigation.navigate('AddWallet')}
             />
-          </TouchableOpacity>
-        )}
-        ListFooterComponent={() => (
+          )}
+        />
+      ) : (
+        <HStack style={styles.emptyState}>
+          <EmptyState />
           <AddCard
             name={`Add\nWallet`}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
           />
-        )}
-      />
+        </HStack>
+      )}
     </Box>
   );
 }
@@ -117,4 +143,35 @@ const styles = StyleSheet.create({
   walletCardWrapper: {
     marginRight: 10,
   },
+  AddCardContainer: {
+    height: hp(260),
+    width: wp(130),
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    position: 'relative',
+  },
+  nameStyle: {
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+
+  detailContainer: {
+    gap: 8,
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  iconWrapper: {
+    width: 34,
+    height: 34,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyState: {
+    gap: 5,
+  },
+  emptyText: { position: 'absolute', top: '50%', textAlign: 'center', fontSize: 11 },
 });

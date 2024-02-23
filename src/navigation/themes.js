@@ -140,6 +140,8 @@ export const customTheme = extendTheme({
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
       Crayola: Colors.Crayola,
+      lightCamelBrown: Colors.lightCamelBrown,
+      LightLinen: Colors.LightLinen,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -232,6 +234,8 @@ export const customTheme = extendTheme({
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
       Crayola: Colors.Crayola,
+      lightCamelBrown: Colors.lightCamelBrown,
+      LightLinen: Colors.LightLinen,
     },
   },
   config: {
