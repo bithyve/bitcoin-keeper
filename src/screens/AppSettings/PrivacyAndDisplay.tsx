@@ -157,7 +157,6 @@ const ConfirmPasscode = ({ oldPassword, setConfirmPasscodeModal }) => {
             {passcode.length === 4 && (
               <TouchableOpacity
                 onPress={() => {
-                  //-------TODO Shashank--------
                   dispatch(changeAuthCred(oldPassword, passcode));
                 }}
               >
