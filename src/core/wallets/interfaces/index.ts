@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   LabelRefType,
   LabelType,
@@ -180,7 +179,7 @@ export interface SigningPayload {
 }
 
 export interface SerializedPSBTEnvelop {
-  signerId: string;
+  xfp: string;
   signerType: SignerType;
   serializedPSBT: string;
   signingPayload?: SigningPayload[];

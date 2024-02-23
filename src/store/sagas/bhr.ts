@@ -1,6 +1,4 @@
-/* eslint-disable guard-for-in */
 import * as bip39 from 'bip39';
-
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
@@ -9,21 +7,24 @@ import {
   encrypt,
   generateEncryptionKey,
   hash256,
-} from 'src/core/services/operations/encryption';
+} from 'src/services/operations/encryption';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { captureError } from 'src/core/services/sentry';
+import Relay from 'src/services/operations/Relay';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/core/wallets/interfaces';
-import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
+import { getSignerNameFromType } from 'src/hardware';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import {
   refreshWallets,
   updateSignerDetails,
@@ -51,31 +52,51 @@ import {
   UPDATE_VAULT_IMAGE,
   getAppImage,
 } from '../sagaActions/bhr';
-import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
-import { uaiActionedEntity } from '../sagaActions/uai';
+import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
-import { UAI } from 'src/common/data/models/interfaces/Uai';
+import { KEY_MANAGEMENT_VERSION } from './upgrade';
+import { uaiType } from 'src/models/interfaces/Uai';
 
-export function* updateAppImageWorker({ payload }) {
-  const { wallets } = payload;
+export function* updateAppImageWorker({
+  payload,
+}: {
+  payload: {
+    wallets?: Wallet[];
+    signers?: Signer[];
+  };
+}) {
+  const { wallets, signers } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const walletObject = {};
+  const signersObjects = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallets) {
     for (const wallet of wallets) {
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
       walletObject[wallet.id] = encrytedWallet;
     }
+  } else if (signers) {
+    for (const signer of signers) {
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(signer));
+      signersObjects[signer.masterFingerprint] = encrytedWallet;
+    }
   } else {
+    // update all wallets and signers
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
       walletObject[wallet.id] = encrytedWallet;
+    }
+    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    for (const index in signers) {
+      const signer = signers[index];
+      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+      signersObjects[signer.masterFingerprint] = encrytedSigner;
     }
   }
 
@@ -89,11 +110,14 @@ export function* updateAppImageWorker({ payload }) {
       nodesToUpdate.push(encrytedNode);
     }
   }
+
+  // API call to Relay to do modular updates
   try {
     const response = yield call(Relay.updateAppImage, {
       appId: id,
       publicId,
       walletObject,
+      signersObjects,
       networkType,
       subscription: JSON.stringify(subscription),
       version,
@@ -125,11 +149,12 @@ export function* updateVaultImageWorker({
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
-    Relay.updateVaultImage({
+    const response = Relay.updateVaultImage({
       isUpdate,
       vaultId: vault.id,
       vault: vaultEncrypted,
     });
+    return response;
   }
 
   const signersData: Array<{
@@ -138,27 +163,14 @@ export function* updateVaultImageWorker({
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
-    signerIdXpubMap[signer.signerId] = signer.xpub;
+    signerIdXpubMap[signer.xfp] = signer.xpub;
     signersData.push({
-      signerId: signer.signerId,
+      signerId: signer.xfp,
       xfpHash: hash256(signer.masterFingerprint),
     });
   }
-  // updating signerIdXpubMap if the signer was created through automated mock flow
-  // const signerIdsToFilter = [];
-  // for (const signer of vault.signers) {
-  //   if (signer.amfData && signer.amfData.xpub) {
-  //     signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
-  //     signersData.push({
-  //       signerId: signer.amfData.signerId,
-  //       xfpHash: hash256(signer.xpubInfo.xfp),
-  //     });
-  //     signerIdsToFilter.push(signer.signerId);
-  //   }
-  // }
-  // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
-  // TO-DO to be removed
+  // TODO to be removed
   const subscriptionStrings = JSON.stringify(subscription);
 
   try {
@@ -207,6 +219,9 @@ function* seedBackeupConfirmedWorked({
       confirmed,
       subtitle: '',
     });
+    confirmed
+      ? yield put(uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true }))
+      : null;
     yield put(setSeedConfirmed(confirmed));
   } catch (error) {
     //
@@ -228,6 +243,7 @@ function* seedBackedUpWorker() {
       },
     });
     yield put(setBackupType(BackupType.SEED));
+    yield uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true });
   } catch (error) {
     console.log(error);
   }
@@ -241,7 +257,7 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage, subscription, UTXOinfos, labels } = yield call(
+    const { appImage, subscription, UTXOinfos, vaultImage, labels, allVaultImages } = yield call(
       Relay.getAppImage,
       appID
     );
@@ -269,9 +285,10 @@ function* getAppImageWorker({ payload }) {
           appID,
           subscription,
           appImage,
-          vaultImage,
+          allVaultImages,
           UTXOinfos,
-          labels
+          labels,
+          previousVersion
         );
       } else {
         const plebSubscription = {
@@ -289,9 +306,10 @@ function* getAppImageWorker({ payload }) {
           appID,
           plebSubscription,
           appImage,
-          vaultImage,
+          allVaultImages,
           UTXOinfos,
-          labels
+          labels,
+          previousVersion
         );
       }
     }
@@ -311,9 +329,10 @@ function* recoverApp(
   appID,
   subscription,
   appImage,
-  vaultImage,
+  allVaultImages,
   UTXOinfos,
-  labels
+  labels,
+  previousVersion
 ) {
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
@@ -343,6 +362,7 @@ function* recoverApp(
   };
 
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+
   // Wallet recreation
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
@@ -355,11 +375,81 @@ function* recoverApp(
     }
   }
 
-  // Vault recreation
-  if (vaultImage) {
-    const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+  // Signers recreatin
+  if (appImage.signers) {
+    for (const [key, value] of Object.entries(appImage.signers)) {
+      const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
+      yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
+    }
+  }
 
-    yield call(dbManager.createObject, RealmSchema.Vault, vault);
+  // Vault recreation
+  if (allVaultImages.length > 0) {
+    for (const vaultImage of allVaultImages) {
+      const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+
+      if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
+        if (vault?.signers?.length) {
+          vault.signers.forEach((signer, index) => {
+            signer.xfp = signer.signerId;
+            signer.registeredVaults = [
+              {
+                vaultId: vault.id,
+                registered: signer.registered,
+                registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
+              },
+            ];
+          });
+        }
+
+        if (vault.signers.length) {
+          for (const signer of vault.signers) {
+            const signerXpubs = {};
+            Object.keys(signer.xpubDetails).forEach((type) => {
+              if (signer.xpubDetails[type].xpub) {
+                if (signerXpubs[type]) {
+                  signerXpubs[type].push({
+                    xpub: signer.xpubDetails[type].xpub,
+                    xpriv: signer.xpubDetails[type].xpriv,
+                    derivationPath: signer.xpubDetails[type].derivationPath,
+                  });
+                } else {
+                  signerXpubs[type] = [
+                    {
+                      xpub: signer.xpubDetails[type].xpub,
+                      xpriv: signer.xpubDetails[type].xpriv,
+                      derivationPath: signer.xpubDetails[type].derivationPath,
+                    },
+                  ];
+                }
+              }
+            });
+            const isAMF =
+              signer.type === SignerType.TAPSIGNER &&
+              config.NETWORK_TYPE === NetworkType.TESTNET &&
+              !signer.isMock;
+            const signerObject = {
+              masterFingerprint: signer.masterFingerprint,
+              type: signer.type,
+              signerName: getSignerNameFromType(signer.type, signer.isMock, isAMF),
+              signerDescription: signer.signerDescription,
+              lastHealthCheck: signer.lastHealthCheck,
+              addedOn: signer.addedOn,
+              isMock: signer.isMock,
+              storageType: signer.storageType,
+              signerPolicy: signer.signerPolicy,
+              inheritanceKeyInfo: signer.inheritanceKeyInfo,
+              hidden: false,
+              signerXpubs,
+            };
+            yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+          }
+        }
+
+        yield call(dbManager.createObject, RealmSchema.Vault, vault);
+      }
+      yield call(dbManager.createObject, RealmSchema.Vault, vault);
+    }
   }
 
   // UTXOinfo restore
@@ -368,7 +458,7 @@ function* recoverApp(
   }
   yield put(setAppId(appID));
 
-  //Labels Restore
+  // Labels Restore
   if (labels) {
     yield call(dbManager.createObjectBulk, RealmSchema.Tags, labels);
   }
@@ -435,7 +525,7 @@ function* healthCheckSignerWorker({
     for (const signer of signers) {
       const date = new Date();
       yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
-      yield put(uaiActionedEntity(signer.signerId, true));
+      yield put(uaiActioned({ entityId: signer.masterFingerprint, action: true }));
     }
   } catch (err) {
     console.log(err);

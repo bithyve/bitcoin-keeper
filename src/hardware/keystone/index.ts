@@ -14,7 +14,22 @@ const getKeystoneDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, xfp: mfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: mfp, forMultiSig, forSingleSig };
+};
+
+const getKeystoneDetailsFromFile = (data) => {
+  const { path: derivationPath, xpub, xfp } = data;
+  const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
+  let forMultiSig: boolean;
+  let forSingleSig: boolean;
+  if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
+    forMultiSig = true;
+    forSingleSig = false;
+  } else {
+    forMultiSig = false;
+    forSingleSig = true;
+  }
+  return { xpub, derivationPath, masterFingerprint: xfp, forMultiSig, forSingleSig };
 };
 
 const getTxHexFromKeystonePSBT = (psbt, signedPsbt): bitcoin.Transaction => {
@@ -28,4 +43,4 @@ const getTxHexFromKeystonePSBT = (psbt, signedPsbt): bitcoin.Transaction => {
   return extractedTransaction;
 };
 
-export { getKeystoneDetails, getTxHexFromKeystonePSBT };
+export { getKeystoneDetails, getTxHexFromKeystonePSBT, getKeystoneDetailsFromFile };

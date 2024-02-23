@@ -1,10 +1,9 @@
 import { useRoute } from '@react-navigation/native';
-import { Box } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import { Box, ScrollView } from 'native-base';
+import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
-import { wp } from 'src/common/data/responsiveness/responsive';
 import { SignerType } from 'src/core/wallets/enums';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
@@ -21,16 +20,14 @@ function ShowQR() {
     route.params as any;
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subTitle} paddingLeft={wp(20)} />
+      <KeeperHeader title={title} subtitle={subTitle} />
       <Box style={styles.center}>
         <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
       </Box>
-      {type === SignerType.KEEPER ? (
-        <Box style={styles.bottom}>
-          <Box style={{ paddingBottom: '10%' }}>
-            <ShareWithNfc data={data} />
-          </Box>
-        </Box>
+      {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(type) ? (
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+          <ShareWithNfc data={data} />
+        </ScrollView>
       ) : null}
     </ScreenWrapper>
   );
@@ -40,17 +37,7 @@ export default ShowQR;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: '20%',
-  },
-  bottom: {
-    padding: '3%',
-  },
-  bottomWrapper: {
-    width: '100%',
-    bottom: 0,
-    position: 'absolute',
-    paddingHorizontal: 10,
+    marginTop: '10%',
   },
 });

@@ -1,5 +1,8 @@
 import { call, put, select } from 'redux-saga/effects';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { RootState } from '../store';
 import {
   notificationsFetched,
@@ -16,9 +19,6 @@ import {
   UPDATE_MESSAGES_STATUS,
 } from '../sagaActions/notifications';
 import { createWatcher } from '../utilities';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { addToUaiStack } from '../sagaActions/uai';
 import { setRefreshUai } from '../reducers/uai';
 
@@ -71,7 +71,7 @@ export function* notficationsToUAI(messages) {
         if (!uais.length) {
           yield put(
             addToUaiStack({
-              title: `There is a request for your Inheritance Key. Please review`,
+              title: 'There is a request for your Inheritance Key. Please review',
               isDisplay: true,
               uaiType: uaiType.IKS_REQUEST,
               prirority: 100,

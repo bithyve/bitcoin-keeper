@@ -1,26 +1,28 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box, HStack, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
-import { decodeURBytes } from 'src/core/services/qr';
+import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
+import { decodeURBytes } from 'src/services/qr';
 import { useRoute } from '@react-navigation/native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 import useNfcModal from 'src/hooks/useNfcModal';
-import MockWrapper from '../Vault/MockWrapper';
+import { globalStyles } from 'src/constants/globalStyles';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 let decoder = new URRegistryDecoder();
 
@@ -36,8 +38,10 @@ function ScanQR() {
     onQrScan = () => {},
     setup = false,
     type,
-    isHealthcheck = false,
+    mode,
     signer,
+    disableMockFlow = false,
+    addSignerFlow = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -54,7 +58,7 @@ function ScanQR() {
 
   useEffect(() => {
     if (qrData) {
-      if (isHealthcheck) {
+      if (mode === InteracationMode.HEALTH_CHECK) {
         onQrScan(qrData, resetQR, signer);
       } else {
         onQrScan(qrData, resetQR);
@@ -111,46 +115,54 @@ function ScanQR() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={type} enable={setup && type}>
-        <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
-          {!nfcVisible ? (
-            <>
-              <Box style={styles.qrcontainer}>
-                <RNCamera
-                  autoFocus="on"
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={onBarCodeRead}
-                  useNativeZoom
-                  notAuthorizedView={<CameraUnauthorized />}
-                />
-              </Box>
-              <UploadImage onPress={handleChooseImage} />
-              <HStack>
-                {qrPercent !== 100 && <ActivityIndicator />}
-                <Text>{`Scanned ${qrPercent}%`}</Text>
-              </HStack>
-            </>
-          ) : (
-            <Box style={styles.cameraView} />
-          )}
-          <Box style={styles.noteWrapper}>
-            <Box style={{ paddingBottom: '10%' }}>
-              <NFCOption
-                signerType={type}
-                nfcVisible={nfcVisible}
-                closeNfc={closeNfc}
-                withNfcModal={withNfcModal}
-                setData={setData}
+      <MockWrapper
+        signerType={type}
+        enable={setup && type && !disableMockFlow}
+        addSignerFlow={addSignerFlow}
+        signerXfp={signer?.masterFingerprint}
+        mode={mode}
+      >
+        <KeeperHeader title={title} subtitle={subtitle} />
+        <VStack style={globalStyles.centerColumn}>
+          <Box style={styles.qrcontainer}>
+            {!nfcVisible ? (
+              <RNCamera
+                autoFocus="on"
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={onBarCodeRead}
+                useNativeZoom
+                notAuthorizedView={<CameraUnauthorized />}
               />
-            </Box>
-            <Note
-              title={common.note}
-              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-              subtitleColor="GreyText"
-            />
+            ) : (
+              <Box style={styles.cameraView} />
+            )}
           </Box>
+          <UploadImage onPress={handleChooseImage} />
+          <HStack>
+            {qrPercent !== 100 && <ActivityIndicator />}
+            <Text>{`Scanned ${qrPercent}%`}</Text>
+          </HStack>
+        </VStack>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          <NFCOption
+            signerType={type}
+            nfcVisible={nfcVisible}
+            closeNfc={closeNfc}
+            withNfcModal={withNfcModal}
+            setData={setData}
+          />
+        </ScrollView>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+            subtitleColor="GreyText"
+          />
         </Box>
       </MockWrapper>
     </ScreenWrapper>
@@ -167,13 +179,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cameraView: {
-    height: hp(280),
-    width: wp(375),
+    height: windowWidth * 0.7,
+    width: windowWidth * 0.8,
   },
   noteWrapper: {
-    width: '100%',
-    bottom: 0,
-    position: 'absolute',
-    paddingHorizontal: 10,
+    marginHorizontal: '5%',
+  },
+  scrollContainer: {
+    alignItems: 'center',
   },
 });

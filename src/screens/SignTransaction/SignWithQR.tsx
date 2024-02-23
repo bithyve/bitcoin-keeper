@@ -2,22 +2,23 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
@@ -28,14 +29,21 @@ function SignWithQR() {
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signer }: { signer: VaultSigner } = route.params as any;
+  const {
+    vaultKey,
+    vaultId = '',
+  }: {
+    vaultKey: VaultSigner;
+    vaultId: string;
+  } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
-    (envelop) => signer.signerId === envelop.signerId
+    (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const isSingleSig = activeVault.scheme.n === 1;
+  const { signer } = useSignerFromKey(vaultKey);
 
-  const signTransaction = (signedSerializedPSBT) => {
+  const signTransaction = (signedSerializedPSBT, resetQR) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
       if (isSingleSig) {
@@ -44,25 +52,29 @@ function SignWithQR() {
             serializedPSBT,
             signedSerializedPSBT,
           });
-          dispatch(
-            updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
-          );
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
         } else if (signer.type === SignerType.KEYSTONE) {
           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: tx.toHex() }));
+          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
         } else {
-          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, signedSerializedPSBT }));
+          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
         }
       } else {
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            vaultId: activeVault.id,
+          })
+        );
       }
       dispatch(healthCheckSigner([signer]));
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+      navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
+      resetQR();
       captureError(err);
       Alert.alert('Invalid QR, please scan the signed PSBT!');
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+      navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     }
   };
 
@@ -71,7 +83,7 @@ function SignWithQR() {
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Scan Signed Transaction`,
+          title: 'Scan Signed Transaction',
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: signTransaction,
           type: signer.type,
@@ -81,19 +93,19 @@ function SignWithQR() {
 
   const encodeToBytes = signer.type === SignerType.PASSPORT;
   const navigateToVaultRegistration = () =>
-    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />
+      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
+        {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
+          <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+            <ShareWithNfc data={serializedPSBT} />
+          </ScrollView>
+        ) : null}
       </Box>
       <Box style={styles.bottom}>
-        {signer.type === SignerType.KEEPER ? (
-          <Box style={{ paddingBottom: '5%' }}>
-            <ShareWithNfc data={serializedPSBT} />
-          </Box>
-        ) : null}
         <Buttons
           primaryText="Scan PSBT"
           primaryCallback={navigateToQrScan}
@@ -109,11 +121,11 @@ export default SignWithQR;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: '20%',
+    marginTop: '10%',
+    flex: 1,
   },
   bottom: {
-    padding: '3%',
+    marginHorizontal: '5%',
   },
 });

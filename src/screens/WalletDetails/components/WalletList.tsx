@@ -5,14 +5,14 @@ import useBalance from 'src/hooks/useBalance';
 import { Shadow } from 'react-native-shadow-2';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 import GradientIcon from './GradientIcon';
 
@@ -23,7 +23,7 @@ function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
       onPress={() =>
         navigation.navigate('EnterWalletDetail', {
           name: `Wallet ${walletIndex + 1}`,
-          description: 'Single-sig Wallet',
+          description: '',
           type: WalletType.DEFAULT,
         })
       }
@@ -41,13 +41,7 @@ function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
   );
 }
 
-function WalletTile({
-  isActive,
-  wallet,
-  balances,
-  isWhirlpoolWallet,
-}) {
-
+function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
 
   return (
@@ -68,9 +62,7 @@ function WalletTile({
             />
           )}
 
-          <Box
-            style={styles.walletDetailsWrapper}
-          >
+          <Box style={styles.walletDetailsWrapper}>
             <Text color="light.white" style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
@@ -157,10 +149,7 @@ function WalletItem({
       }}
     >
       <View>
-        <Box
-          variant={isActive ? 'linearGradient' : 'InactiveGradient'}
-          style={styles.walletContainer}
-        >
+        <Box style={styles.walletContainer}>
           {!(item?.presentationData && item?.specs) ? (
             <AddNewWalletTile
               walletIndex={walletIndex}
@@ -257,7 +246,7 @@ const styles = StyleSheet.create({
     width: wp(170),
   },
   walletDescription: {
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
     fontSize: 13,
   },
   walletName: {
@@ -300,6 +289,6 @@ const styles = StyleSheet.create({
   },
   walletDetailsWrapper: {
     marginLeft: 10,
-    width: '68%'
-  }
+    width: '68%',
+  },
 });

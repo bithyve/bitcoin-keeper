@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 export enum DerivationPurpose {
   BIP44 = 44, // P2PKH: legacy, single-sig
   BIP48 = 48, // P2WSH & P2SH-P2WSH: native and wrapped segwit, multi-sig
@@ -91,6 +90,7 @@ export enum VaultMigrationType {
 export enum SignerType {
   TAPSIGNER = 'TAPSIGNER',
   KEEPER = 'KEEPER',
+  MY_KEEPER = 'MY_KEEPER',
   TREZOR = 'TREZOR',
   LEDGER = 'LEDGER',
   COLDCARD = 'COLDCARD',
@@ -104,6 +104,8 @@ export enum SignerType {
   BITBOX02 = 'BITBOX02',
   OTHER_SD = 'OTHER_SD',
   INHERITANCEKEY = 'INHERITANCEKEY',
+  UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
+  SPECTER = 'SPECTER',
 }
 
 export enum PaymentInfoKind {
@@ -148,4 +150,37 @@ export enum LabelRefType {
   ADDR = 'ADDR',
   PUBKEY = 'PUBKEY',
   XPUB = 'XPUB',
+}
+
+export enum ImportedKeyType {
+  MNEMONIC = 'mnemonic',
+
+  // Extended Public Keys - MAINNET
+  XPUB = 'xpub',
+  YPUB = 'ypub',
+  ZPUB = 'zpub',
+
+  // Extended Private Keys - MAINNET
+  XPRV = 'xprv',
+  YPRV = 'yprv',
+  ZPRV = 'zprv',
+
+  // Extended Public Keys - TESTNET
+  TPUB = 'tpub',
+  UPUB = 'upub',
+  VPUB = 'vpub',
+
+  // Extended Private Keys - TESTNET
+  TPRV = 'tprv',
+  UPRV = 'uprv',
+  VPRV = 'vprv',
+}
+
+export enum KeyGenerationMode {
+  NEW = 'NEW',
+  RECOVER = 'RECOVER',
+  IMPORT = 'IMPORT',
+  NFC = 'NFC',
+  FILE = 'FILE',
+  QR = 'QR',
 }

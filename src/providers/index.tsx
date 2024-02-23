@@ -1,17 +1,10 @@
 import React from 'react';
 import { NativeBaseProvider } from 'native-base';
 
-import LinearGradient from 'src/components/KeeperGradient';
-import { customTheme } from '../common/themes';
-
-const config = {
-  dependencies: {
-    'linear-gradient': LinearGradient,
-  },
-};
+import { customTheme } from '../navigation/themes';
 
 function Provider() {
-  return <NativeBaseProvider theme={customTheme} config={config} />;
+  return <NativeBaseProvider theme={customTheme} />;
 }
 
 export default Provider;

@@ -6,7 +6,7 @@ import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { fetchRampReservation } from 'src/services/ramp';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 
@@ -39,20 +39,16 @@ function RampBuyContent({
         By proceeding, you understand that Ramp will process the payment and transfer for the
         purchased bitcoin
       </Text>
-      <Box
-        style={styles.vaultDetailsWrapper}
-        backgroundColor="#FDF7F0"
-
-      >
+      <Box style={styles.vaultDetailsWrapper} backgroundColor="#FDF7F0">
         <VaultIcon />
         <Box style={styles.vaultTitleWrapper} testID="view_rampModalPresentName">
-          <Text style={styles.vaultTitle}>
-            Bitcoin will be transferred to
-          </Text>
+          <Text style={styles.vaultTitle}>Bitcoin will be transferred to</Text>
           <Text style={styles.vaultPresntName} testID="text_rampModalPresentName">
             {vault.presentationData.name}
           </Text>
-          <Text style={styles.balanceText}>{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
+          <Text
+            style={styles.balanceText}
+          >{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
         </Box>
       </Box>
 
@@ -61,9 +57,7 @@ function RampBuyContent({
           <Text style={styles.atText}>@</Text>
         </Box>
         <Box style={styles.addressTitleWrapper}>
-          <Text style={styles.addressTitleText}>
-            Address for ramp transactions
-          </Text>
+          <Text style={styles.addressTitleText}>Address for ramp transactions</Text>
           <Text style={styles.buyAddressText} ellipsizeMode="middle" numberOfLines={1}>
             {buyAddress}
           </Text>
@@ -77,7 +71,7 @@ function RampBuyContent({
         primaryText="Buy Bitcoin"
         primaryCallback={() => buyWithRamp(buyAddress)}
       />
-    </Box >
+    </Box>
   );
 }
 
@@ -108,64 +102,64 @@ const styles = StyleSheet.create({
   contentParaText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    marginVertical: 1
+    marginVertical: 1,
   },
   vaultDetailsWrapper: {
     marginVertical: 5,
-    alignItems: "center",
+    alignItems: 'center',
     borderRadius: 10,
     padding: 5,
-    flexDirection: "row"
+    flexDirection: 'row',
   },
   vaultTitleWrapper: {
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   vaultTitle: {
     fontSize: 12,
-    color: "#5F6965"
+    color: '#5F6965',
   },
   vaultPresntName: {
     fontSize: 19,
     letterSpacing: 1.28,
-    color: "#041513"
+    color: '#041513',
   },
   balanceText: {
-    fontStyle: "italic",
+    fontStyle: 'italic',
     fontSize: 12,
-    color: "#00836A"
+    color: '#00836A',
   },
   addressWrapper: {
-    marginVertical: 4,
-    alignItems: "center",
+    marginVertical: 10,
+    alignItems: 'center',
     borderRadius: 10,
     paddingHorizontal: 4,
     paddingVertical: 6,
-    backgroundColor: "#FDF7F0",
-    flexDirection: "row"
+    backgroundColor: '#FDF7F0',
+    flexDirection: 'row',
   },
   atWrapper: {
-    backgroundColor: "#FAC48B",
+    backgroundColor: '#FAC48B',
     borderRadius: 45,
     height: 45,
     width: 45,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   atText: {
     fontSize: 22,
   },
   addressTitleWrapper: {
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   addressTitleText: {
     fontSize: 12,
-    color: "#5F6965"
+    color: '#5F6965',
   },
   buyAddressText: {
     width: wp(200),
     fontSize: 19,
-    color: "#041513"
-  }
-})
+    color: '#041513',
+  },
+});
 
 export default RampModal;

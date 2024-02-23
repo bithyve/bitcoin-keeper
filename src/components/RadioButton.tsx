@@ -2,12 +2,11 @@
 /* eslint-disable react/function-component-definition */
 import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import LinearGradient from 'src/components/KeeperGradient';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 export type Props = {
   isChecked: boolean;
@@ -24,7 +23,7 @@ const RadioButton: React.FC<Props> = ({
   // color = '#00836A',
   borderColor = '#E3E3E3',
   ignoresTouch = false,
-  onpress = () => { },
+  onpress = () => {},
 }: Props) => {
   const containerStyle = useMemo(
     () => ({
@@ -60,14 +59,9 @@ const RadioButton: React.FC<Props> = ({
       disabled={ignoresTouch}
       onPress={onpress}
     >
-      <LinearGradient
-        style={{ ...styles.createBtn }}
-        start={[0.8, 0.1]}
-        end={[0.35, 0.9]}
-        colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
-      >
+      <Box style={{ ...styles.createBtn }} backgroundColor={`${colorMode}.greenButtonBackground`}>
         {isChecked && <View style={innerCircleStyle} />}
-      </LinearGradient>
+      </Box>
     </TouchableOpacity>
   );
 };

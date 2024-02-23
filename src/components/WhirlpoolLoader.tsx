@@ -8,9 +8,9 @@ import WhirlpoolLoaderDark from 'src/assets/images/WhirlpoolLoaderDark.svg'
 import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
-import Gear1Dark from 'src/assets/images/largeGearDark.svg';
+import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2Dark from 'src/assets/images/smallGearDark.svg'
-import { windowWidth, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowWidth, windowHeight } from 'src/constants/responsive';
 
 function WhirlpoolLoader() {
   const { colorMode } = useColorMode();

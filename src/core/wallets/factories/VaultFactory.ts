@@ -2,10 +2,20 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
 import {
+  cryptoRandom,
   generateEncryptionKey,
   generateKey,
   hash256,
-} from 'src/core/services/operations/encryption';
+} from 'src/services/operations/encryption';
+import config from 'src/core/config';
+import {
+  CosignersMapUpdate,
+  CosignersMapUpdateAction,
+  IKSCosignersMapUpdate,
+  IKSCosignersMapUpdateAction,
+} from 'src/services/interfaces';
+import SigningServer from 'src/services/operations/SigningServer';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import {
   EntityKind,
   NetworkType,
@@ -15,6 +25,7 @@ import {
   VisibilityType,
 } from '../enums';
 import {
+  Signer,
   Vault,
   VaultPresentationData,
   VaultScheme,
@@ -23,24 +34,37 @@ import {
 } from '../interfaces/vault';
 
 import WalletUtilities from '../operations/utils';
-import config from '../../config';
 import WalletOperations from '../operations';
 
 const crypto = require('crypto');
 
-export const generateVaultId = (signers, networkType) => {
-  const network = WalletUtilities.getNetworkByType(networkType);
+const STANDARD_VAULT_SCHEME = [
+  { m: 1, n: 1 },
+  { m: 2, n: 3 },
+  { m: 3, n: 5 },
+];
+
+export const generateVaultId = (signers: VaultSigner[], scheme) => {
   const xpubs = signers.map((signer) => signer.xpub).sort();
-  const fingerprints = [];
-  xpubs.forEach((xpub) =>
-    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
-  );
+  const xpubMap = {};
+  signers.forEach((signer) => {
+    xpubMap[signer.xpub] = signer;
+  });
+  const fingerprints = xpubs.map((xpub) => {
+    const signer = xpubMap[xpub];
+    return signer.xfp;
+  });
+  STANDARD_VAULT_SCHEME.forEach((s) => {
+    if (s.m !== scheme.m || s.n !== scheme.n) {
+      fingerprints.push(JSON.stringify(scheme));
+    }
+  });
   const hashedFingerprints = hash256(fingerprints.join(''));
   const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
   return id;
 };
 
-export const generateVault = ({
+export const generateVault = async ({
   type,
   vaultName,
   vaultDescription,
@@ -48,6 +72,7 @@ export const generateVault = ({
   signers,
   networkType,
   vaultShellId,
+  signerMap,
 }: {
   type: VaultType;
   vaultName: string;
@@ -56,8 +81,9 @@ export const generateVault = ({
   signers: VaultSigner[];
   networkType: NetworkType;
   vaultShellId?: string;
-}): Vault => {
-  const id = generateVaultId(signers, networkType);
+  signerMap: { [key: string]: Signer };
+}): Promise<Vault> => {
+  const id = generateVaultId(signers, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
@@ -105,12 +131,17 @@ export const generateVault = ({
     scriptType,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
+
+  // update cosigners map(if one of the signers is an assisted key)
+  await updateCosignersMapForAssistedKeys(signers, signerMap);
+
   return vault;
 };
 
 export const generateMobileKey = async (
   primaryMnemonic: string,
-  networkType: NetworkType
+  networkType: NetworkType,
+  entityKind: EntityKind = EntityKind.VAULT
 ): Promise<{
   xpub: string;
   xpriv: string;
@@ -122,7 +153,7 @@ export const generateMobileKey = async (
 
   const DEFAULT_CHILD_PATH = 0;
   const xDerivationPath = WalletUtilities.getDerivationPath(
-    EntityKind.VAULT,
+    entityKind,
     networkType,
     DEFAULT_CHILD_PATH
   );
@@ -189,7 +220,7 @@ export const generateMockExtendedKey = (
   const mockMnemonic = bip39.entropyToMnemonic(randomBytes.toString('hex'));
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
-  const randomWalletNumber = Math.floor(Math.random() * 10e5);
+  const randomWalletNumber = Math.floor(cryptoRandom() * 10e5);
   const xDerivationPath = WalletUtilities.getDerivationPath(
     entity,
     networkType,
@@ -202,6 +233,92 @@ export const generateMockExtendedKey = (
     xDerivationPath
   );
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
+};
+
+export const generateCosignerMapIds = (
+  signerMap: { [key: string]: Signer },
+  keys: VaultSigner[],
+  except: SignerType
+) => {
+  // generates cosigners map ids using sorted and hashed cosigner ids
+  const cosignerIds = [];
+  keys.forEach((signer) => {
+    if (signerMap[signer.masterFingerprint].type !== except) cosignerIds.push(signer.xfp);
+  });
+
+  cosignerIds.sort();
+
+  const hashedCosignerIds = cosignerIds.map((id) => hash256(id));
+
+  const cosignersMapIds = [];
+  for (let i = 0; i < hashedCosignerIds.length; i++) {
+    for (let j = i + 1; j < hashedCosignerIds.length; j++) {
+      cosignersMapIds.push(hashedCosignerIds[i] + '-' + hashedCosignerIds[j]);
+    }
+  }
+
+  return cosignersMapIds;
+};
+
+export const generateCosignerMapUpdates = (
+  signerMap: { [key: string]: Signer },
+  keys: VaultSigner[],
+  assistedKey: VaultSigner
+): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
+  const assistedKeyType = signerMap[assistedKey.masterFingerprint].type;
+  const cosignersMapIds = generateCosignerMapIds(signerMap, keys, assistedKeyType);
+
+  if (assistedKeyType === SignerType.POLICY_SERVER) {
+    const cosignersMapUpdates: CosignersMapUpdate[] = [];
+    for (const id of cosignersMapIds) {
+      cosignersMapUpdates.push({
+        cosignersId: id,
+        signerId: assistedKey.xfp,
+        action: CosignersMapUpdateAction.ADD,
+      });
+    }
+
+    return cosignersMapUpdates;
+  } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
+    const cosignersMapUpdates: IKSCosignersMapUpdate[] = [];
+    for (const id of cosignersMapIds) {
+      cosignersMapUpdates.push({
+        cosignersId: id,
+        inheritanceKeyId: assistedKey.xfp,
+        action: IKSCosignersMapUpdateAction.ADD,
+      });
+    }
+
+    return cosignersMapUpdates;
+  } else throw new Error('Non-supported signer type');
+};
+
+const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap) => {
+  for (const key of keys) {
+    const assistedKeyType = signerMap[key.masterFingerprint]?.type;
+    if (
+      assistedKeyType === SignerType.POLICY_SERVER ||
+      assistedKeyType === SignerType.INHERITANCEKEY
+    ) {
+      // creates maps per signer type
+      const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, keys, key);
+
+      // updates our backend with the cosigners map
+      if (assistedKeyType === SignerType.POLICY_SERVER) {
+        const { updated } = await SigningServer.updateCosignersToSignerMap(
+          key.xfp,
+          cosignersMapUpdates as CosignersMapUpdate[]
+        );
+        if (!updated) throw new Error('Failed to update cosigners-map for SS Assisted Keys');
+      } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
+        const { updated } = await InheritanceKeyServer.updateCosignersToSignerMapIKS(
+          key.xfp,
+          cosignersMapUpdates as IKSCosignersMapUpdate[]
+        );
+        if (!updated) throw new Error('Failed to update cosigners-map for IKS Assisted Keys');
+      }
+    }
+  }
 };
 
 export const MOCK_SD_MNEMONIC_MAP = {
@@ -223,6 +340,8 @@ export const MOCK_SD_MNEMONIC_MAP = {
     'equal gospel mirror humor early liberty finger breeze super celery invite proof',
   [SignerType.BITBOX02]:
     'journey gospel position invite winter pattern inquiry scrub sorry early enable badge',
+  [SignerType.SPECTER]:
+    'journey invite inquiry day among poverty inquiry affair keen pave nasty position',
 };
 
 export const generateMockExtendedKeyForSigner = (
@@ -231,6 +350,9 @@ export const generateMockExtendedKeyForSigner = (
   networkType = NetworkType.TESTNET
 ) => {
   const mockMnemonic = MOCK_SD_MNEMONIC_MAP[signer];
+  if (!mockMnemonic) {
+    throw new Error("We don't support mock flow for soft keys");
+  }
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, 123);

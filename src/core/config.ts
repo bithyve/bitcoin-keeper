@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
 
 import axios, { AxiosInstance } from 'axios';
@@ -19,6 +17,9 @@ export enum BITCOIN_NETWORK {
   MAINNET = 'MAINNET',
 }
 
+export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/';
+export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/';
+
 // defaults to development environment
 const DEFAULT_CONFIG = {
   BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
@@ -30,8 +31,10 @@ const DEFAULT_CONFIG = {
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
   CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
   KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
-  RAMP_BASE_URL: 'https://buy.ramp.network/',
+  RAMP_BASE_URL: 'https://app.ramp.network/',
   RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
+  SIGNING_SERVER_RSA_PUBKEY:
+    '-----BEGIN PUBLIC KEY----- MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr/gXW+ITXpSfp8tu9Ujw gDfcPSfFLuIDovPFRBdMP9uJ7baHqhYO1WqvrafLHZ/akhdk9XSR18Oqb7pvUfvQ Y/40QO6Qlx6zxyGoM1FOTaXY2NxCv5U+kTi2NJpMi2C7/h63ykiLD9dkO0qBCBjd /tFsv8e5GTOQXZQvIEsAyeBNsNQxNX5AY7HQI0nMjGrxKYGMaBQKFqtaJIQwESlo DSkrd5yQJQR50KwL0+/e5znemVhxS08NgjxGTVKTuiJhsJa+PWMZhlmHjcLaFrZz QjDuhqycRCwXk7tuZHOVRSI9LC+L5LfayL6Mj7N1NdmkRWRY/feXU9GlaFX8KQqq fwIDAQAB -----END PUBLIC KEY-----',
 };
 
 class Configuration {
@@ -52,7 +55,7 @@ class Configuration {
 
   public HEXA_ID: string = config.HEXA_ID?.trim() ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID; // for legacy-relay interaction
 
-  public BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH = `m/83696968'/39'/0'/12'/83696968'`;
+  public BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH = "m/83696968'/39'/0'/12'/83696968'";
 
   public VAC_CHILD_INDEX: number = 3012009;
 
@@ -92,6 +95,10 @@ class Configuration {
     baseURL: this.SIGNING_SERVER,
     timeout: this.REQUEST_TIMEOUT,
   });
+
+  public SIGNING_SERVER_RSA_PUBKEY: string = config.SIGNING_SERVER_RSA_PUBKEY
+    ? config.SIGNING_SERVER_RSA_PUBKEY.trim()
+    : DEFAULT_CONFIG.SIGNING_SERVER_RSA_PUBKEY;
 
   public NETWORK: bitcoinJS.Network;
 

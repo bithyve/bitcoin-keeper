@@ -1,76 +1,142 @@
-import { Image, ImageBackground, StatusBar, StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
-import { Box, useColorMode } from 'native-base';
-
-import BithyveTeam from 'src/assets/images/BithyveTeam.svg'
-import RestClient from 'src/core/services/rest/RestClient';
+import { useColorMode } from 'native-base';
+import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
-import ScreenWrapper from 'src/components/ScreenWrapper';
-import SplashBackground from 'src/assets/images/SplashBackground.png'
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import * as SecureStore from '../../storage/secure-store';
+import * as SecureStore from 'src/storage/secure-store';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
+import KeeperLogo from 'src/assets/images/logo.svg';
+import TeamBithyve from 'src/assets/images/fromBithyve.svg';
+import Tagline from 'src/assets/images/tagline.svg';
+import { windowHeight, windowWidth } from 'src/constants/responsive';
+import { StyleSheet } from 'react-native';
 
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode } = useAppSelector((state) => state.settings);
-  const { toggleColorMode, colorMode } = useColorMode()
+  const { toggleColorMode, colorMode } = useColorMode();
+
+  const animate = () => {
+    progress.value = withTiming(4, { duration: 3000 }, (finished) => {
+      if (finished) {
+        runOnJS(navigateToApp)();
+      }
+    });
+  };
 
   useEffect(() => {
+    animate();
     if (colorMode !== themeMode.toLocaleLowerCase()) {
-      toggleColorMode()
+      toggleColorMode();
     }
-
     RestClient.setUseTor(torEnbled);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      navigateToApp()
-    }, 2000)
-  }, []);
-
   const navigateToApp = async () => {
-    const hasCreds = await SecureStore.hasPin();
-    if (hasCreds) {
-      navigation.replace('Login', { relogin: false });
-    } else {
-      navigation.replace('CreatePin');
+    try {
+      const hasCreds = await SecureStore.hasPin();
+      if (hasCreds) {
+        navigation.replace('Login', { relogin: false });
+      } else {
+        navigation.replace('CreatePin');
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
+  const progress = useSharedValue(0);
+  const inputRange = [0, 1, 2, 3, 4];
+  const heightRange = [0, windowHeight * 2, windowHeight * 2, windowHeight, windowHeight];
+  const widthRange = [0, windowHeight * 2, windowHeight * 2, windowHeight, windowWidth];
+  const radiusRange = [0, windowHeight, windowHeight * 2, 0, 0];
+  const scaleRange = [4, 3, 1, 1, 1];
+  const logoOpacityRange = [0, 0, 1, 1, 1];
+  const tagOpacityRange = [0, 0, 0, 1, 1];
+  const teamOpacityRange = [0, 0, 0, 0, 1];
+
+  const SCALE_CONFIG = {
+    overshootClamping: false,
+    restSpeedThreshold: 1,
+    stiffness: 100,
+    restDisplacementThreshold: 0.1,
+  };
+
+  const animatedBackground = useAnimatedStyle(() => {
+    const height = interpolate(progress.value, inputRange, heightRange);
+    const width = interpolate(progress.value, inputRange, widthRange);
+    const borderRadius = interpolate(progress.value, inputRange, radiusRange);
+    return {
+      height,
+      width,
+      borderRadius,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#2D6759',
+    };
+  });
+
+  const animatedLogo = useAnimatedStyle(() => {
+    const scale = withSpring(interpolate(progress.value, inputRange, scaleRange), SCALE_CONFIG);
+    const opacity = withSpring(
+      interpolate(progress.value, inputRange, logoOpacityRange),
+      SCALE_CONFIG
+    );
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
+  const animatedTagline = useAnimatedStyle(() => {
+    const opacity = interpolate(progress.value, inputRange, tagOpacityRange, {
+      extrapolateRight: Extrapolation.CLAMP,
+    });
+    return {
+      marginVertical: 10,
+      opacity,
+      addingLeft: '5%',
+    };
+  });
+
+  const animatedTeam = useAnimatedStyle(() => {
+    const opacity = interpolate(progress.value, inputRange, teamOpacityRange);
+    return {
+      top: windowHeight * 0.32,
+      opacity,
+    };
+  });
+
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryGreenBackground`}>
-      <StatusBar barStyle="light-content" />
-      <ImageBackground resizeMode="contain" source={SplashBackground} style={styles.container}>
-        <Image
-          style={styles.keeperImageStyle}
-          source={require('src/assets/images/SplashKeeperImage.png')}
-        />
-      </ImageBackground>
-      <Box style={styles.bottomViewWrapper}>
-        <BithyveTeam />
-      </Box>
-    </ScreenWrapper>
+    <Animated.View style={styles.center}>
+      <Animated.View style={animatedBackground}>
+        <Animated.View style={animatedLogo}>
+          <KeeperLogo />
+        </Animated.View>
+        <Animated.View style={animatedTagline}>
+          <Tagline />
+        </Animated.View>
+        <Animated.View style={animatedTeam}>
+          <TeamBithyve />
+        </Animated.View>
+      </Animated.View>
+    </Animated.View>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
+  center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: wp(20)
   },
-  keeperImageStyle: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain'
-  },
-  bottomViewWrapper: {
-    position: 'absolute',
-    bottom: hp(12),
-    width: '100%',
-    marginLeft: wp(10),
-    alignItems: 'center',
-  }
-})
+});
+
 export default SplashScreen;

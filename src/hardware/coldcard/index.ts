@@ -1,8 +1,8 @@
 import { Vault, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { HWErrorType } from 'src/models/enums/Hardware';
 import { XpubTypes } from 'src/core/wallets/enums';
 import { getWalletConfig } from '..';
 import HWError from '../HWErrorState';
@@ -23,7 +23,12 @@ export const extractColdCardExport = (data, isMultisig) => {
   xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
   const xpub = isMultisig ? multiSigXpub : singleSigXpub;
   const derivationPath = isMultisig ? multiSigPath : singleSigPath;
-  return { xpub, derivationPath, xfp: data.xfp, xpubDetails };
+  return { xpub, derivationPath, masterFingerprint: data.xfp, xpubDetails };
+};
+
+export const getConfigDetails = async () => {
+  const { data } = (await NFC.read(NfcTech.NfcV))[0];
+  return data;
 };
 
 export const getColdcardDetails = async (isMultisig: boolean) => {

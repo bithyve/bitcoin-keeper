@@ -1,7 +1,7 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import DotView from 'src/components/DotView';
 
@@ -62,42 +62,42 @@ function PinInputsView({
 
   return (
     <Box style={styles.container}>
-      <View
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(1)}</Box>
-      </View>
-      <View
+      </Box>
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(2)}</Box>
-      </View>
-      <View
+      </Box>
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(3)}</Box>
-      </View>
-      <View
+      </Box>
+      <Box
+        borderColor={borderColor}
         style={{
           ...styles.passcodeBox,
           backgroundColor: getBackgroundColor(),
-          borderColor,
         }}
       >
         <Box>{getPin(4)}</Box>
-      </View>
+      </Box>
     </Box>
   );
 }

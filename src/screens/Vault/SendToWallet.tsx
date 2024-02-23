@@ -1,6 +1,6 @@
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, Input, InputGroup, Pressable, Stack, Icon } from 'native-base';
+import { Box, Input, InputGroup, Pressable, Stack, Icon, StatusBar } from 'native-base';
 import BackIcon from 'src/assets/images/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import React from 'react';
@@ -25,7 +25,7 @@ const onDeletePressed = () => {
 function SendToWallet({ navigation }) {
   return (
     <Box style={styles.Container} backgroundColor="light.secondaryBackground">
-      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
       <Pressable onPress={() => navigation.goBack()} mx={8} my={12}>
         <BackIcon />
       </Pressable>

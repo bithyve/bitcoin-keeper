@@ -3,8 +3,7 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import { ActivityIndicator } from 'react-native';
 
 import React from 'react';
-import Switch from '../../components/Switch/Switch';
-
+import Switch from 'src/components/Switch/Switch';
 
 function SettingsSwitchCard(props) {
   const { colorMode } = useColorMode();
@@ -18,7 +17,7 @@ function SettingsSwitchCard(props) {
       {...props}
       testID={`btn_${props.title}`}
       disabled={props.disabled}
-    // backgroundColor={`${colorMode}.seashellWhite`}
+      // backgroundColor={`${colorMode}.seashellWhite`}
     >
       <Box flex={1}>
         <Text

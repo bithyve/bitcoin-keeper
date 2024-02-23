@@ -7,7 +7,12 @@ function BottomMenuItem(props) {
   const { colorMode } = useColorMode();
   const { onPress, icon, title, disabled = false } = props;
   return (
-    <TouchableOpacity style={styles.IconText} onPress={onPress} disabled={disabled} testID="btn_bottomMenu">
+    <TouchableOpacity
+      style={styles.IconText}
+      onPress={onPress}
+      disabled={disabled}
+      testID="btn_bottomMenu"
+    >
       {icon}
       <Text color={`${colorMode}.primaryText`} style={styles.footerItemText}>
         {title}

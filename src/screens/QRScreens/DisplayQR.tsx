@@ -2,9 +2,9 @@ import QRCode from 'react-native-qrcode-svg';
 import React, { useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
 import { Dimensions } from 'react-native';
-import { BufferEncoding } from 'src/common/data/enums/BufferEncoding';
+import { BufferEncoding } from 'src/models/enums/BufferEncoding';
 import { VStack, Slider } from 'native-base';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 const { width } = Dimensions.get('window');

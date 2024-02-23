@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, Pressable } from 'native-base';
 import ArrowIcon from 'src/assets/images/arrow.svg';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight } from 'src/constants/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import useBalance from 'src/hooks/useBalance';

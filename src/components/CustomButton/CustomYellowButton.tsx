@@ -1,15 +1,15 @@
 import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-
-import LinearGradient from 'src/components/KeeperGradient';
-import { useColorMode } from 'native-base';
 
 export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
   titleColor?: string;
+  backgroundColor?: string;
+  boldTitle?: boolean;
 }
 function CustomYellowButton(props: Props) {
   const { colorMode } = useColorMode();
@@ -20,24 +20,22 @@ function CustomYellowButton(props: Props) {
       onPress={() => {
         props.onPress();
       }}
-      testID='btn_customYellowButton'
+      testID="btn_customYellowButton"
     >
-      <LinearGradient
-        start={[1, 0]}
-        end={[0, 0]}
-        colors={colorMode === 'light' ? ['#E3BE96', '#E3BE96'] : ['#212726', '#212726']}
-        style={styles.linearGradient}
+      <Box
+        style={styles.buttonContent}
+        backgroundColor={props.backgroundColor || `${colorMode}.yellowButtonBackground`}
       >
-        <Text color={props.titleColor} style={styles.btnText}>
+        <Text bold={props.boldTitle} color={props.titleColor} style={styles.btnText}>
           {props.value}
         </Text>
-      </LinearGradient>
+      </Box>
     </TouchableHighlight>
   );
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  buttonContent: {
     paddingVertical: 6,
     paddingHorizontal: 20,
     borderColor: '#725436',
@@ -48,8 +46,8 @@ const styles = StyleSheet.create({
   },
   btnText: {
     letterSpacing: 1,
-    fontSize: 14
-  }
+    fontSize: 14,
+  },
 });
 
 export default CustomYellowButton;

@@ -1,35 +1,35 @@
 import React, { useState, useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
-
 import Text from 'src/components/KeeperText';
-import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
-import FiatCurrencies from 'src/common/FiatCurrencies';
-import CountryCode from 'src/common/CountryCode';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import CountryCode from 'src/constants/CountryCode';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
-import availableLanguages from '../../common/content/availableLanguages';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import KeeperHeader from 'src/components/KeeperHeader';
+import availableLanguages from 'src/context/Localization/availableLanguages';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Fonts from 'src/constants/Fonts';
+import FiatCurrencies from 'src/constants/FiatCurrencies';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import Switch from 'src/components/Switch/Switch';
+import OptionCard from 'src/components/OptionCard';
 
 const styles = StyleSheet.create({
   btn: {
     flexDirection: 'row',
+    width: '90%',
     height: wp('13%'),
     position: 'relative',
     marginHorizontal: 12,
+    borderRadius: 10,
   },
   textCurrency: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 18,
-    color: '#00836A',
-    fontWeight: '700',
   },
   icArrow: {
     marginLeft: wp('3%'),
@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   textValue: {
-    fontFamily: Fonts.FiraSansRegular,
     fontSize: 12,
     marginLeft: wp('3%'),
   },
@@ -68,16 +67,20 @@ const styles = StyleSheet.create({
   menuWrapper: {
     height: wp('13%'),
     width: wp('15%'),
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  dropdownIconWrapper: {
+    marginLeft: 'auto',
+    height: wp('13%'),
+    justifyContent: 'center',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
   emptyView: {
     height: '55%',
-    marginTop: 10,
+    alignSelf: 'center',
     width: 2,
-    backgroundColor: '#D8A572',
   },
   textValueWrapper: {
     flex: 1,
@@ -99,10 +102,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   symbolText: {
-    fontFamily: Fonts.FiraSansMedium,
     fontSize: 13,
     color: '#00836A',
-    fontWeight: '700',
   },
   codeTextWrapper: {
     flex: 1,
@@ -113,7 +114,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF4ED',
   },
   codeText: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp('7%'),
     letterSpacing: 0.6,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   flagStyle: {
-    fontFamily: Fonts.FiraSansMedium,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
@@ -146,7 +146,6 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   countryCodeWrapper2: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp('3%'),
     letterSpacing: 0.6,
@@ -154,12 +153,19 @@ const styles = StyleSheet.create({
   countryCodeText: {
     textTransform: 'uppercase',
   },
+  contentContainer: {
+    flex: 1,
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
 });
 
 function ChangeLanguage() {
-
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
-  const { currencyCode, language, satsEnabled } = useAppSelector((state) => state.settings);
+  const { currencyCode, language } = useAppSelector((state) => state.settings);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
   const dispatch = useAppDispatch();
 
   const [currencyList] = useState(FiatCurrencies);
@@ -174,41 +180,39 @@ function ChangeLanguage() {
   );
   const [isDisabled, setIsDisabled] = useState(true);
 
-  const changeThemeMode = () => {
-    dispatch(setSatsEnabled(!satsEnabled));
-  };
-
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
 
+  const changeSatsMode = () => {
+    dispatch(setSatsEnabled(!satsEnabled));
+  };
+
   function Menu({ label, value, onPress, arrow }) {
     return (
-      <TouchableOpacity onPress={onPress} style={styles.btn}>
-        <Box style={styles.menuWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text style={styles.textCurrency}>{label}</Text>
-        </Box>
-        <Box style={styles.emptyView} />
-        <Box style={styles.textValueWrapper}>
-          <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
-            {value}
-          </Text>
-        </Box>
-        <Box
-          style={{
-            marginLeft: 'auto',
-            height: wp('13%'),
-            justifyContent: 'center',
-          }}
-        >
-          <Box
-            style={[
-              styles.icArrow,
-              {
-                transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-              },
-            ]}
-          >
-            <RightArrowIcon />
+      <TouchableOpacity onPress={onPress}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.btn}>
+          <Box style={styles.menuWrapper}>
+            <Text color={`${colorMode}.SlateGrey`} bold style={styles.textCurrency}>
+              {label}
+            </Text>
+          </Box>
+          <Box backgroundColor={`${colorMode}.PaleIvory`} style={styles.emptyView} />
+          <Box style={styles.textValueWrapper}>
+            <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
+              {value}
+            </Text>
+          </Box>
+          <Box style={styles.dropdownIconWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+            <Box
+              style={[
+                styles.icArrow,
+                {
+                  transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
+                },
+              ]}
+            >
+              <RightArrowIcon />
+            </Box>
           </Box>
         </Box>
       </TouchableOpacity>
@@ -217,27 +221,26 @@ function ChangeLanguage() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle />
-      <Box flex={1}>
-        <Box marginLeft="5%">
-          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText} testID={`text_${settings.LanguageCountry}`}>
-            {settings.LanguageCountry}
-          </Text>
-          <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.GreyText`}>
-            {settings.biometricsDesc}
-          </Text>
-        </Box>
-        <CountryCard
+      <KeeperHeader
+        title={settings.CurrencyDefaults}
+        subtitle={settings.CurrencyDefaultsSubtitle}
+      />
+      <Box style={styles.contentContainer}>
+        <OptionCard
           title={settings.SatsMode}
-          description={settings.Viewbalancessats}
-          my={2}
-          bgColor={`${colorMode}.backgroundColor2`}
-          onSwitchToggle={() => changeThemeMode()}
-          value={satsEnabled}
+          description={settings.satsModeSubTitle}
+          callback={() => changeSatsMode()}
+          Icon={
+            <Switch
+              value={satsEnabled}
+              onValueChange={() => changeSatsMode()}
+              testID="switch_darkmode"
+            />
+          }
         />
         <CountrySwitchCard
-          title={settings.AlternateCurrency}
-          description={settings.Selectyourlocalcurrency}
+          title={settings.FiatCurrency}
+          description={settings.Seebalance}
           my={2}
           bgColor={`${colorMode}.backgroundColor2`}
           icon={false}
@@ -302,6 +305,7 @@ function ChangeLanguage() {
           <ScrollView style={styles.langScrollViewWrapper}>
             {availableLanguages.map((item) => (
               <TouchableOpacity
+                key={item.iso}
                 onPress={() => {
                   setAppLanguage(item.iso);
                   setShowLanguages(false);

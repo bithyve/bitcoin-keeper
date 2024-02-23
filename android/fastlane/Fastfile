@@ -1,0 +1,112 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Push a new dev build to Slack"
+  lane :dev do
+    store_password = ENV["STORE_PASSWORD"]
+    key_password = ENV["KEY_PASSWORD"]
+    key_alias = ENV["KEY_ALIAS"]
+    releaseFilePath = File.join(Dir.pwd, "../app", "debug.keystore")
+
+    bump_version_code()
+
+    gradle(task: 'clean')
+    
+    gradle(
+      task: 'assemble',
+      build_type: 'developmentRelease',
+      print_command: false,
+      properties: {
+        "android.injected.signing.store.file" => releaseFilePath,
+        "android.injected.signing.store.password" => store_password,
+        "android.injected.signing.key.alias" => key_alias,
+        "android.injected.signing.key.password" => key_password,
+      }
+    )
+    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]})
+  end
+
+  desc "Push a new live build to Slack and internal track on Play Store"
+  lane :live do
+    store_password = ENV["STORE_PASSWORD"]
+    key_password = ENV["KEY_PASSWORD"]
+    key_alias = ENV["KEY_ALIAS"]
+    releaseFilePath = File.join(Dir.pwd, "../app", "release.keystore")
+    gradle(task: 'clean')
+    gradle(
+      task: 'bundle',
+      build_type: 'productionRelease',
+      print_command: false,
+      properties: {
+        "android.injected.signing.store.file" => releaseFilePath,
+        "android.injected.signing.store.password" => store_password,
+        "android.injected.signing.key.alias" => key_alias,
+        "android.injected.signing.key.password" => key_password,
+      }
+    )
+    upload_to_play_store(
+      track: 'internal'
+    )
+    gradle(
+      task: 'assemble',
+      build_type: 'productionRelease',
+      print_command: false,
+      properties: {
+        "android.injected.signing.store.file" => releaseFilePath,
+        "android.injected.signing.store.password" => store_password,
+        "android.injected.signing.key.alias" => key_alias,
+        "android.injected.signing.key.password" => key_password,
+      }
+    )
+    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]})
+  end
+end
+
+desc "Upload the APK to Slack channel"
+private_lane :upload_to_slack do |options|
+  file_path = options[:file_path].to_s
+  file_name = file_path.gsub(/\/.*\//,"")
+  access_token = ENV["SLACK_ACCESS_TOKEN"]
+  channel_name = "dev-ops"
+  sh "echo Uploading " + file_name + " to Slack"
+  sh "curl --limit-rate 2048K https://slack.com/api/files.upload -F token=\"" + access_token + "\" -F channels=\"" + channel_name + "\" -F title=\"" + file_name + "\" -F filename=\"" + file_name + "\" -F file=@" + file_path
+end
+
+after_all do |lane|
+  slack(message: "Build success :rocket:")
+  end
+
+  error do |lane, exception|
+    slack(
+      message: exception.message,
+      success:false
+    )
+  end
+
+lane :bump_version_code do
+  path = '../app/build.gradle'
+  re = /versionCode\s+(\d+)/ 
+
+  s = File.read(path)
+  versionCode = s[re, 1].to_i
+  s[re, 1] = (versionCode + 1).to_s
+
+  f = File.new(path, 'w')
+  f.write(s)
+  f.close
+end

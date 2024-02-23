@@ -1,12 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 
 import { useNavigation } from '@react-navigation/native';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { BackupType } from 'src/common/data/enums/BHR';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { BackupType } from 'src/models/enums/BHR';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import Buttons from '../Buttons';
+import Buttons from 'src/components/Buttons';
+import { cryptoRandom } from 'src/services/operations/encryption';
 
 function HealthCheckComponent(props) {
   const navigation = useNavigation();
@@ -17,9 +18,8 @@ function HealthCheckComponent(props) {
   const [seedWord, setSeedWord] = useState('');
   const [strongPassword, setStrongPassword] = useState('');
   const { words } = props;
-  const [index] = useState(Math.floor(Math.random() * words.length));
+  const [index] = useState(Math.floor(cryptoRandom() * words.length));
   const [invalid, setInvalid] = useState(false);
-  console.log(props.password);
 
   const getSeedNumber = (seedNumber) => {
     switch (seedNumber + 1) {
@@ -78,10 +78,9 @@ function HealthCheckComponent(props) {
         return 'twelfth';
     }
   };
-
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
-      if (seedWord === words[index]) {
+      if (seedWord.toLocaleLowerCase() === words[index]) {
         props.onConfirmed('');
       } else {
         setInvalid(true);
@@ -92,14 +91,15 @@ function HealthCheckComponent(props) {
       setInvalid(true);
     }
   };
+  const { colorMode } = useColorMode();
 
   return (
-    <Box backgroundColor="light.mainBackground" style={styles.wrapper}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
       <Box>
-        <Text fontSize={19} color="light.primaryText">
+        <Text fontSize={19} color={`${colorMode}.primaryText`}>
           {BackupWallet.healthCheck}
         </Text>
-        <Text fontSize={13} color="light.secondaryText" mb={10}>
+        <Text fontSize={13} color={`${colorMode}.secondaryText`} mb={10}>
           For the Recovery Phrase
         </Text>
       </Box>
@@ -111,8 +111,8 @@ function HealthCheckComponent(props) {
         </Text>
         <Input
           placeholder={type === BackupType.SEED ? `Enter ${getHint(index)} word` : 'Enter Password'}
-          placeholderTextColor="light.secondaryText"
-          backgroundColor="light.primaryBackground"
+          placeholderTextColor={`${colorMode}.secondaryText`}
+          backgroundColor={`${colorMode}.seashellWhite`}
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
             type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)

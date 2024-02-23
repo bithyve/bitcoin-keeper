@@ -1,23 +1,23 @@
-/* eslint-disable no-nested-ternary */
-/* eslint-disable no-plusplus */
 import { call, put, select } from 'redux-saga/effects';
 import {
+  cryptoRandom,
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash512,
-} from 'src/core/services/operations/encryption';
+} from 'src/services/operations/encryption';
 import DeviceInfo from 'react-native-device-info';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import semver from 'semver';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import * as SecureStore from '../../storage/secure-store';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
+import * as SecureStore from 'src/storage/secure-store';
 
+import dbManager from 'src/storage/realm/dbManager';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -45,7 +45,6 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import dbManager from '../../storage/realm/dbManager';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
@@ -54,6 +53,7 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
+import { createUaiMap } from '../reducers/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -91,7 +91,13 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchExchangeRates());
 
     yield put(
-      uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT, uaiType.DEFAULT])
+      uaiChecks([
+        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+        uaiType.SECURE_VAULT,
+        uaiType.VAULT_TRANSFER,
+        uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+        uaiType.DEFAULT,
+      ])
     );
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
@@ -170,14 +176,17 @@ function* credentialsAuthWorker({ payload }) {
 
           yield put(fetchExchangeRates());
           yield put(getMessages());
+
           yield put(
             uaiChecks([
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               uaiType.SECURE_VAULT,
-              uaiType.VAULT_MIGRATION,
+              uaiType.VAULT_TRANSFER,
+              uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
               uaiType.DEFAULT,
             ])
           );
+
           yield put(resetSyncing());
           yield call(generateSeedHash);
           yield put(setRecepitVerificationFailed(!response.isValid));
@@ -255,7 +264,7 @@ function* generateSeedHash() {
       RealmSchema.KeeperApp
     );
     const words = primaryMnemonic.split(' ');
-    const random = Math.floor(Math.random() * words.length);
+    const random = Math.floor(cryptoRandom() * words.length);
     const hash = yield call(hash512, words[random]);
     yield put(setPinResetCreds({ hash, index: random }));
     yield put(resetPinFailAttempts());

@@ -9,7 +9,7 @@ import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear2Dark from 'src/assets/images/smallGearDark.svg'
 import Gear3 from 'src/assets/images/gear 3.svg';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 
 function LoadingAnimation() {
   const { colorMode } = useColorMode();
@@ -33,8 +33,13 @@ function LoadingAnimation() {
   const styles = getStyles(clock, antiClock);
   return (
     <Box style={{ position: 'relative', alignItems: 'center' }}>
-      <Box style={{ width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65, alignItems: 'flex-start', }}>
-        {colorMode === 'light' ? <Background /> : <BackgroundDark />}
+      <Box
+        style={{
+          width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65,
+          alignItems: 'flex-start',
+        }}
+      >
+        <Background />
         <Animated.View style={styles.gear2}>
           {colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>

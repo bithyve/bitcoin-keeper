@@ -1,16 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Text from 'src/components/KeeperText';
 import { FlatList, Box, useColorMode } from 'native-base';
 import moment from 'moment';
 
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useQuery } from '@realm/react';
 import DotView from '../DotView';
 
 function VersionHistoryList() {
   const { colorMode } = useColorMode();
-  const { useQuery } = useContext(RealmWrapperContext);
   const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
 
   return (
@@ -40,7 +39,7 @@ function VersionHistoryList() {
               letterSpacing={0.3}
             >
               {/* {item.date} */}
-              {moment(item.date).format('ddd DD MMM YYYY hh:mma')}
+              {moment(item.date).format('ddd DD MMM YYYY HH:mma')}
             </Text>
             <Box
               backgroundColor={`${colorMode}.seashellWhite`}

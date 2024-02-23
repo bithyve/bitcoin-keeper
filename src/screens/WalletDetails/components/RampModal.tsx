@@ -5,16 +5,24 @@ import { Box, useColorMode } from 'native-base';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import GradientIcon from './GradientIcon';
+import { useAppSelector } from 'src/store/hooks';
+import { getCountry } from 'react-native-localize';
 
 function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }) {
   const { colorMode } = useColorMode();
+  const { currencyCode } = useAppSelector((state) => state.settings);
+
   const buyWithRamp = (address: string) => {
     try {
       setShowBuyRampModal(false);
-      Linking.openURL(fetchRampReservation({ receiveAddress: address }));
+      if (currencyCode === 'GBP' || getCountry() === 'UK') {
+        Linking.openURL('https://ramp.network/buy#');
+      } else {
+        Linking.openURL(fetchRampReservation({ receiveAddress: address }));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -29,11 +37,13 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
       <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
         <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
         <Box style={styles.buyBtcCard}>
-          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>Bitcoin will be transferred to</Text>
-          <Text style={styles.presentationName} color={`${colorMode}.black`}>{name}</Text>
-          <Text
-            style={styles.confirmBalanceText}
-          >{`Balance: ${balance} sats`}</Text>
+          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>
+            Bitcoin will be transferred to
+          </Text>
+          <Text style={styles.presentationName} color={`${colorMode}.black`}>
+            {name}
+          </Text>
+          <Text style={styles.confirmBalanceText}>{`Balance: ${balance} sats`}</Text>
         </Box>
       </Box>
 
@@ -42,8 +52,15 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
           <Text style={styles.atText}>@</Text>
         </Box>
         <Box style={styles.buyBtcCard}>
-          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>Address for ramp transactions</Text>
-          <Text style={styles.addressTextView} color={`${colorMode}.black`} ellipsizeMode="middle" numberOfLines={1}>
+          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>
+            Address for ramp transactions
+          </Text>
+          <Text
+            style={styles.addressTextView}
+            color={`${colorMode}.black`}
+            ellipsizeMode="middle"
+            numberOfLines={1}
+          >
             {receivingAddress}
           </Text>
         </Box>
@@ -65,12 +82,14 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
 function RampModal({ showBuyRampModal, setShowBuyRampModal, balance, receivingAddress, name }) {
   const { colorMode } = useColorMode();
   const Content = useCallback(
-    () => <RampBuyContent
-      balance={balance}
-      setShowBuyRampModal={setShowBuyRampModal}
-      receivingAddress={receivingAddress}
-      name={name}
-    />,
+    () => (
+      <RampBuyContent
+        balance={balance}
+        setShowBuyRampModal={setShowBuyRampModal}
+        receivingAddress={receivingAddress}
+        name={name}
+      />
+    ),
     [balance, name, receivingAddress]
   );
   return (
@@ -81,9 +100,10 @@ function RampModal({ showBuyRampModal, setShowBuyRampModal, balance, receivingAd
       }}
       title="Buy bitcoin with Ramp"
       subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
-      modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
+      DarkCloseIcon={colorMode === 'dark'}
       Content={Content}
     />
   );
@@ -94,7 +114,7 @@ export default RampModal;
 const styles = StyleSheet.create({
   buyBtcWrapper: {
     padding: 1,
-    width: wp(280)
+    width: wp(280),
   },
   buyBtcContent: {
     fontSize: 13,
@@ -148,6 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   ctcWrapper: {
-    paddingRight: 5
-  }
+    marginTop: 20,
+    paddingRight: 5,
+  },
 });

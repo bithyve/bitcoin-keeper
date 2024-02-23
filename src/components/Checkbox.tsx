@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import React from 'react';
 import Selected from 'src/assets/images/selected.svg';
 import UnSelected from 'src/assets/images/unselected.svg';
+import Fonts from 'src/constants/Fonts';
 import Text from './KeeperText';
 
 function CheckBox(props) {
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     color: '#041513',
   },
   subtitle: {

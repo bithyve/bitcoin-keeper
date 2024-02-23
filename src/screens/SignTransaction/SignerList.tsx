@@ -6,24 +6,34 @@ import CheckIcon from 'src/assets/images/checked.svg';
 import Next from 'src/assets/images/icon_arrow.svg';
 import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
+import { getSignerNameFromType } from 'src/hardware';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import config from 'src/core/config';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
 function SignerList({
-  signer,
+  vaultKey,
   callback,
   envelops,
+  signerMap,
 }: {
-  signer: VaultSigner;
+  vaultKey: VaultSigner;
   callback: any;
   envelops: SerializedPSBTEnvelop[];
+  signerMap: { [key: string]: Signer };
 }) {
   const hasSignerSigned = !!envelops.filter(
-    (psbt) => psbt.signerId === signer.signerId && psbt.isSigned
+    (envelop) => envelop.xfp === vaultKey.xfp && envelop.isSigned
   ).length;
+  const signer = signerMap[vaultKey.masterFingerprint];
+  const isAMF =
+    signer.type === SignerType.TAPSIGNER &&
+    config.NETWORK_TYPE === NetworkType.TESTNET &&
+    !signer.isMock;
   return (
     <TouchableOpacity onPress={callback}>
       <Box margin={5}>
@@ -49,7 +59,9 @@ function SignerList({
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
-                {`${signer.signerName} (${signer.masterFingerprint})`}
+                {`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} (${
+                  signer.masterFingerprint
+                })`}
               </Text>
               <Text color="light.GreyText" fontSize={12} marginRight={10} letterSpacing={0.6}>
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}

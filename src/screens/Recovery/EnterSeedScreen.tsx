@@ -10,41 +10,48 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SeedWordsView from 'src/components/SeedWordsView';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getAppImage } from 'src/store/sagaActions/bhr';
+import { getAppImage, healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { getPlaceholder } from 'src/common/utilities';
+import { getPlaceholder } from 'src/utils/utilities';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Fonts from 'src/constants/Fonts';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
 
-  const { isSoftKeyRecovery = false, type } = route.params || {};
+  const { type, mode, signer, isMultisig, setupSeedWordsBasedSigner, mapUnknownSigner } =
+    route.params || {};
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -117,9 +124,11 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [hcLoading, setHcLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
   const inputRef = useRef([]);
+  const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -145,7 +154,7 @@ function EnterSeedScreen({ route }) {
     if (appId && recoveryLoading) {
       setRecoveryLoading(false);
       setRecoverySuccessModal(true);
-      navigation.navigate('App', { screen: 'NewHome' });
+      navigation.navigate('App', { screen: 'Home' });
     }
   }, [appId]);
 
@@ -166,67 +175,61 @@ function EnterSeedScreen({ route }) {
     return seedWord.trim();
   };
 
-  const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
-    try {
-      const networkType = config.NETWORK_TYPE;
-      const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
-        mnemonic,
-        networkType,
-        entity
-      );
-      const softSigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp: masterFingerprint,
-        signerType: SignerType.SEED_WORDS,
-        storageType: SignerStorage.WARM,
-        isMultisig: entity !== EntityKind.WALLET,
-      });
-      dispatch(setSigningDevices(softSigner));
-      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-    } catch (err) {
-      navigation.dispatch(CommonActions.navigate('SignersList'));
-      captureError(err);
-    }
-  };
-
-  const onPressNextSoftReocvery = () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
-        const seedWord = getSeedWord();
-        if (type === SignerType.SEED_WORDS) {
-          setupSeedWordsBasedKey(seedWord);
-        } else if (type === SignerType.MOBILE_KEY) {
-          Alert.alert('Warning', 'Entire app will be restored', [
-            {
-              text: 'OK',
-              onPress: () => {
-                setRecoveryLoading(true);
-                dispatch(getAppImage(seedWord));
-              },
-            },
-          ]);
-        }
-      } else {
-        ref.current.scrollToIndex({ index: 5, animated: true });
-      }
-    } else {
-      showToast('Enter correct seedwords', <ToastErrorIcon />);
-    }
-  };
-
   const onPressNextSeedReocvery = async () => {
     if (isSeedFilled(6)) {
       if (isSeedFilled(12)) {
         const seedWord = getSeedWord();
         setRecoveryLoading(true);
-
         dispatch(getAppImage(seedWord));
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
       }
     } else {
       showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+  };
+
+  const onPressHealthCheck = () => {
+    setHcLoading(true);
+
+    const handleSuccess = () => {
+      dispatch(healthCheckSigner([signer]));
+      showToast('Seed Key health check successfull', <TickIcon />);
+      navigation.dispatch(CommonActions.goBack());
+    };
+
+    const handleFailure = () => {
+      showToast('Health check failed');
+    };
+
+    try {
+      if (isSeedFilled(6)) {
+        if (isSeedFilled(12)) {
+          const seedWord = getSeedWord();
+          const { signer: softSigner } = setupSeedWordsBasedSigner(seedWord, isMultisig);
+          if (mode === InteracationMode.IDENTIFICATION) {
+            const mapped = mapUnknownSigner({
+              masterFingerprint: softSigner.masterFingerprint,
+              type: SignerType.COLDCARD,
+            });
+            if (mapped) {
+              handleSuccess();
+            } else {
+              handleFailure();
+            }
+          } else {
+            if (softSigner.masterFingerprint === signer.masterFingerprint) {
+              handleSuccess();
+            } else {
+              handleFailure();
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.log('Error Soft Key HC', err);
+    } finally {
+      setHcLoading(false);
     }
   };
 
@@ -302,15 +305,16 @@ function EnterSeedScreen({ route }) {
       >
         <StatusBarComponent />
         <Box marginX={10} mt={25}>
-          {isSoftKeyRecovery ? (
+          {isHealthCheck ? (
             <SeedWordsView
-              title="Enter Seed Words"
-              onPressHandler={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
+              title="Seed key health check"
+              subtitle="Enter the seed key"
+              onPressHandler={() => navigation.goBack()}
             />
           ) : (
             <SeedWordsView
               title={seed?.enterRecoveryPhrase}
-              subtitle={seed.recoverWallet}
+              subtitle={seed.enterRecoveryPhraseSubTitle}
               onPressHandler={() =>
                 navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
               }
@@ -320,7 +324,7 @@ function EnterSeedScreen({ route }) {
         <View>
           <FlatList
             ref={ref}
-            keyExtractor={(index) => index.toString()}
+            keyExtractor={(item) => item.id}
             data={seedData}
             extraData={seedData}
             showsVerticalScrollIndicator={false}
@@ -346,12 +350,12 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
-                  placeholderTextColor="rgba(7,62,57,0.6)"
+                  placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                   value={item?.name}
                   textContentType="none"
                   returnKeyType={isSeedFilled(12) ? 'done' : 'next'}
@@ -388,6 +392,7 @@ function EnterSeedScreen({ route }) {
                     setSuggestedWords([]);
                     Keyboard.dismiss();
                   }}
+                  testID={`input_seedWord${getPlaceholder(index)}`}
                 />
               </View>
             )}
@@ -401,13 +406,14 @@ function EnterSeedScreen({ route }) {
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
-              keyboardShouldPersistTaps='handled'
+              keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
+              testID="view_suggestionView"
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
-                    key={wordIndex}
+                    key={word ? `${word + wordIndex}` : wordIndex}
                     style={styles.suggestionTouchView}
                     onPress={() => {
                       Keyboard.dismiss();
@@ -428,8 +434,8 @@ function EnterSeedScreen({ route }) {
           ) : null}
         </View>
         <View style={styles.bottomContainerView}>
-          <Text style={styles.seedDescText} color="light.GreyText">
-            {seed.seedDescription}
+          <Text style={styles.seedDescText} color="light.GreyText" testID="text_enterSeedNote">
+            {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
@@ -437,20 +443,12 @@ function EnterSeedScreen({ route }) {
               <View style={activePage === 1 ? styles.dash : styles.dot} />
             </Box>
 
-            {isSoftKeyRecovery ? (
-              <Buttons
-                primaryCallback={onPressNextSoftReocvery}
-                primaryText="Next"
-                primaryLoading={recoveryLoading}
-              />
+            {isHealthCheck ? (
+              <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
             ) : (
               <Buttons
                 primaryCallback={onPressNextSeedReocvery}
                 primaryText="Next"
-                secondaryCallback={() => {
-                  navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' });
-                }}
-                secondaryText="Other Methods"
                 primaryLoading={recoveryLoading}
               />
             )}
@@ -473,18 +471,19 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
           }}
         />
       </KeyboardAvoidingView>
+      <ActivityIndicatorView showLoader={true} visible={hcLoading} />
     </SafeAreaView>
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -528,9 +527,9 @@ const styles = ScaledSheet.create({
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
-    fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 1.32,
     zIndex: 1,
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
   inputListWrapper: {
     flexDirection: 'row',
@@ -580,7 +579,6 @@ const styles = ScaledSheet.create({
   suggestionScrollView: {
     zIndex: 999,
     position: 'absolute',
-    // top: 50,
     height: hp(150),
     width: wp(330),
     alignSelf: 'center',

@@ -3,10 +3,9 @@ import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-
+import { hp, wp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/rightarrow.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -17,10 +16,11 @@ import {
 } from 'src/hardware/coldcard';
 import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function Card({ message, buttonText, buttonCallBack }) {
   return (
@@ -63,34 +63,47 @@ function Card({ message, buttonText, buttonCallBack }) {
 function SignWithColdCard({ route }: { route }) {
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
-  const { activeVault: Vault } = useVault();
-  const { signer, signTransaction, isMultisig } = route.params as {
-    signer: VaultSigner;
+  const { vaultKey, signTransaction, isMultisig, vaultId } = route.params as {
+    vaultKey: VaultSigner;
     signTransaction;
     isMultisig: boolean;
+    vaultId: string;
   };
-  const { registered } = signer;
+  const { activeVault } = useVault({ vaultId });
+  const { signer } = useSignerFromKey(vaultKey);
 
+  const { registered = false } =
+    vaultKey.registeredVaults.find((info) => info.vaultId === activeVault.id) || {};
   const dispatch = useDispatch();
 
   const receiveFromColdCard = async () =>
     withNfcModal(async () => {
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
-        dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: txn }));
+        dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
         dispatch(healthCheckSigner([signer]));
       } else {
         const { psbt } = await receivePSBTFromColdCard();
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            vaultId: activeVault.id,
+          })
+        );
         dispatch(healthCheckSigner([signer]));
       }
     });
 
   const registerCC = async () =>
     withNfcModal(async () => {
-      await registerToColcard({ vault: Vault });
-      dispatch(updateSignerDetails(signer, 'registered', true));
+      await registerToColcard({ vault: activeVault });
+      dispatch(
+        updateKeyDetails(vaultKey, 'registered', {
+          registered: true,
+          vaultId: activeVault.id,
+        })
+      );
     });
   const { colorMode } = useColorMode();
   return (
@@ -99,7 +112,7 @@ function SignWithColdCard({ route }: { route }) {
         <VStack>
           {!registered && isMultisig ? (
             <>
-              <HeaderTitle
+              <KeeperHeader
                 title="Register Device"
                 subtitle="The vault needs to be registered only once"
               />
@@ -110,7 +123,7 @@ function SignWithColdCard({ route }: { route }) {
               />
             </>
           ) : null}
-          <HeaderTitle title="Sign Transaction" subtitle="Two step process" enableBack={false} />
+          <KeeperHeader title="Sign Transaction" subtitle="Two step process" enableBack={false} />
           <Card
             message="Send PSBT from the app to Coldcard"
             buttonText="Send"
@@ -161,7 +174,7 @@ function SignWithColdCard({ route }: { route }) {
             >
               <VStack width="97%">
                 <Text fontSize={14}>Manually Register Mk4</Text>
-                <Text fontSize={12}>Please resigister the Vault if not already registered</Text>
+                <Text fontSize={12}>Please resigister the vault if not already registered</Text>
               </VStack>
               <Arrow />
             </TouchableOpacity>

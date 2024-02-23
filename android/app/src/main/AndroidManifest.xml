@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="io.hexawallet.keeper">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <queries>
         <package android:name="org.torproject.android" />
         <intent>
@@ -74,7 +73,7 @@
 
         <meta-data
           android:name="android.nfc.cardemulation.host_apdu_service"
-          android:resource="@xml/aid_list" />
+          android:resource="@xml/apduservice" />
     </service>
     
     </application>

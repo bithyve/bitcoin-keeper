@@ -3,16 +3,16 @@ import { Box, useColorMode } from 'native-base';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { increasePinFailAttempts } from 'src/store/reducers/storage';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { credsAuth } from 'src/store/sagaActions/login';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import Buttons from 'src/components/Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
-import Buttons from '../Buttons';
 import Text from '../KeeperText';
 
 function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
@@ -50,8 +50,8 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
   const disableCTA = () => {
     setTimeout(() => {
       setBtnDisable(false);
-    }, 7000)
-  }
+    }, 7000);
+  };
 
   useEffect(() => {
     if (attempts >= 3) {
@@ -66,10 +66,10 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
       setErrMessage('Incorrect Passcode! Try Again');
       setPasscode('');
       setAttempts(attempts + 1);
-      disableCTA()
+      disableCTA();
     } else {
       setLoginError(false);
-      disableCTA()
+      disableCTA();
     }
   }, [authenticationFailed]);
 
@@ -81,7 +81,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         navigation.navigate('ExportSeed', {
           seed: wallet?.derivationDetails?.mnemonic,
           next: false,
-          wallet
+          wallet,
         });
         closeBottomSheet();
       }
@@ -97,18 +97,23 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     <Box borderRadius={10}>
       <Box>
         {/* pin input view */}
-        <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor={colorMode === 'light'} textColor />
-        {loginError &&
+        <PinInputsView
+          passCode={passcode}
+          passcodeFlag={loginError}
+          backgroundColor={colorMode === 'light'}
+          textColor
+        />
+        {loginError && (
           <Text
             color={`${colorMode}.indicator`}
             style={{
               textAlign: 'right',
-              fontStyle: 'italic'
+              fontStyle: 'italic',
             }}
           >
             {errMessage}
           </Text>
-        }
+        )}
         {/*  */}
         {passcode.length === 4 && (
           <Buttons
@@ -128,7 +133,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
           ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
       </Box>

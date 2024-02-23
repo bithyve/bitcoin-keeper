@@ -1,12 +1,12 @@
-import { TransactionPrerequisiteElements, UTXO } from 'src/core/wallets/interfaces';
+import { UTXO } from 'src/core/wallets/interfaces';
 
 import { Action } from 'redux';
-import { Recipient } from 'src/common/data/models/interfaces/Recipient';
+import { Recipient } from 'src/models/interfaces/Recipient';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { TransferType } from 'src/common/data/enums/TransferType';
-import { Satoshis } from '../../common/data/typealiases/UnitAliases';
+import { TransferType } from 'src/models/enums/TransferType';
+import { Satoshis } from 'src/models/types/UnitAliases';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
 export const SOURCE_WALLET_SELECTED_FOR_SENDING = 'SOURCE_WALLET_SELECTED_FOR_SENDING';
@@ -32,7 +32,6 @@ export const CALCULATE_SEND_MAX_FEE = 'CALCULATE_SEND_MAX_FEE';
 export const CLEAR_SEND_MAX_FEE = 'CLEAR_SEND_MAX_FEE';
 export const SEND_MAX_FEE_CALCULATED = 'SEND_MAX_FEE_CALCULATED';
 export const CALCULATE_CUSTOM_FEE = 'CALCULATE_CUSTOM_FEE';
-export const CUSTOM_FEE_CALCULATED = 'CUSTOM_FEE_CALCULATED';
 export const CUSTOM_SEND_MAX_CALCULATED = 'CUSTOM_SEND_MAX_CALCULATED';
 export const SEND_TX_NOTIFICATION = 'SEND_TX_NOTIFICATION';
 
@@ -274,6 +273,7 @@ export interface CalculateCustomFeeAction extends Action {
     }[];
     feePerByte: string;
     customEstimatedBlocks: string;
+    selectedUTXOs?: UTXO[];
   };
 }
 
@@ -285,29 +285,11 @@ export const calculateCustomFee = (payload: {
   }[];
   feePerByte: string;
   customEstimatedBlocks: string;
+  selectedUTXOs?: UTXO[];
 }): CalculateCustomFeeAction => ({
   type: CALCULATE_CUSTOM_FEE,
   payload,
 });
-
-export interface CustomFeeCalculatedAction extends Action {
-  type: typeof CUSTOM_FEE_CALCULATED;
-  payload: {
-    successful: boolean;
-    carryOver?: { customTxPrerequisites: TransactionPrerequisiteElements };
-    err?: string | null;
-  };
-}
-
-export const customFeeCalculated = (payload: {
-  successful: boolean;
-  carryOver?: { customTxPrerequisites: TransactionPrerequisiteElements };
-  err?: string | null;
-}): CustomFeeCalculatedAction => ({
-  type: CUSTOM_FEE_CALCULATED,
-  payload,
-});
-
 export interface CustomSendMaxCalculatedAction extends Action {
   type: typeof CUSTOM_SEND_MAX_CALCULATED;
   payload: {

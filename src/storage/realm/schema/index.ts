@@ -21,7 +21,10 @@ import {
   VaultSpecsSchema,
   VaultSignerSchema,
   SignerPolicy,
-  XpubDetailsSchema,
+  SignerXpubsSchema,
+  KeySpecsSchema,
+  SignerSchema,
+  RegistrationInfoSchema,
   InheritanceKeyInfoSchema,
   InheritanceConfigurationSchema,
   InheritancePolicySchema,
@@ -29,7 +32,7 @@ import {
   InheritancePolicyAlertSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
-import { UAISchema } from './uai';
+import { UAIDetailsSchema, UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
@@ -53,7 +56,10 @@ export default [
   WalletSpecsSchema,
   TransferPolicySchema,
   VaultSchema,
-  XpubDetailsSchema,
+  SignerXpubsSchema,
+  KeySpecsSchema,
+  SignerSchema,
+  RegistrationInfoSchema,
   VaultPresentationDataSchema,
   SignerPolicy,
   InheritanceConfigurationSchema,
@@ -64,6 +70,7 @@ export default [
   VaultSpecsSchema,
   BackupSchema,
   UAISchema,
+  UAIDetailsSchema,
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,

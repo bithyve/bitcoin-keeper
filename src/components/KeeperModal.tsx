@@ -1,6 +1,6 @@
 import { Box, Modal, Pressable, useColorMode } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/modal_close.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
@@ -16,8 +16,8 @@ type ModalProps = {
   title?: string;
   subTitle?: string;
   subTitleWidth?: number;
-  modalBackground?: string[];
-  buttonBackground?: string[];
+  modalBackground?: string;
+  buttonBackground?: string;
   buttonText?: string;
   buttonTextColor?: string;
   secButtonTextColor?: string;
@@ -35,17 +35,18 @@ type ModalProps = {
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
+  loading?: boolean;
 };
 
 KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: ['light.mainBackground', 'light.mainBackground'],
-  buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
+  modalBackground: 'light.primaryBackground',
+  buttonBackground: 'light.greenButtonBackground',
   buttonText: null,
   buttonTextColor: 'white',
-  secButtonTextColor: '#073E39',
+  secButtonTextColor: 'light.headerText',
   buttonCallback: () => { },
   secondaryButtonText: null,
   secondaryCallback: () => { },
@@ -60,6 +61,7 @@ KeeperModal.defaultProps = {
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
+  loading: false,
 };
 
 function KeeperModal(props: ModalProps) {
@@ -88,6 +90,7 @@ function KeeperModal(props: ModalProps) {
     closeOnOverlayClick,
     showCloseIcon,
     justifyContent,
+    loading,
   } = props;
   const { colorMode } = useColorMode();
   const subTitleColor = ignored || textColor;
@@ -98,16 +101,6 @@ function KeeperModal(props: ModalProps) {
   }
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
-  const linearGradient = {
-    colors: modalBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
-  const linearGradientBtn = {
-    colors: buttonBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -118,21 +111,26 @@ function KeeperModal(props: ModalProps) {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={justifyContent}
     >
-      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
+      <Modal.Content
+        borderRadius={10}
+        marginBottom={Math.max(5, bottomMargin)}
+        maxHeight="full"
+        width={'95%'}
+      >
         <GestureHandlerRootView>
-          <Box backgroundColor={{ linearGradient }} style={styles.container}>
+          <Box backgroundColor={modalBackground} style={styles.container}>
             {showCloseIcon ? (
-              <TouchableOpacity style={styles.close} onPress={close}>
+              <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                 {getCloseIcon()}
               </TouchableOpacity>
             ) : null}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
-                <Text style={styles.title} color={textColor}>
+                <Text testID="text_modal_title" style={styles.title} color={textColor}>
                   {title}
                 </Text>
                 {subTitle ? (
-                  <Text style={styles.subTitle} color={subTitleColor}>
+                  <Text testID="text_modal_subtitle" style={styles.subTitle} color={subTitleColor}>
                     {`${subTitle}`}
                   </Text>
                 ) : null}
@@ -144,9 +142,13 @@ function KeeperModal(props: ModalProps) {
             {((showButtons && learnMore) || !!buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box borderColor="light.lightAccent" backgroundColor={colorMode === 'light' ? '#00433A' : '#212726'} style={styles.learnMoreContainer}>
+                  <Box
+                    borderColor={`${colorMode}.lightAccent`}
+                    backgroundColor={`${colorMode}.modalGreenLearnMore`}
+                    style={styles.learnMoreContainer}
+                  >
                     <Pressable onPress={learnMoreCallback}>
-                      <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+                      <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
                         See FAQs
                       </Text>
                     </Pressable>
@@ -165,10 +167,11 @@ function KeeperModal(props: ModalProps) {
                 )}
                 {!!buttonText && (
                   <TouchableOpacity onPress={buttonCallback}>
-                    <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+                    <Box backgroundColor={buttonBackground} style={styles.cta}>
                       <Text style={styles.ctaText} color={buttonTextColor} bold>
                         {showButtons ? buttonText : null}
                       </Text>
+                      {loading ? <ActivityIndicator /> : null}
                     </Box>
                   </TouchableOpacity>
                 )}
@@ -187,7 +190,6 @@ const getStyles = (subTitleWidth) =>
   StyleSheet.create({
     container: {
       borderRadius: 10,
-      alignItems: 'center',
       padding: '3%',
     },
     title: {
@@ -195,7 +197,7 @@ const getStyles = (subTitleWidth) =>
       letterSpacing: 1,
     },
     subTitle: {
-      fontSize: 12,
+      fontSize: 13,
       letterSpacing: 1,
       width: subTitleWidth,
     },
@@ -240,15 +242,17 @@ const getStyles = (subTitleWidth) =>
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
       width: '90%',
-      marginTop: wp(5)
+      marginTop: wp(5),
     },
     bodyContainer: {
       width: '80%',
     },
     footerContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
+      gap: 30,
       alignItems: 'center',
-      width: '100%',
+      marginBottom: 20,
+      marginRight: 10,
     },
   });

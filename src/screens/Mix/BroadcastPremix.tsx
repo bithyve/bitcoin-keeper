@@ -3,15 +3,15 @@ import { ScrollView } from 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import PageIndicator from 'src/components/PageIndicator';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import { SatsToBtc } from 'src/constants/Bitcoin';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets, incrementAddressIndex } from 'src/store/sagaActions/wallets';
@@ -22,18 +22,19 @@ import useWallets from 'src/hooks/useWallets';
 import { BIP329Label, InputUTXOs } from 'src/core/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import WhirlpoolClient from 'src/services/whirlpool/client';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import BroadcastTX0Illustration from 'src/assets/images/BroadcastTX0Illustration.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import { CommonActions } from '@react-navigation/native';
 import SwiperModal from './components/SwiperModal';
 import UtxoSummary from './UtxoSummary';
 
@@ -237,17 +238,22 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const navigateToWalletDetails = () => {
     setShowBroadcastModal(false);
-    navigation.navigate('UTXOManagement', {
-      data: depositWallet,
-      routeName: 'Wallet',
-      accountType: WalletType.PRE_MIX,
-    });
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'UTXOManagement',
+        params: {
+          data: depositWallet,
+          routeName: 'Wallet',
+          accountType: WalletType.PRE_MIX,
+        },
+        merge: true,
+      })
+    );
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-      <HeaderTitle
-        paddingLeft={25}
+      <KeeperHeader
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore
@@ -262,7 +268,9 @@ export default function BroadcastPremix({ route, navigation }) {
             Fee
           </Text>
           <Box style={styles.textDirection}>
-            <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
+            <Text color={`${colorMode}.secondaryText`}>
+              {valueByPreferredUnit(tx0Preview.minerFee)}
+            </Text>
             <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
@@ -290,7 +298,9 @@ export default function BroadcastPremix({ route, navigation }) {
             Badbank Change
           </Text>
           <Box style={styles.textDirection}>
-            <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(tx0Preview.change)}</Text>
+            <Text color={`${colorMode}.secondaryText`}>
+              {valueByPreferredUnit(tx0Preview.change)}
+            </Text>
             <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
@@ -309,7 +319,9 @@ export default function BroadcastPremix({ route, navigation }) {
                 Premix value
               </Text>
               <Box style={styles.textDirection}>
-                <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(premixOutputs[0])}</Text>
+                <Text color={`${colorMode}.secondaryText`}>
+                  {valueByPreferredUnit(premixOutputs[0])}
+                </Text>
                 <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
                   {getSatUnit()}
                 </Text>
@@ -349,12 +361,10 @@ export default function BroadcastPremix({ route, navigation }) {
         close={() => navigateToWalletDetails()}
         title="Broadcasting Tx0"
         subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
-        buttonTextColor="light.greenText02"
-        DarkCloseIcon={colorMode === 'dark'}
+        subTitleColor="#5F6965"
+        modalBackground="#F7F2EC"
+        buttonBackground={`${colorMode}.gradientStart`}
+        buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (
           <Box>

@@ -1,17 +1,15 @@
 import { Alert, ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
 import { Box, HStack, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
-import { decodeURBytes } from 'src/core/services/qr';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
+import { decodeURBytes } from 'src/services/qr';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import useToastMessage from 'src/hooks/useToastMessage';
 import UploadFile from 'src/components/UploadFile';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
-import { wp } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -21,7 +19,6 @@ function ScanQRFileRecovery({ route }) {
   const { initateRecovery } = useConfigRecovery();
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
-  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
 
   const { common } = translations;
@@ -64,10 +61,9 @@ function ScanQRFileRecovery({ route }) {
   return (
     <ScreenWrapper>
       <Box flex={1}>
-        <HeaderTitle
-          title="Recover Using Vault Configuration File"
-          subtitle="Recover the Vault from output descriptor or configuration"
-          paddingLeft={wp(20)}
+        <KeeperHeader
+          title="Recover Using Wallet Configuration File"
+          subtitle="Recover the vault from output descriptor/configuration/BSMS File"
         />
         <Box style={styles.qrcontainer}>
           <RNCamera
@@ -90,7 +86,7 @@ function ScanQRFileRecovery({ route }) {
           />
         </Box>
       </Box>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({

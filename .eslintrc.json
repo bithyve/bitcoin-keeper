@@ -6,7 +6,7 @@
     "react-native/react-native": true,
     "node": true
   },
-  "extends": ["plugin:react/recommended", "airbnb/hooks", "airbnb", "prettier"],
+  "extends": ["plugin:react/recommended", "airbnb/hooks", "airbnb", "prettier", "@react-native"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -34,7 +34,10 @@
     "react/jsx-props-no-spreading": "off",
     "import/prefer-default-export": "off",
     "no-restricted-syntax": "off",
-    "no-nested-ternary": "off"
+    "no-nested-ternary": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "comma-dangle": "off"
   },
   "settings": {
     "import/parsers": {

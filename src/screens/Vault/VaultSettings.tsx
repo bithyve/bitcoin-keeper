@@ -1,278 +1,90 @@
-import React, { useContext, useState } from 'react';
-import { Box, Text, Pressable, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
-import { Share } from 'react-native';
-// components and functions
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import { wp, hp, windowWidth } from 'src/common/data/responsiveness/responsive';
-// icons
-import IconShare from 'src/assets/images/icon_share.svg';
-import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/images/backup.svg';
-import LinearGradient from 'react-native-linear-gradient';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import useBalance from 'src/hooks/useBalance';
-import KeeperModal from 'src/components/KeeperModal';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import Note from 'src/components/Note/Note';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { Box, ScrollView, useColorMode } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { hp } from 'src/constants/responsive';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import Colors from 'src/theme/Colors';
 import useVault from 'src/hooks/useVault';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import OptionCard from 'src/components/OptionCard';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletFingerprint from 'src/components/WalletFingerPrint';
+import useTestSats from 'src/hooks/useTestSats';
 
-type Props = {
-  title: string;
-  subTitle: string;
-  onPress: () => void;
-  Icon: boolean;
-};
-
-function DescritporsModalContent({ descriptorString }) {
+function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
-  const onShare = async () => {
-    try {
-      await Share.share({
-        message: descriptorString,
-      });
-    } catch (error: any) {
-      console.log(error.message);
-    }
-  };
-
-  return (
-    <Box style={styles.moadalContainer}>
-      <TouchableOpacity
-        onPress={async () => {
-          await onShare();
-        }}
-      >
-        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text noOfLines={4}>{descriptorString}</Text>
-        </Box>
-      </TouchableOpacity>
-      <Box style={styles.modalNoteWrapper}>
-        <Note subtitle="Save the file with .bsms extension to import it in other cordinating apps" subtitleColor="GreyText" />
-      </Box>
-      <TouchableOpacity
-        onPress={async () => {
-          await onShare();
-        }}
-        style={styles.buttonContainer}
-      >
-        <Box>
-          <IconShare />
-        </Box>
-        <Text color={`${colorMode}.primaryText`} style={styles.shareText}>
-          Share
-        </Text>
-      </TouchableOpacity>
-    </Box>
-  );
-}
-
-function Option({ title, subTitle, onPress, Icon }: Props) {
-  const { colorMode } = useColorMode();
-  return (
-    <Pressable
-      flexDirection="row"
-      alignItems="center"
-      width="100%"
-      style={{ marginVertical: hp(20) }}
-      onPress={onPress}
-    >
-      {Icon && (
-        <Box width="16%">
-          <BackupIcon />
-        </Box>
-      )}
-      <Box width={Icon ? '80%' : '96%'}>
-        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
-          {title}
-        </Text>
-        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
-          {subTitle}
-        </Text>
-      </Box>
-      <Box width="4%">
-        <Arrow />
-      </Box>
-    </Pressable>
-  );
-}
-
-function VaultSettings() {
-  const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
-  const [genratorModalVisible, setGenratorModalVisible] = useState(false);
-  const { getSatUnit, getBalance } = useBalance();
-
-  const { activeVault: vault } = useVault();
-
+  const navigation = useNavigation();
+  const { vaultId } = route.params;
+  const { activeVault: vault } = useVault({ vaultId });
   const descriptorString = genrateOutputDescriptors(vault);
+  const TestSatsComponent = useTestSats({ wallet: vault });
 
-  const {
-    presentationData: { name, description } = { name: '', description: '' },
-    specs: { balances: { confirmed, unconfirmed } } = {
-      balances: { confirmed: 0, unconfirmed: 0 },
-    },
-  } = vault;
-  function VaultCard({ vaultName, vaultBalance, vaultDescription }) {
-    return (
-      <LinearGradient
-        colors={['#B17F44', '#6E4A35']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          borderRadius: hp(20),
-          width: wp(320),
-          height: hp(75),
-          position: 'relative',
-          marginLeft: -wp(20),
-          marginBottom: hp(30),
-        }}
-      >
-        <Box
-          marginTop={hp(17)}
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
-          style={{
-            marginHorizontal: wp(20),
-          }}
-        >
-          <Box>
-            <Text color="light.white" letterSpacing={0.28} fontSize={14}>
-              {vaultName}
-            </Text>
-            <Text color="light.white" letterSpacing={0.24} fontSize={12} light>
-              {vaultDescription}
-            </Text>
-          </Box>
-          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
-            {vaultBalance}
-            {getSatUnit()}
-          </Text>
-        </Box>
-      </LinearGradient>
-    );
-  }
   return (
-    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBarComponent padding={50} />
-      <Box>
-        <HeaderTitle
-          title="Vault Settings"
-          subtitle="Settings specific to the Vault"
-          onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor={`${colorMode}.black`}
-          titleFontSize={20}
-          paddingTop={hp(5)}
-          paddingLeft={hp(25)}
-        />
-      </Box>
-      <Box borderBottomColor={`${colorMode}.divider`} style={styles.vaultCardWrapper}>
-        <VaultCard
-          vaultName={name}
-          vaultDescription={description}
-          vaultBalance={getBalance(confirmed + unconfirmed)}
-        />
-      </Box>
-      <Box style={styles.optionViewWrapper}>
-        <Option
-          title="Generate Descriptors"
-          subTitle="Vault configuration that needs to be stored privately"
-          onPress={() => setGenratorModalVisible(true)}
-          Icon={false}
-        />
-        <Option
-          title="Archived Vault"
-          subTitle="View details of old vaults"
-          onPress={() => navigtaion.navigate('ArchivedVault')}
-          Icon={false}
-        />
-      </Box>
-
-      {/* {Bottom note} */}
-      <Box style={styles.bottomNoteWrapper}>
-        <Note
-          title="Security Tip"
-          subtitle="Recreate the Vault on another coordinator software and check if the multisig has the same details"
-          width={windowWidth * 0.8}
-          subtitleColor="GreyText"
-        />
-      </Box>
-      <KeeperModal
-        close={() => setGenratorModalVisible(false)}
-        visible={genratorModalVisible}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
-        title="Generate Vault Descriptor"
-        Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
-        subTitle="A descriptor contains sensitive information. Please use with caution"
-        showButtons={false}
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
+        title="Vault Settings"
+        subtitle="Settings specific to the vault"
+        icon={
+          <HexagonIcon
+            width={44}
+            height={38}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<VaultIcon />}
+          />
+        }
       />
-    </Box>
+      <ScrollView contentContainerStyle={styles.optionViewWrapper}>
+        <OptionCard
+          title="Vault Details"
+          description="Vault name & description"
+          callback={() => {
+            navigation.dispatch(CommonActions.navigate('EditWalletDetails', { wallet: vault }));
+          }}
+        />
+        <OptionCard
+          title="Vault configuration file"
+          description="Vault configuration that needs to be stored privately"
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate('GenerateVaultDescriptor', { descriptorString })
+            );
+          }}
+        />
+        <OptionCard
+          title="Archived vault"
+          description="View details of old vaults"
+          callback={() => {
+            navigation.dispatch(CommonActions.navigate('ArchivedVault'));
+          }}
+        />
+        <OptionCard
+          title="Update scheme"
+          description="Update your vault configuration and transfer funds"
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({ name: 'VaultSetup', params: { vaultId } })
+            );
+          }}
+        />
+        {TestSatsComponent}
+      </ScrollView>
+      <Box style={styles.fingerprint}>
+        <WalletFingerprint fingerprint={vaultId} />
+      </Box>
+    </ScreenWrapper>
   );
 }
 
-const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-    position: 'relative',
-  },
-  moadalContainer: {
-    // flex: 1,
-    width: wp(280),
-  },
-  inputWrapper: {
-    borderRadius: 10,
-    flexDirection: 'row',
-    height: 150,
-    width: windowWidth * 0.8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-  },
-  IconText: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    borderColor: Colors.Seashell,
-    marginTop: 10,
-    paddingTop: 20,
-    borderTopWidth: 0.5,
-    alignItems: 'center',
-  },
-  shareText: {
-    fontSize: 12,
-    letterSpacing: 0.84,
-    marginVertical: 2.5,
-    paddingLeft: 3,
-  },
-  vaultCardWrapper: {
-    borderBottomWidth: 0.2,
-    marginTop: hp(30),
-    paddingHorizontal: wp(25),
-  },
+const styles = StyleSheet.create({
   optionViewWrapper: {
+    marginTop: hp(30),
     alignItems: 'center',
-    paddingHorizontal: wp(25),
   },
-  bottomNoteWrapper: {
-    position: 'absolute',
-    bottom: hp(45),
-    marginHorizontal: 15,
-  },
-  modalNoteWrapper: {
-    width: '90%',
+  fingerprint: {
+    alignItems: 'center',
   },
 });
 export default VaultSettings;

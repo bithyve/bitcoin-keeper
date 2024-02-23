@@ -12,15 +12,16 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 
 import openLink from 'src/utils/OpenLink';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Illustration1 from 'src/assets/images/illustration_1.svg';
 import Illustration2 from 'src/assets/images/illustration_2.svg';
-import Illustration7 from 'src/assets/images/illustration_7.svg';
+import Illustration8 from 'src/assets/images/illustration_8.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
-import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 const { width } = Dimensions.get('window');
 
@@ -31,43 +32,24 @@ function OnBoardingSlides({ navigation }) {
   const { onboarding } = translations;
   const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
-  // console.log('currentPosition', currentPosition)
   const [items] = useState([
     {
       id: 1,
-      title: (
-        <>
-          <Text italic style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
-          {onboarding.security}
-          {` ${onboarding.slide01Title}`}
-        </>
-      ),
+      title: `${onboarding.Comprehensive} ${onboarding.security} ${onboarding.slide01Title}`,
       paragraph: onboarding.slide01Paragraph,
       illustration: <Illustration1 />,
     },
     {
       id: 2,
-      title: (
-        <>
-          {`${onboarding.slide02Title} `}
-          <Text italic style={styles.info}>
-            {onboarding.privacy}
-          </Text>
-        </>
-      ),
+      title: <>{`${onboarding.slide02Title} ${onboarding.privacy}`}</>,
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration2 />,
     },
     {
       id: 3,
-      title: (
-        <>
-          {`${onboarding.slide07Title} `}
-          <Text italic style={styles.info}>{onboarding.whirlpool}</Text>
-        </>
-      ),
-      paragraph: onboarding.slide07Paragraph,
-      illustration: <Illustration7 />,
+      title: onboarding.slide08Title,
+      paragraph: onboarding.slide08Paragraph,
+      illustration: <Illustration8 />,
     },
   ]);
 
@@ -82,7 +64,7 @@ function OnBoardingSlides({ navigation }) {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
-    <Box style={styles.container} backgroundColor='light.pantoneGreen'>
+    <Box style={styles.container} backgroundColor="light.pantoneGreen">
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
@@ -110,7 +92,7 @@ function OnBoardingSlides({ navigation }) {
               decelerationRate="fast"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
-              keyExtractor={item => item.id}
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <OnboardingSlideComponent
                   title={item.title}
@@ -124,19 +106,23 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/')}>
-                <Box borderColor="light.lightAccent" backgroundColor='light.gradientEnd' style={styles.seeFAQWrapper}>
-                  <Text color="light.lightAccent" bold style={styles.seeFAQText}>
+              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}>
+                <Box
+                  borderColor="light.lightAccent"
+                  backgroundColor="light.modalGreenLearnMore"
+                  style={styles.seeFAQWrapper}
+                >
+                  <Text color="light.Crayola" bold style={styles.seeFAQText}>
                     {common.seeFAQs}
                   </Text>
                 </Box>
               </TouchableOpacity>
             </Box>
-            <Box flexDirection="row" height={5}>
+            <Box alignItems="center" flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => (
                   <Box
-                    key={index}
+                    key={item.id.toString()}
                     style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                   />
                 ))
@@ -145,14 +131,16 @@ function OnBoardingSlides({ navigation }) {
                   <TouchableOpacity
                     onPress={() => {
                       if (currentPosition < items.length - 1) {
-                        onboardingSlideRef.current.scrollToIndex({ animated: true, index: currentPosition + 1 });
+                        onboardingSlideRef.current.scrollToIndex({
+                          animated: true,
+                          index: currentPosition + 1,
+                        });
                       } else {
-                        navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                        navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
                       }
-                    }
-                    }
+                    }}
                   >
-                    <Box style={styles.cta} backgroundColor='light.white'>
+                    <Box style={styles.cta} backgroundColor="light.white">
                       <Text bold color="light.greenText" style={styles.startAppText}>
                         Start App
                       </Text>
@@ -164,7 +152,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
         </SafeAreaView>
       </ImageBackground>
-    </Box >
+    </Box>
   );
 }
 
@@ -194,8 +182,8 @@ const styles = StyleSheet.create({
   },
   cta: {
     borderRadius: 10,
-    width: wp(110),
-    height: hp(40),
+    width: wp(120),
+    height: hp(50),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -228,7 +216,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   seeFAQWrapper: {
-    borderWidth: 0.7,
+    borderWidth: 0.5,
     borderRadius: 30,
     width: 120,
     alignItems: 'center',
@@ -236,6 +224,6 @@ const styles = StyleSheet.create({
     height: hp(40),
   },
   seeFAQText: {
-    fontSize: 14,
+    fontSize: 13,
   },
 });

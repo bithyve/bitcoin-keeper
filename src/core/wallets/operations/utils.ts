@@ -1,35 +1,34 @@
-/* eslint-disable no-return-assign */
-/* eslint-disable no-plusplus */
 /* eslint-disable prefer-destructuring */
-/* eslint-disable camelcase */
-/* eslint-disable consistent-return */
-/* eslint-disable no-restricted-syntax */
+
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 import bitcoinMessage from 'bitcoinjs-message';
 
-import { CryptoAccount, CryptoHDKey } from 'src/core/services/qr/bc-ur-registry';
+import { CryptoAccount, CryptoHDKey } from 'src/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 
-import RestClient from 'src/core/services/rest/RestClient';
+import RestClient from 'src/services/rest/RestClient';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
-import { Wallet } from '../interfaces/wallet';
+import config from 'src/core/config';
+import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
   BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
+  ImportedKeyType,
   NetworkType,
   PaymentInfoKind,
   ScriptTypes,
+  XpubTypes,
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
-import config from '../../config';
+import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -69,9 +68,13 @@ export default class WalletUtilities {
     return WalletUtilities.getFingerprintFromNode(root);
   };
 
-  static getFingerprintFromMnemonic(mnemonic: string, passphrase?: string) {
+  static getMasterFingerprintFromMnemonic(mnemonic: string, passphrase?: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return WalletUtilities.getFingerprintFromSeed(seed);
+  }
+
+  static getMasterFingerprintForWallet(wallet: Wallet) {
+    return whirlPoolWalletTypes.includes(wallet.type) ? wallet.depositWalletId : wallet.id;
   }
 
   static getFingerprintFromExtendedKey = (
@@ -111,6 +114,25 @@ export default class WalletUtilities {
 
       case DerivationPurpose.BIP44:
         return DerivationPurpose.BIP44;
+
+      default:
+        throw new Error(`Unsupported derivation type, purpose: ${purpose}`);
+    }
+  };
+
+  static getVersionBytesFromPurpose = (
+    purpose: DerivationPurpose,
+    network: bitcoinJS.networks.Network
+  ) => {
+    switch (purpose) {
+      case DerivationPurpose.BIP84:
+        return network === bitcoinJS.networks.bitcoin ? '04b24746' : '045f1cf6'; // zpub/vpub
+
+      case DerivationPurpose.BIP49:
+        return network === bitcoinJS.networks.bitcoin ? '049d7cb2' : '044a5262'; // ypub/upub
+
+      case DerivationPurpose.BIP44:
+        return network === bitcoinJS.networks.bitcoin ? '0488b21e' : '043587cf'; // xpub/tpub
 
       default:
         throw new Error(`Unsupported derivation type, purpose: ${purpose}`);
@@ -229,6 +251,21 @@ export default class WalletUtilities {
     return WalletUtilities.deriveAddressFromKeyPair(keyPair, network, purpose);
   };
 
+  static getAddressAndPubByIndex = (
+    xpub: string,
+    internal: boolean,
+    index: number,
+    network: bitcoinJS.networks.Network,
+    purpose?: DerivationPurpose
+  ): { address: string; pub: string } => {
+    const node = bip32.fromBase58(xpub, network);
+    const keyPair = node.derive(internal ? 1 : 0).derive(index);
+    return {
+      address: WalletUtilities.deriveAddressFromKeyPair(keyPair, network, purpose),
+      pub: keyPair.publicKey.toString('hex'),
+    };
+  };
+
   static getP2SH = (keyPair: bip32.BIP32Interface, network: bitcoinJS.Network): bitcoinJS.Payment =>
     bitcoinJS.payments.p2sh({
       redeem: bitcoinJS.payments.p2wpkh({
@@ -285,30 +322,16 @@ export default class WalletUtilities {
     return childXKey.toBase58();
   };
 
+  static getPublicExtendedKeyFromPriv = (extendedKey: string): string => {
+    const xKey = bip32.fromBase58(extendedKey, config.NETWORK);
+    return xKey.neutered().toBase58();
+  };
+
   static getNetworkFromXpub = (xpub: string) => {
     if (xpub) {
       return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
         ? NetworkType.MAINNET
         : NetworkType.TESTNET;
-    }
-  };
-
-  static getNetworkFromPrefix = (prefix) => {
-    switch (prefix) {
-      case 'xpub': // 0x0488b21e
-      case 'ypub': // 0x049d7cb2
-      case 'Ypub': // 0x0295b43f
-      case 'zpub': // 0x04b24746
-      case 'Zpub': // 0x02aa7ed3
-        return NetworkType.MAINNET;
-      case 'tpub': // 0x043587cf
-      case 'upub': // 0x044a5262
-      case 'Upub': // 0x024289ef
-      case 'vpub': // 0x045f1cf6
-      case 'Vpub': // 0x02575483
-        return NetworkType.TESTNET;
-      default:
-        return null;
     }
   };
 
@@ -320,12 +343,41 @@ export default class WalletUtilities {
     return bs58check.encode(data);
   };
 
-  static generateXpubFromYpub = (ypub: string, network: bitcoinJS.Network): string => {
-    // generates xpub corresponding to supplied ypub || tpub corresponding to upub
-    let data = bs58check.decode(ypub);
+  static getXprivFromExtendedKey = (extendedKey: string, network: bitcoinJS.Network) => {
+    // case: xprv corresponding to supplied yprv/zprv  or tprv corresponding to supplied uprv/vprv
+    let data = bs58check.decode(extendedKey);
+    const versionBytes = bitcoinJS.networks.bitcoin === network ? '0488ade4' : '04358394';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static getXpubFromExtendedKey = (extendedKey: string, network: bitcoinJS.Network) => {
+    // case: xpub corresponding to supplied ypub/zpub  or tpub corresponding to supplied upub/vpub
+    let data = bs58check.decode(extendedKey);
     const versionBytes = bitcoinJS.networks.bitcoin === network ? '0488b21e' : '043587cf';
     data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
+  };
+
+  static getExtendedPubKeyFromXpub = (
+    xpub: string,
+    purpose: DerivationPurpose,
+    network: bitcoinJS.Network
+  ) => {
+    // case: extended pub corresponding to supplied xpub(based on purpose)
+    let data = bs58check.decode(xpub);
+    const versionBytes = WalletUtilities.getVersionBytesFromPurpose(purpose, network);
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static getExtendedPubKeyFromWallet = (wallet: Wallet) => {
+    const purpose = WalletUtilities.getPurpose(
+      (wallet as Wallet).derivationDetails.xDerivationPath // exists even for imported wallet
+    );
+
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    return WalletUtilities.getExtendedPubKeyFromXpub(wallet.specs.xpub, purpose, network);
   };
 
   static addressToKey = (
@@ -356,77 +408,111 @@ export default class WalletUtilities {
       xpriv = (wallet as Wallet).specs.xpriv;
     }
 
-    let purpose;
-    if (wallet.entityKind === EntityKind.WALLET)
-      purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
-
     const network = WalletUtilities.getNetworkByType(networkType);
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+    const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
-        return publicKey
-          ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
-          : WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
+      if (addressCache.external[itr] === address) {
+        if (publicKey) {
+          if (addressPubs[address]) {
+            return {
+              publicKey: Buffer.from(addressPubs[address], 'hex'),
+              subPath: [0, itr],
+            };
+          } else return WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network);
+        } else return WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
+      }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
-        return publicKey
-          ? WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network)
-          : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
+      if (addressCache.internal[itr] === address) {
+        if (publicKey) {
+          if (addressPubs[address]) {
+            return {
+              publicKey: Buffer.from(addressPubs[address], 'hex'),
+              subPath: [1, itr],
+            };
+          } else return WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network);
+        } else return WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
+      }
     }
 
     throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ${address}`);
   };
 
   static createMultiSig = (
-    xpubs: string[],
-    required: number,
-    network: bitcoinJS.Network,
+    wallet: Vault,
     childIndex: number,
     internal: boolean,
-    scriptType?: BIP48ScriptTypes
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
     p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
     pubkeys: Buffer[];
+    orderPreservedPubkeys: string[];
     address: string;
     subPath: number[];
     signerPubkeyMap: Map<string, Buffer>;
   } => {
     const subPath = [internal ? 1 : 0, childIndex];
-    let pubkeys = xpubs.map((xpub) => {
-      const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
-        xpub,
-        network,
-        childIndex,
-        internal
-      );
-      const xKey = bip32.fromBase58(childExtendedKey, network);
-      return xKey.publicKey;
-    });
     const signerPubkeyMap = new Map<string, Buffer>();
-    xpubs.forEach((xpub, i) => {
-      signerPubkeyMap.set(xpub, pubkeys[i]);
-    });
 
-    pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
+    let orderPreservedPubkeys: string[] = []; // non-bip-67(original order)
+    let pubkeys: Buffer[] = []; // bip-67 ordered
+
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    const { xpubs } = wallet.specs;
+
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+    const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+
+    const correspondingAddress = internal
+      ? addressCache.internal[childIndex]
+      : addressCache.external[childIndex];
+
+    if (addressPubs[correspondingAddress]) {
+      // using cached pubkeys to prepare multisig assets
+      const cachedPubs = addressPubs[correspondingAddress].split('/'); // non bip-67 compatible(maintains xpub/signer order)
+      orderPreservedPubkeys = cachedPubs;
+      xpubs.forEach((xpub, i) => {
+        signerPubkeyMap.set(xpub, Buffer.from(cachedPubs[i], 'hex'));
+      });
+      pubkeys = cachedPubs.sort((a, b) => (a > b ? 1 : -1)).map((pub) => Buffer.from(pub, 'hex')); // bip-67 compatible(cached ones are in hex)
+    } else {
+      // generating pubkeys to prepare multisig assets
+      for (let i = 0; i < xpubs.length; i++) {
+        const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
+          xpubs[i],
+          network,
+          childIndex,
+          internal
+        );
+        const xKey = bip32.fromBase58(childExtendedKey, network);
+        orderPreservedPubkeys[i] = xKey.publicKey.toString('hex');
+        pubkeys[i] = xKey.publicKey;
+        signerPubkeyMap.set(xpubs[i], pubkeys[i]);
+      }
+      pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
+    }
 
     const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
-      required,
+      wallet.scheme.m,
       pubkeys,
       network,
       scriptType
     );
     const address = p2sh ? p2sh.address : p2wsh.address;
+
     return {
       p2ms,
       p2wsh,
       p2sh,
       pubkeys,
+      orderPreservedPubkeys,
       address,
       subPath,
       signerPubkeyMap,
@@ -445,24 +531,52 @@ export default class WalletUtilities {
     subPath: number[];
     signerPubkeyMap: Map<string, Buffer>;
   } => {
-    const { networkType } = wallet;
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpubs } = wallet.specs;
-    const network = WalletUtilities.getNetworkByType(networkType);
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(xpubs, wallet.scheme.m, network, itr, false);
-
-      if (multiSig.address === address) return multiSig;
+      if (addressCache.external[itr] === address) {
+        const multiSig = WalletUtilities.createMultiSig(wallet, itr, false);
+        return multiSig;
+      }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(xpubs, wallet.scheme.m, network, itr, true);
-      if (multiSig.address === address) return multiSig;
+      if (addressCache.internal[itr] === address) {
+        const multiSig = WalletUtilities.createMultiSig(wallet, itr, true);
+        return multiSig;
+      }
     }
 
     throw new Error(`Could not find multisig for: ${address}`);
+  };
+
+  static getSubPathForAddress = (
+    address: string,
+    wallet: Wallet | Vault
+  ): {
+    subPath: number[];
+  } => {
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+
+    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+      if (addressCache.external[itr] === address) {
+        return { subPath: [0, itr] };
+      }
+    }
+
+    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= closingIntIndex; itr++) {
+      if (addressCache.internal[itr] === address) {
+        return { subPath: [1, itr] };
+      }
+    }
+
+    throw new Error(`Could not find subpath for multisig: ${address}`);
   };
 
   static generatePaymentURI = (
@@ -551,19 +665,17 @@ export default class WalletUtilities {
       signerPubkeyMap: Map<string, Buffer>;
     };
     if ((wallet as Vault).isMultiSig) {
-      const { xpubs } = (wallet as Vault).specs;
       changeMultisig = WalletUtilities.createMultiSig(
-        xpubs,
-        (wallet as Vault).scheme.m,
-        network,
+        wallet as Vault,
         nextFreeChangeAddressIndex,
         true
       );
     }
 
     let purpose;
-    if (wallet.entityKind === EntityKind.WALLET)
+    if (wallet.entityKind === EntityKind.WALLET) {
       purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+    }
 
     for (const output of outputs) {
       if (!output.address) {
@@ -688,7 +800,7 @@ export default class WalletUtilities {
   };
 
   static signBitcoinMessage = (message: string, privateKey: string, network: bitcoinJS.Network) => {
-    const keyPair = bitcoinJS.ECPair.fromWIF(privateKey, network);
+    const keyPair = ECPair.fromWIF(privateKey, network);
     const signature = bitcoinMessage.sign(message, keyPair.privateKey, keyPair.compressed);
     return signature.toString('base64');
   };
@@ -701,5 +813,171 @@ export default class WalletUtilities {
       }
     }
     return null;
+  };
+
+  static getScriptTypeFromDerivationPath = (derivationPath: string): XpubTypes => {
+    const purpose = WalletUtilities.getPurpose(derivationPath);
+    switch (purpose) {
+      case DerivationPurpose.BIP48:
+        return XpubTypes.P2WSH;
+      case DerivationPurpose.BIP84:
+        return XpubTypes.P2WPKH;
+      case DerivationPurpose.BIP86:
+        return XpubTypes.P2TR;
+      case DerivationPurpose.BIP49:
+        return XpubTypes['P2SH-P2WPKH'];
+      case DerivationPurpose.BIP44:
+        return XpubTypes.P2PKH;
+      default:
+        return XpubTypes.P2WSH;
+    }
+  };
+
+  static isExtendedPrvKey = (keyType: ImportedKeyType) => {
+    if (config.NETWORK === bitcoinJS.networks.bitcoin) {
+      return [ImportedKeyType.XPRV, ImportedKeyType.YPRV, ImportedKeyType.ZPRV].includes(keyType);
+    } else {
+      return [ImportedKeyType.TPRV, ImportedKeyType.UPRV, ImportedKeyType.VPRV].includes(keyType);
+    }
+  };
+
+  static isExtendedPubKey = (keyType: ImportedKeyType) => {
+    if (config.NETWORK === bitcoinJS.networks.bitcoin) {
+      return [ImportedKeyType.XPUB, ImportedKeyType.YPUB, ImportedKeyType.ZPUB].includes(keyType);
+    } else {
+      return [ImportedKeyType.TPUB, ImportedKeyType.UPUB, ImportedKeyType.VPUB].includes(keyType);
+    }
+  };
+
+  static getImportedKeyDetails = (
+    input: string
+  ): { importedKeyType: ImportedKeyType; watchOnly: Boolean; purpose: DerivationPurpose } => {
+    try {
+      // case: mnemonic
+      bip39.mnemonicToEntropy(input);
+      return { importedKeyType: ImportedKeyType.MNEMONIC, watchOnly: false, purpose: null };
+    } catch (err) {
+      try {
+        // case: extended keys
+        bs58check.decode(input);
+
+        // attempt to create an extended key from the input
+        if (config.NETWORK === bitcoinJS.networks.bitcoin) {
+          // extended public keys (mainnet)
+          if (input.startsWith(ImportedKeyType.XPUB)) {
+            return {
+              importedKeyType: ImportedKeyType.XPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP44,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.YPUB)) {
+            return {
+              importedKeyType: ImportedKeyType.YPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP49,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.ZPUB)) {
+            return {
+              importedKeyType: ImportedKeyType.ZPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP84,
+            };
+          }
+
+          // extended private keys (mainnet)
+          if (input.startsWith(ImportedKeyType.XPRV)) {
+            return {
+              importedKeyType: ImportedKeyType.XPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP44,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.YPRV)) {
+            return {
+              importedKeyType: ImportedKeyType.YPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP49,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.ZPRV)) {
+            return {
+              importedKeyType: ImportedKeyType.ZPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP84,
+            };
+          }
+        } else {
+          // extended public keys (testnet)
+          if (input.startsWith(ImportedKeyType.TPUB)) {
+            return {
+              importedKeyType: ImportedKeyType.TPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP44,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.UPUB)) {
+            return {
+              importedKeyType: ImportedKeyType.UPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP49,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.VPUB)) {
+            return {
+              importedKeyType: ImportedKeyType.VPUB,
+              watchOnly: true,
+              purpose: DerivationPurpose.BIP84,
+            };
+          }
+
+          // extended private keys (testnet)
+          if (input.startsWith(ImportedKeyType.TPRV)) {
+            return {
+              importedKeyType: ImportedKeyType.TPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP44,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.UPRV)) {
+            return {
+              importedKeyType: ImportedKeyType.UPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP49,
+            };
+          }
+          if (input.startsWith(ImportedKeyType.VPRV)) {
+            return {
+              importedKeyType: ImportedKeyType.VPRV,
+              watchOnly: false,
+              purpose: DerivationPurpose.BIP84,
+            };
+          }
+        }
+      } catch (err) {
+        // if neither mnemonic nor extended key, consider it an invalid input
+        throw new Error('Invalid Import Key');
+      }
+    }
+  };
+
+  static getNetworkFromPrefix = (prefix) => {
+    switch (prefix) {
+      case 'xpub': // 0x0488b21e
+      case 'ypub': // 0x049d7cb2
+      case 'Ypub': // 0x0295b43f
+      case 'zpub': // 0x04b24746
+      case 'Zpub': // 0x02aa7ed3
+        return NetworkType.MAINNET;
+      case 'tpub': // 0x043587cf
+      case 'upub': // 0x044a5262
+      case 'Upub': // 0x024289ef
+      case 'vpub': // 0x045f1cf6
+      case 'Vpub': // 0x02575483
+        return NetworkType.TESTNET;
+      default:
+        return null;
+    }
   };
 }

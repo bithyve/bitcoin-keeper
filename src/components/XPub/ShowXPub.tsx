@@ -1,37 +1,28 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { ActivityIndicator, TouchableOpacity } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { wp, hp } from 'src/constants/responsive';
 
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Note from '../Note/Note';
 
 function ShowXPub({
-  wallet,
   data,
-  copy = () => { },
+  copy = () => {},
   subText,
   noteSubText,
   copyable = true,
-  cosignerDetails = false,
-  keeper,
 }: {
   data: string;
-  wallet?: Wallet;
   copy?: Function;
   subText: string;
   noteSubText?: string;
   copyable: boolean;
-  cosignerDetails?: boolean;
-  keeper?: KeeperApp;
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -39,14 +30,8 @@ function ShowXPub({
   const [details, setDetails] = useState('');
 
   useEffect(() => {
-    if (cosignerDetails) {
-      setTimeout(() => {
-        setDetails(JSON.stringify(getCosignerDetails(wallet, keeper.id)));
-      }, 200);
-    } else {
-      setDetails(data);
-    }
-  }, [cosignerDetails, data]);
+    setDetails(data);
+  }, [data]);
 
   return (
     <>

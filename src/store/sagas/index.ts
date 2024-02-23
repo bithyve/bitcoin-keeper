@@ -14,18 +14,14 @@ import {
   updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
   updateSignerDetails,
+  updateKeyDetails,
   updateWalletsPropertyWatcher,
   addWhirlpoolWalletsWatcher,
   addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
-  finaliseIKSetupWatcher,
+  updateVaultDetailsWatcher,
 } from './wallets';
-import {
-  addUaiStackWatcher,
-  uaiActionedEntityWatcher,
-  uaiActionedWatcher,
-  uaiChecksWatcher,
-} from './uai';
+import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
@@ -98,8 +94,9 @@ const rootSaga = function* () {
     addSigningDeviceWatcher,
     migrateVaultWatcher,
     finaliseVaultMigrationWatcher,
-    finaliseIKSetupWatcher,
+    updateVaultDetailsWatcher,
     updateSignerDetails,
+    updateKeyDetails,
 
     // send and receive
     fetchExchangeRatesWatcher,
@@ -115,7 +112,6 @@ const rootSaga = function* () {
     uaiChecksWatcher,
     addUaiStackWatcher,
     uaiActionedWatcher,
-    uaiActionedEntityWatcher,
 
     // BHR
     updateAppImageWatcher,

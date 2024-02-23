@@ -1,20 +1,21 @@
 import { Box, ScrollView, View } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import config, { APP_STAGE } from 'src/core/config';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
   switch (type) {
@@ -25,9 +26,9 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.POLICY_SERVER:
-      if (signingDevices.length < 1) {
+      if (signingDevices.length < 2) {
         return {
-          message: 'Add another device first to recover',
+          message: 'Add two other devices first to recover',
           disabled: true,
         };
       }
@@ -38,6 +39,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
     case SignerType.SEED_WORDS:
     case SignerType.MOBILE_KEY:
     case SignerType.KEEPER:
+    case SignerType.MY_KEEPER:
     case SignerType.JADE:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
@@ -59,7 +61,9 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the Vault config by going to Setting > Multisig > Then select the wallet > Export `}
+          {
+            'Export the vault config by going to Setting > Multisig > Then select the wallet > Export '
+          }
         </Text>
       </Box>
     </View>
@@ -81,7 +85,9 @@ function PassportSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
+          {
+            '\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n'
+          }
         </Text>
       </Box>
     </View>
@@ -156,10 +162,12 @@ function SigningDeviceConfigRecovery({ navigation }) {
           buttonText="Proceed"
           buttonTextColor="light.white"
           buttonCallback={() => {
-            navigate('LoginStack', {
-              screen: 'ColdCardReocvery',
-              params: { isConfigRecovery: true },
-            });
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddColdCard',
+                params: { mode: InteracationMode.CONFIG_RECOVERY },
+              })
+            );
             close();
           }}
           textColor="light.primaryText"
@@ -190,13 +198,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title="Select Signing Device"
-        subtitle="To recover your Vault"
-        headerTitleColor="light.textBlack"
-        onPressHandler={() => navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' })}
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
+      <KeeperHeader
+        title="Select signer"
+        subtitle="To recover your vault"
+        onPressHandler={() => navigation.goBack()}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">
@@ -235,7 +240,6 @@ const styles = StyleSheet.create({
   contactUsText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '200',
     width: wp(300),
     lineHeight: 20,
     marginTop: hp(20),

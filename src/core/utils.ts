@@ -3,7 +3,7 @@ import { Vault, VaultScheme, VaultSigner } from './wallets/interfaces/vault';
 import { Wallet } from './wallets/interfaces/wallet';
 import WalletOperations from './wallets/operations';
 
-// GENRATOR
+const crypto = require('crypto');
 
 export const getDerivationPath = (derivationPath: string) =>
   derivationPath.substring(2).split("'").join('h');
@@ -15,8 +15,15 @@ export const getMultiKeyExpressions = (signers: VaultSigner[]) => {
   return keyExpressions.join();
 };
 
-export const getKeyExpression = (masterFingerprint: string, derivationPath: string, xpub: string) =>
-  `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}/**`;
+export const getKeyExpression = (
+  masterFingerprint: string,
+  derivationPath: string,
+  xpub: string,
+  withPathRestrictions: boolean = true
+) =>
+  `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
+    withPathRestrictions ? '/**' : ''
+  }`;
 
 export const genrateOutputDescriptors = (
   wallet: Vault | Wallet,
@@ -36,7 +43,7 @@ export const genrateOutputDescriptors = (
   const { signers, scheme, isMultiSig } = wallet as Vault;
   if (!isMultiSig) {
     const signer: VaultSigner = signers[0];
-    // eslint-disable-next-line no-use-before-define
+
     const des = `wpkh(${getKeyExpression(
       signer.masterFingerprint,
       signer.derivationPath,
@@ -62,10 +69,8 @@ export interface ParsedVauleText {
   scheme: VaultScheme;
 }
 
-const allowedScehemes = {
-  1: 1,
-  2: 3,
-  3: 5,
+const isAllowedScheme = (m, n) => {
+  return m <= n;
 };
 
 function removeEmptyLines(data) {
@@ -132,8 +137,7 @@ export const parseTextforVaultConfig = (secret: string) => {
 
     const m = parseInt(keyExpressions.splice(0, 1)[0]);
     const n = keyExpressions.length;
-
-    if (allowedScehemes[m] !== n) {
+    if (!isAllowedScheme(m, n)) {
       throw Error('Unsupported schemes');
     }
     const scheme: VaultScheme = {
@@ -158,7 +162,7 @@ export const parseTextforVaultConfig = (secret: string) => {
       if (line.startsWith('Policy')) {
         const [m, n] = line.split('Policy:')[1].split('of');
         scheme = { m: parseInt(m), n: parseInt(n) };
-        if (allowedScehemes[scheme.m] !== scheme.n) {
+        if (!isAllowedScheme(m, n)) {
           throw Error('Unsupported scheme');
         }
       }
@@ -180,7 +184,7 @@ export const parseTextforVaultConfig = (secret: string) => {
   throw Error('Unsupported format!');
 };
 
-export const urlParamsToObj = (url: string): object => {
+export const urlParamsToObj = (url: string): any => {
   try {
     const regex = /[?&]([^=#]+)=([^&#]*)/g;
     const params = {};
@@ -193,4 +197,30 @@ export const urlParamsToObj = (url: string): object => {
   } catch (err) {
     return {};
   }
+};
+
+export const createCipheriv = (data: string, password: string) => {
+  const algorithm = 'aes-256-cbc';
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(password, 'hex'), iv);
+  let encrypted = cipher.update(data);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+  return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+};
+
+export const createDecipheriv = (data: { iv: string; encryptedData: string }, password: string) => {
+  const algorithm = 'aes-256-cbc';
+  const encryptedText = Buffer.from(data.encryptedData, 'hex');
+  // Creating Decipher
+  const decipher = crypto.createDecipheriv(
+    algorithm,
+    Buffer.from(password, 'hex'),
+    Buffer.from(data.iv, 'hex')
+  );
+  // Updating encrypted text
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  // Returning iv and encrypted data
+  return JSON.parse(decrypted.toString());
 };

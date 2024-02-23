@@ -1,65 +1,71 @@
-/* eslint-disable prefer-destructuring */
-import { ActivityIndicator, Platform, ScrollView, Alert, Linking, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, Pressable } from 'native-base';
 import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
   getAvailablePurchases,
-  SubscriptionPurchase
+  SubscriptionPurchase,
+  requestSubscription,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SubScription, { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
+import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
-import { useNavigation } from '@react-navigation/native';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
-import Relay from 'src/core/services/operations/Relay';
-import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
-import moment from 'moment'
+import { wp } from 'src/constants/responsive';
+import Relay from 'src/services/operations/Relay';
+import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';
 import { uaiChecks } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
+import { useQuery } from '@realm/react';
+import SettingsIcon from 'src/assets/images/settings_white.svg';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import TierUpgradeModal from './TierUpgradeModal';
 
-function ChoosePlan(props) {
+function ChoosePlan() {
+  const route = useRoute();
+  const navigation = useNavigation();
+  const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
-  const { choosePlan } = translations;
-  const [currentPosition, setCurrentPosition] = useState(0);
+  const { choosePlan, common } = translations;
+  const [currentPosition, setCurrentPosition] = useState(initialPosition);
   const [loading, setLoading] = useState(true);
-  const [requesting, setRequesting] = useState(false)
+  const [requesting, setRequesting] = useState(false);
   const { showToast } = useToastMessage();
-  const { id, publicId, subscription: appSubscription }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const {
+    id,
+    publicId,
+    subscription: appSubscription,
+  }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isUpgrade, setIsUpgrade] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const navigation = useNavigation();
   const disptach = useDispatch();
+  const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-      processPurchase(purchase)
+      processPurchase(purchase);
     });
     const purchaseErrorSubscription = purchaseErrorListener((error) => {
       console.log('purchaseErrorListener', error);
-      setRequesting(false)
+      setRequesting(false);
     });
 
     return () => {
@@ -77,114 +83,134 @@ function ChoosePlan(props) {
   }, []);
 
   async function init() {
+    let data = [];
     try {
-      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId)
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
       if (getPlansResponse.plans) {
-        const skus = []
-        getPlansResponse.plans
-          .forEach(plan => skus.push(...plan.productIds))
+        data = getPlansResponse.plans;
+        const skus = [];
+        getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
-        const data = getPlansResponse.plans
         subscriptions.forEach((subscription, i) => {
-          const index = data.findIndex(plan => plan.productIds.includes(subscription.productId))
-          const monthlyPlans = []
-          const yearlyPlans = []
+          const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
+          const monthlyPlans = [];
+          const yearlyPlans = [];
           if (Platform.OS === 'android') {
-            subscription.subscriptionOfferDetails.forEach(offer => {
-              const monthly = offer.pricingPhases.pricingPhaseList.filter(list => (list.billingPeriod === 'P1M' && list.formattedPrice !== 'Free'))
-              const yearly = offer.pricingPhases.pricingPhaseList.filter(list => (list.billingPeriod === 'P1Y' && list.formattedPrice !== 'Free'))
-              if (monthly.length) monthlyPlans.push(offer)
-              if (yearly.length) yearlyPlans.push(offer)
-            })
+            subscription.subscriptionOfferDetails.forEach((offer) => {
+              const monthly = offer.pricingPhases.pricingPhaseList.filter(
+                (list) => list.billingPeriod === 'P1M' && list.formattedPrice !== 'Free'
+              );
+              const yearly = offer.pricingPhases.pricingPhaseList.filter(
+                (list) => list.billingPeriod === 'P1Y' && list.formattedPrice !== 'Free'
+              );
+              if (monthly.length) monthlyPlans.push(offer);
+              if (yearly.length) yearlyPlans.push(offer);
+            });
             data[index].monthlyPlanDetails = {
               ...getPlanData(monthlyPlans),
-              productId: subscription.productId
-            }
+              productId: subscription.productId,
+            };
             data[index].yearlyPlanDetails = {
               ...getPlanData(yearlyPlans),
-              productId: subscription.productId
-            }
+              productId: subscription.productId,
+            };
           } else if (Platform.OS === 'ios') {
             const planDetails = {
               price: subscription.localizedPrice,
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS} ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`
-            }
+              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
+                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+            };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
-              data[index].monthlyPlanDetails = planDetails
+              data[index].monthlyPlanDetails = planDetails;
             } else if (subscription.subscriptionPeriodUnitIOS === 'YEAR') {
-              data[index].yearlyPlanDetails = planDetails
+              data[index].yearlyPlanDetails = planDetails;
             }
           }
         });
-        data[0].monthlyPlanDetails = { productId: data[0].productIds[0] }
-        data[0].yearlyPlanDetails = { productId: data[0].productIds[0] }
+        data[0].monthlyPlanDetails = { productId: data[0].productIds[0] };
+        data[0].yearlyPlanDetails = { productId: data[0].productIds[0] };
         setItems(data);
         setLoading(false);
       }
     } catch (error) {
       console.log('error', error);
+      if (error.message.includes('Billing is unavailable.')) {
+        setItems(data);
+        setLoading(false);
+        showToast(error.message);
+        setIsServiceUnavailible(true);
+      } else {
+        navigation.goBack();
+        showToast(error.message);
+      }
     }
   }
 
   async function processPurchase(purchase: SubscriptionPurchase) {
-    setRequesting(true)
+    setRequesting(true);
     try {
       const receipt = purchase.transactionReceipt;
-      const plan = items.filter(item => item.productIds.includes(purchase.productId));
-      const response = await Relay.updateSubscription(id, publicId, purchase)
-      setRequesting(false)
+      const plan = items.filter((item) => item.productIds.includes(purchase.productId));
+      const response = await Relay.updateSubscription(id, publicId, purchase);
+      setRequesting(false);
       if (response.updated) {
         const subscription: SubScription = {
           productId: purchase.productId,
           receipt,
           name: plan[0].name,
           level: response.level,
-          icon: plan[0].icon
+          icon: plan[0].icon,
         };
-        setIsUpgrade(response.level > appSubscription.level)
+        setIsUpgrade(response.level > appSubscription.level);
         dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
           subscription,
         });
-        setShowUpgradeModal(true)
+        setShowUpgradeModal(true);
       } else if (response.error) {
-        showToast(response.error)
+        showToast(response.error);
       }
-      await RNIap.finishTransaction({ purchase, isConsumable: false });
+      if (receipt) await RNIap.finishTransaction({ purchase, isConsumable: false });
     } catch (error) {
-      setRequesting(false)
-      console.log(error)
+      setRequesting(false);
+      console.log(error);
     }
   }
 
   function getPlanData(offers) {
-    let offer
+    let offer;
     if (offers.length > 1) {
-      offers.sort((a, b) => a.pricingPhases.pricingPhaseList.length < b.pricingPhases.pricingPhaseList.length);
-      offer = offers[0]
+      offers.sort(
+        (a, b) => a.pricingPhases.pricingPhaseList.length < b.pricingPhases.pricingPhaseList.length
+      );
+      offer = offers[0];
     } else if (offers.length === 0) {
-      return null
+      return null;
     } else {
-      offer = offers[0]
+      offer = offers[0];
     }
-    const trailPlan = offer.pricingPhases.pricingPhaseList.filter(list => list.formattedPrice === 'Free')
-    const paidPlan = offer.pricingPhases.pricingPhaseList.filter(list => list.formattedPrice !== 'Free')
+    const trailPlan = offer.pricingPhases.pricingPhaseList.filter(
+      (list) => list.formattedPrice === 'Free'
+    );
+    const paidPlan = offer.pricingPhases.pricingPhaseList.filter(
+      (list) => list.formattedPrice !== 'Free'
+    );
     if (trailPlan.length) {
       return {
         currency: offer.pricingPhases.pricingPhaseList[0].priceCurrencyCode,
         offerToken: offer.offerToken,
         trailPeriod: `${moment.duration(trailPlan[0].billingPeriod).asMonths()} months free`,
-        price: paidPlan[0].formattedPrice
-      }
+        price: paidPlan[0].formattedPrice,
+      };
     }
     return {
       currency: offer.pricingPhases.pricingPhaseList[0].priceCurrencyCode,
       offerToken: offer.offerToken,
       trailPeriod: '',
-      price: paidPlan[0].formattedPrice
-    }
+      price: paidPlan[0].formattedPrice,
+    };
   }
 
   function manageSubscription(sku: string) {
@@ -192,7 +218,7 @@ function ChoosePlan(props) {
       Linking.openURL('https://apps.apple.com/account/subscriptions');
     } else if (Platform.OS === 'android') {
       Linking.openURL(
-        `https://play.google.com/store/account/subscriptions?package=${getBundleId()}&sku=${sku}`,
+        `https://play.google.com/store/account/subscriptions?package=${getBundleId()}&sku=${sku}`
       );
     }
   }
@@ -200,60 +226,68 @@ function ChoosePlan(props) {
   async function processSubscription(subscription: SubScriptionPlan, level: number) {
     try {
       if (subscription.productType === 'free') {
-        setRequesting(true)
-        const response = await Relay.updateSubscription(id, publicId, { productId: subscription.productIds[0] })
-        setRequesting(false)
+        setRequesting(true);
+        const response = await Relay.updateSubscription(id, publicId, {
+          productId: subscription.productIds[0],
+        });
+        setRequesting(false);
         if (response.updated) {
           const updatedSubscription: SubScription = {
             productId: subscription.productIds[0],
             receipt: '',
             name: subscription.name,
             level: response.level,
-            icon: subscription.icon
+            icon: subscription.icon,
           };
-          setIsUpgrade(response.level > appSubscription.level)
+          setIsUpgrade(response.level > appSubscription.level);
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription: updatedSubscription,
           });
           disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
           // disptach(resetVaultMigration());
-          setShowUpgradeModal(true)
+          setShowUpgradeModal(true);
         } else {
-          Alert.alert(
-            "",
-            response.error,
-            [
-              {
-                text: "Cancel",
-                onPress: () => { },
-                style: "cancel"
-              },
-              { text: "Manage", onPress: () => manageSubscription(response.productId) }
-            ]
-          );
+          Alert.alert('', response.error, [
+            {
+              text: 'Cancel',
+              onPress: () => { },
+              style: 'cancel',
+            },
+            {
+              text: 'Manage',
+              onPress: () => manageSubscription(response.productId),
+            },
+          ]);
         }
       } else {
-        setRequesting(true)
-        const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
-        const sku = plan.productId
-        const { offerToken } = plan
-        const purchaseTokenAndroid = null
-        if (Platform.OS === 'android' && appSubscription.receipt) {
-          purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken
+        if (isServiceUnavailible) {
+          showToast(
+            'It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon'
+          );
+          return;
         }
-        requestSubscription(
-          { sku, subscriptionOffers: [{ sku, offerToken }], purchaseTokenAndroid },
-        );
+        setRequesting(true);
+        const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
+        const sku = plan.productId;
+        const { offerToken } = plan;
+        let purchaseTokenAndroid = null;
+        if (Platform.OS === 'android' && appSubscription.receipt) {
+          purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
+        }
+        requestSubscription({
+          sku,
+          subscriptionOffers: [{ sku, offerToken }],
+          purchaseTokenAndroid,
+        });
       }
-
     } catch (err) {
+      setRequesting(false);
       console.log(err);
     }
   }
 
   const onPressModalBtn = () => {
     setShowUpgradeModal(false);
-    navigation.navigate('AddSigningDevice');
   };
 
   const getBenifitsTitle = (name) => {
@@ -263,33 +297,55 @@ function ChoosePlan(props) {
     return `A ${name}`;
   };
 
+  const getPlanNote = (plan) => {
+    if (plan.name === 'Pleb') return '';
+    let trial = '';
+    let amount = '';
+    if (plan.monthlyPlanDetails || plan.yearlyPlanDetails) {
+      if (isMonthly) {
+        trial = plan.monthlyPlanDetails.trailPeriod;
+        amount = plan.monthlyPlanDetails.price;
+      } else {
+        trial = plan.yearlyPlanDetails.trailPeriod;
+        amount = plan.yearlyPlanDetails.price;
+      }
+    }
+    if (trial) {
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${isMonthly ? 'month' : 'year'
+        }, cancel anytime`;
+    } else {
+      return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
+    }
+  };
+
   const restorePurchases = async () => {
     try {
-      setRequesting(true)
-      const purchases = await getAvailablePurchases()
-      setRequesting(false)
+      setRequesting(true);
+      const purchases = await getAvailablePurchases();
+      setRequesting(false);
       if (purchases.length === 0) {
-        showToast('No purchases found')
+        showToast('No purchases found');
       } else {
-        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < purchases.length; i++) {
           const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {
-            showToast(`Already subscribed to ${subscription.name}`)
+            showToast(`Already subscribed to ${subscription.name}`);
           } else {
-            const validPurchase = items.find(item => item.productIds.includes(purchase.productId))
+            const validPurchase = items.find((item) =>
+              item.productIds.includes(purchase.productId)
+            );
             if (validPurchase) {
-              processPurchase(purchase)
-              break
+              processPurchase(purchase);
+              break;
             }
           }
         }
       }
     } catch (error) {
-      setRequesting(false)
-      console.log(error)
+      setRequesting(false);
+      console.log(error);
     }
-  }
+  };
 
   function LoginModalContent() {
     const { colorMode } = useColorMode();
@@ -305,25 +361,18 @@ function ChoosePlan(props) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box justifyContent='space-between' flexDirection="row">
-        <HeaderTitle
-          title={choosePlan.choosePlantitle}
-          subtitle={
-            subscription.name === 'Diamond Hands'
-              ? `You are currently a ${subscription.name}`
-              : `You are currently a ${subscription.name}`
-          }
-          headerTitleColor={`${colorMode}.modalGreenTitle`}
-        />
-        <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
-      </Box>
-
+      <KeeperHeader
+        title={choosePlan.choosePlantitle}
+        boldTitle
+        subtitle="Upgrade or downgrade"
+      // To-Do-Learn-More
+      />
       <KeeperModal
         visible={requesting}
         close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
@@ -354,69 +403,111 @@ function ChoosePlan(props) {
             onChange={(item) => setCurrentPosition(item)}
             isMonthly={isMonthly}
             requesting={requesting}
+            currentPosition={currentPosition}
           />
 
-          <Box opacity={0.1} backgroundColor={`${colorMode}.Border`} width="100%" height={0.5} my={5} />
+          <Box
+            opacity={0.1}
+            backgroundColor={`${colorMode}.Border`}
+            width="100%"
+            height={0.5}
+            my={5}
+          />
 
-          <Box ml={5}>
-            <Box>
-              <Text fontSize={14} color={`${colorMode}.modalGreenTitle`} letterSpacing={1.12}>
-                {getBenifitsTitle(items[currentPosition].name)}:
+          <Box>
+            <Box ml={5}>
+              <Box>
+                <Text fontSize={16} color={`${colorMode}.headerText`} letterSpacing={0.16}>
+                  {getBenifitsTitle(items[currentPosition].name)}
+                </Text>
+              </Box>
+              <Box mt={1}>
+                {items?.[currentPosition]?.benifits.map(
+                  (i) =>
+                    i !== '*Coming soon' && (
+                      <Box style={styles.benefitContainer} key={i}>
+                        <Box style={styles.dot} backgroundColor={`${colorMode}.Taupe`} />
+                        <Text
+                          fontSize={13}
+                          color={`${colorMode}.GreyText`}
+                          ml={3}
+                          letterSpacing={0.65}
+                        >
+                          {` ${i}`}
+                        </Text>
+                      </Box>
+                    )
+                )}
+              </Box>
+            </Box>
+            {items?.[currentPosition]?.name !== 'Pleb' && (
+              <Text style={styles.comingSoonText} color={`${colorMode}.GreenishGrey`}>
+                * COMING SOON
               </Text>
-            </Box>
-            <Box mt={1}>
-              {items[currentPosition].benifits.map((i) => (
-                <Box flexDirection="row" alignItems="center" key={i}>
-                  <Text fontSize={13} color={`${colorMode}.GreyText`} mb={2} ml={3} letterSpacing={0.65}>
-                    {`• ${i}`}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
+            )}
           </Box>
         </ScrollView>
       )}
 
-      <Box
-        style={styles.noteWrapper}
-      >
+      <Box style={styles.noteWrapper}>
         <Box width="65%">
           <Note
-            title="Note"
+            title={common.note}
             subtitle={formatString(choosePlan.noteSubTitle)}
-            subtitleColor="GreyText" />
+            subtitleColor="GreyText"
+          />
         </Box>
-        <Pressable width="35%" activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
+        <Pressable
+          width="35%"
+          activeOpacity={0.6}
+          onPress={restorePurchases}
+          testID="btn_restorePurchases"
+        >
           <Box
             borderColor={`${colorMode}.learnMoreBorder`}
-            backgroundColor="light.lightAccent"
+            backgroundColor={`${colorMode}.RussetBrown`}
             style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color={colorMode === 'light' ? "light.learnMoreBorder" : '#24312E'}>
-              Restore Purchases
+            <Text fontSize={12} bold color={colorMode === 'light' ? 'light.white' : '#24312E'}>
+              {choosePlan.restorePurchases}
             </Text>
           </Box>
         </Pressable>
       </Box>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
   noteWrapper: {
     bottom: 1,
     margin: 1,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    width: '100%'
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
   },
   restorePurchaseWrapper: {
     padding: 1,
-    margin: 1,
+    marginBottom: 10,
     borderRadius: 5,
     borderWidth: 0.7,
     alignItems: 'center',
-    justifyContent: 'center'
-  }
-})
+    justifyContent: 'center',
+  },
+  comingSoonText: {
+    fontSize: 10,
+    marginLeft: 10,
+  },
+  benefitContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 5 / 2,
+    alignSelf: 'center',
+  },
+});
 export default ChoosePlan;

@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { useQuery } from '@realm/react';
+import { useEffect, useState } from 'react';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 
 interface FeatureMap {
@@ -14,12 +14,16 @@ interface FeatureMap {
 interface UseFeatureMapProps {
   walletIndex?: number;
   scheme?: VaultScheme;
+  isCollaborativeWallet?: boolean;
 }
 
 type useFeatureMapInterface = (props?: UseFeatureMapProps) => FeatureMap;
 
-const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
-  const { useQuery } = useContext(RealmWrapperContext);
+const useFeatureMap: useFeatureMapInterface = ({
+  walletIndex,
+  scheme,
+  isCollaborativeWallet = false,
+}) => {
   const {
     subscription: { level },
   }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -44,7 +48,7 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
 
   useEffect(() => {
     const updatedFeatureMap: FeatureMap = {};
-    if (level < 2) {
+    if (level < 2 && !isCollaborativeWallet) {
       updatedFeatureMap.vaultBuy = false;
       if (scheme) {
         if (scheme.m !== 1 || scheme.n !== 1) {
@@ -57,10 +61,6 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
     }
     setFeatureMap((prevFeatureMap) => ({ ...prevFeatureMap, ...updatedFeatureMap }));
   }, [scheme]);
-
-  useEffect(() => {
-    // console.log(featureMap);
-  }, [featureMap]);
 
   return featureMap;
 };

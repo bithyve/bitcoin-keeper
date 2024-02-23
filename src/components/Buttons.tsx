@@ -1,9 +1,7 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
-import { Shadow } from 'react-native-shadow-2';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 
@@ -33,22 +31,14 @@ function Buttons({
       activeOpacity={activeOpacity}
       testID="btn_primaryText"
     >
-      <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-        <Box
-          style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
-          backgroundColor={{
-            linearGradient: {
-              colors: [`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          }}
-        >
-          <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
-            {primaryText}
-          </Text>
-        </Box>
-      </Shadow>
+      <Box
+        style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
+        backgroundColor={`${colorMode}.greenButtonBackground`}
+      >
+        <Text numberOfLines={1} style={styles.btnText} color="white" bold>
+          {primaryText}
+        </Text>
+      </Box>
     </TouchableOpacity>
   );
   return (
@@ -76,20 +66,19 @@ function Buttons({
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 5,
   },
   createBtn: {
     paddingVertical: hp(15),
-    borderRadius: '10@s',
+    borderRadius: 10,
   },
   cancelBtn: {
     marginRight: wp(20),
-    borderRadius: '10@s',
+    borderRadius: 10,
   },
   btnText: {
     fontSize: 14,
