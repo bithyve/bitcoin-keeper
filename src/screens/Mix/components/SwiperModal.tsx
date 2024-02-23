@@ -14,7 +14,6 @@ import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
-  console.log('windowHeight', windowHeight);
   return (
     <Box>
       <Box>
