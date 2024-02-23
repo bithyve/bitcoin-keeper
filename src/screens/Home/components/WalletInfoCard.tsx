@@ -39,7 +39,7 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              backgroundColor={index % 2 === 0 ? null : `${colorMode}.white`}
+              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.PaleTurquoise`}
             />
           );
         })}
@@ -59,7 +59,7 @@ function WalletInfoCard({
             hideAmounts={false}
             amount={amount}
             hideAmounts={!isShowAmount}
-            fontSize={satsEnabled ? 17 : 20}
+            fontSize={24}
             variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </TouchableOpacity>

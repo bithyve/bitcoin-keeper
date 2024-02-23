@@ -12,6 +12,7 @@ import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
+import WalletInfoEmptyState from './WalletInfoEmptyState';
 
 export function WalletsList({
   allWallets,
@@ -49,6 +50,7 @@ export function WalletsList({
             />
           </TouchableOpacity>
         )}
+        ListEmptyComponent={<WalletInfoEmptyState />}
         ListFooterComponent={() => (
           <AddCard
             name={`Add\nWallet`}

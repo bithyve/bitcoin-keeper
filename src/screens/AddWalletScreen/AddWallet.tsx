@@ -53,7 +53,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={2}
             walletName="Import"
-            walletDescription="Recover / recreate"
+            walletDescription="Recover or recreate"
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
