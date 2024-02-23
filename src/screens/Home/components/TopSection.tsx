@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 7,
     position: 'absolute',
-    top: hp(220),
+    top: hp(230),
   },
 });
