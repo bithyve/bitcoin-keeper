@@ -240,6 +240,16 @@ function* uaiChecksWorker({ payload }) {
           : healthCheckReminderDays(latestConfirmedBackupDate);
 
         shouldAddToUaiStack = lastHealthCheck >= healthCheckReminderThreshold;
+        if (lastHealthCheck < healthCheckReminderThreshold) {
+          const uaiRecoveryPhraseHC: UAI[] = dbManager.getObjectByField(
+            RealmSchema.UAI,
+            uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+            'uaiType'
+          );
+          if (uaiRecoveryPhraseHC) {
+            yield put(uaiActioned({ uaiId: uaiRecoveryPhraseHC[0].id, action: true }));
+          }
+        }
       } else {
         shouldAddToUaiStack = true; // If no confirmed backups, we should add to UAI stack.
       }

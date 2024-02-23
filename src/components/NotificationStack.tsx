@@ -92,7 +92,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const [modalActionLoader, setmodalActionLoader] = useState(false);
 
   const skipUaiHandler = (uai: UAI) => {
-    dispatch(uaiActioned({ uaiId: uai.id, action: true }));
+    dispatch(uaiActioned({ uaiId: uai.id, action: false }));
   };
 
   const skipBtnConfig = (uai) => {
@@ -134,8 +134,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               secondary: {
                 text: 'Skip',
                 cta: () => {
-                  navigtaion.goBack(); //TO-DO-UAI
                   skipUaiHandler(uai);
+                  navigtaion.goBack(); //TO-DO-UAI
                 },
               },
             },
@@ -164,7 +164,6 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                 text: 'Continue',
                 cta: () => {
                   setShowModal(false);
-                  console.log({ uai: uai });
                   activeVault
                     ? navigtaion.navigate('SendConfirmation', {
                         uaiSetActionFalse,
@@ -189,7 +188,9 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           btnConfig: {
             primary: {
               text: 'Continue',
-              cta: () => {},
+              cta: () => {
+                setShowModal(true);
+              },
             },
             secondary: skipBtnConfig(uai),
           },
@@ -223,7 +224,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               },
               secondary: {
                 text: 'Skip',
-                cta: () => {},
+                cta: () => {
+                  setShowModal(false);
+                  skipUaiHandler(uai);
+                },
               },
             },
           },
@@ -245,57 +249,29 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             },
             secondary: skipBtnConfig(uai),
           },
-          modalDetails: {
-            heading: 'Health check pending',
-            subTitle: 'Device health reminder',
-            body: 'Vault Setup Instructions',
-            btnConfig: {
-              primary: {
-                text: 'Continue',
-                cta: () => {},
-              },
-              secondary: {
-                text: 'Skip',
-                cta: () => {},
-              },
-            },
-          },
         };
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
           heading: 'Backup recovery key',
-          body: 'Backup of reocvery key is pending',
+          body: 'Backup of recovery key is pending',
           btnConfig: {
             primary: {
               text: 'Continue',
               cta: () => {
                 if (backupHistory.length === 0) {
+                  skipUaiHandler(uai);
                   navigtaion.navigate('AppSettings', {
                     isUaiFlow: true,
                   });
-                  skipUaiHandler(uai);
                 } else {
-                  navigtaion.navigate('WalletBackHistory');
                   skipUaiHandler(uai);
+                  navigtaion.navigate('WalletBackHistory', {
+                    isUaiFlow: true,
+                  });
                 }
               },
             },
             secondary: skipBtnConfig(uai),
-          },
-          modalDetails: {
-            heading: 'Set up Vault',
-            subTitle: 'Vault Setup.....',
-            body: 'Vault Setup Instructions',
-            btnConfig: {
-              primary: {
-                text: 'Continue',
-                cta: () => {},
-              },
-              secondary: {
-                text: 'Skip',
-                cta: () => {},
-              },
-            },
           },
         };
       default:
@@ -358,14 +334,14 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           setShowModal(false);
           skipUaiHandler(uai);
         }}
-        title={uaiConfig?.modalDetails.heading}
-        subTitle={uaiConfig?.modalDetails.subTitle}
-        buttonText={uaiConfig?.modalDetails.btnConfig.primary.text}
-        buttonCallback={uaiConfig?.modalDetails.btnConfig.primary.cta}
-        secondaryButtonText={uaiConfig?.modalDetails.btnConfig.secondary.text}
-        secondaryCallback={uaiConfig?.modalDetails.btnConfig.secondary.cta}
+        title={uaiConfig?.modalDetails?.heading}
+        subTitle={uaiConfig?.modalDetails?.subTitle}
+        buttonText={uaiConfig?.modalDetails?.btnConfig.primary.text}
+        buttonCallback={uaiConfig?.modalDetails?.btnConfig.primary.cta}
+        secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
+        secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
         buttonTextColor="light.white"
-        Content={() => <Text color="light.greenText">{uaiConfig.modalDetails.body}</Text>}
+        Content={() => <Text color="light.greenText">{uaiConfig?.modalDetails?.body}</Text>}
       />
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>
