@@ -34,9 +34,9 @@ import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -169,7 +169,7 @@ function SetupTapsigner({ route }) {
       const handleSuccess = () => {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
-        showToast(`Tapsigner verified successfully`, <TickIcon />);
+        showToast('Tapsigner verified successfully', <TickIcon />);
       };
 
       const handleFailure = () => {

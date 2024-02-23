@@ -7,6 +7,7 @@ import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { useAppSelector } from 'src/store/hooks';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
+import { hp, wp } from 'src/constants/responsive';
 
 type WalletInfoCardProps = {
   walletName: string;
@@ -57,7 +58,7 @@ function WalletInfoCard({
           <CurrencyInfo
             hideAmounts={false}
             amount={amount}
-            hideAmounts={isShowAmount ? false : true}
+            hideAmounts={!isShowAmount}
             fontSize={satsEnabled ? 17 : 20}
             variation={colorMode === 'light' ? 'light' : 'dark'}
           />
@@ -69,8 +70,8 @@ function WalletInfoCard({
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: 160,
-    height: 260,
+    width: wp(160),
+    height: hp(260),
     padding: 10,
     borderRadius: 10,
     justifyContent: 'space-between',

@@ -30,14 +30,14 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { Shadow } from 'react-native-shadow-2';
-import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import FogotPassword from './components/FogotPassword';
 import { resetPinFailAttempts } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
+import FogotPassword from './components/FogotPassword';
+import ResetPassSuccess from './components/ResetPassSuccess';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -95,7 +95,7 @@ function LoginScreen({ navigation, route }) {
       }
       setTimeout(() => {
         setLoginError(true);
-        setErrMessage(`Please try after sometime`);
+        setErrMessage('Please try after sometime');
         setCanLogin(false);
       }, 100);
       return;
@@ -298,14 +298,14 @@ function LoginScreen({ navigation, route }) {
     return (
       <Box style={{ width: wp(280) }}>
         <Box style={styles.modalAssetsWrapper}>{modelAsset}</Box>
-        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+        <Text color={`${colorMode}.SlateGrey`} style={styles.modalMessageText}>
           {modelMessage}
         </Text>
         {modelButtonText === null ? (
           <Box style={styles.modalMessageWrapper}>
             <Box style={{ width: '80%' }}>
               <Text
-                color={`${colorMode}.greenText`}
+                color={`${colorMode}.SlateGrey`}
                 style={[styles.modalMessageText, { paddingTop: hp(20) }]}
               >
                 This step will take a few seconds. You would be able to proceed soon
@@ -335,7 +335,6 @@ function LoginScreen({ navigation, route }) {
     navigation.replace('App');
   }
 
-  // eslint-disable-next-line react/no-unstable-nested-components
   function NoInternetModalContent() {
     return (
       <Box width={wp(250)}>
@@ -520,7 +519,7 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
+        modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
@@ -549,15 +548,13 @@ function LoginScreen({ navigation, route }) {
       <KeeperModal
         visible={incorrectPassword}
         close={() => {}}
-        title={'Incorrect Password'}
-        subTitle={
-          'You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow'
-        }
+        title="Incorrect Password"
+        subTitle="You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
-        buttonText={'Retry'}
+        buttonText="Retry"
         buttonCallback={() => setIncorrectPassword(false)}
         showButtons
         subTitleWidth={wp(250)}

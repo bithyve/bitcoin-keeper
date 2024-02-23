@@ -28,7 +28,6 @@ class TorSocket {
 
     let found = false;
     for (const savedListener of this._listeners[event]) {
-      // eslint-disable-next-line eqeqeq
       if (savedListener === listener) {
         // found our listener
         found = true;
@@ -61,7 +60,7 @@ class TorSocket {
       }
       console.log('started tor');
       const iWillConnectISwear = tor.createTcpConnection(
-        { target: host + ':' + port, connectionTimeout: 15000 },
+        { target: `${host}:${port}`, connectionTimeout: 15000 },
         (data, err) => {
           if (err) {
             console.log('TOR socket onData error: ', err);

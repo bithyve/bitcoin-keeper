@@ -7,12 +7,13 @@ function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }: any) 
   return (
     <Box
       style={{
-        height: height,
+        height,
         width: height,
         borderRadius: height,
         ...styles.center,
       }}
-      backgroundColor={`${colorMode}.greenButtonBackground`}>
+      backgroundColor={`${colorMode}.greenButtonBackground`}
+    >
       <Icon />
     </Box>
   );

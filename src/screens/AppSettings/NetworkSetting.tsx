@@ -8,33 +8,30 @@ import { StyleSheet } from 'react-native';
 import { hp } from 'src/constants/responsive';
 
 function NetworkSetting({ navigation }) {
-    const { colorMode } = useColorMode();
-    const { translations } = useContext(LocalizationContext);
-    const { settings } = translations;
-    return (
-        <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-            <KeeperHeader
-                title={settings.networkSettings}
-                subtitle={settings.networkSettingSubTitle}
-            />
-            <Box style={styles.wrapper}>
-                <OptionCard
-                    title={settings.torSettingTitle}
-                    description={settings.torSettingSubTitle}
-                    callback={() => navigation.navigate('TorSettings')}
-                />
-                <OptionCard
-                    title={settings.nodeSettings}
-                    description={settings.nodeSettingsSubtitle}
-                    callback={() => navigation.navigate('NodeSettings')}
-                />
-            </Box>
-        </ScreenWrapper>
-    )
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { settings } = translations;
+  return (
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader title={settings.networkSettings} subtitle={settings.networkSettingSubTitle} />
+      <Box style={styles.wrapper}>
+        <OptionCard
+          title={settings.torSettingTitle}
+          description={settings.torSettingSubTitle}
+          callback={() => navigation.navigate('TorSettings')}
+        />
+        <OptionCard
+          title={settings.nodeSettings}
+          description={settings.nodeSettingsSubtitle}
+          callback={() => navigation.navigate('NodeSettings')}
+        />
+      </Box>
+    </ScreenWrapper>
+  );
 }
 const styles = StyleSheet.create({
-    wrapper: {
-        marginTop: hp(35)
-    }
-})
-export default NetworkSetting
+  wrapper: {
+    marginTop: hp(35),
+  },
+});
+export default NetworkSetting;

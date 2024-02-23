@@ -618,7 +618,7 @@ const getStyles = (clock) =>
       letterSpacing: 0.4,
       marginLeft: wp(5),
       marginTop: hp(3),
-      width: '100%',
+      width: '95%',
       flexWrap: 'wrap',
     },
     progressStepsTextWrapper: {

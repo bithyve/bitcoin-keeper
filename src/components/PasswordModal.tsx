@@ -90,7 +90,7 @@ function PasswordModal(props) {
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       marginTop="20%"
-    //   justifyContent={'flex-end'}
+      //   justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>

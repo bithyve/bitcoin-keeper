@@ -61,59 +61,59 @@ export const getTxForBitBox02 = async (
   try {
     const payload = signingPayload[0];
     const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
-    const {
-      inputs: inputUtxos,
-      outputs: outputUtxos,
-      change: changeAddress,
-      inputsToSign,
-    } = payload;
+    const { change: changeAddress } = payload;
     const keypathAccount = getKeypathFromString(vaultKey.derivationPath);
     const inputs = [];
     let index = 0;
     const { version, locktime } = psbt;
+    const inputUtxos = psbt.data.inputs;
     for (const input of psbt.txInputs) {
-      const { subPath } = inputsToSign[index];
-      const [, c, a] = subPath.split('/');
+      const subPath = psbt.data.inputs[index].bip32Derivation[0].path.split('/');
+      const c = subPath[subPath.length - 2];
+      const a = subPath[subPath.length - 1];
       const reversedHash = reverse(input.hash);
       const txid = reversedHash.toString('hex');
       const prevTxs = await ElectrumClient.getTransactionsById([txid]);
       const tx = prevTxs[txid];
       const { version, locktime, vin, vout } = tx;
       inputs.push({
-        prevOutHash: input.hash,
-        prevOutIndex: inputUtxos[index].vout,
-        prevOutValue: inputUtxos[index].value.toString(),
+        prevOutHash: input.hash.toString('hex'),
+        prevOutIndex: input.index,
+        prevOutValue: inputUtxos[index].witnessUtxo.value.toString(),
         sequence: input.sequence,
         keypath: keypathAccount.concat([Number(c), Number(a)]),
         prevTx: {
           version,
           locktime,
           inputs: vin.map((input) => ({
-            prevOutHash: reverse(Buffer.from(input.txid, 'hex')),
+            prevOutHash: reverse(Buffer.from(input.txid, 'hex')).toString('hex'),
             prevOutIndex: input.vout,
-            signatureScript: Buffer.from(input.scriptSig.hex, 'hex'),
+            signatureScript: input.scriptSig.hex,
             sequence: input.sequence,
           })),
           outputs: vout.map((output) => ({
             value: BtcToSats(output.value).toString(),
-            pubkeyScript: Buffer.from(output.scriptPubKey.hex, 'hex'),
+            pubkeyScript: output.scriptPubKey.hex,
           })),
         },
       });
       index += 1;
     }
-    const outputs = psbt.txOutputs.map((output, index) => {
+    const outputs = psbt.txOutputs.map((output) => {
       const isChangeOutput = output.address === changeAddress;
       return isChangeOutput
         ? {
             ours: true,
-            value: outputUtxos[index].value.toString(),
+            value: output.value.toString(),
             keypath: keypathAccount.concat([1, vault.specs.nextFreeChangeAddressIndex]),
           }
         : {
             ours: false,
-            value: outputUtxos[index].value.toString(),
-            payload: WalletUtilities.getPubkeyHashFromScript(output.address, output.script),
+            value: output.value.toString(),
+            payload: WalletUtilities.getPubkeyHashFromScript(
+              output.address,
+              output.script
+            ).toString('hex'),
           };
     });
     const walletConfig = isMultisig ? getWalletConfigForBitBox02({ vault, signer }) : null;
@@ -140,7 +140,7 @@ export const getSignedSerializedPSBTForBitbox02 = (unsignedPSBT, signatures, sig
       PSBT.addSignedDigest(
         inputIndex,
         Buffer.from(publicKey, 'hex'),
-        Buffer.from(signatures[inputIndex]),
+        Buffer.from(signatures[inputIndex], 'hex'),
         sighashType
       );
     }

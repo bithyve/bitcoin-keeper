@@ -15,10 +15,7 @@ enum Keys {
 export class CryptoAccount extends RegistryItem {
   getRegistryType = () => RegistryTypes.CRYPTO_ACCOUNT;
 
-  constructor(
-    private masterFingerprint: Buffer,
-    private outputDescriptors: CryptoOutput[],
-  ) {
+  constructor(private masterFingerprint: Buffer, private outputDescriptors: CryptoOutput[]) {
     super();
   }
 
@@ -32,9 +29,7 @@ export class CryptoAccount extends RegistryItem {
       map[Keys.masterFingerprint] = this.masterFingerprint.readUInt32BE(0);
     }
     if (this.outputDescriptors) {
-      map[Keys.outputDescriptors] = this.outputDescriptors.map((item) =>
-        item.toDataItem(),
-      );
+      map[Keys.outputDescriptors] = this.outputDescriptors.map((item) => item.toDataItem());
     }
     return new DataItem(map);
   };
@@ -47,9 +42,7 @@ export class CryptoAccount extends RegistryItem {
       masterFingerprint.writeUInt32BE(_masterFingerprint, 0);
     }
     const outputDescriptors = map[Keys.outputDescriptors] as DataItem[];
-    const cryptoOutputs = outputDescriptors.map((item) =>
-      CryptoOutput.fromDataItem(item),
-    );
+    const cryptoOutputs = outputDescriptors.map((item) => CryptoOutput.fromDataItem(item));
     return new CryptoAccount(masterFingerprint, cryptoOutputs);
   };
 
@@ -64,7 +57,7 @@ class CryptoOutput extends RegistryItem {
 
   constructor(
     private scriptExpressions: ScriptExpression[],
-    private cryptoKey: CryptoHDKey | CryptoECKey | MultiKey,
+    private cryptoKey: CryptoHDKey | CryptoECKey | MultiKey
   ) {
     super();
   }
@@ -74,25 +67,22 @@ class CryptoOutput extends RegistryItem {
   public getHDKey = () => {
     if (this.cryptoKey instanceof CryptoHDKey) {
       return this.cryptoKey as CryptoHDKey;
-    } 
-      return undefined;
-    
+    }
+    return undefined;
   };
 
   public getECKey = () => {
     if (this.cryptoKey instanceof CryptoECKey) {
       return this.cryptoKey as CryptoECKey;
-    } 
-      return undefined;
-    
+    }
+    return undefined;
   };
 
   public getMultiKey = () => {
     if (this.cryptoKey instanceof MultiKey) {
       return this.cryptoKey as MultiKey;
-    } 
-      return undefined;
-    
+    }
+    return undefined;
   };
 
   public getScriptExpressions = () => this.scriptExpressions;
@@ -100,19 +90,17 @@ class CryptoOutput extends RegistryItem {
   private _toOutputDescriptor = (seIndex: number): string => {
     if (seIndex >= this.scriptExpressions.length) {
       return this.cryptoKey.getOutputDescriptorContent();
-    } 
-      return `${this.scriptExpressions[seIndex].getExpression()}(${this._toOutputDescriptor(seIndex + 1)})`;
-    
+    }
+    return `${this.scriptExpressions[seIndex].getExpression()}(${this._toOutputDescriptor(
+      seIndex + 1
+    )})`;
   };
 
   public override toString = () => this._toOutputDescriptor(0);
 
   public toDataItem = () => {
     let dataItem = this.cryptoKey.toDataItem();
-    if (
-      this.cryptoKey instanceof CryptoECKey ||
-      this.cryptoKey instanceof CryptoHDKey
-    ) {
+    if (this.cryptoKey instanceof CryptoECKey || this.cryptoKey instanceof CryptoHDKey) {
       dataItem.setTag(this.cryptoKey.getRegistryType().getTag());
     }
 
@@ -133,7 +121,7 @@ class CryptoOutput extends RegistryItem {
   public static fromDataItem = (dataItem: DataItem) => {
     const scriptExpressions: ScriptExpression[] = [];
     let _dataItem = dataItem;
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       let _tag = _dataItem.getTag();
       const se = ScriptExpression.fromTag(_tag as number);
@@ -155,7 +143,7 @@ class CryptoOutput extends RegistryItem {
       (scriptExpressions[seLength - 1].getExpression() ===
         ScriptExpressions.MULTISIG.getExpression() ||
         scriptExpressions[seLength - 1].getExpression() ===
-        ScriptExpressions.SORTED_MULTISIG.getExpression());
+          ScriptExpressions.SORTED_MULTISIG.getExpression());
     // TODO: judge is multi key by scriptExpressions
     if (isMultiKey) {
       const multiKey = MultiKey.fromDataItem(_dataItem);
@@ -165,10 +153,9 @@ class CryptoOutput extends RegistryItem {
     if (_dataItem.getTag() === RegistryTypes.CRYPTO_HDKEY.getTag()) {
       const cryptoHDKey = CryptoHDKey.fromDataItem(_dataItem);
       return new CryptoOutput(scriptExpressions, cryptoHDKey);
-    } 
-      const cryptoECKey = CryptoECKey.fromDataItem(_dataItem);
-      return new CryptoOutput(scriptExpressions, cryptoECKey);
-    
+    }
+    const cryptoECKey = CryptoECKey.fromDataItem(_dataItem);
+    return new CryptoOutput(scriptExpressions, cryptoECKey);
   };
 
   public static fromCBOR = (_cborPayload: Buffer) => {

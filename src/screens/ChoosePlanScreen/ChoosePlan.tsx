@@ -31,9 +31,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan() {
   const route = useRoute();
@@ -365,8 +365,9 @@ function ChoosePlan() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        subtitle={'Upgrade or downgrade'}
-        //To-Do-Learn-More
+        boldTitle
+        subtitle="Upgrade or downgrade"
+        // To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}
@@ -415,30 +416,37 @@ function ChoosePlan() {
             my={5}
           />
 
-          <Box ml={5}>
-            <Box>
-              <Text fontSize={14} color={`${colorMode}.pantoneGreen`} letterSpacing={1.12}>
-                {getBenifitsTitle(items[currentPosition].name)}:
+          <Box>
+            <Box ml={5}>
+              <Box>
+                <Text fontSize={16} color={`${colorMode}.headerText`} letterSpacing={0.16}>
+                  {getBenifitsTitle(items[currentPosition].name)}
+                </Text>
+              </Box>
+              <Box mt={1}>
+                {items?.[currentPosition]?.benifits.map(
+                  (i) =>
+                    i !== '*Coming soon' && (
+                      <Box style={styles.benefitContainer} key={i}>
+                        <Box style={styles.dot} backgroundColor={`${colorMode}.Taupe`} />
+                        <Text
+                          fontSize={13}
+                          color={`${colorMode}.GreyText`}
+                          ml={3}
+                          letterSpacing={0.65}
+                        >
+                          {` ${i}`}
+                        </Text>
+                      </Box>
+                    )
+                )}
+              </Box>
+            </Box>
+            {items?.[currentPosition]?.name !== 'Pleb' && (
+              <Text style={styles.comingSoonText} color={`${colorMode}.GreenishGrey`}>
+                * COMING SOON
               </Text>
-            </Box>
-            <Box mt={1}>
-              {items[currentPosition].benifits.map((i) => (
-                <Box flexDirection="row" alignItems="center" key={i}>
-                  <Text
-                    fontSize={13}
-                    color={`${colorMode}.GreyText`}
-                    mb={2}
-                    ml={3}
-                    letterSpacing={0.65}
-                  >
-                    {`• ${i}`}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
-            <Text fontSize={11} color={`${colorMode}.GreyText`} my={2} ml={2} letterSpacing={0.65}>
-              {getPlanNote(items[currentPosition])}
-            </Text>
+            )}
           </Box>
         </ScrollView>
       )}
@@ -462,7 +470,7 @@ function ChoosePlan() {
             backgroundColor={`${colorMode}.RussetBrown`}
             style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color={colorMode === 'light' ? 'light.white' : '#24312E'}>
+            <Text fontSize={12} bold color={colorMode === 'light' ? 'light.white' : '#24312E'}>
               {choosePlan.restorePurchases}
             </Text>
           </Box>
@@ -487,6 +495,21 @@ const styles = StyleSheet.create({
     borderWidth: 0.7,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  comingSoonText: {
+    fontSize: 10,
+    marginLeft: 10,
+  },
+  benefitContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 5 / 2,
+    alignSelf: 'center',
   },
 });
 export default ChoosePlan;

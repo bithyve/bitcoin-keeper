@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -15,7 +14,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { SignerType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -35,11 +34,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 function Footer({
   vault,
@@ -91,7 +90,7 @@ function Footer({
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
   const {
-    specs: { balances: { confirmed } } = {
+    specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = vault;
@@ -109,7 +108,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
       </HStack>
       <CurrencyInfo
         hideAmounts={false}
-        amount={confirmed}
+        amount={confirmed + unconfirmed}
         fontSize={24}
         color={`${colorMode}.white`}
         variation={colorMode === 'light' ? 'light' : 'dark'}
@@ -144,7 +143,7 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (isCollaborativeWallet ? 0.03 : 0.1) }}>
+      <VStack style={{ paddingTop: windowHeight * 0.1 }}>
         <Text
           color={`${colorMode}.black`}
           style={styles.transactionHeading}
@@ -170,7 +169,7 @@ function TransactionList({
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultDetails'>;
 
-const VaultDetails = ({ navigation, route }: ScreenProps) => {
+function VaultDetails({ navigation, route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
@@ -283,18 +282,14 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
             title={vault.presentationData?.name}
             titleColor={`${colorMode}.seashellWhite`}
             subTitleColor={`${colorMode}.seashellWhite`}
-            //TODO: Add collaborativeWalletIcon
+            // TODO: Add collaborativeWalletIcon
             icon={
-              !!isCollaborativeWallet ? (
-                <CollaborativeIcon />
-              ) : (
-                <HexagonIcon
-                  width={58}
-                  height={50}
-                  backgroundColor={Colors.deepTeal}
-                  icon={<VaultIcon />}
-                />
-              )
+              <HexagonIcon
+                width={58}
+                height={50}
+                backgroundColor={Colors.deepTeal}
+                icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
+              />
             }
             subtitle={vault.presentationData?.description}
             learnMore
@@ -320,7 +315,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
           icon={<CoinIcon />}
         />
         <ActionCard
-          cardName="Manage Signers"
+          cardName="Manage Keys"
           description="For this vault"
           callback={() =>
             navigation.dispatch(
@@ -352,7 +347,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         visible={vaultCreated}
         title={vaultTranslation.newVaultCreated}
         subTitle={subtitle}
-        buttonText={'Confirm'}
+        buttonText="Confirm"
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
@@ -360,7 +355,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
         buttonCallback={() => {
           setVaultCreated(false);
         }}
-        secondaryButtonText={'Cancel'}
+        secondaryButtonText="Cancel"
         secondaryCallback={() => setVaultCreated(false)}
         close={() => setVaultCreated(false)}
         Content={NewVaultContent}
@@ -401,7 +396,7 @@ const VaultDetails = ({ navigation, route }: ScreenProps) => {
       />
     </Box>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

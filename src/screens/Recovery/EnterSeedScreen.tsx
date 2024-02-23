@@ -42,8 +42,8 @@ import Fonts from 'src/constants/Fonts';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -194,12 +194,12 @@ function EnterSeedScreen({ route }) {
 
     const handleSuccess = () => {
       dispatch(healthCheckSigner([signer]));
-      showToast(`Seed Key health check successfull`, <TickIcon />);
+      showToast('Seed Key health check successfull', <TickIcon />);
       navigation.dispatch(CommonActions.goBack());
     };
 
     const handleFailure = () => {
-      showToast(`Health check failed`);
+      showToast('Health check failed');
     };
 
     try {
@@ -307,8 +307,8 @@ function EnterSeedScreen({ route }) {
         <Box marginX={10} mt={25}>
           {isHealthCheck ? (
             <SeedWordsView
-              title={'Seed key health check'}
-              subtitle={'Enter the seed key'}
+              title="Seed key health check"
+              subtitle="Enter the seed key"
               onPressHandler={() => navigation.goBack()}
             />
           ) : (
@@ -408,7 +408,7 @@ function EnterSeedScreen({ route }) {
               ]}
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
-              testID={'view_suggestionView'}
+              testID="view_suggestionView"
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
@@ -434,7 +434,7 @@ function EnterSeedScreen({ route }) {
           ) : null}
         </View>
         <View style={styles.bottomContainerView}>
-          <Text style={styles.seedDescText} color="light.GreyText" testID={'text_enterSeedNote'}>
+          <Text style={styles.seedDescText} color="light.GreyText" testID="text_enterSeedNote">
             {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>

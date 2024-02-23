@@ -80,7 +80,7 @@ function ImportWalletScreen() {
     }
   };
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView

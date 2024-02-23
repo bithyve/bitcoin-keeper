@@ -1,10 +1,10 @@
-import React from "react";
-import { Platform, StyleSheet } from "react-native";
-import { Text } from "native-base";
-import { getManufacturerSync } from "react-native-device-info";
+import React from 'react';
+import { Platform, StyleSheet } from 'react-native';
+import { Text } from 'native-base';
+import { getManufacturerSync } from 'react-native-device-info';
 
 export function enableAndroidFontFix() {
-  if (Platform.OS !== "android") {
+  if (Platform.OS !== 'android') {
     return;
   }
 
@@ -12,10 +12,10 @@ export function enableAndroidFontFix() {
 
   let styles;
 
-  if (manufacturer === "OnePlus") {
+  if (manufacturer === 'OnePlus') {
     styles = StyleSheet.create({
       androidFontFixFontFamily: {
-        fontFamily: "Roboto",
+        fontFamily: 'Roboto',
       },
     });
   }

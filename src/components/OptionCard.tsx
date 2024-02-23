@@ -43,7 +43,7 @@ export function OptionCard({
           {LeftIcon && LeftIcon}
           <VStack>
             <Text
-              color={titleColor ? titleColor : `${colorMode}.primaryText`}
+              color={titleColor || `${colorMode}.primaryText`}
               testID={`text_${title.replace(/ /g, '_')}`}
               style={{ fontSize: 14, letterSpacing: 1.04 }}
             >
@@ -51,7 +51,7 @@ export function OptionCard({
             </Text>
             {description && (
               <Text
-                color={descriptionColor ? descriptionColor : `${colorMode}.GreyText`}
+                color={descriptionColor || `${colorMode}.GreyText`}
                 style={{ fontSize: 12, letterSpacing: 0.36 }}
               >
                 {description}
@@ -59,9 +59,7 @@ export function OptionCard({
             )}
           </VStack>
         </HStack>
-        {CardPill ? (
-          CardPill
-        ) : (
+        {CardPill || (
           <Box justifyContent="center" alignItems="flex-end">
             {Icon || <RightArrowIcon />}
           </Box>

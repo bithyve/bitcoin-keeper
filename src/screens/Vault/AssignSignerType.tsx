@@ -7,17 +7,17 @@ import { SignerType } from 'src/core/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import useSigners from 'src/hooks/useSigners';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 type IProps = {
   navigation: any;
