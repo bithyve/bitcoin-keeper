@@ -25,7 +25,7 @@ import AdvnaceOptions from 'src/assets/images/settings.svg';
 import KeeperFooter from '../KeeperFooter';
 import HealthCheckComponent from './HealthCheckComponent';
 
-function BackupHealthCheckList() {
+function BackupHealthCheckList({ isUaiFlow }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -39,7 +39,7 @@ function BackupHealthCheckList() {
   )[0];
   const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
-  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
+  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(isUaiFlow);
   const history = useMemo(() => data.sorted('date', true), [data]);
 
   const onPressConfirm = () => {
