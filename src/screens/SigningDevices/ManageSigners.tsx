@@ -70,7 +70,7 @@ function ManageSigners({ route }: ScreenProps) {
     <Box backgroundColor={`${colorMode}.RussetBrown`} style={[styles.wrapper, { paddingTop: top }]}>
       <Box style={styles.topSection}>
         <KeeperHeader
-          title="Manage Signers"
+          title="Manage Keys"
           subtitle="View and change key details"
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.PearlGrey`}
@@ -155,7 +155,7 @@ function SignersList({
             />
           );
         })}
-        <AddCard name="Add Signer" cardStyles={styles.addCard} callback={handleAddSigner} />
+        <AddCard name="Add Key" cardStyles={styles.addCard} callback={handleAddSigner} />
       </Box>
     </ScrollView>
   );
