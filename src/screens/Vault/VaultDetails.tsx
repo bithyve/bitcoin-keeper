@@ -144,13 +144,15 @@ function TransactionList({
   return (
     <>
       <VStack style={{ paddingTop: windowHeight * 0.1 }}>
-        <Text
-          color={`${colorMode}.black`}
-          style={styles.transactionHeading}
-          testID="text_Transaction"
-        >
-          {common.transactions}
-        </Text>
+        {transactions?.length ? (
+          <Text
+            color={`${colorMode}.black`}
+            style={styles.transactionHeading}
+            testID="text_Transaction"
+          >
+            {common.transactions}
+          </Text>
+        ) : null}
       </VStack>
       <FlatList
         testID="view_TransactionList"
