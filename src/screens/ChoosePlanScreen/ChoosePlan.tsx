@@ -419,23 +419,23 @@ function ChoosePlan() {
           <Box>
             <Box ml={5}>
               <Box>
-                <Text fontSize={14} color={`${colorMode}.pantoneGreen`} letterSpacing={1.12}>
-                  {getBenifitsTitle(items[currentPosition].name)}:
+                <Text fontSize={16} color={`${colorMode}.headerText`} letterSpacing={0.16}>
+                  {getBenifitsTitle(items[currentPosition].name)}
                 </Text>
               </Box>
               <Box mt={1}>
                 {items?.[currentPosition]?.benifits.map(
                   (i) =>
                     i !== '*Coming soon' && (
-                      <Box flexDirection="row" alignItems="center" key={i}>
+                      <Box style={styles.benefitContainer} key={i}>
+                        <Box style={styles.dot} backgroundColor={`${colorMode}.Taupe`} />
                         <Text
                           fontSize={13}
                           color={`${colorMode}.GreyText`}
-                          mb={2}
                           ml={3}
                           letterSpacing={0.65}
                         >
-                          {`• ${i}`}
+                          {` ${i}`}
                         </Text>
                       </Box>
                     )
@@ -499,6 +499,17 @@ const styles = StyleSheet.create({
   comingSoonText: {
     fontSize: 10,
     marginLeft: 10,
+  },
+  benefitContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 5 / 2,
+    alignSelf: 'center',
   },
 });
 export default ChoosePlan;

@@ -131,20 +131,13 @@ const isSignerValidForScheme = (signer: Signer, scheme, allVaults: Vault[], sign
     return false;
   }
 
+  // Assisted Keys restriction: The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
   if (signer.type === SignerType.POLICY_SERVER) {
-    if (scheme.m < 2 || scheme.n < 3) return false; // signing server key can be added for Vaults w/ m: 2 and n:3
+    // signing server key can be added starting from Vaults w/ m: 2 and n:3
+    if (scheme.m < 2 || scheme.n < 3) return false;
   } else if (signer.type === SignerType.INHERITANCEKEY) {
-    // inheritance key can be added for Vaults w/ at least 5 keys
+    // inheritance key can be added starting from Vaults w/ m: 3 and n:5(and even w/ a SS already present, the number of assisted keys < m)
     if (scheme.m < 3 || scheme.n < 5) return false;
-
-    // TEMP: Disabling multiple IKS
-    let IKSExists = false;
-    for (const vault of allVaults) {
-      vault.signers.forEach((key) => {
-        if (signerMap[key.masterFingerprint]?.type === SignerType.INHERITANCEKEY) IKSExists = true;
-      });
-    }
-    if (IKSExists) return false;
   }
 
   return true;
@@ -327,7 +320,7 @@ function Signers({
             {signers.length ? 'or' : ''} add a new key
           </Text>
           <AddCard
-            name="Add Signer"
+            name="Add a key"
             cardStyles={styles.addCard}
             callback={() =>
               navigation.dispatch(

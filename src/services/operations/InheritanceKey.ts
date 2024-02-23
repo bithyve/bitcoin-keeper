@@ -25,6 +25,7 @@ export default class InheritanceKeyServer {
     });
 
     if (validDescriptors.length < existingConfiguration.m)
+      // threshold should be achievable w/o the assisted keys(otherwise the user funds would get locked as backend goes down)
       throw new Error('Insufficient threshold descriptors');
 
     const thresholdDescriptors = validDescriptors.slice(0, existingConfiguration.m);
@@ -41,6 +42,7 @@ export default class InheritanceKeyServer {
     const bsms = null; // disabled BSMS backup
 
     return {
+      id: vault.id,
       m: vault.scheme.m,
       n: vault.scheme.n,
       descriptors,
@@ -57,6 +59,7 @@ export default class InheritanceKeyServer {
       : null;
 
     return {
+      id: inheritanceConfiguration.id,
       m: inheritanceConfiguration.m,
       n: inheritanceConfiguration.n,
       descriptors: hashedDescriptor,
@@ -278,7 +281,8 @@ export default class InheritanceKeyServer {
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
-      configuration: InheritanceConfiguration;
+      configurations: InheritanceConfiguration[];
+      policy: InheritancePolicy;
     };
   }> => {
     let res: AxiosResponse;
@@ -355,11 +359,6 @@ export default class InheritanceKeyServer {
   ): Promise<{
     setupInfo: {
       id: string;
-      inheritanceXpub: string;
-      masterFingerprint: string;
-      derivationPath: string;
-      configuration: InheritanceConfiguration;
-      policy: InheritancePolicy;
     };
   }> => {
     let res: AxiosResponse;
@@ -367,7 +366,7 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v3/findIKSSetup`, {
         HEXA_ID,
         ids,
-        thresholdDescriptors, // don't need to construct using InheritanceKeyServer.getThresholdDescriptors, as there's nothing to omit(IKS is being requested, its descriptor isn't known)
+        thresholdDescriptors, // don't need to construct using InheritanceKeyServer.getThresholdDescriptors, as we don't know which id to omit(of all the ids) during findIKSSetup
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);

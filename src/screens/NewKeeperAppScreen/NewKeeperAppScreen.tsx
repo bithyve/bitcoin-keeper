@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import AppIcon from 'src/assets/images/app.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import Recover from 'src/assets/images/recover.svg';
+import Recover from 'src/assets/images/recover_app.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
@@ -207,7 +207,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <Box>
               <Text fontSize={13}>Recover an existing app</Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
-                Enter 12-word Recovery Phrase
+                Enter 12-word Recovery Key
               </Text>
             </Box>
           </Pressable>
@@ -218,9 +218,15 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Text>
           <Text>
             By proceeding you agree to our
-            <Text color={`${colorMode}.headerText`}> Terms of Service </Text>
-            and our
-            <Text color={`${colorMode}.headerText`}> Privacy Policy</Text>
+            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
+              {' '}
+              Terms of Service{' '}
+            </Text>
+            {`and\nour`}
+            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
+              {' '}
+              Privacy Policy
+            </Text>
           </Text>
         </Box>
       </Box>
@@ -312,7 +318,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   learnMoreContainer: {
-    marginTop: hp(30),
+    marginTop: hp(10),
     alignSelf: 'flex-end',
     borderRadius: 5,
     borderWidth: 0.5,
@@ -333,6 +339,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
     marginLeft: 10,
+  },
+  boldText: {
+    fontWeight: '800',
   },
 });
 

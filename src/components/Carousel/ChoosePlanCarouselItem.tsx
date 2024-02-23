@@ -114,14 +114,14 @@ function ChoosePlanCarouselItem({
           {item.productIds.includes(subscription.productId.toLowerCase()) ? (
             <Box
               alignSelf="flex-start"
-              backgroundColor={colorMode === 'light' ? 'light.white' : '#E3BE96'}
+              backgroundColor={`${colorMode}.primaryBackground`}
               borderRadius={10}
               mx={2}
               py={0.5}
               px={2}
             >
               <Text fontSize={8} letterSpacing={0.64} bold color={`${colorMode}.pantoneGreen`}>
-                Current
+                CURRENT
               </Text>
             </Box>
           ) : (

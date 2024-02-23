@@ -27,7 +27,11 @@ import { hp, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
+import {
+  InheritanceAlert,
+  InheritanceConfiguration,
+  InheritancePolicy,
+} from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
@@ -115,10 +119,23 @@ function SignerAdvanceSettings({ route }: any) {
         },
       };
 
+      let configurationForVault: InheritanceConfiguration = null;
+      for (const config of signer.inheritanceKeyInfo.configurations) {
+        if (config.id === vaultId) {
+          configurationForVault = config;
+          break;
+        }
+      }
+
+      if (!configurationForVault) {
+        showToast(`Something went wrong, IKS configuration missing for vault: ${vaultId}`);
+        return;
+      }
+
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         vaultKey.xfp,
         updatedPolicy,
-        signer.inheritanceKeyInfo.configuration
+        configurationForVault
       );
 
       if (updated) {

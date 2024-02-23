@@ -30,7 +30,7 @@ function UAIView({
         disabled={!secondaryCallbackText}
       >
         <Text style={styles.skipText} color={`${colorMode}.learnMoreBorder`}>
-          {secondaryCallbackText}
+          {secondaryCallbackText.toUpperCase()}
         </Text>
       </TouchableOpacity>
       {primaryCallbackText && primaryCallback && (
@@ -41,7 +41,7 @@ function UAIView({
         >
           <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.greenText`}>
             <Text style={styles.addNowCTAText} color={`${colorMode}.white`}>
-              {primaryCallbackText}
+              {primaryCallbackText.toUpperCase()}
             </Text>
           </Box>
         </TouchableOpacity>
