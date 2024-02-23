@@ -460,20 +460,19 @@ function ChoosePlan() {
           />
         </Box>
         <Pressable
-          width="35%"
           activeOpacity={0.6}
           onPress={restorePurchases}
           testID="btn_restorePurchases"
+          borderColor={`${colorMode}.learnMoreBorder`}
+          backgroundColor={`${colorMode}.RussetBrown`}
+          style={styles.restorePurchaseWrapper}
         >
-          <Box
-            borderColor={`${colorMode}.learnMoreBorder`}
-            backgroundColor={`${colorMode}.RussetBrown`}
-            style={styles.restorePurchaseWrapper}
+          <Text
+            style={styles.restorePurchase}
+            color={colorMode === 'light' ? 'light.white' : '#24312E'}
           >
-            <Text fontSize={12} bold color={colorMode === 'light' ? 'light.white' : '#24312E'}>
-              {choosePlan.restorePurchases}
-            </Text>
-          </Box>
+            {choosePlan.restorePurchases}
+          </Text>
         </Pressable>
       </Box>
     </ScreenWrapper>
@@ -485,12 +484,12 @@ const styles = StyleSheet.create({
     margin: 1,
     alignItems: 'flex-end',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     width: '100%',
   },
   restorePurchaseWrapper: {
-    padding: 1,
-    marginBottom: 10,
+    padding: 3,
+    marginBottom: 5,
     borderRadius: 5,
     borderWidth: 0.7,
     alignItems: 'center',
@@ -510,6 +509,10 @@ const styles = StyleSheet.create({
     height: 5,
     borderRadius: 5 / 2,
     alignSelf: 'center',
+  },
+  restorePurchase: {
+    fontSize: 12,
+    fontWeight: '700',
   },
 });
 export default ChoosePlan;
