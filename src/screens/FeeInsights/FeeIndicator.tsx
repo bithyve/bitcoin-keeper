@@ -2,22 +2,20 @@ import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import { SegmentedArc } from '@shipt/segmented-arc-for-react-native';
 import Fonts from 'src/constants/Fonts';
-import Colors from 'src/theme/Colors';
-
+import { useColorMode } from 'native-base';
+import customTheme from 'src/navigation/themes';
 interface Props {
   dataSet: any[];
 }
 
 const FeeIndicator = (props: Props) => {
   const range = ['10', '20', '30', '40', '50'];
-  const {dataSet} = props;
-
-
-
+  const { dataSet } = props;
+  const { colorMode } = useColorMode();
 
   function getFeeIndicatorPositionOnScale(dataset) {
     // Extract the avgFee_75 values from the dataset
-    const fees = dataset.map(item => item.avgFee_75);
+    const fees = dataset.map((item) => item.avgFee_75);
 
     // Calculate min and max values
     const minFee = Math.min(...fees);
@@ -34,49 +32,44 @@ const FeeIndicator = (props: Props) => {
 
     // Determine the position on the scale based on the normalized fee
     if (normalizedFee <= rangePerSection) {
-        return { position: normalizedFee, section: 'Very Low' };
+      return { position: normalizedFee, section: 'Very Low' };
     } else if (normalizedFee <= rangePerSection * 2) {
-        return { position: normalizedFee, section: 'Low' };
+      return { position: normalizedFee, section: 'Low' };
     } else if (normalizedFee <= rangePerSection * 3) {
-        return { position: normalizedFee, section: 'Medium' };
+      return { position: normalizedFee, section: 'Medium' };
     } else if (normalizedFee <= rangePerSection * 4) {
-        return { position: normalizedFee, section: 'High' };
+      return { position: normalizedFee, section: 'High' };
     } else {
-        return { position: normalizedFee, section: 'Very High' };
+      return { position: normalizedFee, section: 'Very High' };
     }
-}
-
-
-
+  }
 
   const segments = [
     {
       scale: 0.25,
-      filledColor: '#6E73FF',
-      emptyColor: '#6E73FF',
-      data: { label: 'Red' },
+      filledColor: customTheme.colors[colorMode].forestGreen,
+      emptyColor: customTheme.colors[colorMode].forestGreen,
+      data: { label: 'Blue' },
     },
     {
       scale: 0.25,
-      filledColor: '#F5E478',
-      emptyColor: '#F5E478',
+      filledColor: customTheme.colors[colorMode].amber,
+      emptyColor: customTheme.colors[colorMode].amber,
       data: { label: 'Yellow' },
     },
     {
       scale: 0.25,
-      filledColor: '#F5E478',
-      emptyColor: '#F5E478',
+      filledColor: customTheme.colors[colorMode].amber,
+      emptyColor: customTheme.colors[colorMode].amber,
       data: { label: 'Yellow' },
     },
     {
       scale: 0.25,
-      filledColor: '#FF746E',
-      emptyColor: '#FF746E',
+      filledColor: customTheme.colors[colorMode].errorRed,
+      emptyColor: customTheme.colors[colorMode].errorRed,
       data: { label: 'Red' },
     },
   ];
-
-
 
   return (
     <View style={styles.container}>
@@ -88,10 +81,10 @@ const FeeIndicator = (props: Props) => {
         showArcRanges={false}
         ranges={range}
         radius={40}
-        rangesTextColor = "gray"
-        rangesTextStyle = {styles.rangeTextStyle}
-        capInnerColor = {Colors.RichGreen}
-        capOuterColor = {Colors.White}
+        rangesTextColor="gray"
+        rangesTextStyle={styles.rangeTextStyle}
+        capInnerColor={customTheme.colors[colorMode].primaryGreen}
+        capOuterColor={customTheme.colors[colorMode].OffWhite}
       />
     </View>
   );
@@ -105,8 +98,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -10,
   },
-  rangeTextStyle:{
-    fontSize:12,
+  rangeTextStyle: {
+    fontSize: 12,
     fontFamily: Fonts.FiraSansCondensedBold,
-  }
+  },
 });

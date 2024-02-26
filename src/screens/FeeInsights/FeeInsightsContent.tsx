@@ -110,7 +110,7 @@ const FeeInsightsContent = (props: Props) => {
           <View style={styles.loaderContainer}><ActivityIndicator size="small" /></View>
         ) : (
           <>
-            <Text style={styles.statementWrapper} color={`${colorMode}.SlateGrey`}>
+            <Text style={styles.statementWrapper}>
               {feeStatement}
               {'\n'}
               {'\n'}

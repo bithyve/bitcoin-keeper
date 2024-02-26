@@ -1,8 +1,9 @@
+import { useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { LinearGradient, Stop } from 'react-native-svg';
-import Colors from 'src/theme/Colors';
+import customTheme from 'src/navigation/themes';
 
 interface Props {
   dataSet: any[];
@@ -10,6 +11,7 @@ interface Props {
 
 const FeeGraph = (props: Props) => {
   const [graphData, setGraphData] = useState([]);
+  const {colorMode} = useColorMode();
   const {dataSet} =props;
   useEffect(() => {
     generateSmoothedDatasetForGraph(dataSet);
@@ -57,17 +59,17 @@ const FeeGraph = (props: Props) => {
         spacing={25}
         thickness={5}
         hideOrigin
-        yAxisColor={Colors.Seashell}
-        xAxisColor="white"
+        yAxisColor={ customTheme.colors[colorMode].lightSeashell}
+        xAxisColor={ customTheme.colors[colorMode].lightSeashell}
         yAxisLabelWidth={18}
-        color="skyblue"
-        yAxisTextStyle={{ color: Colors.RichBlack, fontSize: 10, }}
+        color={ customTheme.colors[colorMode].fadedblue}
+        yAxisTextStyle={{ color:  customTheme.colors[colorMode].primaryText, fontSize: 10, }}
         areaGradientId="ag"
         areaGradientComponent={() => {
           return (
             <LinearGradient id="ag" x1="1" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor={'skyblue'} />
-              <Stop offset="1" stopColor={'white'} />
+              <Stop offset="0" stopColor={customTheme.colors[colorMode].fadedblue} />
+              <Stop offset="1" stopColor={customTheme.colors[colorMode].seashellWhite} />
             </LinearGradient>
           );
         }}
