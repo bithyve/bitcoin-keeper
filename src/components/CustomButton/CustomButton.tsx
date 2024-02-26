@@ -25,7 +25,7 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
         onPress();
       }}
     >
-      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.primaryBackground`}>
+      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.modalWhiteButton`}>
         <Text color="light.greenText" fontSize={12} bold>
           {value}
         </Text>

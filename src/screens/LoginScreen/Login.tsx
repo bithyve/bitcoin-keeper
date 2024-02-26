@@ -460,13 +460,13 @@ function LoginScreen({ navigation, route }) {
           <Box style={styles.btnWrapper}>
             {passcode.length === 4 && (
               <Box>
-                <Buttons
-                  primaryCallback={() => {
+                <CustomButton
+                  onPress={() => {
                     setLoginError(false);
                     setLogging(true);
                   }}
-                  primaryLoading={loggingIn}
-                  primaryText={common.proceed}
+                  loading={loggingIn}
+                  value={common.proceed}
                 />
               </Box>
             )}
