@@ -196,3 +196,16 @@ export interface NodeDetail {
   useSSL: boolean;
   isDefault?: boolean;
 }
+
+
+export interface HistoricalInisightData {
+  avgHeight: number;
+  timestamp: number;
+  avgFee_0: number;
+  avgFee_10: number;
+  avgFee_25: number;
+  avgFee_50: number;
+  avgFee_75: number;
+  avgFee_90: number;
+  avgFee_100: number;
+}
