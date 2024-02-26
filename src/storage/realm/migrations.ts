@@ -1,9 +1,10 @@
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from './enum';
-import { getJSONFromRealmObject } from './utils';
 import { SignerType } from 'src/core/wallets/enums';
 import { InheritanceKeyInfo } from 'src/services/interfaces';
 import { UAI } from 'src/models/interfaces/Uai';
+import { getSignerNameFromType } from 'src/hardware';
+import { getJSONFromRealmObject } from './utils';
+import { RealmSchema } from './enum';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -56,7 +57,7 @@ export const runRealmMigrations = ({
           const signerObject: Signer = {
             masterFingerprint: signer.masterFingerprint,
             type: signer.type,
-            signerName: signer.signerName,
+            signerName: getSignerNameFromType(signer.type),
             signerDescription: signer.signerDescription,
             lastHealthCheck: signer.lastHealthCheck,
             addedOn: signer.addedOn,
@@ -116,7 +117,7 @@ export const runRealmMigrations = ({
     }
   } // end of IKS migration
 
-  //uai migrations
+  // uai migrations
   if (oldRealm.schemaVersion < 67) {
     const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
     const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
