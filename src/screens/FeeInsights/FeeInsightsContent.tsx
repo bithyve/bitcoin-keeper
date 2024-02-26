@@ -1,9 +1,8 @@
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { windowWidth } from 'src/constants/responsive';
-import Colors from 'src/theme/Colors';
-import Fonts from 'src/constants/Fonts';
 import FeeGraph from './FeeGraph';
+import Text from 'src/components/KeeperText';
 import FeeDataStats from './FeeDataStats';
 import Relay from 'src/services/operations/Relay';
 import { useColorMode } from 'native-base';
@@ -26,6 +25,7 @@ const FeeInsightsContent = (props: Props) => {
   useEffect(() => {
     if (oneWeekFeeRate.length > 0) {
       generateFeeStatement(oneWeekFeeRate);
+      calculateAverageBlockTime(props.oneDayFeeRate)
     }
   }, [oneWeekFeeRate]);
 
@@ -39,28 +39,39 @@ const FeeInsightsContent = (props: Props) => {
   };
 
   function generateFeeStatement(data) {
-    // Define one day and one week in seconds
-    const oneDay = 24 * 60 * 60;
-    const oneWeek = 7 * oneDay;
+   // Define one day and one week in seconds
+   const oneDay = 24 * 60 * 60;
+   const oneWeek = 7 * oneDay;
 
-    // Get the current timestamp to compare
-    const now = Math.floor(Date.now() / 1000);
+   // Get the current timestamp to compare
+   const now = Math.floor(Date.now() / 1000);
 
-    // Find the most recent record for 'current'
-    const currentFee = data[data.length - 1].avgFee_75;
+   // Find the most recent record for 'current'
+   const currentFee = data[data.length - 1].avgFee_75;
 
-    // Find the record from one day ago for 'yesterday'
-    const yesterdayRecord = data.find((record) => now - record.timestamp >= oneDay);
-    const yesterdayFee = yesterdayRecord ? yesterdayRecord.avgFee_75 : currentFee; // Fallback to current if not found
+   // Find the record from one day ago for 'yesterday'
+   const yesterdayRecord = data.find(record => now - record.timestamp >= oneDay);
+   const yesterdayFee = yesterdayRecord ? yesterdayRecord.avgFee_75 : currentFee; // Fallback to current if not found
 
-    // Find the record from one week ago for 'a week before'
-    const lastWeekRecord = data.find((record) => now - record.timestamp >= oneWeek);
-    const lastWeekFee = lastWeekRecord ? lastWeekRecord.avgFee_75 : currentFee; // Fallback to current if not found
+   // Find the record from one week ago for 'a week before'
+   const lastWeekRecord = data.find(record => now - record.timestamp >= oneWeek);
+   const lastWeekFee = lastWeekRecord ? lastWeekRecord.avgFee_75 : currentFee; // Fallback to current if not found
 
+   // Determine the trend for yesterday
+   const trendYesterday = currentFee > yesterdayFee ? 'up' : (currentFee < yesterdayFee ? 'down' : 'unchanged');
+   const yesterdayStatement = trendYesterday !== 'unchanged' ?
+     `, ${trendYesterday} from ${yesterdayFee} sats/vByte yesterday` : '';
+
+   // Determine the trend for last week
+   const trendLastWeek = currentFee > lastWeekFee ? 'up' : (currentFee < lastWeekFee ? 'down' : 'unchanged');
+   const lastWeekStatement = trendLastWeek !== 'unchanged' ?
+     ` and ${trendLastWeek} from ${lastWeekFee} sats/vByte a week before` : '';
+
+   // Generate the statement
+   const feeStatement = `Bitcoin average transaction fees are currently at ${currentFee} sats/vByte${yesterdayStatement}${lastWeekStatement}.`;
+   
     // Generate the statement
-    setFeeStatement(
-      `Bitcoin average transaction fees are currently at ${currentFee} sats/vByte, down from ${yesterdayFee} sats/vByte yesterday and ${lastWeekFee} sats/vByte a week before.`
-    );
+    setFeeStatement(feeStatement);
   }
 
   function calculateAverageBlockTime(data) {
@@ -68,8 +79,6 @@ const FeeInsightsContent = (props: Props) => {
       return;
     }
 
-    // Sort the data by timestamp just in case it's not sorted
-    data.sort((a, b) => a.timestamp - b.timestamp);
 
     // Calculate the time differences between each block in minutes
     let timeDifferences = [];
@@ -81,7 +90,6 @@ const FeeInsightsContent = (props: Props) => {
     // Calculate the average time difference
     const total = timeDifferences.reduce((sum, time) => sum + time, 0);
     const averageBlockTime = total / timeDifferences.length;
-
     // Set the statement
     setBlockStatement(
       `In the last 24 hours, the blocks are being mined at an average of ${averageBlockTime.toFixed(
@@ -96,13 +104,13 @@ const FeeInsightsContent = (props: Props) => {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{minHeight:400}}>
         <View style={[styles.headerWrapper,{backgroundColor:`${colorMode}.seashellWhite`}]}>
-          <Text style={styles.titleLabel}>Fees Insight</Text>
+          <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>Fee Insights</Text>
         </View>
         {isLoading ? (
           <View style={styles.loaderContainer}><ActivityIndicator size="small" /></View>
         ) : (
           <>
-            <Text style={styles.statementWrapper}>
+            <Text style={styles.statementWrapper} color={`${colorMode}.SlateGrey`}>
               {feeStatement}
               {'\n'}
               {'\n'}
@@ -130,14 +138,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleLabel: {
-    color: Colors.DeepSpaceSparkle,
-    fontSize: 18,
-    fontFamily: Fonts.FiraSansCondensedRegular,
+    fontSize: 19,
+    letterSpacing: 1,
   },
   statementWrapper: {
-    color: Colors.DeepSpaceSparkle,
-    fontSize: 14,
-    fontFamily: Fonts.FiraSansCondensedRegular,
+    fontSize: 13,
+    letterSpacing: 1,
+    marginTop:10
   },
   loaderContainer:{
     flex:1,

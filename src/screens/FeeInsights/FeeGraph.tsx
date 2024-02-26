@@ -56,9 +56,10 @@ const FeeGraph = (props: Props) => {
         data={graphData}
         spacing={25}
         thickness={5}
+        hideOrigin
         yAxisColor={Colors.Seashell}
         xAxisColor="white"
-        yAxisLabelWidth={14}
+        yAxisLabelWidth={18}
         color="skyblue"
         yAxisTextStyle={{ color: Colors.RichBlack, fontSize: 10, }}
         areaGradientId="ag"
