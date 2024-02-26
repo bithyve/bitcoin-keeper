@@ -73,7 +73,7 @@ function ManageSigners({ route }: ScreenProps) {
           title="Manage Keys"
           subtitle="View and change key details"
           titleColor={`${colorMode}.seashellWhite`}
-          subTitleColor={`${colorMode}.PearlGrey`}
+          subTitleColor={`${colorMode}.seashellWhite`}
           icon={
             <CircleIconWrapper
               backgroundColor={`${colorMode}.seashellWhite`}
