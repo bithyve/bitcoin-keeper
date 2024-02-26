@@ -1,0 +1,14 @@
+diff --git a/node_modules/@shipt/segmented-arc-for-react-native/src/SegmentedArc.js b/node_modules/@shipt/segmented-arc-for-react-native/src/SegmentedArc.js
+index 2006544..9413b2b 100644
+--- a/node_modules/@shipt/segmented-arc-for-react-native/src/SegmentedArc.js
++++ b/node_modules/@shipt/segmented-arc-for-react-native/src/SegmentedArc.js
+@@ -129,7 +129,8 @@ export const SegmentedArc = ({
+ 
+   return (
+     <View style={styles.container} testID="container">
+-      <Svg width={svgWidth} height={svgHeight}>
++      <Svg width={svgWidth} height={svgHeight} viewBox='0 0 130 130'>
++        
+         <SegmentedArcContext.Provider
+           value={{
+             margin,
