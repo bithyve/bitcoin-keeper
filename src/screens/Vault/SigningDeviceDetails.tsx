@@ -41,12 +41,11 @@ import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import useSigners from 'src/hooks/useSigners';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
-import useSigners from 'src/hooks/useSigners';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -342,7 +341,6 @@ function SigningDeviceDetails({ route }) {
             icon={SDIcons(signer.type, true).Icon}
           />
         }
-        rightComponent={<CurrencyTypeSwitch />}
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>
