@@ -312,12 +312,25 @@ const getSignerContent = (
         type: SignerType.SEED_WORDS,
         Illustration: <SeedWordsIllustration />,
         Instructions: [
-          'This mnemonic (12 words) needs to be noted down and kept offline (the private keys are not stored on the app',
-          'Make sure that you’re noting down the words in private as exposing them will compromise the Seed Key',
+          'Make sure you secure the 12-word phrase in a safe place.',
+          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12 word Recovery Key.\nPlease note them down and store safely',
-        options: [],
+        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        options: [
+          {
+            title: 'Import',
+            icon: <Import />,
+            callback: () => {},
+            name: KeyGenerationMode.IMPORT,
+          },
+          {
+            title: 'Create',
+            icon: <RecoverImage />,
+            callback: () => {},
+            name: KeyGenerationMode.CREATE,
+          },
+        ],
       };
     case SignerType.TAPSIGNER:
       return {
@@ -988,6 +1001,9 @@ function HardwareModalMap({
   };
 
   const navigateToSeedWordSetup = () => {
+    {
+      console.log('modemodemodemodemode', mode);
+    }
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -1021,7 +1037,7 @@ function HardwareModalMap({
           name: 'EnterSeedScreen',
           params: {
             mode,
-            isHealthCheck: true,
+            isHealthCheck: false,
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
@@ -1598,7 +1614,7 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText="Proceed"
+        buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
