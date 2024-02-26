@@ -69,7 +69,7 @@ function WalletSettings({ route }) {
         {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
-        <WalletFingerprint fingerprint={wallet.id} />
+        <WalletFingerprint fingerprint={wallet.id} title="Wallet Fingerprint" />
       </Box>
 
       <KeeperModal

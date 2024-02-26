@@ -75,7 +75,7 @@ function VaultSettings({ route }) {
         {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
-        <WalletFingerprint fingerprint={vaultId} />
+        <WalletFingerprint fingerprint={vaultId} title="Vault Fingerprint" />
       </Box>
       <KeeperModal
         visible={vaultDetailVisible}

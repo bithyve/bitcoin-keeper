@@ -69,14 +69,13 @@ function WalletDetailsSettings({ route }) {
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
+          showCloseIcon={false}
+          modalBackground={`${colorMode}.primaryBackground`}
           title={walletTranslation.XPubTitle}
-          subTitleWidth={wp(240)}
-          subTitle={walletTranslation.walletXPubSubTitle}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
-          // eslint-disable-next-line react/no-unstable-nested-components
+          subTitle={walletTranslation.walletXPubSubTitle}
+          subTitleColor={`${colorMode}.SlateGrey`}
+          subTitleWidth={wp(300)}
           Content={() => (
             <ShowXPub
               data={wallet ? WalletUtilities.getExtendedPubKeyFromWallet(wallet) : ''}
@@ -84,7 +83,6 @@ function WalletDetailsSettings({ route }) {
                 setXPubVisible(false);
                 showToast(walletTranslation.xPubCopyToastMsg, <TickIcon />);
               }}
-              copyable
               close={() => setXPubVisible(false)}
               subText={walletTranslation?.AccountXpub}
               noteSubText={walletTranslation?.AccountXpubNote}
