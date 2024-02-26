@@ -109,7 +109,6 @@ function KeeperModal(props: ModalProps) {
       closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
-      avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={justifyContent}
