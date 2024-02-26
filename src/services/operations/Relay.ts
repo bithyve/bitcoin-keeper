@@ -10,8 +10,8 @@ import { captureError } from '../sentry';
 
 const { HEXA_ID, RELAY } = config;
 const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
-const MEMPOOL_ENDPOINT = 'https://mempool.space/';
-const BLOCKCHAIR_ENDPOINT = 'https://api.blockchair.com/';
+const MEMPOOL_ENDPOINT = 'https://mempool.space';
+const BLOCKCHAIR_ENDPOINT = 'https://api.blockchair.com';
 
 export default class Relay {
   public static checkCompatibility = async (
@@ -544,7 +544,7 @@ export default class Relay {
 
   public static fetchOneDayHistoricalFee = async (): Promise<any> => {
     try {
-      const response = await fetch(`${MempoolEndpoint}/api/v1/mining/blocks/fee-rates/24h`);
+      const response = await fetch(`${MEMPOOL_ENDPOINT}/api/v1/mining/blocks/fee-rates/24h`);
       if (!response.ok) {
         return [];
       }
