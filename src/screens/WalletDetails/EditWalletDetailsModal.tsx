@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { View, Box } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { StyleSheet } from 'react-native';
@@ -22,7 +21,6 @@ type Props = {
 };
 
 function EditWalletDetailsModal({ wallet = {}, close }: Props) {
-  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const walletText = translations.wallet;
@@ -55,7 +53,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
-      navigation.goBack();
+      close();
       showToast('Wallet details updated', <TickIcon />);
       dispatch(resetRealyWalletState());
     }
@@ -67,7 +65,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
       dispatch(resetRealyVaultState());
     }
     if (relayVaultUpdate) {
-      navigation.goBack();
+      close();
       showToast('Vault details updated', <TickIcon />);
       dispatch(resetRealyVaultState());
     }
