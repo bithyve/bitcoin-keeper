@@ -38,6 +38,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import Buttons from 'src/components/Buttons';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -459,13 +460,13 @@ function LoginScreen({ navigation, route }) {
           <Box style={styles.btnWrapper}>
             {passcode.length === 4 && (
               <Box>
-                <CustomButton
-                  onPress={() => {
+                <Buttons
+                  primaryCallback={() => {
                     setLoginError(false);
                     setLogging(true);
                   }}
-                  loading={loggingIn}
-                  value={common.proceed}
+                  primaryLoading={loggingIn}
+                  primaryText={common.proceed}
                 />
               </Box>
             )}
@@ -516,7 +517,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal && !internalCheck}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.primaryBackground`}
@@ -526,7 +527,7 @@ function LoginScreen({ navigation, route }) {
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
-        buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
+        // buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
         buttonTextColor={`${colorMode}.white`}
         showButtons
         Content={LoginModalContent}
@@ -535,7 +536,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -549,7 +550,7 @@ function LoginScreen({ navigation, route }) {
       />
       <KeeperModal
         visible={incorrectPassword}
-        close={() => {}}
+        close={() => { }}
         title="Incorrect Password"
         subTitle="You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow"
         modalBackground={`${colorMode}.modalWhiteBackground`}
