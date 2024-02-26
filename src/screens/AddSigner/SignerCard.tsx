@@ -40,7 +40,7 @@ function SignerCard({
     <Pressable
       disabled={disabled}
       backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
-      borderColor={`${colorMode}.Eggshell`}
+      // borderColor={`${colorMode}.Eggshell`}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
@@ -86,8 +86,6 @@ const styles = StyleSheet.create({
     height: 125,
     alignItems: 'flex-start',
     borderRadius: 10,
-    borderWidth: 0.5,
-    backgroundColor: '#FDF7F0',
     margin: 3,
   },
   walletName: {
