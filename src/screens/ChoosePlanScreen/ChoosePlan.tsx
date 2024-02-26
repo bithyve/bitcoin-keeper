@@ -30,9 +30,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
-import SettingsIcon from 'src/assets/images/settings_white.svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan() {
