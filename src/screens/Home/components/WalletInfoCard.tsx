@@ -54,7 +54,7 @@ function WalletInfoCard({
             {walletName}
           </Text>
         </Box>
-        <TouchableOpacity onPress={setIsShowAmount}>
+        <TouchableOpacity testID="btn_currencyinfo" onPress={setIsShowAmount}>
           <CurrencyInfo
             hideAmounts={false}
             amount={amount}

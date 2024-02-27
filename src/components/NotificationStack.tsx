@@ -312,7 +312,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
 
   return (
     <>
-      <Animated.View style={[animations]}>
+      <Animated.View testID={`view_${uai.uaiType}`} style={[animations]}>
         {uai.uaiType === uaiType.DEFAULT ? (
           <UAIEmptyState />
         ) : (
