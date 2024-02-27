@@ -12,6 +12,7 @@ import OptionCard from 'src/components/OptionCard';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
+import useTestSats from 'src/hooks/useTestSats';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -19,6 +20,7 @@ function VaultSettings({ route }) {
   const { vaultId } = route.params;
   const { activeVault: vault } = useVault({ vaultId });
   const descriptorString = genrateOutputDescriptors(vault);
+  const TestSatsComponent = useTestSats({ wallet: vault });
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -67,6 +69,7 @@ function VaultSettings({ route }) {
             );
           }}
         />
+        {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
         <WalletFingerprint fingerprint={vaultId} />

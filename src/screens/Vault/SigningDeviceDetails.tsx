@@ -38,14 +38,14 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import moment from 'moment';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import useSignerMap from 'src/hooks/useSignerMap';
+import useSigners from 'src/hooks/useSigners';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
-import moment from 'moment';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import useSignerMap from 'src/hooks/useSignerMap';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -126,10 +126,11 @@ const getSignerContent = (type: SignerType) => {
           '\u2022Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
         FAQ: '',
       };
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       return {
         title: 'Keeper as signer',
-        subTitle: 'You can use a specific BIP-85 wallet on Collaborative Key as a signer',
+        subTitle: 'You can use a specific BIP-85 wallet on App Key as a signer',
         assert: <KeeperSetupImage />,
         description:
           '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
@@ -198,12 +199,14 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { vaultKey, vaultId, signer: currentSigner, vaultSigners } = route.params;
+  const { vaultKey, vaultId, signerId, vaultSigners, isUaiFlow } = route.params;
+  const { signers } = useSigners();
+  const currentSigner = signers.find((signer) => signer.masterFingerprint === signerId);
   const { signerMap } = useSignerMap();
-  const signer = currentSigner ? currentSigner : signerMap[vaultKey.masterFingerprint];
+  const signer = currentSigner || signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(isUaiFlow);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
   const { activeVault } = useVault({ vaultId });
@@ -338,7 +341,6 @@ function SigningDeviceDetails({ route }) {
             icon={SDIcons(signer.type, true).Icon}
           />
         }
-        rightComponent={<CurrencyTypeSwitch />}
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>

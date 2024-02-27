@@ -3,8 +3,9 @@ import React from 'react';
 import { Input, useColorMode, Box } from 'native-base';
 import KeeperText from './KeeperText';
 
-const KeeperTextInput = ({
+function KeeperTextInput({
   placeholder,
+  placeholderTextColor = null,
   onChangeText,
   testID,
   value = null,
@@ -12,7 +13,7 @@ const KeeperTextInput = ({
   maxLength = null,
   inputRef = null,
   height = 10,
-}) => {
+}) {
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
@@ -20,7 +21,7 @@ const KeeperTextInput = ({
         defaultValue={defaultValue}
         ref={inputRef}
         placeholder={placeholder}
-        placeholderTextColor={`${colorMode}.greenText`}
+        placeholderTextColor={placeholderTextColor || `${colorMode}.greenText`}
         value={value}
         onChangeText={onChangeText}
         style={styles.inputField}
@@ -39,7 +40,7 @@ const KeeperTextInput = ({
       />
     </Box>
   );
-};
+}
 
 export default KeeperTextInput;
 

@@ -1,6 +1,6 @@
-import { StyleSheet, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
-import moment from 'moment';
-import { Box, View, useColorMode, ScrollView, Center, HStack } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import Text from 'src/components/KeeperText';
+import { Box, View, useColorMode, ScrollView } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -8,17 +8,15 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
+import moment from 'moment';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import BitcoinUnit from 'src/models/enums/BitcoinUnit';
-import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import RadioButton from 'src/components/RadioButton';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
+import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/wallet_hexa.svg';
@@ -26,9 +24,6 @@ import VaultIcon from 'src/assets/images/wallet_vault.svg';
 import Checked from 'src/assets/images/check.svg';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
-
-import SuccessIcon from 'src/assets/images/successSvg.svg';
-
 import {
   crossTransferReset,
   customPrioritySendPhaseOneReset,
@@ -49,14 +44,12 @@ import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import Fonts from 'src/constants/Fonts';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import AddIcon from 'src/assets/images/add.svg';
-import AddIconWhite from 'src/assets/images/icon_add_white.svg';
+
 import { UTXO } from 'src/core/wallets/interfaces';
-import CustomPriorityModal from './CustomPriorityModal';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import ActionCard from 'src/components/ActionCard';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -698,10 +691,6 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
-  const collaborativeWalletId =
-    sender?.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
-      ? sender.collaborativeWalletId
-      : '';
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -710,7 +699,6 @@ function SendConfirmation({ route }) {
         CommonActions.navigate('SignTransactionScreen', {
           note,
           label,
-          collaborativeWalletId,
           vaultId: sender.id,
         })
       );
@@ -719,7 +707,7 @@ function SendConfirmation({ route }) {
 
   const viewDetails = () => {
     setVisibleModal(false);
-    if (vaultTransfers.includes(transferType) && collaborativeWalletId) {
+    if (vaultTransfers.includes(transferType)) {
       const navigationState = {
         index: 1,
         routes: [
@@ -728,7 +716,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              collaborativeWalletId,
+              vaultId: defaultVault.id,
             },
           },
         ],
@@ -789,7 +777,7 @@ function SendConfirmation({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={'Send Confirmation'}
+        title="Send Confirmation"
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
       />
@@ -798,14 +786,13 @@ function SendConfirmation({ route }) {
           isSend
           currentCurrency={currentCurrency}
           currencyCode={currencyCode}
-          sender={sender}
+          sender={sender || sourceWallet}
           recipient={recipient}
           address={address}
           amount={amount}
           transferType={transferType}
           getBalance={getBalance}
           getSatUnit={getSatUnit}
-          sourceWallet={sourceWallet}
         />
         <SendingCard
           isSend={false}
@@ -818,7 +805,6 @@ function SendConfirmation({ route }) {
           transferType={transferType}
           getBalance={getBalance}
           getSatUnit={getSatUnit}
-          sourceWallet={sourceWallet}
         />
         <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
           <TransactionPriorityDetails

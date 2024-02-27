@@ -1,25 +1,22 @@
-import LocalizedContent from 'react-localization'
+import LocalizedContent from 'react-localization';
 
-const content = new LocalizedContent( {
-  en: require( './language/de.json' ),
-  es: require( './language/es.json' ),
-  de: require( './language/de.json' )
-} )
+const content = new LocalizedContent({
+  en: require('./language/de.json'),
+  es: require('./language/es.json'),
+  de: require('./language/de.json'),
+});
 
-const setDisplayLanguage = async ( language ) => {
-  console.log( language )
+const setDisplayLanguage = async (language) => {
+  console.log(language);
   try {
-    if( language ) content.setLanguage( language )
-
-  } catch ( error ) {
-    console.log( error )
+    if (language) content.setLanguage(language);
+  } catch (error) {
+    console.log(error);
   }
-}
+};
 
-setDisplayLanguage( 'es' )
+setDisplayLanguage('es');
 
-export default content
+export default content;
 
-export {
-  setDisplayLanguage
-}
+export { setDisplayLanguage };

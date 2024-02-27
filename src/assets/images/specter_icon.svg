@@ -1,12 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="21" viewBox="0 0 16 21">
-  <g id="specter" transform="translate(1014 2090)">
-    <g id="Group_46027" data-name="Group 46027">
-      <rect id="Rectangle_8799" data-name="Rectangle 8799" width="16" height="21" rx="2" transform="translate(-1014 -2090)" fill="#000000"/>
-      <g id="Rectangle_8798" data-name="Rectangle 8798" transform="translate(-1012 -2087.376)" fill="#704e2e" stroke="#704e2e" stroke-width="1">
-        <rect width="12" height="14.992" rx="1" stroke="none"/>
-        <rect x="0.5" y="0.5" width="11" height="13.992" rx="0.5" fill="none"/>
-      </g>
-      <line id="Line_1207" data-name="Line 1207" x2="6" transform="translate(-1011 -2088.5)" fill="none" stroke="#704e2e" stroke-linecap="round" stroke-width="1"/>
-    </g>
+  <g id="specter" transform="translate(-125 -262)">
+    <rect id="Rectangle_8799" data-name="Rectangle 8799" width="16" height="21" rx="2" transform="translate(125 262)" fill="#000000"/>
+    <rect id="Rectangle_8798" data-name="Rectangle 8798" width="12" height="14.992" rx="1" transform="translate(127 264.624)" fill="#F7F2EC" />
+    <line id="Line_1207" data-name="Line 1207" x2="6" transform="translate(128 263.5)" fill="none" stroke="#F7F2EC" stroke-linecap="round" stroke-width="1"/>
   </g>
 </svg>

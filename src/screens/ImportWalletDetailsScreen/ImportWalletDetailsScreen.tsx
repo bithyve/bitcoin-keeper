@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, Input, View, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -52,7 +52,7 @@ function ImportWalletDetailsScreen({ route }) {
                 style={styles.textInput}
                 borderWidth="0"
                 backgroundColor={`${colorMode}.seashellWhite`}
-                value={name}
+                value={walletName}
                 onChangeText={(text) => setWalletName(text)}
               />
             </Box>
@@ -62,7 +62,7 @@ function ImportWalletDetailsScreen({ route }) {
                 style={styles.textInput}
                 borderWidth="0"
                 backgroundColor={`${colorMode}.seashellWhite`}
-                value={description}
+                value={walletDescription}
                 onChangeText={(text) => setWalletDescription(text)}
               />
             </Box>

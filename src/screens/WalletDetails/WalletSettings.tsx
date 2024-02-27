@@ -1,115 +1,40 @@
-import React, { useContext, useEffect, useState } from 'react';
-import Text from 'src/components/KeeperText';
+import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import { useDispatch } from 'react-redux';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { testSatsRecieve } from 'src/store/sagaActions/wallets';
-import { useAppSelector } from 'src/store/hooks';
-import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import config from 'src/core/config';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useWallets from 'src/hooks/useWallets';
-import { AppContext } from 'src/context/AppContext';
 import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { captureError } from 'src/services/sentry';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import useTestSats from 'src/hooks/useTestSats';
+import idx from 'idx';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
   const { wallet: walletRoute, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
-  const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
+  const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
+
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
-  const { settings, common } = translations;
-
-  const getTestSats = () => {
-    dispatch(testSatsRecieve(wallet));
-  };
-
-  useEffect(() => {
-    setLoadingContent({
-      title: common.pleaseWait,
-      subtitle: common.receiveTestSats,
-      message: '',
-    });
-
-    return () => {
-      setLoadingContent({
-        title: '',
-        subTitle: '',
-        message: '',
-      });
-      setAppLoading(false);
-    };
-  }, []);
-
-  useEffect(() => {
-    setAppLoading(false);
-    if (testCoinsReceived) {
-      showToast('5000 Sats Received', <TickIcon />);
-      setTimeout(() => {
-        dispatch(setTestCoinsReceived(false));
-        navigation.goBack();
-      }, 3000);
-    } else if (testCoinsFailed) {
-      showToast('Process Failed');
-      dispatch(setTestCoinsFailed(false));
-    }
-  }, [testCoinsReceived, testCoinsFailed]);
-
-  const signPSBT = (serializedPSBT, resetQR) => {
-    try {
-      let signedSerialisedPSBT;
-      try {
-        signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-      } catch (e) {
-        captureError(e);
-      }
-      // try signing with single sig key
-      if (!signedSerialisedPSBT) {
-        signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT, EntityKind.WALLET);
-      }
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
-    } catch (e) {
-      resetQR();
-      showToast('Please scan a valid PSBT', null, 3000, true);
-    }
-  };
+  const { settings } = translations;
+  const TestSatsComponent = useTestSats({ wallet });
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -125,37 +50,15 @@ function WalletSettings({ route }) {
             navigation.navigate('WalletDetailsSettings', { wallet });
           }}
         />
-        <OptionCard
-          title={walletTranslation.walletSeedWord}
-          description={walletTranslation.walletSeedWordSubTitle}
-          callback={() => {
-            setConfirmPassVisible(true);
-          }}
-        />
-        <OptionCard
-          title={walletTranslation.showCoSignerDetails}
-          description={walletTranslation.showCoSignerDetailsSubTitle}
-          callback={() => {
-            navigation.navigate('CosignerDetails', { wallet });
-          }}
-        />
-        <OptionCard
-          title={walletTranslation.actCoSigner}
-          description={`Sign transactions (${wallet.id})`}
-          callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ScanQR',
-                params: {
-                  title: 'Scan PSBT to Sign',
-                  subtitle: 'Please scan until all the QR data has been retrieved',
-                  onQrScan: signPSBT,
-                  type: SignerType.KEEPER,
-                },
-              })
-            );
-          }}
-        />
+        {walletMnemonic && (
+          <OptionCard
+            title={walletTranslation.walletSeedWord}
+            description={walletTranslation.walletSeedWordSubTitle}
+            callback={() => {
+              setConfirmPassVisible(true);
+            }}
+          />
+        )}
         <OptionCard
           title={walletTranslation.TransferPolicy}
           description={walletTranslation.TransferPolicyDesc}
@@ -163,18 +66,7 @@ function WalletSettings({ route }) {
             setTransferPolicyVisible(true);
           }}
         />
-        {config.NETWORK_TYPE === NetworkType.TESTNET && (
-          <Box style={{ marginVertical: 40 }}>
-            <OptionCard
-              title={walletTranslation.recieveTestSats}
-              description={walletTranslation.recieveTestSatSubTitle}
-              callback={() => {
-                setAppLoading(true);
-                getTestSats();
-              }}
-            />
-          </Box>
-        )}
+        {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
         <WalletFingerprint fingerprint={wallet.id} />
@@ -221,11 +113,13 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
-              navigation.navigate('ExportSeed', {
-                seed: wallet?.derivationDetails?.mnemonic,
-                next: false,
-                wallet,
-              });
+              if (walletMnemonic) {
+                navigation.navigate('ExportSeed', {
+                  seed: walletMnemonic,
+                  next: false,
+                  wallet,
+                });
+              } else showToast("Mnemonic doesn't exists");
             }}
           />
         )}
@@ -248,7 +142,6 @@ function WalletSettings({ route }) {
               showToast(walletTranslation.xPubCopyToastMsg, <TickIcon />);
             }}
             copyable
-            close={() => setXPubVisible(false)}
             subText={walletTranslation?.AccountXpub}
             noteSubText={walletTranslation?.AccountXpubNote}
           />

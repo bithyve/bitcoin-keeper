@@ -1,6 +1,10 @@
-import { Signer } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from './enum';
+import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { SignerType } from 'src/core/wallets/enums';
+import { InheritanceKeyInfo } from 'src/services/interfaces';
+import { UAI } from 'src/models/interfaces/Uai';
+import { getSignerNameFromType } from 'src/hardware';
 import { getJSONFromRealmObject } from './utils';
+import { RealmSchema } from './enum';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -53,7 +57,7 @@ export const runRealmMigrations = ({
           const signerObject: Signer = {
             masterFingerprint: signer.masterFingerprint,
             type: signer.type,
-            signerName: signer.signerName,
+            signerName: getSignerNameFromType(signer.type),
             signerDescription: signer.signerDescription,
             lastHealthCheck: signer.lastHealthCheck,
             addedOn: signer.addedOn,
@@ -68,5 +72,57 @@ export const runRealmMigrations = ({
         });
       }
     });
+  }
+
+  // IKS migration: single to multiple config support
+  if (oldRealm.schemaVersion < 61) {
+    // 61 schema version corresponds to ASSISTED_KEYS_MIGRATION_VERSION for upgrade sequence(v2 to v3 migration)
+    const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
+    const activeVault: Vault = oldVaults.filter((vault) => !vault.archived)[0] || null;
+
+    if (activeVault) {
+      const { signers } = activeVault;
+      const signerMap = {};
+      oldRealm
+        .objects(RealmSchema.Signer)
+        .forEach((signer) => (signerMap[(signer as any).masterFingerprint] = signer));
+
+      for (const signer of signers) {
+        const signerType = signerMap[signer.masterFingerprint].type;
+        if (signerType === SignerType.INHERITANCEKEY) {
+          const IKSSigner: Signer = signerMap[signer.masterFingerprint];
+          const previousConfig = (IKSSigner.inheritanceKeyInfo as any).configuration; // previous schema for IKS had single configuration
+
+          previousConfig.id = activeVault.id;
+          const updatedInheritanceKeyInfo: InheritanceKeyInfo = {
+            configurations: [previousConfig],
+            policy: IKSSigner.inheritanceKeyInfo.policy,
+          };
+
+          const updateProps = {
+            inheritanceKeyInfo: updatedInheritanceKeyInfo,
+          };
+
+          const signerObjects = newRealm.objects(RealmSchema.Signer) as any;
+          const IKSSignerObject = signerObjects.filtered(
+            `${'masterFingerprint'} == '${IKSSigner.masterFingerprint}'`
+          )[0];
+
+          for (const [key, value] of Object.entries(updateProps)) {
+            // realm is already in write mode(hence we don't have to wrap this statement in realm.write())
+            IKSSignerObject[key] = value;
+          }
+        }
+      }
+    }
+  } // end of IKS migration
+
+  // uai migrations
+  if (oldRealm.schemaVersion < 67) {
+    const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
+    const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
+    for (const objectIndex in newUAIs) {
+      newUAIs[objectIndex].uaiDetails = { heading: oldUAIs[objectIndex].title };
+    }
   }
 };

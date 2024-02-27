@@ -43,11 +43,11 @@ import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import WalletSendInfo from './WalletSendInfo';
 // import LabelItem from '../UTXOManagement/components/LabelItem';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
 import HexagonIcon from 'src/components/HexagonIcon';
+import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -118,14 +118,17 @@ function AddSendAmount({ route }) {
     if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
     if (haveSelectedUTXOs) {
-      if (availableToSpend < Number(amountToSend))
+      if (availableToSpend < Number(amountToSend)) {
         setErrorMessage('Please select enough UTXOs to send');
-      else if (availableToSpend < Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired)))
+      } else if (
+        availableToSpend <
+        Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired))
+      ) {
         setErrorMessage('Please select enough UTXOs to accommodate fee');
-      else setErrorMessage('');
-    } else if (availableToSpend < Number(amountToSend))
+      } else setErrorMessage('');
+    } else if (availableToSpend < Number(amountToSend)) {
       setErrorMessage('Amount entered is more than available to spend');
-    else setErrorMessage('');
+    } else setErrorMessage('');
   }, [amountToSend, selectedUTXOs.length]);
 
   const onSendMax = (sendMaxFee, selectedUTXOs) => {
@@ -191,9 +194,9 @@ function AddSendAmount({ route }) {
     if (sendPhaseOneState.isSuccessful) {
       navigateToNext();
     } else if (sendPhaseOneState.hasFailed) {
-      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
         showToast('You have insufficient balance at this time.', null, 1000);
-      else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
+      } else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
     }
   }, [sendPhaseOneState]);
   useEffect(

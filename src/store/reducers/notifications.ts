@@ -5,43 +5,43 @@ const initialState: {
   fetchStarted: boolean;
   timeStamp: any;
   messages: [];
-  fcmToken: string
+  fcmToken: string;
 } = {
   notifications: [],
   fetchStarted: false,
   timeStamp: null,
   messages: [],
-  fcmToken: ''
-}
+  fcmToken: '',
+};
 
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
     notificationsFetched: (state, action) => {
-      state.notifications = action.payload
+      state.notifications = action.payload;
     },
     fetchNotificationStarted: (state, action) => {
-      state.fetchStarted = action.payload
+      state.fetchStarted = action.payload;
     },
     storeMessagesTimeStamp: (state) => {
-      state.timeStamp = Date.now()
+      state.timeStamp = Date.now();
     },
     messageFetched: (state, action) => {
-      state.messages = action.payload
+      state.messages = action.payload;
     },
     setFcmToken: (state, action) => {
-      state.fcmToken = action.payload
-    }
-  }
-})
+      state.fcmToken = action.payload;
+    },
+  },
+});
 
 export const {
   notificationsFetched,
   fetchNotificationStarted,
   storeMessagesTimeStamp,
   messageFetched,
-  setFcmToken
-} = notificationsSlice.actions
+  setFcmToken,
+} = notificationsSlice.actions;
 
-export default notificationsSlice.reducer
+export default notificationsSlice.reducer;

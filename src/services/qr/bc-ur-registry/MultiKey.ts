@@ -11,14 +11,10 @@ enum Keys {
 }
 
 export class MultiKey extends RegistryItem {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   getRegistryType: () => RegistryType;
 
-  constructor(
-    private threshold: number,
-    private keys: (CryptoECKey | CryptoHDKey)[],
-  ) {
+  constructor(private threshold: number, private keys: (CryptoECKey | CryptoHDKey)[]) {
     super();
   }
 
@@ -38,9 +34,8 @@ export class MultiKey extends RegistryItem {
     return new DataItem(map);
   };
 
-  getOutputDescriptorContent = () => [this.getThreshold(),
-      this.keys.map(k => k.getOutputDescriptorContent()).join(','),
-    ].join(',');
+  getOutputDescriptorContent = () =>
+    [this.getThreshold(), this.keys.map((k) => k.getOutputDescriptorContent()).join(',')].join(',');
 
   static fromDataItem = (dataItem: DataItem) => {
     const map = dataItem.getData();

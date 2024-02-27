@@ -33,7 +33,7 @@ function AdvancedWallets({ navigation }) {
       />
       <OptionCard
         title="Degrading Multisig"
-        description="Time-based signature"
+        description="Degrading multi-key wallet"
         LeftIcon={<MultiSigIcon />}
         titleColor={`${colorMode}.DarkSage`}
         descriptionColor={`${colorMode}.Smoke`}
@@ -49,7 +49,7 @@ function AdvancedWallets({ navigation }) {
       />
       <OptionCard
         title="Custom Multisig"
-        description="Build your own"
+        description="Custom multi-key"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup()}
       />

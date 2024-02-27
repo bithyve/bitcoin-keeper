@@ -23,13 +23,13 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
+import { AppStackParams } from 'src/navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import { AppStackParams } from 'src/navigation/types';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -127,7 +127,7 @@ function WalletDetails({ route }: ScreenProps) {
             <CurrencyInfo
               hideAmounts={false}
               amount={unconfirmed + confirmed}
-              fontSize={22}
+              fontSize={24}
               color={`${colorMode}.white`}
               variation={colorMode === 'light' ? 'light' : 'dark'}
             />
@@ -152,11 +152,13 @@ function WalletDetails({ route }: ScreenProps) {
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
         {wallet ? (
           <>
-            <HStack style={styles.transTitleWrapper}>
-              <Text color={`${colorMode}.black`} style={styles.transactionHeading}>
-                {common.transactions}
-              </Text>
-            </HStack>
+            {wallet?.specs?.transactions?.length ? (
+              <HStack style={styles.transTitleWrapper}>
+                <Text color={`${colorMode}.black`} style={styles.transactionHeading}>
+                  {common.transactions}
+                </Text>
+              </HStack>
+            ) : null}
             <TransactionsAndUTXOs
               transactions={wallet?.specs.transactions}
               setPullRefresh={setPullRefresh}

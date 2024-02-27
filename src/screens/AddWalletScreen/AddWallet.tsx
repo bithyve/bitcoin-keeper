@@ -26,13 +26,13 @@ function AddWallet({ navigation }) {
     selectCard(id);
   };
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
       <KeeperHeader
         title={wallet.AddWallet}
         subtitle={wallet.chooseFromTemplate}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <Box style={styles.container}>
         <ScrollView
@@ -43,7 +43,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={1}
             walletName="Create New"
-            walletDescription="Singlesig / Multisig"
+            walletDescription="Single or multi-key"
             icon={<WalletActiveIcon />}
             selectedIcon={<WalletGreenIcon />}
             selectedCard={selectedCard}
@@ -53,7 +53,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={2}
             walletName="Import"
-            walletDescription="Recover / Recreate"
+            walletDescription="Recover or recreate"
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
@@ -63,7 +63,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={3}
             walletName="Advanced"
-            walletDescription="For seasoned plebs"
+            walletDescription="For professionals"
             icon={<AdvancedIcon />}
             selectedIcon={<AdvancedGreenIcon />}
             selectedCard={selectedCard}

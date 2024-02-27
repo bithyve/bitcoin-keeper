@@ -128,8 +128,8 @@ export const signTransactionWithInheritanceKey = async ({
     const { signedPSBT } = await InheritanceKeyServer.signPSBT(
       xfp,
       serializedPSBT,
-      childIndexArray,
-      thresholdDescriptors
+      childIndexArray
+      // thresholdDescriptors
     );
     if (!signedPSBT) throw new Error('inheritance key server: failed to sign');
     return { signedSerializedPSBT: signedPSBT };

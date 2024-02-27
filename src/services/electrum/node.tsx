@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 import ElectrumClient from 'src/services/electrum/client';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import dbManager from 'src/storage/realm/dbManager';
@@ -11,8 +10,9 @@ export default class Node {
       nodeDetail.host.length === 0 ||
       nodeDetail.port === null ||
       nodeDetail.port.length === 0
-    )
+    ) {
       return { saved: false };
+    }
 
     // test connection before saving
     const isConnectable = await ElectrumClient.testConnection(nodeDetail);
@@ -68,15 +68,21 @@ export default class Node {
 
   public static async disconnect(selectedNode: NodeDetail) {
     const activePeer = ElectrumClient.getActivePeer();
-    if (selectedNode.host === activePeer?.host && selectedNode.port === activePeer?.port)
+    if (selectedNode.host === activePeer?.host && selectedNode.port === activePeer?.port) {
       ElectrumClient.forceDisconnect();
+    }
   }
 
   public static nodeConnectionStatus = (node: NodeDetail) => {
     const activePeer = ElectrumClient.getActivePeer();
 
-    if (activePeer?.host === node.host && activePeer?.port === node.port && activePeer?.isConnected)
+    if (
+      activePeer?.host === node.host &&
+      activePeer?.port === node.port &&
+      activePeer?.isConnected
+    ) {
       return true;
+    }
 
     return false;
   };

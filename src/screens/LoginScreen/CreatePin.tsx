@@ -126,7 +126,7 @@ export default function CreatePin(props) {
   }, [credsChanged]);
 
   useEffect(() => {
-    if (passcode === confirmPasscode) {
+    if (passcode === confirmPasscode && passcode.length === 4) {
       setIsDisabled(false);
     } else {
       setIsDisabled(true);
@@ -149,7 +149,7 @@ export default function CreatePin(props) {
   }
   function CreatePassModalContent() {
     return (
-      <Box>
+      <Box width={wp(60)}>
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
@@ -182,8 +182,7 @@ export default function CreatePin(props) {
                 passcodeFlag={passcodeFlag}
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
-                    ? // ? '#FF8F79'
-                      'light.error'
+                    ? `${colorMode}.error`
                     : 'transparent'
                 }
               />
@@ -200,11 +199,6 @@ export default function CreatePin(props) {
                     passCode={confirmPasscode}
                     passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
                     borderColor={
-                      passcode !== confirmPasscode && confirmPasscode.length === 4
-                        ? '#FF8F79'
-                        : 'transparent'
-                    }
-                    borderColor={
                       passcode != confirmPasscode && confirmPasscode.length === 4
                         ? `${colorMode}.error`
                         : 'transparent'
@@ -217,18 +211,18 @@ export default function CreatePin(props) {
                     </Text>
                   )}
                 </Box>
-                <Box alignSelf="flex-end" mr={5} mt={5}>
-                  <CustomButton
-                    disabled={isDisabled}
-                    testID="button"
-                    onPress={() => {
-                      setCreatePassword(true);
-                    }}
-                    value={common.create}
-                  />
-                </Box>
               </Box>
             ) : null}
+          </Box>
+          <Box alignSelf="flex-end" mr={5} mt={5}>
+            <CustomButton
+              disabled={isDisabled}
+              testID="button"
+              onPress={() => {
+                setCreatePassword(true);
+              }}
+              value={common.create}
+            />
           </Box>
           <KeyPadView
             onDeletePressed={onDeletePressed}
@@ -242,8 +236,8 @@ export default function CreatePin(props) {
         close={() => {}}
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
-        Phrase"
-        modalBackground={`${colorMode}.modalWhiteBackground`}
+        Key"
+        modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
@@ -274,7 +268,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 0.7,
+    flex: 0.9,
   },
   welcomeText: {
     marginLeft: 18,

@@ -39,6 +39,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
     case SignerType.SEED_WORDS:
     case SignerType.MOBILE_KEY:
     case SignerType.KEEPER:
+    case SignerType.MY_KEEPER:
     case SignerType.JADE:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
