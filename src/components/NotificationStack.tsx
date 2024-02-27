@@ -298,7 +298,37 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             },
           },
         };
-      default:
+      case uaiType.FEE_INISGHT:
+        return {
+          heading: 'Fee Insight',
+          body: uai.uaiDetails?.body,
+          btnConfig: {
+            primary: {
+              text: 'View insights',
+              cta: () => {
+                navigtaion.navigate('Home',{showInsight:true})
+                skipUaiHandler(uai)  
+              },
+            },
+            secondary: skipBtnConfig(uai),
+          },
+          modalDetails: {
+            heading: 'Fee Insight',
+            subTitle: '',
+            body: '',
+            btnConfig: {
+              primary: {
+                text: 'Continue',
+                cta: () => {},
+              },
+              secondary: {
+                text: 'Skip',
+                cta: () => {},
+              },
+            },
+          },
+        };
+        default:
         return null;
     }
   };

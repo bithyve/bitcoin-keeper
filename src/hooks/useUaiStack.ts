@@ -16,6 +16,7 @@ const priorityMap: PriorityMap = {
   [uaiType.RECOVERY_PHRASE_HEALTH_CHECK]: 90,
   [uaiType.VAULT_TRANSFER]: 80,
   [uaiType.SECURE_VAULT]: 70,
+  [uaiType.FEE_INISGHT]: 60,
   [uaiType.DEFAULT]: 0,
 };
 

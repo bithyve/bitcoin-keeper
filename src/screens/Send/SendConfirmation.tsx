@@ -598,7 +598,6 @@ function SendConfirmation({ route }) {
   }, []);
 
   useEffect(() => {
-    fetchFeesData();
     if (transferType === TransferType.WALLET_TO_VAULT) {
       dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: sourceWallet }));
     }
@@ -614,12 +613,6 @@ function SendConfirmation({ route }) {
     if (hasHighFee) setHighFeeAlertVisible(true);
     else setHighFeeAlertVisible(false);
   }, [transactionPriority, amount]);
-  const fetchFeesData = async () => {
-    // const result = await Relay.fetchOneDayHistoricalFee();
-    // if (result && result.length > 0) {
-    //   setFeeInsightData(result);
-    // }
-  };
 
   const onTransferNow = () => {
     setVisibleTransVaultModal(false);

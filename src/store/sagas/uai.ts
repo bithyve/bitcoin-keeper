@@ -1,6 +1,6 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,6 +18,8 @@ import {
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
 import { BackupHistory } from 'src/models/enums/BHR';
+import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
+import { generateFeeStatement } from 'src/utils/feeeInisghtUtil';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 1; // 3hours
 const healthCheckReminderThreshold = isTestnet()
@@ -262,6 +264,32 @@ function* uaiChecksWorker({ payload }) {
       }
 
       yield put(setRefreshUai());
+    }
+    if (checkForTypes.includes(uaiType.FEE_INISGHT)) {
+      const uaiCollectionHC: UAI[] = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.FEE_INISGHT,
+        'uaiType'
+      );
+      if (uaiCollectionHC.length > 0) {
+        for (const uai of uaiCollectionHC) {
+          dbManager.deleteObjectById(RealmSchema.UAI, uai.id);
+        }
+      }
+      const graphData = yield select(oneDayInsightSelector);
+      const statement = generateFeeStatement(graphData);
+      if (statement) {
+        yield put(
+          addToUaiStack({
+            uaiType: uaiType.FEE_INISGHT,
+            uaiDetails: {
+              heading: 'Fee Insight',
+              body: statement,
+            },
+          })
+        );
+        yield put(setRefreshUai());
+      }
     }
     if (checkForTypes.includes(uaiType.DEFAULT)) {
       const defaultUAI: UAI = dbManager.getObjectByField(

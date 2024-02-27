@@ -89,7 +89,6 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     yield put(fetchExchangeRates());
-    yield put(fetchOneDayInsight());
     yield put(
       uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT, uaiType.DEFAULT])
     );
@@ -169,7 +168,6 @@ function* credentialsAuthWorker({ payload }) {
           yield put(setWarning(history));
 
           yield put(fetchExchangeRates());
-          yield put(fetchOneDayInsight());
           yield put(getMessages());
 
           yield put(
@@ -178,6 +176,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.SECURE_VAULT,
               uaiType.VAULT_TRANSFER,
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+              uaiType.FEE_INISGHT,
               uaiType.DEFAULT,
             ])
           );
