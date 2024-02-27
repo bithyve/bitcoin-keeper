@@ -39,10 +39,10 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
           width: '75%',
         }}
       >
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -163,7 +163,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         backgroundColor={`${colorMode}.brownColor`}
         borderColor={`${colorMode}.brownColor`}
         style={styles.learnMoreContainer}
-        // learn more modal
+      // learn more modal
       >
         <Text style={styles.learnMoreText} color={`${colorMode}.primaryBackground`}>
           Need Help?
@@ -232,7 +232,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -247,7 +247,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -263,7 +263,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
