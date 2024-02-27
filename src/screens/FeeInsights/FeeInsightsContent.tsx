@@ -116,7 +116,7 @@ const FeeInsightsContent = (props: Props) => {
               {'\n'}
               {blockStatement}
             </Text>
-            <FeeGraph dataSet={oneWeekFeeRate} />
+            <FeeGraph dataSet={oneWeekFeeRate} recentData={props.oneDayFeeRate}/>
             <FeeDataStats />
           </>
         )}

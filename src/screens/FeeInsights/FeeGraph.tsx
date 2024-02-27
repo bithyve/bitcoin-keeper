@@ -3,48 +3,34 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { LinearGradient, Stop } from 'react-native-svg';
+import { HistoricalInisightData } from 'src/nativemodules/interface';
 import customTheme from 'src/navigation/themes';
 
 interface Props {
-  dataSet: any[];
+  dataSet: HistoricalInisightData[];
+  recentData: HistoricalInisightData[]
 }
 
 const FeeGraph = (props: Props) => {
   const [graphData, setGraphData] = useState([]);
   const {colorMode} = useColorMode();
-  const {dataSet} =props;
+  const {dataSet,recentData} =props;
   useEffect(() => {
     generateSmoothedDatasetForGraph(dataSet);
   }, [dataSet]);
 
-  function generateSmoothedDatasetForGraph(historicalFeesData, numberOfPoints = 12) {
-    // Calculate the interval size for sampling
-    const intervalSize = Math.floor(historicalFeesData.length / numberOfPoints);
-    const smoothedData = [];
-
-    for (let i = 0; i < numberOfPoints; i++) {
-        // Calculate the index to sample - we take the middle of each interval for a representative value
-        const index = i * intervalSize + Math.floor(intervalSize / 2);
-
-        // Ensure the index is within the bounds of the historicalFeesData array
-        if(index < historicalFeesData.length) {
-            smoothedData.push({
-                value: historicalFeesData[index].avgFee_75,
-                dataPointText: historicalFeesData[index].avgFee_75.toString(),
-                hideDataPoint: true,
-            });
+  function generateSmoothedDatasetForGraph(historicalFeesData, targetCount = 12) {
+      const step = historicalFeesData.length / targetCount;
+      const adjustedDataPoints = [];
+    
+      for (let i = 0; i < targetCount; i++) {
+        const index = Math.round(i * step);
+        if (index < historicalFeesData.length) {
+          adjustedDataPoints.push({ value: historicalFeesData[index].avgFee_75 });
         }
-    }
-
-    // If the intervals didn't cover the last part of the dataset, add the last data point
-    if(smoothedData.length < numberOfPoints && historicalFeesData.length > 0) {
-        smoothedData.push({
-            value: historicalFeesData[historicalFeesData.length - 1].avgFee_75,
-            dataPointText: historicalFeesData[historicalFeesData.length - 1].avgFee_75.toString(),
-            hideDataPoint: true
-        });
-    }
-    setGraphData(smoothedData);
+      }
+    const currentFeeRate = recentData[recentData.length-1]
+    setGraphData([...adjustedDataPoints,{value:currentFeeRate.avgFee_75}]);
 }
 
 
@@ -56,9 +42,10 @@ const FeeGraph = (props: Props) => {
         curved
         initialSpacing={0}
         data={graphData}
-        spacing={24.5}
+        spacing={22.5}
         thickness={5}
         hideOrigin
+        hideDataPoints1
         yAxisColor={ customTheme.colors[colorMode].lightSeashell}
         xAxisColor={ customTheme.colors[colorMode].lightSeashell}
         yAxisLabelWidth={18}
