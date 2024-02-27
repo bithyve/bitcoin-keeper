@@ -23,7 +23,7 @@ function PinInputsView({
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
-    if (passCode.length === 4) {
+    if (passCode?.length === 4) {
       setTimeout(() => {
         setHide(true);
       }, 2000);
@@ -40,17 +40,17 @@ function PinInputsView({
   const getDotColor = () => (textColor ? 'black' : 'light.primaryBackground');
 
   const getPin = (num: number) => {
-    if (passCode.length === num && !hide) {
+    if (passCode?.length === num && !hide) {
       return (
         <Text color={getTextColor()} bold fontSize={20}>
           {passCode[num - 1]}
         </Text>
       );
     }
-    if (passCode.length >= num) {
+    if (passCode?.length >= num) {
       return <DotView height={3} width={3} color={getDotColor()} />;
     }
-    if (passCode.length === num - 1) {
+    if (passCode?.length === num - 1) {
       return (
         <Text color={getTextColor()} style={styles.cursorText}>
           |

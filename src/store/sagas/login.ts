@@ -217,8 +217,18 @@ export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
-  console.log({ oldPasscode, newPasscode });
   try {
+    const hash = yield call(hash512, oldPasscode);
+    const encryptedKey = yield call(SecureStore.fetch, hash);
+    const decryptedKey = yield call(decrypt, hash, encryptedKey);
+    const newHash = yield call(hash512, newPasscode);
+    const newEncryptedKey = yield call(encrypt, newHash, decryptedKey);
+    if (!(yield call(SecureStore.store, newHash, newEncryptedKey))) {
+      return;
+    }
+    const removedOldKey = yield call(SecureStore.remove, hash);
+    yield put(credsChanged('changed'));
+
     // todo
   } catch (err) {
     console.log({
