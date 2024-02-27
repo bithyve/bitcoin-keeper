@@ -46,6 +46,7 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -341,6 +342,7 @@ function SigningDeviceDetails({ route }) {
             icon={SDIcons(signer.type, true).Icon}
           />
         }
+        rightComponent={<CurrencyTypeSwitch />}
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>

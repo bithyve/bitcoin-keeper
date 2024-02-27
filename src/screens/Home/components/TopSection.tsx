@@ -22,6 +22,7 @@ export function TopSection({ colorMode, top, cardsData }) {
             callback={data.callback}
             icon={data.icon}
             dottedBorder
+            cardPillText={data?.cardPillText}
           />
         ))}
       </Box>
