@@ -38,7 +38,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
-import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -200,9 +199,6 @@ function LoginScreen({ navigation, route }) {
     }
   };
 
-  useEffect(()=>{
-    dispatch(fetchOneDayInsight())
-  })
 
   const updateFCM = async () => {
     try {
