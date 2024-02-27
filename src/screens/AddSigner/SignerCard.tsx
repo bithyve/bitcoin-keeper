@@ -60,7 +60,7 @@ function SignerCard({
           {showDot ? <Box style={styles.redDot} /> : null}
         </Box>
         <Text
-          color={`${colorMode}.SlateGrey`}
+          color={`${colorMode}.primaryText`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
           bold
@@ -69,7 +69,7 @@ function SignerCard({
         </Text>
         <Text
           style={styles.walletDescription}
-          color={`${colorMode}.GreenishGrey`}
+          color={`${colorMode}.secondaryText`}
           numberOfLines={1}
         >
           {description}
