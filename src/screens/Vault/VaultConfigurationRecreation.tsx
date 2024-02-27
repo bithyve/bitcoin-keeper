@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useState } from 'react';
 import { Box, Input, useColorMode } from 'native-base';
 import { hp } from 'src/constants/responsive';
