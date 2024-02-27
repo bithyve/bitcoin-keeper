@@ -36,6 +36,7 @@ function SignerCard({
   showDot = false,
   StaticIcon = null,
   numberOfLines = 1,
+  customStyle,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
