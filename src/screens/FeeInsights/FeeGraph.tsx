@@ -56,7 +56,7 @@ const FeeGraph = (props: Props) => {
         curved
         initialSpacing={0}
         data={graphData}
-        spacing={25}
+        spacing={24.5}
         thickness={5}
         hideOrigin
         yAxisColor={ customTheme.colors[colorMode].lightSeashell}
