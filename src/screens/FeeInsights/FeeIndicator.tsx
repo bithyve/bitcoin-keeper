@@ -43,7 +43,6 @@ const FeeIndicator = (props: Props) => {
   ];
 
   return (
-    <View style={styles.container}>
       <SegmentedArc
         segments={segments}
         fillValue={calculateIndicatorScale(percentageDifference)}
@@ -57,7 +56,6 @@ const FeeIndicator = (props: Props) => {
         capInnerColor={customTheme.colors[colorMode].primaryGreen}
         capOuterColor={customTheme.colors[colorMode].OffWhite}
       />
-    </View>
   );
 };
 
@@ -66,8 +64,6 @@ export default FeeIndicator;
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
-    position: 'absolute',
-    top: -10,
   },
   rangeTextStyle: {
     fontSize: 12,

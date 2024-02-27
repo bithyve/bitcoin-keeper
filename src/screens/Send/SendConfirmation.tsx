@@ -491,7 +491,7 @@ function HighFeeAlert({
   amountToSend,
   getBalance,
   showFeesInsightModal,
-  OneDayHistoricalFee
+  OneDayHistoricalFee,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -514,11 +514,12 @@ function HighFeeAlert({
           <Text style={styles.highAlertSatsFee}>{getBalance(amountToSend)}</Text>
         </Box>
       </Box>
-      <FeerateStatement
-        showFeesInsightModal={showFeesInsightModal}
-        feeInsightData={OneDayHistoricalFee}
-        showCTA={true}
-      />
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
+        <FeerateStatement
+          showFeesInsightModal={showFeesInsightModal}
+          feeInsightData={OneDayHistoricalFee}
+        />
+      </Box>
     </>
   );
 }
@@ -584,7 +585,7 @@ function SendConfirmation({ route }) {
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
-  const OneDayHistoricalFee = useOneDayInsight();  
+  const OneDayHistoricalFee = useOneDayInsight();
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -793,10 +794,12 @@ function SendConfirmation({ route }) {
             getSatUnit={getSatUnit}
           />
         </TouchableOpacity>
-        <FeerateStatement
-        showFeesInsightModal={toogleFeesInsightModal}
-        feeInsightData={OneDayHistoricalFee}
-      />
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
+          <FeerateStatement
+            showFeesInsightModal={toogleFeesInsightModal}
+            feeInsightData={OneDayHistoricalFee}
+          />
+        </Box>
         <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
         <AmountDetails
           title={walletTransactions.totalFees}
@@ -1108,6 +1111,17 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.8,
     padding: 10,
     marginVertical: 10,
+  },
+  feeStatementContainer:{
+    width: windowWidth * 0.8,
+    padding: 10,
+    marginVertical: 10,
+  },
+  feeStatementWrapper:{
+    width:'100%',
+    padding: 10,
+    marginVertical: 10,
+    borderRadius:10
   },
   highAlertFiatFee: {
     fontSize: 16,
