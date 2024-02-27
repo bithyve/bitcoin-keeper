@@ -16,6 +16,7 @@ interface Props {
 
 const FeerateStatement = (props: Props) => {
   const [shortFeeStatement, setShortFeeStatement] = useState('');
+  const [percentageDifference, setPercentageDifference] = useState(0)
   const { colorMode } = useColorMode();
   const { showFeesInsightModal, feeInsightData, showCTA } = props;
   useEffect(() => {
@@ -49,6 +50,7 @@ const FeerateStatement = (props: Props) => {
     } else {
       resultStatement = `Fees are ${Math.abs(percentageDifference).toFixed(2)}% lower than usual.`;
     }
+    setPercentageDifference(percentageDifference)
     setShortFeeStatement(resultStatement);
   }
 
@@ -66,7 +68,7 @@ const FeerateStatement = (props: Props) => {
             <Text style={styles.viewMore}>view more details</Text>
           </Text>
           <View style={styles.feeIndicatorWrapper}>
-            <FeeIndicator dataSet={feeInsightData} />
+            <FeeIndicator percentageDifference={percentageDifference} />
           </View>
           {showCTA && <View style={styles.ctaContainer}>
             <Box justifyContent="center" alignItems="flex-end">
