@@ -67,9 +67,8 @@ function ReceiveScreen({ route }: { route }) {
               <View style={styles.btcIconWrapper}>
                 {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
               </View>
-              <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
+              <Box style={styles.verticalDeviderLine} backgroundColor={`${colorMode}.secondaryText`} />
               <Input
-                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholder={home.ConvertedAmount}
                 placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
@@ -231,7 +230,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.04,
   },
   inputParentView: {
-    marginHorizontal: 8,
+    // marginHorizontal: 8,
   },
   inputWrapper01: {
     flexDirection: 'row',
@@ -243,7 +242,7 @@ const styles = StyleSheet.create({
   },
   verticalDeviderLine: {
     marginLeft: 5,
-    width: 1,
+    width: 2,
     opacity: 0.5,
     height: 15,
   },
