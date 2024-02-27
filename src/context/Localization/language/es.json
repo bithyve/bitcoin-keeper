@@ -416,9 +416,9 @@
     "chooseFromTemplate": "Choose from a template"
   },
   "vault": {
-    "SetupyourVault": "Setup a vault",
+    "SetupyourVault": "Setup a Vault",
     "AddCustomMultiSig": "Add Custom MultiSig",
-    "configureScheme": "Create an m-of-n vault",
+    "configureScheme": "Create an m-of-n Vault",
     "VaultDesc": "A signer is an an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a Signer",
