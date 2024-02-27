@@ -9,6 +9,7 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
+import { useKeyboard } from 'src/hooks/useKeyboard';
 
 type ModalProps = {
   visible: boolean;
@@ -99,6 +100,8 @@ function KeeperModal(props: ModalProps) {
   if (!visible) {
     return null;
   }
+  const isKeyboardOpen = useKeyboard();
+
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
   return (
@@ -106,10 +109,10 @@ function KeeperModal(props: ModalProps) {
       closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
-      avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={justifyContent}
+      pb={isKeyboardOpen ? '60%' : '0'}
     >
       <Modal.Content
         borderRadius={10}

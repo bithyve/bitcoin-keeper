@@ -383,7 +383,7 @@
     "walletIdCopied": "Fingerprint Copied Successfully",
     "addSpecificInvoiceAmt": "Add a specific invoice amount",
     "addressReceiveDirectly": "You can get a receive address directly from a signer and do not have to trust the Keeper app",
-    "editTransPolicyInfo": " This will trigger a transfer request which you need to approve",
+    "editTransPolicyInfo": "This will trigger a transfer request which you need to approve",
     "transPolicyCantZero": "Transfer Policy cannot be zero",
     "updateWalletPath": "Update Wallet Path",
     "qrofRecoveryPhrase": "The QR below comprises of your 12 word Recovery Phrase",
