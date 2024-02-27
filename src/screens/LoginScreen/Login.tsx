@@ -38,7 +38,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
-import Buttons from 'src/components/Buttons';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
