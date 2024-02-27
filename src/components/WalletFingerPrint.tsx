@@ -27,7 +27,7 @@ function WalletFingerprint({ title, fingerprint }: Props) {
         <Text color={`${colorMode}.black`} style={styles.heading}>
           {title || 'Wallet Fingerprint'}
         </Text>
-        <Text color={`${colorMode}.GreenishGrey`} style={styles.value}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.value}>
           {fingerprint}
         </Text>
       </Box>
