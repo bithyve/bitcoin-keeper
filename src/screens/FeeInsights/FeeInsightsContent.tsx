@@ -60,12 +60,12 @@ const FeeInsightsContent = (props: Props) => {
    // Determine the trend for yesterday
    const trendYesterday = currentFee > yesterdayFee ? 'up' : (currentFee < yesterdayFee ? 'down' : 'unchanged');
    const yesterdayStatement = trendYesterday !== 'unchanged' ?
-     `, ${trendYesterday} from ${yesterdayFee} sats/vByte yesterday` : '';
+     `, ${trendYesterday} from ${yesterdayFee} sats/vByte yesterday` : ' remained steady at ' + yesterdayFee + ' sats/vByte from yesterday';
 
    // Determine the trend for last week
    const trendLastWeek = currentFee > lastWeekFee ? 'up' : (currentFee < lastWeekFee ? 'down' : 'unchanged');
    const lastWeekStatement = trendLastWeek !== 'unchanged' ?
-     ` and ${trendLastWeek} from ${lastWeekFee} sats/vByte a week before` : '';
+     ` and ${trendLastWeek} from ${lastWeekFee} sats/vByte a week before` : ' and remained steady at ' + lastWeekFee + ' sats/vByte from a week before';
 
    // Generate the statement
    const feeStatement = `Bitcoin average transaction fees are currently at ${currentFee} sats/vByte${yesterdayStatement}${lastWeekStatement}.`;
