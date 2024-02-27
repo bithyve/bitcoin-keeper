@@ -252,9 +252,7 @@ function NodeSettings() {
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
-        buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
         buttonTextColor={`${colorMode}.white`}
-        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
