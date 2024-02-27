@@ -12,9 +12,10 @@ import Text from './KeeperText';
 type Props = {
   fingerprint: string;
   title?: string;
+  copy?: Function;
 };
 
-function WalletFingerprint({ title, fingerprint }: Props) {
+function WalletFingerprint({ title, fingerprint, copy }: Props) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
@@ -24,10 +25,12 @@ function WalletFingerprint({ title, fingerprint }: Props) {
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box style={styles.textContainer}>
-        <Text color={`${colorMode}.black`} style={styles.heading}>
-          {title || 'Wallet Fingerprint'}
-        </Text>
-        <Text color={`${colorMode}.GreenishGrey`} style={styles.value}>
+        {title && (
+          <Text color={`${colorMode}.black`} style={styles.heading}>
+            {title}
+          </Text>
+        )}
+        <Text numberOfLines={1} color={`${colorMode}.GreenishGrey`} style={styles.value}>
           {fingerprint}
         </Text>
       </Box>
@@ -36,7 +39,7 @@ function WalletFingerprint({ title, fingerprint }: Props) {
         style={styles.iconContainer}
         onPress={() => {
           Clipboard.setString(fingerprint);
-          showToast(walletTranslation.walletIdCopied, <TickIcon />);
+          copy ? copy() : showToast(walletTranslation.walletIdCopied, <TickIcon />);
         }}
       >
         <CopyIcon />

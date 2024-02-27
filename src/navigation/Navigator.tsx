@@ -14,7 +14,6 @@ import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
-import EditWalletDetails from 'src/screens/WalletDetails/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
@@ -177,7 +176,6 @@ function AppStack() {
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
-        <Stack.Screen name="EditWalletDetails" component={EditWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
