@@ -7,7 +7,6 @@
 /* eslint-disable prefer-destructuring */
 
 import * as bitcoinJS from 'bitcoinjs-lib';
-import * as ecc from 'tiny-secp256k1';
 
 import ECPairFactory from 'ecpair';
 import coinselect from 'coinselect';
@@ -18,6 +17,7 @@ import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
+import ecc from './noble_ecc';
 import {
   AverageTxFees,
   AverageTxFeesByNetwork,
@@ -45,6 +45,7 @@ import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 
+bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);
