@@ -3,7 +3,6 @@ import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 
 import Background from 'src/assets/images/background elements.svg';
-import BackgroundDark from 'src/assets/images/backgroundElementsDark.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
 import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
