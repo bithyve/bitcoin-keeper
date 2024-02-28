@@ -22,6 +22,7 @@ export function TopSection({ colorMode, top, cardsData }) {
             callback={data.callback}
             icon={data.icon}
             dottedBorder
+            cardPillText={data?.cardPillText}
           />
         ))}
       </Box>
@@ -45,6 +46,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 7,
     position: 'absolute',
-    top: hp(220),
+    top: hp(230),
   },
 });

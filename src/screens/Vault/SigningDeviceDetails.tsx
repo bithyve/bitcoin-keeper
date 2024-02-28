@@ -42,6 +42,7 @@ import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
@@ -341,6 +342,7 @@ function SigningDeviceDetails({ route }) {
             icon={SDIcons(signer.type, true).Icon}
           />
         }
+        rightComponent={<CurrencyTypeSwitch />}
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>

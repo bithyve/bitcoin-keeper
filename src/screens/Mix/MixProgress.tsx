@@ -72,6 +72,7 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -480,8 +481,6 @@ function MixProgress({
       </Text>
     );
   }
-
-  const { colorMode } = useColorMode();
 
   return (
     <Box style={styles.container}>

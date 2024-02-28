@@ -25,7 +25,6 @@ export type AppStackParams = {
   ChoosePlan: undefined;
   EnterWalletDetail: undefined;
   UpdateWalletDetails: undefined;
-  EditWalletDetails: { wallet: Wallet | Vault };
   WalletDetailsSettings: undefined;
   CollaborativeWalletSettings: undefined;
   AddAmount: undefined;

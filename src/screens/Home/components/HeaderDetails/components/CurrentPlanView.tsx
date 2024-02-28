@@ -23,7 +23,7 @@ function CurrentPlanView({ plan }) {
           <Text
             testID="text_home_current_plan"
             style={styles.currentPlanText}
-            color={`${colorMode}.white`}
+            color={`${colorMode}.choosePlanHome`}
           >
             {plan}
           </Text>
