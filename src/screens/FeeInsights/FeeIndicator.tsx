@@ -1,10 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React from 'react';
 import { SegmentedArc } from '@shipt/segmented-arc-for-react-native';
 import Fonts from 'src/constants/Fonts';
 import { useColorMode } from 'native-base';
 import customTheme from 'src/navigation/themes';
-import { calculateIndicatorScale } from 'src/utils/feeeInisghtUtil';
+import { calculateIndicatorScale } from 'src/utils/feeInisghtUtil';
 interface Props {
   percentageDifference: number;
 }
@@ -14,48 +14,46 @@ const FeeIndicator = (props: Props) => {
   const { percentageDifference } = props;
   const { colorMode } = useColorMode();
 
-
   const segments = [
     {
       scale: 0.25,
       filledColor: customTheme.colors[colorMode].forestGreen,
       emptyColor: customTheme.colors[colorMode].forestGreen,
-      data: { label: 'Blue' },
+      data: { label: 'LOW' },
     },
     {
       scale: 0.25,
       filledColor: customTheme.colors[colorMode].amber,
       emptyColor: customTheme.colors[colorMode].amber,
-      data: { label: 'Yellow' },
+      data: { label: 'MEDIUM' },
     },
     {
       scale: 0.25,
       filledColor: customTheme.colors[colorMode].amber,
       emptyColor: customTheme.colors[colorMode].amber,
-      data: { label: 'Yellow' },
+      data: { label: 'MEDIUM' },
     },
     {
       scale: 0.25,
       filledColor: customTheme.colors[colorMode].errorRed,
       emptyColor: customTheme.colors[colorMode].errorRed,
-      data: { label: 'Red' },
+      data: { label: 'HIGH' },
     },
   ];
 
   return (
-      <SegmentedArc
-        segments={segments}
-        fillValue={calculateIndicatorScale(percentageDifference)}
-        isAnimated={true}
-        animationDelay={1000}
-        showArcRanges={false}
-        ranges={range}
-        radius={40}
-        rangesTextColor="gray"
-        rangesTextStyle={styles.rangeTextStyle}
-        capInnerColor={customTheme.colors[colorMode].primaryGreen}
-        capOuterColor={customTheme.colors[colorMode].OffWhite}
-      />
+    <SegmentedArc
+      segments={segments}
+      fillValue={calculateIndicatorScale(percentageDifference)}
+      isAnimated={true}
+      animationDelay={1000}
+      showArcRanges={false}
+      ranges={range}
+      radius={40}
+      rangesTextStyle={styles.rangeTextStyle}
+      capInnerColor={customTheme.colors[colorMode].primaryGreen}
+      capOuterColor={customTheme.colors[colorMode].OffWhite}
+    />
   );
 };
 

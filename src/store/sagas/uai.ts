@@ -19,7 +19,7 @@ import {
 import { createWatcher } from '../utilities';
 import { BackupHistory } from 'src/models/enums/BHR';
 import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
-import { generateFeeStatement } from 'src/utils/feeeInisghtUtil';
+import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 1; // 3hours
 const healthCheckReminderThreshold = isTestnet()

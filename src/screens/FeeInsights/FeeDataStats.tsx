@@ -59,19 +59,14 @@ const DataPoints = {
 
 const FeeDataStats = () => {
   const [feeInsight, setFeeInsight] = useState({});
-  const [error, setError] = useState(null);
   const { colorMode } = useColorMode();
   const { currencyKind } = useAppSelector((state) => state.settings);
   useEffect(() => {
     const fetchInsightData = async () => {
-      try {
         const result = await Relay.feeOneDayInsights();
         if (result && result.data) {
           setFeeInsight(result.data);
         }
-      } catch (err) {
-        setError(err);
-      }
     };
 
     fetchInsightData();
@@ -110,8 +105,8 @@ const FeeDataStats = () => {
     });
   };
 
-  if (error) {
-    return <Text color={`${colorMode}.SlateGrey`} style={styles.dataStats}>Failed to load data: {error.message}</Text>;
+  if(feeInsight && Object.keys(feeInsight).length === 0){
+    return null;
   }
 
   return (

@@ -1,6 +1,5 @@
 import { StyleSheet, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { useColorMode } from 'native-base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import FeeIndicator from './FeeIndicator';
 import Fonts from 'src/constants/Fonts';
@@ -15,7 +14,6 @@ interface Props {
 const FeerateStatement = (props: Props) => {
   const [shortFeeStatement, setShortFeeStatement] = useState('');
   const [percentageDifference, setPercentageDifference] = useState(0);
-  const { colorMode } = useColorMode();
   const { showFeesInsightModal, feeInsightData } = props;
   useEffect(() => {
     if (feeInsightData.length > 0) {
@@ -61,7 +59,7 @@ const FeerateStatement = (props: Props) => {
         <Text style={styles.highAlertSatsFee}>
           {shortFeeStatement}
           {'\n'}
-          <Text style={styles.viewMore}>view more details</Text>
+          <Text style={styles.viewMore}>View insights</Text>
         </Text>
         <View style={styles.feeIndicatorWrapper}>
           <FeeIndicator percentageDifference={percentageDifference} />
