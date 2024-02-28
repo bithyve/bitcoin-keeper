@@ -25,10 +25,12 @@ function WalletFingerprint({ title, fingerprint, copy }: Props) {
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box style={styles.textContainer}>
-        <Text color={`${colorMode}.black`} style={styles.heading}>
-          {title || 'Wallet Fingerprint'}
-        </Text>
-        <Text color={`${colorMode}.secondaryText`} style={styles.value}>
+        {title && (
+          <Text color={`${colorMode}.black`} style={styles.heading}>
+            {title}
+          </Text>
+        )}
+        <Text color={`${colorMode}.secondaryText`} numberOfLines={1} style={styles.value}>
           {fingerprint}
         </Text>
       </Box>
