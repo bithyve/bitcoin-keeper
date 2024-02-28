@@ -96,6 +96,7 @@ function NewHomeScreen({ navigation }) {
       name: 'Security and Inheritance',
       icon: <InheritanceIcon />,
       callback: () => {
+        console.log('activeVault', activeVault);
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
         if (!eligible) {
           showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
@@ -108,7 +109,12 @@ function NewHomeScreen({ navigation }) {
             })
           );
         } else {
-          navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+          // navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'InheritanceToolsAndTips',
+            })
+          );
         }
       },
     },

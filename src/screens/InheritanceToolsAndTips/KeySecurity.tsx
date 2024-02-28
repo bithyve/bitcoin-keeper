@@ -24,6 +24,10 @@ function KeySecurity({ navigation }) {
     navigation.navigate('SetupCollaborativeWallet');
   };
 
+  const navigateToCanary = () => {
+    navigation.navigate('CanaryWallets');
+  };
+
   return (
     <ScrollView>
       <OptionCard
@@ -36,7 +40,7 @@ function KeySecurity({ navigation }) {
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={<Bird />}
-        callback={() => navigateToVaultSetup({ m: 2, n: 3 })}
+        callback={() => navigateToCanary()}
       />
       <OptionCard
         title="Assisted Keys"
