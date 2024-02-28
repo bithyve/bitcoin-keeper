@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unstable-nested-components */
-import Text from 'src/components/KeeperText';
 import { Box, StatusBar, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
@@ -7,6 +6,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
@@ -233,7 +233,7 @@ export default function CreatePin(props) {
       </Box>
       <KeeperModal
         visible={createPassword}
-        close={() => {}}
+        close={() => { }}
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
         Key"
