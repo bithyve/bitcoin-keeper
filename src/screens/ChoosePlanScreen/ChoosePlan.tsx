@@ -424,7 +424,7 @@ function ChoosePlan() {
                   (i) =>
                     i !== '*Coming soon' && (
                       <Box style={styles.benefitContainer} key={i}>
-                        <Box style={styles.dot} backgroundColor={`${colorMode}.Taupe`} />
+                        <Box style={styles.dot} backgroundColor={`${colorMode}.primaryText`} />
                         <Text
                           fontSize={13}
                           color={`${colorMode}.GreyText`}
