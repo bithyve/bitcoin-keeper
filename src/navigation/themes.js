@@ -142,7 +142,7 @@ export const customTheme = extendTheme({
       // ChampagneBliss: Colors.ChampagneBliss,
       PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
-      Crayola: Colors.Crayola,
+      // Crayola: Colors.Crayola,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -238,7 +238,7 @@ export const customTheme = extendTheme({
       // ChampagneBliss: Colors.ChampagneBliss,
       PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
-      Crayola: Colors.Crayola,
+      // Crayola: Colors.Crayola,
     },
   },
   config: {
