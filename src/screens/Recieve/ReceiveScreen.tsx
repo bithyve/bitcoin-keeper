@@ -67,7 +67,10 @@ function ReceiveScreen({ route }: { route }) {
               <View style={styles.btcIconWrapper}>
                 {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
               </View>
-              <Box style={styles.verticalDeviderLine} backgroundColor={`${colorMode}.secondaryText`} />
+              <Box
+                style={styles.verticalDeviderLine}
+                backgroundColor={`${colorMode}.secondaryText`}
+              />
               <Input
                 placeholder={home.ConvertedAmount}
                 placeholderTextColor={`${colorMode}.greenText`}

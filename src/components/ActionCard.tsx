@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import Text from './KeeperText';
+import CardPill from './CardPill';
 
 type ActionCardProps = {
   cardName: string;
@@ -11,6 +12,7 @@ type ActionCardProps = {
   callback: () => void;
   customStyle?: ViewStyle;
   dottedBorder?: boolean;
+  cardPillText?: string;
 };
 
 function ActionCard({
@@ -20,6 +22,7 @@ function ActionCard({
   customStyle,
   callback,
   dottedBorder = false,
+  cardPillText = '',
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
@@ -33,6 +36,11 @@ function ActionCard({
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
+        {cardPillText && (
+          <Box style={styles.cardPillContainer}>
+            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.Periwinkle`} />
+          </Box>
+        )}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
           {dottedBorder && (
             <Box borderColor={`${colorMode}.PearlWhite`} style={styles.dottedBorder} />
@@ -82,6 +90,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     lineHeight: 16,
+  },
+  cardPillContainer: {
+    width: 70,
+    alignSelf: 'flex-end',
   },
 });
 

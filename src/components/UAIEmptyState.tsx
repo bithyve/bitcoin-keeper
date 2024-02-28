@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import Text from './KeeperText';
 import { Linking, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { windowWidth, wp } from 'src/constants/responsive';
+import Text from './KeeperText';
 
 const appStoreLink = 'itms-apps://itunes.apple.com/us/app/apple-store/id1545535925?mt=8';
 const playStoreLink = 'https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper';

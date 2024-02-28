@@ -48,9 +48,9 @@ KeeperModal.defaultProps = {
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: 'light.headerText',
-  buttonCallback: () => { },
+  buttonCallback: () => {},
   secondaryButtonText: null,
-  secondaryCallback: () => { },
+  secondaryCallback: () => {},
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -58,7 +58,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => { },
+  learnMoreCallback: () => {},
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
@@ -118,7 +118,7 @@ function KeeperModal(props: ModalProps) {
         borderRadius={10}
         marginBottom={Math.max(5, bottomMargin)}
         maxHeight="full"
-        width={'95%'}
+        width="95%"
       >
         <GestureHandlerRootView>
           <Box backgroundColor={modalBackground} style={styles.container}>

@@ -163,7 +163,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         backgroundColor={`${colorMode}.brownColor`}
         borderColor={`${colorMode}.brownColor`}
         style={styles.learnMoreContainer}
-      // learn more modal
+        // learn more modal
       >
         <Text style={styles.learnMoreText} color={`${colorMode}.primaryBackground`}>
           Need Help?
@@ -222,7 +222,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               {' '}
               Terms of Service{' '}
             </Text>
-            {`and\nour`}
+            {'and\nour'}
             <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
               {' '}
               Privacy Policy
@@ -232,7 +232,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -247,7 +247,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -263,7 +263,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
