@@ -85,7 +85,7 @@ function* fetchOneDayInsightWorker() {
     if (!data) console.log('Failed to fetch one day inisght');
     else yield put(setOneDayInsight(data));
   } catch (err) {
-    console.log('Failed to fetch latest exchange rates', { err });
+    console.log('Failed to fetch latest inisght', { err });
   }
 }
 
