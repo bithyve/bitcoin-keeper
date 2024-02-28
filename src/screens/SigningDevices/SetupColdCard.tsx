@@ -136,7 +136,7 @@ function SetupColdCard({ route }) {
       const ColdCardVerified = () => {
         dispatch(healthCheckSigner([signer]));
         navigation.dispatch(CommonActions.goBack());
-        showToast(`ColdCard verified successfully`, <TickIcon />);
+        showToast('ColdCard verified successfully', <TickIcon />);
       };
       const showVerificationError = () => {
         showToast('Something went wrong!', <ToastErrorIcon />, 3000);
@@ -165,8 +165,8 @@ function SetupColdCard({ route }) {
   };
 
   const instructions = isConfigRecovery
-    ? `Export the Vault config by going to Setting > Multisig > Then select the wallet > Export`
-    : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n`;
+    ? 'Export the Vault config by going to Setting > Multisig > Then select the wallet > Export'
+    : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper

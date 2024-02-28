@@ -33,7 +33,7 @@ import { createCipheriv, createDecipheriv } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
-const ScanAndInstruct = ({ onBarCodeRead }) => {
+function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
@@ -62,21 +62,16 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
       <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
     </VStack>
   );
-};
+}
 
 function SignWithChannel() {
   const { params } = useRoute();
-  const {
-    vaultKey,
-    collaborativeWalletId = '',
-    vaultId = '',
-  } = params as {
+  const { vaultKey, vaultId = '' } = params as {
     vaultKey: VaultSigner;
-    collaborativeWalletId: string;
     vaultId: string;
   };
   const { signer } = useSignerFromKey(vaultKey);
-  const { activeVault } = useVault({ collaborativeWalletId, vaultId });
+  const { activeVault } = useVault({ vaultId });
   const { isMultiSig: isMultisig } = activeVault;
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
@@ -94,7 +89,7 @@ function SignWithChannel() {
 
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;
-    let sha = crypto.createHash('sha256');
+    const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });

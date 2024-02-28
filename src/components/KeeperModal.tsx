@@ -1,5 +1,5 @@
 import { Box, Modal, Pressable, useColorMode } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/modal_close.svg';
@@ -9,6 +9,7 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
+import { useKeyboard } from 'src/hooks/useKeyboard';
 
 type ModalProps = {
   visible: boolean;
@@ -35,17 +36,18 @@ type ModalProps = {
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
+  loading?: boolean;
 };
 
 KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: 'light.modalWhiteBackground',
-  buttonBackground: '#00836A',
+  modalBackground: 'light.primaryBackground',
+  buttonBackground: 'light.greenButtonBackground',
   buttonText: null,
   buttonTextColor: 'white',
-  secButtonTextColor: '#073E39',
+  secButtonTextColor: 'light.headerText',
   buttonCallback: () => {},
   secondaryButtonText: null,
   secondaryCallback: () => {},
@@ -60,6 +62,7 @@ KeeperModal.defaultProps = {
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
+  loading: false,
 };
 
 function KeeperModal(props: ModalProps) {
@@ -88,11 +91,14 @@ function KeeperModal(props: ModalProps) {
     closeOnOverlayClick,
     showCloseIcon,
     justifyContent,
+    loading,
   } = props;
   const { colorMode } = useColorMode();
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
+  const isKeyboardOpen = useKeyboard();
+
   if (!visible) {
     return null;
   }
@@ -104,12 +110,17 @@ function KeeperModal(props: ModalProps) {
       closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
-      avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={justifyContent}
+      pb={isKeyboardOpen ? '60%' : '0'}
     >
-      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
+      <Modal.Content
+        borderRadius={10}
+        marginBottom={Math.max(5, bottomMargin)}
+        maxHeight="full"
+        width="95%"
+      >
         <GestureHandlerRootView>
           <Box backgroundColor={modalBackground} style={styles.container}>
             {showCloseIcon ? (
@@ -164,6 +175,7 @@ function KeeperModal(props: ModalProps) {
                       <Text style={styles.ctaText} color={buttonTextColor} bold>
                         {showButtons ? buttonText : null}
                       </Text>
+                      {loading ? <ActivityIndicator /> : null}
                     </Box>
                   </TouchableOpacity>
                 )}
@@ -182,7 +194,6 @@ const getStyles = (subTitleWidth) =>
   StyleSheet.create({
     container: {
       borderRadius: 10,
-      alignItems: 'center',
       padding: '3%',
     },
     title: {
@@ -190,7 +201,7 @@ const getStyles = (subTitleWidth) =>
       letterSpacing: 1,
     },
     subTitle: {
-      fontSize: 12,
+      fontSize: 13,
       letterSpacing: 1,
       width: subTitleWidth,
     },
@@ -242,8 +253,10 @@ const getStyles = (subTitleWidth) =>
     },
     footerContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
+      gap: 30,
       alignItems: 'center',
-      width: '100%',
+      marginBottom: 20,
+      marginRight: 10,
     },
   });

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 export enum DerivationPurpose {
   BIP44 = 44, // P2PKH: legacy, single-sig
   BIP48 = 48, // P2WSH & P2SH-P2WSH: native and wrapped segwit, multi-sig
@@ -91,6 +90,7 @@ export enum VaultMigrationType {
 export enum SignerType {
   TAPSIGNER = 'TAPSIGNER',
   KEEPER = 'KEEPER',
+  MY_KEEPER = 'MY_KEEPER',
   TREZOR = 'TREZOR',
   LEDGER = 'LEDGER',
   COLDCARD = 'COLDCARD',
@@ -174,4 +174,13 @@ export enum ImportedKeyType {
   TPRV = 'tprv',
   UPRV = 'uprv',
   VPRV = 'vprv',
+}
+
+export enum KeyGenerationMode {
+  NEW = 'NEW',
+  RECOVER = 'RECOVER',
+  IMPORT = 'IMPORT',
+  NFC = 'NFC',
+  FILE = 'FILE',
+  QR = 'QR',
 }

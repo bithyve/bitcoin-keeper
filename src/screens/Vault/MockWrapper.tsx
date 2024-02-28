@@ -9,9 +9,9 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { captureError } from 'src/services/sentry';
 import { View } from 'native-base';
-import { InteracationMode } from './HardwareModalMap';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from './HardwareModalMap';
 
 MockWrapper.defaultProps = {
   enable: true,
@@ -35,7 +35,7 @@ function MockWrapper({
   navigation?: NavigationProp<any>;
   addSignerFlow?: boolean;
   mode: InteracationMode;
-  signerXfp?: string; //needed in Identification and HC flow
+  signerXfp?: string; // needed in Identification and HC flow
 }) {
   const dispatch = useDispatch();
   const nav = navigation ?? useNavigation();
@@ -43,7 +43,7 @@ function MockWrapper({
   const addMockSigner = () => {
     try {
       const data = getMockSigner(signerType);
-      if (data.signer && data.key) {
+      if (data?.signer && data?.key) {
         const { signer } = data;
         dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
@@ -54,7 +54,7 @@ function MockWrapper({
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
       }
     } catch (error) {
-      if (error.toString().includes(`We don't support`)) {
+      if (error.toString().includes("We don't support")) {
         showToast(error.toString());
         return;
       }

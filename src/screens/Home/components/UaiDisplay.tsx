@@ -156,7 +156,7 @@ function UaiDisplay({ uaiStack, vaultId }) {
     return (
       <>
         <UAIView
-          title={'Your Vault: Valinor'}
+          title="Your Vault: Valinor"
           subTitle={uai?.title}
           primaryCallbackText="ADD NOW"
           secondaryCallbackText={!nonSkippableUAIs.includes(uai?.uaiType) && 'SKIP'}

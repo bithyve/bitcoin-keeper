@@ -9,12 +9,11 @@ import { hp, windowWidth, wp, windowHeight } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
-import { swiperData } from '../swiperModalData';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
-  console.log('windowHeight', windowHeight)
   return (
     <Box>
       <Box>
@@ -119,7 +118,11 @@ function List() {
             }
           >
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
-              <Text style={styles.ctaText} color={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`} bold>
+              <Text
+                style={styles.ctaText}
+                color={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+                bold
+              >
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>
@@ -148,7 +151,6 @@ function SwiperModal({ enable }) {
     />
   );
 }
-
 const styles = StyleSheet.create({
   contentContaner: {
     width: windowHeight < 650 ? wp(286) : wp(295),

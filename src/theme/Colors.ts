@@ -37,6 +37,7 @@ const Colors = {
   OutrageousOrange: 'rgba(248,107,80,1)',
   CarmineRed: 'rgba(255,0,51,1)',
   Seashell: 'rgba(253,247,240,1)',
+  lightSeashell: 'rgba(253,247,240,0.4)',
   FadedGray: 'rgba(242,237,231,1)',
   FadeBlue: 'rgba(183,201,196,1)',
   DustySageGreen: 'rgba(139,160,153,1)',
@@ -71,6 +72,9 @@ const Colors = {
   PaleIvory: 'rgba(238,232,225,1)',
   DarkSage: 'rgba(111,124,119,1)',
   Smoke: 'rgba(162,162,162,1)',
+  Taupe: 'rgba(118, 118, 128, 1)',
+  Crayola: 'rgba(227, 190, 150, 1)',
+  Periwinkle: 'rgba(184, 182, 208, 1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
@@ -83,5 +87,6 @@ const Colors = {
   SeashellDark: 'rgba(72,81,79,1)',
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
   CoffeeDark: 'rgba(150,130,111, 1)',
+  ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;

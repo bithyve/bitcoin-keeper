@@ -28,8 +28,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { useAppSelector } from 'src/store/hooks';
+import BackupModalContent from './BackupModal';
 
-function AppSettings({ navigation }) {
+function AppSettings({ navigation, route }) {
   // const { colorMode } = useColorMode();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
@@ -40,7 +41,9 @@ function AppSettings({ navigation }) {
   const { common, settings } = translations;
   const data = useQuery(RealmSchema.BackupHistory);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
+  const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
 
   const changeThemeMode = () => {
     toggleColorMode();
@@ -70,13 +73,14 @@ function AppSettings({ navigation }) {
     },
   ];
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`Keeper ${common.settings}`}
+        boldTitle
         subtitle={settings.settingsSubTitle}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -185,9 +189,9 @@ function AppSettings({ navigation }) {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery key'}
+        subTitle="To backup app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -198,15 +202,32 @@ function AppSettings({ navigation }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
-              navigation.dispatch(
-                CommonActions.navigate('ExportSeed', {
-                  seed: primaryMnemonic,
-                  next: true,
-                })
-              );
+              setBackupModalVisible(true);
             }}
           />
         )}
+      />
+      <KeeperModal
+        visible={backupModalVisible}
+        close={() => setBackupModalVisible(false)}
+        title="Backup Recovery Key"
+        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        subTitleWidth={wp(240)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.SlateGrey`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText="Backup Now"
+        buttonCallback={() => {
+          setBackupModalVisible(false);
+          navigation.dispatch(
+            CommonActions.navigate('ExportSeed', {
+              seed: primaryMnemonic,
+              next: true,
+            })
+          );
+        }}
+        Content={BackupModalContent}
       />
     </ScreenWrapper>
   );

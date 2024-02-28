@@ -10,6 +10,7 @@ import Text from 'src/components/KeeperText';
 type Props = {
   title?: string;
   titleColor?: string;
+  boldTitle?: boolean;
   subtitle?: string;
   subTitleColor?: string;
   onPressHandler?: () => void;
@@ -29,6 +30,7 @@ function KeeperHeader({
   subtitle = '',
   titleColor,
   subTitleColor,
+  boldTitle = false,
   onPressHandler,
   enableBack = true,
   learnMore = false,
@@ -80,8 +82,9 @@ function KeeperHeader({
             {title && (
               <Text
                 style={styles.addWalletText}
-                color={titleColor ? titleColor : `${colorMode}.headerText`}
+                color={titleColor || `${colorMode}.headerText`}
                 testID="text_header_title"
+                bold={boldTitle}
               >
                 {title}
               </Text>
@@ -89,8 +92,9 @@ function KeeperHeader({
             {subtitle && (
               <Text
                 style={[styles.addWalletDescription]}
-                color={subTitleColor ? subTitleColor : `${colorMode}.black`}
+                color={subTitleColor || `${colorMode}.black`}
                 testID="text_header_subtitle"
+                numberOfLines={2}
               >
                 {subtitle}
               </Text>
@@ -117,6 +121,7 @@ const getStyles = (marginLeft: boolean) =>
       fontSize: 14,
       lineHeight: 20,
       letterSpacing: 0.5,
+      width: windowWidth * 0.45,
     },
     backContainer: {
       justifyContent: 'space-between',

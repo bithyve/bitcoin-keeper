@@ -6,15 +6,16 @@ import Clipboard from '@react-native-community/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Text from './KeeperText';
 import { hp } from 'src/constants/responsive';
+import Text from './KeeperText';
 
 type Props = {
   fingerprint: string;
   title?: string;
+  copy?: Function;
 };
 
-function WalletFingerprint({ title, fingerprint }: Props) {
+function WalletFingerprint({ title, fingerprint, copy }: Props) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
@@ -25,9 +26,9 @@ function WalletFingerprint({ title, fingerprint }: Props) {
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box style={styles.textContainer}>
         <Text color={`${colorMode}.black`} style={styles.heading}>
-          {title ? title : 'Wallet Fingerprint'}
+          {title || 'Wallet Fingerprint'}
         </Text>
-        <Text color={`${colorMode}.GreenishGrey`} style={styles.value}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.value}>
           {fingerprint}
         </Text>
       </Box>
@@ -36,7 +37,7 @@ function WalletFingerprint({ title, fingerprint }: Props) {
         style={styles.iconContainer}
         onPress={() => {
           Clipboard.setString(fingerprint);
-          showToast(walletTranslation.walletIdCopied, <TickIcon />);
+          copy ? copy() : showToast(walletTranslation.walletIdCopied, <TickIcon />);
         }}
       >
         <CopyIcon />

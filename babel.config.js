@@ -1,5 +1,5 @@
 module.exports = function override(api) {
-  var isProd = api.cache(() => process.env.NODE_ENV === 'production');
+  const isProd = api.cache(() => process.env.NODE_ENV === 'production');
 
   const commonConfig = {
     presets: ['module:metro-react-native-babel-preset'],

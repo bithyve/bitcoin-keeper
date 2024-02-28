@@ -171,7 +171,7 @@ function ChoosePolicyNew({ navigation, route }) {
   function Field({ title, subTitle, value, onPress }) {
     return (
       <Box style={styles.fieldWrapper}>
-        <Box width={'60%'}>
+        <Box width="60%">
           <Text style={styles.titleText}>{title}</Text>
           <Text color="light.GreyText" style={styles.subTitleText}>
             {subTitle}

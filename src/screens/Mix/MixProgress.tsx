@@ -72,6 +72,7 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -481,8 +482,6 @@ function MixProgress({
     );
   }
 
-  const { colorMode } = useColorMode();
-
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
@@ -618,7 +617,7 @@ const getStyles = (clock) =>
       letterSpacing: 0.4,
       marginLeft: wp(5),
       marginTop: hp(3),
-      width: '100%',
+      width: '95%',
       flexWrap: 'wrap',
     },
     progressStepsTextWrapper: {

@@ -35,7 +35,7 @@ function TransferPolicy({
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { common, wallet: walletTranslation } = translations;
+  const { common, wallet: walletTranslation, settings } = translations;
   const [policyText, setPolicyText] = useState(wallet?.transferPolicy?.threshold?.toString());
   const dispatch = useDispatch();
 
@@ -82,7 +82,7 @@ function TransferPolicy({
     }
   };
   return (
-    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(275)} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(300)}>
       <Box justifyContent="center" alignItems="center">
         <Box
           marginX="5%"
@@ -90,9 +90,10 @@ function TransferPolicy({
           width="100%"
           justifyContent="center"
           alignItems="center"
-          borderRadius={5}
+          borderRadius={10}
           backgroundColor={`${colorMode}.seashellWhite`}
           padding={3}
+          height={50}
         >
           <Box pl={5}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</Box>
           <Box ml={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
@@ -108,17 +109,17 @@ function TransferPolicy({
           </Text>
         </Box>
       </Box>
-      <Box py={5}>
-        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
+      <Box py={25}>
+        <Text fontSize={13} color={`${colorMode}.SlateGrey`} letterSpacing={0.65}>
           {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>
       <Buttons
         primaryCallback={presshandler}
-        primaryText={common.confirm}
+        primaryText={settings.SaveChanges}
         secondaryCallback={secondaryBtnPress}
         secondaryText={common.cancel}
-        paddingHorizontal={wp(30)}
+        paddingHorizontal={wp(15)}
         primaryDisable={relayWalletUpdateLoading || relayWalletUpdate}
       />
       {/* keyboardview start */}
@@ -132,4 +133,5 @@ function TransferPolicy({
     </Box>
   );
 }
+
 export default TransferPolicy;

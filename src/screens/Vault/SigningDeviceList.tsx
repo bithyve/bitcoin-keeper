@@ -123,20 +123,20 @@ function SigningDeviceList() {
 
     return (
       <React.Fragment key={type}>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={onPress}
-          disabled={disabled}
-          style={{
-            opacity: disabled ? 0.4 : 1,
-          }}
-        >
+        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={disabled}>
           <Box
-            backgroundColor={`${colorMode}.primaryBackground`}
-            borderTopRadius={first ? 15 : 0}
-            borderBottomRadius={last ? 15 : 0}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderTopRadius={first ? 10 : 0}
+            borderBottomRadius={last ? 10 : 0}
           >
-            <Box style={styles.walletMapContainer}>
+            <Box
+              style={[
+                styles.walletMapContainer,
+                {
+                  opacity: disabled ? 0.4 : 1,
+                },
+              ]}
+            >
               <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
               <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
@@ -146,7 +146,7 @@ function SigningDeviceList() {
                 </Text>
               </Box>
             </Box>
-            <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
+            <Box backgroundColor={`${colorMode}.GreenishGrey`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
         <HardwareModalMap
@@ -167,7 +167,7 @@ function SigningDeviceList() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={vault.SelectSigner}
+        title={vault.Addsigner}
         subtitle={vault.SelectSignerSubtitle}
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
@@ -235,7 +235,7 @@ function SigningDeviceList() {
       </Box>
       <Box style={styles.noteContainer}>
         <Note
-          title="Security Tip"
+          title="Note"
           subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
           subtitleColor="GreyText"
         />
@@ -290,8 +290,9 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.6,
   },
   dividerStyle: {
-    opacity: 0.1,
-    width: windowWidth * 0.8,
+    opacity: 0.7,
+    width: '85%',
+    alignSelf: 'center',
     height: 0.5,
   },
   divider: {

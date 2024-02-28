@@ -6,9 +6,7 @@ export class ScriptExpression {
   public getExpression = () => this.expression;
 
   public static fromTag = (tag: number) => {
-    const se = Object.values(ScriptExpressions).find(
-      (se) => se.getTag() === tag,
-    );
+    const se = Object.values(ScriptExpressions).find((se) => se.getTag() === tag);
     return se;
   };
 }

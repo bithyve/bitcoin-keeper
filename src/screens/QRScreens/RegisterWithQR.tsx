@@ -9,11 +9,12 @@ import { useDispatch } from 'react-redux';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import useVault from 'src/hooks/useVault';
-import DisplayQR from './DisplayQR';
 import { SignerType } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import QRCode from 'react-native-qrcode-svg';
+import DisplayQR from './DisplayQR';
+
 const { width } = Dimensions.get('window');
 
 const SPECTER_PREFIX = 'addwallet keeper vault&';
@@ -25,8 +26,7 @@ function RegisterWithQR({ route, navigation }: any) {
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER
-      ? SPECTER_PREFIX +
-        `${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${
+      ? `${SPECTER_PREFIX}${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${
           activeVault.isMultiSig ? ' )' : ''
         }`
       : getWalletConfig({ vault: activeVault });

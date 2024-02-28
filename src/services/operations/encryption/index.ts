@@ -21,11 +21,19 @@ export const generateKey = (length: number): string => {
   const characters = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'; // base-58
   const charactersLength = characters.length;
   for (let itr = 0; itr < length; itr++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    result += characters.charAt(Math.floor(cryptoRandom() * charactersLength));
   }
   return result;
 };
 
-export const asymmetricEncrypt = (data: string, publicKey: string): Promise<string> => {
-  return RSA.encrypt(data, publicKey);
+export const asymmetricEncrypt = async (data: string, publicKey: string): Promise<string> => {
+  const encrypted = await RSA.encrypt(data, publicKey);
+  return encrypted;
+};
+
+export const cryptoRandom = () => {
+  // replacement for Math.random, provides more secure source of randomness
+  const bytes = randomBytes(4); // 4 bytes for a 32-bit integer
+  const randomNumber = bytes.readUInt32LE() / 0xffffffff; // Convert to a number between 0 and 1
+  return randomNumber;
 };

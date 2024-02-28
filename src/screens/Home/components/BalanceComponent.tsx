@@ -18,10 +18,10 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
         <CurrencyInfo
           hideAmounts={false}
           amount={balance}
-          hideAmounts={isShowAmount ? false : true}
+          hideAmounts={!isShowAmount}
           fontSize={27}
-          color={Colors.RichBlack}
-          variation="dark"
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.RichBlackDark}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
         />
       </TouchableOpacity>
     </Box>

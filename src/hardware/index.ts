@@ -19,13 +19,14 @@ import config, { APP_STAGE } from 'src/core/config';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import idx from 'idx';
-import HWError from './HWErrorState';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
   SignerType.TREZOR,
   SignerType.KEEPER,
+  SignerType.MY_KEEPER,
   SignerType.MOBILE_KEY,
   SignerType.POLICY_SERVER,
   SignerType.SEED_WORDS,
@@ -105,8 +106,11 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.JADE:
       name = 'Jade';
       break;
+    case SignerType.MY_KEEPER:
+      name = 'App Key (This App)';
+      break;
     case SignerType.KEEPER:
-      name = 'Collaborative Key';
+      name = 'App Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -115,7 +119,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Nano X';
       break;
     case SignerType.MOBILE_KEY:
-      name = 'Mobile Key';
+      name = 'Recovery Key';
       break;
     case SignerType.PASSPORT:
       name = 'Passport';
@@ -252,10 +256,11 @@ export const getDeviceStatus = (
       } else {
         return { message: '', disabled: false };
       }
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
-      return addSignerFlow || scheme?.n < 2
+      return !addSignerFlow && scheme?.n < 2
         ? {
-            message: `You can add a ${getSignerNameFromType(
+            message: `You can add an ${getSignerNameFromType(
               type
             )} in a multisig configuration only`,
             disabled: true,
@@ -343,8 +348,9 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.JADE: {
       return 'Optional registration';
     }
+    case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
-      return 'Use Collaborative Key as signer';
+      return 'Use App Key as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';

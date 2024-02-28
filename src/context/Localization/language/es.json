@@ -116,6 +116,8 @@
     "welcome": "Welcome",
     "EnterNew": "Enter New",
     "Passcode": "Passcode",
+    "newPasscode": "Enter a New passcode",
+    "confirmNewPasscode": "Confirm the new passcode",
     "ReEnter": "Re Enter",
     "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
@@ -383,7 +385,7 @@
     "walletIdCopied": "Fingerprint Copied Successfully",
     "addSpecificInvoiceAmt": "Add a specific invoice amount",
     "addressReceiveDirectly": "You can get a receive address directly from a signer and do not have to trust the Keeper app",
-    "editTransPolicyInfo": " This will trigger a transfer request which you need to approve",
+    "editTransPolicyInfo": "This will trigger a transfer request which you need to approve",
     "transPolicyCantZero": "Transfer Policy cannot be zero",
     "updateWalletPath": "Update Wallet Path",
     "qrofRecoveryPhrase": "The QR below comprises of your 12 word Recovery Phrase",
@@ -418,12 +420,12 @@
     "walletPathPurposeDesc": "Wallet path and purpose"
   },
   "vault": {
-    "SetupyourVault": "Setup a vault",
+    "SetupyourVault": "Setup a Vault",
     "AddCustomMultiSig": "Add Custom MultiSig",
-    "configureScheme": "Create an m-of-n vault",
+    "configureScheme": "Create an m-of-n Vault",
     "VaultDesc": "A signer is an an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
-    "Addsigner": "Add a signer",
+    "Addsigner": "Add a Signer",
     "Vault": "Vault",
     "Yoursupersecurebitcoin": "Your super secure bitcoin",
     "MySigners": "My signers",
@@ -436,7 +438,7 @@
     "ViewVault": "View vault",
     "AddNow": "Add Now",
     "SelectSigner": "Select a Signer",
-    "SelectSignerSubtitle": "To store one private key",
+    "SelectSignerSubtitle": "For one of the keys",
     "VaultInfo": "A signer can be a hardware wallet or a signer or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
@@ -659,10 +661,10 @@
     "Comprehensive": "Comprehensive",
     "security": "security",
     "privacy": "privacy",
-    "slide01Title": "for\n your bitcoin keys",
-    "slide01Paragraph": "Use trusted signers for air-gapped signing and setting up vaults. Use health check to verify access to keys",
+    "slide01Title": "for\n your bitcoin",
+    "slide01Paragraph": "Create single or multi-key wallets using popular signing devices. Perform air-gapped signing. Do regular health checks for keys.",
     "slide02Title": "Security should not\ncome at the cost of",
-    "slide02Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
+    "slide02Paragraph": "No account creation is needed. Run your own node. Connect via. Tor. Manage UTXOs and perform Whirlpool.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
@@ -675,7 +677,7 @@
     "whirlpool": "Whirlpool",
     "slide07Paragraph": "You can remix your sats for free for enhanced privacy before storing them in your vault",
     "slide08Title": "Upgrade to Diamond Hands for\n generational hodling",
-    "slide08Paragraph": "Plan your inheritance. Access assisted keys.\nAvail priority support services."
+    "slide08Paragraph": "Plan your inheritance. Get access to Assisted Keys. Avail priority support."
   },
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",
@@ -747,6 +749,7 @@
   "signer": {
     "addSigner": "Add Signer",
     "addSignerSubTitle": "to Valinor",
-    "addSigners": "Add Signers"
+    "addSigners": "Add Signers",
+    "addKeys": "Add keys"
   }
 }

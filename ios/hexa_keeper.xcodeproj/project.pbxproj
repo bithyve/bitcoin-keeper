@@ -768,8 +768,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "24a4926e-8b09-47ba-9a7a-303fd6c15cae";
-				PROVISIONING_PROFILE_SPECIFIER = "Keeper Distribution";
+				PROVISIONING_PROFILE = "953a3842-aa05-46d1-bec0-5dc129292e14";
+				PROVISIONING_PROFILE_SPECIFIER = "Keeper Development";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/hexa_keeper.app/hexa_keeper";
 			};
 			name = Release;
@@ -783,7 +783,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 297;
+				CURRENT_PROJECT_VERSION = 300;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -891,7 +891,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -915,7 +915,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 297;
+				CURRENT_PROJECT_VERSION = 300;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1023,7 +1023,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1031,8 +1031,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.hexawallet.keeper;
 				PRODUCT_NAME = hexa_keeper;
-				PROVISIONING_PROFILE = "24a4926e-8b09-47ba-9a7a-303fd6c15cae";
-				PROVISIONING_PROFILE_SPECIFIER = "Keeper Distribution";
+				PROVISIONING_PROFILE = "953a3842-aa05-46d1-bec0-5dc129292e14";
+				PROVISIONING_PROFILE_SPECIFIER = "Keeper Development";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Keeper Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1178,7 +1178,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 297;
+				CURRENT_PROJECT_VERSION = 300;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -1287,7 +1287,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1313,7 +1313,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 297;
+				CURRENT_PROJECT_VERSION = 300;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1422,7 +1422,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.1.11;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1430,8 +1430,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.hexawallet.hexakeeper.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "24a4926e-8b09-47ba-9a7a-303fd6c15cae";
-				PROVISIONING_PROFILE_SPECIFIER = "Keeper Distribution";
+				PROVISIONING_PROFILE = "953a3842-aa05-46d1-bec0-5dc129292e14";
+				PROVISIONING_PROFILE_SPECIFIER = "Keeper Development";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Keeper Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "hexa_keeper-Swift.h";

@@ -7,14 +7,22 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
+import { useAppSelector } from 'src/store/hooks';
+import { getCountry } from 'react-native-localize';
 import GradientIcon from './GradientIcon';
 
 function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }) {
   const { colorMode } = useColorMode();
+  const { currencyCode } = useAppSelector((state) => state.settings);
+
   const buyWithRamp = (address: string) => {
     try {
       setShowBuyRampModal(false);
-      Linking.openURL(fetchRampReservation({ receiveAddress: address }));
+      if (currencyCode === 'GBP' || getCountry() === 'UK') {
+        Linking.openURL('https://ramp.network/buy#');
+      } else {
+        Linking.openURL(fetchRampReservation({ receiveAddress: address }));
+      }
     } catch (error) {
       console.log(error);
     }
