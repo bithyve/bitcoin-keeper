@@ -137,9 +137,11 @@ export const customTheme = extendTheme({
       Smoke: Colors.Smoke,
       ForestGreenDark: Colors.ForestGreenDark,
       deepTeal: Colors.deepTeal,
+      ChampagneBliss: Colors.ChampagneBliss,
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
       Crayola: Colors.Crayola,
+      Periwinkle: Colors.Periwinkle,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -229,9 +231,11 @@ export const customTheme = extendTheme({
       deepTeal: Colors.deepTeal,
       Champagne: Colors.Champagne,
       Ivory: Colors.Ivory,
+      ChampagneBliss: Colors.ChampagneBliss,
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
       Crayola: Colors.Crayola,
+      Periwinkle: Colors.Periwinkle,
     },
   },
   config: {

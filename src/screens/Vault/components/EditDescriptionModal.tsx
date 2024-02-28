@@ -99,7 +99,6 @@ function DescriptionModal({
       title="Add Description"
       subTitle="Optionally you can add a short description to the signer"
       buttonText="Save"
-      justifyContent="center"
       Content={MemoisedContent}
       buttonCallback={onSave}
     />

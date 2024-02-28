@@ -120,7 +120,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             secondary: skipBtnConfig(uai),
           },
           modalDetails: {
-            heading: 'Set up you first vault',
+            heading: 'Set up your first vault',
             subTitle: 'Create your vault',
             body: 'Enhance security by creating a vault for your sats. Vaults add extra protection with multi-signature authentication.',
             btnConfig: {
