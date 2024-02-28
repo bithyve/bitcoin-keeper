@@ -23,6 +23,8 @@ import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
 import InititalAppController from './InititalAppController';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -81,11 +83,19 @@ function NewHomeScreen({ navigation }) {
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
+
   const cardsData = [
     {
       name: 'Buy\nBitcoin',
       icon: <BTC />,
       callback: onPressBuyBitcoin,
+      cardPillText: `1 BTC = ${
+        currencyCodeExchangeRate.symbol
+      } ${currencyCodeExchangeRate.buy.toFixed(2)}`,
     },
     {
       name: 'Manage\nKeys',

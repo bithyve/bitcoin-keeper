@@ -141,6 +141,7 @@ export const customTheme = extendTheme({
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
       Crayola: Colors.Crayola,
+      Periwinkle: Colors.Periwinkle,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -234,6 +235,7 @@ export const customTheme = extendTheme({
       PearlGrey: Colors.PearlGrey,
       Taupe: Colors.Taupe,
       Crayola: Colors.Crayola,
+      Periwinkle: Colors.Periwinkle,
     },
   },
   config: {
