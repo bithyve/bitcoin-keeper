@@ -30,9 +30,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
-import SettingsIcon from 'src/assets/images/settings_white.svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan() {
@@ -120,9 +118,8 @@ function ChoosePlan() {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${
-                subscription.introductoryPriceNumberOfPeriodsIOS
-              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
+                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -251,7 +248,7 @@ function ChoosePlan() {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => {},
+              onPress: () => { },
               style: 'cancel',
             },
             {
@@ -312,9 +309,8 @@ function ChoosePlan() {
       }
     }
     if (trial) {
-      return `Start your ${trial} FREE trial now! Then ${amount} per ${
-        isMonthly ? 'month' : 'year'
-      }, cancel anytime`;
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${isMonthly ? 'month' : 'year'
+        }, cancel anytime`;
     } else {
       return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
     }
@@ -367,11 +363,11 @@ function ChoosePlan() {
         title={choosePlan.choosePlantitle}
         boldTitle
         subtitle="Upgrade or downgrade"
-        // To-Do-Learn-More
+      // To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}
-        close={() => {}}
+        close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -380,7 +376,7 @@ function ChoosePlan() {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => {}}
+        buttonCallback={() => { }}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />

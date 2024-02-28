@@ -18,6 +18,7 @@ import Tagline from 'src/assets/images/tagline.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 
+
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode } = useAppSelector((state) => state.settings);
   const { toggleColorMode, colorMode } = useColorMode();

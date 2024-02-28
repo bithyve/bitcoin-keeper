@@ -127,7 +127,7 @@ function NewHomeScreen({ navigation }) {
   ];
 
   return (
-    <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
       <InititalAppController
         navigation={navigation}
         electrumErrorVisible={electrumErrorVisible}
