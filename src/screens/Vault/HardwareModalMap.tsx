@@ -1459,7 +1459,8 @@ function HardwareModalMap({
           storageType: SignerStorage.WARM,
           isMultisig: true,
           inheritanceKeyInfo: {
-            configurations: setupInfo.configurations,
+            // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
+            configurations: [], // setupInfo.configurations,
             policy: setupInfo.policy,
           },
           xfp: setupInfo.id,

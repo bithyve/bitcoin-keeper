@@ -68,6 +68,7 @@ import ElectrumClient, {
 } from 'src/services/electrum/client';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import idx from 'idx';
 import { RootState } from '../store';
 import { initiateVaultMigration, vaultCreated, vaultMigrationCompleted } from '../reducers/vaults';
 import {
@@ -112,7 +113,6 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
-import idx from 'idx';
 
 export interface NewVaultDetails {
   name?: string;
@@ -722,21 +722,31 @@ function* finaliseIKSetupWorker({
   let updatedInheritanceKeyInfo: InheritanceKeyInfo = null;
 
   if (ikSigner.inheritanceKeyInfo) {
-    // case: updating config for this new vault which already had IKS as one of its signers
+    // case I: updating config for this new vault which already had IKS as one of its signers
+    // case II: updating config for the first time for a recovered IKS(doesn't belong to a vault yet on this device)
     let existingConfiguration: InheritanceConfiguration = idx(
       // thresholds are constructed using an already existing configuration for IKS
       ikSigner,
       (_) => _.inheritanceKeyInfo.configurations[0]
     );
 
-    if (!existingConfiguration)
-      throw new Error(`Failed to find the existing configuration for IKS`);
-
     const newIKSConfiguration: InheritanceConfiguration = yield call(
       InheritanceKeyServer.generateInheritanceConfiguration,
       vault,
       backupBSMSForIKS
     );
+
+    if (!existingConfiguration) {
+      // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
+      const restoredIKSConfigLength = idx(
+        ikSigner,
+        (_) => _.inheritanceKeyInfo.configurations.length
+      ); // will be undefined if this is not a restored IKS(which is an error case)
+      if (restoredIKSConfigLength === 0) {
+        // case II: recovered IKS synching for the first time
+        existingConfiguration = newIKSConfiguration; // as two signer fingerprints(at least) are required to fetch IKS, the new config will indeed contain a registered threshold number of signer fingerprints to pass validation on the backend and therefore can be taken as the existing configuration
+      } else throw new Error('Failed to find the existing configuration for IKS');
+    }
 
     const { updated } = yield call(
       InheritanceKeyServer.updateInheritanceConfig,
