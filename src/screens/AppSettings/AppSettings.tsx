@@ -28,6 +28,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { useAppSelector } from 'src/store/hooks';
+import BackupModalContent from './BackupModal';
 
 function AppSettings({ navigation, route }) {
   // const { colorMode } = useColorMode();
@@ -42,6 +43,7 @@ function AppSettings({ navigation, route }) {
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
 
   const changeThemeMode = () => {
     toggleColorMode();
@@ -76,6 +78,7 @@ function AppSettings({ navigation, route }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`Keeper ${common.settings}`}
+        boldTitle
         subtitle={settings.settingsSubTitle}
         // To-Do-Learn-More
         icon={
@@ -199,15 +202,32 @@ function AppSettings({ navigation, route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
-              navigation.dispatch(
-                CommonActions.navigate('ExportSeed', {
-                  seed: primaryMnemonic,
-                  next: true,
-                })
-              );
+              setBackupModalVisible(true);
             }}
           />
         )}
+      />
+      <KeeperModal
+        visible={backupModalVisible}
+        close={() => setBackupModalVisible(false)}
+        title="Backup Recovery Key"
+        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        subTitleWidth={wp(240)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.SlateGrey`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText="Backup Now"
+        buttonCallback={() => {
+          setBackupModalVisible(false);
+          navigation.dispatch(
+            CommonActions.navigate('ExportSeed', {
+              seed: primaryMnemonic,
+              next: true,
+            })
+          );
+        }}
+        Content={BackupModalContent}
       />
     </ScreenWrapper>
   );

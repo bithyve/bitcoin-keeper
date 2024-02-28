@@ -73,6 +73,9 @@ const Colors = {
   DarkSage: 'rgba(111,124,119,1)',
   Smoke: 'rgba(162,162,162,1)',
   Amber:'rgba(255,191,0,1)',
+  Taupe: 'rgba(118, 118, 128, 1)',
+  Crayola: 'rgba(227, 190, 150, 1)',
+  Periwinkle: 'rgba(184, 182, 208, 1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
@@ -85,5 +88,6 @@ const Colors = {
   SeashellDark: 'rgba(72,81,79,1)',
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
   CoffeeDark: 'rgba(150,130,111, 1)',
+  ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;

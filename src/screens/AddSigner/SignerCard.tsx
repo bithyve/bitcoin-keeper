@@ -40,7 +40,7 @@ function SignerCard({
     <Pressable
       disabled={disabled}
       backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
-      borderColor={`${colorMode}.Eggshell`}
+      // borderColor={`${colorMode}.Eggshell`}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
@@ -60,7 +60,7 @@ function SignerCard({
           {showDot ? <Box style={styles.redDot} /> : null}
         </Box>
         <Text
-          color={`${colorMode}.SlateGrey`}
+          color={`${colorMode}.primaryText`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
           bold
@@ -69,7 +69,7 @@ function SignerCard({
         </Text>
         <Text
           style={styles.walletDescription}
-          color={`${colorMode}.GreenishGrey`}
+          color={`${colorMode}.secondaryText`}
           numberOfLines={1}
         >
           {description}
@@ -86,8 +86,6 @@ const styles = StyleSheet.create({
     height: 125,
     alignItems: 'flex-start',
     borderRadius: 10,
-    borderWidth: 0.5,
-    backgroundColor: '#FDF7F0',
     margin: 3,
   },
   walletName: {

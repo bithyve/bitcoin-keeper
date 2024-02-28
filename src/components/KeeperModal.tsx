@@ -9,6 +9,7 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
+import { useKeyboard } from 'src/hooks/useKeyboard';
 
 type ModalProps = {
   visible: boolean;
@@ -42,11 +43,11 @@ KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: 'light.modalWhiteBackground',
-  buttonBackground: '#00836A',
+  modalBackground: 'light.primaryBackground',
+  buttonBackground: 'light.greenButtonBackground',
   buttonText: null,
   buttonTextColor: 'white',
-  secButtonTextColor: '#073E39',
+  secButtonTextColor: 'light.headerText',
   buttonCallback: () => {},
   secondaryButtonText: null,
   secondaryCallback: () => {},
@@ -96,6 +97,8 @@ function KeeperModal(props: ModalProps) {
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
+  const isKeyboardOpen = useKeyboard();
+
   if (!visible) {
     return null;
   }
@@ -107,12 +110,17 @@ function KeeperModal(props: ModalProps) {
       closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
-      avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={justifyContent}
+      pb={isKeyboardOpen ? '60%' : '0'}
     >
-      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
+      <Modal.Content
+        borderRadius={10}
+        marginBottom={Math.max(5, bottomMargin)}
+        maxHeight="full"
+        width="95%"
+      >
         <GestureHandlerRootView>
           <Box backgroundColor={modalBackground} style={styles.container}>
             {showCloseIcon ? (
@@ -186,7 +194,6 @@ const getStyles = (subTitleWidth) =>
   StyleSheet.create({
     container: {
       borderRadius: 10,
-      alignItems: 'center',
       padding: '3%',
     },
     title: {
@@ -246,8 +253,10 @@ const getStyles = (subTitleWidth) =>
     },
     footerContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
+      gap: 30,
       alignItems: 'center',
-      width: '100%',
+      marginBottom: 20,
+      marginRight: 10,
     },
   });

@@ -21,7 +21,7 @@ const priorityMap: PriorityMap = {
 };
 
 const useUaiStack = (): { uaiStack: UAI[] } => {
-  const [uaiStack, setUaiStack] = useState<UAI[]>([]); //sorted uai for UI consumtions
+  const [uaiStack, setUaiStack] = useState<UAI[]>([]); // sorted uai for UI consumtions
   const UAIcollection: UAI[] = useQuery(RealmSchema.UAI).map(getJSONFromRealmObject);
   const refreshUai = useAppSelector((state) => state.uai.refreshUai);
   const uaiActionMap = useAppSelector((state) => state.uai.uaiActionMap);

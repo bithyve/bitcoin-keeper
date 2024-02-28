@@ -28,7 +28,7 @@ function AddWallet({ navigation }) {
 
   // TODO: add learn more modal
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={wallet.AddWallet}
         subtitle={wallet.chooseFromTemplate}
@@ -53,7 +53,7 @@ function AddWallet({ navigation }) {
           <WalletCard
             id={2}
             walletName="Import"
-            walletDescription="Recover / recreate"
+            walletDescription="Recover or recreate"
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
