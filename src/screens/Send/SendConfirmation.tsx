@@ -514,12 +514,12 @@ function HighFeeAlert({
           <Text style={styles.highAlertSatsFee}>{getBalance(amountToSend)}</Text>
         </Box>
       </Box>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
+      {OneDayHistoricalFee.length>0 && <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
         <FeerateStatement
           showFeesInsightModal={showFeesInsightModal}
           feeInsightData={OneDayHistoricalFee}
         />
-      </Box>
+      </Box>}
     </>
   );
 }
@@ -794,12 +794,12 @@ function SendConfirmation({ route }) {
             getSatUnit={getSatUnit}
           />
         </TouchableOpacity>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
+        {OneDayHistoricalFee.length>0 && <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
           <FeerateStatement
             showFeesInsightModal={toogleFeesInsightModal}
             feeInsightData={OneDayHistoricalFee}
           />
-        </Box>
+        </Box>}
         <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
         <AmountDetails
           title={walletTransactions.totalFees}
