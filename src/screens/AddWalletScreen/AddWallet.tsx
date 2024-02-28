@@ -32,7 +32,7 @@ function AddWallet({ navigation }) {
       <KeeperHeader
         title={wallet.AddWallet}
         subtitle={wallet.chooseFromTemplate}
-      // To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <Box style={styles.container}>
         <ScrollView

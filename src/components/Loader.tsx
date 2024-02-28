@@ -6,7 +6,7 @@ import Background from 'src/assets/images/background elements.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
 import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
-import Gear2Dark from 'src/assets/images/smallGearDark.svg'
+import Gear2Dark from 'src/assets/images/smallGearDark.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
 import { windowWidth } from 'src/constants/responsive';
 

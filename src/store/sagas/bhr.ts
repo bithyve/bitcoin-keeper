@@ -25,6 +25,7 @@ import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/Subscri
 import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { uaiType } from 'src/models/interfaces/Uai';
 import {
   refreshWallets,
   updateSignerDetails,
@@ -56,7 +57,6 @@ import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
-import { uaiType } from 'src/models/interfaces/Uai';
 
 export function* updateAppImageWorker({
   payload,

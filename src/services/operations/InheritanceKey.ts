@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/core/config';
+import { genrateOutputDescriptors } from 'src/core/utils';
 import {
   EncryptedInheritancePolicy,
   IKSCosignersMapUpdate,
@@ -9,7 +10,6 @@ import {
 import RestClient from '../rest/RestClient';
 import { asymmetricEncrypt, hash256 } from '../operations/encryption/index';
 import { Vault } from '../../core/wallets/interfaces/vault';
-import { genrateOutputDescriptors } from 'src/core/utils';
 
 const { HEXA_ID, SIGNING_SERVER, SIGNING_SERVER_RSA_PUBKEY } = config;
 
@@ -24,9 +24,10 @@ export default class InheritanceKeyServer {
       if (desc !== omitDesc) validDescriptors.push(desc);
     });
 
-    if (validDescriptors.length < existingConfiguration.m)
+    if (validDescriptors.length < existingConfiguration.m) {
       // threshold should be achievable w/o the assisted keys(otherwise the user funds would get locked as backend goes down)
       throw new Error('Insufficient threshold descriptors');
+    }
 
     const thresholdDescriptors = validDescriptors.slice(0, existingConfiguration.m);
     return thresholdDescriptors; // they are hashed and checked against the stored ones; on the backend

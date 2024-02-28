@@ -4,12 +4,12 @@ import { Animated, Easing, StyleSheet } from 'react-native';
 import Background from 'src/assets/images/whirlpool_background.svg';
 import BackgroundDark from 'src/assets/images/backgroundElementsDark.svg';
 import Gear0 from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
-import WhirlpoolLoaderDark from 'src/assets/images/WhirlpoolLoaderDark.svg'
+import WhirlpoolLoaderDark from 'src/assets/images/WhirlpoolLoaderDark.svg';
 import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
 import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
-import Gear2Dark from 'src/assets/images/smallGearDark.svg'
+import Gear2Dark from 'src/assets/images/smallGearDark.svg';
 import { windowWidth, windowHeight } from 'src/constants/responsive';
 
 function WhirlpoolLoader() {

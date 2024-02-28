@@ -42,11 +42,11 @@ import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
