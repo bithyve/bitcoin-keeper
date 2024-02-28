@@ -97,10 +97,11 @@ function KeeperModal(props: ModalProps) {
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
+  const isKeyboardOpen = useKeyboard();
+
   if (!visible) {
     return null;
   }
-  const isKeyboardOpen = useKeyboard();
 
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
