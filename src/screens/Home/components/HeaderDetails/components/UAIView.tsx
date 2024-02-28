@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   addNowWrapper: {
-    width: '24%',
+    width: '25%',
   },
   addNowCTAWrapper: {
     padding: 5,
