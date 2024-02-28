@@ -72,6 +72,7 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -447,8 +448,7 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${
-          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -480,8 +480,6 @@ function MixProgress({
       </Text>
     );
   }
-
-  const { colorMode } = useColorMode();
 
   return (
     <Box style={styles.container}>

@@ -252,12 +252,12 @@ function NodeSettings() {
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
-        buttonTextColor="#FAFAFA"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>

@@ -1,4 +1,4 @@
-import { Box, ScrollView, View } from 'native-base';
+import { Box, ScrollView, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -102,6 +102,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
     first?: boolean;
     last?: boolean;
   };
+  const { colorMode } = useColorMode();
   const { signingDevices } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
 
@@ -136,7 +137,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
           }}
         >
           <Box
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.seashellWhite`}
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
@@ -197,7 +198,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Select signer"
         subtitle="To recover your vault"
