@@ -15,17 +15,20 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import EditWalletDetailsModal from './EditWalletDetailsModal';
+import WalletPath from './components/WalletPathModal';
 
 function WalletDetailsSettings({ route }) {
-  const { colorMode } = useColorMode();
   const { wallet }: { wallet: Wallet } = route.params || {};
-  const navigation = useNavigation();
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
-  const [xpubVisible, setXPubVisible] = useState(false);
-  const [walletDetailVisible, setWalletDetailVisible] = useState(false);
+
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
   const { importWallet, common } = translations;
+
+  const [xpubVisible, setXPubVisible] = useState(false);
+  const [walletDetailVisible, setWalletDetailVisible] = useState(false);
+  const [walletPathVisible, setWalletPathVisible] = useState(false);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -53,10 +56,10 @@ function WalletDetailsSettings({ route }) {
           }}
         />
         <OptionCard
-          title={importWallet.derivationPath}
-          description={walletTranslation.changeDerivationPath}
+          title={walletTranslation.walletPathPurpose}
+          description={walletTranslation.walletPathPurposeDesc}
           callback={() => {
-            navigation.navigate('UpdateWalletDetails', { wallet });
+            setWalletPathVisible(true);
           }}
         />
       </ScrollView>
@@ -104,6 +107,27 @@ function WalletDetailsSettings({ route }) {
           showCloseIcon={false}
           Content={() => (
             <EditWalletDetailsModal wallet={wallet} close={() => setWalletDetailVisible(false)} />
+          )}
+        />
+        {/* Wallet path and purpose Modal */}
+        <KeeperModal
+          visible={walletPathVisible}
+          close={() => {
+            setWalletPathVisible(false);
+          }}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          title={importWallet.derivationPath}
+          subTitle={importWallet.changePath}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          showCloseIcon={false}
+          Content={() => (
+            <WalletPath
+              wallet={wallet}
+              secondaryBtnPress={() => {
+                setWalletPathVisible(false);
+              }}
+            />
           )}
         />
       </Box>

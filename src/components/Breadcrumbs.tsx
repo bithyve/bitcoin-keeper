@@ -16,6 +16,7 @@ function Breadcrumbs({ totalScreens, currentScreen }: Props) {
       {array.map((elem, index) => {
         return (
           <Box
+            key={`${elem}_${index}`}
             style={[
               styles.screenIndicator,
               {

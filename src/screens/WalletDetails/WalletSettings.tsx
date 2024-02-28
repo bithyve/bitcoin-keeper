@@ -33,7 +33,7 @@ function WalletSettings({ route }) {
 
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
-  const { settings } = translations;
+  const { settings, importWallet } = translations;
   const TestSatsComponent = useTestSats({ wallet });
 
   return (
@@ -66,6 +66,7 @@ function WalletSettings({ route }) {
             setTransferPolicyVisible(true);
           }}
         />
+
         {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
