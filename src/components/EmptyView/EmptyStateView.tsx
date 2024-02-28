@@ -17,7 +17,7 @@ function EmptyStateView({
   return (
     <Box style={styles.container}>
       <Box>
-        <Text italic style={styles.noTransactionTitle} color={`${colorMode}.black`}>
+        <Text style={styles.noTransactionTitle} color={`${colorMode}.DarkSage`}>
           {title}
         </Text>
         {subTitle && (
@@ -26,7 +26,6 @@ function EmptyStateView({
           </Text>
         )}
       </Box>
-      {/* {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />} */}
       <IllustartionImage />
     </Box>
   );
@@ -40,9 +39,8 @@ const styles = StyleSheet.create({
   },
   noTransactionTitle: {
     fontSize: 14,
-    letterSpacing: 0.6,
-    opacity: 0.85,
-    fontWeight: '400',
+    letterSpacing: 0.14,
+    fontWeight: '700',
   },
   noTransactionSubTitle: {
     fontSize: 12,

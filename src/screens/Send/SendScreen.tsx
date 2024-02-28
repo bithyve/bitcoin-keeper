@@ -47,6 +47,7 @@ import useVault from 'src/hooks/useVault';
 import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
 import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
+import Buttons from 'src/components/Buttons';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -63,6 +64,7 @@ function SendScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
   const { wallets } = useWallets({ getAll: true });
@@ -193,24 +195,29 @@ function SendScreen({ route }) {
     }
   };
 
+  const handleProceed = () => {
+    if (sender.entityKind === EntityKind.VAULT) {
+      navigateToNext(
+        WalletOperations.getNextFreeAddress(selectedItem),
+        TransferType.VAULT_TO_WALLET,
+        null,
+        selectedItem
+      );
+    } else {
+      navigateToNext(
+        WalletOperations.getNextFreeAddress(selectedItem),
+        TransferType.WALLET_TO_WALLET,
+        null,
+        selectedItem
+      );
+    }
+  };
+
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      if (sender.entityKind === EntityKind.VAULT) {
-        navigateToNext(
-          WalletOperations.getNextFreeAddress(item),
-          TransferType.VAULT_TO_WALLET,
-          null,
-          item
-        );
-      } else {
-        navigateToNext(
-          WalletOperations.getNextFreeAddress(item),
-          TransferType.WALLET_TO_WALLET,
-          null,
-          item
-        );
-      }
+      setSelectedItem(item);
     };
+
     return (
       <Box
         justifyContent="center"
@@ -224,6 +231,7 @@ function SendScreen({ route }) {
             height={36}
             backgroundColor={Colors.RussetBrown}
             icon={getWalletIcon(item)}
+            showSelection={item?.id === selectedItem?.id}
           />
         </TouchableOpacity>
         <Box>
@@ -269,7 +277,12 @@ function SendScreen({ route }) {
               />
             </Box>
             <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={2} fontSize={14} letterSpacing={1.12}>
+              <Text
+                color={`${colorMode}.headerText`}
+                marginX={2}
+                fontSize={14}
+                letterSpacing={1.12}
+              >
                 or send to a wallet
               </Text>
               <View>
@@ -292,6 +305,9 @@ function SendScreen({ route }) {
                     }
                   />
                 </View>
+                <Box style={styles.proceedButton}>
+                  <Buttons primaryCallback={handleProceed} primaryText="Proceed" />
+                </Box>
               </View>
             </Box>
           </Box>
@@ -367,7 +383,7 @@ const styles = StyleSheet.create({
   walletContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: hp(100),
+    height: hp(70),
     width: '95%',
     borderRadius: hp(10),
     marginHorizontal: wp(10),
@@ -381,7 +397,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sendToWalletWrapper: {
-    marginTop: windowHeight > 680 ? hp(20) : hp(10),
+    marginTop: windowHeight > 680 ? hp(10) : hp(10),
   },
   emptyWalletsContainer: {
     alignItems: 'center',
@@ -391,6 +407,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 100,
     opacity: 0.8,
+  },
+  proceedButton: {
+    marginVertical: 5,
   },
 });
 export default SendScreen;

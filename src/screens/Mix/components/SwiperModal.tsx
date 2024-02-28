@@ -14,7 +14,6 @@ import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
-  console.log('windowHeight', windowHeight);
   return (
     <Box>
       <Box>
@@ -152,7 +151,6 @@ function SwiperModal({ enable }) {
     />
   );
 }
-
 const styles = StyleSheet.create({
   contentContaner: {
     width: windowHeight < 650 ? wp(286) : wp(295),

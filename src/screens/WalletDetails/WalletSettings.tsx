@@ -69,7 +69,7 @@ function WalletSettings({ route }) {
         {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
-        <WalletFingerprint fingerprint={wallet.id} />
+        <WalletFingerprint fingerprint={wallet.id} title="Wallet Fingerprint" />
       </Box>
 
       <KeeperModal
@@ -79,10 +79,11 @@ function WalletSettings({ route }) {
         }}
         title={walletTranslation.editTransPolicy}
         subTitle={walletTranslation.editTransPolicySubTitle}
+        subTitleWidth={wp(220)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
+        showCloseIcon={false}
         Content={() => (
           <TransferPolicy
             wallet={wallet}

@@ -126,7 +126,7 @@ export default function CreatePin(props) {
   }, [credsChanged]);
 
   useEffect(() => {
-    if (passcode === confirmPasscode) {
+    if (passcode === confirmPasscode && passcode.length === 4) {
       setIsDisabled(false);
     } else {
       setIsDisabled(true);

@@ -119,7 +119,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Nano X';
       break;
     case SignerType.MOBILE_KEY:
-      name = 'Mobile Key';
+      name = 'Recovery Key';
       break;
     case SignerType.PASSPORT:
       name = 'Passport';
