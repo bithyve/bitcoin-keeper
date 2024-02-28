@@ -94,9 +94,9 @@ function WalletDetailsSettings({ route }) {
         <KeeperModal
           visible={walletDetailVisible}
           close={() => setWalletDetailVisible(false)}
-          title={'Edit name & description'}
+          title="Edit name & description"
           subTitleWidth={wp(240)}
-          subTitle={'This will reflect on the home screen'}
+          subTitle="This will reflect on the home screen"
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}

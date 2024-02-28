@@ -231,7 +231,7 @@ function SendScreen({ route }) {
             height={36}
             backgroundColor={Colors.RussetBrown}
             icon={getWalletIcon(item)}
-            showSelection={item?.id === selectedItem?.id ? true : false}
+            showSelection={item?.id === selectedItem?.id}
           />
         </TouchableOpacity>
         <Box>
@@ -306,7 +306,7 @@ function SendScreen({ route }) {
                   />
                 </View>
                 <Box style={styles.proceedButton}>
-                  <Buttons primaryCallback={handleProceed} primaryText={'Proceed'} />
+                  <Buttons primaryCallback={handleProceed} primaryText="Proceed" />
                 </Box>
               </View>
             </Box>

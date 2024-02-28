@@ -95,8 +95,9 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       }
 
-      if (signer.inheritanceKeyInfo === undefined)
+      if (signer.inheritanceKeyInfo === undefined) {
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+      }
 
       const existingPolicy: InheritancePolicy = signer.inheritanceKeyInfo.policy;
       const existingAlert: InheritanceAlert | any =
@@ -422,12 +423,11 @@ function SignerAdvanceSettings({ route }: any) {
             callback={registerSigner}
           />
         )}
-        {/* disabling this temporarily */}
-        {/* <OptionCard
+        <OptionCard
           title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
           description="Identify your signer type for enhanced connectivity and communication"
           callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-        /> */}
+        />
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"

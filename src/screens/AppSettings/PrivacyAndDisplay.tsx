@@ -36,7 +36,7 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-const ConfirmPasscode = ({ oldPassword, setConfirmPasscodeModal }) => {
+function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
   const { translations } = useContext(LocalizationContext);
 
   const { login, common } = translations;
@@ -129,7 +129,7 @@ const ConfirmPasscode = ({ oldPassword, setConfirmPasscodeModal }) => {
           backgroundColor={true}
           passCode={passcode}
           passcodeFlag={passcodeFlag}
-          borderColor={'transparent'}
+          borderColor="transparent"
           textColor={true}
         />
       </Box>
@@ -141,26 +141,26 @@ const ConfirmPasscode = ({ oldPassword, setConfirmPasscodeModal }) => {
               backgroundColor={true}
               passCode={confirmPasscode}
               passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
-              borderColor={'transparent'}
+              borderColor="transparent"
               textColor={true}
             />
             <Box mb={5}>
               {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                <Text style={[styles.errorText, { color: `light.CongoPink` }]}>
+                <Text style={[styles.errorText, { color: 'light.CongoPink' }]}>
                   {login.MismatchPasscode}
                 </Text>
               )}
             </Box>
           </Box>
 
-          <Box alignItems={'flex-end'}>
+          <Box alignItems="flex-end">
             {passcode.length === 4 && (
               <TouchableOpacity
                 onPress={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
                 }}
               >
-                <Box style={styles.cta} backgroundColor={`light.primaryGreenBackground`}>
+                <Box style={styles.cta} backgroundColor="light.primaryGreenBackground">
                   <Text style={styles.ctaText} bold>
                     {common.confirm}
                   </Text>
@@ -179,7 +179,7 @@ const ConfirmPasscode = ({ oldPassword, setConfirmPasscodeModal }) => {
       />
     </Box>
   );
-};
+}
 
 function PrivacyAndDisplay() {
   const { colorMode } = useColorMode();
@@ -327,15 +327,15 @@ function PrivacyAndDisplay() {
         visible={visiblePasscode}
         closeOnOverlayClick={false}
         close={() => setVisiblePassCode(false)}
-        title={'Change passcode'}
+        title="Change passcode"
         subTitleWidth={wp(240)}
-        subTitle={'Enter your existing passcode'}
+        subTitle="Enter your existing passcode"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <PasscodeVerifyModal
-            primaryText={'Confirm'}
+            primaryText="Confirm"
             close={() => {
               setVisiblePassCode(false);
             }}
@@ -375,7 +375,7 @@ function PrivacyAndDisplay() {
         visible={confirmPasscode}
         closeOnOverlayClick={false}
         close={() => setConfirmPasscode(false)}
-        title={'Change passcode'}
+        title="Change passcode"
         subTitleWidth={wp(240)}
         modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}

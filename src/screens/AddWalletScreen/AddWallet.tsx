@@ -28,7 +28,7 @@ function AddWallet({ navigation }) {
 
   // TODO: add learn more modal
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={wallet.AddWallet}
         subtitle={wallet.chooseFromTemplate}

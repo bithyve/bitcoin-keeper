@@ -26,12 +26,12 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
 import { windowHeight, wp } from 'src/constants/responsive';
 import { TransferType } from 'src/models/enums/TransferType';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
 import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import UAIEmptyState from './UAIEmptyState';
-import { useQuery } from '@realm/react';
-import { RealmSchema } from 'src/storage/realm/enum';
 
 const { width } = Dimensions.get('window');
 
@@ -135,7 +135,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                 text: 'Skip',
                 cta: () => {
                   skipUaiHandler(uai);
-                  navigtaion.goBack(); //TO-DO-UAI
+                  navigtaion.goBack(); // TO-DO-UAI
                 },
               },
             },

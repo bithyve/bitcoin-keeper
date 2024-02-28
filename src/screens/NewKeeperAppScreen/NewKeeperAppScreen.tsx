@@ -39,10 +39,10 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
           width: '75%',
         }}
       >
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -222,7 +222,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               {' '}
               Terms of Service{' '}
             </Text>
-            {`and\nour`}
+            {'and\nour'}
             <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
               {' '}
               Privacy Policy

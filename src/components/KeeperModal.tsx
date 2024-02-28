@@ -118,7 +118,7 @@ function KeeperModal(props: ModalProps) {
         borderRadius={10}
         marginBottom={Math.max(5, bottomMargin)}
         maxHeight="full"
-        width={'95%'}
+        width="95%"
       >
         <GestureHandlerRootView>
           <Box backgroundColor={modalBackground} style={styles.container}>

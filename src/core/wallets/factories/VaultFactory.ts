@@ -253,7 +253,7 @@ export const generateCosignerMapIds = (
   const cosignersMapIds = [];
   for (let i = 0; i < hashedCosignerIds.length; i++) {
     for (let j = i + 1; j < hashedCosignerIds.length; j++) {
-      cosignersMapIds.push(hashedCosignerIds[i] + '-' + hashedCosignerIds[j]);
+      cosignersMapIds.push(`${hashedCosignerIds[i]}-${hashedCosignerIds[j]}`);
     }
   }
 

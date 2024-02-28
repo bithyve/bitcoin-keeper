@@ -53,7 +53,7 @@ export function WalletsList({
         ListEmptyComponent={<WalletInfoEmptyState />}
         ListFooterComponent={() => (
           <AddCard
-            name={`Add\nWallet`}
+            name={'Add\nWallet'}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
           />
