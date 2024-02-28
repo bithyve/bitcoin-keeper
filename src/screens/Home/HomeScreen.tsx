@@ -13,7 +13,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
-import { CommonActions, useRoute } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import InheritanceIcon from 'src/assets/images/inheri.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
@@ -42,7 +42,6 @@ function NewHomeScreen({ navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
-  const route = useRoute();
   const { allVaults, activeVault } = useVault({
     includeArchived: false,
     getFirst: true,
@@ -61,7 +60,6 @@ function NewHomeScreen({ navigation }) {
   );
   const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
   const netBalanceAllVaults = calculateBalancesForVaults(allVaults);
-  const [showInsight, setShowInsights] = useState(false);
   const { showToast } = useToastMessage();
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
@@ -80,17 +78,6 @@ function NewHomeScreen({ navigation }) {
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
-
-  useEffect(() => {
-    if (route.params && route.params.showInsight) {
-      setShowInsights(true);
-    }
-  }, [route.params]);
-
-  const closeInsightModal=()=>{
-    setShowInsights(false);
-
-  }
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const cardsData = [
@@ -151,9 +138,7 @@ function NewHomeScreen({ navigation }) {
         receivingAddress={receivingAddress}
         balance={balance}
         presentationName={presentationName}
-        navigation={navigation}
-        insightsVisible={showInsight}
-        setInsightVisible={closeInsightModal}/>
+        navigation={navigation}/>
     </Box>
   );
 }

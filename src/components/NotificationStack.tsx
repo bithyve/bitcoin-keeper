@@ -32,6 +32,7 @@ import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView'
 import UAIEmptyState from './UAIEmptyState';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
+import FeeInsightsContent from 'src/screens/FeeInsights/FeeInsightsContent';
 
 const { width } = Dimensions.get('window');
 
@@ -87,10 +88,9 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
   const { showToast } = useToastMessage();
-
   const [showModal, setShowModal] = useState(false);
   const [modalActionLoader, setmodalActionLoader] = useState(false);
-
+ const [insightModal, setInsightModal] = useState(false)
   const skipUaiHandler = (uai: UAI) => {
     dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
@@ -306,8 +306,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             primary: {
               text: 'View insights',
               cta: () => {
-                navigtaion.navigate('Home',{showInsight:true})
-                skipUaiHandler(uai)  
+                setInsightModal(true)
               },
             },
             secondary: skipBtnConfig(uai),
@@ -397,6 +396,23 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         buttonTextColor="light.white"
         Content={() => <Text color="light.greenText">{uaiConfig.modalDetails.body}</Text>}
       />
+     <KeeperModal
+      visible={insightModal}
+      close={() => {
+        setInsightModal(false);
+        skipUaiHandler(uai);
+      }}      showCloseIcon={false}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
+      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.primaryText`}
+      buttonTextColor={`${colorMode}.white`}
+      buttonText={'Done'}
+      buttonCallback={() => {
+        setInsightModal(false);
+        skipUaiHandler(uai);
+      }}
+      Content={() => <FeeInsightsContent />}
+    />
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>
   );
@@ -406,7 +422,6 @@ export default function NotificationStack() {
   const { colorMode } = useColorMode();
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
-
   const removeCard = () => {};
 
   const flingUp = Gesture.Fling()

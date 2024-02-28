@@ -957,7 +957,7 @@ function SendConfirmation({ route }) {
         buttonTextColor={`${colorMode}.white`}
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
-        Content={() => <FeeInsights oneDayFeeRate={OneDayHistoricalFee} />}
+        Content={() => <FeeInsights />}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal

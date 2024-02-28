@@ -1,4 +1,3 @@
-import FeeInsightModal from 'src/screens/WalletDetails/components/FeeInsightModal';
 import RampModal from '../../WalletDetails/components/RampModal';
 import { DowngradeModal } from '../components/DowngradeModal';
 import ElectrumDisconnectModal from '../components/ElectrumDisconnectModal';
@@ -12,8 +11,6 @@ export function HomeModals({
   balance,
   presentationName,
   navigation,
-  insightsVisible,
-  setInsightVisible,
 }) {
   return (
     <>
@@ -29,7 +26,6 @@ export function HomeModals({
         electrumErrorVisible={electrumErrorVisible}
         setElectrumErrorVisible={setElectrumErrorVisible}
       />
-      <FeeInsightModal showModal={insightsVisible} toogleInsights={setInsightVisible}/>
     </>
   );
 }

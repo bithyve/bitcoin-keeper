@@ -8,14 +8,13 @@ import Relay from 'src/services/operations/Relay';
 import { useColorMode } from 'native-base';
 import { calculateAverageBlockTime, generateFeeInsightStatement } from 'src/utils/feeInisghtUtil';
 import Fonts from 'src/constants/Fonts';
+import useOneDayInsight from 'src/hooks/useOneDayInsight';
 
-interface Props {
-  oneDayFeeRate: any[];
-}
 
-const FeeInsightsContent = (props: Props) => {
-  const { oneDayFeeRate } = props;
+
+const FeeInsightsContent = () => {
   const [oneWeekFeeRate, setOneWeekFreeRate] = useState([]);
+  const oneDayFeeRate = useOneDayInsight();
   const [feeInsightStatement, setFeeInsightStatement] = useState({
     latestFee: '',
     dayComparisonText: '',
@@ -68,15 +67,15 @@ const FeeInsightsContent = (props: Props) => {
               <Text style={styles.highlightFee}>{feeInsightStatement.latestFee}</Text>,{' '}
               {feeInsightStatement.dayComparisonText} from{' '}
               <Text style={styles.highlightFee}>{feeInsightStatement.oneDayAgoFee}</Text> yesterday
-              and {feeInsightStatement.weekComparisonText} from{' '}
-              <Text style={styles.highlightFee}>{feeInsightStatement.oneWeekAgoFee}</Text> from a
+              and {feeInsightStatement.weekComparisonText}{' '}
+              <Text style={styles.highlightFee}>{feeInsightStatement.oneWeekAgoFee}</Text> a
               week ago.
               {'\n'}
               {'\n'}
               Blocks are being mined at an average of{' '}
               <Text style={styles.highlightFee}>{blockTime}</Text> in the last 24 hours.
             </Text>
-            <FeeGraph dataSet={oneWeekFeeRate} recentData={props.oneDayFeeRate} />
+            <FeeGraph dataSet={oneWeekFeeRate} recentData={oneDayFeeRate} />
             <FeeDataStats />
           </>
         )}
