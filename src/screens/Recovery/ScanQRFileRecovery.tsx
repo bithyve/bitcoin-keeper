@@ -33,8 +33,7 @@ function ScanQRFileRecovery({ route }) {
 
   useEffect(() => {
     if (qrData) {
-      Alert.alert(qrData.toString());
-      console.log({ qrData });
+      initateRecovery(qrData.toString());
       resetQR();
     }
     return () => {
@@ -49,7 +48,6 @@ function ScanQRFileRecovery({ route }) {
         setQrPercent(100);
       } else {
         const { data: qrInfo, percentage } = decodeURBytes(decoder, data.data);
-        console.log({ qrInfo });
         if (qrInfo) {
           setData(qrInfo);
         }
