@@ -401,7 +401,13 @@ function SignerAdvanceSettings({ route }: any) {
           />
         }
       />
-      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+          paddingTop: '10%',
+          paddingBottom: 20,
+        }}
+      >
         <OptionCard
           title="Edit Description"
           description="Short description to help you remember"
@@ -469,8 +475,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToScanPSBT}
           />
         )}
-      </ScrollView>
-      <VStack>
         <Box ml={2} style={{ marginVertical: 20 }}>
           {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
@@ -485,10 +489,10 @@ function SignerAdvanceSettings({ route }: any) {
             />
           ))}
         </ScrollView>
-        <Box style={styles.fingerprint}>
-          <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
-        </Box>
-      </VStack>
+      </ScrollView>
+      <Box style={styles.fingerprint}>
+        <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
+      </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
