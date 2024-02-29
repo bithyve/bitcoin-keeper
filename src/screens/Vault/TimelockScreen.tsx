@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import React, { useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 
@@ -13,12 +13,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
 
 function TimelockScreen() {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
 
   return (
     <Box flex={1} position="relative">
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <Box marginX={3}>
           <Box width={wp(320)}>
             <KeeperHeader
@@ -67,7 +68,7 @@ function TimelockScreen() {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          clear={() => {}}
+          clear={() => { }}
           color="light.greenText"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon

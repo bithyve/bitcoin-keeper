@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Instruction from 'src/components/Instruction';
 import Buttons from 'src/components/Buttons';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -22,6 +22,7 @@ import { captureError } from 'src/services/sentry';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function NFCScanner({ route }) {
+  const { colorMode } = useColorMode();
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
@@ -70,7 +71,7 @@ function NFCScanner({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="NFC Scanner" subtitle="Add any NFC based signing devvice" />
       <Box style={styles.container}>
         <Instruction text="Make sure your NFC device is turned on and unlocked" />
