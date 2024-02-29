@@ -1,4 +1,5 @@
-import { Linking, StyleSheet } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import idx from 'idx';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -16,7 +17,8 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useContext } from 'react';
+import KeeperModal from 'src/components/KeeperModal';
+import BuyBitcoinWalletSelectionModal from './components/BuyBitcoinModal';
 
 function BuyBitcoinScreen() {
   const { colorMode } = useColorMode();
@@ -28,6 +30,8 @@ function BuyBitcoinScreen() {
   const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
   const name = idx(wallets[0], (_) => _.presentationData.name) || '';
+
+  const [walletSelectionVisible, setWalletSelectionVisible] = useState(false);
 
   const buyWithRamp = (address: string) => {
     try {
@@ -51,34 +55,36 @@ function BuyBitcoinScreen() {
         // To-Do-Learn-More
       />
       <Box style={styles.container}>
-        <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            Bitcoin will be transferred to
-          </Text>
-          <Box style={styles.walletInfo}>
-            <Box style={styles.iconContainer}>
-              <HexagonIcon
-                width={40}
-                height={35}
-                backgroundColor={'rgba(45, 103, 89, 1)'}
-                icon={<WalletIcon />}
-              />
-              <Box>
-                <Text style={styles.presentationName} color={`${colorMode}.primaryText`}>
-                  {name}
-                </Text>
-                <CurrencyInfo
-                  amount={balance}
-                  hideAmounts={false}
-                  fontSize={14}
-                  color={`${colorMode}.primaryText`}
-                  variation={colorMode === 'light' ? 'dark' : 'light'}
+        <TouchableOpacity activeOpacity={0.8} onPress={() => setWalletSelectionVisible(true)}>
+          <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+            <Text fontSize={13} color={`${colorMode}.primaryText`}>
+              Bitcoin will be transferred to
+            </Text>
+            <Box style={styles.walletInfo}>
+              <Box style={styles.iconContainer}>
+                <HexagonIcon
+                  width={40}
+                  height={35}
+                  backgroundColor={'rgba(45, 103, 89, 1)'}
+                  icon={<WalletIcon />}
                 />
+                <Box>
+                  <Text style={styles.presentationName} color={`${colorMode}.primaryText`}>
+                    {name}
+                  </Text>
+                  <CurrencyInfo
+                    amount={balance}
+                    hideAmounts={false}
+                    fontSize={14}
+                    color={`${colorMode}.primaryText`}
+                    variation={colorMode === 'light' ? 'dark' : 'light'}
+                  />
+                </Box>
               </Box>
+              <RightArrowIcon />
             </Box>
-            <RightArrowIcon />
           </Box>
-        </Box>
+        </TouchableOpacity>
 
         <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
@@ -119,6 +125,21 @@ function BuyBitcoinScreen() {
           primaryCallback={() => buyWithRamp(receivingAddress)}
         />
       </Box>
+
+      <KeeperModal
+        visible={walletSelectionVisible}
+        close={() => setWalletSelectionVisible(false)}
+        title="Select Wallet"
+        subTitle="Purchased bitcoin would be transferred to selected wallet"
+        subTitleWidth={wp(240)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.SlateGrey`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText="Backup Now"
+        buttonCallback={() => {}}
+        Content={() => BuyBitcoinWalletSelectionModal({ wallets })}
+      />
     </ScreenWrapper>
   );
 }
