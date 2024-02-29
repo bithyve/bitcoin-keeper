@@ -101,7 +101,7 @@ function ChoosePlanCarouselItem({
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
       <Box
-        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.SmokeGreen`}
+        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.choosePlanCard`}
         style={[
           styles.wrapperView,
           {
@@ -153,7 +153,7 @@ function ChoosePlanCarouselItem({
             {getFreeTrail}
           </Text>
           {canSelectPlan === true &&
-          !item.productIds.includes(subscription.productId.toLowerCase()) ? (
+            !item.productIds.includes(subscription.productId.toLowerCase()) ? (
             <Box
               style={{
                 marginTop: hp(10),
