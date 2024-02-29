@@ -43,7 +43,7 @@ function ActionCard({
         )}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
           {dottedBorder && (
-            <Box borderColor={`${colorMode}.PearlWhite`} style={styles.dottedBorder} />
+            <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
           {icon && icon}
         </Box>
