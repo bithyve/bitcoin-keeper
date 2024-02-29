@@ -78,6 +78,7 @@ function KeeperHeader({
           <Box>
             {title && (
               <Text
+                numberOfLines={1}
                 style={styles.addWalletText}
                 color={titleColor || `${colorMode}.headerText`}
                 testID="text_header_title"
@@ -153,7 +154,7 @@ const getStyles = (marginLeft: boolean) =>
       justifyContent: 'space-between',
     },
     headerInfo: {
-      paddingLeft: marginLeft ? '10%' : 0,
+      paddingLeft: marginLeft ? '10%' : '5%',
       flexDirection: 'row',
       gap: 10,
     },

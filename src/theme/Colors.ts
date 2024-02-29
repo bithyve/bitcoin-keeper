@@ -87,6 +87,7 @@ const Colors = {
   SeashellDark: 'rgba(72,81,79,1)',
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
   CoffeeDark: 'rgba(150,130,111, 1)',
+  ChampagneWhite: 'rgba(253, 247, 240, 1)',
   ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;
