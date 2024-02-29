@@ -69,7 +69,7 @@ const Colors = {
   darkGreen: 'rgb(46, 103, 89)',
   // PearlWhite: 'rgba(252, 252, 252, 1)',
   deepTeal: 'rgba(28,73,64,1)',
-  PaleIvory: 'rgba(238,232,225,1)',
+  // PaleIvory: 'rgba(238,232,225,1)',
   // DarkSage: 'rgba(111,124,119,1)',
   Smoke: 'rgba(162,162,162,1)',
   // Taupe: 'rgba(118, 118, 128, 1)',
