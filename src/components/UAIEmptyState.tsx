@@ -32,7 +32,7 @@ function UAIEmptyState() {
         </Text>
         <TouchableOpacity onPress={openAppInStore}>
           <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.appStoreBtn}>
-            <Text fontSize={10} bold color={`${colorMode}.Warmbeige`}>
+            <Text fontSize={10} bold color={`${colorMode}.whiteText`}>
               {Platform.OS == 'ios' ? 'App' : 'Play'} Store
             </Text>
           </Box>

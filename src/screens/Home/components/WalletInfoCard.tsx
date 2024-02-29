@@ -52,12 +52,12 @@ function WalletInfoCard({
             {walletName}
           </Text>
         </Box>
-        <TouchableOpacity onPress={setIsShowAmount}>
+        <TouchableOpacity testID="btn_currencyinfo" onPress={setIsShowAmount}>
           <CurrencyInfo
             amount={amount}
             hideAmounts={!isShowAmount}
             fontSize={24}
-            color={colorMode === 'light' ? Colors.RichBlackDark : Colors.RichBlack}
+            color={colorMode === 'light' ? Colors.White : Colors.RichBlack}
             variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </TouchableOpacity>

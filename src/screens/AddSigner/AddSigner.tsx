@@ -22,7 +22,7 @@ function AddSigner({ navigation }) {
   };
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Warmbeige`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={signer.addSigner} subtitle={signer.addSignerSubTitle} />
       <ScrollView showsVerticalScrollIndicator={true}>
         <Box style={styles.signerContainer}>

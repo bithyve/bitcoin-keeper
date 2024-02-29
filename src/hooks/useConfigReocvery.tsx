@@ -32,7 +32,7 @@ const useConfigRecovery = () => {
   };
 
   useEffect(() => {
-    if (scheme && signersList?.length > 1 && vaultSignersList?.length > 1) {
+    if (scheme && signersList?.length >= 1 && vaultSignersList?.length >= 1) {
       const generatedVaultId = generateVaultId(vaultSignersList, scheme);
       if (allVaults.find((vault) => vault.id === generatedVaultId)) {
         dispatch(resetRealyVaultState());

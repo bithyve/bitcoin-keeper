@@ -52,6 +52,7 @@ function DowngradeModalContent({ navigation, app }) {
       {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
       <Box alignItems="center" flexDirection="row">
         <TouchableOpacity
+          testID="btn_choosePlan"
           style={[styles.cancelBtn]}
           onPress={() => {
             navigation.navigate('ChoosePlan');
@@ -64,6 +65,7 @@ function DowngradeModalContent({ navigation, app }) {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          testID="btn_downgradeplan"
           onPress={() => {
             downgradeToPleb(dispatch, app);
           }}

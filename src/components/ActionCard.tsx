@@ -27,7 +27,7 @@ function ActionCard({
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
   return (
-    <TouchableOpacity activeOpacity={0.95} onPress={callback}>
+    <TouchableOpacity testID={`btn_${cardName}`} activeOpacity={0.95} onPress={callback}>
       <Box
         style={[
           styles.cardContainer,
@@ -43,7 +43,7 @@ function ActionCard({
         )}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
           {dottedBorder && (
-            <Box borderColor={`${colorMode}.PearlWhite`} style={styles.dottedBorder} />
+            <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
           {icon && icon}
         </Box>
