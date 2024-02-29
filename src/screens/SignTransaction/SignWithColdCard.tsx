@@ -136,9 +136,9 @@ function SignWithColdCard({ route }: { route }) {
           />
         </VStack>
         <VStack>
-          <Box backgroundColor={`${colorMode}.offWhite`} padding={2}>
+          <Box backgroundColor={`${colorMode}.whiteText`} padding={2}>
             <Box opacity={1}>
-              <Text fontSize={14} color="light.primaryText">
+              <Text fontSize={14} color={`${colorMode}.primaryText`}>
                 Note
               </Text>
             </Box>

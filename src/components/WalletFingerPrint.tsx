@@ -33,7 +33,7 @@ function WalletFingerprint({ title, fingerprint, copy }: Props) {
         </Text>
       </Box>
       <Pressable
-        backgroundColor={`${colorMode}.OffWhite`}
+        backgroundColor={`${colorMode}.whiteText`}
         style={styles.iconContainer}
         onPress={() => {
           Clipboard.setString(fingerprint);

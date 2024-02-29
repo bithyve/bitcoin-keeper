@@ -237,8 +237,8 @@ function PrivacyAndDisplay() {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -333,6 +333,7 @@ function PrivacyAndDisplay() {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             primaryText="Confirm"
