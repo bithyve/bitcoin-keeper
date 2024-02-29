@@ -114,22 +114,22 @@ function AssignSignerType({ route }: IProps) {
                   key={type}
                 >
                   <Box
-                    backgroundColor="light.primaryBackground"
+                    backgroundColor={`${colorMode}.seashellWhite`}
                     borderTopRadius={first ? 15 : 0}
                     borderBottomRadius={last ? 15 : 0}
                     opacity={disabled ? 0.5 : 1}
                   >
                     <Box style={styles.walletMapContainer}>
                       <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
-                      <Box backgroundColor="light.divider" style={styles.divider} />
+                      <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
                       <VStack style={styles.content}>
                         <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
-                        <Text color="light.inActiveMsg" style={styles.messageText}>
+                        <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
                           {message}
                         </Text>
                       </VStack>
                     </Box>
-                    <Box backgroundColor="light.divider" style={styles.dividerStyle} />
+                    <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
                   </Box>
                 </TouchableOpacity>
               );
