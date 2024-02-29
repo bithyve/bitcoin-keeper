@@ -80,42 +80,80 @@ function removeEmptyLines(data) {
   return output;
 }
 
-const parseKeyExpression = (expression) => {
-  const re = /\[([^\]]+)\](.*)/;
-  const expressionSplit = expression.match(re);
-  if (expressionSplit && expressionSplit.length === 3) {
-    let hexFingerprint = expressionSplit[1].split('/')[0];
-    if (hexFingerprint.length === 8) {
-      hexFingerprint = Buffer.from(hexFingerprint, 'hex').toString('hex');
-    }
-    const path = `m/${expressionSplit[1].split('/').slice(1).join('/').replace(/[h]/g, "'")}`;
-    let xpub = expressionSplit[2];
-    if (xpub.indexOf('/') !== -1) {
-      xpub = xpub.substr(0, xpub.indexOf('/'));
-    }
-    if (xpub.indexOf(')') !== -1) {
-      xpub = xpub.substr(0, xpub.indexOf(')'));
-    }
-    return {
-      xpub,
-      masterFingerprint: hexFingerprint.toUpperCase(),
-      path,
-    };
+function isValidMasterFingerprint(masterFingerprint) {
+  return /^[0-9a-fA-F]{8}$/.test(masterFingerprint);
+}
+
+function isValidDerivationPath(derivationPath) {
+  return /^m(\/\d+'?)+$/.test(derivationPath);
+}
+
+function isValidXpub(xpub) {
+  return typeof xpub === 'string' && xpub.length > 4;
+}
+
+const parseKeyExpression = (keyExpression) => {
+  let masterFingerprint = '';
+  let path = '';
+  let xpub = '';
+
+  // Case 1: If the keyExpression is enclosed in square brackets
+  const bracketMatch = keyExpression.match(/\[([^\]]+)\](.*)/);
+  if (bracketMatch) {
+    console.log('here');
+    const insideBracket = bracketMatch[1];
+    masterFingerprint = insideBracket.substring(0, 8).toUpperCase();
+    path =
+      'm' +
+      insideBracket
+        .substring(8)
+        .replace(/(\d+)h/g, "$1'")
+        .replace(/'/g, "'");
+    xpub = bracketMatch[2].replace(/[^\w\s]+$/, '').split(/[^\w]+/)[0];
+    console.log({ xpub });
+  } else {
+    // Case 2: If the keyExpression is not enclosed in square brackets
+    const parts = keyExpression.split("'");
+    masterFingerprint = parts[0].substring(0, 8).toUpperCase();
+    path = 'm' + keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'");
+    xpub = keyExpression
+      .substring(keyExpression.lastIndexOf("'") + 1)
+      .replace(/[^\w\s]+$/, '')
+      .split(/[^\w]+/)[0];
+    // xpub = keyExpression.substring(keyExpression.lastIndexOf("'") + 1).split(/[^\w]+/)[0];
+
+    console.log({ xpub });
   }
+  if (
+    !isValidMasterFingerprint(masterFingerprint) ||
+    !isValidDerivationPath(path) ||
+    !isValidXpub(xpub)
+  ) {
+    return null; // At least one of the fields is invalid
+  }
+
+  return { masterFingerprint, path, xpub };
 };
 
 export const parseTextforVaultConfig = (secret: string) => {
   let config;
   if (secret.includes('wpkh(')) {
     config = { descriptor: secret, label: 'Singlesig vault' };
+
+    const descriptorIndex = config.descriptor.indexOf('wpkh(');
+    const hasSquareBrackets = config.descriptor[descriptorIndex + 3] === '[';
+    const start = descriptorIndex + (hasSquareBrackets ? 6 : 5);
     const keyExpressions = config.descriptor
-      .substr(config.descriptor.indexOf('wpkh(') + 5)
-      .split(',');
+      .substring(start)
+      .split(',')
+      .map((expression) => expression.trim());
+
+    console.log(keyExpressions);
 
     const signersDetailsList = keyExpressions.map((expression) => parseKeyExpression(expression));
     const parsedResponse: ParsedVauleText = {
       signersDetails: signersDetailsList,
-      isMultisig: true,
+      isMultisig: false,
       scheme: {
         m: 1,
         n: 1,
@@ -131,12 +169,24 @@ export const parseTextforVaultConfig = (secret: string) => {
       throw Error('Unsuportted Script type');
     }
 
+    const descriptorIndex = config.descriptor.indexOf('sortedmulti(');
+    const hasSquareBrackets = config.descriptor[descriptorIndex + 10] === '[';
+    const start = descriptorIndex + (hasSquareBrackets ? 13 : 12);
     const keyExpressions = config.descriptor
-      .substr(config.descriptor.indexOf('sortedmulti(') + 12)
-      .split(',');
+      .substring(start)
+      .split(',')
+      .map((expression) => expression.trim());
+
+    const signersDetailsList = keyExpressions
+      .map((expression) => parseKeyExpression(expression))
+      .filter((details) => details !== null);
+
+    signersDetailsList.forEach((element) => {
+      console.log({ element });
+    });
 
     const m = parseInt(keyExpressions.splice(0, 1)[0]);
-    const n = keyExpressions.length;
+    const n = signersDetailsList.length;
     if (!isAllowedScheme(m, n)) {
       throw Error('Unsupported schemes');
     }
@@ -144,7 +194,7 @@ export const parseTextforVaultConfig = (secret: string) => {
       m,
       n,
     };
-    const signersDetailsList = keyExpressions.map((expression) => parseKeyExpression(expression));
+
     const parsedResponse: ParsedVauleText = {
       signersDetails: signersDetailsList,
       isMultisig: true,
@@ -174,11 +224,13 @@ export const parseTextforVaultConfig = (secret: string) => {
         signersDetailsList.push({ xpub, masterFingerprint: masterFingerprint.toUpperCase(), path });
       }
     }
+
     const parsedResponse: ParsedVauleText = {
       signersDetails: signersDetailsList,
       isMultisig: scheme.n !== 1,
       scheme,
     };
+    console.log(parsedResponse.signersDetails[0]);
     return parsedResponse;
   }
   throw Error('Unsupported format!');
