@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/check.svg';
@@ -9,14 +9,17 @@ type SignerCardProps = {
   name: string;
   description?: string;
   icon: Element;
-  isSelected: boolean;
+  isSelected?: boolean;
   onCardSelect?: (selected: any) => void;
   showSelection?: boolean;
   colorVarient?: string;
   disabled?: boolean;
   isFullText?: boolean;
   showDot?: boolean;
+  customStyle?: ViewStyle;
+  numberOfLines?: number;
   StaticIcon?: any;
+  titleComp?: any;
 };
 
 function SignerCard({
@@ -24,6 +27,7 @@ function SignerCard({
   description = '',
   icon,
   isSelected,
+  titleComp,
   onCardSelect,
   showSelection = true,
   colorVarient = 'brown',
@@ -31,6 +35,8 @@ function SignerCard({
   isFullText = false,
   showDot = false,
   StaticIcon = null,
+  numberOfLines = 1,
+  customStyle,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -40,7 +46,7 @@ function SignerCard({
     <Pressable
       disabled={disabled}
       backgroundColor={`${colorMode}.seashellWhite`}
-      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
+      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
@@ -69,7 +75,7 @@ function SignerCard({
         <Text
           style={styles.walletDescription}
           color={`${colorMode}.secondaryText`}
-          numberOfLines={1}
+          numberOfLines={numberOfLines}
         >
           {description}
         </Text>
