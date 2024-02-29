@@ -46,7 +46,7 @@ const Colors = {
   pantoneGreen: 'rgba(45,103,89,1)',
   pantoneGreenLight: 'rgba(45,103,89,0.08)',
   // Champagne: 'rgba(247,242,236,1)',
-  Warmbeige: 'rgba(247, 242, 236, 1)',
+  // Warmbeige: 'rgba(247, 242, 236, 1)',
   RussetBrown: 'rgba(145, 120, 93, 1)',
   RussetBrownLight: 'rgba(210, 194, 179, 1)',
   MintWhisper: 'rgba(45, 103, 89, 0.08)',

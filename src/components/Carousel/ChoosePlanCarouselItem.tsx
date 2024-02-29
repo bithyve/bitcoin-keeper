@@ -140,7 +140,7 @@ function ChoosePlanCarouselItem({
           <Text fontSize={12} bold color={`${colorMode}.white`} mt={2}>
             {item.name}
           </Text>
-          <Text fontSize={10} color={`${colorMode}.Warmbeige`} mb={4}>
+          <Text fontSize={10} color={`${colorMode}.white`} mb={4}>
             {item.subTitle}
           </Text>
           <Text textAlign="center" fontSize={isSelected ? 22 : 15} color={`${colorMode}.white`}>
