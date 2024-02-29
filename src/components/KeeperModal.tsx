@@ -144,7 +144,7 @@ function KeeperModal(props: ModalProps) {
               <Content />
             </Modal.Body>
             {((showButtons && learnMore) || !!buttonText) && (
-              <Box style={styles.footerContainer}>
+              <Box style={[styles.footerContainer, learnMore && styles.spaceBetween]}>
                 {learnMore ? (
                   <Box
                     borderColor={`${colorMode}.lightAccent`}
@@ -258,5 +258,8 @@ const getStyles = (subTitleWidth) =>
       alignItems: 'center',
       marginBottom: 20,
       marginRight: 10,
+    },
+    spaceBetween: {
+      justifyContent: 'space-between',
     },
   });
