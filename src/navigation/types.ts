@@ -108,6 +108,7 @@ export type AppStackParams = {
     vaultKeys: VaultSigner[];
   };
   AppBackupSettings: undefined;
+  BuyBitcoin: undefined;
 };
 
 // Usage:

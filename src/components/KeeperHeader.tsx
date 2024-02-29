@@ -92,7 +92,6 @@ function KeeperHeader({
                 style={[styles.addWalletDescription]}
                 color={subTitleColor || `${colorMode}.black`}
                 testID="text_header_subtitle"
-                numberOfLines={2}
               >
                 {subtitle}
               </Text>
@@ -119,7 +118,7 @@ const getStyles = (marginLeft: boolean) =>
       fontSize: 14,
       lineHeight: 20,
       letterSpacing: 0.5,
-      width: windowWidth * 0.45,
+      width: windowWidth * 0.6,
     },
     backContainer: {
       justifyContent: 'space-between',

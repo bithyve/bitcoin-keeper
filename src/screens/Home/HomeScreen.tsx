@@ -82,8 +82,6 @@ function NewHomeScreen({ navigation }) {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
@@ -92,7 +90,7 @@ function NewHomeScreen({ navigation }) {
     {
       name: 'Buy\nBitcoin',
       icon: <BTC />,
-      callback: onPressBuyBitcoin,
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin' })),
       cardPillText: `1 BTC = ${
         currencyCodeExchangeRate.symbol
       } ${currencyCodeExchangeRate.buy.toFixed(2)}`,
@@ -103,7 +101,7 @@ function NewHomeScreen({ navigation }) {
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Security and Inheritance',
+      name: 'Security & Inheritance',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
