@@ -163,6 +163,8 @@ export const customTheme = extendTheme({
       greenButtonBackground: Colors.ForestGreenDark,
       choosePlanHome: Colors.White,
       choosePlanCard: Colors.SmokeGreen,
+      choosePlanIconBackSelected: Colors.DeepOlive,
+      choosePlanIconBack: Colors.PaleKhaki,
       qrBorderColor: Colors.White,
       coffeeBackground: Colors.CoffeeDark,
       yellowButtonBackground: Colors.LightYellowDark,
