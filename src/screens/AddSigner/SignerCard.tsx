@@ -45,8 +45,7 @@ function SignerCard({
   return (
     <Pressable
       disabled={disabled}
-      backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
-      // borderColor={`${colorMode}.Eggshell`}
+      backgroundColor={`${colorMode}.seashellWhite`}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
