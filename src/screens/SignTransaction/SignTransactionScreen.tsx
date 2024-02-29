@@ -33,7 +33,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import {
   signTransactionWithColdCard,
-  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
