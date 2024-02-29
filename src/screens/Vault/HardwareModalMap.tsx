@@ -421,7 +421,7 @@ function SignerContent({
           <Instruction text={instruction} key={instruction} />
         ))}
         {sepInstruction && (
-          <Text fontSize={13} color={`${colorMode}.SlateGrey`}>
+          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
             {sepInstruction}
           </Text>
         )}
