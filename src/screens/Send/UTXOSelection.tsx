@@ -74,7 +74,7 @@ function UTXOSelection({ route }: ScreenProps) {
     );
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Select UTXOs"
         subtitle={`Select a minimum of ${amount} BTC to proceed`}

@@ -59,6 +59,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
 
 function RegisterWithChannel() {
   const { params } = useRoute();
+  const { colorMode } = useColorMode();
   const { vaultKey, vaultId } = params as { vaultKey: VaultSigner; vaultId: string };
   const { signer } = useSignerFromKey(vaultKey);
 
@@ -128,7 +129,7 @@ function RegisterWithChannel() {
   }, [channel]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Register with Keeper Hardware Interface"
         subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to register with the device`}

@@ -107,7 +107,7 @@ function SignWithColdCard({ route }: { route }) {
     });
   const { colorMode } = useColorMode();
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <VStack justifyContent="space-between" flex={1}>
         <VStack>
           {!registered && isMultisig ? (

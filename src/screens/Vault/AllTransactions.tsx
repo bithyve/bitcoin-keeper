@@ -12,8 +12,10 @@ import { useQuery } from '@realm/react';
 import { EntityKind } from 'src/core/wallets/enums';
 import { Transaction } from 'src/core/wallets/interfaces';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import { useColorMode } from 'native-base';
 
 function AllTransactions({ route }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { title, entityKind, subtitle, vaultId = '' } = route?.params;
   const { activeVault: vault } = useVault({ vaultId });
@@ -39,7 +41,7 @@ function AllTransactions({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subtitle} />
       <FlatList
         data={entityKind === EntityKind.WALLET ? walletTrans : vaultTrans}

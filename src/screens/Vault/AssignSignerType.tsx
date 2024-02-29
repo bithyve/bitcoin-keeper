@@ -1,4 +1,4 @@
-import { Box, ScrollView, VStack } from 'native-base';
+import { Box, ScrollView, useColorMode, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -28,6 +28,7 @@ type IProps = {
   };
 };
 function AssignSignerType({ route }: IProps) {
+  const { colorMode } = useColorMode();
   const { vault } = route.params;
   const { signers: appSigners } = useSigners();
   const [visible, setVisible] = useState(false);
@@ -74,7 +75,7 @@ function AssignSignerType({ route }: IProps) {
   }, []);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Identify your signer"
         subtitle="for better communication and conectivity"
