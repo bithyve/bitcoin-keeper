@@ -847,7 +847,7 @@ function SendConfirmation({ route }) {
         close={viewDetails}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewDetails}
+        buttonText={walletTransactions.ViewWallets}
         buttonCallback={viewDetails}
         textcolor={`${colorMode}.greenText`}
         buttonTextColor={`${colorMode}.white`}

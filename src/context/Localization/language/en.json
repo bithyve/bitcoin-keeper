@@ -334,6 +334,7 @@
     "confirmPassSubTitle": "To show wallet seed words",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details",
+    "ViewWallets": "View Wallets",
     "approveTransVault": "Approve Transfer to vault",
     "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction attransaction, at 100,000 sats that needs your approval",
     "TransNow": "Transfer Now",
