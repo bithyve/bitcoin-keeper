@@ -110,7 +110,7 @@ function TransferPolicy({
         </Box>
       </Box>
       <Box py={25}>
-        <Text fontSize={13} color={`${colorMode}.SlateGrey`} letterSpacing={0.65}>
+        <Text fontSize={13} color={`${colorMode}.secondaryText`} letterSpacing={0.65}>
           {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>

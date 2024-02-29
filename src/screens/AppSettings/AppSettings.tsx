@@ -214,7 +214,7 @@ function AppSettings({ navigation, route }) {
         subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
         subTitleWidth={wp(240)}
         modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.SlateGrey`}
+        subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
         buttonText="Backup Now"

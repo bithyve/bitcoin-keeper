@@ -19,7 +19,7 @@ function CardPill({ heading, backgroundColor, headingColor }: CardPillProps) {
       <Text
         bold
         style={styles.heading}
-        color={headingColor || `${colorMode}.SlateGrey`}
+        color={headingColor || `${colorMode}.secondaryText`}
         numberOfLines={1}
       >
         {heading}
