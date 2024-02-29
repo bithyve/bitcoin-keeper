@@ -2,8 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { BtcToSats, SatsToBtc } from 'src/constants/Bitcoin';
-import useBalance from 'src/hooks/useBalance';
+import { BtcToSats } from 'src/constants/Bitcoin';
 
 import { hp, wp, windowWidth } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
