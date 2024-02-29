@@ -130,7 +130,7 @@ function ChoosePlanCarouselItem({
             </Box>
           )}
           <Box
-            backgroundColor={isSelected ? `${colorMode}.DeepOlive` : `${colorMode}.PaleKhaki`}
+            backgroundColor={isSelected ? `${colorMode}.choosePlanIconBackSelected` : `${colorMode}.choosePlanIconBack`}
             style={styles.circle}
           >
             {item.name === 'Pleb' && <PlebIcon />}
