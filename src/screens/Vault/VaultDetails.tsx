@@ -289,7 +289,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               <HexagonIcon
                 width={58}
                 height={50}
-                backgroundColor={Colors.deepTeal}
+                backgroundColor={`${colorMode}.hexagonIconBackColor`}
                 icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
               />
             }
