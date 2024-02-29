@@ -50,7 +50,7 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
       learnMore
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-whirlpool/`)}
       buttonText="Proceed"
-      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />

@@ -120,7 +120,7 @@ function List() {
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
               <Text
                 style={styles.ctaText}
-                color={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+                color={`${colorMode}.modalWhiteButtonText`}
                 bold
               >
                 {currentPosition === 0 ? 'Next' : 'Proceed'}

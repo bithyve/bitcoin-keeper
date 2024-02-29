@@ -218,7 +218,7 @@ function SigningDeviceList() {
           title="Signers"
           subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
           modalBackground={`${colorMode}.modalGreenBackground`}
-          buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
           buttonBackground={`${colorMode}.modalWhiteButton`}
           buttonText="Add Now"
           buttonCallback={() => {
