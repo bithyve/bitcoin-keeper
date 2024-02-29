@@ -1,18 +1,19 @@
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useState } from 'react';
+import { useColorMode } from 'native-base';
+import { useQuery } from '@realm/react';
+import { useDispatch } from 'react-redux';
+
 import KeeperHeader from 'src/components/KeeperHeader';
 import { RealmSchema } from 'src/storage/realm/enum';
 import TransactionElement from 'src/components/TransactionElement';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useVault from 'src/hooks/useVault';
-import { useQuery } from '@realm/react';
 import { EntityKind } from 'src/core/wallets/enums';
 import { Transaction } from 'src/core/wallets/interfaces';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { useColorMode } from 'native-base';
 
 function AllTransactions({ route }) {
   const { colorMode } = useColorMode();
