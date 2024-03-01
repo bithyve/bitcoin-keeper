@@ -43,8 +43,8 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       learnMore
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/backup/`)}
       buttonText="Continue"
-      buttonTextColor="light.greenText2"
       buttonBackground={`${colorMode}.modalWhiteButton`}
+      buttonTextColor={`${colorMode}.headerText`}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />
   );

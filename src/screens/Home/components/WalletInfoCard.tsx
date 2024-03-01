@@ -4,7 +4,6 @@ import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import CardPill from 'src/components/CardPill';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
-import { useAppSelector } from 'src/store/hooks';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
 import { hp, wp } from 'src/constants/responsive';
@@ -29,7 +28,6 @@ function WalletInfoCard({
   setIsShowAmount,
 }: WalletInfoCardProps) {
   const { colorMode } = useColorMode();
-  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   return (
     <Box backgroundColor={`${colorMode}.pantoneGreen`} style={styles.walletContainer}>
@@ -54,12 +52,12 @@ function WalletInfoCard({
             {walletName}
           </Text>
         </Box>
-        <TouchableOpacity onPress={setIsShowAmount}>
+        <TouchableOpacity testID="btn_currencyinfo" onPress={setIsShowAmount}>
           <CurrencyInfo
-            hideAmounts={false}
             amount={amount}
             hideAmounts={!isShowAmount}
             fontSize={24}
+            color={colorMode === 'light' ? Colors.White : Colors.RichBlack}
             variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </TouchableOpacity>

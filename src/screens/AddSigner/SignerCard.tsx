@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/check.svg';
@@ -9,14 +9,17 @@ type SignerCardProps = {
   name: string;
   description?: string;
   icon: Element;
-  isSelected: boolean;
+  isSelected?: boolean;
   onCardSelect?: (selected: any) => void;
   showSelection?: boolean;
   colorVarient?: string;
   disabled?: boolean;
   isFullText?: boolean;
   showDot?: boolean;
+  customStyle?: ViewStyle;
+  numberOfLines?: number;
   StaticIcon?: any;
+  titleComp?: any;
 };
 
 function SignerCard({
@@ -24,6 +27,7 @@ function SignerCard({
   description = '',
   icon,
   isSelected,
+  titleComp,
   onCardSelect,
   showSelection = true,
   colorVarient = 'brown',
@@ -31,6 +35,8 @@ function SignerCard({
   isFullText = false,
   showDot = false,
   StaticIcon = null,
+  numberOfLines = 1,
+  customStyle,
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
@@ -39,9 +45,8 @@ function SignerCard({
   return (
     <Pressable
       disabled={disabled}
-      backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
-      borderColor={`${colorMode}.Eggshell`}
-      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null]}
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
@@ -60,7 +65,7 @@ function SignerCard({
           {showDot ? <Box style={styles.redDot} /> : null}
         </Box>
         <Text
-          color={`${colorMode}.SlateGrey`}
+          color={`${colorMode}.primaryText`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
           bold
@@ -69,8 +74,8 @@ function SignerCard({
         </Text>
         <Text
           style={styles.walletDescription}
-          color={`${colorMode}.GreenishGrey`}
-          numberOfLines={1}
+          color={`${colorMode}.secondaryText`}
+          numberOfLines={numberOfLines}
         >
           {description}
         </Text>
@@ -86,8 +91,6 @@ const styles = StyleSheet.create({
     height: 125,
     alignItems: 'flex-start',
     borderRadius: 10,
-    borderWidth: 0.5,
-    backgroundColor: '#FDF7F0',
     margin: 3,
   },
   walletName: {

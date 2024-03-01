@@ -27,10 +27,13 @@ import WalletOperations from 'src/core/wallets/operations';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BitcoinInput from 'src/assets/images/btc_input.svg';
+import useBalance from 'src/hooks/useBalance';
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
+  const { getBalance, getCurrencyIcon } = useBalance();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
 
@@ -65,11 +68,14 @@ function ReceiveScreen({ route }: { route }) {
           <View style={styles.inputParentView}>
             <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
               <View style={styles.btcIconWrapper}>
-                {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
+                {/* {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />} */}
+                {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
               </View>
-              <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
+              <Box
+                style={styles.verticalDeviderLine}
+                backgroundColor={`${colorMode}.secondaryText`}
+              />
               <Input
-                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholder={home.ConvertedAmount}
                 placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
@@ -231,7 +237,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.04,
   },
   inputParentView: {
-    marginHorizontal: 8,
+    // marginHorizontal: 8,
   },
   inputWrapper01: {
     flexDirection: 'row',
@@ -243,7 +249,7 @@ const styles = StyleSheet.create({
   },
   verticalDeviderLine: {
     marginLeft: 5,
-    width: 1,
+    width: 2,
     opacity: 0.5,
     height: 15,
   },

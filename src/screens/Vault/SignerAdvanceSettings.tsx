@@ -95,8 +95,9 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       }
 
-      if (signer.inheritanceKeyInfo === undefined)
+      if (signer.inheritanceKeyInfo === undefined) {
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+      }
 
       const existingPolicy: InheritancePolicy = signer.inheritanceKeyInfo.policy;
       const existingAlert: InheritanceAlert | any =
@@ -400,7 +401,13 @@ function SignerAdvanceSettings({ route }: any) {
           />
         }
       />
-      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+          paddingTop: '10%',
+          paddingBottom: 20,
+        }}
+      >
         <OptionCard
           title="Edit Description"
           description="Short description to help you remember"
@@ -422,12 +429,11 @@ function SignerAdvanceSettings({ route }: any) {
             callback={registerSigner}
           />
         )}
-        {/* disabling this temporarily */}
-        {/* <OptionCard
+        <OptionCard
           title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
           description="Identify your signer type for enhanced connectivity and communication"
           callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-        /> */}
+        />
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
@@ -469,8 +475,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToScanPSBT}
           />
         )}
-      </ScrollView>
-      <VStack>
         <Box ml={2} style={{ marginVertical: 20 }}>
           {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
@@ -485,10 +489,10 @@ function SignerAdvanceSettings({ route }: any) {
             />
           ))}
         </ScrollView>
-        <Box style={styles.fingerprint}>
-          <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
-        </Box>
-      </VStack>
+      </ScrollView>
+      <Box style={styles.fingerprint}>
+        <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
+      </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}

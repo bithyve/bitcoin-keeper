@@ -9,13 +9,13 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Switch from 'src/components/Switch/Switch';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import { changeLoginMethod } from 'src/store/sagaActions/login';
+import { changeAuthCred, changeLoginMethod } from 'src/store/sagaActions/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
-import { StyleSheet } from 'react-native';
-import { hp } from 'src/constants/responsive';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { sentryConfig } from 'src/services/sentry';
 import useAsync from 'src/hooks/useAsync';
@@ -24,8 +24,162 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import KeeperModal from 'src/components/KeeperModal';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import HealthCheckComponent from 'src/components/Backup/HealthCheckComponent';
+import { BackupType } from 'src/models/enums/BHR';
+import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
+
+function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
+  const { translations } = useContext(LocalizationContext);
+
+  const { login, common } = translations;
+  const dispatch = useAppDispatch();
+  const [passcode, setPasscode] = useState('');
+  const [confirmPasscode, setConfirmPasscode] = useState('');
+  const [passcodeFlag, setPasscodeFlag] = useState(true);
+  const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
+  const { credsChanged } = useAppSelector((state) => state.login);
+  const { showToast } = useToastMessage();
+
+  useEffect(() => {
+    if (credsChanged === 'changed') {
+      setConfirmPasscodeModal(false);
+      showToast('Password Successfully updated!');
+    }
+  }, [credsChanged]);
+
+  function onPressNumber(text) {
+    let tmpPasscode = passcode;
+    let tmpConfirmPasscode = confirmPasscode;
+    if (passcodeFlag) {
+      if (passcode.length < 4) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setPasscode(tmpPasscode);
+        }
+      } else if (passcode.length === 4 && passcodeFlag) {
+        setPasscodeFlag(false);
+        setConfirmPasscodeFlag(1);
+        setPasscode(passcode);
+      }
+      if (passcode && text === 'x') {
+        const passcodeTemp = passcode.slice(0, -1);
+        setPasscode(passcodeTemp);
+        if (passcodeTemp.length === 0) {
+          setConfirmPasscodeFlag(0);
+        }
+      }
+    } else if (confirmPasscodeFlag) {
+      if (confirmPasscode.length < 4) {
+        if (text !== 'x') {
+          tmpConfirmPasscode += text;
+          setConfirmPasscode(tmpConfirmPasscode);
+        }
+      }
+      if (confirmPasscode && text === 'x') {
+        setConfirmPasscode(confirmPasscode.slice(0, -1));
+      } else if (!confirmPasscode && text === 'x') {
+        setPasscodeFlag(true);
+        setConfirmPasscodeFlag(0);
+        setConfirmPasscode(confirmPasscode);
+      }
+    }
+  }
+  const onDeletePressed = (text) => {
+    if (passcodeFlag) {
+      setPasscode(passcode.slice(0, -1));
+    } else {
+      setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
+    }
+  };
+
+  useEffect(() => {
+    if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length === 4) {
+      setPasscodeFlag(false);
+      setConfirmPasscodeFlag(2);
+    } else if (passcode.length === 4 && confirmPasscodeFlag !== 2) {
+      setPasscodeFlag(false);
+      setConfirmPasscodeFlag(1);
+    } else if (
+      !confirmPasscode &&
+      passcode.length > 0 &&
+      passcode.length <= 4 &&
+      confirmPasscodeFlag === 2
+    ) {
+      setPasscodeFlag(true);
+      setConfirmPasscodeFlag(0);
+    } else if (!confirmPasscode && passcode.length > 0 && passcode.length <= 4) {
+      setPasscodeFlag(true);
+      setConfirmPasscodeFlag(0);
+    }
+  }, [passcode, confirmPasscode]);
+
+  return (
+    <Box>
+      <Box>
+        {login.newPasscode}
+        <PinInputsView
+          backgroundColor={true}
+          passCode={passcode}
+          passcodeFlag={passcodeFlag}
+          borderColor="transparent"
+          textColor={true}
+        />
+      </Box>
+      {passcode.length === 4 && (
+        <>
+          <Box>
+            {login.confirmNewPasscode}
+            <PinInputsView
+              backgroundColor={true}
+              passCode={confirmPasscode}
+              passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
+              borderColor="transparent"
+              textColor={true}
+            />
+            <Box mb={5}>
+              {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
+                <Text style={[styles.errorText, { color: 'light.CongoPink' }]}>
+                  {login.MismatchPasscode}
+                </Text>
+              )}
+            </Box>
+          </Box>
+
+          <Box alignItems="flex-end">
+            {passcode.length === 4 && (
+              <TouchableOpacity
+                onPress={() => {
+                  dispatch(changeAuthCred(oldPassword, passcode));
+                }}
+              >
+                <Box style={styles.cta} backgroundColor="light.primaryGreenBackground">
+                  <Text style={styles.ctaText} bold>
+                    {common.confirm}
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            )}
+          </Box>
+        </>
+      )}
+      <KeyPadView
+        disabled={false}
+        onDeletePressed={onDeletePressed}
+        onPressNumber={onPressNumber}
+        ClearIcon={<DeleteIcon />}
+        keyColor="light.primaryText"
+      />
+    </Box>
+  );
+}
 
 function PrivacyAndDisplay() {
   const { colorMode } = useColorMode();
@@ -33,8 +187,17 @@ function PrivacyAndDisplay() {
   const { showToast } = useToastMessage();
 
   const [sensorType, setSensorType] = useState('Biometrics');
+  const [visiblePasscode, setVisiblePassCode] = useState(false);
+  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
+  const [confirmPasscode, setConfirmPasscode] = useState(false);
+  const [oldPassword, setOldPassword] = useState(false);
+
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common } = translations;
+  const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
+  const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const { inProgress, start } = useAsync();
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -74,8 +237,8 @@ function PrivacyAndDisplay() {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -133,7 +296,7 @@ function PrivacyAndDisplay() {
             />
             <OptionCard
               title={settings.shareAnalytics}
-              description={settings.analyticsDescription}
+              description={settings.rememberPasscode}
               Icon={
                 <Switch
                   onValueChange={async () => await toggleSentryReports()}
@@ -143,14 +306,14 @@ function PrivacyAndDisplay() {
               }
             />
           </Box>
-          {/*
-            TODO: missing functionality
-            */}
-          {/* <OptionCard
+
+          <OptionCard
             title={settings.changePasscode}
             description={settings.changePasscodeDescription}
-            callback={() => navigation.navigate('NodeSettings')}
-          /> */}
+            callback={() => {
+              setVisiblePassCode(true);
+            }}
+          />
         </Box>
       </ScrollView>
       <Box style={styles.note}>
@@ -160,6 +323,68 @@ function PrivacyAndDisplay() {
           subtitleColor="GreyText"
         />
       </Box>
+      <KeeperModal
+        visible={visiblePasscode}
+        closeOnOverlayClick={false}
+        close={() => setVisiblePassCode(false)}
+        title="Change passcode"
+        subTitleWidth={wp(240)}
+        subTitle="Enter your existing passcode"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
+        Content={() => (
+          <PasscodeVerifyModal
+            primaryText="Confirm"
+            close={() => {
+              setVisiblePassCode(false);
+            }}
+            onSuccess={(password) => {
+              setOldPassword(password);
+              setShowConfirmSeedModal(true);
+            }}
+          />
+        )}
+      />
+      <ModalWrapper
+        visible={showConfirmSeedModal}
+        onSwipeComplete={() => setShowConfirmSeedModal(false)}
+        position="center"
+      >
+        <HealthCheckComponent
+          closeBottomSheet={() => {
+            setShowConfirmSeedModal(false);
+            if (backupMethod === BackupType.SEED) {
+              dispatch(seedBackedConfirmed(false));
+            }
+          }}
+          type={backupMethod}
+          password={backup.password}
+          hint={backup.hint}
+          words={primaryMnemonic.split(' ')}
+          onConfirmed={(password) => {
+            if (backupMethod === BackupType.SEED) {
+              setShowConfirmSeedModal(false);
+              dispatch(seedBackedConfirmed(true));
+              setConfirmPasscode(true);
+            }
+          }}
+        />
+      </ModalWrapper>
+      <KeeperModal
+        visible={confirmPasscode}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPasscode(false)}
+        title="Change passcode"
+        subTitleWidth={wp(240)}
+        modalBackground={`${colorMode}.learMoreTextcolor`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <ConfirmPasscode setConfirmPasscodeModal={setConfirmPasscode} oldPassword={oldPassword} />
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -173,6 +398,24 @@ const styles = StyleSheet.create({
     bottom: 50,
     width: '95%',
     alignSelf: 'center',
+  },
+  cta: {
+    borderRadius: 10,
+    width: wp(120),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ctaText: {
+    fontSize: 13,
+    letterSpacing: 1,
+    color: 'white',
+  },
+  errorText: {
+    fontSize: 11,
+    fontWeight: '400',
+    textAlign: 'right',
+    fontStyle: 'italic',
   },
 });
 export default PrivacyAndDisplay;

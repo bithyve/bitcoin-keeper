@@ -46,6 +46,7 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 // import LabelItem from '../UTXOManagement/components/LabelItem';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
+import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -249,35 +250,30 @@ function AddSendAmount({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
         style={styles.Container}
       >
-        <Box style={styles.HeaderContainer}>
-          <Box style={styles.headerWrapper}>
-            <KeeperHeader
-              title={
-                transferType === TransferType.WALLET_TO_WALLET
-                  ? 'Sending to Wallet'
-                  : 'Enter the Amount'
-              }
+        <KeeperHeader
+          title={
+            transferType === TransferType.WALLET_TO_WALLET
+              ? `Sending to Wallet`
+              : `Enter the Amount`
+          }
+          subtitle={`From ${sender.presentationData.name}`}
+          marginLeft={false}
+          rightComponent={<CurrencyTypeSwitch />}
+          icon={
+            <HexagonIcon
+              width={44}
+              height={38}
+              backgroundColor={Colors.pantoneGreen}
+              icon={<WalletIcon />}
             />
-          </Box>
-          <Box style={styles.currentTypeSwitchWrapper}>
-            <CurrencyTypeSwitch />
-          </Box>
-        </Box>
-        <Box
-          style={{
-            marginVertical: hp(5),
-          }}
-        >
-          <Box style={styles.sendingFromWrapper}>
-            <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>
-              {walletTranslation.sendingFrom}
-            </Text>
-          </Box>
+          }
+        />
+        <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
             icon={getWalletIcon(sender)}
             availableAmt={sender?.specs.balances.confirmed}
-            walletName={sender?.presentationData.name}
+            walletName={recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
           />
@@ -367,13 +363,13 @@ function AddSendAmount({ route }) {
                     );
                   }
                 }}
-                borderColor={`${colorMode}.learnMoreBorder`}
-                backgroundColor={`${colorMode}.accent`}
+                borderColor={`${colorMode}.RussetBrown`}
+                backgroundColor={`${colorMode}.RussetBrown`}
                 style={styles.sendMaxWrapper}
               >
                 <Text
                   testID="text_sendmax"
-                  color={`${colorMode}.sendMax`}
+                  color={`${colorMode}.ChampagneWhite`}
                   style={styles.sendMaxText}
                 >
                   Send Max
@@ -555,13 +551,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     flexWrap: 'wrap',
   },
-  HeaderContainer: {
-    flexDirection: 'row',
-    width: '100%',
-  },
-  headerWrapper: {
-    width: '75%',
-  },
+
   currentTypeSwitchWrapper: {
     alignItems: 'center',
     justifyContent: 'center',

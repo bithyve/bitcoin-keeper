@@ -101,7 +101,7 @@ function ChoosePlanCarouselItem({
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
       <Box
-        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.SmokeGreen`}
+        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.choosePlanCard`}
         style={[
           styles.wrapperView,
           {
@@ -130,7 +130,7 @@ function ChoosePlanCarouselItem({
             </Box>
           )}
           <Box
-            backgroundColor={isSelected ? `${colorMode}.DeepOlive` : `${colorMode}.PaleKhaki`}
+            backgroundColor={isSelected ? `${colorMode}.choosePlanIconBackSelected` : `${colorMode}.choosePlanIconBack`}
             style={styles.circle}
           >
             {item.name === 'Pleb' && <PlebIcon />}
@@ -140,7 +140,7 @@ function ChoosePlanCarouselItem({
           <Text fontSize={12} bold color={`${colorMode}.white`} mt={2}>
             {item.name}
           </Text>
-          <Text fontSize={10} color={`${colorMode}.Warmbeige`} mb={4}>
+          <Text fontSize={10} color={`${colorMode}.white`} mb={4}>
             {item.subTitle}
           </Text>
           <Text textAlign="center" fontSize={isSelected ? 22 : 15} color={`${colorMode}.white`}>
@@ -153,7 +153,7 @@ function ChoosePlanCarouselItem({
             {getFreeTrail}
           </Text>
           {canSelectPlan === true &&
-          !item.productIds.includes(subscription.productId.toLowerCase()) ? (
+            !item.productIds.includes(subscription.productId.toLowerCase()) ? (
             <Box
               style={{
                 marginTop: hp(10),

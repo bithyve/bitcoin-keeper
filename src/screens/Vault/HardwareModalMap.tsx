@@ -438,7 +438,7 @@ function SignerContent({
           <Instruction text={instruction} key={instruction} />
         ))}
         {sepInstruction && (
-          <Text fontSize={13} color={`${colorMode}.SlateGrey`}>
+          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
             {sepInstruction}
           </Text>
         )}
@@ -1475,7 +1475,8 @@ function HardwareModalMap({
           storageType: SignerStorage.WARM,
           isMultisig: true,
           inheritanceKeyInfo: {
-            configurations: setupInfo.configurations,
+            // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
+            configurations: [], // setupInfo.configurations,
             policy: setupInfo.policy,
           },
           xfp: setupInfo.id,
@@ -1582,6 +1583,8 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
+        return navigateToSeedWordSetup();
+      case SignerType.MY_KEEPER:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
       case SignerType.TREZOR:

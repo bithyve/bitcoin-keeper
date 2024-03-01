@@ -17,6 +17,8 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
+import openLink from 'src/utils/OpenLink';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -39,10 +41,10 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
           width: '75%',
         }}
       >
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -218,12 +220,22 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Text>
           <Text>
             By proceeding you agree to our
-            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
+            <Text
+              color={`${colorMode}.headerText`}
+              italic
+              style={styles.boldText}
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
+            >
               {' '}
               Terms of Service{' '}
             </Text>
-            {`and\nour`}
-            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
+            {'and\nour'}
+            <Text
+              color={`${colorMode}.headerText`}
+              italic
+              style={styles.boldText}
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
+            >
               {' '}
               Privacy Policy
             </Text>

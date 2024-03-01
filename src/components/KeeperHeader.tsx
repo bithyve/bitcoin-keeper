@@ -78,6 +78,7 @@ function KeeperHeader({
           <Box>
             {title && (
               <Text
+                numberOfLines={1}
                 style={styles.addWalletText}
                 color={titleColor || `${colorMode}.headerText`}
                 testID="text_header_title"
@@ -88,9 +89,10 @@ function KeeperHeader({
             )}
             {subtitle && (
               <Text
-                style={[styles.addWalletDescription]}
+                style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
                 color={subTitleColor || `${colorMode}.black`}
                 testID="text_header_subtitle"
+                numberOfLines={2}
               >
                 {subtitle}
               </Text>
@@ -117,6 +119,7 @@ const getStyles = (marginLeft: boolean) =>
       fontSize: 14,
       lineHeight: 20,
       letterSpacing: 0.5,
+      width: windowWidth * 0.6,
     },
     backContainer: {
       justifyContent: 'space-between',
@@ -151,9 +154,12 @@ const getStyles = (marginLeft: boolean) =>
       justifyContent: 'space-between',
     },
     headerInfo: {
-      paddingLeft: marginLeft ? '10%' : 0,
+      paddingLeft: marginLeft ? '10%' : '5%',
       flexDirection: 'row',
       gap: 10,
+    },
+    smallWidth: {
+      width: windowWidth * 0.45,
     },
   });
 export default KeeperHeader;

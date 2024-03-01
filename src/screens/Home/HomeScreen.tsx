@@ -19,6 +19,8 @@ import InheritanceIcon from 'src/assets/images/inheri.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
@@ -81,11 +83,19 @@ function NewHomeScreen({ navigation }) {
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
+
   const cardsData = [
     {
       name: 'Buy\nBitcoin',
       icon: <BTC />,
       callback: onPressBuyBitcoin,
+      cardPillText: `1 BTC = ${
+        currencyCodeExchangeRate.symbol
+      } ${currencyCodeExchangeRate.buy.toFixed(2)}`,
     },
     {
       name: 'Manage\nKeys',
@@ -93,7 +103,7 @@ function NewHomeScreen({ navigation }) {
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Security and Inheritance',
+      name: 'Inheritance & Security',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
@@ -117,7 +127,7 @@ function NewHomeScreen({ navigation }) {
   ];
 
   return (
-    <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
       <InititalAppController
         navigation={navigation}
         electrumErrorVisible={electrumErrorVisible}

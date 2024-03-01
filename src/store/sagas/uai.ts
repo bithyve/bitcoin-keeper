@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { EntityKind } from 'src/core/wallets/enums';
+import { BackupHistory } from 'src/models/enums/BHR';
 import { createUaiMap, setRefreshUai, updateUaiActionMap } from '../reducers/uai';
 import {
   addToUaiStack,
@@ -17,7 +18,7 @@ import {
   UAI_CHECKS,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
-import { BackupHistory } from 'src/models/enums/BHR';
+
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
 const HEALTH_CHECK_REMINDER_TESTNET = 1; // 3hours
 const healthCheckReminderThreshold = isTestnet()
@@ -169,7 +170,7 @@ function* uaiChecksWorker({ payload }) {
       }
     }
     if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {
-      //check for each signer if health check uai is needed
+      // check for each signer if health check uai is needed
       const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
       if (signers.length > 0) {
         for (const signer of signers) {
@@ -202,7 +203,7 @@ function* uaiChecksWorker({ payload }) {
         }
       }
 
-      //check for exixsisting UAIs of type HC if the signer was recently actioned
+      // check for exixsisting UAIs of type HC if the signer was recently actioned
       const uaiCollectionHC: UAI[] = dbManager.getObjectByField(
         RealmSchema.UAI,
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,

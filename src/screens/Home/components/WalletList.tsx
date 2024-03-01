@@ -36,6 +36,7 @@ export function WalletsList({
         keyExtractor={(item) => item.id}
         renderItem={({ item: wallet }) => (
           <TouchableOpacity
+            testID={`btn_${wallet.presentationData.name}`}
             style={styles.walletCardWrapper}
             onPress={() => handleWalletPress(wallet, navigation)}
           >
@@ -53,7 +54,7 @@ export function WalletsList({
         ListEmptyComponent={<WalletInfoEmptyState />}
         ListFooterComponent={() => (
           <AddCard
-            name={`Add\nWallet`}
+            name={'Add\nWallet'}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
           />

@@ -16,14 +16,18 @@ function CurrentPlanView({ plan }) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.planContianer}>
-        <TouchableOpacity style={styles.plan} onPress={() => navigation.navigate('ChoosePlan')}>
+        <TouchableOpacity
+          testID={`btn_choosePlan-${plan}`}
+          style={styles.plan}
+          onPress={() => navigation.navigate('ChoosePlan')}
+        >
           {plan === 'Pleb'.toUpperCase() && <PlebIcon />}
           {plan === 'Hodler'.toUpperCase() && <HodlerIcon />}
           {plan === 'Diamond Hands'.toUpperCase() && <DiamondIcon />}
           <Text
             testID="text_home_current_plan"
             style={styles.currentPlanText}
-            color={`${colorMode}.white`}
+            color={`${colorMode}.choosePlanHome`}
           >
             {plan}
           </Text>
