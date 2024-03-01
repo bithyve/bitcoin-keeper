@@ -131,7 +131,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => {}}
+        callback={() => { }}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
