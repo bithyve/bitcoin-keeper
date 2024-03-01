@@ -18,10 +18,10 @@
     "uninstall ios:dev": "xcrun simctl uninstall booted io.hexawallet.hexakeeper.dev",
     "uninstall android": "adb uninstall io.hexawallet.bitcoinkeeper",
     "uninstall android:dev": "adb uninstall io.hexawallet.keeper.development",
-    "release android dev": "chmod +x ./update-config.sh && ./update-config.sh dev && cd android && ENVFILE=.env bundle exec fastlane dev --env dev",
-    "release android prod": "chmod +x ./update-config.sh && ./update-config.sh production && cd android && ENVFILE=.env.production bundle exec fastlane live --env production",
-    "release ios dev": "chmod +x ./update-config.sh && ./update-config.sh dev && cd ios && ENVFILE=.env bundle exec fastlane dev --env dev",
-    "release ios prod": "chmod +x ./update-config.sh && ./update-config.sh production && cd ios && ENVFILE=.env.production bundle exec fastlane live --env production"
+    "release android dev": "cd android && ENVFILE=.env bundle exec fastlane dev --env dev",
+    "release android prod": "cd android && ENVFILE=.env.production bundle exec fastlane live --env production",
+    "release ios dev": "cd ios && ENVFILE=.env bundle exec fastlane dev --env dev",
+    "release ios prod": "cd ios && ENVFILE=.env.production bundle exec fastlane live --env production"
   },
   "dependencies": {
     "@ngraveio/bc-ur": "1.1.6",
