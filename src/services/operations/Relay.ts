@@ -11,7 +11,6 @@ import { captureError } from '../sentry';
 const { HEXA_ID, RELAY } = config;
 const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
 const MEMPOOL_ENDPOINT = 'https://mempool.space';
-const BLOCKCHAIR_ENDPOINT = 'https://api.blockchair.com';
 
 export default class Relay {
   public static checkCompatibility = async (
@@ -558,18 +557,6 @@ export default class Relay {
   public static fetchOneWeekHistoricalFee = async (): Promise<any> => {
     try {
       const response = await fetch(`${MEMPOOL_ENDPOINT}/api/v1/mining/blocks/fee-rates/1w`);
-      if (!response.ok) {
-        return [];
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return [];
-    }
-  };
-  public static feeOneDayInsights = async (): Promise<any> => {
-    try {
-      const response = await fetch(`${BLOCKCHAIR_ENDPOINT}/bitcoin/stats`);
       if (!response.ok) {
         return [];
       }
