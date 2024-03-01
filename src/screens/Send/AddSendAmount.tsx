@@ -268,16 +268,12 @@ function AddSendAmount({ route }) {
             />
           }
         />
-        <Box
-          style={{
-            marginVertical: hp(5),
-          }}
-        >
+        <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
             icon={getWalletIcon(sender)}
             availableAmt={sender?.specs.balances.confirmed}
-            walletName={sender?.presentationData.name}
+            walletName={recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
           />

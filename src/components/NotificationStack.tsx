@@ -184,7 +184,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       case uaiType.IKS_REQUEST:
         return {
           heading: 'Inheritance Key request',
-          body: 'Inheritance Key request adsfasdfasdf',
+          body: 'Take action on the pending IKS request ',
           btnConfig: {
             primary: {
               text: 'Continue',
@@ -196,7 +196,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           },
           modalDetails: {
             heading: 'Inheritance Key request',
-            subTitle: 'Inheritance Key request adsfasdfasdf',
+            subTitle: 'Pleasetake action for the IKS ',
             body: 'There is a request by someone for accessing the Inheritance Key you have set up using this app',
             btnConfig: {
               primary: {

@@ -196,20 +196,24 @@ function SendScreen({ route }) {
   };
 
   const handleProceed = () => {
-    if (sender.entityKind === EntityKind.VAULT) {
-      navigateToNext(
-        WalletOperations.getNextFreeAddress(selectedItem),
-        TransferType.VAULT_TO_WALLET,
-        null,
-        selectedItem
-      );
+    if (selectedItem) {
+      if (sender.entityKind === EntityKind.VAULT) {
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(selectedItem),
+          TransferType.VAULT_TO_WALLET,
+          null,
+          selectedItem
+        );
+      } else {
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(selectedItem),
+          TransferType.WALLET_TO_WALLET,
+          null,
+          selectedItem
+        );
+      }
     } else {
-      navigateToNext(
-        WalletOperations.getNextFreeAddress(selectedItem),
-        TransferType.WALLET_TO_WALLET,
-        null,
-        selectedItem
-      );
+      showToast('Please select a wallet or vault');
     }
   };
 
@@ -371,7 +375,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   cameraView: {
-    height: hp(250),
+    height: hp(220),
     width: wp(375),
   },
   qrcontainer: {
@@ -393,7 +397,7 @@ const styles = StyleSheet.create({
   noteWrapper: {
     marginLeft: wp(20),
     position: 'absolute',
-    bottom: windowHeight > 680 ? hp(20) : hp(8),
+    bottom: windowHeight > 680 ? hp(15) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {
