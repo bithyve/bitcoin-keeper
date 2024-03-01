@@ -67,7 +67,7 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: common.needHelp,
+      cardName: settings.needHelp,
       icon: <FaqIcon />,
       callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`),
     },
