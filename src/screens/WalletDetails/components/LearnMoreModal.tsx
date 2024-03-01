@@ -45,7 +45,6 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       buttonText="Continue"
       buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
-      buttonTextColor={`${colorMode}.headerText`}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />
   );
