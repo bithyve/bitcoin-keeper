@@ -38,7 +38,7 @@ function ActionCard({
       >
         {cardPillText && (
           <Box style={styles.cardPillContainer}>
-            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.Periwinkle`} />
+            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.btcLabelBack`} />
           </Box>
         )}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
