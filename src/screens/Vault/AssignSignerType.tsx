@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
   dividerStyle: {
     opacity: 0.6,
     width: windowWidth * 0.8,
+    alignSelf: 'center',
     height: 0.5,
   },
   divider: {
