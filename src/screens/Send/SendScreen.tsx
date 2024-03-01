@@ -301,7 +301,7 @@ function SendScreen({ route }) {
                       <Box style={styles.emptyWalletsContainer}>
                         <EmptyWalletIcon />
                         <Box style={styles.emptyWalletText}>
-                          <Text color={`${colorMode}.deepTeal`}>
+                          <Text color={`${colorMode}.hexagonIconBackColor`}>
                             You don't have any wallets yet
                           </Text>
                         </Box>

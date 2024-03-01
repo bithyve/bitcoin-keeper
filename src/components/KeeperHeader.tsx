@@ -33,7 +33,7 @@ function KeeperHeader({
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   learnBackgroundColor = 'light.RussetBrown',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
@@ -119,7 +119,7 @@ const getStyles = (marginLeft: boolean) =>
       fontSize: 14,
       lineHeight: 20,
       letterSpacing: 0.5,
-      width: windowWidth * 0.6,
+      width: windowWidth * 0.8,
     },
     backContainer: {
       justifyContent: 'space-between',

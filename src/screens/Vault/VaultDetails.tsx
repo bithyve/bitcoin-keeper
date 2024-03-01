@@ -35,7 +35,6 @@ import useSigners from 'src/hooks/useSigners';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
@@ -289,7 +288,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               <HexagonIcon
                 width={58}
                 height={50}
-                backgroundColor={Colors.deepTeal}
+                backgroundColor={`${colorMode}.hexagonIconBackColor`}
                 icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
               />
             }
@@ -380,7 +379,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
-        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText={common.continue}
         buttonCallback={() => {

@@ -205,7 +205,7 @@ function ManageWallets() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={settings.ManageWallets}
+        title={settings.ManageWalletsTitle}
         subtitle={settings.ManageWalletsSub}
         rightComponent={<CurrencyTypeSwitch />}
       />
@@ -252,7 +252,7 @@ function ManageWallets() {
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />

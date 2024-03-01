@@ -32,7 +32,7 @@ function SignerCard({
           {icon}
         </Box>
         <Text
-          color={isSelected ? `${colorMode}.white` : `${colorMode}.SlateGrey`}
+          color={isSelected ? `${colorMode}.white` : `${colorMode}.secondaryText`}
           style={styles.walletName}
         >
           {walletName}

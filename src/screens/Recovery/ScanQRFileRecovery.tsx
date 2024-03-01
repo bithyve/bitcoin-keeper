@@ -1,5 +1,5 @@
-import { Alert, ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
-import { Box, HStack, Text } from 'native-base';
+import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
+import { Box, HStack, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
@@ -15,6 +15,7 @@ const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
 
 function ScanQRFileRecovery({ route }) {
+  const { colorMode } = useColorMode();
   const { allowFileUploads = true } = route.params || {};
   const { initateRecovery } = useConfigRecovery();
   const [qrPercent, setQrPercent] = useState(0);
@@ -57,7 +58,7 @@ function ScanQRFileRecovery({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1}>
         <KeeperHeader
           title="Recover Using Wallet Configuration File"

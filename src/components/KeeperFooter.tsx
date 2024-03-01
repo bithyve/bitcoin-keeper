@@ -3,6 +3,7 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
 
 type FooterItem = {
   Icon: any;
@@ -67,6 +68,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
     textAlign: 'center',
     paddingHorizontal: 5,
+    fontFamily: Fonts.FiraSansCondensedRegular,
   },
   IconWrapper: {
     justifyContent: 'space-around',

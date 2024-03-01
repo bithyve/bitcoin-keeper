@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Dimensions, StyleSheet } from 'react-native';
@@ -20,15 +20,15 @@ const { width } = Dimensions.get('window');
 const SPECTER_PREFIX = 'addwallet keeper vault&';
 
 function RegisterWithQR({ route, navigation }: any) {
+  const { colorMode } = useColorMode();
   const { vaultKey, vaultId = '' }: { vaultKey: VaultSigner; vaultId: string } = route.params;
   const dispatch = useDispatch();
   const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER
-      ? `${SPECTER_PREFIX}${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${
-          activeVault.isMultiSig ? ' )' : ''
-        }`
+      ? `${SPECTER_PREFIX}${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${activeVault.isMultiSig ? ' )' : ''
+      }`
       : getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
   const markAsRegistered = () => {
@@ -42,7 +42,7 @@ function RegisterWithQR({ route, navigation }: any) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Register signer"
         subtitle="Register the vault with any of the QR based signers"

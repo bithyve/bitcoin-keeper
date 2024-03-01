@@ -76,7 +76,7 @@ function WalletDetailsSettings({ route }) {
           title={walletTranslation.XPubTitle}
           textColor={`${colorMode}.primaryText`}
           subTitle={walletTranslation.walletXPubSubTitle}
-          subTitleColor={`${colorMode}.SlateGrey`}
+          subTitleColor={`${colorMode}.secondaryText`}
           subTitleWidth={wp(300)}
           Content={() => (
             <ShowXPub

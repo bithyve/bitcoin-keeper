@@ -13,13 +13,13 @@ function CardPill({ heading, backgroundColor, headingColor }: CardPillProps) {
   const { colorMode } = useColorMode();
   return (
     <Box
-      backgroundColor={backgroundColor || `${colorMode}.LightKhaki`}
+      backgroundColor={backgroundColor || `${colorMode}.vaultCardText`}
       style={styles.pillContainer}
     >
       <Text
         bold
         style={styles.heading}
-        color={headingColor || `${colorMode}.SlateGrey`}
+        color={headingColor || `${colorMode}.secondaryText`}
         numberOfLines={1}
       >
         {heading}

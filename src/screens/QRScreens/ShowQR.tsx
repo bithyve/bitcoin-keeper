@@ -1,5 +1,5 @@
 import { useRoute } from '@react-navigation/native';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -18,8 +18,9 @@ function ShowQR() {
     type,
   }: { data: any; encodeToBytes: boolean; title: string; subTitle: string; type: SignerType } =
     route.params as any;
+  const { colorMode } = useColorMode();
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
       <Box style={styles.center}>
         <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
