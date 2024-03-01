@@ -10,11 +10,9 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Keyboard, StyleSheet } from 'react-native';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// import { useNavigation } from '@react-navigation/native';
 
 function TimelockScreen() {
   const { colorMode } = useColorMode();
-  // const navigation = useNavigation();
   const [amount, setAmount] = useState('');
 
   return (
