@@ -27,7 +27,6 @@ import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
-import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 
@@ -75,14 +74,10 @@ function WalletDetails({ route }: ScreenProps) {
   } = wallet;
 
   const walletType = idx(wallet, (_) => _.type) || 'DEFAULT';
-  const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
-  const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
-  const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
 
   useEffect(() => {
@@ -180,14 +175,6 @@ function WalletDetails({ route }: ScreenProps) {
           </Box>
         )}
       </VStack>
-      <RampModal
-        showBuyRampModal={showBuyRampModal}
-        setShowBuyRampModal={setShowBuyRampModal}
-        wallet={wallet}
-        receivingAddress={receivingAddress}
-        balance={balance}
-        name={presentationName}
-      />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
     </Box>
   );

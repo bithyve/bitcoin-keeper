@@ -54,21 +54,23 @@ function BuyBitcoinWalletSelectionModal({
           const name = wallet.presentationData.name || '';
           const balance = wallet.specs.balances.confirmed || 0;
           return (
-            <SignerCard
-              key={wallet.id}
-              name={name}
-              description={balance.toString()}
-              icon={
-                <HexagonIcon
-                  width={40}
-                  height={35}
-                  backgroundColor={'rgba(45, 103, 89, 1)'}
-                  icon={getWalletIcon(wallet)}
-                />
-              }
-              isSelected={index === selectedWalletIndex}
-              onCardSelect={() => onCardSelect(index)}
-            />
+            <Box style={styles.mt10}>
+              <SignerCard
+                key={wallet.id}
+                name={name}
+                description={balance.toString()}
+                icon={
+                  <HexagonIcon
+                    width={40}
+                    height={35}
+                    backgroundColor={'rgba(45, 103, 89, 1)'}
+                    icon={getWalletIcon(wallet)}
+                  />
+                }
+                isSelected={index === selectedWalletIndex}
+                onCardSelect={() => onCardSelect(index)}
+              />
+            </Box>
           );
         })}
       </Box>
@@ -95,5 +97,8 @@ const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  mt10: {
+    marginBottom: 10,
   },
 });
