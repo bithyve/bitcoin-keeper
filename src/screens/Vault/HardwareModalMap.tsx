@@ -1574,7 +1574,6 @@ function HardwareModalMap({
         }
       case SignerType.SEED_WORDS:
         if (option.name === KeyGenerationMode.IMPORT) {
-          console.log('here');
           setKeyGenerationMode(0);
         } else {
           setKeyGenerationMode(1);
@@ -1613,7 +1612,6 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
-        console.log({ keyGenerationMode });
         if (keyGenerationMode === 0) {
           return navigateToSeedWordSetup(true);
         } else {
