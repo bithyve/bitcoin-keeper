@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dividerStyle: {
-    opacity: 0.1,
+    opacity: 0.6,
     width: windowWidth * 0.8,
     height: 0.5,
   },
