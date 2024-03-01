@@ -17,7 +17,7 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
   }
   return (
     <TouchableHighlight
-      style={styles.button}
+      style={[styles.button, { opacity: disabled ? 0.7 : 1 }]}
       disabled={disabled}
       underlayColor="none"
       testID={testID || 'customButton'}

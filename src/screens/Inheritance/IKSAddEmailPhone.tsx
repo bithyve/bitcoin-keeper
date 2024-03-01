@@ -84,7 +84,7 @@ function IKSAddEmailPhone({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Add Email" subtitle="To receive periodic notifications" />
       <Box style={styles.inputWrapper}>
         <Input

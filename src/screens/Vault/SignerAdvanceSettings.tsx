@@ -207,7 +207,7 @@ function SignerAdvanceSettings({ route }: any) {
       <Box alignItems="center">
         <WarningIllustration />
         <Box>
-          <Text color="light.greenText" style={styles.warningText}>
+          <Text color={`${colorMode}.greenText`} style={styles.warningText}>
             If the signer is identified incorrectly there may be repurcusssions with general signer
             interactions like signing etc.
           </Text>
@@ -290,7 +290,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box height={200} justifyContent="flex-end">
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
             You would not receive daily reminders about your Inheritance Key if it is used
           </Text>
         </Box>
@@ -401,7 +401,13 @@ function SignerAdvanceSettings({ route }: any) {
           />
         }
       />
-      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+          paddingTop: '10%',
+          paddingBottom: 20,
+        }}
+      >
         <OptionCard
           title="Edit Description"
           description="Short description to help you remember"
@@ -469,8 +475,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToScanPSBT}
           />
         )}
-      </ScrollView>
-      <VStack>
         <Box ml={2} style={{ marginVertical: 20 }}>
           {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
@@ -481,14 +485,14 @@ function SignerAdvanceSettings({ route }: any) {
               description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
-              callback={() => {}}
+              callback={() => { }}
             />
           ))}
         </ScrollView>
-        <Box style={styles.fingerprint}>
-          <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
-        </Box>
-      </VStack>
+      </ScrollView>
+      <Box style={styles.fingerprint}>
+        <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
+      </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
@@ -504,13 +508,14 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setWarning(false)}
         title="Changing signer Type"
         subTitle="Are you sure you want to change the signer type?"
-        subTitleColor="light.secondaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonText="Continue"
-        buttonTextColor="light.white"
         secondaryButtonText="Cancel"
         secondaryCallback={() => setWarning(false)}
         buttonCallback={navigateToAssignSigner}
-        textColor="light.primaryText"
         Content={WarningContent}
       />
       <KeeperModal
@@ -518,9 +523,10 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setEditEmailModal(false)}
         title="Registered Email"
         subTitle="Delete or edit registered email"
-        subTitleColor="light.secondaryText"
-        buttonTextColor="light.white"
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={EditModalContent}
       />
       <KeeperModal
@@ -528,9 +534,10 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDeleteEmailModal(false)}
         title="Deleting Registered Email"
         subTitle="Are you sure you want to delete email id?"
-        subTitleColor="light.secondaryText"
-        buttonTextColor="light.white"
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonText="Delete"
         buttonCallback={() => {
           updateIKSPolicy(currentEmail);

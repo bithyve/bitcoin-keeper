@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
   },
   walletName: {
     fontSize: 12,
+    opacity: 0.80
   },
   walletDescription: {
     fontSize: 11,

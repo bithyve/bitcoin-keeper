@@ -12,7 +12,7 @@ function WalletInfoEmptyState() {
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletContainer}>
       <EmptyWalletListIllustration />
       <Box style={styles.emptyWalletText}>
-        <Text fontSize={12} color={`${colorMode}.deepTeal`}>
+        <Text fontSize={12} color={`${colorMode}.hexagonIconBackColor`}>
           You don't have any wallets yet
         </Text>
       </Box>

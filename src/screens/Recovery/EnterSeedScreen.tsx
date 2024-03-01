@@ -50,8 +50,16 @@ function EnterSeedScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
 
-  const { type, mode, signer, isMultisig, setupSeedWordsBasedSigner, mapUnknownSigner } =
-    route.params || {};
+  const {
+    type,
+    mode,
+    signer,
+    isMultisig,
+    setupSeedWordsBasedSigner,
+    mapUnknownSigner,
+    isImport,
+    importSeedCta,
+  } = route.params || {};
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -189,6 +197,19 @@ function EnterSeedScreen({ route }) {
     }
   };
 
+  const onPressImportNewKey = async () => {
+    if (isSeedFilled(6)) {
+      if (isSeedFilled(12)) {
+        const seedWord = getSeedWord();
+        importSeedCta(seedWord);
+      } else {
+        ref.current.scrollToIndex({ index: 5, animated: true });
+      }
+    } else {
+      showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+  };
+
   const onPressHealthCheck = () => {
     setHcLoading(true);
 
@@ -309,6 +330,12 @@ function EnterSeedScreen({ route }) {
             <SeedWordsView
               title="Seed key health check"
               subtitle="Enter the seed key"
+              onPressHandler={() => navigation.goBack()}
+            />
+          ) : isImport ? (
+            <SeedWordsView
+              title={'Enter Seed Words'}
+              subtitle={'To import enter the seed key'}
               onPressHandler={() => navigation.goBack()}
             />
           ) : (
@@ -447,7 +474,7 @@ function EnterSeedScreen({ route }) {
               <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
             ) : (
               <Buttons
-                primaryCallback={onPressNextSeedReocvery}
+                primaryCallback={isImport ? onPressImportNewKey : onPressNextSeedReocvery}
                 primaryText="Next"
                 primaryLoading={recoveryLoading}
               />

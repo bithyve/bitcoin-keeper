@@ -127,16 +127,17 @@ const getSignerContent = (
         options: [],
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-        } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+        isMultisig ? 'MultiSig' : 'SingleSig'
+      } and Native Segwit in the options section.`;
       return {
         type: SignerType.JADE,
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-            jadeInstructions,
-            'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
-          ]
+              jadeInstructions,
+              'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
+            ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -197,25 +198,26 @@ const getSignerContent = (
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-            keystoneInstructions,
-            'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
-          ]
+              keystoneInstructions,
+              'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
+            ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
         options: [],
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > QR Code.\n`;
       return {
         type: SignerType.PASSPORT,
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-            passportInstructions,
-            'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
-          ]
+              passportInstructions,
+              'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
+            ]
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -228,40 +230,42 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks it health']
           : [
-            'A 2FA authenticator will have to be set up to use this option.',
-            'On providing the correct code from the auth app, the signer will sign the transaction.',
-          ],
+              'A 2FA authenticator will have to be set up to use this option.',
+              'On providing the correct code from the auth app, the signer will sign the transaction.',
+            ],
         title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
         subTitle: 'A signer will hold one of the keys of the vault',
         options: [],
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit > Keeper.\n`;
       return {
         type: SignerType.SEEDSIGNER,
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-            seedSignerInstructions,
-            'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
-          ]
+              seedSignerInstructions,
+              'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
+            ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
         options: [],
       };
     case SignerType.SPECTER:
-      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit.\n`;
+      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit.\n`;
       return {
         type: SignerType.SPECTER,
         Illustration: <SpecterSetupImage />,
         Instructions: isTestnet()
           ? [
-            specterInstructions,
-            'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
-          ]
+              specterInstructions,
+              'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
+            ]
           : [specterInstructions],
         title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
         subTitle: 'Keep your device ready and powered before proceeding',
@@ -308,12 +312,25 @@ const getSignerContent = (
         type: SignerType.SEED_WORDS,
         Illustration: <SeedWordsIllustration />,
         Instructions: [
-          'This mnemonic (12 words) needs to be noted down and kept offline (the private keys are not stored on the app',
-          'Make sure that you’re noting down the words in private as exposing them will compromise the Seed Key',
+          'Make sure you secure the 12-word phrase in a safe place.',
+          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12 word Recovery Key.\nPlease note them down and store safely',
-        options: [],
+        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        options: [
+          {
+            title: 'Import',
+            icon: <Import />,
+            callback: () => {},
+            name: KeyGenerationMode.IMPORT,
+          },
+          {
+            title: 'Create',
+            icon: <RecoverImage />,
+            callback: () => {},
+            name: KeyGenerationMode.CREATE,
+          },
+        ],
       };
     case SignerType.TAPSIGNER:
       return {
@@ -354,7 +371,7 @@ const getSignerContent = (
           {
             title: 'Configure a New Key',
             icon: <RecoverImage />,
-            callback: () => { },
+            callback: () => {},
             name: KeyGenerationMode.NEW,
           },
           {
@@ -983,12 +1000,12 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToSeedWordSetup = () => {
+  const navigateToSeedWordSetup = (isImport = false) => {
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.VAULT_ADDITION) {
+    } else if (mode === InteracationMode.VAULT_ADDITION && !isImport) {
       close();
       const mnemonic = bip39.generateMnemonic();
       navigation.dispatch(
@@ -1017,11 +1034,36 @@ function HardwareModalMap({
           name: 'EnterSeedScreen',
           params: {
             mode,
-            isHealthCheck: true,
+            isHealthCheck: false,
+            signer,
+            isMultisig,
+            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+
+            addSignerFlow,
+          },
+        })
+      );
+    } else if (isImport) {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'EnterSeedScreen',
+          params: {
+            mode,
+            isImport,
+            isHealthCheck: false,
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
             addSignerFlow,
+            importSeedCta: (mnemonic) => {
+              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+              dispatch(addSigningDevice([signer]));
+              const navigationState = addSignerFlow
+                ? { name: 'ManageSigners' }
+                : { name: 'AddSigningDevice', merge: true, params: {} };
+              navigation.dispatch(CommonActions.navigate(navigationState));
+              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+            },
           },
         })
       );
@@ -1530,6 +1572,13 @@ function HardwareModalMap({
         } else {
           setKeyGenerationMode(1);
         }
+      case SignerType.SEED_WORDS:
+        if (option.name === KeyGenerationMode.IMPORT) {
+          setKeyGenerationMode(0);
+        } else {
+          setKeyGenerationMode(1);
+        }
+
         break;
       default:
         break;
@@ -1563,6 +1612,13 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
+        if (keyGenerationMode === 0) {
+          return navigateToSeedWordSetup(true);
+        } else {
+          return navigateToSeedWordSetup();
+        }
+
+      case SignerType.MY_KEEPER:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
       case SignerType.TREZOR:
@@ -1595,7 +1651,7 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText="Proceed"
+        buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
@@ -1610,8 +1666,8 @@ function HardwareModalMap({
           isHealthcheck
             ? skipHealthCheckCallBack
             : type === SignerType.INHERITANCEKEY
-              ? close
-              : null
+            ? close
+            : null
         }
         loading={inProgress}
       />

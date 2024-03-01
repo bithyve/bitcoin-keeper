@@ -138,7 +138,7 @@ export const getCurrencyImageByRegion = (
       styles.color = Colors.RichGreen;
       break;
     case 'grey':
-      styles.color = Colors.PearlGrey;
+      styles.color = Colors.White;
       styles.opacity = 0.7;
       break;
     default:
@@ -168,7 +168,7 @@ export const getFiatIcon = (currencyCode: string, type: 'light' | 'green' | 'dar
       styles.color = Colors.RichGreen;
       break;
     case 'grey':
-      styles.color = Colors.PearlGrey;
+      styles.color = Colors.White;
       styles.opacity = 0.7;
       break;
     default:

@@ -192,11 +192,11 @@ function ChangeLanguage() {
       <TouchableOpacity onPress={onPress}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.btn}>
           <Box style={styles.menuWrapper}>
-            <Text color={`${colorMode}.SlateGrey`} bold style={styles.textCurrency}>
+            <Text color={`${colorMode}.primaryText`} bold style={styles.textCurrency}>
               {label}
             </Text>
           </Box>
-          <Box backgroundColor={`${colorMode}.PaleIvory`} style={styles.emptyView} />
+          <Box backgroundColor={`${colorMode}.secondaryText`} style={styles.emptyView} />
           <Box style={styles.textValueWrapper}>
             <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
               {value}

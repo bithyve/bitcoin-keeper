@@ -38,7 +38,7 @@ function ActionCard({
       >
         {cardPillText && (
           <Box style={styles.cardPillContainer}>
-            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.Periwinkle`} />
+            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.btcLabelBack`} />
           </Box>
         )}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     lineHeight: 16,
+    letterSpacing: 0.30,
   },
   cardPillContainer: {
     width: 70,

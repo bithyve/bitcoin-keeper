@@ -71,6 +71,7 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       flexDirection="row"
       padding={windowHeight * 0.019}
       alignItems={'center'}
+      minHeight={hp(70)}
     >
       <Box
         // backgroundColor="light.accent"
@@ -352,42 +353,57 @@ function SendingPriority({
 //   );
 // }
 
-function SendSuccessfulContent() {
+function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, getSatUnit }) {
   const { colorMode } = useColorMode();
+  const { getBalance } = useBalance();
+  const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const currencyCode = useCurrencyCode();
+
+  const getCurrencyIcon = () => {
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      return '₿';
+    }
+    return currencyCode;
+  };
+
   return (
     <View>
-      {/* ------------TODO @Pratyaksh ----------- */}
       <Box flexDirection={'row'}>
         <Box width={'50%'} marginRight={2}>
           <Text>Sent To</Text>
-          <Card showFullAddress title={'3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5'} />
+          <Card
+            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            title={recipient?.presentationData?.name}
+          />
         </Box>
         <Box width={'50%'}>
           <Text>Sent From</Text>
-          <Card isVault title={'Valinor'} subTitle={'$ 37,896.80'} />
+          <Card
+            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            title={sender?.presentationData?.name}
+            subTitle={`${getCurrencyIcon()} ${getBalance(
+              sender.specs.balances.confirmed
+            )} ${getSatUnit()}`}
+          />
         </Box>
       </Box>
-      <AmountDetails
-        title={walletTransactions.totalAmount}
-        fiatAmount={'10,000.00'}
-        // satsAmount={getBalance(amount)}
-      />
+      <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
       <AmountDetails
         title={walletTransactions.totalFees}
-        fiatAmount={'80.00'}
-        // satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
       />
       <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
       <AmountDetails
         title={walletTransactions.total}
-        fiatAmount={'10,080.00'}
-        // satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
         fontSize={17}
         fontWeight={'400'}
       />
-      <AddLabel />
+      {/* TODO For Lableling */}
+      {/* <AddLabel /> */}
 
       <Text color={`${colorMode}.greenText`} fontSize={13} padding={2} marginTop={5}>
         {walletTransactions.sendTransSuccessMsg}
@@ -847,11 +863,19 @@ function SendConfirmation({ route }) {
         close={viewDetails}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewDetails}
+        buttonText={walletTransactions.ViewWallets}
         buttonCallback={viewDetails}
         textcolor={`${colorMode}.greenText`}
         buttonTextColor={`${colorMode}.white`}
-        Content={SendSuccessfulContent}
+        Content={() => (
+          <SendSuccessfulContent
+            transactionPriority={transactionPriority}
+            amount={amount}
+            sender={sender || sourceWallet}
+            recipient={recipient}
+            getSatUnit={getSatUnit}
+          />
+        )}
       />
       <KeeperModal
         visible={visibleTransVaultModal}

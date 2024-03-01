@@ -67,7 +67,7 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: common.FAQs,
+      cardName: settings.needHelp,
       icon: <FaqIcon />,
       callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`),
     },
@@ -159,7 +159,7 @@ function AppSettings({ navigation, route }) {
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Pressable
-            onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}terms-of-service/`)}
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             testID="btn_termsCondition"
           >
             <Text
@@ -214,7 +214,7 @@ function AppSettings({ navigation, route }) {
         subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
         subTitleWidth={wp(240)}
         modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.SlateGrey`}
+        subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
         buttonText="Backup Now"
