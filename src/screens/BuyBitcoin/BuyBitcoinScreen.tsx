@@ -12,13 +12,19 @@ import { getCountry } from 'react-native-localize';
 import { fetchRampReservation } from 'src/services/ramp';
 import { hp, wp } from 'src/constants/responsive';
 import HexagonIcon from 'src/components/HexagonIcon';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import BuyBitcoinWalletSelectionModal from './components/BuyBitcoinModal';
+import { EntityKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
+import useVault from 'src/hooks/useVault';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 function BuyBitcoinScreen() {
   const { colorMode } = useColorMode();
@@ -27,9 +33,23 @@ function BuyBitcoinScreen() {
   const { common } = translations;
 
   const { wallets } = useWallets({ getAll: true });
-  const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
-  const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
-  const name = idx(wallets[0], (_) => _.presentationData.name) || '';
+  const nonHiddenWallets = wallets.filter(
+    (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
+  );
+  const { allVaults } = useVault({
+    includeArchived: false,
+    getFirst: true,
+    getHiddenWallets: false,
+  });
+  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
+    (item) => item !== null
+  );
+
+  const [selectedWallet, setSelectedWallet] = useState(allWallets[0]);
+
+  const receivingAddress = idx(selectedWallet, (_) => _.specs.receivingAddress) || '';
+  const balance = idx(selectedWallet, (_) => _.specs.balances.confirmed) || 0;
+  const name = idx(selectedWallet, (_) => _.presentationData.name) || '';
 
   const [walletSelectionVisible, setWalletSelectionVisible] = useState(false);
 
@@ -42,6 +62,14 @@ function BuyBitcoinScreen() {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else {
+      return <WalletIcon />;
     }
   };
 
@@ -66,7 +94,7 @@ function BuyBitcoinScreen() {
                   width={40}
                   height={35}
                   backgroundColor={'rgba(45, 103, 89, 1)'}
-                  icon={<WalletIcon />}
+                  icon={getWalletIcon(selectedWallet)}
                 />
                 <Box>
                   <Text style={styles.presentationName} color={`${colorMode}.primaryText`}>
@@ -136,9 +164,14 @@ function BuyBitcoinScreen() {
         subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
-        buttonText="Backup Now"
-        buttonCallback={() => {}}
-        Content={() => BuyBitcoinWalletSelectionModal({ wallets })}
+        Content={() =>
+          BuyBitcoinWalletSelectionModal({
+            allWallets,
+            selectedWallet,
+            setSelectedWallet,
+            setWalletSelectionVisible,
+          })
+        }
       />
     </ScreenWrapper>
   );
