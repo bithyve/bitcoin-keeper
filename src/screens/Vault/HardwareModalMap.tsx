@@ -1000,15 +1000,12 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToSeedWordSetup = () => {
-    {
-      console.log('modemodemodemodemode', mode);
-    }
+  const navigateToSeedWordSetup = (isImport = false) => {
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.VAULT_ADDITION) {
+    } else if (mode === InteracationMode.VAULT_ADDITION && !isImport) {
       close();
       const mnemonic = bip39.generateMnemonic();
       navigation.dispatch(
@@ -1041,7 +1038,32 @@ function HardwareModalMap({
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+
             addSignerFlow,
+          },
+        })
+      );
+    } else if (isImport) {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'EnterSeedScreen',
+          params: {
+            mode,
+            isImport,
+            isHealthCheck: false,
+            signer,
+            isMultisig,
+            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+            addSignerFlow,
+            importSeedCta: (mnemonic) => {
+              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+              dispatch(addSigningDevice([signer]));
+              const navigationState = addSignerFlow
+                ? { name: 'ManageSigners' }
+                : { name: 'AddSigningDevice', merge: true, params: {} };
+              navigation.dispatch(CommonActions.navigate(navigationState));
+              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+            },
           },
         })
       );
@@ -1550,6 +1572,14 @@ function HardwareModalMap({
         } else {
           setKeyGenerationMode(1);
         }
+      case SignerType.SEED_WORDS:
+        if (option.name === KeyGenerationMode.IMPORT) {
+          console.log('here');
+          setKeyGenerationMode(0);
+        } else {
+          setKeyGenerationMode(1);
+        }
+
         break;
       default:
         break;
@@ -1583,7 +1613,13 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
-        return navigateToSeedWordSetup();
+        console.log({ keyGenerationMode });
+        if (keyGenerationMode === 0) {
+          return navigateToSeedWordSetup(true);
+        } else {
+          return navigateToSeedWordSetup();
+        }
+
       case SignerType.MY_KEEPER:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
