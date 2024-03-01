@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     lineHeight: 16,
+    letterSpacing: 0.30,
   },
   cardPillContainer: {
     width: 70,
