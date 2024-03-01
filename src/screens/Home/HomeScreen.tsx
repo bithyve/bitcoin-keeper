@@ -67,11 +67,6 @@ function NewHomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
 
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
-  const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
-  const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
-
   useEffect(() => {
     if (relayWalletError) {
       showToast(
@@ -141,12 +136,7 @@ function NewHomeScreen({ navigation }) {
       />
       <HomeModals
         electrumErrorVisible={electrumErrorVisible}
-        showBuyRampModal={showBuyRampModal}
         setElectrumErrorVisible={setElectrumErrorVisible}
-        setShowBuyRampModal={setShowBuyRampModal}
-        receivingAddress={receivingAddress}
-        balance={balance}
-        presentationName={presentationName}
         navigation={navigation}
       />
     </Box>
