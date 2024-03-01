@@ -11,7 +11,7 @@ const Colors = {
   GrayX11: 'rgba(186,186,186,1)',
   SpanishGray: 'rgba(149,149,149,1)',
   DimGray: 'rgba(108,108,108,1)',
-  GraniteGray: 'rgba(95,105,101,1)',
+  GraniteGray: 'rgba(36,49,46,1)',
   Feldgrau: 'rgba(79,89,85,1)',
   DeepSpaceSparkle: 'rgba(78,92,106,1)',
   Black: 'rgba(0,0,0,1)',
