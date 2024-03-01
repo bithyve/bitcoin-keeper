@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.12,
     width: wp(100),
     fontWeight: 500,
+    marginBottom: -4,
   },
   advanceWrapper: {
     width: '100%',
