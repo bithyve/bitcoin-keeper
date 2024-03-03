@@ -110,6 +110,10 @@ export type AppStackParams = {
   AssistedKeys: undefined;
   SafeKeepingTips: undefined;
   SafeGuardingTips: undefined;
+  MasterRecoveryKey: undefined;
+  PersonalCloudBackup: undefined;
+  WalletConfigurationFiles: undefined;
+  BackupAndRecoveryTips: undefined;
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];

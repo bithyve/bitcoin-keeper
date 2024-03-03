@@ -108,6 +108,10 @@ import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary
 import AssistedKeys from 'src/screens/InheritanceToolsAndTips/components/AssistedKeys';
 import SafeKeepingTips from 'src/screens/InheritanceToolsAndTips/components/SafeKeepingTips';
 import SafeGuardingTips from 'src/screens/InheritanceToolsAndTips/components/SafeGuardingTips';
+import MasterRecoveryKey from 'src/screens/InheritanceToolsAndTips/components/MasterRecoveryKey';
+import PersonalCloudBackup from 'src/screens/InheritanceToolsAndTips/components/PersonalCloudBackup';
+import WalletConfigurationFiles from 'src/screens/InheritanceToolsAndTips/components/WalletConfigurationFiles';
+import BackupAndRecoveryTips from 'src/screens/InheritanceToolsAndTips/components/BackupAndRecoveryTips';
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -209,6 +213,10 @@ function AppStack() {
         <Stack.Screen name="AssistedKeys" component={AssistedKeys} />
         <Stack.Screen name="SafeKeepingTips" component={SafeKeepingTips} />
         <Stack.Screen name="SafeGuardingTips" component={SafeGuardingTips} />
+        <Stack.Screen name="MasterRecoveryKey" component={MasterRecoveryKey} />
+        <Stack.Screen name="PersonalCloudBackup" component={PersonalCloudBackup} />
+        <Stack.Screen name="WalletConfigurationFiles" component={WalletConfigurationFiles} />
+        <Stack.Screen name="BackupAndRecoveryTips" component={BackupAndRecoveryTips} />
 
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />

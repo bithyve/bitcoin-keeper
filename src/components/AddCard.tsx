@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
   nameStyle: {
     fontSize: 12,
     fontWeight: '400',
+    textAlign: 'center',
   },
 
   detailContainer: {
