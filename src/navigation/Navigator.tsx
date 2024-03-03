@@ -112,6 +112,11 @@ import MasterRecoveryKey from 'src/screens/InheritanceToolsAndTips/components/Ma
 import PersonalCloudBackup from 'src/screens/InheritanceToolsAndTips/components/PersonalCloudBackup';
 import WalletConfigurationFiles from 'src/screens/InheritanceToolsAndTips/components/WalletConfigurationFiles';
 import BackupAndRecoveryTips from 'src/screens/InheritanceToolsAndTips/components/BackupAndRecoveryTips';
+import InheritanceKey from 'src/screens/InheritanceToolsAndTips/components/InheritanceKey';
+import LetterOfAttorney from 'src/screens/InheritanceToolsAndTips/components/LetterOfAttorney';
+import RecoveryInstruction from 'src/screens/InheritanceToolsAndTips/components/RecoveryInstruction';
+import PrintableTemplates from 'src/screens/InheritanceToolsAndTips/components/PrintableTemplates';
+import InheritanceTips from 'src/screens/InheritanceToolsAndTips/components/InheritanceTips';
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -217,6 +222,11 @@ function AppStack() {
         <Stack.Screen name="PersonalCloudBackup" component={PersonalCloudBackup} />
         <Stack.Screen name="WalletConfigurationFiles" component={WalletConfigurationFiles} />
         <Stack.Screen name="BackupAndRecoveryTips" component={BackupAndRecoveryTips} />
+        <Stack.Screen name="InheritanceKey" component={InheritanceKey} />
+        <Stack.Screen name="LetterOfAttorney" component={LetterOfAttorney} />
+        <Stack.Screen name="RecoveryInstruction" component={RecoveryInstruction} />
+        <Stack.Screen name="PrintableTemplates" component={PrintableTemplates} />
+        <Stack.Screen name="InheritanceTips" component={InheritanceTips} />
 
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />

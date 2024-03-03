@@ -23,9 +23,8 @@ function InheritanceTool({ navigation }) {
       type: WalletType.DEFAULT,
     });
   };
-
-  const handleCollaaborativeWalletCreation = () => {
-    navigation.navigate('SetupCollaborativeWallet');
+  const navigate = (path) => {
+    navigation.navigate(path);
   };
 
   return (
@@ -34,32 +33,32 @@ function InheritanceTool({ navigation }) {
         title="Inheritance Key"
         description="Additional signer for your vault"
         LeftIcon={<Sword />}
-        callback={navigateToWalletCreation}
+        callback={() => navigate('InheritanceKey')}
       />
       <OptionCard
         title="Letter to Attorney"
         description="A pre-filled letter template"
         LeftIcon={<Sword />}
-        callback={() => navigateToVaultSetup({ m: 2, n: 3 })}
+        callback={() => navigate('LetterOfAttorney')}
       />
       <OptionCard
         title="Recovery Instructions"
         description="For the heir or beneficiary"
         LeftIcon={<VaultGreenIcon />}
-        callback={() => navigateToVaultSetup({ m: 3, n: 5 })}
+        callback={() => navigate('RecoveryInstruction')}
       />
       <OptionCard
         title="Printable Templates"
         description="For digital or physical copies"
         LeftIcon={<VaultGreenIcon />}
-        callback={handleCollaaborativeWalletCreation}
+        callback={() => navigate('PrintableTemplates')}
       />
       <Box paddingTop={10}>
         <OptionCard
           title="Inheritance Tips"
           description="Lorem ipsum dolor sit amet,"
           LeftIcon={<VaultGreenIcon />}
-          callback={handleCollaaborativeWalletCreation}
+          callback={() => navigate('InheritanceTips')}
         />
       </Box>
     </ScrollView>
