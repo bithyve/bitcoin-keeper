@@ -4,18 +4,8 @@ import OptionCard from 'src/components/OptionCard';
 import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import Bird from 'src/assets/images/bird.svg';
-import useWallets from 'src/hooks/useWallets';
-import { WalletType } from 'src/core/wallets/enums';
-import { CommonActions } from '@react-navigation/native';
-import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 
 function KeySecurity({ navigation }) {
-  const { wallets } = useWallets({ getAll: true });
-
-  const navigateToVaultSetup = (scheme: VaultScheme) => {
-    navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup', params: { scheme } }));
-  };
-
   const navigateToDiscountCodes = () => {
     navigation.navigate('DiscountCodes');
   };
@@ -27,7 +17,15 @@ function KeySecurity({ navigation }) {
   const navigateToCanary = () => {
     navigation.navigate('CanaryWallets');
   };
-
+  const navigateToAssistedKeys = () => {
+    navigation.navigate('AssistedKeys');
+  };
+  const navigateToSafeKeepingTips = () => {
+    navigation.navigate('SafeKeepingTips');
+  };
+  const navigateToSafeGuardingTips = () => {
+    navigation.navigate('SafeGuardingTips');
+  };
   return (
     <ScrollView>
       <OptionCard
@@ -46,20 +44,20 @@ function KeySecurity({ navigation }) {
         title="Assisted Keys"
         description="Assisted Keys"
         LeftIcon={<VaultGreenIcon />}
-        callback={() => navigateToVaultSetup({ m: 3, n: 5 })}
+        callback={() => navigateToAssistedKeys()}
       />
       <Box paddingTop={10}>
         <OptionCard
-          title="Assisted Keys"
+          title="Secure Usage Tips"
           description="Recommendations while transacting"
           LeftIcon={<VaultGreenIcon />}
-          callback={handleCollaaborativeWalletCreation}
+          callback={navigateToSafeGuardingTips}
         />
         <OptionCard
           title="Safekeeping Tips"
           description="Key storage best practices"
           LeftIcon={<VaultGreenIcon />}
-          callback={handleCollaaborativeWalletCreation}
+          callback={navigateToSafeKeepingTips}
         />
       </Box>
     </ScrollView>

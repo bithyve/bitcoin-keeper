@@ -107,6 +107,9 @@ export type AppStackParams = {
   AddWallet: undefined;
   AddSigner: undefined;
   CanaryWallets: undefined;
+  AssistedKeys: undefined;
+  SafeKeepingTips: undefined;
+  SafeGuardingTips: undefined;
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];

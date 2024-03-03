@@ -105,7 +105,9 @@ import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 
 import { AppStackParams } from './types';
 import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary';
-
+import AssistedKeys from 'src/screens/InheritanceToolsAndTips/components/AssistedKeys';
+import SafeKeepingTips from 'src/screens/InheritanceToolsAndTips/components/SafeKeepingTips';
+import SafeGuardingTips from 'src/screens/InheritanceToolsAndTips/components/SafeGuardingTips';
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -204,6 +206,9 @@ function AppStack() {
         <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
         <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
         <Stack.Screen name="CanaryWallets" component={CanaryWallets} />
+        <Stack.Screen name="AssistedKeys" component={AssistedKeys} />
+        <Stack.Screen name="SafeKeepingTips" component={SafeKeepingTips} />
+        <Stack.Screen name="SafeGuardingTips" component={SafeGuardingTips} />
 
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />

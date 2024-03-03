@@ -6,29 +6,42 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
+import AddCard from 'src/components/AddCard';
 
-function CanaryWallets({}) {
+function AssistedKeys({}) {
   const { colorMode } = useColorMode();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <KeeperHeader />
-      <ScrollView contentContainerStyle={{ alignItems: 'center', height: '100%' }}>
-        <Text style={styles.heading}>Canary Wallets</Text>
-        <Text style={styles.description}>Alert on key compromise</Text>
+      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+        <Text style={styles.heading}>Assisted Keys</Text>
+        <Text style={styles.description}>Server hosted signers</Text>
         <Text style={styles.commonTextStyle}>
-          Each key used in a multi-key wallet can also be used as a single-key wallet itself.
-          Keeping funds in these wallets act as Canary.
+          Keeper offers two Assisted Keys Signing Server: allows an automated script to sign the txn
+          when correct 2FA code is provided. You can also setup a spending policy
         </Text>
         <Box style={styles.circleStyle} />
         <Text style={styles.commonTextStyle}>
-          If someone gets access to one of the keys and finds funds in the single-key wallet they
-          may try to withdraw those funds. This will be detected by the app and the user will be
-          advised to change that key from any multi-key setup.
+          Inheritance Key: signs a txn after a delay of 15 days during which the user can cancel the
+          request
         </Text>
-        <Text style={styles.commonTextStyle}>
-          These wallets can be accessed and funded from the Settings of any key
-        </Text>
+
+        <Box style={styles.addCardStyle}>
+          <AddCard
+            name="Add Assisted Keys"
+            borderColor={`${colorMode}.white`}
+            nameColor={`${colorMode}.white`}
+          />
+        </Box>
+        <Box style={[styles.leftTextStyle]}>
+          <Text bold color={`${colorMode}.white`}>
+            Note:
+          </Text>
+          <Text color={`${colorMode}.white`}>
+            These keys can be added from the Manage Keys section on the Home Screen
+          </Text>
+        </Box>
       </ScrollView>
     </ScreenWrapper>
   );
@@ -56,6 +69,14 @@ const styles = StyleSheet.create({
     marginTop: hp(40),
     color: Colors.white,
   },
+  leftTextStyle: {
+    textAlign: 'left',
+    marginTop: hp(40),
+    color: Colors.white,
+  },
+  addCardStyle: {
+    marginTop: hp(20),
+  },
   circleStyle: {
     backgroundColor: 'rgba(7,59,54,0.7)',
     borderRadius: 100,
@@ -63,6 +84,7 @@ const styles = StyleSheet.create({
     height: hp(170),
     width: wp(170),
   },
+  notes: { alignItems: 'flex-start' },
 });
 
-export default CanaryWallets;
+export default AssistedKeys;

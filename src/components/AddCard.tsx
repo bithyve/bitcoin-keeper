@@ -1,6 +1,12 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TextStyle,
+  TouchableOpacity,
+  ViewStyle,
+} from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
 import Colors from 'src/theme/Colors';
 import Text from './KeeperText';
@@ -13,6 +19,8 @@ type AddSignerCardProps = {
   iconWidth?: number;
   iconHeight?: number;
   loading?: boolean;
+  borderColor?: string;
+  nameColor?: string;
 };
 
 function AddCard({
@@ -22,13 +30,15 @@ function AddCard({
   iconWidth = 40,
   iconHeight = 34,
   loading = false,
+  borderColor,
+  nameColor,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
     <TouchableOpacity onPress={() => callback(name)}>
       <Box
         backgroundColor={`${colorMode}.pantoneGreenLight`}
-        borderColor={`${colorMode}.pantoneGreen`}
+        borderColor={borderColor ? borderColor : `${colorMode}.pantoneGreen`}
         style={[styles.AddCardContainer, cardStyles && cardStyles]}
       >
         <Box style={styles.detailContainer}>
@@ -38,7 +48,7 @@ function AddCard({
             backgroundColor={Colors.pantoneGreen}
             icon={<AddCardIcon />}
           />
-          <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>
+          <Text color={nameColor ? nameColor : `${colorMode}.SlateGrey`} style={styles.nameStyle}>
             {name}
           </Text>
           {loading ? <ActivityIndicator /> : null}

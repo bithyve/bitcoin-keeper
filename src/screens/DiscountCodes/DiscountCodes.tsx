@@ -7,7 +7,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DiscountCard from 'src/components/DiscountCard';
 import DiscountIcon from 'src/assets/images/foundation.svg';
 import DiscountIconLarge from 'src/assets/images/foundation_large.svg';
-import CopyIcon from 'src/assets/images/icon_copy.svg';
+import CopyIcon from 'src/assets/images/copy_new.svg';
 
 import Colors from 'src/theme/Colors';
 import KeeperModal from 'src/components/KeeperModal';
