@@ -315,10 +315,11 @@ function updateSignerDetails(signers: Signer[], extendedKeyMap) {
         'masterFingerprint',
         signer.masterFingerprint,
         {
-          extraData: { insanceNumber: i },
+          extraData: { instanceNumber: i + 1 },
         }
       );
     } catch (err) {
+      captureError(err);
       // ignore since instance number is not mandatory
     }
   }
