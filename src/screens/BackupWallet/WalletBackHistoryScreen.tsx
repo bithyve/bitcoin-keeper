@@ -23,6 +23,7 @@ function WalletBackHistoryScreen({ route }) {
       <KeeperHeader
         title={BackupWallet.myWalletBackupTitle}
         learnMore
+        learnTextColor={`${colorMode}.white`}
         learnMorePressed={() => {
           setIsLearnMore(true);
         }}
