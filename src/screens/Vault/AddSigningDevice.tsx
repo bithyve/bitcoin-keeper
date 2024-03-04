@@ -302,7 +302,12 @@ function Signers({
         <SignerCard
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          name={getSignerNameFromType(
+            signer.type,
+            signer.isMock,
+            isAMF,
+            signer.extraData?.instanceNumber
+          )}
           description={`Added ${moment(signer.addedOn).calendar()}`}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}

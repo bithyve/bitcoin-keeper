@@ -146,6 +146,7 @@ export const SignerSchema: ObjectSchema = {
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
     hidden: { type: 'bool', default: false },
+    extraData: '{}?',
   },
 };
 

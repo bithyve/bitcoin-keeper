@@ -85,7 +85,12 @@ function SignerItem({
   return (
     <SignerCard
       key={signer.masterFingerprint}
-      name={getSignerNameFromType(signer.type, signer.isMock)}
+      name={getSignerNameFromType(
+        signer.type,
+        signer.isMock,
+        false,
+        signer.extraData?.instanceNumber
+      )}
       description={`Added ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       isSelected={false}

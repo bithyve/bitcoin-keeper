@@ -27,6 +27,7 @@ import {
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
+import { captureError } from 'src/services/sentry';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -244,6 +245,7 @@ function* updateAppKeysToEnableSigning() {
     updateSignerDetails(myAppKeySigners, extendedKeyMap);
   } catch (err) {
     console.log('Error updating app keys', err);
+    captureError(err);
   }
 }
 
@@ -278,7 +280,6 @@ function updateVaultSigners(extendedKeyMap, signers) {
   const vaultKeys: VaultSigner[] = dbManager.getCollection(RealmSchema.VaultSigner);
   for (const vaultKey of vaultKeys) {
     const signer = signerMap[vaultKey.masterFingerprint];
-    console.log('extendedKeys', extendedKeyMap[vaultKey.masterFingerprint]);
     if (signer && signer.type === SignerType.KEEPER && extendedKeyMap[vaultKey.masterFingerprint]) {
       dbManager.updateObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', vaultKey.xpub, {
         xpriv: extendedKeyMap[vaultKey.masterFingerprint].xpriv,
@@ -287,8 +288,9 @@ function updateVaultSigners(extendedKeyMap, signers) {
   }
 }
 
-function updateSignerDetails(signers, extendedKeyMap) {
-  for (const signer of signers) {
+function updateSignerDetails(signers: Signer[], extendedKeyMap) {
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
     // Update the signer type to MY_KEEPER and the extended keys
     dbManager.updateObjectByPrimaryId(
       RealmSchema.Signer,
@@ -306,6 +308,19 @@ function updateSignerDetails(signers, extendedKeyMap) {
         signerXpubs: updateSignerXpubs(signer, extendedKeyMap[signer.masterFingerprint].xpriv),
       }
     );
+    try {
+      // Update the signer instance number for MY_KEEPER
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          extraData: { insanceNumber: i },
+        }
+      );
+    } catch (err) {
+      // ignore since instance number is not mandatory
+    }
   }
 }
 
