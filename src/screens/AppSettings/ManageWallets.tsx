@@ -165,8 +165,12 @@ function ManageWallets() {
 
   function BalanceAlertModalContent() {
     return (
-      <Box>
-        <Box style={[styles.alignCenter, styles.BalanceModalContainer]}>
+      <Box style={styles.modalContainer}>
+        <Text
+          color={`${colorMode}.secondaryText`}
+          style={styles.unhideText}
+        >{`You can unhide this wallet anytime from App Settings > Manage Wallets`}</Text>
+        <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
             onPress={() => {
@@ -221,7 +225,10 @@ function ManageWallets() {
             isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
             onBtnPress={
               item.presentationData.visibility === VisibilityType.HIDDEN
-                ? () => updateWalletVisibility(item, false)
+                ? () => {
+                    setConfirmPassVisible(true);
+                    setSelectedWallet(item);
+                  }
                 : () => updateWalletVisibility(item, true)
             }
           />
@@ -248,21 +255,23 @@ function ManageWallets() {
         }}
         visible={showBalanceAlert}
         title="You have funds in your wallet"
-        subTitle="It seems you have a balance in your wallet. Are you sure do you want to hide it?"
+        subTitle="You have sats in your wallet. Are you sure you want to hide it?"
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        subTitleWidth={wp(240)}
+        closeOnOverlayClick={false}
         showButtons
         showCloseIcon={false}
       />
 
       <KeeperModal
         visible={confirmPassVisible}
+        closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Confirm Passcode"
+        showCloseIcon={false}
+        title="Enter Passcode"
         subTitleWidth={wp(240)}
-        subTitle=""
+        subTitle="Confirm passcode to unhide wallets"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -343,10 +352,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   BalanceModalContainer: {
-    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
   },
   walletsContainer: {
     marginHorizontal: 20,
     marginTop: '5%',
+  },
+  modalContainer: {
+    gap: 40,
+  },
+  unhideText: {
+    fontSize: 13,
+    width: wp(200),
   },
 });
