@@ -8,17 +8,21 @@ interface KeeperTextProps extends TextProps {
   bold?: boolean;
   light?: boolean;
   italic?: boolean;
+  medium?: boolean;
+  semiBold?: boolean;
 }
 
 function Text(props: KeeperTextProps) {
-  const { children, style, bold, light, italic } = props;
+  const { children, style, medium, semiBold, bold, light, italic } = props;
   let fontWeight = 200;
   if (bold) {
-    fontWeight = 300;
+    fontWeight = 500;
   } else if (light) {
     fontWeight = 100;
-  } else {
-    fontWeight = 200;
+  } else if (medium) {
+    fontWeight = 300;
+  } else if (semiBold) {
+    fontWeight = 400;
   }
 
   const updatedProps = { ...props, bold: undefined, light: undefined };
