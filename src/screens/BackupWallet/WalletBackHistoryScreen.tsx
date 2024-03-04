@@ -15,18 +15,19 @@ function WalletBackHistoryScreen({ route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const [isLearnMore, setIsLearnMore] = useState(false);
-  const { BackupWallet } = translations;
+  const { seed } = translations;
   const isUaiFlow = route.params?.isUaiFlow || false;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={BackupWallet.myWalletBackupTitle}
-        learnMore
-        learnTextColor={`${colorMode}.white`}
-        learnMorePressed={() => {
-          setIsLearnMore(true);
-        }}
+        title={seed.backupPhrase}
+        //-----TODO LEARN MORE------
+        // learnMore
+        // learnTextColor={`${colorMode}.white`}
+        // learnMorePressed={() => {
+        //   setIsLearnMore(true);
+        // }}
       />
       <Box mx={wp(5)}>
         <BackupHealthCheckList isUaiFlow={isUaiFlow} />
