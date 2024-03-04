@@ -65,7 +65,7 @@ function SignerCard({
           color={`${colorMode}.primaryText`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
-          bold
+          medium
         >
           {name}
         </Text>
@@ -93,10 +93,12 @@ const styles = StyleSheet.create({
   },
   walletName: {
     fontSize: 12,
+    letterSpacing: 0.12,
     opacity: 0.8,
   },
   walletDescription: {
     fontSize: 11,
+    letterSpacing: 0.11,
   },
   circle: {
     width: 20,

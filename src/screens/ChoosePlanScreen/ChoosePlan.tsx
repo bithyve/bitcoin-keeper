@@ -363,7 +363,7 @@ function ChoosePlan() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        boldTitle
+        mediumTitle
         subtitle="Upgrade or downgrade"
         // To-Do-Learn-More
       />

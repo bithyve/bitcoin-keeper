@@ -10,7 +10,7 @@ import Text from 'src/components/KeeperText';
 type Props = {
   title?: string;
   titleColor?: string;
-  boldTitle?: boolean;
+  mediumTitle?: boolean;
   subtitle?: string;
   subTitleColor?: string;
   onPressHandler?: () => void;
@@ -29,7 +29,7 @@ function KeeperHeader({
   subtitle = '',
   titleColor,
   subTitleColor,
-  boldTitle = false,
+  mediumTitle = false,
   onPressHandler,
   enableBack = true,
   learnMore = false,
@@ -82,7 +82,7 @@ function KeeperHeader({
                 style={styles.addWalletText}
                 color={titleColor || `${colorMode}.headerText`}
                 testID="text_header_title"
-                bold={boldTitle}
+                medium={mediumTitle}
               >
                 {title}
               </Text>

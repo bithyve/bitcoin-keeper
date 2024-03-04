@@ -78,7 +78,7 @@ function AppSettings({ navigation, route }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`Keeper ${common.settings}`}
-        boldTitle
+        mediumTitle
         subtitle={settings.settingsSubTitle}
         // To-Do-Learn-More
         icon={
