@@ -774,19 +774,24 @@ function SendConfirmation({ route }) {
   }, [crossTransferSuccess]);
 
   const addNumbers = (str1, str2) => {
-    // Convert strings to numbers
-    const num1 = parseFloat(str1.replace(/,/g, ''));
-    const num2 = parseFloat(str2.replace(/,/g, ''));
+    if (typeof str1 === 'string' && typeof str2 === 'string') {
+      // Convert strings to numbers
 
-    // Check if the conversion is successful
-    if (!isNaN(num1) && !isNaN(num2)) {
-      // Add the numbers
-      const sum = num1 + num2;
-      return sum;
+      const num1 = parseFloat(str1?.replace(/,/g, ''));
+      const num2 = parseFloat(str2?.replace(/,/g, ''));
+      // Check if the conversion is successful
+      if (!isNaN(num1) && !isNaN(num2)) {
+        // Add the numbers
+        const sum = num1 + num2;
+        return sum;
+      } else {
+        // Handle invalid input
+        console.error('Invalid input. Please provide valid numeric strings.');
+        return null;
+      }
     } else {
-      // Handle invalid input
-      console.error('Invalid input. Please provide valid numeric strings.');
-      return null;
+      const sum = str1 + str2;
+      return sum;
     }
   };
 

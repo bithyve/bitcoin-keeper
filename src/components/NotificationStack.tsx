@@ -150,7 +150,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               text: 'Continue',
               cta: () => {
                 setShowModal(true);
-                skipUaiHandler(uai);
+                // skipUaiHandler(uai);
               },
             },
             secondary: skipBtnConfig(uai),
