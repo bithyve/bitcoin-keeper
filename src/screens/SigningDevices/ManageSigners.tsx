@@ -211,7 +211,7 @@ function SignersList({
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.topContainer}>
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -301,6 +301,10 @@ function SignersList({
 }
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
   wrapper: {
     flex: 1,
   },

@@ -33,7 +33,7 @@ function KeeperHeader({
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   learnBackgroundColor = 'light.RussetBrown',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
@@ -92,7 +92,6 @@ function KeeperHeader({
                 style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
                 color={subTitleColor || `${colorMode}.black`}
                 testID="text_header_subtitle"
-                numberOfLines={2}
               >
                 {subtitle}
               </Text>
