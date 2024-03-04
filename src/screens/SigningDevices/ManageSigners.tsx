@@ -131,7 +131,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => { }}
+        callback={() => {}}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
@@ -211,7 +211,7 @@ function SignersList({
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.topContainer}>
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -296,6 +296,10 @@ function SignersList({
 }
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
   wrapper: {
     flex: 1,
   },

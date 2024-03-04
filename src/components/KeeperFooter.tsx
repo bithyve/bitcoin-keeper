@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
   border: {
     borderWidth: 0.5,
     opacity: 0.2,
+    marginBottom: 10,
   },
   circle: {
     width: 38,
