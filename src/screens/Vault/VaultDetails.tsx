@@ -288,7 +288,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               <HexagonIcon
                 width={58}
                 height={50}
-                backgroundColor={`${colorMode}.hexagonIconBackColor`}
+                backgroundColor={'rgba(9, 44, 39, 0.6)'}
                 icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
               />
             }
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   },
   transactionHeading: {
     fontSize: 16,
-    letterSpacing: 1.28,
+    letterSpacing: 0.16,
   },
   IconText: {
     justifyContent: 'center',
