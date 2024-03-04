@@ -212,7 +212,7 @@ function AppSettings({ navigation, route }) {
         close={() => setBackupModalVisible(false)}
         title="Backup Recovery Key"
         subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
-        subTitleWidth={wp(240)}
+        subTitleWidth={wp(300)}
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}

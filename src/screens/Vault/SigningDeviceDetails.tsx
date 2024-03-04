@@ -394,9 +394,14 @@ function SigningDeviceDetails({ route }) {
         title={title}
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor="light.white"
+        textColor={`${colorMode}.modalGreenContent`}
         learnMoreCallback={() => openLink(FAQ)}
         Content={SignerContent}
+        subTitleWidth={wp(280)}
+        buttonText="Proceed"
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonCallback={() => setDetailModal(false)}
         DarkCloseIcon
         learnMore
       />
