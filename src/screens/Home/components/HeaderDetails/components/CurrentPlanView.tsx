@@ -28,6 +28,7 @@ function CurrentPlanView({ plan }) {
             testID="text_home_current_plan"
             style={styles.currentPlanText}
             color={`${colorMode}.choosePlanHome`}
+            bold
           >
             {plan}
           </Text>
@@ -60,9 +61,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   currentPlanText: {
-    fontSize: 18,
-    letterSpacing: 1.8,
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontSize: 20,
+    letterSpacing: 0.2,
   },
 });
 export default CurrentPlanView;

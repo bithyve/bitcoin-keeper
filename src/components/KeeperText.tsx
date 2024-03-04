@@ -5,6 +5,7 @@ import { Text as NativeBaseText } from 'native-base';
 interface KeeperTextProps extends TextProps {
   // eslint-disable-next-line react/require-default-props
   color?: string;
+  fontSize?: number;
   bold?: boolean;
   light?: boolean;
   italic?: boolean;
@@ -13,7 +14,7 @@ interface KeeperTextProps extends TextProps {
 }
 
 function Text(props: KeeperTextProps) {
-  const { children, style, medium, semiBold, bold, light, italic } = props;
+  const { children, style, fontSize, medium, semiBold, bold, light, italic } = props;
   let fontWeight = 200;
   if (bold) {
     fontWeight = 500;
@@ -31,6 +32,7 @@ function Text(props: KeeperTextProps) {
   return (
     <NativeBaseText
       {...updatedProps}
+      fontSize={fontSize}
       fontWeight={fontWeight}
       fontStyle={italic && 'italic'}
       style={[{ ...passedStyles }]}
