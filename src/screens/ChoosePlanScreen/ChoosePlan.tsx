@@ -428,7 +428,7 @@ function ChoosePlan() {
                       <Box style={styles.benefitContainer} key={i}>
                         <Box style={styles.dot} backgroundColor={`${colorMode}.primaryText`} />
                         <Text
-                          fontSize={13}
+                          fontSize={12}
                           color={`${colorMode}.GreyText`}
                           ml={3}
                           letterSpacing={0.65}
@@ -467,6 +467,7 @@ function ChoosePlan() {
         >
           <Text
             style={styles.restorePurchase}
+            medium
             color={colorMode === 'light' ? 'light.white' : '#24312E'}
           >
             {choosePlan.restorePurchases}
@@ -495,6 +496,7 @@ const styles = StyleSheet.create({
   },
   comingSoonText: {
     fontSize: 10,
+    letterSpacing: 0.1,
     marginLeft: 10,
   },
   benefitContainer: {
@@ -510,7 +512,7 @@ const styles = StyleSheet.create({
   },
   restorePurchase: {
     fontSize: 12,
-    fontWeight: '700',
+    letterSpacing: 0.24,
   },
 });
 export default ChoosePlan;
