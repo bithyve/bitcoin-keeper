@@ -56,7 +56,7 @@ function Buttons({
           activeOpacity={0.5}
           testID="btn_secondaryText"
         >
-          <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
+          <Text numberOfLines={1} medium style={styles.btnText} color={`${colorMode}.greenText`}>
             {secondaryText}
           </Text>
         </TouchableOpacity>

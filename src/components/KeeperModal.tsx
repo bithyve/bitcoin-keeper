@@ -198,11 +198,11 @@ const getStyles = (subTitleWidth) =>
     },
     title: {
       fontSize: 19,
-      letterSpacing: 1,
+      letterSpacing: 0.19,
     },
     subTitle: {
       fontSize: 13,
-      letterSpacing: 1,
+      letterSpacing: 0.13,
       width: subTitleWidth,
     },
     secCta: {
