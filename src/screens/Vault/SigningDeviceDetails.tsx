@@ -47,6 +47,7 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
+import { getSignerNameFromType } from 'src/hardware';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -332,7 +333,12 @@ function SigningDeviceDetails({ route }) {
         learnMore
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
-        title={signer.signerName}
+        title={getSignerNameFromType(
+          signer.type,
+          signer.isMock,
+          false,
+          signer.extraData?.instanceNumber
+        )}
         subtitle={
           signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
