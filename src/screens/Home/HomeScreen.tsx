@@ -67,11 +67,6 @@ function NewHomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
 
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
-  const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
-  const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
-
   useEffect(() => {
     if (relayWalletError) {
       showToast(
@@ -82,8 +77,6 @@ function NewHomeScreen({ navigation }) {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
@@ -92,7 +85,7 @@ function NewHomeScreen({ navigation }) {
     {
       name: 'Buy\nBitcoin',
       icon: <BTC />,
-      callback: onPressBuyBitcoin,
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin' })),
       cardPillText: `1 BTC = ${
         currencyCodeExchangeRate.symbol
       } ${currencyCodeExchangeRate.buy.toFixed(2)}`,
@@ -143,12 +136,7 @@ function NewHomeScreen({ navigation }) {
       />
       <HomeModals
         electrumErrorVisible={electrumErrorVisible}
-        showBuyRampModal={showBuyRampModal}
         setElectrumErrorVisible={setElectrumErrorVisible}
-        setShowBuyRampModal={setShowBuyRampModal}
-        receivingAddress={receivingAddress}
-        balance={balance}
-        presentationName={presentationName}
         navigation={navigation}
       />
     </Box>

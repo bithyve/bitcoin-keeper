@@ -393,7 +393,12 @@ function SignerAdvanceSettings({ route }: any) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Advanced Settings"
-        subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
+        subtitle={`for ${getSignerNameFromType(
+          signer.type,
+          signer.isMock,
+          isAMF,
+          signer.extraData?.instanceNumber
+        )}`}
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -485,7 +490,7 @@ function SignerAdvanceSettings({ route }: any) {
               description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
-              callback={() => { }}
+              callback={() => {}}
             />
           ))}
         </ScrollView>
