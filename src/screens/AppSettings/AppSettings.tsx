@@ -67,7 +67,7 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: common.needHelp,
+      cardName: `Need\nHelp?`,
       icon: <FaqIcon />,
       callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}hc/en-us`),
     },
@@ -310,8 +310,7 @@ const styles = StyleSheet.create({
   },
   bottomLinkText: {
     fontSize: 13,
-    fontWeight: '400',
-    letterSpacing: 0.79,
+    letterSpacing: 0.13,
   },
   actionContainer: {
     flexDirection: 'row',
