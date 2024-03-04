@@ -131,7 +131,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => { }}
+        callback={() => {}}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
@@ -211,7 +211,7 @@ function SignersList({
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.topContainer}>
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -219,7 +219,7 @@ function SignersList({
       >
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
-            const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
             const isRegistered = vaultKeys.length
               ? item.registeredVaults.find((info) => info.vaultId === vault.id)
               : false;
@@ -254,7 +254,12 @@ function SignersList({
                   }
                   handleCardSelect(signer, item);
                 }}
-                name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+                name={getSignerNameFromType(
+                  signer.type,
+                  signer.isMock,
+                  isAMF,
+                  signer.extraData?.instanceNumber
+                )}
                 description={`Added ${moment(signer.addedOn).calendar()}`}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
                 isSelected={hiding ? selectedSigners.get(signer.masterFingerprint) : false}
@@ -296,6 +301,10 @@ function SignersList({
 }
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
   wrapper: {
     flex: 1,
   },

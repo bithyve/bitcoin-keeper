@@ -100,6 +100,7 @@ import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
+import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -244,6 +245,7 @@ function AppStack() {
         <Stack.Screen name="AddWallet" component={AddWallet} />
         <Stack.Screen name="AddSigner" component={AddSigner} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
+        <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
