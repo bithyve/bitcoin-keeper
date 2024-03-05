@@ -481,7 +481,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
         <Box ml={2} style={{ marginVertical: 20 }}>
-          {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+          {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
         <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
           {signerVaults.map((vault) => (
