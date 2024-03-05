@@ -161,7 +161,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Pressable
+      {
+        //Todo Learn more
+      }
+      {/* <Pressable
         backgroundColor={`${colorMode}.brownColor`}
         borderColor={`${colorMode}.brownColor`}
         style={styles.learnMoreContainer}
@@ -170,7 +173,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Text style={styles.learnMoreText} medium color={`${colorMode}.primaryBackground`}>
           Need Help?
         </Text>
-      </Pressable>
+      </Pressable> */}
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
@@ -214,7 +217,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Box>
           </Pressable>
         </Box>
-        <Box>
+        <Box style={styles.note}>
           <Text color={`${colorMode}.headerText`} medium fontSize={14}>
             Note
           </Text>
@@ -229,7 +232,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               {' '}
               Terms of Service{' '}
             </Text>
-            {'and\nour'}
+            {'and our'}
             <Text
               color={`${colorMode}.headerText`}
               italic
@@ -351,6 +354,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
     marginLeft: 10,
+  },
+  note: {
+    width: wp(280),
   },
 });
 
