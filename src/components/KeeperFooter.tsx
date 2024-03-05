@@ -3,7 +3,6 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
-import Fonts from 'src/constants/Fonts';
 
 type FooterItem = {
   Icon: any;

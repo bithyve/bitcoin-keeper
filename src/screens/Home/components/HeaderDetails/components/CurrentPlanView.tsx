@@ -4,7 +4,6 @@ import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import Fonts from 'src/constants/Fonts';
 import PlebIcon from 'src/assets/images/pleb_white.svg';
 import HodlerIcon from 'src/assets/images/hodler.svg';
 import DiamondIcon from 'src/assets/images/diamond_hands.svg';
