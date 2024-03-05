@@ -42,7 +42,6 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
-import Fonts from 'src/constants/Fonts';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 import { UTXO } from 'src/core/wallets/interfaces';
@@ -515,14 +514,12 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
           <Text style={styles.highAlertFiatFee}>{selectedFee}&nbsp;&nbsp;</Text>
-          {/* <Text style={styles.highAlertSatsFee}>{getBalance(selectedFee)}</Text> */}
         </Box>
       </Box>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
           <Text style={styles.highAlertFiatFee}>{amountToSend}&nbsp;&nbsp;</Text>
-          {/* <Text style={styles.highAlertSatsFee}>{getBalance(amountToSend)}</Text> */}
         </Box>
       </Box>
       <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
@@ -774,19 +771,24 @@ function SendConfirmation({ route }) {
   }, [crossTransferSuccess]);
 
   const addNumbers = (str1, str2) => {
-    // Convert strings to numbers
-    const num1 = parseFloat(str1.replace(/,/g, ''));
-    const num2 = parseFloat(str2.replace(/,/g, ''));
+    if (typeof str1 === 'string' && typeof str2 === 'string') {
+      // Convert strings to numbers
 
-    // Check if the conversion is successful
-    if (!isNaN(num1) && !isNaN(num2)) {
-      // Add the numbers
-      const sum = num1 + num2;
-      return sum;
+      const num1 = parseFloat(str1?.replace(/,/g, ''));
+      const num2 = parseFloat(str2?.replace(/,/g, ''));
+      // Check if the conversion is successful
+      if (!isNaN(num1) && !isNaN(num2)) {
+        // Add the numbers
+        const sum = num1 + num2;
+        return sum;
+      } else {
+        // Handle invalid input
+        console.error('Invalid input. Please provide valid numeric strings.');
+        return null;
+      }
     } else {
-      // Handle invalid input
-      console.error('Invalid input. Please provide valid numeric strings.');
-      return null;
+      const sum = str1 + str2;
+      return sum;
     }
   };
 
@@ -994,12 +996,6 @@ function SendConfirmation({ route }) {
 export default SendConfirmation;
 
 const styles = StyleSheet.create({
-  headingLabelText: {
-    fontSize: 11,
-    fontFamily: Fonts.FiraSansCondensedMedium,
-    textAlign: 'center',
-    color: '#656565',
-  },
   priorityRowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1059,12 +1055,6 @@ const styles = StyleSheet.create({
   },
   transLabelText: {
     fontSize: 12,
-    fontFamily: Fonts.FiraSansCondensedRegular,
-  },
-  transFiatFeeText: {
-    fontSize: 16,
-    fontWeight: '300',
-    fontFamily: Fonts.FiraSansCondensedMedium,
   },
   transSatsFeeText: {
     fontSize: 16,
@@ -1104,7 +1094,6 @@ const styles = StyleSheet.create({
   },
   amtDetailsText: {
     fontSize: 12,
-    fontFamily: Fonts.FiraSansCondensedRegular,
     letterSpacing: 0.55,
   },
   horizontalLineStyle: {
@@ -1114,7 +1103,6 @@ const styles = StyleSheet.create({
   },
   highFeeTitle: {
     fontSize: 14,
-    fontFamily: Fonts.FiraSansCondensedRegular,
     letterSpacing: 0.55,
   },
   highFeeDetailsWrapper: {
@@ -1128,13 +1116,7 @@ const styles = StyleSheet.create({
   },
   highAlertFiatFee: {
     fontSize: 16,
-    fontFamily: Fonts.FiraSansCondensedRegular,
     fontWeight: '700',
-  },
-  highAlertSatsFee: {
-    fontSize: 12,
-    fontFamily: Fonts.FiraSansCondensedRegular,
-    color: Colors.GreenishGrey,
   },
   circle: {
     width: 20,

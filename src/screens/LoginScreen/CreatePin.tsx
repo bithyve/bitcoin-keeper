@@ -252,7 +252,7 @@ export default function CreatePin(props) {
         }}
         Content={CreatePassModalContent}
         showButtons
-        subTitleWidth={wp(60)}
+        subTitleWidth={wp(80)}
       />
     </Box>
   );

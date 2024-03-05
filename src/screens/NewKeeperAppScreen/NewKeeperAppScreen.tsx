@@ -136,8 +136,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   function SignUpModalContent() {
     return (
-      <Box style={{ width: windowWidth * 0.7 }}>
-        <Box style={{ width: windowWidth * 0.7, marginBottom: hp(20) }}>
+      <Box style={{ width: windowWidth * 0.8 }}>
+        <Box style={{ width: windowWidth * 0.8, marginBottom: hp(20) }}>
           <LoadingAnimation />
         </Box>
         <Text color={`${colorMode}.greenText`} style={styles.contentText}>
@@ -256,7 +256,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(250)}
         showCloseIcon={false}
       />
@@ -272,8 +272,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setModalVisible(false);
           navigation.replace('App', { screen: 'Home' });
         }}
-        subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(300)}
         showCloseIcon={false}
       />
       <KeeperModal
@@ -331,6 +331,7 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 13,
     letterSpacing: 0.13,
+    width: '100%',
   },
   learnMoreContainer: {
     marginTop: hp(10),

@@ -43,7 +43,8 @@ import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interface
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
-import { InteracationMode } from '../Vault/HardwareModalMap';
+import { InteracationMode, setupKeeperSigner } from '../Vault/HardwareModalMap';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -210,7 +211,7 @@ function EnterSeedScreen({ route }) {
     }
   };
 
-  const onPressHealthCheck = () => {
+  const onPressHealthCheck = async () => {
     setHcLoading(true);
 
     const handleSuccess = () => {
@@ -226,11 +227,30 @@ function EnterSeedScreen({ route }) {
     try {
       if (isSeedFilled(6)) {
         if (isSeedFilled(12)) {
+          let derivedSigner;
           const seedWord = getSeedWord();
-          const { signer: softSigner } = setupSeedWordsBasedSigner(seedWord, isMultisig);
+          if (signer.type === SignerType.MY_KEEPER) {
+            const details = await getCosignerDetails(
+              seedWord,
+              signer.extraData?.instanceNumber - 1
+            );
+            const hw = generateSignerFromMetaData({
+              xpub: details.xpubDetails[XpubTypes.P2WSH].xpub,
+              xpriv: details.xpubDetails[XpubTypes.P2WSH].xpriv,
+              derivationPath: details.xpubDetails[XpubTypes.P2WSH].derivationPath,
+              masterFingerprint: details.mfp,
+              signerType: SignerType.MY_KEEPER,
+              storageType: SignerStorage.WARM,
+              isMultisig: true,
+            });
+            derivedSigner = hw.signer;
+          } else {
+            const { signer } = setupSeedWordsBasedSigner(seedWord, isMultisig);
+            derivedSigner = signer;
+          }
           if (mode === InteracationMode.IDENTIFICATION) {
             const mapped = mapUnknownSigner({
-              masterFingerprint: softSigner.masterFingerprint,
+              masterFingerprint: derivedSigner.masterFingerprint,
               type: SignerType.COLDCARD,
             });
             if (mapped) {
@@ -238,8 +258,8 @@ function EnterSeedScreen({ route }) {
             } else {
               handleFailure();
             }
-          } else {
-            if (softSigner.masterFingerprint === signer.masterFingerprint) {
+          } else if (signer) {
+            if (derivedSigner.masterFingerprint === signer.masterFingerprint) {
               handleSuccess();
             } else {
               handleFailure();
@@ -556,7 +576,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     letterSpacing: 1.32,
     zIndex: 1,
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontFamily: Fonts.FiraSansMedium,
   },
   inputListWrapper: {
     flexDirection: 'row',
