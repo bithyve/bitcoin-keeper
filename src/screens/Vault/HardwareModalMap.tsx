@@ -381,6 +381,17 @@ const getSignerContent = (
           },
         ],
       };
+    case SignerType.MY_KEEPER:
+      return {
+        type: SignerType.MY_KEEPER,
+        Illustration: <SeedWordsIllustration />,
+        Instructions: [
+          'Make sure you secure the 12-word phrase in a safe place.',
+          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
+        ],
+        title: isHealthcheck ? 'Verify App Key' : 'Setting up Seed Key',
+        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+      };
     default:
       return {
         type,
@@ -578,7 +589,7 @@ const verifyJade = (qrData, signer) => {
   return masterFingerprint === signer.masterFingerprint;
 };
 
-const setupKeeperSigner = (qrData, isMultisig, type = SignerType.KEEPER) => {
+export const setupKeeperSigner = (qrData, isMultisig, type = SignerType.KEEPER) => {
   try {
     const { mfp, xpubDetails } = JSON.parse(qrData);
     const { signer: ksd, key } = generateSignerFromMetaData({
@@ -1038,7 +1049,6 @@ function HardwareModalMap({
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
-
             addSignerFlow,
           },
         })
@@ -1643,7 +1653,6 @@ function HardwareModalMap({
         return null;
     }
   };
-
   return (
     <>
       <KeeperModal
