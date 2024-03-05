@@ -38,6 +38,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -88,14 +89,14 @@ function LoginScreen({ navigation, route }) {
   useEffect(() => {
     if (failedAttempts >= 1) {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
-      const waitingTime = TIMEOUT * failedAttempts;
-      if (retryTime > waitingTime) {
+      // const waitingTime = TIMEOUT * failedAttempts;
+      if (retryTime > PasswordTimeout(failedAttempts)) {
         setCanLogin(true);
         return;
       }
       setTimeout(() => {
         setLoginError(true);
-        setErrMessage('Please try after sometime');
+        setErrMessage(`Please try after ${PasswordTimeout(failedAttempts) / TIMEOUT} minutes`);
         setCanLogin(false);
       }, 100);
       return;
