@@ -15,7 +15,7 @@ interface KeeperTextProps extends TextProps {
 
 function Text(props: KeeperTextProps) {
   const { children, style, fontSize, medium, semiBold, bold, light, italic } = props;
-  let fontWeight = 200;
+  let fontWeight = 200; // regular
   if (bold) {
     fontWeight = 500;
   } else if (light) {
