@@ -30,6 +30,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Breadcrumbs from 'src/components/Breadcrumbs';
+import { formatNumber } from 'src/utils/utilities';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ navigation, route }) {
@@ -115,11 +116,6 @@ function EnterWalletDetailScreen({ navigation, route }) {
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError]);
-
-  // Format number with comma
-  // Example: 1000000 => 1,000,000
-  const formatNumber = (value: string) =>
-    value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   function FailedModalContent() {
     return (
