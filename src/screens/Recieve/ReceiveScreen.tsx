@@ -6,8 +6,6 @@ import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
-import BtcInput from 'src/assets/images/btc_input.svg';
-import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import Buttons from 'src/components/Buttons';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
@@ -123,6 +121,7 @@ function ReceiveScreen({ route }: { route }) {
         />
         <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
           <Text
+            bold
             style={styles.receiveAddressText}
             color={`${colorMode}.recieverAddress`}
             numberOfLines={1}
@@ -203,7 +202,6 @@ const styles = StyleSheet.create({
   },
   receiveAddressText: {
     textAlign: 'center',
-    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',
@@ -233,7 +231,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.8,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1.04,
   },
   inputParentView: {

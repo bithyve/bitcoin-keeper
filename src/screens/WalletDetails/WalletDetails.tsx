@@ -109,6 +109,7 @@ function WalletDetails({ route }: ScreenProps) {
           contrastScreen={true}
           title={name}
           titleColor={`${colorMode}.seashellWhite`}
+          mediumTitle
           subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
           subTitleColor={`${colorMode}.seashellWhite`}
           icon={isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletIcon />}

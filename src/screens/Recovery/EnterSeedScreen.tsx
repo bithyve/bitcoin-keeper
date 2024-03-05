@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     letterSpacing: 1.32,
     zIndex: 1,
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontFamily: Fonts.FiraSansMedium,
   },
   inputListWrapper: {
     flexDirection: 'row',

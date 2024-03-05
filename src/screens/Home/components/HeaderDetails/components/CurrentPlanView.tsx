@@ -4,7 +4,6 @@ import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import Fonts from 'src/constants/Fonts';
 import PlebIcon from 'src/assets/images/pleb_white.svg';
 import HodlerIcon from 'src/assets/images/hodler.svg';
 import DiamondIcon from 'src/assets/images/diamond_hands.svg';
@@ -28,6 +27,7 @@ function CurrentPlanView({ plan }) {
             testID="text_home_current_plan"
             style={styles.currentPlanText}
             color={`${colorMode}.choosePlanHome`}
+            bold
           >
             {plan}
           </Text>
@@ -60,9 +60,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   currentPlanText: {
-    fontSize: 18,
-    letterSpacing: 1.8,
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontSize: 20,
+    letterSpacing: 0.2,
   },
 });
 export default CurrentPlanView;

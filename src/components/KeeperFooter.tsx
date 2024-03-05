@@ -3,7 +3,6 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
-import Fonts from 'src/constants/Fonts';
 
 type FooterItem = {
   Icon: any;
@@ -49,6 +48,7 @@ export function KeeperFooter({
                 color={`${colorMode}.primaryText`}
                 style={[styles.footerText, { maxWidth: windowWidth / footerItemsToRender.length }]}
                 numberOfLines={2}
+                medium
               >
                 {item.text}
               </Text>
@@ -65,10 +65,9 @@ export default KeeperFooter;
 const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
-    letterSpacing: 0.84,
+    letterSpacing: 0.36,
     textAlign: 'center',
     paddingHorizontal: 5,
-    fontFamily: Fonts.FiraSansCondensedRegular,
   },
   IconWrapper: {
     justifyContent: 'space-around',

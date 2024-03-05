@@ -82,6 +82,7 @@ function ManageSigners({ route }: ScreenProps) {
         <KeeperHeader
           title="Manage Keys"
           subtitle="View and change key details"
+          mediumTitle
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           icon={
@@ -292,7 +293,7 @@ function SignersList({
         Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
       />
       {hiding ? (
-        <FloatingCTA primaryText="Done" primaryCallback={hideKeys} />
+        <FloatingCTA primaryText="Hide" primaryCallback={hideKeys} />
       ) : !vaultKeys.length ? (
         <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
       ) : null}

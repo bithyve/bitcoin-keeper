@@ -63,7 +63,7 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
         <Box style={styles.alignCenter}>
           {getCurrencyIcon(BTC, 'green')}
           <Text fontSize={15} color={`${colorMode}.primaryText`}>
-            {`${getBalance(balance)} ${getSatUnit()}`}
+            {` ${getBalance(balance)} ${getSatUnit()}`}
           </Text>
         </Box>
         <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID="btnHide">
@@ -73,7 +73,7 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
             style={styles.learnMoreContainer}
           >
             {isHidden ? <ShowIcon /> : <HideWalletIcon />}
-            <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
+            <Text color={`${colorMode}.white`} medium style={styles.learnMoreText}>
               {isHidden ? 'Unhide' : 'Hide'}
             </Text>
           </Box>
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
   learnMoreText: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 0.24,
     alignSelf: 'center',
   },
   cancelBtn: {

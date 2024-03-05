@@ -296,7 +296,7 @@ function PrivacyAndDisplay() {
             />
             <OptionCard
               title={settings.shareAnalytics}
-              description={settings.rememberPasscode}
+              description={settings.shareAnalyticsDesc}
               Icon={
                 <Switch
                   onValueChange={async () => await toggleSentryReports()}

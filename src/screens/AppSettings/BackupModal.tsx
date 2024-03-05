@@ -12,7 +12,7 @@ function BackupModalContent() {
       <Box style={styles.passImg}>
         <SeedwordsIllustration />
       </Box>
-      <Text color={`${colorMode}.headerText`} style={styles.modalHeading}>
+      <Text color={`${colorMode}.headerText`} medium style={styles.modalHeading}>
         Be aware
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.14,
-    fontWeight: '700',
   },
   modalMessageText: {
     fontSize: 13,

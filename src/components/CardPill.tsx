@@ -38,7 +38,8 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 8,
-    lineHeight: 17,
+    lineHeight: 18,
+    letterSpacing: 0.32,
   },
 });
 
