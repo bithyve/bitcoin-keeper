@@ -89,7 +89,6 @@ function LoginScreen({ navigation, route }) {
   useEffect(() => {
     if (failedAttempts >= 1) {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
-      // const waitingTime = TIMEOUT * failedAttempts;
       if (retryTime > PasswordTimeout(failedAttempts)) {
         setCanLogin(true);
         return;
