@@ -208,12 +208,13 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 14,
+    letterSpacing: 0.42,
     textAlign: 'center',
     opacity: 0.7,
   },
   startAppText: {
     fontSize: 13,
-    letterSpacing: 1,
+    letterSpacing: 0.78,
   },
   seeFAQWrapper: {
     borderWidth: 0.5,
@@ -225,5 +226,6 @@ const styles = StyleSheet.create({
   },
   seeFAQText: {
     fontSize: 13,
+    letterSpacing: 0.26,
   },
 });

@@ -163,7 +163,7 @@ function KeeperModal(props: ModalProps) {
                 {!!secondaryButtonText && (
                   <TouchableOpacity onPress={secondaryCallback}>
                     <Box style={styles.secCta}>
-                      <Text style={styles.ctaText} color={secButtonTextColor} bold>
+                      <Text style={styles.ctaText} color={secButtonTextColor} medium>
                         {showButtons ? secondaryButtonText : null}
                       </Text>
                     </Box>
@@ -216,7 +216,7 @@ const getStyles = (subTitleWidth) =>
     cta: {
       borderRadius: 10,
       width: wp(120),
-      height: hp(45),
+      height: hp(50),
       justifyContent: 'center',
       alignItems: 'center',
     },

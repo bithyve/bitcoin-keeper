@@ -165,9 +165,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         backgroundColor={`${colorMode}.brownColor`}
         borderColor={`${colorMode}.brownColor`}
         style={styles.learnMoreContainer}
-      // learn more modal
+        // learn more modal
       >
-        <Text style={styles.learnMoreText} color={`${colorMode}.primaryBackground`}>
+        <Text style={styles.learnMoreText} medium color={`${colorMode}.primaryBackground`}>
           Need Help?
         </Text>
       </Pressable>
@@ -215,15 +215,15 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Pressable>
         </Box>
         <Box>
-          <Text color={`${colorMode}.headerText`} bold fontSize={14}>
+          <Text color={`${colorMode}.headerText`} medium fontSize={14}>
             Note
           </Text>
-          <Text>
+          <Text fontSize={12} color={`${colorMode}.GreenishGrey`}>
             By proceeding you agree to our
             <Text
               color={`${colorMode}.headerText`}
               italic
-              style={styles.boldText}
+              bold
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             >
               {' '}
@@ -233,7 +233,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <Text
               color={`${colorMode}.headerText`}
               italic
-              style={styles.boldText}
+              bold
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
             >
               {' '}
@@ -244,7 +244,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -259,7 +259,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -275,7 +275,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -322,12 +322,12 @@ const styles = StyleSheet.create({
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
-    paddingTop: 5,
+    letterSpacing: 0.13,
+    paddingTop: 20,
   },
   contentText: {
     fontSize: 13,
-    letterSpacing: 0.65,
+    letterSpacing: 0.13,
   },
   learnMoreContainer: {
     marginTop: hp(10),
@@ -351,9 +351,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
     marginLeft: 10,
-  },
-  boldText: {
-    fontWeight: '800',
   },
 });
 
