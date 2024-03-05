@@ -48,7 +48,7 @@ function WalletInfoCard({
           <Text fontSize={12} color={`${colorMode}.white`} numberOfLines={1}>
             {walletDescription}
           </Text>
-          <Text color={`${colorMode}.white`} bold style={{ fontSize: 14 }} numberOfLines={1}>
+          <Text color={`${colorMode}.white`} medium style={{ fontSize: 14 }} numberOfLines={1}>
             {walletName}
           </Text>
         </Box>

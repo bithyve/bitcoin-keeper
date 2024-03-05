@@ -45,14 +45,14 @@ export function OptionCard({
             <Text
               color={titleColor || `${colorMode}.primaryText`}
               testID={`text_${title.replace(/ /g, '_')}`}
-              style={{ fontSize: 14, letterSpacing: 1.04 }}
+              style={{ fontSize: 13, letterSpacing: 0.13 }}
             >
               {title}
             </Text>
             {description && (
               <Text
                 color={descriptionColor || `${colorMode}.GreyText`}
-                style={{ fontSize: 12, letterSpacing: 0.36 }}
+                style={{ fontSize: 12, letterSpacing: 0.12 }}
               >
                 {description}
               </Text>

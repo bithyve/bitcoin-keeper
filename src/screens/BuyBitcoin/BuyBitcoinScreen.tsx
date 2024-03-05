@@ -159,7 +159,7 @@ function BuyBitcoinScreen() {
         close={() => setWalletSelectionVisible(false)}
         title="Select Wallet"
         subTitle="Purchased bitcoin would be transferred to selected wallet"
-        subTitleWidth={wp(240)}
+        subTitleWidth={wp(220)}
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.SlateGrey`}
         textColor={`${colorMode}.modalGreenTitle`}

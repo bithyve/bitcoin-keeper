@@ -2,40 +2,44 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "src/assets/fonts/FiraSansCondensed-Bold.ttf",
-      "sha1": "36a923b3350a74d310b2263f1963870d90ef63ec"
+      "path": "src/assets/fonts/FiraSans-Bold.ttf",
+      "sha1": "bdb04cd9e835a3cf7ba22df0354f1472812df225"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-BoldItalic.ttf",
-      "sha1": "4e4e61c7090b6a6fa6ac5b8fb93caef420311e2d"
+      "path": "src/assets/fonts/FiraSans-BoldItalic.ttf",
+      "sha1": "64ca0c2a17bc89e3e274ab93d0a34ccf557ed5ee"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-Italic.ttf",
-      "sha1": "cb11ad56633a862330f25296d443c757f0312501"
+      "path": "src/assets/fonts/FiraSans-Italic.ttf",
+      "sha1": "c584552cccc716eb287a95a23806be746f3cad73"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-Light.ttf",
-      "sha1": "9c58d76978b642adc803500f444d486fdb4f8709"
+      "path": "src/assets/fonts/FiraSans-Light.ttf",
+      "sha1": "d795fdfc99d1bad2c0e42eea5a9f06e49dd67b1b"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-LightItalic.ttf",
-      "sha1": "7ede17ed02f38180a4b3d63561fbb987a448063e"
+      "path": "src/assets/fonts/FiraSans-LightItalic.ttf",
+      "sha1": "26d80b11b6b24499165341bce66c05126623052e"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-Medium.ttf",
-      "sha1": "6b43ddab1b895f4b4d4d93f6f603c48efeb2b870"
+      "path": "src/assets/fonts/FiraSans-Medium.ttf",
+      "sha1": "9181432d76711ae510c9f20713465810cf09e63b"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-MediumItalic.ttf",
-      "sha1": "77dfef273d9822c6a78cf3fdc549707ab85c817f"
+      "path": "src/assets/fonts/FiraSans-MediumItalic.ttf",
+      "sha1": "70985253068fcdd4774f198c6098c5f4946e548e"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-Regular.ttf",
-      "sha1": "93b30c42add0edaf6d8138e246b7457e48f9865e"
+      "path": "src/assets/fonts/FiraSans-Regular.ttf",
+      "sha1": "9647e8c14e6618517f6942fbada0a01e2c18973d"
     },
     {
-      "path": "src/assets/fonts/FiraSansCondensed-SemiBold.ttf",
-      "sha1": "31fa4deffe82a25c86284d5bd98d69a618eded6b"
+      "path": "src/assets/fonts/FiraSans-SemiBold.ttf",
+      "sha1": "7d6bc4d8ea78656ca2f234e41f0e74e676ad61e2"
+    },
+    {
+      "path": "src/assets/fonts/FiraSans-SemiBoldItalic.ttf",
+      "sha1": "925d03ef5fb51987cd0405f7cb717456ef24854a"
     }
   ]
 }
