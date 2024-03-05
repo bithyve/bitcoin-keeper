@@ -980,9 +980,9 @@ function SendConfirmation({ route }) {
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle="Enter sats to pay per vbyte"
-          network={sender.networkType}
+          network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
-          sender={sender}
+          sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
           buttonCallback={(setCustomTxPriority) => {
             setVisibleCustomPriorityModal(false);

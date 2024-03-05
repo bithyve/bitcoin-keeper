@@ -168,6 +168,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                         uaiSetActionFalse,
                         walletId: uai.entityId,
                         transferType: TransferType.WALLET_TO_VAULT,
+                        amount: 0,
                       })
                     : showToast('No vaults found', <ToastErrorIcon />);
                   skipUaiHandler(uai);
