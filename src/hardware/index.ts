@@ -21,6 +21,8 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -72,6 +74,10 @@ export const generateSignerFromMetaData = ({
     });
   }
 
+  const signerCount = dbManager
+    .getCollection(RealmSchema.Signer)
+    .filter((s) => s.type === signerType).length;
+
   const signer: Signer = {
     type: signerType,
     storageType,
@@ -84,6 +90,7 @@ export const generateSignerFromMetaData = ({
     inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
+    extraData: { instanceNumber: signerCount + 1 },
   };
 
   const key: VaultSigner = {
@@ -97,7 +104,12 @@ export const generateSignerFromMetaData = ({
   return { signer, key };
 };
 
-export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
+export const getSignerNameFromType = (
+  type: SignerType,
+  isMock = false,
+  isAmf = false,
+  instanceNumber = 0
+) => {
   let name: string;
   switch (type) {
     case SignerType.COLDCARD:
@@ -107,10 +119,10 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.MY_KEEPER:
-      name = 'App Key (This App)';
+      name = `App Key${instanceNumber ? ' ' + instanceNumber : ''}`;
       break;
     case SignerType.KEEPER:
-      name = 'App Key';
+      name = 'App Key (ext)';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -119,7 +131,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Nano X';
       break;
     case SignerType.MOBILE_KEY:
-      name = 'Mobile Key';
+      name = 'Recovery Key';
       break;
     case SignerType.PASSPORT:
       name = 'Passport';

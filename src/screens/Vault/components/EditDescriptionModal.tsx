@@ -25,7 +25,12 @@ function SignerData({ signer }: { signer: Signer }) {
       <Box style={styles.icon}>{SDIcons(signer.type, true).Icon}</Box>
       <VStack marginX="4" maxWidth="80%">
         <Text style={styles.name} color={`${colorMode}.primaryText`} numberOfLines={2}>
-          {getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          {getSignerNameFromType(
+            signer.type,
+            signer.isMock,
+            isAMF,
+            signer.extraData?.instanceNumber
+          )}
         </Text>
         <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
           {`Added ${moment(signer.lastHealthCheck).calendar().toLocaleLowerCase()}`}
@@ -99,7 +104,6 @@ function DescriptionModal({
       title="Add Description"
       subTitle="Optionally you can add a short description to the signer"
       buttonText="Save"
-      justifyContent="center"
       Content={MemoisedContent}
       buttonCallback={onSave}
     />
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: windowWidth * 0.7,
     fontSize: 13,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1,
     opacity: 0.5,
   },

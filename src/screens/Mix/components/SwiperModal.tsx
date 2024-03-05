@@ -14,7 +14,6 @@ import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
-  console.log('windowHeight', windowHeight);
   return (
     <Box>
       <Box>
@@ -121,7 +120,7 @@ function List() {
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
               <Text
                 style={styles.ctaText}
-                color={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+                color={`${colorMode}.modalWhiteButtonText`}
                 bold
               >
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
@@ -152,7 +151,6 @@ function SwiperModal({ enable }) {
     />
   );
 }
-
 const styles = StyleSheet.create({
   contentContaner: {
     width: windowHeight < 650 ? wp(286) : wp(295),

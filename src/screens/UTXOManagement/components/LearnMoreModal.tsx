@@ -64,7 +64,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Proceed"
-      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />

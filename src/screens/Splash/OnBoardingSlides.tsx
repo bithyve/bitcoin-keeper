@@ -112,7 +112,7 @@ function OnBoardingSlides({ navigation }) {
                   backgroundColor="light.modalGreenLearnMore"
                   style={styles.seeFAQWrapper}
                 >
-                  <Text color="light.Crayola" bold style={styles.seeFAQText}>
+                  <Text color={`${colorMode}.accent`} bold style={styles.seeFAQText}>
                     {common.seeFAQs}
                   </Text>
                 </Box>

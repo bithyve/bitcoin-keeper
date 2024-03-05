@@ -41,12 +41,13 @@ import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
+import useSigners from 'src/hooks/useSigners';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
-import useSigners from 'src/hooks/useSigners';
+import { getSignerNameFromType } from 'src/hardware';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -183,7 +184,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <InhertanceKeyIcon />,
         description:
           '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
-        FAQ: `${KEEPER_KNOWLEDGEBASE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`,
+        FAQ: `${KEEPER_KNOWLEDGEBASE}hc/en-us/sections/17238611956253-Inheritance`,
       };
     default:
       return {
@@ -332,7 +333,12 @@ function SigningDeviceDetails({ route }) {
         learnMore
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
-        title={signer.signerName}
+        title={getSignerNameFromType(
+          signer.type,
+          signer.isMock,
+          false,
+          signer.extraData?.instanceNumber
+        )}
         subtitle={
           signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
@@ -394,9 +400,14 @@ function SigningDeviceDetails({ route }) {
         title={title}
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor="light.white"
+        textColor={`${colorMode}.modalGreenContent`}
         learnMoreCallback={() => openLink(FAQ)}
         Content={SignerContent}
+        subTitleWidth={wp(280)}
+        buttonText="Proceed"
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonCallback={() => setDetailModal(false)}
         DarkCloseIcon
         learnMore
       />

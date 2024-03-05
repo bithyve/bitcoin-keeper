@@ -120,7 +120,7 @@ const onSignerSelect = (
   }
 };
 
-const isSignerValidForScheme = (signer: Signer, scheme, allVaults: Vault[], signerMap) => {
+const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
   const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
   const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
   const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -131,15 +131,32 @@ const isSignerValidForScheme = (signer: Signer, scheme, allVaults: Vault[], sign
     return false;
   }
 
-  // Assisted Keys restriction: The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
-  if (signer.type === SignerType.POLICY_SERVER) {
-    // signing server key can be added starting from Vaults w/ m: 2 and n:3
-    if (scheme.m < 2 || scheme.n < 3) return false;
-  } else if (signer.type === SignerType.INHERITANCEKEY) {
-    // inheritance key can be added starting from Vaults w/ m: 3 and n:5(and even w/ a SS already present, the number of assisted keys < m)
-    if (scheme.m < 3 || scheme.n < 5) return false;
-  }
+  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+    // scheme based restrictions for assisted keys
+    if (signer.type === SignerType.POLICY_SERVER) {
+      // signing server key can be added starting from Vaults w/ m: 2 and n:3
+      if (scheme.m < 2 || scheme.n < 3) return false;
+    } else if (signer.type === SignerType.INHERITANCEKEY) {
+      // inheritance key can be added starting from Vaults w/ m: 3 and n:5(and even w/ a SS already present, the number of assisted keys < m)
+      if (scheme.m < 3 || scheme.n < 5) return false;
+    }
 
+    // count based restrictions for assisted keys
+    const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
+    let existingAssistedKeys = 0;
+    for (const mfp of selectedSigners.keys()) {
+      if (
+        signerMap[mfp].type === SignerType.POLICY_SERVER ||
+        signerMap[mfp].type === SignerType.INHERITANCEKEY
+      ) {
+        existingAssistedKeys++;
+      }
+    }
+    const assistedKeys = existingAssistedKeys + currentAssistedKey;
+    const cannotFormQuorum = assistedKeys < scheme.m; // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
+    const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m; // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
+    if (!cannotFormQuorum || !notRequiredForQuorum) return false;
+  }
   return true;
 };
 
@@ -149,7 +166,8 @@ const setInitialKeys = (
   allVaults,
   signerMap,
   setVaultKeys,
-  setSelectedSigners
+  setSelectedSigners,
+  selectedSigners
 ) => {
   if (activeVault) {
     // setting initital keys (update if scheme has changed)
@@ -159,7 +177,7 @@ const setInitialKeys = (
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
       const signer = signerMap[key.masterFingerprint];
-      if (isSignerValidForScheme(signer, scheme, allVaults, signerMap)) {
+      if (isSignerValidForScheme(signer, scheme, signerMap, selectedSigners)) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
           updatedSignerMap.set(key.masterFingerprint, true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -272,7 +290,7 @@ function Signers({
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     return signers.map((signer) => {
       const disabled =
-        !isSignerValidForScheme(signer, scheme, allVaults, signerMap) ||
+        !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
         (signer.type === SignerType.MY_KEEPER &&
           myAppKeys.length >= 1 &&
           myAppKeys[0].masterFingerprint !== signer.masterFingerprint);
@@ -284,7 +302,12 @@ function Signers({
         <SignerCard
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          name={getSignerNameFromType(
+            signer.type,
+            signer.isMock,
+            isAMF,
+            signer.extraData?.instanceNumber
+          )}
           description={`Added ${moment(signer.addedOn).calendar()}`}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
@@ -388,7 +411,15 @@ function AddSigningDevice() {
   }, [realySignersUpdateErrorMessage]);
 
   useEffect(() => {
-    setInitialKeys(activeVault, scheme, allVaults, signerMap, setVaultKeys, setSelectedSigners);
+    setInitialKeys(
+      activeVault,
+      scheme,
+      allVaults,
+      signerMap,
+      setVaultKeys,
+      setSelectedSigners,
+      selectedSigners
+    );
   }, []);
 
   const subtitle =

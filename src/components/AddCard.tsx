@@ -38,7 +38,7 @@ function AddCard({
             backgroundColor={Colors.pantoneGreen}
             icon={<AddCardIcon />}
           />
-          <Text bold color={`${colorMode}.headerText`} style={styles.nameStyle}>
+          <Text semiBold color={`${colorMode}.headerText`} style={styles.nameStyle}>
             {name}
           </Text>
           {loading ? <ActivityIndicator /> : null}

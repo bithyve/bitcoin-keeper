@@ -2,7 +2,6 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import Fonts from 'src/constants/Fonts';
 
 function UAIView({
   title,
@@ -16,10 +15,15 @@ function UAIView({
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiMessageText} color={`${colorMode}.RussetBrown`}>
+        <Text style={styles.uaiMessageText} color={`${colorMode}.RussetBrown`} bold>
           {title}
         </Text>
-        <Text style={styles.uaiSubtitle} color={`${colorMode}.primaryText`} numberOfLines={2}>
+        <Text
+          style={styles.uaiSubtitle}
+          color={`${colorMode}.primaryText`}
+          numberOfLines={2}
+          medium
+        >
           {subTitle}
         </Text>
       </Box>
@@ -29,7 +33,7 @@ function UAIView({
         testID="btn_uaiSkip"
         disabled={!secondaryCallbackText}
       >
-        <Text style={styles.skipText} color={`${colorMode}.learnMoreBorder`}>
+        <Text style={styles.skipText} bold color={`${colorMode}.learnMoreBorder`}>
           {secondaryCallbackText.toUpperCase()}
         </Text>
       </TouchableOpacity>
@@ -40,7 +44,7 @@ function UAIView({
           testID="btn_uaiPrimary"
         >
           <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.greenText`}>
-            <Text style={styles.addNowCTAText} color={`${colorMode}.white`}>
+            <Text style={styles.addNowCTAText} bold color={`${colorMode}.white`}>
               {primaryCallbackText.toUpperCase()}
             </Text>
           </Box>
@@ -63,12 +67,10 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     fontSize: 12,
     width: '100%',
-    fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 0.12,
   },
   uaiSubtitle: {
     fontSize: 14,
-    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 0.14,
     width: '100%',
   },
@@ -77,8 +79,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   skipText: {
-    fontFamily: Fonts.FiraSansCondensedMedium,
-    fontSize: 12,
+    fontSize: 10,
+    letterSpacing: 0.4,
   },
   addNowWrapper: {
     width: '24%',
@@ -90,8 +92,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   addNowCTAText: {
-    fontSize: 11,
-    fontFamily: Fonts.FiraSansCondensedMedium,
+    fontSize: 10,
+    letterSpacing: 0.3,
   },
 });
 export default UAIView;

@@ -9,6 +9,7 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
+import { useKeyboard } from 'src/hooks/useKeyboard';
 
 type ModalProps = {
   visible: boolean;
@@ -96,6 +97,8 @@ function KeeperModal(props: ModalProps) {
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
+  const isKeyboardOpen = useKeyboard();
+
   if (!visible) {
     return null;
   }
@@ -107,16 +110,16 @@ function KeeperModal(props: ModalProps) {
       closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
-      avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={justifyContent}
+      pb={isKeyboardOpen ? '60%' : '0'}
     >
       <Modal.Content
         borderRadius={10}
         marginBottom={Math.max(5, bottomMargin)}
         maxHeight="full"
-        width={'95%'}
+        width="95%"
       >
         <GestureHandlerRootView>
           <Box backgroundColor={modalBackground} style={styles.container}>
@@ -141,7 +144,7 @@ function KeeperModal(props: ModalProps) {
               <Content />
             </Modal.Body>
             {((showButtons && learnMore) || !!buttonText) && (
-              <Box style={styles.footerContainer}>
+              <Box style={[styles.footerContainer, learnMore && styles.spaceBetween]}>
                 {learnMore ? (
                   <Box
                     borderColor={`${colorMode}.lightAccent`}
@@ -195,11 +198,11 @@ const getStyles = (subTitleWidth) =>
     },
     title: {
       fontSize: 19,
-      letterSpacing: 1,
+      letterSpacing: 0.19,
     },
     subTitle: {
       fontSize: 13,
-      letterSpacing: 1,
+      letterSpacing: 0.13,
       width: subTitleWidth,
     },
     secCta: {
@@ -255,5 +258,8 @@ const getStyles = (subTitleWidth) =>
       alignItems: 'center',
       marginBottom: 20,
       marginRight: 10,
+    },
+    spaceBetween: {
+      justifyContent: 'space-between',
     },
   });

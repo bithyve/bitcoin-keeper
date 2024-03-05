@@ -48,6 +48,7 @@ export function KeeperFooter({
                 color={`${colorMode}.primaryText`}
                 style={[styles.footerText, { maxWidth: windowWidth / footerItemsToRender.length }]}
                 numberOfLines={2}
+                medium
               >
                 {item.text}
               </Text>
@@ -64,7 +65,7 @@ export default KeeperFooter;
 const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
-    letterSpacing: 0.84,
+    letterSpacing: 0.36,
     textAlign: 'center',
     paddingHorizontal: 5,
   },
@@ -76,6 +77,7 @@ const styles = StyleSheet.create({
   border: {
     borderWidth: 0.5,
     opacity: 0.2,
+    marginBottom: 10,
   },
   circle: {
     width: 38,

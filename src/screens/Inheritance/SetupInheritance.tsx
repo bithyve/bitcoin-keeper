@@ -150,7 +150,7 @@ function SetupInheritance({ route }) {
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => proceedCallback()}>
             <Box
               borderColor={`${colorMode}.learnMoreBorder`}
-              backgroundColor={`${colorMode}.lightAccent`}
+              backgroundColor="light.lightAccent"
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
@@ -171,7 +171,7 @@ function SetupInheritance({ route }) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
-        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}

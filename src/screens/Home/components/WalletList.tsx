@@ -12,6 +12,7 @@ import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
+import WalletInfoEmptyState from './WalletInfoEmptyState';
 
 export function WalletsList({
   allWallets,
@@ -35,6 +36,7 @@ export function WalletsList({
         keyExtractor={(item) => item.id}
         renderItem={({ item: wallet }) => (
           <TouchableOpacity
+            testID={`btn_${wallet.presentationData.name}`}
             style={styles.walletCardWrapper}
             onPress={() => handleWalletPress(wallet, navigation)}
           >
@@ -49,9 +51,10 @@ export function WalletsList({
             />
           </TouchableOpacity>
         )}
+        ListEmptyComponent={<WalletInfoEmptyState />}
         ListFooterComponent={() => (
           <AddCard
-            name={`Add\nWallet`}
+            name={'Add\nWallet'}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
           />

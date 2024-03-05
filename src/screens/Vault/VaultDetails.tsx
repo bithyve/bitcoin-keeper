@@ -35,7 +35,6 @@ import useSigners from 'src/hooks/useSigners';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
@@ -144,13 +143,15 @@ function TransactionList({
   return (
     <>
       <VStack style={{ paddingTop: windowHeight * 0.1 }}>
-        <Text
-          color={`${colorMode}.black`}
-          style={styles.transactionHeading}
-          testID="text_Transaction"
-        >
-          {common.transactions}
-        </Text>
+        {transactions?.length ? (
+          <Text
+            color={`${colorMode}.black`}
+            style={styles.transactionHeading}
+            testID="text_Transaction"
+          >
+            {common.transactions}
+          </Text>
+        ) : null}
       </VStack>
       <FlatList
         testID="view_TransactionList"
@@ -287,7 +288,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               <HexagonIcon
                 width={58}
                 height={50}
-                backgroundColor={Colors.deepTeal}
+                backgroundColor={'rgba(9, 44, 39, 0.6)'}
                 icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
               />
             }
@@ -378,7 +379,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
-        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText={common.continue}
         buttonCallback={() => {
@@ -432,7 +433,7 @@ const styles = StyleSheet.create({
   },
   transactionHeading: {
     fontSize: 16,
-    letterSpacing: 1.28,
+    letterSpacing: 0.16,
   },
   IconText: {
     justifyContent: 'center',

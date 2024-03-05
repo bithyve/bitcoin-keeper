@@ -37,8 +37,9 @@ function IKSAddEmailPhone({ route }) {
   const updateIKSPolicy = async (email: string) => {
     try {
       const IKSigner = signerMap[ikVaultKey.masterFingerprint];
-      if (IKSigner.inheritanceKeyInfo === undefined)
+      if (IKSigner.inheritanceKeyInfo === undefined) {
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+      }
 
       const existingPolicy: InheritancePolicy = IKSigner.inheritanceKeyInfo.policy;
       const updatedPolicy: InheritancePolicy = {
@@ -83,7 +84,7 @@ function IKSAddEmailPhone({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Add Email" subtitle="To receive periodic notifications" />
       <Box style={styles.inputWrapper}>
         <Input

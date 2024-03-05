@@ -68,6 +68,8 @@ import ElectrumClient, {
 } from 'src/services/electrum/client';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import idx from 'idx';
+import _ from 'lodash';
 import { RootState } from '../store';
 import { initiateVaultMigration, vaultCreated, vaultMigrationCompleted } from '../reducers/vaults';
 import {
@@ -112,7 +114,6 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
-import idx from 'idx';
 
 export interface NewVaultDetails {
   name?: string;
@@ -583,46 +584,70 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
-  if (signers.length) {
-    const signerMap = {};
-    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    existingSigners.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+function* addSigningDeviceWorker({ payload: { signers } }) {
+  if (!signers.length) return;
 
-    // not letting user added multiple accounts for the same signer yet
-    for (const newSigner of signers) {
-      const existingSigner = signerMap[newSigner.masterFingerprint];
-      if (existingSigner) {
-        // TODO: we're not YET supporting multiple keys (accounts) for the same script type
-        if (
-          (newSigner.signerXpubs[XpubTypes.P2WPKH].length &&
-            existingSigner.signerXpubs[XpubTypes.P2WPKH].length) ||
-          (newSigner.signerXpubs[XpubTypes.P2WSH].length &&
-            existingSigner.signerXpubs[XpubTypes.P2WSH].length)
-        ) {
-          yield put(
-            relaySignersUpdateFail(
-              'A different account has already been added. Please use the existing key for this signer.'
-            )
-          );
-          return false;
-        }
+  const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+  const signerMap = Object.fromEntries(
+    existingSigners.map((signer) => [signer.masterFingerprint, signer])
+  );
+
+  for (const newSigner of signers) {
+    const existingSigner = signerMap[newSigner.masterFingerprint];
+    if (!existingSigner) continue;
+
+    const keysMatch = (type) =>
+      newSigner.signerXpubs[type]?.[0]?.xpub === existingSigner.signerXpubs[type]?.[0]?.xpub;
+    const singleSigMatch = keysMatch(XpubTypes.P2WPKH);
+    const multiSigMatch = keysMatch(XpubTypes.P2WSH);
+
+    if (singleSigMatch || multiSigMatch) {
+      if (newSigner.type === SignerType.UNKOWN_SIGNER) return false;
+
+      yield put(setRelaySignersUpdateLoading(true));
+      const response = yield call(updateAppImageWorker, { payload: { signers } });
+
+      if (response.updated) {
+        dbManager.createObject(
+          RealmSchema.Signer,
+          {
+            ...existingSigner,
+            type: newSigner.type,
+            signerXpubs: _.merge(newSigner.signerXpubs, existingSigner.signerXpubs),
+          },
+          Realm.UpdateMode.Modified
+        );
+        return true;
       }
+      yield put(relaySignersUpdateFail(response.error));
+      return false;
     }
-    yield put(setRelaySignersUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { signers } });
-    if (response.updated) {
-      yield call(
-        dbManager.createObjectBulk,
-        RealmSchema.Signer,
-        signers,
-        Realm.UpdateMode.Modified
+
+    const keysDifferent = (type) =>
+      newSigner.signerXpubs[type]?.[0] &&
+      existingSigner.signerXpubs[type]?.[0] &&
+      newSigner.signerXpubs[type][0].xpub !== existingSigner.signerXpubs[type][0].xpub;
+
+    if (keysDifferent(XpubTypes.P2WPKH) || keysDifferent(XpubTypes.P2WSH)) {
+      yield put(
+        relaySignersUpdateFail(
+          'A different account has already been added. Please use the existing key for this signer.'
+        )
       );
-      return true;
+      return false;
     }
-    yield put(relaySignersUpdateFail(response.error));
-    return false;
   }
+
+  yield put(setRelaySignersUpdateLoading(true));
+  const response = yield call(updateAppImageWorker, { payload: { signers } });
+
+  if (response.updated) {
+    dbManager.createObjectBulk(RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
+    return true;
+  }
+
+  yield put(relaySignersUpdateFail(response.error));
+  return false;
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
@@ -722,21 +747,31 @@ function* finaliseIKSetupWorker({
   let updatedInheritanceKeyInfo: InheritanceKeyInfo = null;
 
   if (ikSigner.inheritanceKeyInfo) {
-    // case: updating config for this new vault which already had IKS as one of its signers
+    // case I: updating config for this new vault which already had IKS as one of its signers
+    // case II: updating config for the first time for a recovered IKS(doesn't belong to a vault yet on this device)
     let existingConfiguration: InheritanceConfiguration = idx(
       // thresholds are constructed using an already existing configuration for IKS
       ikSigner,
       (_) => _.inheritanceKeyInfo.configurations[0]
     );
 
-    if (!existingConfiguration)
-      throw new Error(`Failed to find the existing configuration for IKS`);
-
     const newIKSConfiguration: InheritanceConfiguration = yield call(
       InheritanceKeyServer.generateInheritanceConfiguration,
       vault,
       backupBSMSForIKS
     );
+
+    if (!existingConfiguration) {
+      // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
+      const restoredIKSConfigLength = idx(
+        ikSigner,
+        (_) => _.inheritanceKeyInfo.configurations.length
+      ); // will be undefined if this is not a restored IKS(which is an error case)
+      if (restoredIKSConfigLength === 0) {
+        // case II: recovered IKS synching for the first time
+        existingConfiguration = newIKSConfiguration; // as two signer fingerprints(at least) are required to fetch IKS, the new config will indeed contain a registered threshold number of signer fingerprints to pass validation on the backend and therefore can be taken as the existing configuration
+      } else throw new Error('Failed to find the existing configuration for IKS');
+    }
 
     const { updated } = yield call(
       InheritanceKeyServer.updateInheritanceConfig,

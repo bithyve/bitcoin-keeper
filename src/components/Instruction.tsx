@@ -12,7 +12,7 @@ export function Instruction({ text }: { text: string }) {
       <Text bold fontSize={24}>
         •
       </Text>
-      <Text color={`${colorMode}.SlateGrey`} style={styles.infoText}>
+      <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
         {text}
       </Text>
     </Box>

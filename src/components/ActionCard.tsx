@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import Text from './KeeperText';
+import CardPill from './CardPill';
 
 type ActionCardProps = {
   cardName: string;
@@ -11,6 +12,7 @@ type ActionCardProps = {
   callback: () => void;
   customStyle?: ViewStyle;
   dottedBorder?: boolean;
+  cardPillText?: string;
 };
 
 function ActionCard({
@@ -20,11 +22,12 @@ function ActionCard({
   customStyle,
   callback,
   dottedBorder = false,
+  cardPillText = '',
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
   return (
-    <TouchableOpacity activeOpacity={0.95} onPress={callback}>
+    <TouchableOpacity testID={`btn_${cardName}`} activeOpacity={0.95} onPress={callback}>
       <Box
         style={[
           styles.cardContainer,
@@ -33,13 +36,18 @@ function ActionCard({
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
+        {cardPillText && (
+          <Box style={styles.cardPillContainer}>
+            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.btcLabelBack`} />
+          </Box>
+        )}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
           {dottedBorder && (
-            <Box borderColor={`${colorMode}.PearlWhite`} style={styles.dottedBorder} />
+            <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
           {icon && icon}
         </Box>
-        <Text numberOfLines={2} style={styles.cardName} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={2} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
         </Text>
         {description && (
@@ -80,8 +88,12 @@ const styles = StyleSheet.create({
   },
   cardName: {
     fontSize: 12,
-    fontWeight: '700',
     lineHeight: 16,
+    letterSpacing: 0.12,
+  },
+  cardPillContainer: {
+    width: 80,
+    alignSelf: 'flex-end',
   },
 });
 

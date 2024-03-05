@@ -20,18 +20,9 @@
 		183722162A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */; };
 		183722172A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */; };
 		183A61952A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */; };
-		183A61962A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */; };
 		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		1882E8952A4C338B009C9E0C /* FiraSansCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1882E8902A4C338A009C9E0C /* FiraSansCondensed-Italic.ttf */; };
-		1882E8962A4C338B009C9E0C /* FiraSansCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1882E8912A4C338A009C9E0C /* FiraSansCondensed-Light.ttf */; };
-		1882E8972A4C338B009C9E0C /* FiraSansCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1882E8922A4C338A009C9E0C /* FiraSansCondensed-Bold.ttf */; };
-		1882E8982A4C338B009C9E0C /* FiraSansCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1882E8932A4C338A009C9E0C /* FiraSansCondensed-Regular.ttf */; };
-		1882E8992A4C338B009C9E0C /* FiraSansCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1882E8942A4C338A009C9E0C /* FiraSansCondensed-LightItalic.ttf */; };
-		1882E89B2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1882E89A2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf */; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
 		18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		18E8B2B22A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18E8B2B12A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf */; };
-		18E8B2B42A52DC960065205F /* FiraSansCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18E8B2B32A52DC960065205F /* FiraSansCondensed-Medium.ttf */; };
 		1F9F460F29BF980E006C129F /* libwhirlpool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9F460E29BF980E006C129F /* libwhirlpool.a */; };
 		1F9F461029BF980E006C129F /* libwhirlpool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9F460E29BF980E006C129F /* libwhirlpool.a */; };
 		1F9F461529BF9DCC006C129F /* whirlpool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F9F461429BF9DCC006C129F /* whirlpool.m */; };
@@ -448,15 +439,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				18E8B2B42A52DC960065205F /* FiraSansCondensed-Medium.ttf in Resources */,
-				18E8B2B22A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf in Resources */,
-				1882E89B2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf in Resources */,
-				183A61962A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */,
-				1882E8952A4C338B009C9E0C /* FiraSansCondensed-Italic.ttf in Resources */,
-				1882E8962A4C338B009C9E0C /* FiraSansCondensed-Light.ttf in Resources */,
-				1882E8972A4C338B009C9E0C /* FiraSansCondensed-Bold.ttf in Resources */,
-				1882E8982A4C338B009C9E0C /* FiraSansCondensed-Regular.ttf in Resources */,
-				1882E8992A4C338B009C9E0C /* FiraSansCondensed-LightItalic.ttf in Resources */,
 				F4F207EE2849D20A005E79DA /* GoogleService-Info.plist in Resources */,
 				F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */,
 				F49B77E92848DF5200F9AFBD /* Images.xcassets in Resources */,
@@ -783,7 +765,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 298;
+				CURRENT_PROJECT_VERSION = 303;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -915,7 +897,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 298;
+				CURRENT_PROJECT_VERSION = 303;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1178,7 +1160,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 298;
+				CURRENT_PROJECT_VERSION = 303;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -1313,7 +1295,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 298;
+				CURRENT_PROJECT_VERSION = 303;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (

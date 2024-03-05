@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { useNavigation } from '@react-navigation/native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -12,6 +12,7 @@ import { wp, windowHeight } from 'src/constants/responsive';
 
 function EnterOTPEmailConfirmation() {
   const navigtaion = useNavigation();
+  const { colorMode } = useColorMode();
   const [emailOrPhoneOTP, setEmailOrPhoneOTP] = useState('');
   const [passcodeFlag] = useState(true);
 
@@ -29,7 +30,7 @@ function EnterOTPEmailConfirmation() {
     setEmailOrPhoneOTP(str);
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Add phone or email" subtitle="Check your email for OTP" />
       <Box style={styles.passwordContainer}>
         <CVVInputsView
