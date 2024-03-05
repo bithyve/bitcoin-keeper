@@ -33,7 +33,7 @@ import { Shadow } from 'react-native-shadow-2';
 import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { resetPinFailAttempts } from 'src/store/reducers/storage';
+import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
@@ -148,12 +148,12 @@ function LoginScreen({ navigation, route }) {
     setPasscode(passcode.slice(0, passcode.length - 1));
   };
 
-  // useEffect(() => {
-  //   if (attempts >= 3) {
-  //     setAttempts(1);
-  //     dispatch(increasePinFailAttempts());
-  //   }
-  // }, [attempts]);
+  useEffect(() => {
+    if (attempts >= 3) {
+      setAttempts(1);
+      dispatch(increasePinFailAttempts());
+    }
+  }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -161,7 +161,7 @@ function LoginScreen({ navigation, route }) {
       setLoginError(true);
       setErrMessage('Incorrect passcode');
       setPasscode('');
-      // setAttempts(attempts + 1);
+      setAttempts(attempts + 1);
       setIncorrectPassword(true);
       setLogging(false);
     } else {
@@ -216,7 +216,7 @@ function LoginScreen({ navigation, route }) {
   const onPinChange = () => {
     setLoginError(false);
     setErrMessage('');
-    // setAttempts(0);
+    setAttempts(0);
     setIncorrectPassword(false);
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
