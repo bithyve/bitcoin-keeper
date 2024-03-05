@@ -11,7 +11,7 @@ function InheritanceDownloadView(props) {
   return (
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.iconWrapper}>{props.icon}</Box>
-      <Box style={styles.titleWrapper}>
+      <Box style={(styles.titleWrapper, !props.isDownload && { width: '100%' })}>
         <Text color={`${colorMode}.primaryText`} style={styles.titleText}>
           {props.title}
         </Text>
