@@ -591,12 +591,29 @@ const verifyJade = (qrData, signer) => {
 
 export const setupKeeperSigner = (qrData, isMultisig, type = SignerType.KEEPER) => {
   try {
-    const { mfp, xpubDetails } = JSON.parse(qrData);
-    const { signer: ksd, key } = generateSignerFromMetaData({
-      xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
-      derivationPath: isMultisig
+    let mfp, xpub, derivationPath;
+    let xpubDetails = null;
+    try {
+      const data = JSON.parse(qrData);
+      const xpubDetails = data.xpubDetails;
+      mfp = data.mfp;
+      derivationPath = isMultisig
         ? xpubDetails[XpubTypes.P2WSH].derivationPath
-        : xpubDetails[XpubTypes.P2WPKH].derivationPath,
+        : xpubDetails[XpubTypes.P2WPKH].derivationPath;
+      xpub = isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub;
+    } catch (e) {
+      // support crypto-account
+      if (qrData.xPub) {
+        xpub = qrData.xPub;
+        derivationPath = qrData.derivationPath;
+        mfp = qrData.mfp;
+      } else {
+        throw e;
+      }
+    }
+    const { signer: ksd, key } = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
       masterFingerprint: mfp,
       signerType: type,
       storageType: SignerStorage.WARM,
