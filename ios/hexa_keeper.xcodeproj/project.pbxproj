@@ -11,15 +11,6 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		183722102A651CBD00120228 /* FiraSansCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183722072A651CBD00120228 /* FiraSansCondensed-Light.ttf */; };
-		183722112A651CBD00120228 /* FiraSansCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183722082A651CBD00120228 /* FiraSansCondensed-Bold.ttf */; };
-		183722122A651CBD00120228 /* FiraSansCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183722092A651CBD00120228 /* FiraSansCondensed-Regular.ttf */; };
-		183722132A651CBD00120228 /* FiraSansCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220A2A651CBD00120228 /* FiraSansCondensed-Italic.ttf */; };
-		183722142A651CBD00120228 /* FiraSansCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220C2A651CBD00120228 /* FiraSansCondensed-Medium.ttf */; };
-		183722152A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220D2A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf */; };
-		183722162A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */; };
-		183722172A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */; };
-		183A61952A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */; };
 		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
 		18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
@@ -29,6 +20,26 @@
 		1F9F461629BF9DCC006C129F /* whirlpool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F9F461429BF9DCC006C129F /* whirlpool.m */; };
 		1F9F461B29BF9E9C006C129F /* WhirlpoolHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9F461A29BF9E9C006C129F /* WhirlpoolHelper.swift */; };
 		1F9F461C29BF9E9C006C129F /* WhirlpoolHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9F461A29BF9E9C006C129F /* WhirlpoolHelper.swift */; };
+		1FE534572B9735720000F97E /* FiraSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE5344D2B9735720000F97E /* FiraSans-Bold.ttf */; };
+		1FE534582B9735720000F97E /* FiraSans-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE5344E2B9735720000F97E /* FiraSans-MediumItalic.ttf */; };
+		1FE534592B9735720000F97E /* FiraSans-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE5344F2B9735720000F97E /* FiraSans-LightItalic.ttf */; };
+		1FE5345A2B9735720000F97E /* FiraSans-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534502B9735720000F97E /* FiraSans-BoldItalic.ttf */; };
+		1FE5345B2B9735720000F97E /* FiraSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534512B9735720000F97E /* FiraSans-Light.ttf */; };
+		1FE5345C2B9735720000F97E /* FiraSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534522B9735720000F97E /* FiraSans-Medium.ttf */; };
+		1FE5345D2B9735720000F97E /* FiraSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534532B9735720000F97E /* FiraSans-Regular.ttf */; };
+		1FE5345E2B9735720000F97E /* FiraSans-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534542B9735720000F97E /* FiraSans-SemiBoldItalic.ttf */; };
+		1FE5345F2B9735720000F97E /* FiraSans-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534552B9735720000F97E /* FiraSans-Italic.ttf */; };
+		1FE534602B9735720000F97E /* FiraSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534562B9735720000F97E /* FiraSans-SemiBold.ttf */; };
+		1FE534612B9735880000F97E /* FiraSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE5344D2B9735720000F97E /* FiraSans-Bold.ttf */; };
+		1FE534622B9735880000F97E /* FiraSans-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534502B9735720000F97E /* FiraSans-BoldItalic.ttf */; };
+		1FE534632B9735880000F97E /* FiraSans-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534552B9735720000F97E /* FiraSans-Italic.ttf */; };
+		1FE534642B9735880000F97E /* FiraSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534512B9735720000F97E /* FiraSans-Light.ttf */; };
+		1FE534652B9735880000F97E /* FiraSans-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE5344F2B9735720000F97E /* FiraSans-LightItalic.ttf */; };
+		1FE534662B9735880000F97E /* FiraSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534522B9735720000F97E /* FiraSans-Medium.ttf */; };
+		1FE534672B9735880000F97E /* FiraSans-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE5344E2B9735720000F97E /* FiraSans-MediumItalic.ttf */; };
+		1FE534682B9735880000F97E /* FiraSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534532B9735720000F97E /* FiraSans-Regular.ttf */; };
+		1FE534692B9735880000F97E /* FiraSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534562B9735720000F97E /* FiraSans-SemiBold.ttf */; };
+		1FE5346A2B9735880000F97E /* FiraSans-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE534542B9735720000F97E /* FiraSans-SemiBoldItalic.ttf */; };
 		2DB6BC5A97480DB23DAF121A /* libPods-hexa_keeper_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DD42B3C94F52AF95BF46A35 /* libPods-hexa_keeper_dev.a */; };
 		6DE771B21C6F3271791FD125 /* libPods-hexa_keeper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A618A05E6893E22BBBFBAED0 /* libPods-hexa_keeper.a */; };
 		75EA47EFF012F028F07CCEA1 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
@@ -65,32 +76,44 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = hexa_keeper/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = hexa_keeper/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = hexa_keeper/main.m; sourceTree = "<group>"; };
-		183722072A651CBD00120228 /* FiraSansCondensed-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Light.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Light.ttf"; sourceTree = "<group>"; };
-		183722082A651CBD00120228 /* FiraSansCondensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Bold.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Bold.ttf"; sourceTree = "<group>"; };
-		183722092A651CBD00120228 /* FiraSansCondensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Regular.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Regular.ttf"; sourceTree = "<group>"; };
-		1837220A2A651CBD00120228 /* FiraSansCondensed-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Italic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Italic.ttf"; sourceTree = "<group>"; };
-		1837220B2A651CBD00120228 /* FiraSansCondensed-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-MediumItalic.ttf"; sourceTree = "<group>"; };
-		1837220C2A651CBD00120228 /* FiraSansCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Medium.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Medium.ttf"; sourceTree = "<group>"; };
-		1837220D2A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-SemiBold.ttf"; path = "../src/assets/fonts/FiraSansCondensed-SemiBold.ttf"; sourceTree = "<group>"; };
-		1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-LightItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-LightItalic.ttf"; sourceTree = "<group>"; };
-		1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-BoldItalic.ttf"; sourceTree = "<group>"; };
 		183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-MediumItalic.ttf"; sourceTree = "<group>"; };
-		1882E88F2A4C338A009C9E0C /* FiraSansCondensed-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-MediumItalic.ttf"; sourceTree = "<group>"; };
-		1882E8902A4C338A009C9E0C /* FiraSansCondensed-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Italic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Italic.ttf"; sourceTree = "<group>"; };
-		1882E8912A4C338A009C9E0C /* FiraSansCondensed-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Light.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Light.ttf"; sourceTree = "<group>"; };
-		1882E8922A4C338A009C9E0C /* FiraSansCondensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Bold.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Bold.ttf"; sourceTree = "<group>"; };
-		1882E8932A4C338A009C9E0C /* FiraSansCondensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Regular.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Regular.ttf"; sourceTree = "<group>"; };
-		1882E8942A4C338A009C9E0C /* FiraSansCondensed-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-LightItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-LightItalic.ttf"; sourceTree = "<group>"; };
-		1882E89A2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-BoldItalic.ttf"; sourceTree = "<group>"; };
 		18B4D55E2847898D004AB91F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		18E8B2B12A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-SemiBold.ttf"; path = "../src/assets/fonts/FiraSansCondensed-SemiBold.ttf"; sourceTree = "<group>"; };
-		18E8B2B32A52DC960065205F /* FiraSansCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Medium.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Medium.ttf"; sourceTree = "<group>"; };
 		1F04EB0F29BFB13600326473 /* hexa_keeper-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "hexa_keeper-Bridging-Header.h"; sourceTree = "<group>"; };
 		1F9F460E29BF980E006C129F /* libwhirlpool.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwhirlpool.a; sourceTree = "<group>"; };
 		1F9F461129BF981C006C129F /* whirlpoollib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whirlpoollib.h; sourceTree = "<group>"; };
 		1F9F461429BF9DCC006C129F /* whirlpool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = whirlpool.m; sourceTree = "<group>"; };
 		1F9F461729BF9DE0006C129F /* whirlpool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = whirlpool.h; sourceTree = "<group>"; };
 		1F9F461A29BF9E9C006C129F /* WhirlpoolHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhirlpoolHelper.swift; sourceTree = "<group>"; };
+		1FE5344D2B9735720000F97E /* FiraSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Bold.ttf"; path = "../src/assets/fonts/FiraSans-Bold.ttf"; sourceTree = "<group>"; };
+		1FE5344E2B9735720000F97E /* FiraSans-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSans-MediumItalic.ttf"; sourceTree = "<group>"; };
+		1FE5344F2B9735720000F97E /* FiraSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-LightItalic.ttf"; path = "../src/assets/fonts/FiraSans-LightItalic.ttf"; sourceTree = "<group>"; };
+		1FE534502B9735720000F97E /* FiraSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-BoldItalic.ttf"; sourceTree = "<group>"; };
+		1FE534512B9735720000F97E /* FiraSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Light.ttf"; path = "../src/assets/fonts/FiraSans-Light.ttf"; sourceTree = "<group>"; };
+		1FE534522B9735720000F97E /* FiraSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Medium.ttf"; path = "../src/assets/fonts/FiraSans-Medium.ttf"; sourceTree = "<group>"; };
+		1FE534532B9735720000F97E /* FiraSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Regular.ttf"; path = "../src/assets/fonts/FiraSans-Regular.ttf"; sourceTree = "<group>"; };
+		1FE534542B9735720000F97E /* FiraSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		1FE534552B9735720000F97E /* FiraSans-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Italic.ttf"; path = "../src/assets/fonts/FiraSans-Italic.ttf"; sourceTree = "<group>"; };
+		1FE534562B9735720000F97E /* FiraSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBold.ttf"; path = "../src/assets/fonts/FiraSans-SemiBold.ttf"; sourceTree = "<group>"; };
+		1FE5346B2B9735AE0000F97E /* FiraSans-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Italic.ttf"; path = "../src/assets/fonts/FiraSans-Italic.ttf"; sourceTree = "<group>"; };
+		1FE5346C2B9735AE0000F97E /* FiraSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Bold.ttf"; path = "../src/assets/fonts/FiraSans-Bold.ttf"; sourceTree = "<group>"; };
+		1FE5346D2B9735AF0000F97E /* FiraSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		1FE5346E2B9735AF0000F97E /* FiraSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Regular.ttf"; path = "../src/assets/fonts/FiraSans-Regular.ttf"; sourceTree = "<group>"; };
+		1FE5346F2B9735AF0000F97E /* FiraSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBold.ttf"; path = "../src/assets/fonts/FiraSans-SemiBold.ttf"; sourceTree = "<group>"; };
+		1FE534702B9735AF0000F97E /* FiraSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-LightItalic.ttf"; path = "../src/assets/fonts/FiraSans-LightItalic.ttf"; sourceTree = "<group>"; };
+		1FE534712B9735AF0000F97E /* FiraSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-BoldItalic.ttf"; sourceTree = "<group>"; };
+		1FE534722B9735AF0000F97E /* FiraSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Medium.ttf"; path = "../src/assets/fonts/FiraSans-Medium.ttf"; sourceTree = "<group>"; };
+		1FE534732B9735AF0000F97E /* FiraSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Light.ttf"; path = "../src/assets/fonts/FiraSans-Light.ttf"; sourceTree = "<group>"; };
+		1FE534742B9735AF0000F97E /* FiraSans-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSans-MediumItalic.ttf"; sourceTree = "<group>"; };
+		1FE534752B9735C30000F97E /* FiraSans-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Italic.ttf"; path = "../src/assets/fonts/FiraSans-Italic.ttf"; sourceTree = "<group>"; };
+		1FE534762B9735C30000F97E /* FiraSans-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSans-MediumItalic.ttf"; sourceTree = "<group>"; };
+		1FE534772B9735C30000F97E /* FiraSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Regular.ttf"; path = "../src/assets/fonts/FiraSans-Regular.ttf"; sourceTree = "<group>"; };
+		1FE534782B9735C30000F97E /* FiraSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		1FE534792B9735C30000F97E /* FiraSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-SemiBold.ttf"; path = "../src/assets/fonts/FiraSans-SemiBold.ttf"; sourceTree = "<group>"; };
+		1FE5347A2B9735C30000F97E /* FiraSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-LightItalic.ttf"; path = "../src/assets/fonts/FiraSans-LightItalic.ttf"; sourceTree = "<group>"; };
+		1FE5347B2B9735C30000F97E /* FiraSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Light.ttf"; path = "../src/assets/fonts/FiraSans-Light.ttf"; sourceTree = "<group>"; };
+		1FE5347C2B9735C30000F97E /* FiraSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Bold.ttf"; path = "../src/assets/fonts/FiraSans-Bold.ttf"; sourceTree = "<group>"; };
+		1FE5347D2B9735C30000F97E /* FiraSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSans-BoldItalic.ttf"; sourceTree = "<group>"; };
+		1FE5347E2B9735C30000F97E /* FiraSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSans-Medium.ttf"; path = "../src/assets/fonts/FiraSans-Medium.ttf"; sourceTree = "<group>"; };
 		29E22B5DB7AECA50FC8D0AA8 /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
 		6DD42B3C94F52AF95BF46A35 /* libPods-hexa_keeper_dev.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper_dev.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = hexa_keeper/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -211,24 +234,36 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */,
-				18E8B2B32A52DC960065205F /* FiraSansCondensed-Medium.ttf */,
-				18E8B2B12A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf */,
-				1882E89A2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf */,
-				1882E8922A4C338A009C9E0C /* FiraSansCondensed-Bold.ttf */,
-				1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */,
-				1882E8902A4C338A009C9E0C /* FiraSansCondensed-Italic.ttf */,
-				183722082A651CBD00120228 /* FiraSansCondensed-Bold.ttf */,
-				1837220A2A651CBD00120228 /* FiraSansCondensed-Italic.ttf */,
-				1882E8912A4C338A009C9E0C /* FiraSansCondensed-Light.ttf */,
-				1882E8942A4C338A009C9E0C /* FiraSansCondensed-LightItalic.ttf */,
-				1837220C2A651CBD00120228 /* FiraSansCondensed-Medium.ttf */,
-				1882E88F2A4C338A009C9E0C /* FiraSansCondensed-MediumItalic.ttf */,
-				1837220B2A651CBD00120228 /* FiraSansCondensed-MediumItalic.ttf */,
-				1882E8932A4C338A009C9E0C /* FiraSansCondensed-Regular.ttf */,
-				183722072A651CBD00120228 /* FiraSansCondensed-Light.ttf */,
-				183722092A651CBD00120228 /* FiraSansCondensed-Regular.ttf */,
-				1837220D2A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf */,
+				1FE5344D2B9735720000F97E /* FiraSans-Bold.ttf */,
+				1FE534502B9735720000F97E /* FiraSans-BoldItalic.ttf */,
+				1FE5346C2B9735AE0000F97E /* FiraSans-Bold.ttf */,
+				1FE534712B9735AF0000F97E /* FiraSans-BoldItalic.ttf */,
+				1FE5347C2B9735C30000F97E /* FiraSans-Bold.ttf */,
+				1FE5347D2B9735C30000F97E /* FiraSans-BoldItalic.ttf */,
+				1FE534552B9735720000F97E /* FiraSans-Italic.ttf */,
+				1FE534512B9735720000F97E /* FiraSans-Light.ttf */,
+				1FE534732B9735AF0000F97E /* FiraSans-Light.ttf */,
+				1FE5347B2B9735C30000F97E /* FiraSans-Light.ttf */,
+				1FE5344F2B9735720000F97E /* FiraSans-LightItalic.ttf */,
+				1FE534522B9735720000F97E /* FiraSans-Medium.ttf */,
+				1FE5347A2B9735C30000F97E /* FiraSans-LightItalic.ttf */,
+				1FE5347E2B9735C30000F97E /* FiraSans-Medium.ttf */,
+				1FE5344E2B9735720000F97E /* FiraSans-MediumItalic.ttf */,
+				1FE534702B9735AF0000F97E /* FiraSans-LightItalic.ttf */,
+				1FE534722B9735AF0000F97E /* FiraSans-Medium.ttf */,
+				1FE534742B9735AF0000F97E /* FiraSans-MediumItalic.ttf */,
+				1FE534532B9735720000F97E /* FiraSans-Regular.ttf */,
+				1FE534562B9735720000F97E /* FiraSans-SemiBold.ttf */,
+				1FE5346E2B9735AF0000F97E /* FiraSans-Regular.ttf */,
+				1FE5346F2B9735AF0000F97E /* FiraSans-SemiBold.ttf */,
+				1FE534792B9735C30000F97E /* FiraSans-SemiBold.ttf */,
+				1FE534542B9735720000F97E /* FiraSans-SemiBoldItalic.ttf */,
+				1FE5346B2B9735AE0000F97E /* FiraSans-Italic.ttf */,
+				1FE5346D2B9735AF0000F97E /* FiraSans-SemiBoldItalic.ttf */,
+				1FE534752B9735C30000F97E /* FiraSans-Italic.ttf */,
+				1FE534762B9735C30000F97E /* FiraSans-MediumItalic.ttf */,
+				1FE534772B9735C30000F97E /* FiraSans-Regular.ttf */,
+				1FE534782B9735C30000F97E /* FiraSans-SemiBoldItalic.ttf */,
 				F4F7F75B2A0558220027FE4C /* keepScreenAwake */,
 				1F9F461229BF9D5D006C129F /* whirlpool */,
 				13B07FAE1A68108700A75B9A /* hexa_keeper */,
@@ -418,15 +453,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				183722102A651CBD00120228 /* FiraSansCondensed-Light.ttf in Resources */,
-				183722112A651CBD00120228 /* FiraSansCondensed-Bold.ttf in Resources */,
-				183722122A651CBD00120228 /* FiraSansCondensed-Regular.ttf in Resources */,
-				183722132A651CBD00120228 /* FiraSansCondensed-Italic.ttf in Resources */,
-				183A61952A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */,
-				183722142A651CBD00120228 /* FiraSansCondensed-Medium.ttf in Resources */,
-				183722152A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf in Resources */,
-				183722162A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf in Resources */,
-				183722172A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf in Resources */,
+				1FE5345F2B9735720000F97E /* FiraSans-Italic.ttf in Resources */,
+				1FE534572B9735720000F97E /* FiraSans-Bold.ttf in Resources */,
+				1FE5345E2B9735720000F97E /* FiraSans-SemiBoldItalic.ttf in Resources */,
+				1FE5345D2B9735720000F97E /* FiraSans-Regular.ttf in Resources */,
+				1FE534602B9735720000F97E /* FiraSans-SemiBold.ttf in Resources */,
+				1FE534592B9735720000F97E /* FiraSans-LightItalic.ttf in Resources */,
+				1FE5345A2B9735720000F97E /* FiraSans-BoldItalic.ttf in Resources */,
+				1FE5345C2B9735720000F97E /* FiraSans-Medium.ttf in Resources */,
+				1FE5345B2B9735720000F97E /* FiraSans-Light.ttf in Resources */,
+				1FE534582B9735720000F97E /* FiraSans-MediumItalic.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */,
@@ -439,6 +475,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FE534632B9735880000F97E /* FiraSans-Italic.ttf in Resources */,
+				1FE534672B9735880000F97E /* FiraSans-MediumItalic.ttf in Resources */,
+				1FE534682B9735880000F97E /* FiraSans-Regular.ttf in Resources */,
+				1FE5346A2B9735880000F97E /* FiraSans-SemiBoldItalic.ttf in Resources */,
+				1FE534692B9735880000F97E /* FiraSans-SemiBold.ttf in Resources */,
+				1FE534652B9735880000F97E /* FiraSans-LightItalic.ttf in Resources */,
+				1FE534642B9735880000F97E /* FiraSans-Light.ttf in Resources */,
+				1FE534612B9735880000F97E /* FiraSans-Bold.ttf in Resources */,
+				1FE534622B9735880000F97E /* FiraSans-BoldItalic.ttf in Resources */,
+				1FE534662B9735880000F97E /* FiraSans-Medium.ttf in Resources */,
 				F4F207EE2849D20A005E79DA /* GoogleService-Info.plist in Resources */,
 				F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */,
 				F49B77E92848DF5200F9AFBD /* Images.xcassets in Resources */,
@@ -765,7 +811,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 303;
+				CURRENT_PROJECT_VERSION = 304;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -897,7 +943,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 303;
+				CURRENT_PROJECT_VERSION = 304;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1160,7 +1206,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 303;
+				CURRENT_PROJECT_VERSION = 304;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -1295,7 +1341,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 303;
+				CURRENT_PROJECT_VERSION = 304;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
