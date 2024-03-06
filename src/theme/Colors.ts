@@ -51,7 +51,7 @@ const Colors = {
   RussetBrownLight: 'rgba(210, 194, 179, 1)',
   MintWhisper: 'rgba(45, 103, 89, 0.08)',
   // GreenishGrey: 'rgba(62, 82, 77, 1)',
-  brownColor: 'rgba(145, 120, 92, 1)',
+  // brownColor: 'rgba(145, 120, 92, 1)',
   learMoreTextcolor: 'rgba(242, 237, 230, 1)',
   Linen: 'rgba(240, 235, 230, 1)',
   LightBrown: 'rgba(145, 120, 93, 0.08)',
