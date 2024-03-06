@@ -39,7 +39,7 @@ function SignerCard({
         </Text>
         <Text
           style={styles.walletDescription}
-          color={isSelected ? `${colorMode}.white` : `${colorMode}.GreenishGrey`}
+          color={isSelected ? `${colorMode}.white` : `${colorMode}.secondaryText`}
           numberOfLines={1}
         >
           {walletDescription}

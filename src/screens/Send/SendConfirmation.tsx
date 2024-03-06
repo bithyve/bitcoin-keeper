@@ -292,9 +292,8 @@ function SendingPriority({
                     isSelected={transactionPriority === priority}
                     key={priority}
                     name={String(priority)}
-                    description={`~${
-                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                    } mins`}
+                    description={`~${txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                      } mins`}
                     numberOfLines={2}
                     onCardSelect={() => setTransactionPriority(priority)}
                     customStyle={{
@@ -465,7 +464,7 @@ function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance
               <Box style={styles.transSatsFeeWrapper}>
                 {getSatUnit() === 'sats' ? <BTC /> : <Text style={{ fontSize: 8 }}>$</Text>}
                 &nbsp;
-                <Text color={`${colorMode}.GreenishGrey`} style={styles.transSatsFeeText}>
+                <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
                   {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
                 </Text>
               </Box>

@@ -118,9 +118,8 @@ function ChoosePlan() {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${
-                subscription.introductoryPriceNumberOfPeriodsIOS
-              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
+                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -249,7 +248,7 @@ function ChoosePlan() {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => {},
+              onPress: () => { },
               style: 'cancel',
             },
             {
@@ -310,9 +309,8 @@ function ChoosePlan() {
       }
     }
     if (trial) {
-      return `Start your ${trial} FREE trial now! Then ${amount} per ${
-        isMonthly ? 'month' : 'year'
-      }, cancel anytime`;
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${isMonthly ? 'month' : 'year'
+        }, cancel anytime`;
     } else {
       return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
     }
@@ -365,11 +363,11 @@ function ChoosePlan() {
         title={choosePlan.choosePlantitle}
         mediumTitle
         subtitle="Upgrade or downgrade"
-        // To-Do-Learn-More
+      // To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}
-        close={() => {}}
+        close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -378,7 +376,7 @@ function ChoosePlan() {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => {}}
+        buttonCallback={() => { }}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
@@ -441,7 +439,7 @@ function ChoosePlan() {
               </Box>
             </Box>
             {items?.[currentPosition]?.name !== 'Pleb' && (
-              <Text style={styles.comingSoonText} color={`${colorMode}.GreenishGrey`}>
+              <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
                 * COMING SOON
               </Text>
             )}

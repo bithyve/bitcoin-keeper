@@ -51,7 +51,7 @@ function ActionCard({
           {cardName}
         </Text>
         {description && (
-          <Text fontSize={11} numberOfLines={2} color={`${colorMode}.GreenishGrey`}>
+          <Text fontSize={11} numberOfLines={2} color={`${colorMode}.secondaryText`}>
             {description}
           </Text>
         )}

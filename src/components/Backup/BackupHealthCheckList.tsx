@@ -122,7 +122,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
               >
                 <DotView height={2} width={2} color={`${colorMode}.RussetBrown`} />
               </Box>
-              <Text color={`${colorMode}.GreenishGrey`} fontSize={12} bold ml={5} opacity={0.7}>
+              <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
                 {replaceText(item?.title)}
               </Text>
               <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
