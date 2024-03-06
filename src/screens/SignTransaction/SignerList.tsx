@@ -59,12 +59,9 @@ function SignerList({
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
-                {`${getSignerNameFromType(
-                  signer.type,
-                  signer.isMock,
-                  isAMF,
-                  signer.extraData?.instanceNumber
-                )} (${signer.masterFingerprint})`}
+                {`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} (${
+                  signer.masterFingerprint
+                })`}
               </Text>
               <Text color="light.GreyText" fontSize={12} marginRight={10} letterSpacing={0.6}>
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}

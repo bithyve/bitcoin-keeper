@@ -152,10 +152,10 @@ const getSignerContent = (
           'Within settings choose Show co-signer Details to scan the QR',
         ],
         title: 'Keep your Device Ready',
-        subTitle: 'Keep your App Key ready before proceeding',
+        subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
         options: [
           {
-            title: 'Import an App Key',
+            title: `Import a ${getSignerNameFromType(type)}`,
             icon: (
               <CircleIconWrapper
                 icon={<Import />}
@@ -166,7 +166,7 @@ const getSignerContent = (
             name: KeyGenerationMode.IMPORT,
           },
           {
-            title: 'Add a New App Key',
+            title: `Add a New ${getSignerNameFromType(type)}`,
             icon: (
               <CircleIconWrapper
                 icon={<Add />}
@@ -389,7 +389,7 @@ const getSignerContent = (
           'Make sure you secure the 12-word phrase in a safe place.',
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
-        title: isHealthcheck ? 'Verify App Key' : 'Setting up Seed Key',
+        title: isHealthcheck ? `Verify ${getSignerNameFromType(type)}` : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
       };
     default:
