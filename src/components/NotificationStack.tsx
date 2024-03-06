@@ -252,7 +252,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
           heading: 'Backup recovery key',
-          body: 'Backup of recovery key is pending',
+          body: 'Backup of Recovery Key is pending',
           btnConfig: {
             primary: {
               text: 'Continue',

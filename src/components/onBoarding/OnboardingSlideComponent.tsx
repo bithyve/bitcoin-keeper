@@ -11,7 +11,7 @@ function OnboardingSlideComponent(props) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
-        <Text fontSize={20} color="light.primaryBackground" textAlign="center" letterSpacing={1.8}>
+        <Text fontSize={20} color="light.primaryBackground" textAlign="center" letterSpacing={0.2}>
           {props.title}
         </Text>
       </Box>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   paragraphText: {
     fontSize: 14,
     textAlign: 'center',
-    letterSpacing: 1.4,
+    letterSpacing: 0.14,
     marginHorizontal: 5,
     opacity: 1,
   },

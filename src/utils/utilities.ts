@@ -147,3 +147,8 @@ export function numberToOrdinal(number) {
 
   return number + suffix;
 }
+
+// Format number with comma
+// Example: 1000000 => 1,000,000
+export const formatNumber = (value: string) =>
+  value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');

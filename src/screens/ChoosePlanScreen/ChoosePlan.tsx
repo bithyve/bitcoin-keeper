@@ -395,7 +395,7 @@ function ChoosePlan() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ height: '70%', marginVertical: 0 }}
+          style={{ height: '100%', marginVertical: 0 }}
         >
           <ChoosePlanCarousel
             data={items}
