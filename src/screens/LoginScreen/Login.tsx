@@ -337,46 +337,8 @@ function LoginScreen({ navigation, route }) {
 
   function NoInternetModalContent() {
     return (
-      <Box width={wp(250)}>
+      <Box style={styles.noInternetModalContainer}>
         {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
-        {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
-        <Box mt={10} alignItems="center" flexDirection="row">
-          <TouchableOpacity
-            style={[styles.cancelBtn]}
-            onPress={() => {
-              setLoginError(false);
-              setLogging(false);
-              dispatch(setRecepitVerificationError(false));
-              resetToPleb();
-            }}
-            activeOpacity={0.5}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              Continue as Pleb
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              setLoginError(false);
-              setLogging(true);
-              dispatch(setRecepitVerificationError(false));
-            }}
-          >
-            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box
-                style={[styles.createBtn]}
-                paddingLeft={10}
-                paddingRight={10}
-                backgroundColor={`${colorMode}.greenButtonBackground`}
-              >
-                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-                  Retry
-                </Text>
-              </Box>
-            </Shadow>
-          </TouchableOpacity>
-        </Box>
       </Box>
     );
   }
@@ -531,7 +493,7 @@ function LoginScreen({ navigation, route }) {
         buttonTextColor={`${colorMode}.white`}
         showButtons
         Content={LoginModalContent}
-        subTitleWidth={wp(300)}
+        subTitleWidth={wp(280)}
       />
 
       <KeeperModal
@@ -544,9 +506,21 @@ function LoginScreen({ navigation, route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        subTitleWidth={wp(210)}
-        showCloseIcon={false}
+        subTitleWidth={wp(230)}
         showButtons
+        buttonText={'Retry'}
+        buttonCallback={() => {
+          setLoginError(false);
+          setLogging(true);
+          dispatch(setRecepitVerificationError(false));
+        }}
+        secondaryButtonText={'Continue as Pleb'}
+        secondaryCallback={() => {
+          setLoginError(false);
+          setLogging(false);
+          dispatch(setRecepitVerificationError(false));
+          resetToPleb();
+        }}
       />
       <KeeperModal
         visible={incorrectPassword}
@@ -645,12 +619,18 @@ const styles = StyleSheet.create({
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
+    letterSpacing: 0.13,
   },
   modalMessageWrapper: {
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+  },
+  noInternetModalContainer: {
+    width: wp(200),
+    alignItems: 'center',
+    marginTop: hp(20),
+    marginBottom: hp(60),
   },
 });
 
