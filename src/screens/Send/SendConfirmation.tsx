@@ -862,11 +862,11 @@ function SendConfirmation({ route }) {
           title={walletTransactions.total}
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
-              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee))
+              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(2)
               : addNumbers(
                   getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
                   getBalance(amount)
-                )
+                ).toFixed(2)
           }
           fontSize={17}
           fontWeight="400"
