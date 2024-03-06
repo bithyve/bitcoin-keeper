@@ -162,8 +162,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Pressable
-        backgroundColor={`${colorMode}.brownColor`}
-        borderColor={`${colorMode}.brownColor`}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
+        borderColor={`${colorMode}.BrownNeedHelp`}
         style={styles.learnMoreContainer}
       // learn more modal
       >

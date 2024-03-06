@@ -66,8 +66,8 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
         </Box>
         <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID="btnHide">
           <Box
-            borderColor="light.RussetBrown"
-            backgroundColor="light.RussetBrown"
+            borderColor="light.BrownNeedHelp"
+            backgroundColor="light.BrownNeedHelp"
             style={styles.learnMoreContainer}
           >
             {isHidden ? <ShowIcon /> : <HideWalletIcon />}
@@ -220,9 +220,9 @@ function ManageWallets() {
             onBtnPress={
               item.presentationData.visibility === VisibilityType.HIDDEN
                 ? () => {
-                    setConfirmPassVisible(true);
-                    setSelectedWallet(item);
-                  }
+                  setConfirmPassVisible(true);
+                  setSelectedWallet(item);
+                }
                 : () => updateWalletVisibility(item, true)
             }
           />
@@ -234,7 +234,7 @@ function ManageWallets() {
       {/* TODO: showAll/hideAll wallet functionality
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
+        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.bottomIcon}>
           <ShowAllIcon />
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>

@@ -26,9 +26,9 @@ function SignerCard({
       style={styles.walletContainer}
       onPress={() => onCardSelect(walletName)}
     >
-      <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle} />
+      <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle} />
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.iconWrapper}>
+        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.iconWrapper}>
           {icon}
         </Box>
         <Text

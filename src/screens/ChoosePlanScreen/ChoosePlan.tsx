@@ -460,7 +460,7 @@ function ChoosePlan() {
           onPress={restorePurchases}
           testID="btn_restorePurchases"
           borderColor={`${colorMode}.learnMoreBorder`}
-          backgroundColor={`${colorMode}.RussetBrown`}
+          backgroundColor={`${colorMode}.BrownNeedHelp`}
           style={styles.restorePurchaseWrapper}
         >
           <Text
