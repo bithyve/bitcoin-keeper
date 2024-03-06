@@ -587,7 +587,6 @@ function SendConfirmation({ route }) {
     }[];
     selectedUTXOs: UTXO[];
   } = route.params;
-
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -596,6 +595,8 @@ function SendConfirmation({ route }) {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item.id === walletId);
+  const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
+
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
@@ -824,26 +825,44 @@ function SendConfirmation({ route }) {
           getBalance={getBalance}
           getSatUnit={getSatUnit}
         />
-        <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
-          <TransactionPriorityDetails
-            transactionPriority={transactionPriority}
-            txFeeInfo={txFeeInfo}
-            getBalance={getBalance}
-            getSatUnit={getSatUnit}
-          />
-        </TouchableOpacity>
-        <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
+        {/* Custom priority diabled for auto transfer  */}
+        {transferType !== TransferType.WALLET_TO_VAULT ? (
+          <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+            <TransactionPriorityDetails
+              transactionPriority={transactionPriority}
+              txFeeInfo={txFeeInfo}
+              getBalance={getBalance}
+              getSatUnit={getSatUnit}
+            />
+          </TouchableOpacity>
+        ) : null}
+        <AmountDetails
+          title={walletTransactions.totalAmount}
+          satsAmount={
+            transferType === TransferType.WALLET_TO_VAULT
+              ? getBalance(sourceWalletAmount)
+              : getBalance(amount)
+          }
+        />
         <AmountDetails
           title={walletTransactions.totalFees}
-          satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+          satsAmount={
+            transferType === TransferType.WALLET_TO_VAULT
+              ? getBalance(sendMaxFee)
+              : getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)
+          }
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
         <AmountDetails
           title={walletTransactions.total}
-          satsAmount={addNumbers(
-            getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-            getBalance(amount)
-          )}
+          satsAmount={
+            transferType === TransferType.WALLET_TO_VAULT
+              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee))
+              : addNumbers(
+                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                  getBalance(amount)
+                )
+          }
           fontSize={17}
           fontWeight="400"
         />
@@ -872,9 +891,9 @@ function SendConfirmation({ route }) {
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
-            amount={amount}
+            amount={amount || sourceWalletAmount}
             sender={sender || sourceWallet}
-            recipient={recipient}
+            recipient={recipient || defaultVault}
             getSatUnit={getSatUnit}
           />
         )}
