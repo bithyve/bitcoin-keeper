@@ -26,7 +26,7 @@ function SigningDeviceChecklist({ item }: { item: Signer }) {
             padding={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color={`${colorMode}.RussetBrown`} />
+            <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
           </Box>
           <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
             Health Check Successful

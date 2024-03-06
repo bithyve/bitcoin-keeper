@@ -362,8 +362,8 @@ function AddSendAmount({ route }) {
                     );
                   }
                 }}
-                borderColor={`${colorMode}.RussetBrown`}
-                backgroundColor={`${colorMode}.RussetBrown`}
+                borderColor={`${colorMode}.BrownNeedHelp`}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
                 style={styles.sendMaxWrapper}
               >
                 <Text

@@ -270,7 +270,7 @@ function SigningDeviceDetails({ route }) {
         width="12"
         height="12"
         borderRadius={30}
-        backgroundColor={`${colorMode}.RussetBrown`}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
         justifyContent="center"
         alignItems="center"
       >
