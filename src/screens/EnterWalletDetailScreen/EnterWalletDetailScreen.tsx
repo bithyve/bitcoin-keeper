@@ -30,6 +30,8 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Breadcrumbs from 'src/components/Breadcrumbs';
+import { formatNumber } from 'src/utils/utilities';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ navigation, route }) {
@@ -38,7 +40,6 @@ function EnterWalletDetailScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { translations } = useContext(LocalizationContext);
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
@@ -115,11 +116,6 @@ function EnterWalletDetailScreen({ navigation, route }) {
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError]);
-
-  // Format number with comma
-  // Example: 1000000 => 1,000,000
-  const formatNumber = (value: string) =>
-    value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   function FailedModalContent() {
     return (
@@ -201,7 +197,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
                 {getCurrencyImageByRegion(
                   currencyCode,
                   'dark',
-                  currentCurrency,
+                  CurrencyKind.BITCOIN,
                   colorMode === 'light' ? BitcoinInput : BitcoinWhite
                 )}
               </Box>

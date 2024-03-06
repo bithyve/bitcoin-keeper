@@ -10,7 +10,7 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.walletWrapper}>
-      <HStack color={`${colorMode}.black`} space={2}>
+      <HStack color={`${colorMode}.black`} space={1}>
         <Text style={styles.noOfWallet} bold>
           {count}
         </Text>

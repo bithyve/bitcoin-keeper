@@ -117,7 +117,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <MobileKeyIllustration />,
         description:
           '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
-        FAQ: 'https://help.bitcoinkeeper.app/knowledge-base/how-to-add-signing-devices/',
+        FAQ: 'https://help.bitcoinkeeper.app/hc/en-us',
       };
     case SignerType.SEED_WORDS:
       return {
@@ -184,7 +184,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <InhertanceKeyIcon />,
         description:
           '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
-        FAQ: `${KEEPER_KNOWLEDGEBASE}hc/en-us/sections/17238611956253-Inheritance`,
+        FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
       };
     default:
       return {

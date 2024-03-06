@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/icon_share.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
@@ -43,16 +43,16 @@ function GenerateVaultDescriptor() {
             Share
           </Text>
         </TouchableOpacity>
-      </Box>
-      <Box style={styles.bottom}>
         <Box style={{ paddingBottom: '10%' }}>
           <ShareWithNfc data={descriptorString} />
         </Box>
       </Box>
-      <Note
-        subtitle="Save the file with .bsms extension to import it in other cordinating apps"
-        subtitleColor="GreyText"
-      />
+      <Box style={styles.noteContainer}>
+        <Note
+          subtitle="Save the file with .bsms extension to import it in other cordinating apps"
+          subtitleColor="GreyText"
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     flex: 1,
-    marginTop: '10%',
+    marginTop: hp(20),
   },
   inputWrapper: {
     borderRadius: 10,
@@ -74,15 +74,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 15,
   },
-  bottom: {
-    alignItems: 'flex-end',
-    marginVertical: '20%',
-    margin: '5%',
-  },
   buttonContainer: {
     borderColor: Colors.Seashell,
-    marginTop: 5,
-    paddingTop: 20,
+    marginVertical: hp(15),
     borderTopWidth: 0.5,
     alignItems: 'center',
   },
@@ -91,5 +85,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
     marginVertical: 2.5,
     paddingLeft: 3,
+  },
+  noteContainer: {
+    marginHorizontal: 10,
   },
 });
