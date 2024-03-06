@@ -12,10 +12,8 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import ShowIcon from 'src/assets/images/show.svg';
-import ShowAllIcon from 'src/assets/images/eye_folder.svg';
-import AlignIcon from 'src/assets/images/align_right.svg';
 import dbManager from 'src/storage/realm/dbManager';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
 import KeeperModal from 'src/components/KeeperModal';
 import { useQuery } from '@realm/react';
@@ -138,7 +136,7 @@ function ManageWallets() {
     const { id, entityKind, specs } = wallet;
     const isWallet = entityKind === EntityKind.WALLET;
 
-    if (hide && checkBalance && specs.balances.confirmed > 0) {
+    if (hide && checkBalance && specs.balances.confirmed + specs.balances.unconfirmed > 0) {
       setShowBalanceAlert(true);
       setSelectedWallet(wallet);
       return;
@@ -146,7 +144,6 @@ function ManageWallets() {
 
     try {
       const visibilityType = hide ? VisibilityType.HIDDEN : VisibilityType.DEFAULT;
-      console.log({ visibilityType });
       const schema = isWallet ? RealmSchema.Wallet : RealmSchema.Vault;
 
       dbManager.updateObjectById(schema, id, {
@@ -187,10 +184,7 @@ function ManageWallets() {
           <TouchableOpacity
             onPress={() => {
               setShowBalanceAlert(false);
-              const walletIndex = visibleWallets.findIndex(
-                (wallet) => wallet.id === selectedWallet.id
-              );
-              navigation.navigate('WalletDetails', { walletId: selectedWallet.id, walletIndex });
+              navigation.dispatch(CommonActions.navigate('Send', { sender: selectedWallet }));
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
