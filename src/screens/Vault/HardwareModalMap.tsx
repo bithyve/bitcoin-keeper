@@ -148,14 +148,14 @@ const getSignerContent = (
         type: SignerType.KEEPER,
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a wallet or create a new one from your Hot Wallets',
-          'Within settings choose Show co-signer Details to scan the QR',
+          'Choose a Mobile Key from your Keeper app (create) or from another Keeper app (import)',
+          'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
         title: 'Keep your Device Ready',
-        subTitle: 'Keep your App Key ready before proceeding',
+        subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
         options: [
           {
-            title: 'Import an App Key',
+            title: `Import a ${getSignerNameFromType(type)}`,
             icon: (
               <CircleIconWrapper
                 icon={<Import />}
@@ -166,7 +166,7 @@ const getSignerContent = (
             name: KeyGenerationMode.IMPORT,
           },
           {
-            title: 'Add a New App Key',
+            title: `Add a New ${getSignerNameFromType(type)}`,
             icon: (
               <CircleIconWrapper
                 icon={<Add />}

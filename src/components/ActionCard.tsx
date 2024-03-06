@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: 34 / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: hp(25),
+    marginTop: '4%',
     marginBottom: hp(10),
     marginLeft: 2,
   },
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.12,
   },
   cardPillContainer: {
-    width: 80,
+    maxWidth: wp(100),
     alignSelf: 'flex-end',
   },
 });

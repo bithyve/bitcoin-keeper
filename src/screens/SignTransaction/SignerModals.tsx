@@ -33,6 +33,7 @@ import * as SecureStore from 'src/storage/secure-store';
 import Buttons from 'src/components/Buttons';
 import useAsync from 'src/hooks/useAsync';
 import Instruction from 'src/components/Instruction';
+import { getSignerNameFromType } from 'src/hardware';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -745,7 +746,7 @@ function SignerModals({
                 setKeeperModal(false);
               }}
               title="Keep your Device Ready"
-              subTitle="Keep your App Key ready before proceeding"
+              subTitle={`Keep your ${getSignerNameFromType(signer.type)} ready before proceeding`}
               textColor="light.primaryText"
               Content={() => <KeeperContent />}
               buttonText="Proceed"

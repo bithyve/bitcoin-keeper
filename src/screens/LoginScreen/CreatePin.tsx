@@ -153,7 +153,7 @@ export default function CreatePin(props) {
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
           You would be locked out of the app if you forget your passcode and will have to recover it
         </Text>
       </Box>
@@ -206,7 +206,7 @@ export default function CreatePin(props) {
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color={`${colorMode}.error`} style={styles.errorText}>
+                    <Text color={`${colorMode}.error`} italic style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}
@@ -233,7 +233,7 @@ export default function CreatePin(props) {
       </Box>
       <KeeperModal
         visible={createPassword}
-        close={() => { }}
+        close={() => {}}
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
         Key"
@@ -273,17 +273,19 @@ const styles = StyleSheet.create({
   welcomeText: {
     marginLeft: 18,
     fontSize: 22,
+    letterSpacing: 0.22,
+    lineHeight: 27,
   },
   labelText: {
     fontSize: 14,
+    letterSpacing: 0.14,
     marginLeft: 18,
   },
   errorText: {
     fontSize: 11,
-    fontWeight: '400',
+    letterSpacing: 0.22,
     width: wp('68%'),
     textAlign: 'right',
-    fontStyle: 'italic',
   },
   bitcoinTestnetText: {
     fontWeight: '400',
@@ -293,7 +295,7 @@ const styles = StyleSheet.create({
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
+    letterSpacing: 0.13,
   },
   passImg: {
     alignItems: 'center',
