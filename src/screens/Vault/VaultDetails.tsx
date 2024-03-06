@@ -99,7 +99,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
       <HStack style={styles.pillsContainer}>
         <CardPill
           heading={`${vault.scheme.m} of ${vault.scheme.n}`}
-          backgroundColor={`${colorMode}.PaleTurquoise`}
+          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
         />
         <CardPill
           heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
