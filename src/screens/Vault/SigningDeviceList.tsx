@@ -141,7 +141,11 @@ function SigningDeviceList() {
               <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
-                <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText} numberOfLines={2}>
+                <Text
+                  color={`${colorMode}.inActiveMsg`}
+                  style={styles.messageText}
+                  numberOfLines={2}
+                >
                   {message}
                 </Text>
               </Box>
@@ -229,7 +233,7 @@ function SigningDeviceList() {
           DarkCloseIcon
           learnMore
           learnMoreCallback={() =>
-            openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)
+            openLink(`${KEEPER_KNOWLEDGEBASE}hc/en-us/categories/17221731732765-Keys-and-Signers`)
           }
         />
       </Box>
