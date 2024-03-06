@@ -12,7 +12,7 @@ function SigningDeviceChecklist({ item }: { item: Signer }) {
       {item && (
         <Box
           padding={1}
-          borderLeftColor={`${colorMode}.RussetBrownLight`}
+          borderLeftColor={`${colorMode}.RecoveryBorderColor`}
           borderLeftWidth={1}
           width="100%"
           position="relative"
@@ -22,7 +22,7 @@ function SigningDeviceChecklist({ item }: { item: Signer }) {
             zIndex={99}
             position="absolute"
             left={-8}
-            backgroundColor={`${colorMode}.RussetBrownLight`}
+            backgroundColor={`${colorMode}.RecoveryBorderColor`}
             padding={1}
             borderRadius={15}
           >

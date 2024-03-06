@@ -106,7 +106,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
             <Box
               padding={1}
               marginLeft={2}
-              borderLeftColor={`${colorMode}.RussetBrownLight`}
+              borderLeftColor={`${colorMode}.RecoveryBorderColor`}
               borderLeftWidth={1}
               width="100%"
               position="relative"
@@ -116,7 +116,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
                 zIndex={999}
                 position="absolute"
                 left={-8}
-                backgroundColor={`${colorMode}.RussetBrownLight`}
+                backgroundColor={`${colorMode}.RecoveryBorderColor`}
                 padding={1}
                 borderRadius={15}
               >
