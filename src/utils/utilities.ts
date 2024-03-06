@@ -124,3 +124,8 @@ export const emailCheck = (email) => {
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
   return reg.test(email);
 };
+
+// Format number with comma
+// Example: 1000000 => 1,000,000
+export const formatNumber = (value: string) =>
+  value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');

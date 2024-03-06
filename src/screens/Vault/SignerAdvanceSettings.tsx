@@ -408,9 +408,7 @@ function SignerAdvanceSettings({ route }: any) {
       />
       <ScrollView
         contentContainerStyle={{
-          flex: 1,
-          paddingTop: '10%',
-          paddingBottom: 20,
+          paddingTop: hp(10),
         }}
       >
         <OptionCard
@@ -421,7 +419,7 @@ function SignerAdvanceSettings({ route }: any) {
         {isInheritanceKey && vaultId && (
           <OptionCard
             title="Registered Email"
-            description="Delete or Edit registered email"
+            description="View, change or delete"
             callback={() => {
               setEditEmailModal(true);
             }}
@@ -436,7 +434,7 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         <OptionCard
           title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
-          description="Identify your signer type for enhanced connectivity and communication"
+          description="Select from signer list"
           callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
         />
         {isPolicyServer && vaultId && (
@@ -480,7 +478,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToScanPSBT}
           />
         )}
-        <Box ml={2} style={{ marginVertical: 20 }}>
+        <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
         <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
@@ -707,5 +705,9 @@ const styles = StyleSheet.create({
   },
   fingerprint: {
     alignItems: 'center',
+  },
+  signerText: {
+    marginVertical: hp(15),
+    marginHorizontal: 10,
   },
 });

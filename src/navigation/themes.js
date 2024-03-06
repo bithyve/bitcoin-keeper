@@ -62,7 +62,7 @@ export const customTheme = extendTheme({
       modalGreenTitle: Colors.Black,
       modalAccentTitle: Colors.Black,
       modalWhiteButton: Colors.White,
-      modalWhiteButtonText: Colors.greenText,
+      modalWhiteButtonText: Colors.pantoneGreen,
       modalGreenLearnMore: Colors.CastelGreenDark,
       greenButtonBackground: Colors.pantoneGreen,
       choosePlanHome: Colors.White,

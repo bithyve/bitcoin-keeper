@@ -11,7 +11,7 @@ function InheritanceDownloadView(props) {
   return (
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.iconWrapper}>{props.icon}</Box>
-      <Box style={styles.titleWrapper}>
+      <Box style={[styles.titleWrapper, props.disableCallback && { width: '100%' }]}>
         <Text color={`${colorMode}.primaryText`} style={styles.titleText}>
           {props.title}
         </Text>
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     width: '57%',
-    flex: 1,
   },
   btnWrapper: {
     width: '30%',

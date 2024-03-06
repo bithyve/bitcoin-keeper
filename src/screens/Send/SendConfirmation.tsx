@@ -433,7 +433,12 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
     </>
   );
 }
-function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance, getSatUnit }) {
+function TransactionPriorityDetails({
+  transactionPriority,
+  txFeeInfo,
+  getBalance,
+  getCurrencyIcon,
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -462,7 +467,7 @@ function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance
             </Text>
             <Box>
               <Box style={styles.transSatsFeeWrapper}>
-                {getSatUnit() === 'sats' ? <BTC /> : <Text style={{ fontSize: 8 }}>$</Text>}
+                {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
                 <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
                   {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
@@ -603,7 +608,7 @@ function SendConfirmation({ route }) {
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { getSatUnit, getBalance } = useBalance();
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
@@ -828,7 +833,7 @@ function SendConfirmation({ route }) {
             transactionPriority={transactionPriority}
             txFeeInfo={txFeeInfo}
             getBalance={getBalance}
-            getSatUnit={getSatUnit}
+            getCurrencyIcon={getCurrencyIcon}
           />
         </TouchableOpacity>
         <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
@@ -842,7 +847,7 @@ function SendConfirmation({ route }) {
           satsAmount={addNumbers(
             getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
             getBalance(amount)
-          )}
+          ).toFixed(2)}
           fontSize={17}
           fontWeight="400"
         />

@@ -109,7 +109,7 @@ function ShareWithNfc({ data }: { data: string }) {
       )}
       <OptionCTA
         icon={<NFCIcon />}
-        title={`or share on Tap${isIos ? ' to Anroid' : ''}`}
+        title={`or share on Tap${isIos ? ' to Android' : ''}`}
         subtitle="Bring devices close to use NFC"
         callback={shareWithNFC}
       />

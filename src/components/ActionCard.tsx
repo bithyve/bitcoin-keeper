@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.12,
   },
   cardPillContainer: {
-    width: wp(80),
+    maxWidth: wp(100),
     alignSelf: 'flex-end',
   },
 });

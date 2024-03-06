@@ -69,7 +69,7 @@ function AppSettings({ navigation, route }) {
     {
       cardName: `Need\nHelp?`,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}hc/en-us`),
+      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
   ];
 
