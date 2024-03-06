@@ -233,7 +233,7 @@ function* migrateStructureforVaultInAppImage() {
   }
 }
 
-// This function updates app keys to enable signing by generating and associating extended keys.
+// This function updates app keys/mobile keys to enable signing by generating and associating extended keys.
 function* updateAppKeysToEnableSigning() {
   try {
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
@@ -244,7 +244,7 @@ function* updateAppKeysToEnableSigning() {
     updateVaultSigners(extendedKeyMap, signers);
     updateSignerDetails(myAppKeySigners, extendedKeyMap);
   } catch (err) {
-    console.log('Error updating app keys', err);
+    console.log('Error updating mobile keys', err);
     captureError(err);
   }
 }

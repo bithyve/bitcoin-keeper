@@ -23,6 +23,8 @@ import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { numberToOrdinal } from 'src/utils/utilities';
+import moment from 'moment';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -91,6 +93,7 @@ export const generateSignerFromMetaData = ({
     signerXpubs,
     hidden: false,
     extraData: { instanceNumber: signerCount + 1 },
+    signerDescription: getSignerDescription(signerType, signerCount + 1),
   };
 
   const key: VaultSigner = {
@@ -104,12 +107,31 @@ export const generateSignerFromMetaData = ({
   return { signer, key };
 };
 
-export const getSignerNameFromType = (
-  type: SignerType,
-  isMock = false,
-  isAmf = false,
-  instanceNumber = 0
+export const getSignerDescription = (
+  signerType: SignerType,
+  instanceNumber: number,
+  signer?: Signer
 ) => {
+  if (signer) {
+    if (signer.signerDescription) {
+      return signer.signerDescription;
+    } else if (signerType === SignerType.MY_KEEPER) {
+      return numberToOrdinal(instanceNumber) + ' Key';
+    } else if (signerType === SignerType.KEEPER) {
+      return 'External';
+    } else {
+      return `Added ${moment(signer.addedOn).calendar()}`;
+    }
+  }
+  if (signerType === SignerType.MY_KEEPER) {
+    return numberToOrdinal(instanceNumber) + ' Key';
+  } else if (signerType === SignerType.KEEPER) {
+    return 'External';
+  }
+  return '';
+};
+
+export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
   let name: string;
   switch (type) {
     case SignerType.COLDCARD:
@@ -119,10 +141,10 @@ export const getSignerNameFromType = (
       name = 'Jade';
       break;
     case SignerType.MY_KEEPER:
-      name = `App Key${instanceNumber ? ' ' + instanceNumber : ''}`;
+      name = `Mobile Key`;
       break;
     case SignerType.KEEPER:
-      name = 'App Key (ext)';
+      name = 'Mobile Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -362,7 +384,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     }
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
-      return 'Use App Key as signer';
+      return 'Use Mobile Key as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';

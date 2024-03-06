@@ -10,7 +10,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import { UNVERIFYING_SIGNERS, getSignerNameFromType } from 'src/hardware';
+import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import SignerIcon from 'src/assets/images/signer_brown.svg';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -255,13 +255,12 @@ function SignersList({
                   }
                   handleCardSelect(signer, item);
                 }}
-                name={getSignerNameFromType(
+                name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+                description={getSignerDescription(
                   signer.type,
-                  signer.isMock,
-                  isAMF,
-                  signer.extraData?.instanceNumber
+                  signer.extraData?.instanceNumber,
+                  signer
                 )}
-                description={`Added ${moment(signer.addedOn).calendar()}`}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
                 isSelected={hiding ? selectedSigners.get(signer.masterFingerprint) : false}
                 showSelection={hiding}

@@ -125,6 +125,29 @@ export const emailCheck = (email) => {
   return reg.test(email);
 };
 
+export function numberToOrdinal(number) {
+  if (typeof number !== 'number' || isNaN(number)) {
+    return 'Invalid input';
+  }
+
+  if (number < 1 || number % 1 !== 0) {
+    return 'Invalid input. Please enter a positive integer.';
+  }
+
+  const specialCases = {
+    11: 'th',
+    12: 'th',
+    13: 'th',
+  };
+
+  const lastDigit = number % 10;
+  const suffix =
+    specialCases[number] ||
+    (lastDigit === 1 ? 'st' : lastDigit === 2 ? 'nd' : lastDigit === 3 ? 'rd' : 'th');
+
+  return number + suffix;
+}
+
 // Format number with comma
 // Example: 1000000 => 1,000,000
 export const formatNumber = (value: string) =>

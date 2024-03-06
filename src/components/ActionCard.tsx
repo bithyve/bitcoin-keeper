@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: 34 / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: hp(25),
+    marginTop: '4%',
     marginBottom: hp(10),
     marginLeft: 2,
   },

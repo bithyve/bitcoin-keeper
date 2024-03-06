@@ -131,8 +131,8 @@ const getSignerContent = (type: SignerType) => {
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       return {
-        title: 'Keeper as signer',
-        subTitle: 'You can use a specific BIP-85 wallet on App Key as a signer',
+        title: `${getSignerNameFromType(type)} as signer`,
+        subTitle: 'You can use a specific BIP-85 wallet on Keeper as a signer',
         assert: <KeeperSetupImage />,
         description:
           '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
@@ -333,12 +333,7 @@ function SigningDeviceDetails({ route }) {
         learnMore
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
-        title={getSignerNameFromType(
-          signer.type,
-          signer.isMock,
-          false,
-          signer.extraData?.instanceNumber
-        )}
+        title={getSignerNameFromType(signer.type, signer.isMock, false)}
         subtitle={
           signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
