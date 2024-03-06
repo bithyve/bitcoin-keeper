@@ -267,7 +267,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
-          navigation.replace('App', { screen: 'Home' });
+          setTimeout(() => {
+            navigation.replace('App', { screen: 'Home' });
+          }, 500)
         }}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(300)}
