@@ -103,7 +103,7 @@ function List() {
         >
           <Pressable
             onPress={() => {
-              openLink(`${KEEPER_KNOWLEDGEBASE}hc/en-us/sections/17237989295773-Whirlpool`);
+              openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`);
             }}
           >
             <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>

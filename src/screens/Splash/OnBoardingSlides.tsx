@@ -106,7 +106,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}>
+              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}>
                 <Box
                   borderColor="light.lightAccent"
                   backgroundColor="light.modalGreenLearnMore"

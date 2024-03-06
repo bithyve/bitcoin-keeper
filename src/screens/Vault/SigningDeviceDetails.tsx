@@ -184,7 +184,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <InhertanceKeyIcon />,
         description:
           '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
-        FAQ: `${KEEPER_KNOWLEDGEBASE}hc/en-us/sections/17238611956253-Inheritance`,
+        FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
       };
     default:
       return {

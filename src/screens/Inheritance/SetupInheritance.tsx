@@ -178,7 +178,7 @@ function SetupInheritance({ route }) {
         DarkCloseIcon
         learnMore
         learnMoreCallback={() =>
-          openLink(`${KEEPER_KNOWLEDGEBASE}hc/en-us/sections/17238611956253-Inheritance`)
+          openLink(`${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`)
         }
       />
     </ScreenWrapper>

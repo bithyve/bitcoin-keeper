@@ -233,7 +233,7 @@ function SigningDeviceList() {
           DarkCloseIcon
           learnMore
           learnMoreCallback={() =>
-            openLink(`${KEEPER_KNOWLEDGEBASE}hc/en-us/categories/17221731732765-Keys-and-Signers`)
+            openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
           }
         />
       </Box>

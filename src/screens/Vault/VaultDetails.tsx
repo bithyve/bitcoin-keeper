@@ -390,8 +390,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         learnMoreCallback={() =>
           openLink(
             isCollaborativeWallet
-              ? `${KEEPER_KNOWLEDGEBASE}hc/en-us/categories/16888602602141-Wallet`
-              : `${KEEPER_KNOWLEDGEBASE}hc/en-us/categories/17221731732765-Keys-and-Signers`
+              ? `${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`
+              : `${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`
           )
         }
       />
