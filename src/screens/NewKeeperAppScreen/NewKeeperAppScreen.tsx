@@ -140,13 +140,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Box style={{ width: windowWidth * 0.8, marginBottom: hp(20) }}>
           <LoadingAnimation />
         </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.contentText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.contentText}>
           {getSignUpModalContent().message}
         </Text>
         {!appCreated ? (
           <Box style={styles.modalMessageWrapper}>
             <Box style={{ width: '80%' }}>
-              <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+              <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
                 This step will take a few seconds. You would be able to proceed soon
               </Text>
             </Box>
