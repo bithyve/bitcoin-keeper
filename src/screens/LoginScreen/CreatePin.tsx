@@ -153,7 +153,7 @@ export default function CreatePin(props) {
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
           You would be locked out of the app if you forget your passcode and will have to recover it
         </Text>
       </Box>
