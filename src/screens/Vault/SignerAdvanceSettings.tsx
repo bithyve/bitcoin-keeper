@@ -427,11 +427,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={registerSigner}
           />
         )}
-        <OptionCard
-          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
-          description="Select from signer list"
-          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-        />
+
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
@@ -454,25 +450,30 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isTapsigner && (
           <OptionCard
-            title="Unlock card"
+            title="Unlock Card"
             description="Run the unlock card process if it's rate-limited"
             callback={navigateToUnlockTapsigner}
           />
         )}
         {(isAppKey || isMyAppKey) && (
           <OptionCard
-            title="Show cosigner details"
-            description="Export this key to collaborate with other wallets"
+            title="Key Details"
+            description="xPub for adding to another vault"
             callback={navigateToCosignerDetails}
           />
         )}
         {isMyAppKey && (
           <OptionCard
-            title="Sign a Transaction"
+            title="Sign a transaction"
             description="Using a PSBT file"
             callback={navigateToScanPSBT}
           />
         )}
+        <OptionCard
+          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
+          description="Select from signer list"
+          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
+        />
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
