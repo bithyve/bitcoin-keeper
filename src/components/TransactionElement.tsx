@@ -16,7 +16,7 @@ import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 
 function TransactionElement({
   transaction,
-  onPress = () => {},
+  onPress = () => { },
   index,
 }: {
   transaction: Transaction;
@@ -39,11 +39,11 @@ function TransactionElement({
             {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
           </Box>
           <Box style={styles.transactionContainer}>
-            <Text color={`${colorMode}.GreenishGrey`} medium style={styles.transactionIdText}>
+            <Text color={`${colorMode}.secondaryText`} medium style={styles.transactionIdText}>
               {date}
             </Text>
             <Text
-              color={`${colorMode}.GreenishGrey`}
+              color={`${colorMode}.secondaryText`}
               numberOfLines={1}
               style={styles.transactionDate}
             >
