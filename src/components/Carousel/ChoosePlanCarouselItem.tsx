@@ -64,9 +64,13 @@ function ChoosePlanCarouselItem({
     try {
       if (item.productType === 'free') return 'Free';
       if (isMonthly) {
-        return item.monthlyPlanDetails.price;
+        return parseFloat(
+          item.monthlyPlanDetails.price.slice(1, item.monthlyPlanDetails.price.length)
+        ).toFixed(0);
       }
-      return item.yearlyPlanDetails.price;
+      return parseFloat(
+        item.yearlyPlanDetails.price.slice(1, item.monthlyPlanDetails.price.length)
+      ).toFixed(0);
     } catch (error) {
       return '';
     }
@@ -157,6 +161,7 @@ function ChoosePlanCarouselItem({
             textAlign="center"
             bold={item.productType !== 'free'}
             fontSize={isSelected ? 26 : 22}
+            lineHeight={isSelected ? 26 : 22}
             color={`${colorMode}.white`}
           >
             {getAmt}
