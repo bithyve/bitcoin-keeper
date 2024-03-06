@@ -29,7 +29,7 @@ function WalletCard({
   return (
     <Pressable onPress={() => onCardSelect(id)}>
       <Box
-        borderColor={`${colorMode}.Eggshell`}
+        borderColor={`${colorMode}.TransactionIconBackColor`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
         style={[styles.walletContainer, !isSelected && { opacity: 0.5 }]}
       >

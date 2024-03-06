@@ -30,7 +30,7 @@ function TransactionElement({
     <TouchableOpacity onPress={onPress} testID={`btn_transaction_${index}`}>
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
-          <Box backgroundColor={`${colorMode}.Eggshell`} style={styles.circle}>
+          <Box backgroundColor={`${colorMode}.TransactionIconBackColor`} style={styles.circle}>
             {transaction.confirmations === 0 && (
               <Box style={styles.transaction}>
                 <TransactionPendingIcon />
