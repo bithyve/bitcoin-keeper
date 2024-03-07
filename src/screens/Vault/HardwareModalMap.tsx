@@ -589,39 +589,40 @@ const verifyJade = (qrData, signer) => {
   return masterFingerprint === signer.masterFingerprint;
 };
 
-export const setupKeeperSigner = (qrData, isMultisig, type = SignerType.KEEPER) => {
+export const setupKeeperSigner = (qrData) => {
   try {
-    let mfp, xpub, derivationPath;
-    let xpubDetails = null;
+    let xpub, derivationPath, masterFingerprint;
     try {
-      const data = JSON.parse(qrData);
-      const xpubDetails = data.xpubDetails;
-      mfp = data.mfp;
-      derivationPath = isMultisig
-        ? xpubDetails[XpubTypes.P2WSH].derivationPath
-        : xpubDetails[XpubTypes.P2WPKH].derivationPath;
-      xpub = isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub;
-    } catch (e) {
+      const data = extractKeyFromDescriptor(qrData);
+      xpub = data.xpub;
+      derivationPath = data.derivationPath;
+      masterFingerprint = data.masterFingerprint;
+      if (!data.forMultiSig) {
+        throw new HWError(HWErrorType.INVALID_SIG);
+      }
+    } catch (err) {
       // support crypto-account
       if (qrData.xPub) {
         xpub = qrData.xPub;
         derivationPath = qrData.derivationPath;
-        mfp = qrData.mfp;
+        masterFingerprint = qrData.mfp;
       } else {
-        throw e;
+        throw err;
       }
     }
     const { signer: ksd, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      masterFingerprint: mfp,
-      signerType: type,
+      masterFingerprint,
+      signerType: SignerType.KEEPER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
-      xpubDetails,
     });
     return { signer: ksd, key };
   } catch (err) {
+    if (err instanceof HWError) {
+      throw err;
+    }
     const message = crossInteractionHandler(err);
     throw new Error(message);
   }
@@ -949,12 +950,15 @@ function HardwareModalMap({
     try {
       setInProgress(true);
       getCosignerDetails(primaryMnemonic, myAppKeyCount).then((cosigner) => {
-        const hw = setupKeeperSigner(JSON.stringify(cosigner), isMultisig, SignerType.MY_KEEPER);
-        dispatch(addSigningDevice([hw.signer]));
-        const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
-        navigation.dispatch(CommonActions.navigate(navigationState));
+        const hw = setupKeeperSigner(cosigner);
+        console.log(hw);
+        if (hw) {
+          dispatch(addSigningDevice([hw.signer]));
+          const navigationState = addSignerFlow
+            ? { name: 'ManageSigners' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
+        }
         setInProgress(false);
       });
     } catch (err) {
@@ -1111,7 +1115,7 @@ function HardwareModalMap({
           hw = setupSpecter(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
-          hw = setupKeeperSigner(qrData, isMultisig);
+          hw = setupKeeperSigner(qrData);
           break;
         case SignerType.KEYSTONE:
           hw = setupKeystone(qrData, isMultisig);
@@ -1158,9 +1162,7 @@ function HardwareModalMap({
           `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
           <ToastErrorIcon />
         );
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        navigation.goBack();
       }
     }
   };
