@@ -294,7 +294,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             }
             subtitle={vault.presentationData?.description}
             learnMore
-            learnTextColor="light.white"
+            learnTextColor={`${colorMode}.white`}
             learnBackgroundColor="rgba(0,0,0,.2)"
             learnMorePressed={() => dispatch(setIntroModal(true))}
             contrastScreen={true}
