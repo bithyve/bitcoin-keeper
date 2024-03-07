@@ -306,6 +306,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           parentNavigation: navigation,
           vault: activeVault,
+          signer,
         },
       })
     );
