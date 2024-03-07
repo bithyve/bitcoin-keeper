@@ -836,7 +836,7 @@ function SendConfirmation({ route }) {
               transactionPriority={transactionPriority}
               txFeeInfo={txFeeInfo}
               getBalance={getBalance}
-              getSatUnit={getSatUnit}
+              getCurrencyIcon={getCurrencyIcon}
             />
           </TouchableOpacity>
         ) : null}

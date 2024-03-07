@@ -48,6 +48,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
 import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 import Buttons from 'src/components/Buttons';
+import LoginMethod from 'src/models/enums/LoginMethod';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -76,6 +77,9 @@ function SendScreen({ route }) {
     (item) => item !== null
   );
   const otherWallets = allWallets.filter((existingWallet) => existingWallet.id !== sender.id);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -173,7 +177,8 @@ function SendScreen({ route }) {
 
   const handleTextChange = (info: string) => {
     info = info.trim();
-    const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+    let { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+    amount = satsEnabled ? Math.trunc(amount * 1e8) : amount;
     setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
