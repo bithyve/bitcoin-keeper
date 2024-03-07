@@ -411,13 +411,14 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
 }
 
 function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) {
+  const { colorMode } = useColorMode();
   return (
     <>
       <View style={{ marginVertical: 25 }}>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
         </Text>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           You can change the policy that triggers auto-transfer to suit your needs
         </Text>
       </View>
@@ -863,9 +864,9 @@ function SendConfirmation({ route }) {
             transferType === TransferType.WALLET_TO_VAULT
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(2)
               : addNumbers(
-                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-                  getBalance(amount)
-                ).toFixed(2)
+                getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                getBalance(amount)
+              ).toFixed(2)
           }
           fontSize={17}
           fontWeight="400"
