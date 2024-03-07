@@ -236,7 +236,7 @@ function SigningDeviceDetails({ route }) {
       <Box>
         <Center>{assert}</Center>
         <Text
-          color="light.white"
+          color={`${colorMode}.white`}
           style={{
             fontSize: 13,
             letterSpacing: 0.65,
@@ -379,14 +379,14 @@ function SigningDeviceDetails({ route }) {
         subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
         buttonText="Do Later"
         secondaryButtonText="Confirm Access"
-        buttonTextColor="light.white"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={() => setSkipHealthCheckModalVisible(false)}
         secondaryCallback={() => {
           dispatch(healthCheckSigner([signer]));
           showToast('Device verified manually!');
           setSkipHealthCheckModalVisible(false);
         }}
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={HealthCheckSkipContent}
       />
       <KeeperModal

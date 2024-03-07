@@ -711,6 +711,7 @@ function PasswordEnter({
   isMultisig;
   addSignerFlow;
 }) {
+  const { colorMode } = useColorMode();
   const [password, setPassword] = useState('');
   const { showToast } = useToastMessage();
   const [inProgress, setInProgress] = useState(false);
@@ -800,7 +801,7 @@ function PasswordEnter({
         textColor
         length={4}
       />
-      <Text style={styles.infoText} color="light.greenText">
+      <Text style={styles.infoText} color={`${colorMode}.greenText`}>
         The app will use the Mobile Key to sign on entering the correct Passcode
       </Text>
       <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -819,7 +820,7 @@ function PasswordEnter({
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="light.primaryText"
+        keyColor={`${colorMode}.primaryText`}
         ClearIcon={<DeleteIcon />}
       />
     </Box>
@@ -1290,7 +1291,7 @@ function HardwareModalMap({
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color="light.greenText">
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -1308,7 +1309,7 @@ function HardwareModalMap({
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -1657,7 +1658,7 @@ function HardwareModalMap({
         title={title}
         subTitle={subTitle}
         buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
-        buttonTextColor="light.white"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -1683,7 +1684,7 @@ function HardwareModalMap({
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={() =>
           PasswordEnter({
             primaryMnemonic,
@@ -1709,8 +1710,8 @@ function HardwareModalMap({
         close={close}
         title="Confirm OTP to setup 2FA"
         subTitle="To complete setting up the signer"
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={fetchSigningServerSetup}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
