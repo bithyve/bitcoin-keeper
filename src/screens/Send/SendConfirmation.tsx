@@ -49,6 +49,7 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
+import LoginMethod from 'src/models/enums/LoginMethod';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -68,7 +69,7 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       borderRadius={10}
       backgroundColor={`${colorMode}.seashellWhite`}
       flexDirection="row"
-      padding={windowHeight * 0.019}
+      paddingLeft={3}
       alignItems={'center'}
       minHeight={hp(70)}
     >
@@ -85,14 +86,16 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       <Box marginLeft={3}>
         <Text
           // color={`${colorMode}.greenText2`}
-          fontSize={12}
-          letterSpacing={1.12}
           numberOfLines={showFullAddress ? 2 : 1}
-          maxWidth={85}
+          style={styles.cardTitle}
         >
           {title}
         </Text>
-        {!showFullAddress && <Box flexDirection="row">{subTitle}</Box>}
+        {!showFullAddress && (
+          <Text numberOfLines={1} style={styles.cardSubtitle}>
+            {subTitle}
+          </Text>
+        )}
       </Box>
     </Box>
   );
@@ -518,13 +521,13 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>{selectedFee}&nbsp;&nbsp;</Text>
+          <Text style={styles.highAlertFiatFee}>{getBalance(selectedFee)}&nbsp;&nbsp;</Text>
         </Box>
       </Box>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>{amountToSend}&nbsp;&nbsp;</Text>
+          <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
         </Box>
       </Box>
       <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
@@ -709,6 +712,9 @@ function SendConfirmation({ route }) {
   const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo
   );
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -862,11 +868,13 @@ function SendConfirmation({ route }) {
           title={walletTransactions.total}
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
-              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(2)
+              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
+                  satsEnabled ? 2 : 8
+                )
               : addNumbers(
                   getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
                   getBalance(amount)
-                ).toFixed(2)
+                ).toFixed(satsEnabled ? 2 : 8)
           }
           fontSize={17}
           fontWeight="400"
@@ -1153,5 +1161,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '25%',
+  },
+  cardTitle: {
+    fontSize: 14,
+    letterSpacing: 0.14,
+    maxWidth: 85,
+  },
+  cardSubtitle: {
+    fontSize: 12,
+    letterSpacing: 0.72,
+    maxWidth: wp(100),
   },
 });
