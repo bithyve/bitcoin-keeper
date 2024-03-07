@@ -360,7 +360,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Text
               ml={5}
-              color="light.primaryBackground"
+              color={`${colorMode}.primaryBackground`}
               fontSize={22}
               style={{
                 marginTop: hp(65),
