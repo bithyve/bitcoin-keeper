@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Box, HStack, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
@@ -22,6 +22,7 @@ function TransactionsAndUTXOs({
   transactions: any[];
   autoRefresh: boolean;
 }) {
+  const { colorMode } = useColorMode();
   const [pullRefresh, setPullRefresh] = useState(false);
   const dispatch = useDispatch();
   const syncVault = () => {
@@ -52,7 +53,7 @@ function TransactionsAndUTXOs({
     <>
       <VStack>
         <HStack justifyContent="space-between">
-          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text color={`${colorMode}.textBlack`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           {transactions.length ? (
@@ -70,7 +71,7 @@ function TransactionsAndUTXOs({
                   }}
                 >
                   <Text
-                    color="light.primaryGreen"
+                    color={`${colorMode}.primaryGreen`}
                     marginRight={2}
                     fontSize={11}
                     bold

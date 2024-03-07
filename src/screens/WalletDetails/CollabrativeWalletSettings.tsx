@@ -42,7 +42,7 @@ function CollabrativeWalletSettings() {
         />
         {TestSatsComponent}
       </ScrollView>
-      <Box style={styles.note} backgroundColor="light.secondaryBackground">
+      <Box style={styles.note} backgroundColor={`${colorMode}.secondaryBackground`}>
         <Note
           title="Note"
           subtitle="Keeper only supports one Collaborative wallet, per hot wallet. So if you import another Wallet Configuration File, you will see a new Collaborative Wallet"

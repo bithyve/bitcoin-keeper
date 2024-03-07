@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useContext } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { Shadow } from 'react-native-shadow-2';
@@ -17,6 +17,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import GradientIcon from './GradientIcon';
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
+  const { colorMode } = useColorMode();
   return (
     <TouchableOpacity
       style={styles.addWalletContainer}
@@ -34,7 +35,7 @@ function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
         gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
       />
 
-      <Text color="light.white" style={styles.addWalletText}>
+      <Text color={`${colorMode}.white`} style={styles.addWalletText}>
         {wallet.AddNewWallet}
       </Text>
     </TouchableOpacity>
@@ -42,6 +43,7 @@ function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
 }
 
 function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
+  const { colorMode } = useColorMode();
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
 
   return (
@@ -63,11 +65,11 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
           )}
 
           <Box style={styles.walletDetailsWrapper}>
-            <Text color="light.white" style={styles.walletName}>
+            <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
             <Text
-              color="light.white"
+              color={`${colorMode}.white`}
               style={styles.walletDescription}
               ellipsizeMode="tail"
               numberOfLines={1}
@@ -77,7 +79,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
           </Box>
         </Box>
         <Box>
-          <Text color="light.white" style={styles.unconfirmedText}>
+          <Text color={`${colorMode}.white`} style={styles.unconfirmedText}>
             Unconfirmed
           </Text>
           <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -88,7 +90,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
             >
               {getCurrencyIcon(BtcWallet, 'light')}
             </Box>
-            <Text color="light.white" style={styles.unconfirmedBalance}>
+            <Text color={`${colorMode}.white`} style={styles.unconfirmedBalance}>
               {getBalance(balances?.unconfirmed)}
             </Text>
           </Box>
@@ -96,7 +98,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
       </Box>
 
       <Box style={styles.walletBalance}>
-        <Text color="light.white" style={styles.walletName}>
+        <Text color={`${colorMode}.white`} style={styles.walletName}>
           Available Balance
         </Text>
         <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -107,9 +109,9 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
           >
             {getCurrencyIcon(BtcWallet, 'light')}
           </Box>
-          <Text color="light.white" style={styles.availableBalance}>
+          <Text color={`${colorMode}.white`} style={styles.availableBalance}>
             {getBalance(balances?.confirmed + balances?.unconfirmed)}
-            <Text color="light.textColor" style={styles.balanceUnit}>
+            <Text color={`${colorMode}.textColor`} style={styles.balanceUnit}>
               {getSatUnit()}
             </Text>
           </Text>

@@ -133,8 +133,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
       }`
     );
   };
@@ -181,7 +180,7 @@ function TransactionDetails({ route }) {
         <Box>
           <Text style={styles.amountText}>
             {`${getBalance(transaction.amount)} `}
-            <Text color="light.dateText" style={styles.unitText}>
+            <Text color={`${colorMode}.dateText`} style={styles.unitText}>
               {getSatUnit()}
             </Text>
           </Text>

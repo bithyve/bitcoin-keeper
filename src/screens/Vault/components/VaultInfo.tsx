@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, HStack, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import { getNetworkAmount } from 'src/constants/Bitcoin';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
@@ -11,6 +11,7 @@ import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 
 function VaultInfo({ vault }: { vault: Vault }) {
+  const { colorMode } = useColorMode();
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -30,16 +31,16 @@ function VaultInfo({ vault }: { vault: Vault }) {
             <VaultIcon />
           </Box>
           <VStack>
-            <Text color="light.white" style={styles.vaultInfoText} fontSize={16}>
+            <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={16}>
               {name}
             </Text>
-            <Text color="light.white" style={styles.vaultInfoText} fontSize={12}>
+            <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={12}>
               {description}
             </Text>
           </VStack>
         </HStack>
         <VStack alignItems="flex-end">
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={9}>
             Unconfirmed
           </Text>
           {getNetworkAmount(
@@ -58,7 +59,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
           { fontSize: 31, lineHeight: 31 },
           2,
         ])}
-        <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+        <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>
       </VStack>
