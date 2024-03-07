@@ -41,7 +41,7 @@ function SkipHealthCheck(props) {
         <Text fontSize={13} color={`${colorMode}.primaryText`} mb={5} mt={10}>
           {BackupWallet.skipHealthCheckPara01}
         </Text>
-        <Text fontSize={13} color="light.primaryText">
+        <Text fontSize={13} color={`${colorMode}.primaryText`}>
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>
