@@ -108,8 +108,8 @@ function OnBoardingSlides({ navigation }) {
             <Box width="70%">
               <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}>
                 <Box
-                  borderColor="light.lightAccent"
-                  backgroundColor="light.modalGreenLearnMore"
+                  borderColor={`${colorMode}.lightAccent`}
+                  backgroundColor={`${colorMode}.modalGreenLearnMore`}
                   style={styles.seeFAQWrapper}
                 >
                   <Text color={`${colorMode}.accent`} bold style={styles.seeFAQText}>
@@ -140,8 +140,8 @@ function OnBoardingSlides({ navigation }) {
                       }
                     }}
                   >
-                    <Box style={styles.cta} backgroundColor="light.white">
-                      <Text bold color="light.greenText" style={styles.startAppText}>
+                    <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
+                      <Text bold color={`${colorMode}.greenText`} style={styles.startAppText}>
                         Start App
                       </Text>
                     </Box>
