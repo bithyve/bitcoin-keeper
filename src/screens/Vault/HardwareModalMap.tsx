@@ -591,7 +591,8 @@ const verifyJade = (qrData, signer) => {
 
 export const setupKeeperSigner = (qrData) => {
   try {
-    let xpub, derivationPath, masterFingerprint;
+    let xpub, derivationPath, masterFingerprint, xpubDetails, xpriv;
+    let signerType = SignerType.KEEPER;
     try {
       const data = extractKeyFromDescriptor(qrData);
       xpub = data.xpub;
@@ -606,17 +607,25 @@ export const setupKeeperSigner = (qrData) => {
         xpub = qrData.xPub;
         derivationPath = qrData.derivationPath;
         masterFingerprint = qrData.mfp;
+      } else if (qrData.xpubDetails) {
+        xpub = qrData.xpubDetails[XpubTypes.P2WSH].xpub;
+        xpriv = qrData.xpubDetails[XpubTypes.P2WSH].xpriv;
+        derivationPath = qrData.xpubDetails[XpubTypes.P2WSH].derivationPath;
+        masterFingerprint = qrData.mfp;
+        signerType = SignerType.MY_KEEPER;
       } else {
         throw err;
       }
     }
     const { signer: ksd, key } = generateSignerFromMetaData({
       xpub,
+      xpriv,
       derivationPath,
       masterFingerprint,
-      signerType: SignerType.KEEPER,
+      signerType,
       storageType: SignerStorage.WARM,
       isMultisig: true,
+      xpubDetails,
     });
     return { signer: ksd, key };
   } catch (err) {
@@ -951,7 +960,6 @@ function HardwareModalMap({
       setInProgress(true);
       getCosignerDetails(primaryMnemonic, myAppKeyCount).then((cosigner) => {
         const hw = setupKeeperSigner(cosigner);
-        console.log(hw);
         if (hw) {
           dispatch(addSigningDevice([hw.signer]));
           const navigationState = addSignerFlow
