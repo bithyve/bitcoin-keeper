@@ -23,9 +23,10 @@ import useVault from 'src/hooks/useVault';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function Card({ message, buttonText, buttonCallBack }) {
+  const { colorMode } = useColorMode();
   return (
     <Box
-      backgroundColor="light.primaryBackground"
+      backgroundColor={`${colorMode}.primaryBackground`}
       width="100%"
       borderRadius={10}
       justifyContent="center"
@@ -39,11 +40,11 @@ function Card({ message, buttonText, buttonCallBack }) {
           justifyContent: 'space-between',
         }}
       >
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width="70%">
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65} width="70%">
           {message}
         </Text>
         <Pressable
-          backgroundColor="light.accent"
+          backgroundColor={`${colorMode}.accent`}
           justifyContent="center"
           borderRadius={5}
           width={wp(60)}
