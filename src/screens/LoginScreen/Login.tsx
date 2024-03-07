@@ -369,7 +369,7 @@ function LoginScreen({ navigation, route }) {
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
-              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.primaryBackground">
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color={`${colorMode}.primaryBackground`}>
                 {login.enter_your}
                 {login.passcode}
               </Text>
@@ -478,7 +478,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal && !internalCheck}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -498,7 +498,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -524,7 +524,7 @@ function LoginScreen({ navigation, route }) {
       />
       <KeeperModal
         visible={incorrectPassword}
-        close={() => {}}
+        close={() => { }}
         title="Incorrect Password"
         subTitle="You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow"
         modalBackground={`${colorMode}.modalWhiteBackground`}

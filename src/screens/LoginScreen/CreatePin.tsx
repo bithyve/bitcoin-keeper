@@ -134,13 +134,14 @@ export default function CreatePin(props) {
   }, [passcode, confirmPasscode]);
 
   function ElectrumErrorContent() {
+    const { colorMode } = useColorMode();
     return (
       <Box width={wp(320)}>
         <Box margin={hp(5)}>
           <DowngradeToPleb />
         </Box>
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
             Please try again later
           </Text>
         </Box>
@@ -169,10 +170,10 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} color="light.primaryBackground">
+              <Text style={styles.welcomeText} color={`${colorMode}.primaryBackground`}>
                 {login.welcome}
               </Text>
-              <Text color="light.primaryBackground" style={styles.labelText}>
+              <Text color={`${colorMode}.primaryBackground`} style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -190,7 +191,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color="light.primaryBackground" style={styles.labelText}>
+                <Text color={`${colorMode}.primaryBackground`} style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
@@ -233,7 +234,7 @@ export default function CreatePin(props) {
       </Box>
       <KeeperModal
         visible={createPassword}
-        close={() => {}}
+        close={() => { }}
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
         Key"
