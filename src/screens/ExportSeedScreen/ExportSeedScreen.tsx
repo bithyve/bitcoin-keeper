@@ -27,7 +27,6 @@ import Note from 'src/components/Note/Note';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet, common, seed: seedTranslation } = translations;
@@ -215,10 +214,10 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         title={BackupWallet.backupSuccessTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText="Done"
         buttonCallback={() => navigation.replace('WalletBackHistory')}
         Content={() => (
@@ -239,8 +238,8 @@ function ExportSeedScreen({ route, navigation }) {
         title={BackupWallet.recoveryPhrase}
         subTitleWidth={wp(260)}
         subTitle={BackupWallet.recoveryPhraseSubTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText={common.done}
         buttonCallback={() => setShowQRVisible(false)}
         Content={() => (

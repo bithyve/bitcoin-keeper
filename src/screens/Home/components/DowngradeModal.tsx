@@ -72,7 +72,7 @@ function DowngradeModalContent({ navigation, app }) {
         >
           <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
             <Box style={[styles.createBtn]} backgroundColor={`${colorMode}.greenButtonBackground`}>
-              <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+              <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
                 {common.continuePleb}
               </Text>
             </Box>
@@ -93,7 +93,7 @@ export function DowngradeModal({ navigation }) {
   return (
     <KeeperModal
       dismissible={false}
-      close={() => {}}
+      close={() => { }}
       visible={recepitVerificationFailed}
       title={choosePlan.validateSubscriptionTitle}
       subTitle={choosePlan.validateSubscriptionSubTitle}
