@@ -54,7 +54,7 @@ function ReceiveScreen({ route }: { route }) {
   useEffect(() => {
     if (amount) {
       const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
-        amount: satsEnabled ? parseInt(amount) : parseInt(amount) / 10e8,
+        amount: parseInt(amount) / 1e8,
       }).paymentURI;
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);
