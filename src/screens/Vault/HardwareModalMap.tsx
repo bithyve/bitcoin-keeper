@@ -147,8 +147,8 @@ const getSignerContent = (
         type: SignerType.KEEPER,
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a wallet or create a new one from your Hot Wallets',
-          'Within settings choose Show co-signer Details to scan the QR',
+          'Choose a Mobile Key from your Keeper app (create) or from another Keeper app (import)',
+          'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
         title: 'Keep your Device Ready',
         subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
@@ -385,8 +385,8 @@ const getSignerContent = (
           'Make sure you secure the 12-word phrase in a safe place.',
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
-        title: isHealthcheck ? `Verify ${getSignerNameFromType(type)}` : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        title: isHealthcheck ? 'Verify Recovery Key' : 'Setting up Seed Key',
+        subTitle: 'Enter the Recovery Key to do a health check ',
       };
     default:
       return {

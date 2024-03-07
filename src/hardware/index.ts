@@ -116,7 +116,7 @@ export const getSignerDescription = (
     if (signer.signerDescription) {
       return signer.signerDescription;
     } else if (signerType === SignerType.MY_KEEPER) {
-      return numberToOrdinal(instanceNumber) + ' Key';
+      return numberToOrdinal(instanceNumber);
     } else if (signerType === SignerType.KEEPER) {
       return 'External';
     } else {
@@ -124,7 +124,7 @@ export const getSignerDescription = (
     }
   }
   if (signerType === SignerType.MY_KEEPER) {
-    return numberToOrdinal(instanceNumber) + ' Key';
+    return numberToOrdinal(instanceNumber);
   } else if (signerType === SignerType.KEEPER) {
     return 'External';
   }

@@ -125,27 +125,36 @@ export const emailCheck = (email) => {
   return reg.test(email);
 };
 
-export function numberToOrdinal(number) {
-  if (typeof number !== 'number' || isNaN(number)) {
-    return 'Invalid input';
+export function numberToOrdinal(cardinal) {
+  const ordinals = [
+    'Zeroth',
+    'First',
+    'Second',
+    'Third',
+    'Fourth',
+    'Fifth',
+    'Sixth',
+    'Seventh',
+    'Eighth',
+    'Ninth',
+    'Tenth',
+    'Eleventh',
+    'Twelfth',
+    'Thirteenth',
+    'Fourteenth',
+    'Fifteenth',
+    'Sixteenth',
+    'Seventeenth',
+    'Eighteenth',
+    'Nineteenth',
+    'Twentieth',
+  ];
+
+  if (cardinal < 0 || cardinal >= ordinals.length) {
+    return '';
   }
 
-  if (number < 1 || number % 1 !== 0) {
-    return 'Invalid input. Please enter a positive integer.';
-  }
-
-  const specialCases = {
-    11: 'th',
-    12: 'th',
-    13: 'th',
-  };
-
-  const lastDigit = number % 10;
-  const suffix =
-    specialCases[number] ||
-    (lastDigit === 1 ? 'st' : lastDigit === 2 ? 'nd' : lastDigit === 3 ? 'rd' : 'th');
-
-  return number + suffix;
+  return ordinals[cardinal];
 }
 
 // Format number with comma
