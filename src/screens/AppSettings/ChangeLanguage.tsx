@@ -177,7 +177,7 @@ function ChangeLanguage() {
                   <Text style={styles.flagStyle}>{item.flag}</Text>
                 </View>
                 <View style={styles.countryCodeWrapper1}>
-                  <Text style={styles.countryCodeWrapper2} color="light.GreyText">
+                  <Text style={styles.countryCodeWrapper2} color={`${colorMode}.GreyText`}>
                     <Text style={styles.countryCodeText}>{item.country_code}</Text>
                     <Text>{`- ${item.displayTitle}`}</Text>
                   </Text>

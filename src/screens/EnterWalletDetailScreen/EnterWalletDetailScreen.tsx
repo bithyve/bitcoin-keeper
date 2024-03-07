@@ -154,7 +154,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
       <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
-        // To-Do-Learn-More
+      // To-Do-Learn-More
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
@@ -236,8 +236,8 @@ function EnterWalletDetailScreen({ navigation, route }) {
               walletType === WalletType.DEFAULT
                 ? createNewWallet()
                 : navigation.navigate('EnterWalletPath', {
-                    createNewWallet,
-                  })
+                  createNewWallet,
+                })
             }
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
@@ -246,7 +246,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         dismissible
-        close={() => {}}
+        close={() => { }}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -256,7 +256,7 @@ function EnterWalletDetailScreen({ navigation, route }) {
           // setInitiating(true)
         }}
         showButtons
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
