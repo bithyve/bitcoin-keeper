@@ -27,6 +27,8 @@ import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 import useBalance from 'src/hooks/useBalance';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import { useAppSelector } from 'src/store/hooks';
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -42,7 +44,9 @@ function ReceiveScreen({ route }: { route }) {
 
   const { translations } = useContext(LocalizationContext);
   const { common, home, wallet: walletTranslation } = translations;
-
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
   useEffect(() => {
     const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
     setReceivingAddress(receivingAddress);
@@ -51,7 +55,7 @@ function ReceiveScreen({ route }: { route }) {
   useEffect(() => {
     if (amount) {
       const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
-        amount: parseInt(amount) / 10e8,
+        amount: satsEnabled ? parseInt(amount) : parseInt(amount) / 10e8,
       }).paymentURI;
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);

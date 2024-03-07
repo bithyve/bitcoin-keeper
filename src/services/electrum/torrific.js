@@ -1,4 +1,4 @@
-const { tor } = require('../rest/RestClient');
+// const { tor } = require('../rest/RestClient');
 
 /**
  * Wrapper for react-native-tor mimicking Socket class from NET package

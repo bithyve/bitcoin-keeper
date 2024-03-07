@@ -667,6 +667,13 @@ function SendConfirmation({ route }) {
     if (inProgress) {
       setTimeout(() => {
         dispatch(sendPhaseTwoReset());
+        console.log('sdhfdjhsjdhsjfhdf', {
+          wallet: sender,
+          txnPriority: transactionPriority,
+          note,
+          label,
+          transferType,
+        });
         dispatch(
           sendPhaseTwo({
             wallet: sender,
@@ -681,6 +688,7 @@ function SendConfirmation({ route }) {
   }, [inProgress]);
 
   const onProceed = () => {
+    console.log('transferTypetransferType', transferType);
     if (transferType === TransferType.WALLET_TO_VAULT) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.transferPolicy.threshold) {
         showToast('Not enough Balance', <ToastErrorIcon />);
@@ -757,6 +765,7 @@ function SendConfirmation({ route }) {
   };
 
   useEffect(() => {
+    console.log('walletSendSuccessfulwalletSendSuccessful', walletSendSuccessful);
     if (walletSendSuccessful) {
       setProgress(false);
       setVisibleModal(true);
@@ -768,6 +777,11 @@ function SendConfirmation({ route }) {
   }, [sendPhaseTwoFailed]);
 
   useEffect(() => {
+    console.log(
+      'crossTransferSuccesscrossTransferSuccesscrossTransferSuccess',
+      crossTransferSuccess
+    );
+
     if (crossTransferSuccess) {
       setVisibleModal(true);
       if (uaiSetActionFalse) {
@@ -838,6 +852,7 @@ function SendConfirmation({ route }) {
               txFeeInfo={txFeeInfo}
               getBalance={getBalance}
               getSatUnit={getSatUnit}
+              getCurrencyIcon={getCurrencyIcon}
             />
           </TouchableOpacity>
         ) : null}
