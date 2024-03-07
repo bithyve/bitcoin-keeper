@@ -1,10 +1,11 @@
-import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
 import { InheritanceKeyInfo } from 'src/services/interfaces';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';
 import { getJSONFromRealmObject } from './utils';
 import { RealmSchema } from './enum';
+import _ from 'lodash';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -124,5 +125,49 @@ export const runRealmMigrations = ({
     for (const objectIndex in newUAIs) {
       newUAIs[objectIndex].uaiDetails = { heading: oldUAIs[objectIndex].title };
     }
+  }
+
+  if (oldRealm.schemaVersion < 70 && oldRealm.schemaVersion >= 66) {
+    const vaultXpubMap = {};
+    const newVaults: Vault[] = newRealm.objects(RealmSchema.Vault);
+
+    newVaults.forEach((vault) => {
+      const { signers } = vault;
+      vaultXpubMap[vault.id] = signers.map((signer) => signer.xpub);
+    });
+
+    const newVaultSigners: VaultSigner[] = newRealm.objects(RealmSchema.VaultSigner);
+    const signerXpubMap = {};
+    const duplicateSigners = [];
+
+    for (const signer of newVaultSigners) {
+      const { xpub } = signer;
+      if (signerXpubMap[xpub]) {
+        duplicateSigners.push(signer);
+      }
+      signerXpubMap[xpub] = _.merge({}, signerXpubMap[xpub] || {}, signer.toJSON());
+    }
+
+    const singleCopyOfDuplicateSigners = duplicateSigners.reduce((acc, signer) => {
+      const { xpub } = signer;
+      if (acc[xpub]) {
+        return acc;
+      }
+      acc[xpub] = signerXpubMap[xpub];
+      return acc;
+    }, {});
+
+    if (duplicateSigners.length) {
+      newRealm.delete(duplicateSigners);
+    }
+    Object.values(singleCopyOfDuplicateSigners).forEach((signer) => {
+      newRealm.create(RealmSchema.VaultSigner, signer, Realm.UpdateMode.All);
+    });
+
+    newVaults.forEach((vault) => {
+      vault.signers = vaultXpubMap[vault.id].map((xpub) => {
+        return newRealm.objects(RealmSchema.VaultSigner).filtered(`xpub == '${xpub}'`)[0];
+      });
+    });
   }
 };
