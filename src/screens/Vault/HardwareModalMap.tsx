@@ -389,8 +389,8 @@ const getSignerContent = (
           'Make sure you secure the 12-word phrase in a safe place.',
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
-        title: isHealthcheck ? `Verify ${getSignerNameFromType(type)}` : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        title: isHealthcheck ? 'Verify Recovery Key' : 'Setting up Seed Key',
+        subTitle: 'Enter the Recovery Key to do a health check ',
       };
     default:
       return {

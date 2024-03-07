@@ -243,6 +243,12 @@ function* updateAppKeysToEnableSigning() {
     const extendedKeyMap = generateExtendedKeysForSigners(myAppKeySigners, appKeyWalletMap);
     updateVaultSigners(extendedKeyMap, signers);
     updateSignerDetails(myAppKeySigners, extendedKeyMap);
+    const response = yield call(updateAppImageWorker, { payload: { signers } });
+    if (response.updated) {
+      console.log('Updated the Signers in app image');
+    } else {
+      console.log('Failed to update the update the app image with the updated the structure');
+    }
   } catch (err) {
     console.log('Error updating mobile keys', err);
     captureError(err);
