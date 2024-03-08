@@ -17,7 +17,7 @@ import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import ecc from './noble_ecc';
+import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
   AverageTxFeesByNetwork,

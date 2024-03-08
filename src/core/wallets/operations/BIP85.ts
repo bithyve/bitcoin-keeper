@@ -6,7 +6,7 @@ import config from 'src/core/config';
 import BIP32Factory from 'bip32';
 import { WalletType, BIP85Languages, BIP85Words } from '../enums';
 import { BIP85Config } from '../interfaces';
-import ecc from './noble_ecc';
+import ecc from './taproot-utils/noble_ecc';
 
 const bip32 = BIP32Factory(ecc);
 export default class BIP85 {

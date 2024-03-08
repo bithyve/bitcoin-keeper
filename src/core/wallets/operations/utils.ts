@@ -28,7 +28,7 @@ import {
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
-import ecc from './noble_ecc';
+import ecc from './taproot-utils/noble_ecc';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
