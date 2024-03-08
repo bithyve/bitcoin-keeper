@@ -69,8 +69,6 @@ function EnterWalletDetailScreen({ route }) {
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-    { label: 'P2SH-P2WPKH: wrapped segwit, single-sig', value: DerivationPurpose.BIP49 },
-    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
     { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
   ]);
   const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
@@ -137,6 +135,16 @@ function EnterWalletDetailScreen({ route }) {
       </Box>
     );
   }
+
+  useEffect(() => {
+    const path = WalletUtilities.getDerivationPath(
+      EntityKind.WALLET,
+      config.NETWORK_TYPE,
+      0,
+      purpose
+    );
+    setPath(path);
+  }, [purpose]);
 
   const onDropDownClick = () => {
     if (showPurpose) {
