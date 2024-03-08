@@ -46,8 +46,9 @@ function UpdateWalletDetails({ route }) {
     { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
     { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
+    { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
   ];
-  const getPupose = (key) => {
+  const getPurpose = (key) => {
     switch (key) {
       case 'P2PKH':
         return 'P2PKH: legacy, single-sig';
@@ -55,6 +56,8 @@ function UpdateWalletDetails({ route }) {
         return 'P2SH-P2WPKH: wrapped segwit, single-sg';
       case 'P2WPKH':
         return 'P2WPKH: native segwit, single-sig';
+      case 'P2TR':
+        return 'P2TR: taproot, single-sig';
       default:
         return '';
     }
@@ -62,7 +65,7 @@ function UpdateWalletDetails({ route }) {
   const [purpose, setPurpose] = useState(
     purposeList.find((item) => item.label.split(':')[0] === wallet?.scriptType).value
   );
-  const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
+  const [purposeLbl, setPurposeLbl] = useState(getPurpose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
   const [warringsVisible, setWarringsVisible] = useState(false);
   const { showToast } = useToastMessage();

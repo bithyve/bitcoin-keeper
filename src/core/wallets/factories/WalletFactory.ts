@@ -7,7 +7,6 @@ import {
   EntityKind,
   ImportedKeyType,
   NetworkType,
-  ScriptTypes,
   VisibilityType,
   WalletType,
   XpubTypes,
@@ -216,7 +215,7 @@ export const generateWallet = async ({
     derivationDetails,
     presentationData,
     specs,
-    scriptType: ScriptTypes.P2WPKH,
+    scriptType: WalletUtilities.getScriptTypeFromPurpose(derivationConfig.purpose),
     transferPolicy,
     depositWalletId,
   };

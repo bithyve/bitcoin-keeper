@@ -50,6 +50,7 @@ function AddDetailsFinalScreen({ route }) {
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
     { label: 'P2SH-P2WPKH: wrapped segwit, single-sig', value: DerivationPurpose.BIP49 },
     { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
+    { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
   ]);
   const [purpose, setPurpose] = useState(importedKeyDetails?.purpose || DerivationPurpose.BIP84);
   const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
