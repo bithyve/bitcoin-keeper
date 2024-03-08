@@ -4,7 +4,7 @@ import { Box, Input, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
+import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -42,7 +42,6 @@ function EnterWalletDetailScreen({ navigation, route }) {
   const { translations } = useContext(LocalizationContext);
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route.params?.seed?.replace(/,/g, ' '));
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
@@ -50,50 +49,32 @@ function EnterWalletDetailScreen({ navigation, route }) {
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { hasNewWalletsGenerationFailed, err } = useAppSelector((state) => state.wallet);
-  const [purpose, setPurpose] = useState(route.params?.purpose);
+  const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
-  useEffect(() => {
-    if (walletType !== WalletType.DEFAULT) {
-      const path = WalletUtilities.getDerivationPath(
-        EntityKind.WALLET,
-        config.NETWORK_TYPE,
-        0,
-        Number(purpose)
-      );
-      setPath(path);
-    }
-  }, [purpose]);
 
   const createNewWallet = useCallback(() => {
+    // Note: only caters to new wallets(imported wallets currently have a different flow)
     setWalletLoading(true);
-    setTimeout(() => {
-      // TODO: remove this timeout once the crypto is optimised
-      const derivationConfig: DerivationConfig = {
-        path,
-        purpose: Number(purpose),
-      };
-      const newWallet: NewWalletInfo = {
-        walletType,
-        walletDetails: {
-          name: walletName,
-          description: walletDescription,
-          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: parseInt(transferPolicy),
-          },
+    const newWallet: NewWalletInfo = {
+      walletType,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
+        derivationConfig: {
+          path,
+          purpose,
         },
-        importDetails: {
-          derivationConfig,
-          mnemonic: importedSeed,
+        transferPolicy: {
+          id: uuidv4(),
+          threshold: parseInt(transferPolicy),
         },
-      };
-      dispatch(addNewWallets([newWallet]));
-    }, 200);
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, transferPolicy]);
 
   useEffect(() => {
@@ -141,17 +122,6 @@ function EnterWalletDetailScreen({ navigation, route }) {
       </Box>
     );
   }
-
-  const onQrScan = (qrData) => {
-    navigtaion.goBack();
-    const words = qrData.split(' ');
-    if (words.length === 12 || words.length === 24) {
-      setImportedSeed(qrData);
-      setWalletType(WalletType.IMPORTED);
-    } else {
-      showToast('Invalid QR');
-    }
-  };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -230,16 +200,8 @@ function EnterWalletDetailScreen({ navigation, route }) {
         <Box style={styles.footer}>
           <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />
           <Buttons
-            primaryText={
-              walletType === WalletType.DEFAULT ? `${common.create}` : `${common.proceed}`
-            }
-            primaryCallback={() =>
-              walletType === WalletType.DEFAULT
-                ? createNewWallet()
-                : navigation.navigate('EnterWalletPath', {
-                    createNewWallet,
-                  })
-            }
+            primaryText={common.proceed}
+            primaryCallback={createNewWallet}
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
