@@ -629,7 +629,7 @@ export default class WalletUtilities {
       if (WalletUtilities.isValidAddress(address, network)) {
         return {
           type: PaymentInfoKind.PAYMENT_URI,
-          address: scannedStr,
+          address: address,
           amount: options.amount,
           message: options.message,
         };

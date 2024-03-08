@@ -120,6 +120,7 @@ export const RegistrationInfoSchema: ObjectSchema = {
 
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
+  primaryKey: 'xpub',
   properties: {
     masterFingerprint: 'string',
     xpub: 'string',
@@ -146,6 +147,7 @@ export const SignerSchema: ObjectSchema = {
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
     hidden: { type: 'bool', default: false },
+    extraData: '{}?',
   },
 };
 

@@ -288,7 +288,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               <HexagonIcon
                 width={58}
                 height={50}
-                backgroundColor={`${colorMode}.hexagonIconBackColor`}
+                backgroundColor={'rgba(9, 44, 39, 0.6)'}
                 icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
               />
             }
@@ -390,8 +390,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         learnMoreCallback={() =>
           openLink(
             isCollaborativeWallet
-              ? `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-wallet/`
-              : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`
+              ? `${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`
+              : `${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`
           )
         }
       />
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   },
   transactionHeading: {
     fontSize: 16,
-    letterSpacing: 1.28,
+    letterSpacing: 0.16,
   },
   IconText: {
     justifyContent: 'center',

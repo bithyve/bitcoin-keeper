@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { InteractionManager, Linking } from 'react-native';
 import React, { useEffect } from 'react';
 import { SignerStorage, SignerType, WalletType, XpubTypes } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -32,14 +32,12 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: `${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
+            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
+            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -60,15 +58,13 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: `${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+                } `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+                } `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -91,23 +87,27 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   }, []);
 
   useEffect(() => {
-    if (electrumClientConnectionStatus.success) {
-      showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
-      if (electrumErrorVisible) setElectrumErrorVisible(false);
-    } else if (electrumClientConnectionStatus.failed) {
-      showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
-      setElectrumErrorVisible(true);
-    }
+    InteractionManager.runAfterInteractions(() => {
+      if (electrumClientConnectionStatus.success) {
+        showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
+        if (electrumErrorVisible) setElectrumErrorVisible(false);
+      } else if (electrumClientConnectionStatus.failed) {
+        showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
+        setElectrumErrorVisible(true);
+      }
+    })
   }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
 
   useEffect(() => {
-    if (electrumClientConnectionStatus.setElectrumNotConnectedErr) {
-      showToast(`${electrumClientConnectionStatus.setElectrumNotConnectedErr}`, <ToastErrorIcon />);
-      dispatch(resetElectrumNotConnectedErr());
-    }
+    InteractionManager.runAfterInteractions(() => {
+      if (electrumClientConnectionStatus.setElectrumNotConnectedErr) {
+        showToast(`${electrumClientConnectionStatus.setElectrumNotConnectedErr}`, <ToastErrorIcon />);
+        dispatch(resetElectrumNotConnectedErr());
+      }
+    })
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
-  // inital app key generation
+  // inital mobile key generation
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const { signers } = useSigners();
@@ -115,20 +115,22 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const myAppKeyCount = myAppKeys.length;
 
   useEffect(() => {
-    if (!myAppKeyCount) {
-      getCosignerDetails(primaryMnemonic, myAppKeyCount).then((details) => {
-        const { signer } = generateSignerFromMetaData({
-          xpub: details.xpubDetails[XpubTypes.P2WSH].xpub,
-          xpriv: details.xpubDetails[XpubTypes.P2WSH].xpriv,
-          derivationPath: details.xpubDetails[XpubTypes.P2WSH].derivationPath,
-          masterFingerprint: details.mfp,
-          signerType: SignerType.MY_KEEPER,
-          storageType: SignerStorage.WARM,
-          isMultisig: true,
+    InteractionManager.runAfterInteractions(() => {
+      if (!myAppKeyCount) {
+        getCosignerDetails(primaryMnemonic, myAppKeyCount).then((details) => {
+          const { signer } = generateSignerFromMetaData({
+            xpub: details.xpubDetails[XpubTypes.P2WSH].xpub,
+            xpriv: details.xpubDetails[XpubTypes.P2WSH].xpriv,
+            derivationPath: details.xpubDetails[XpubTypes.P2WSH].derivationPath,
+            masterFingerprint: details.mfp,
+            signerType: SignerType.MY_KEEPER,
+            storageType: SignerStorage.WARM,
+            isMultisig: true,
+          });
+          dispatch(addSigningDevice([signer]));
         });
-        dispatch(addSigningDevice([signer]));
-      });
-    }
+      }
+    })
   }, []);
 
   return null;

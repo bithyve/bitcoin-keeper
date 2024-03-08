@@ -33,11 +33,12 @@ import { Shadow } from 'react-native-shadow-2';
 import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { resetPinFailAttempts } from 'src/store/reducers/storage';
+import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -88,14 +89,13 @@ function LoginScreen({ navigation, route }) {
   useEffect(() => {
     if (failedAttempts >= 1) {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
-      const waitingTime = TIMEOUT * failedAttempts;
-      if (retryTime > waitingTime) {
+      if (retryTime > PasswordTimeout(failedAttempts)) {
         setCanLogin(true);
         return;
       }
       setTimeout(() => {
         setLoginError(true);
-        setErrMessage('Please try after sometime');
+        setErrMessage(`Please try after ${PasswordTimeout(failedAttempts) / TIMEOUT} minutes`);
         setCanLogin(false);
       }, 100);
       return;
@@ -148,12 +148,12 @@ function LoginScreen({ navigation, route }) {
     setPasscode(passcode.slice(0, passcode.length - 1));
   };
 
-  // useEffect(() => {
-  //   if (attempts >= 3) {
-  //     setAttempts(1);
-  //     dispatch(increasePinFailAttempts());
-  //   }
-  // }, [attempts]);
+  useEffect(() => {
+    if (attempts >= 3) {
+      setAttempts(1);
+      dispatch(increasePinFailAttempts());
+    }
+  }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -161,7 +161,7 @@ function LoginScreen({ navigation, route }) {
       setLoginError(true);
       setErrMessage('Incorrect passcode');
       setPasscode('');
-      // setAttempts(attempts + 1);
+      setAttempts(attempts + 1);
       setIncorrectPassword(true);
       setLogging(false);
     } else {
@@ -216,7 +216,7 @@ function LoginScreen({ navigation, route }) {
   const onPinChange = () => {
     setLoginError(false);
     setErrMessage('');
-    // setAttempts(0);
+    setAttempts(0);
     setIncorrectPassword(false);
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
@@ -337,46 +337,8 @@ function LoginScreen({ navigation, route }) {
 
   function NoInternetModalContent() {
     return (
-      <Box width={wp(250)}>
+      <Box style={styles.noInternetModalContainer}>
         {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
-        {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
-        <Box mt={10} alignItems="center" flexDirection="row">
-          <TouchableOpacity
-            style={[styles.cancelBtn]}
-            onPress={() => {
-              setLoginError(false);
-              setLogging(false);
-              dispatch(setRecepitVerificationError(false));
-              resetToPleb();
-            }}
-            activeOpacity={0.5}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              Continue as Pleb
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              setLoginError(false);
-              setLogging(true);
-              dispatch(setRecepitVerificationError(false));
-            }}
-          >
-            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box
-                style={[styles.createBtn]}
-                paddingLeft={10}
-                paddingRight={10}
-                backgroundColor={`${colorMode}.greenButtonBackground`}
-              >
-                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-                  Retry
-                </Text>
-              </Box>
-            </Shadow>
-          </TouchableOpacity>
-        </Box>
       </Box>
     );
   }
@@ -516,7 +478,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal && !internalCheck}
-        close={() => { }}
+        close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -531,12 +493,12 @@ function LoginScreen({ navigation, route }) {
         buttonTextColor={`${colorMode}.white`}
         showButtons
         Content={LoginModalContent}
-        subTitleWidth={wp(300)}
+        subTitleWidth={wp(280)}
       />
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -544,13 +506,25 @@ function LoginScreen({ navigation, route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        subTitleWidth={wp(210)}
-        showCloseIcon={false}
+        subTitleWidth={wp(230)}
         showButtons
+        buttonText={'Retry'}
+        buttonCallback={() => {
+          setLoginError(false);
+          setLogging(true);
+          dispatch(setRecepitVerificationError(false));
+        }}
+        secondaryButtonText={'Continue as Pleb'}
+        secondaryCallback={() => {
+          setLoginError(false);
+          setLogging(false);
+          dispatch(setRecepitVerificationError(false));
+          resetToPleb();
+        }}
       />
       <KeeperModal
         visible={incorrectPassword}
-        close={() => { }}
+        close={() => {}}
         title="Incorrect Password"
         subTitle="You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow"
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -645,12 +619,18 @@ const styles = StyleSheet.create({
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
+    letterSpacing: 0.13,
   },
   modalMessageWrapper: {
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+  },
+  noInternetModalContainer: {
+    width: wp(200),
+    alignItems: 'center',
+    marginTop: hp(20),
+    marginBottom: hp(60),
   },
 });
 

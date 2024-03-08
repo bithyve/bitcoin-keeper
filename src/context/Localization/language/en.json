@@ -659,6 +659,7 @@
     "networkSettingConfigSubTitle": "Configure your node and tor settings",
     "satsModeSubTitle": "Enable to see balance in sats",
     "shareAnalytics": "Share Analytics & App Data",
+    "shareAnalyticsDesc": "No personal or bitcoin data is shared",
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
     "changePasscodeDescription": "Easy to remember; hard to guess"

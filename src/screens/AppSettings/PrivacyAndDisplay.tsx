@@ -154,7 +154,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
           </Box>
 
           <Box alignItems="flex-end">
-            {passcode.length === 4 && (
+            {passcode.length === 4 && passcode === confirmPasscode && (
               <TouchableOpacity
                 onPress={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
@@ -237,8 +237,8 @@ function PrivacyAndDisplay() {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -296,7 +296,7 @@ function PrivacyAndDisplay() {
             />
             <OptionCard
               title={settings.shareAnalytics}
-              description={settings.rememberPasscode}
+              description={settings.shareAnalyticsDesc}
               Icon={
                 <Switch
                   onValueChange={async () => await toggleSentryReports()}

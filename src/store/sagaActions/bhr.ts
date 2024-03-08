@@ -10,10 +10,11 @@ export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
 
-export const updateAppImage = (walletId?) => ({
+export const updateAppImage = ({ wallets, signers }) => ({
   type: UPDATE_APP_IMAGE,
   payload: {
-    walletId,
+    wallets,
+    signers,
   },
 });
 

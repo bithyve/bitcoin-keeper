@@ -10,7 +10,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import { UNVERIFYING_SIGNERS, getSignerNameFromType } from 'src/hardware';
+import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import SignerIcon from 'src/assets/images/signer_brown.svg';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -82,6 +82,7 @@ function ManageSigners({ route }: ScreenProps) {
         <KeeperHeader
           title="Manage Keys"
           subtitle="View and change key details"
+          mediumTitle
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           icon={
@@ -131,7 +132,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => { }}
+        callback={() => {}}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
@@ -211,7 +212,7 @@ function SignersList({
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.topContainer}>
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -219,7 +220,7 @@ function SignersList({
       >
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
-            const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
             const isRegistered = vaultKeys.length
               ? item.registeredVaults.find((info) => info.vaultId === vault.id)
               : false;
@@ -255,7 +256,11 @@ function SignersList({
                   handleCardSelect(signer, item);
                 }}
                 name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
-                description={`Added ${moment(signer.addedOn).calendar()}`}
+                description={getSignerDescription(
+                  signer.type,
+                  signer.extraData?.instanceNumber,
+                  signer
+                )}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
                 isSelected={hiding ? selectedSigners.get(signer.masterFingerprint) : false}
                 showSelection={hiding}
@@ -287,7 +292,7 @@ function SignersList({
         Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
       />
       {hiding ? (
-        <FloatingCTA primaryText="Done" primaryCallback={hideKeys} />
+        <FloatingCTA primaryText="Hide" primaryCallback={hideKeys} />
       ) : !vaultKeys.length ? (
         <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
       ) : null}
@@ -296,6 +301,10 @@ function SignersList({
 }
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
   wrapper: {
     flex: 1,
   },

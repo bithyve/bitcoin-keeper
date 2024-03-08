@@ -45,7 +45,6 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 // import LabelItem from '../UTXOManagement/components/LabelItem';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Fonts from 'src/constants/Fonts';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
 
@@ -369,8 +368,9 @@ function AddSendAmount({ route }) {
               >
                 <Text
                   testID="text_sendmax"
-                  color={`${colorMode}.ChampagneWhite`}
+                  color={`${colorMode}.seashellWhite`}
                   style={styles.sendMaxText}
+                  medium
                 >
                   Send Max
                 </Text>
@@ -559,11 +559,6 @@ const styles = StyleSheet.create({
   },
   sendingFromWrapper: {
     marginLeft: wp(20),
-  },
-  sendingFromText: {
-    fontSize: 12,
-    fontFamily: Fonts.FiraSansCondensedRegular,
-    letterSpacing: 0.8,
   },
 });
 export default AddSendAmount;

@@ -403,9 +403,7 @@ function SignerAdvanceSettings({ route }: any) {
       />
       <ScrollView
         contentContainerStyle={{
-          flex: 1,
-          paddingTop: '10%',
-          paddingBottom: 20,
+          paddingTop: hp(10),
         }}
       >
         <OptionCard
@@ -416,7 +414,7 @@ function SignerAdvanceSettings({ route }: any) {
         {isInheritanceKey && vaultId && (
           <OptionCard
             title="Registered Email"
-            description="Delete or Edit registered email"
+            description="View, change or delete"
             callback={() => {
               setEditEmailModal(true);
             }}
@@ -429,11 +427,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={registerSigner}
           />
         )}
-        <OptionCard
-          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
-          description="Identify your signer type for enhanced connectivity and communication"
-          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-        />
+
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
@@ -456,27 +450,32 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isTapsigner && (
           <OptionCard
-            title="Unlock card"
+            title="Unlock Card"
             description="Run the unlock card process if it's rate-limited"
             callback={navigateToUnlockTapsigner}
           />
         )}
         {(isAppKey || isMyAppKey) && (
           <OptionCard
-            title="Show cosigner details"
-            description="Export this key to collaborate with other wallets"
+            title="Key Details"
+            description="xPub for adding to another vault"
             callback={navigateToCosignerDetails}
           />
         )}
         {isMyAppKey && (
           <OptionCard
-            title="Sign a Transaction"
+            title="Sign a transaction"
             description="Using a PSBT file"
             callback={navigateToScanPSBT}
           />
         )}
-        <Box ml={2} style={{ marginVertical: 20 }}>
-          {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+        <OptionCard
+          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
+          description="Select from signer list"
+          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
+        />
+        <Box style={styles.signerText}>
+          {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
         <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
           {signerVaults.map((vault) => (
@@ -485,7 +484,7 @@ function SignerAdvanceSettings({ route }: any) {
               description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
-              callback={() => { }}
+              callback={() => {}}
             />
           ))}
         </ScrollView>
@@ -702,5 +701,9 @@ const styles = StyleSheet.create({
   },
   fingerprint: {
     alignItems: 'center',
+  },
+  signerText: {
+    marginVertical: hp(15),
+    marginHorizontal: 10,
   },
 });

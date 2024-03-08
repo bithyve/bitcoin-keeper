@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: windowWidth * 0.7,
     fontSize: 13,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1,
     opacity: 0.5,
   },

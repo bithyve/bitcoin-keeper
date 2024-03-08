@@ -143,20 +143,19 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.VAULT_TRANSFER:
         return {
-          heading: 'Trasfer to Vault',
+          heading: 'Transfer to Vault',
           body: uai.uaiDetails?.body,
           btnConfig: {
             primary: {
               text: 'Continue',
               cta: () => {
                 setShowModal(true);
-                skipUaiHandler(uai);
               },
             },
             secondary: skipBtnConfig(uai),
           },
           modalDetails: {
-            heading: 'Trasfer to Vault',
+            heading: 'Transfer to Vault',
             subTitle: 'Auto-transfer policy has been triggered',
             body: 'Transfer policy you established has been activated. You can move funds into the Vault for enhanced protection.',
             btnConfig: {
@@ -252,8 +251,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
-          heading: 'Backup recovery key',
-          body: 'Backup of recovery key is pending',
+          heading: 'Backup Recovery Key',
+          body: 'Backup of Recovery Key is pending',
           btnConfig: {
             primary: {
               text: 'Continue',
@@ -365,17 +364,21 @@ export default function NotificationStack() {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
         <View style={styles.viewWrapper}>
-          {uaiStack.map((uai, index) => {
-            return (
-              <Card
-                uai={uai}
-                key={uai.id}
-                index={index}
-                totalLength={uaiStack.length - 1}
-                activeIndex={activeIndex}
-              />
-            );
-          })}
+          {uaiStack.length < 1 ? (
+            <UAIEmptyState />
+          ) : (
+            uaiStack.map((uai, index) => {
+              return (
+                <Card
+                  uai={uai}
+                  key={uai.id}
+                  index={index}
+                  totalLength={uaiStack.length - 1}
+                  activeIndex={activeIndex}
+                />
+              );
+            })
+          )}
         </View>
       </GestureDetector>
     </GestureHandlerRootView>

@@ -51,14 +51,11 @@ function SignerCard({
         if (onCardSelect) onCardSelect(isSelected);
       }}
     >
-      {showSelection &&
-        (isSelected ? (
-          <Checked style={{ alignSelf: 'flex-end' }} />
-        ) : StaticIcon ? (
-          <StaticIcon style={{ alignSelf: 'flex-end' }} />
-        ) : (
-          <Box style={styles.circle} />
-        ))}
+      <Box style={styles.selectionIcon}>
+        {showSelection &&
+          (isSelected ? <Checked /> : StaticIcon ? <StaticIcon /> : <Box style={styles.circle} />)}
+      </Box>
+
       <Box style={styles.detailContainer}>
         <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
           {icon}
@@ -68,7 +65,7 @@ function SignerCard({
           color={`${colorMode}.primaryText`}
           style={styles.walletName}
           numberOfLines={isFullText ? 0 : 1}
-          bold
+          medium
         >
           {name}
         </Text>
@@ -92,13 +89,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     borderRadius: 10,
     margin: 3,
+    position: 'relative',
   },
   walletName: {
     fontSize: 12,
-    opacity: 0.80
+    letterSpacing: 0.12,
+    opacity: 0.8,
   },
   walletDescription: {
     fontSize: 11,
+    letterSpacing: 0.11,
   },
   circle: {
     width: 20,
@@ -128,6 +128,12 @@ const styles = StyleSheet.create({
     right: 0,
     borderWidth: 1,
     borderColor: 'white',
+  },
+  selectionIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    alignSelf: 'flex-end',
   },
 });
 

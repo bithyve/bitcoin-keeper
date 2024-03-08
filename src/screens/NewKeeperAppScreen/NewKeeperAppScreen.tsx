@@ -136,17 +136,17 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   function SignUpModalContent() {
     return (
-      <Box style={{ width: windowWidth * 0.7 }}>
-        <Box style={{ width: windowWidth * 0.7, marginBottom: hp(20) }}>
+      <Box style={{ width: windowWidth * 0.8 }}>
+        <Box style={{ width: windowWidth * 0.8, marginBottom: hp(20) }}>
           <LoadingAnimation />
         </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.contentText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.contentText}>
           {getSignUpModalContent().message}
         </Text>
         {!appCreated ? (
           <Box style={styles.modalMessageWrapper}>
             <Box style={{ width: '80%' }}>
-              <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+              <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
                 This step will take a few seconds. You would be able to proceed soon
               </Text>
             </Box>
@@ -161,16 +161,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Pressable
+      {
+        //Todo Learn more
+      }
+      {/* <Pressable
         backgroundColor={`${colorMode}.brownColor`}
         borderColor={`${colorMode}.brownColor`}
         style={styles.learnMoreContainer}
-      // learn more modal
+        // learn more modal
       >
-        <Text style={styles.learnMoreText} color={`${colorMode}.primaryBackground`}>
+        <Text style={styles.learnMoreText} medium color={`${colorMode}.primaryBackground`}>
           Need Help?
         </Text>
-      </Pressable>
+      </Pressable> */}
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
@@ -214,26 +217,26 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Box>
           </Pressable>
         </Box>
-        <Box>
-          <Text color={`${colorMode}.headerText`} bold fontSize={14}>
+        <Box style={styles.note}>
+          <Text color={`${colorMode}.headerText`} medium fontSize={14}>
             Note
           </Text>
-          <Text>
+          <Text fontSize={12} color={`${colorMode}.GreenishGrey`}>
             By proceeding you agree to our
             <Text
               color={`${colorMode}.headerText`}
               italic
-              style={styles.boldText}
+              bold
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             >
               {' '}
               Terms of Service{' '}
             </Text>
-            {'and\nour'}
+            {'and our'}
             <Text
               color={`${colorMode}.headerText`}
               italic
-              style={styles.boldText}
+              bold
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
             >
               {' '}
@@ -244,7 +247,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -253,13 +256,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(250)}
         showCloseIcon={false}
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -267,15 +270,17 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
-          navigation.replace('App', { screen: 'Home' });
+          setTimeout(() => {
+            navigation.replace('App', { screen: 'Home' });
+          }, 500)
         }}
-        subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(300)}
         showCloseIcon={false}
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -322,12 +327,13 @@ const styles = StyleSheet.create({
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
-    paddingTop: 5,
+    letterSpacing: 0.13,
+    paddingTop: 20,
   },
   contentText: {
     fontSize: 13,
-    letterSpacing: 0.65,
+    letterSpacing: 0.13,
+    width: '100%',
   },
   learnMoreContainer: {
     marginTop: hp(10),
@@ -352,8 +358,8 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     marginLeft: 10,
   },
-  boldText: {
-    fontWeight: '800',
+  note: {
+    width: wp(280),
   },
 });
 

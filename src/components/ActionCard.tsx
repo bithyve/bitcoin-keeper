@@ -47,7 +47,7 @@ function ActionCard({
           )}
           {icon && icon}
         </Box>
-        <Text numberOfLines={2} style={styles.cardName} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={2} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
         </Text>
         {description && (
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: 34 / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: hp(25),
+    marginTop: '4%',
     marginBottom: hp(10),
     marginLeft: 2,
   },
@@ -88,12 +88,11 @@ const styles = StyleSheet.create({
   },
   cardName: {
     fontSize: 12,
-    fontWeight: '700',
     lineHeight: 16,
-    letterSpacing: 0.30,
+    letterSpacing: 0.12,
   },
   cardPillContainer: {
-    width: 70,
+    maxWidth: wp(100),
     alignSelf: 'flex-end',
   },
 });

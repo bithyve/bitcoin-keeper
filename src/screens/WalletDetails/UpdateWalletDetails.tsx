@@ -107,7 +107,7 @@ function UpdateWalletDetails({ route }) {
       });
       if (isUpdated) {
         setWarringsVisible(false);
-        updateAppImageWorker({ payload: { wallet } });
+        updateAppImageWorker({ payload: { wallets: [wallet] } });
         navigtaion.goBack();
         showToast(walletTranslation.walletDetailsUpdate, <TickIcon />);
       } else showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);

@@ -47,6 +47,7 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
+import { getSignerNameFromType } from 'src/hardware';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -116,7 +117,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <MobileKeyIllustration />,
         description:
           '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
-        FAQ: 'https://help.bitcoinkeeper.app/knowledge-base/how-to-add-signing-devices/',
+        FAQ: 'https://help.bitcoinkeeper.app/hc/en-us',
       };
     case SignerType.SEED_WORDS:
       return {
@@ -130,8 +131,8 @@ const getSignerContent = (type: SignerType) => {
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       return {
-        title: 'Keeper as signer',
-        subTitle: 'You can use a specific BIP-85 wallet on App Key as a signer',
+        title: `${getSignerNameFromType(type)} as signer`,
+        subTitle: 'You can use a specific BIP-85 wallet on Keeper as a signer',
         assert: <KeeperSetupImage />,
         description:
           '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
@@ -183,7 +184,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <InhertanceKeyIcon />,
         description:
           '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
-        FAQ: `${KEEPER_KNOWLEDGEBASE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`,
+        FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
       };
     default:
       return {
@@ -332,7 +333,7 @@ function SigningDeviceDetails({ route }) {
         learnMore
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
-        title={signer.signerName}
+        title={getSignerNameFromType(signer.type, signer.isMock, false)}
         subtitle={
           signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }

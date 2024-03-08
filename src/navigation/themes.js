@@ -6,40 +6,40 @@ export const customTheme = extendTheme({
   fontConfig: {
     FiraSans: {
       100: {
-        normal: Fonts.FiraSansCondensedLight,
+        normal: Fonts.FiraSansLight,
         italic: Fonts.FiraSansLightItalic,
       },
       200: {
-        normal: Fonts.FiraSansCondensedRegular,
-        italic: Fonts.FiraSansCondensedItalic,
+        normal: Fonts.FiraSansRegular,
+        italic: Fonts.FiraSansItalic,
       },
       300: {
-        normal: Fonts.FiraSansCondensedBold,
-        italic: Fonts.FiraSansCondensedBoldItalic,
+        normal: Fonts.FiraSansMedium,
+        italic: Fonts.FiraSansMediumItalic,
       },
       400: {
-        normal: Fonts.FiraSansCondensedRegular,
-        italic: Fonts.FiraSansCondensedItalic,
+        normal: Fonts.FiraSansSemiBold,
+        italic: Fonts.FiraSansSemiBoldItalic,
       },
       500: {
-        normal: Fonts.FiraSansCondensedRegular,
-        italic: Fonts.FiraSansCondensedItalic,
+        normal: Fonts.FiraSansBold,
+        italic: Fonts.FiraSansBoldItalic,
       },
       600: {
-        normal: Fonts.FiraSansCondensedRegular,
-        italic: Fonts.FiraSansCondensedItalic,
+        normal: Fonts.FiraSansRegular,
+        italic: Fonts.FiraSansItalic,
       },
       700: {
-        normal: Fonts.FiraSansCondensedRegular,
-        italic: Fonts.FiraSansCondensedItalic,
+        normal: Fonts.FiraSansRegular,
+        italic: Fonts.FiraSansItalic,
       },
       800: {
-        normal: Fonts.FiraSansCondensedRegular,
-        italic: Fonts.FiraSansCondensedItalic,
+        normal: Fonts.FiraSansRegular,
+        italic: Fonts.FiraSansItalic,
       },
       900: {
-        normal: Fonts.FiraSansCondensedRegular,
-        italic: Fonts.FiraSansCondensedItalic,
+        normal: Fonts.FiraSansRegular,
+        italic: Fonts.FiraSansItalic,
       },
     },
   },
@@ -62,7 +62,7 @@ export const customTheme = extendTheme({
       modalGreenTitle: Colors.Black,
       modalAccentTitle: Colors.Black,
       modalWhiteButton: Colors.White,
-      modalWhiteButtonText: Colors.greenText,
+      modalWhiteButtonText: Colors.pantoneGreen,
       modalGreenLearnMore: Colors.CastelGreenDark,
       greenButtonBackground: Colors.pantoneGreen,
       choosePlanHome: Colors.White,

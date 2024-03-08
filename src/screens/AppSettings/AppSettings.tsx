@@ -67,9 +67,9 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: settings.needHelp,
+      cardName: `Need\nHelp?`,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`),
+      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
   ];
 
@@ -78,7 +78,7 @@ function AppSettings({ navigation, route }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`Keeper ${common.settings}`}
-        boldTitle
+        mediumTitle
         subtitle={settings.settingsSubTitle}
         // To-Do-Learn-More
         icon={
@@ -310,8 +310,7 @@ const styles = StyleSheet.create({
   },
   bottomLinkText: {
     fontSize: 13,
-    fontWeight: '400',
-    letterSpacing: 0.79,
+    letterSpacing: 0.13,
   },
   actionContainer: {
     flexDirection: 'row',

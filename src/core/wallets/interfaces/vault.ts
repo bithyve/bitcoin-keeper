@@ -43,6 +43,10 @@ export type signerXpubs = {
   [key in XpubTypes as string]: { xpub: string; derivationPath: string; xpriv?: string }[];
 };
 
+export type SignerExtraData = {
+  instanceNumber?: number;
+};
+
 export interface Signer {
   // Represents a h/w or s/w wallet(Signer)
   // Rel: Signer hosts multiple VaultSigners(key), diff derivation paths
@@ -60,6 +64,7 @@ export interface Signer {
   signerPolicy?: SignerPolicy; // Signing Server's Signer Policy
   inheritanceKeyInfo?: InheritanceKeyInfo; // IKS config and policy
   hidden: boolean;
+  extraData?: SignerExtraData;
 }
 
 export type RegisteredVaultInfo = {

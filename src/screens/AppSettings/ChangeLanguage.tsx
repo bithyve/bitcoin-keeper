@@ -13,152 +13,10 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import availableLanguages from 'src/context/Localization/availableLanguages';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Fonts from 'src/constants/Fonts';
 import FiatCurrencies from 'src/constants/FiatCurrencies';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import Switch from 'src/components/Switch/Switch';
 import OptionCard from 'src/components/OptionCard';
-
-const styles = StyleSheet.create({
-  btn: {
-    flexDirection: 'row',
-    width: '90%',
-    height: wp('13%'),
-    position: 'relative',
-    marginHorizontal: 12,
-    borderRadius: 10,
-  },
-  textCurrency: {
-    fontSize: 18,
-  },
-  icArrow: {
-    marginLeft: wp('3%'),
-    marginRight: wp('8%'),
-    alignSelf: 'center',
-  },
-  textValue: {
-    fontSize: 12,
-    marginLeft: wp('3%'),
-  },
-  mainText: {
-    color: '#00715B',
-  },
-  scrollViewWrapper: {
-    borderWidth: 1,
-    borderColor: Colors.Platinum,
-    borderRadius: 10,
-    margin: 15,
-    position: 'absolute',
-    width: '90%',
-    height: '70%',
-    zIndex: 10,
-    backgroundColor: '#FAF4ED',
-    top: 40,
-  },
-  langScrollViewWrapper: {
-    borderWidth: 1,
-    borderColor: Colors.Platinum,
-    borderRadius: 10,
-    margin: 15,
-    width: '90%',
-    zIndex: 10,
-    backgroundColor: '#FAF4ED',
-  },
-  menuWrapper: {
-    height: wp('13%'),
-    width: wp('15%'),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dropdownIconWrapper: {
-    marginLeft: 'auto',
-    height: wp('13%'),
-    justifyContent: 'center',
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-  emptyView: {
-    height: '55%',
-    alignSelf: 'center',
-    width: 2,
-  },
-  textValueWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    height: wp('13%'),
-  },
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#F7F2EC',
-  },
-  symbolWrapper: {
-    height: wp('13%'),
-    width: wp('15%'),
-    paddingLeft: wp('5%'),
-    backgroundColor: '#FAF4ED',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
-  },
-  symbolText: {
-    fontSize: 13,
-    color: '#00836A',
-  },
-  codeTextWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    height: wp('13%'),
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
-    backgroundColor: '#FAF4ED',
-  },
-  codeText: {
-    fontSize: 13,
-    marginLeft: wp('7%'),
-    letterSpacing: 0.6,
-  },
-  flagWrapper1: {
-    flexDirection: 'row',
-    height: wp('13%'),
-  },
-  flagWrapper2: {
-    height: wp('13%'),
-    width: wp('15%'),
-    marginLeft: wp('8%'),
-    backgroundColor: '#FAF4ED',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
-  },
-  flagStyle: {
-    fontFamily: Fonts.FiraSansCondensedMedium,
-    fontSize: 13,
-    color: '#00836A',
-    fontWeight: '700',
-  },
-  countryCodeWrapper1: {
-    flex: 1,
-    justifyContent: 'center',
-    height: wp('13%'),
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.Platinum,
-  },
-  countryCodeWrapper2: {
-    fontSize: 13,
-    marginLeft: wp('3%'),
-    letterSpacing: 0.6,
-  },
-  countryCodeText: {
-    textTransform: 'uppercase',
-  },
-  contentContainer: {
-    flex: 1,
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-});
 
 function ChangeLanguage() {
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
@@ -334,3 +192,144 @@ function ChangeLanguage() {
 }
 
 export default ChangeLanguage;
+
+const styles = StyleSheet.create({
+  btn: {
+    flexDirection: 'row',
+    width: '90%',
+    height: wp('13%'),
+    position: 'relative',
+    marginHorizontal: 12,
+    borderRadius: 10,
+  },
+  textCurrency: {
+    fontSize: 15,
+  },
+  icArrow: {
+    marginLeft: wp('3%'),
+    marginRight: wp('8%'),
+    alignSelf: 'center',
+  },
+  textValue: {
+    fontSize: 12,
+    letterSpacing: 0.36,
+    marginLeft: wp('3%'),
+  },
+  mainText: {
+    color: '#00715B',
+  },
+  scrollViewWrapper: {
+    borderWidth: 1,
+    borderColor: Colors.Platinum,
+    borderRadius: 10,
+    margin: 15,
+    position: 'absolute',
+    width: '90%',
+    height: '70%',
+    zIndex: 10,
+    backgroundColor: '#FAF4ED',
+    top: 40,
+  },
+  langScrollViewWrapper: {
+    borderWidth: 1,
+    borderColor: Colors.Platinum,
+    borderRadius: 10,
+    margin: 15,
+    width: '90%',
+    zIndex: 10,
+    backgroundColor: '#FAF4ED',
+  },
+  menuWrapper: {
+    height: wp('13%'),
+    width: wp('15%'),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdownIconWrapper: {
+    marginLeft: 'auto',
+    height: wp('13%'),
+    justifyContent: 'center',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  emptyView: {
+    height: '55%',
+    alignSelf: 'center',
+    width: 2,
+  },
+  textValueWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    height: wp('13%'),
+  },
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#F7F2EC',
+  },
+  symbolWrapper: {
+    height: wp('13%'),
+    width: wp('15%'),
+    paddingLeft: wp('5%'),
+    backgroundColor: '#FAF4ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.Platinum,
+  },
+  symbolText: {
+    fontSize: 13,
+    color: '#00836A',
+  },
+  codeTextWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    height: wp('13%'),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.Platinum,
+    backgroundColor: '#FAF4ED',
+  },
+  codeText: {
+    fontSize: 13,
+    marginLeft: wp('7%'),
+    letterSpacing: 0.6,
+  },
+  flagWrapper1: {
+    flexDirection: 'row',
+    height: wp('13%'),
+  },
+  flagWrapper2: {
+    height: wp('13%'),
+    width: wp('15%'),
+    marginLeft: wp('8%'),
+    backgroundColor: '#FAF4ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.Platinum,
+  },
+  flagStyle: {
+    fontSize: 13,
+    color: '#00836A',
+    fontWeight: '700',
+  },
+  countryCodeWrapper1: {
+    flex: 1,
+    justifyContent: 'center',
+    height: wp('13%'),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.Platinum,
+  },
+  countryCodeWrapper2: {
+    fontSize: 13,
+    marginLeft: wp('3%'),
+    letterSpacing: 0.6,
+  },
+  countryCodeText: {
+    textTransform: 'uppercase',
+  },
+  contentContainer: {
+    flex: 1,
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+});
