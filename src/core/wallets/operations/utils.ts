@@ -13,7 +13,7 @@ import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
 import config from 'src/core/config';
-import BIP32Factory from 'bip32';
+import BIP32Factory, { BIP32Interface } from 'bip32';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
@@ -105,6 +105,9 @@ export default class WalletUtilities {
   static getPurpose = (derivationPath: string): DerivationPurpose => {
     const purpose = parseInt(derivationPath.split('/')[1], 10);
     switch (purpose) {
+      case DerivationPurpose.BIP86:
+        return DerivationPurpose.BIP86;
+
       case DerivationPurpose.BIP84:
         return DerivationPurpose.BIP84;
 
@@ -128,6 +131,7 @@ export default class WalletUtilities {
   ) => {
     switch (purpose) {
       case DerivationPurpose.BIP84:
+      case DerivationPurpose.BIP86:
         return network === bitcoinJS.networks.bitcoin ? '04b24746' : '045f1cf6'; // zpub/vpub
 
       case DerivationPurpose.BIP49:
@@ -144,11 +148,19 @@ export default class WalletUtilities {
   static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
     ECPair.fromWIF(privateKey, network);
 
+  static toXOnly = (pubKey) => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
+
   static deriveAddressFromKeyPair = (
-    keyPair: ECPairInterface,
+    keyPair: ECPairInterface | BIP32Interface,
     network: bitcoinJS.Network,
     purpose: DerivationPurpose = DerivationPurpose.BIP84
   ): string => {
+    if (purpose === DerivationPurpose.BIP86) {
+      return bitcoinJS.payments.p2tr({
+        internalPubkey: WalletUtilities.toXOnly(keyPair.publicKey),
+        network,
+      }).address;
+    }
     if (purpose === DerivationPurpose.BIP84) {
       return bitcoinJS.payments.p2wpkh({
         pubkey: keyPair.publicKey,
@@ -170,6 +182,8 @@ export default class WalletUtilities {
         network,
       }).address;
     }
+
+    throw new Error("Unsupported derivation purpose, can't derive address");
   };
 
   static deriveMultiSig = (
@@ -268,7 +282,7 @@ export default class WalletUtilities {
     };
   };
 
-  static getP2SH = (keyPair: bip32.BIP32Interface, network: bitcoinJS.Network): bitcoinJS.Payment =>
+  static getP2SH = (keyPair: BIP32Interface, network: bitcoinJS.Network): bitcoinJS.Payment =>
     bitcoinJS.payments.p2sh({
       redeem: bitcoinJS.payments.p2wpkh({
         pubkey: keyPair.publicKey,
@@ -769,13 +783,12 @@ export default class WalletUtilities {
     return null;
   };
 
-  // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
   static getDerivationForScriptType = (scriptType: ScriptTypes, account = 0) => {
     const testnet = isTestnet();
     const networkType = testnet ? 1 : 0;
     switch (scriptType) {
       case ScriptTypes.P2WSH: // multisig native segwit
-        return `m/48'/${networkType}'/${account}'/2'`;
+        return `m/48'/${networkType}'/${account}'/2'`; // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
       case ScriptTypes.P2WPKH: // singlesig native segwit
         return `m/84'/${networkType}'/${account}'`;
       case ScriptTypes['P2SH-P2WPKH']: // singlesig wrapped segwit
@@ -786,6 +799,23 @@ export default class WalletUtilities {
         return `m/86'/${networkType}'/${account}'`;
       default: // multisig wrapped segwit
         return `m/48'/${networkType}'/${account}'/2'`;
+    }
+  };
+
+  static getScriptTypeFromPurpose = (purpose: DerivationPurpose) => {
+    switch (purpose) {
+      case DerivationPurpose.BIP86:
+        return ScriptTypes.P2TR;
+      case DerivationPurpose.BIP84:
+        return ScriptTypes.P2WPKH;
+      case DerivationPurpose.BIP49:
+        return ScriptTypes['P2SH-P2WPKH'];
+      case DerivationPurpose.BIP48:
+        return ScriptTypes.P2WSH;
+      case DerivationPurpose.BIP44:
+        return ScriptTypes.P2PKH;
+      default:
+        throw new Error(`Purpose:${purpose} not supported`);
     }
   };
 
