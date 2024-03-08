@@ -226,14 +226,7 @@ function EnterWalletDetailScreen({ route }) {
           </Box>
           <Box>
             <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.textInputWrapper}>
-              <KeeperTextInput
-                testID="input_wallet_path"
-                placeholder={importWallet.derivationPath}
-                placeholderTextColor={`${colorMode}.GreyText`}
-                value={path}
-                onChangeText={(value) => setPath(value)}
-                maxLength={20}
-              />
+              <Text bold>{path}</Text>
             </Box>
             <Box style={{ position: 'relative' }}>
               <Pressable
@@ -342,6 +335,9 @@ const styles = StyleSheet.create({
   },
   textInputWrapper: {
     borderRadius: 10,
+    height: hp(50),
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   textInput: {
     padding: 20,
