@@ -28,6 +28,7 @@ const derivationPurposeToLabel = {
   [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
   [DerivationPurpose.BIP49]: 'P2SH-P2WPKH: wrapped segwit, single-sig',
   [DerivationPurpose.BIP44]: 'P2PKH: legacy, single-sig',
+  [DerivationPurpose.BIP86]: 'P2TR: taproot, single-sig',
 };
 
 function AddDetailsFinalScreen({ route }) {
@@ -76,32 +77,31 @@ function AddDetailsFinalScreen({ route }) {
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
-    // TODO: remove this timeout once the crypto is optimised
-    setTimeout(() => {
-      const derivationConfig: DerivationConfig = {
-        path,
-        purpose,
-      };
-
-      const newWallet: NewWalletInfo = {
-        walletType,
-        walletDetails: {
-          name: walletName,
-          description: walletDescription,
-          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: parseInt(transferPolicy),
-          },
+    const derivationConfig: DerivationConfig = {
+      path,
+      purpose,
+    };
+    const newWallet: NewWalletInfo = {
+      walletType,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
+        derivationConfig: {
+          path,
+          purpose,
         },
-        importDetails: {
-          importedKey,
-          importedKeyDetails,
-          derivationConfig,
+        transferPolicy: {
+          id: uuidv4(),
+          threshold: parseInt(transferPolicy),
         },
-      };
-      dispatch(addNewWallets([newWallet]));
-    }, 200);
+      },
+      importDetails: {
+        importedKey,
+        importedKeyDetails,
+        derivationConfig,
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, transferPolicy, path]);
 
   useEffect(() => {

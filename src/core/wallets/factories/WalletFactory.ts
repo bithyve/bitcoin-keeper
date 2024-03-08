@@ -7,6 +7,7 @@ import {
   EntityKind,
   ImportedKeyType,
   NetworkType,
+  ScriptTypes,
   VisibilityType,
   WalletType,
   XpubTypes,
@@ -205,6 +206,9 @@ export const generateWallet = async ({
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
+  const scriptType: ScriptTypes = WalletUtilities.getScriptTypeFromPurpose(
+    WalletUtilities.getPurpose(derivationDetails.xDerivationPath)
+  );
 
   const wallet: Wallet = {
     id,
@@ -215,7 +219,7 @@ export const generateWallet = async ({
     derivationDetails,
     presentationData,
     specs,
-    scriptType: WalletUtilities.getScriptTypeFromPurpose(derivationConfig.purpose),
+    scriptType,
     transferPolicy,
     depositWalletId,
   };
