@@ -85,7 +85,7 @@ function SignerItem({
   return (
     <SignerCard
       key={signer.masterFingerprint}
-      name={getSignerNameFromType(signer.type, signer.isMock)}
+      name={getSignerNameFromType(signer.type, signer.isMock, false)}
       description={`Added ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       isSelected={false}
@@ -129,9 +129,9 @@ function SetupCollaborativeWallet() {
         return;
       }
 
-      // only use one of my app keys
+      // only use one of my mobile keys
       if (signerMap[masterFingerprint]?.type === SignerType.MY_KEEPER) {
-        showToast('You cannot use more than one of your own App Keys!', <ToastErrorIcon />);
+        showToast('You cannot use more than one of your own Mobile Keys!', <ToastErrorIcon />);
         resetQR();
         return;
       }

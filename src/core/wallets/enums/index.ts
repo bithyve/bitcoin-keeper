@@ -180,6 +180,7 @@ export enum KeyGenerationMode {
   NEW = 'NEW',
   RECOVER = 'RECOVER',
   IMPORT = 'IMPORT',
+  CREATE = 'CREATE',
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',

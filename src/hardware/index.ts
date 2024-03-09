@@ -21,6 +21,10 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { numberToOrdinal } from 'src/utils/utilities';
+import moment from 'moment';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -72,6 +76,10 @@ export const generateSignerFromMetaData = ({
     });
   }
 
+  const signerCount = dbManager
+    .getCollection(RealmSchema.Signer)
+    .filter((s) => s.type === signerType).length;
+
   const signer: Signer = {
     type: signerType,
     storageType,
@@ -84,6 +92,8 @@ export const generateSignerFromMetaData = ({
     inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
+    extraData: { instanceNumber: signerCount + 1 },
+    signerDescription: getSignerDescription(signerType, signerCount + 1),
   };
 
   const key: VaultSigner = {
@@ -97,6 +107,30 @@ export const generateSignerFromMetaData = ({
   return { signer, key };
 };
 
+export const getSignerDescription = (
+  signerType: SignerType,
+  instanceNumber: number,
+  signer?: Signer
+) => {
+  if (signer) {
+    if (signer.signerDescription) {
+      return signer.signerDescription;
+    } else if (signerType === SignerType.MY_KEEPER) {
+      return numberToOrdinal(instanceNumber);
+    } else if (signerType === SignerType.KEEPER) {
+      return 'External';
+    } else {
+      return `Added ${moment(signer.addedOn).calendar()}`;
+    }
+  }
+  if (signerType === SignerType.MY_KEEPER) {
+    return numberToOrdinal(instanceNumber);
+  } else if (signerType === SignerType.KEEPER) {
+    return 'External';
+  }
+  return '';
+};
+
 export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
   let name: string;
   switch (type) {
@@ -107,10 +141,10 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.MY_KEEPER:
-      name = 'App Key (This App)';
+      name = `Mobile Key`;
       break;
     case SignerType.KEEPER:
-      name = 'App Key';
+      name = 'Mobile Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -350,7 +384,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     }
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
-      return 'Use App Key as signer';
+      return 'Use Mobile Key as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
@@ -12,6 +12,7 @@ import useVault from 'src/hooks/useVault';
 import useTestSats from 'src/hooks/useTestSats';
 
 function CollabrativeWalletSettings() {
+  const { colorMode } = useColorMode();
   const route = useRoute();
   const { vaultId } = route.params as { vaultId: string };
   const { activeVault } = useVault({ vaultId });
@@ -20,7 +21,7 @@ function CollabrativeWalletSettings() {
   const TestSatsComponent = useTestSats({ wallet: activeVault });
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Collaborative Wallet Settings"
         subtitle={activeVault.presentationData.description}

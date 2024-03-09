@@ -17,6 +17,8 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
+import openLink from 'src/utils/OpenLink';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -134,17 +136,17 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   function SignUpModalContent() {
     return (
-      <Box style={{ width: windowWidth * 0.7 }}>
-        <Box style={{ width: windowWidth * 0.7, marginBottom: hp(20) }}>
+      <Box style={{ width: windowWidth * 0.8 }}>
+        <Box style={{ width: windowWidth * 0.8, marginBottom: hp(20) }}>
           <LoadingAnimation />
         </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.contentText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.contentText}>
           {getSignUpModalContent().message}
         </Text>
         {!appCreated ? (
           <Box style={styles.modalMessageWrapper}>
             <Box style={{ width: '80%' }}>
-              <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+              <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
                 This step will take a few seconds. You would be able to proceed soon
               </Text>
             </Box>
@@ -159,23 +161,26 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Pressable
+      {
+        //Todo Learn more
+      }
+      {/* <Pressable
         backgroundColor={`${colorMode}.brownColor`}
         borderColor={`${colorMode}.brownColor`}
         style={styles.learnMoreContainer}
         // learn more modal
       >
-        <Text style={styles.learnMoreText} color={`${colorMode}.primaryBackground`}>
+        <Text style={styles.learnMoreText} medium color={`${colorMode}.primaryBackground`}>
           Need Help?
         </Text>
-      </Pressable>
+      </Pressable> */}
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
             <Text color={`${colorMode}.headerText`} fontSize={18}>
               Welcome
             </Text>
-            <Text fontSize={14} color={`${colorMode}.SlateGrey`}>
+            <Text fontSize={14} color={`${colorMode}.secondaryText`}>
               Create a fresh app or recover an exisiting one
             </Text>
           </Box>
@@ -212,18 +217,28 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Box>
           </Pressable>
         </Box>
-        <Box>
-          <Text color={`${colorMode}.headerText`} bold fontSize={14}>
+        <Box style={styles.note}>
+          <Text color={`${colorMode}.headerText`} medium fontSize={14}>
             Note
           </Text>
-          <Text>
+          <Text fontSize={12} color={`${colorMode}.GreenishGrey`}>
             By proceeding you agree to our
-            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
+            <Text
+              color={`${colorMode}.headerText`}
+              italic
+              bold
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
+            >
               {' '}
               Terms of Service{' '}
             </Text>
-            {'and\nour'}
-            <Text color={`${colorMode}.headerText`} italic style={styles.boldText}>
+            {'and our'}
+            <Text
+              color={`${colorMode}.headerText`}
+              italic
+              bold
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
+            >
               {' '}
               Privacy Policy
             </Text>
@@ -241,7 +256,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(250)}
         showCloseIcon={false}
       />
@@ -255,10 +270,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
-          navigation.replace('App', { screen: 'Home' });
+          setTimeout(() => {
+            navigation.replace('App', { screen: 'Home' });
+          }, 500)
         }}
-        subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(300)}
         showCloseIcon={false}
       />
       <KeeperModal
@@ -310,12 +327,13 @@ const styles = StyleSheet.create({
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
-    paddingTop: 5,
+    letterSpacing: 0.13,
+    paddingTop: 20,
   },
   contentText: {
     fontSize: 13,
-    letterSpacing: 0.65,
+    letterSpacing: 0.13,
+    width: '100%',
   },
   learnMoreContainer: {
     marginTop: hp(10),
@@ -340,8 +358,8 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     marginLeft: 10,
   },
-  boldText: {
-    fontWeight: '800',
+  note: {
+    width: wp(280),
   },
 });
 

@@ -6,11 +6,8 @@ import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
-import BtcInput from 'src/assets/images/btc_input.svg';
-import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import Buttons from 'src/components/Buttons';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
@@ -27,10 +24,14 @@ import WalletOperations from 'src/core/wallets/operations';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BitcoinInput from 'src/assets/images/btc_input.svg';
+import useBalance from 'src/hooks/useBalance';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import { useAppSelector } from 'src/store/hooks';
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
+  const { getCurrencyIcon } = useBalance();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
 
@@ -41,6 +42,9 @@ function ReceiveScreen({ route }: { route }) {
 
   const { translations } = useContext(LocalizationContext);
   const { common, home, wallet: walletTranslation } = translations;
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
 
   useEffect(() => {
     const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
@@ -50,7 +54,7 @@ function ReceiveScreen({ route }: { route }) {
   useEffect(() => {
     if (amount) {
       const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
-        amount: parseInt(amount) / 10e8,
+        amount: parseInt(amount) / 1e8,
       }).paymentURI;
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);
@@ -65,7 +69,8 @@ function ReceiveScreen({ route }: { route }) {
           <View style={styles.inputParentView}>
             <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
               <View style={styles.btcIconWrapper}>
-                {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
+                {/* {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />} */}
+                {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
               </View>
               <Box
                 style={styles.verticalDeviderLine}
@@ -119,6 +124,7 @@ function ReceiveScreen({ route }: { route }) {
         />
         <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
           <Text
+            bold
             style={styles.receiveAddressText}
             color={`${colorMode}.recieverAddress`}
             numberOfLines={1}
@@ -199,7 +205,6 @@ const styles = StyleSheet.create({
   },
   receiveAddressText: {
     textAlign: 'center',
-    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',
@@ -229,7 +234,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.8,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1.04,
   },
   inputParentView: {

@@ -148,14 +148,14 @@ const getSignerContent = (
         type: SignerType.KEEPER,
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a wallet or create a new one from your Hot Wallets',
-          'Within settings choose Show co-signer Details to scan the QR',
+          'Choose a Mobile Key from your Keeper app (create) or from another Keeper app (import)',
+          'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
         title: 'Keep your Device Ready',
-        subTitle: 'Keep your App Key ready before proceeding',
+        subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
         options: [
           {
-            title: 'Import an App Key',
+            title: `Import a ${getSignerNameFromType(type)}`,
             icon: (
               <CircleIconWrapper
                 icon={<Import />}
@@ -166,7 +166,7 @@ const getSignerContent = (
             name: KeyGenerationMode.IMPORT,
           },
           {
-            title: 'Add a New App Key',
+            title: `Add a New ${getSignerNameFromType(type)}`,
             icon: (
               <CircleIconWrapper
                 icon={<Add />}
@@ -312,12 +312,25 @@ const getSignerContent = (
         type: SignerType.SEED_WORDS,
         Illustration: <SeedWordsIllustration />,
         Instructions: [
-          'This mnemonic (12 words) needs to be noted down and kept offline (the private keys are not stored on the app',
-          'Make sure that you’re noting down the words in private as exposing them will compromise the Seed Key',
+          'Make sure you secure the 12-word phrase in a safe place.',
+          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12 word Recovery Key.\nPlease note them down and store safely',
-        options: [],
+        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        options: [
+          {
+            title: 'Import',
+            icon: <Import />,
+            callback: () => {},
+            name: KeyGenerationMode.IMPORT,
+          },
+          {
+            title: 'Create',
+            icon: <RecoverImage />,
+            callback: () => {},
+            name: KeyGenerationMode.CREATE,
+          },
+        ],
       };
     case SignerType.TAPSIGNER:
       return {
@@ -367,6 +380,17 @@ const getSignerContent = (
             name: KeyGenerationMode.RECOVER,
           },
         ],
+      };
+    case SignerType.MY_KEEPER:
+      return {
+        type: SignerType.MY_KEEPER,
+        Illustration: <SeedWordsIllustration />,
+        Instructions: [
+          'Make sure you secure the 12-word phrase in a safe place.',
+          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
+        ],
+        title: isHealthcheck ? 'Verify Recovery Key' : 'Setting up Seed Key',
+        subTitle: 'Enter the Recovery Key to do a health check ',
       };
     default:
       return {
@@ -425,7 +449,7 @@ function SignerContent({
           <Instruction text={instruction} key={instruction} />
         ))}
         {sepInstruction && (
-          <Text fontSize={13} color={`${colorMode}.SlateGrey`}>
+          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
             {sepInstruction}
           </Text>
         )}
@@ -565,22 +589,49 @@ const verifyJade = (qrData, signer) => {
   return masterFingerprint === signer.masterFingerprint;
 };
 
-const setupKeeperSigner = (qrData, isMultisig, type = SignerType.KEEPER) => {
+export const setupKeeperSigner = (qrData) => {
   try {
-    const { mfp, xpubDetails } = JSON.parse(qrData);
+    let xpub, derivationPath, masterFingerprint, xpubDetails, xpriv;
+    let signerType = SignerType.KEEPER;
+    try {
+      const data = extractKeyFromDescriptor(qrData);
+      xpub = data.xpub;
+      derivationPath = data.derivationPath;
+      masterFingerprint = data.masterFingerprint;
+      if (!data.forMultiSig) {
+        throw new HWError(HWErrorType.INVALID_SIG);
+      }
+    } catch (err) {
+      // support crypto-account
+      if (qrData.xPub) {
+        xpub = qrData.xPub;
+        derivationPath = qrData.derivationPath;
+        masterFingerprint = qrData.mfp;
+      } else if (qrData.xpubDetails) {
+        xpub = qrData.xpubDetails[XpubTypes.P2WSH].xpub;
+        xpriv = qrData.xpubDetails[XpubTypes.P2WSH].xpriv;
+        derivationPath = qrData.xpubDetails[XpubTypes.P2WSH].derivationPath;
+        masterFingerprint = qrData.mfp;
+        signerType = SignerType.MY_KEEPER;
+      } else {
+        throw err;
+      }
+    }
     const { signer: ksd, key } = generateSignerFromMetaData({
-      xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
-      derivationPath: isMultisig
-        ? xpubDetails[XpubTypes.P2WSH].derivationPath
-        : xpubDetails[XpubTypes.P2WPKH].derivationPath,
-      masterFingerprint: mfp,
-      signerType: type,
+      xpub,
+      xpriv,
+      derivationPath,
+      masterFingerprint,
+      signerType,
       storageType: SignerStorage.WARM,
       isMultisig: true,
       xpubDetails,
     });
     return { signer: ksd, key };
   } catch (err) {
+    if (err instanceof HWError) {
+      throw err;
+    }
     const message = crossInteractionHandler(err);
     throw new Error(message);
   }
@@ -908,12 +959,14 @@ function HardwareModalMap({
     try {
       setInProgress(true);
       getCosignerDetails(primaryMnemonic, myAppKeyCount).then((cosigner) => {
-        const hw = setupKeeperSigner(JSON.stringify(cosigner), isMultisig, SignerType.MY_KEEPER);
-        dispatch(addSigningDevice([hw.signer]));
-        const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
-        navigation.dispatch(CommonActions.navigate(navigationState));
+        const hw = setupKeeperSigner(cosigner);
+        if (hw) {
+          dispatch(addSigningDevice([hw.signer]));
+          const navigationState = addSignerFlow
+            ? { name: 'ManageSigners' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
+        }
         setInProgress(false);
       });
     } catch (err) {
@@ -987,12 +1040,12 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToSeedWordSetup = () => {
+  const navigateToSeedWordSetup = (isImport = false) => {
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.VAULT_ADDITION) {
+    } else if (mode === InteracationMode.VAULT_ADDITION && !isImport) {
       close();
       const mnemonic = bip39.generateMnemonic();
       navigation.dispatch(
@@ -1021,11 +1074,35 @@ function HardwareModalMap({
           name: 'EnterSeedScreen',
           params: {
             mode,
-            isHealthCheck: true,
+            isHealthCheck: false,
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
             addSignerFlow,
+          },
+        })
+      );
+    } else if (isImport) {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'EnterSeedScreen',
+          params: {
+            mode,
+            isImport,
+            isHealthCheck: false,
+            signer,
+            isMultisig,
+            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+            addSignerFlow,
+            importSeedCta: (mnemonic) => {
+              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+              dispatch(addSigningDevice([signer]));
+              const navigationState = addSignerFlow
+                ? { name: 'ManageSigners' }
+                : { name: 'AddSigningDevice', merge: true, params: {} };
+              navigation.dispatch(CommonActions.navigate(navigationState));
+              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+            },
           },
         })
       );
@@ -1046,7 +1123,7 @@ function HardwareModalMap({
           hw = setupSpecter(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
-          hw = setupKeeperSigner(qrData, isMultisig);
+          hw = setupKeeperSigner(qrData);
           break;
         case SignerType.KEYSTONE:
           hw = setupKeystone(qrData, isMultisig);
@@ -1093,9 +1170,7 @@ function HardwareModalMap({
           `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
           <ToastErrorIcon />
         );
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        navigation.goBack();
       }
     }
   };
@@ -1459,7 +1534,8 @@ function HardwareModalMap({
           storageType: SignerStorage.WARM,
           isMultisig: true,
           inheritanceKeyInfo: {
-            configurations: setupInfo.configurations,
+            // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
+            configurations: [], // setupInfo.configurations,
             policy: setupInfo.policy,
           },
           xfp: setupInfo.id,
@@ -1533,6 +1609,13 @@ function HardwareModalMap({
         } else {
           setKeyGenerationMode(1);
         }
+      case SignerType.SEED_WORDS:
+        if (option.name === KeyGenerationMode.IMPORT) {
+          setKeyGenerationMode(0);
+        } else {
+          setKeyGenerationMode(1);
+        }
+
         break;
       default:
         break;
@@ -1566,6 +1649,13 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
+        if (keyGenerationMode === 0) {
+          return navigateToSeedWordSetup(true);
+        } else {
+          return navigateToSeedWordSetup();
+        }
+
+      case SignerType.MY_KEEPER:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
       case SignerType.TREZOR:
@@ -1590,7 +1680,6 @@ function HardwareModalMap({
         return null;
     }
   };
-
   return (
     <>
       <KeeperModal
@@ -1598,7 +1687,7 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText="Proceed"
+        buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}

@@ -624,16 +624,14 @@ PODS:
   - RNScreens (3.25.0):
     - React-Core
     - React-RCTImage
-  - RNSentry (4.3.1):
+  - RNSentry (4.15.2):
     - React-Core
-    - Sentry (= 7.24.1)
+    - Sentry/HybridSDK (= 7.31.5)
   - RNShare (9.2.3):
     - React-Core
   - RNSVG (13.13.0):
     - React-Core
-  - Sentry (7.24.1):
-    - Sentry/Core (= 7.24.1)
-  - Sentry/Core (7.24.1)
+  - Sentry/HybridSDK (7.31.5)
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -1013,14 +1011,14 @@ SPEC CHECKSUMS:
   RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
   RNReanimated: fdbaa9c964bbab7fac50c90862b6cc5f041679b9
   RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
-  RNSentry: 1cd4360f7c668f4d7e8f860e41da884f00e7d814
+  RNSentry: 4ea90ea061624364637e8077d965bf2e50478066
   RNShare: da6d90b6dc332f51f86498041d6e34211f96b630
   RNSVG: ed492aaf3af9ca01bc945f7a149d76d62e73ec82
-  Sentry: 1ed2d3f2973658bf6ab7ed43857c8e321a1625dd
+  Sentry: 4c9babff9034785067c896fd580b1f7de44da020
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: 02bd08bf392d848ea9b4eeef563c0e226f9c7594
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2

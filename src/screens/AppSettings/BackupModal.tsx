@@ -12,10 +12,10 @@ function BackupModalContent() {
       <Box style={styles.passImg}>
         <SeedwordsIllustration />
       </Box>
-      <Text color={`${colorMode}.headerText`} style={styles.modalHeading}>
+      <Text color={`${colorMode}.headerText`} medium style={styles.modalHeading}>
         Be aware
       </Text>
-      <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+      <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
         Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means
         you can’t recover your wallet
       </Text>
@@ -27,7 +27,7 @@ export default BackupModalContent;
 
 const styles = StyleSheet.create({
   contentContainer: {
-    width: wp(240),
+    width: wp(300),
     marginBottom: 20,
   },
   passImg: {
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.14,
-    fontWeight: '700',
   },
   modalMessageText: {
     fontSize: 13,

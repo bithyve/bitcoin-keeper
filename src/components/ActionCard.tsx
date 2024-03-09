@@ -27,7 +27,7 @@ function ActionCard({
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
   return (
-    <TouchableOpacity activeOpacity={0.95} onPress={callback}>
+    <TouchableOpacity testID={`btn_${cardName}`} activeOpacity={0.95} onPress={callback}>
       <Box
         style={[
           styles.cardContainer,
@@ -38,16 +38,16 @@ function ActionCard({
       >
         {cardPillText && (
           <Box style={styles.cardPillContainer}>
-            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.Periwinkle`} />
+            <CardPill heading={cardPillText} backgroundColor={`${colorMode}.btcLabelBack`} />
           </Box>
         )}
         <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
           {dottedBorder && (
-            <Box borderColor={`${colorMode}.PearlWhite`} style={styles.dottedBorder} />
+            <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
           {icon && icon}
         </Box>
-        <Text numberOfLines={2} style={styles.cardName} color={`${colorMode}.primaryText`}>
+        <Text numberOfLines={2} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
         </Text>
         {description && (
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: 34 / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: hp(25),
+    marginTop: '4%',
     marginBottom: hp(10),
     marginLeft: 2,
   },
@@ -88,11 +88,11 @@ const styles = StyleSheet.create({
   },
   cardName: {
     fontSize: 12,
-    fontWeight: '700',
     lineHeight: 16,
+    letterSpacing: 0.12,
   },
   cardPillContainer: {
-    width: 70,
+    maxWidth: wp(100),
     alignSelf: 'flex-end',
   },
 });

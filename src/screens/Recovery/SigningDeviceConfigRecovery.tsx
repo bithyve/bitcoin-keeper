@@ -54,13 +54,14 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
 };
 
 function ColdCardSetupContent() {
+  const { colorMode } = useColorMode();
   return (
     <View justifyContent="flex-start" width={wp(300)}>
       <Box ml={wp(21)}>
         <ColdCardSetupImage />
       </Box>
       <Box marginTop="4" alignItems="flex-start">
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             'Export the vault config by going to Setting > Multisig > Then select the wallet > Export '
           }
@@ -161,7 +162,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
           title="Recover using Coldcard"
           subTitle="Keep your Coldcard ready"
           buttonText="Proceed"
-          buttonTextColor="light.white"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({
@@ -171,7 +175,6 @@ function SigningDeviceConfigRecovery({ navigation }) {
             );
             close();
           }}
-          textColor="light.primaryText"
           Content={ColdCardSetupContent}
         />
 

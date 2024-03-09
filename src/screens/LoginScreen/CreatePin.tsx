@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unstable-nested-components */
-import Text from 'src/components/KeeperText';
 import { Box, StatusBar, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
@@ -7,6 +6,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
@@ -153,7 +153,7 @@ export default function CreatePin(props) {
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
-        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
           You would be locked out of the app if you forget your passcode and will have to recover it
         </Text>
       </Box>
@@ -206,7 +206,7 @@ export default function CreatePin(props) {
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color={`${colorMode}.error`} style={styles.errorText}>
+                    <Text color={`${colorMode}.error`} italic style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}
@@ -238,7 +238,7 @@ export default function CreatePin(props) {
         subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
         Key"
         modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.SlateGrey`}
+        subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
         buttonText="Continue"
@@ -252,7 +252,7 @@ export default function CreatePin(props) {
         }}
         Content={CreatePassModalContent}
         showButtons
-        subTitleWidth={wp(60)}
+        subTitleWidth={wp(80)}
       />
     </Box>
   );
@@ -273,17 +273,19 @@ const styles = StyleSheet.create({
   welcomeText: {
     marginLeft: 18,
     fontSize: 22,
+    letterSpacing: 0.22,
+    lineHeight: 27,
   },
   labelText: {
     fontSize: 14,
+    letterSpacing: 0.14,
     marginLeft: 18,
   },
   errorText: {
     fontSize: 11,
-    fontWeight: '400',
+    letterSpacing: 0.22,
     width: wp('68%'),
     textAlign: 'right',
-    fontStyle: 'italic',
   },
   bitcoinTestnetText: {
     fontWeight: '400',
@@ -293,7 +295,7 @@ const styles = StyleSheet.create({
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
+    letterSpacing: 0.13,
   },
   passImg: {
     alignItems: 'center',

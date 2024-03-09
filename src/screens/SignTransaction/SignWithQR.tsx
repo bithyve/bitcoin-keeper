@@ -1,6 +1,6 @@
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
@@ -23,6 +23,7 @@ import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 function SignWithQR() {
+  const { colorMode } = useColorMode();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
@@ -95,7 +96,7 @@ function SignWithQR() {
   const navigateToVaultRegistration = () =>
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />

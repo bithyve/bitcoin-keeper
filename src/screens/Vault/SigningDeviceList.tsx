@@ -138,15 +138,19 @@ function SigningDeviceList() {
               ]}
             >
               <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
-              <Box backgroundColor="light.divider" style={styles.divider} />
+              <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
-                <Text color="light.inActiveMsg" style={styles.messageText} numberOfLines={2}>
+                <Text
+                  color={`${colorMode}.inActiveMsg`}
+                  style={styles.messageText}
+                  numberOfLines={2}
+                >
                   {message}
                 </Text>
               </Box>
             </Box>
-            <Box backgroundColor={`${colorMode}.GreenishGrey`} style={styles.dividerStyle} />
+            <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
         <HardwareModalMap
@@ -218,7 +222,7 @@ function SigningDeviceList() {
           title="Signers"
           subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
           modalBackground={`${colorMode}.modalGreenBackground`}
-          buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
           buttonBackground={`${colorMode}.modalWhiteButton`}
           buttonText="Add Now"
           buttonCallback={() => {
@@ -229,7 +233,7 @@ function SigningDeviceList() {
           DarkCloseIcon
           learnMore
           learnMoreCallback={() =>
-            openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)
+            openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
           }
         />
       </Box>
@@ -290,7 +294,7 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.6,
   },
   dividerStyle: {
-    opacity: 0.7,
+    opacity: 0.6,
     width: '85%',
     alignSelf: 'center',
     height: 0.5,

@@ -48,6 +48,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
 import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 import Buttons from 'src/components/Buttons';
+import LoginMethod from 'src/models/enums/LoginMethod';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -76,6 +77,9 @@ function SendScreen({ route }) {
     (item) => item !== null
   );
   const otherWallets = allWallets.filter((existingWallet) => existingWallet.id !== sender.id);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -173,7 +177,8 @@ function SendScreen({ route }) {
 
   const handleTextChange = (info: string) => {
     info = info.trim();
-    const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+    let { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+    amount = satsEnabled ? Math.trunc(amount * 1e8) : amount;
     setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
@@ -196,20 +201,24 @@ function SendScreen({ route }) {
   };
 
   const handleProceed = () => {
-    if (sender.entityKind === EntityKind.VAULT) {
-      navigateToNext(
-        WalletOperations.getNextFreeAddress(selectedItem),
-        TransferType.VAULT_TO_WALLET,
-        null,
-        selectedItem
-      );
+    if (selectedItem) {
+      if (sender.entityKind === EntityKind.VAULT) {
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(selectedItem),
+          TransferType.VAULT_TO_WALLET,
+          null,
+          selectedItem
+        );
+      } else {
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(selectedItem),
+          TransferType.WALLET_TO_WALLET,
+          null,
+          selectedItem
+        );
+      }
     } else {
-      navigateToNext(
-        WalletOperations.getNextFreeAddress(selectedItem),
-        TransferType.WALLET_TO_WALLET,
-        null,
-        selectedItem
-      );
+      showToast('Please select a wallet or vault');
     }
   };
 
@@ -297,7 +306,7 @@ function SendScreen({ route }) {
                       <Box style={styles.emptyWalletsContainer}>
                         <EmptyWalletIcon />
                         <Box style={styles.emptyWalletText}>
-                          <Text color={`${colorMode}.deepTeal`}>
+                          <Text color={`${colorMode}.hexagonIconBackColor`}>
                             You don't have any wallets yet
                           </Text>
                         </Box>
@@ -371,7 +380,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   cameraView: {
-    height: hp(250),
+    height: hp(220),
     width: wp(375),
   },
   qrcontainer: {
@@ -393,7 +402,7 @@ const styles = StyleSheet.create({
   noteWrapper: {
     marginLeft: wp(20),
     position: 'absolute',
-    bottom: windowHeight > 680 ? hp(20) : hp(8),
+    bottom: windowHeight > 680 ? hp(15) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {

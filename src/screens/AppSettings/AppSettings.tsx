@@ -67,9 +67,9 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: common.FAQs,
+      cardName: `Need\nHelp?`,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`),
+      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
   ];
 
@@ -78,7 +78,7 @@ function AppSettings({ navigation, route }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`Keeper ${common.settings}`}
-        boldTitle
+        mediumTitle
         subtitle={settings.settingsSubTitle}
         // To-Do-Learn-More
         icon={
@@ -159,7 +159,7 @@ function AppSettings({ navigation, route }) {
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Pressable
-            onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}terms-of-service/`)}
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             testID="btn_termsCondition"
           >
             <Text
@@ -212,9 +212,9 @@ function AppSettings({ navigation, route }) {
         close={() => setBackupModalVisible(false)}
         title="Backup Recovery Key"
         subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
-        subTitleWidth={wp(240)}
+        subTitleWidth={wp(300)}
         modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.SlateGrey`}
+        subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
         buttonText="Backup Now"
@@ -310,8 +310,7 @@ const styles = StyleSheet.create({
   },
   bottomLinkText: {
     fontSize: 13,
-    fontWeight: '400',
-    letterSpacing: 0.79,
+    letterSpacing: 0.13,
   },
   actionContainer: {
     flexDirection: 'row',

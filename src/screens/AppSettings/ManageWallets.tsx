@@ -12,10 +12,8 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import ShowIcon from 'src/assets/images/show.svg';
-import ShowAllIcon from 'src/assets/images/eye_folder.svg';
-import AlignIcon from 'src/assets/images/align_right.svg';
 import dbManager from 'src/storage/realm/dbManager';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
 import KeeperModal from 'src/components/KeeperModal';
 import { useQuery } from '@realm/react';
@@ -63,7 +61,7 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
         <Box style={styles.alignCenter}>
           {getCurrencyIcon(BTC, 'green')}
           <Text fontSize={15} color={`${colorMode}.primaryText`}>
-            {`${getBalance(balance)} ${getSatUnit()}`}
+            {` ${getBalance(balance)} ${getSatUnit()}`}
           </Text>
         </Box>
         <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID="btnHide">
@@ -73,7 +71,7 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
             style={styles.learnMoreContainer}
           >
             {isHidden ? <ShowIcon /> : <HideWalletIcon />}
-            <Text color={`${colorMode}.white`} style={styles.learnMoreText}>
+            <Text color={`${colorMode}.white`} medium style={styles.learnMoreText}>
               {isHidden ? 'Unhide' : 'Hide'}
             </Text>
           </Box>
@@ -138,7 +136,7 @@ function ManageWallets() {
     const { id, entityKind, specs } = wallet;
     const isWallet = entityKind === EntityKind.WALLET;
 
-    if (hide && checkBalance && specs.balances.confirmed > 0) {
+    if (hide && checkBalance && specs.balances.confirmed + specs.balances.unconfirmed > 0) {
       setShowBalanceAlert(true);
       setSelectedWallet(wallet);
       return;
@@ -146,7 +144,6 @@ function ManageWallets() {
 
     try {
       const visibilityType = hide ? VisibilityType.HIDDEN : VisibilityType.DEFAULT;
-      console.log({ visibilityType });
       const schema = isWallet ? RealmSchema.Wallet : RealmSchema.Vault;
 
       dbManager.updateObjectById(schema, id, {
@@ -165,8 +162,12 @@ function ManageWallets() {
 
   function BalanceAlertModalContent() {
     return (
-      <Box>
-        <Box style={[styles.alignCenter, styles.BalanceModalContainer]}>
+      <Box style={styles.modalContainer}>
+        <Text
+          color={`${colorMode}.secondaryText`}
+          style={styles.unhideText}
+        >{`You can unhide this wallet anytime from App Settings > Manage Wallets`}</Text>
+        <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
             onPress={() => {
@@ -183,10 +184,7 @@ function ManageWallets() {
           <TouchableOpacity
             onPress={() => {
               setShowBalanceAlert(false);
-              const walletIndex = visibleWallets.findIndex(
-                (wallet) => wallet.id === selectedWallet.id
-              );
-              navigation.navigate('WalletDetails', { walletId: selectedWallet.id, walletIndex });
+              navigation.dispatch(CommonActions.navigate('Send', { sender: selectedWallet }));
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
@@ -205,7 +203,7 @@ function ManageWallets() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={settings.ManageWallets}
+        title={settings.ManageWalletsTitle}
         subtitle={settings.ManageWalletsSub}
         rightComponent={<CurrencyTypeSwitch />}
       />
@@ -221,7 +219,10 @@ function ManageWallets() {
             isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
             onBtnPress={
               item.presentationData.visibility === VisibilityType.HIDDEN
-                ? () => updateWalletVisibility(item, false)
+                ? () => {
+                    setConfirmPassVisible(true);
+                    setSelectedWallet(item);
+                  }
                 : () => updateWalletVisibility(item, true)
             }
           />
@@ -248,21 +249,23 @@ function ManageWallets() {
         }}
         visible={showBalanceAlert}
         title="You have funds in your wallet"
-        subTitle="It seems you have a balance in your wallet. Are you sure do you want to hide it?"
+        subTitle="You have sats in your wallet. Are you sure you want to hide it?"
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        subTitleWidth={wp(240)}
+        closeOnOverlayClick={false}
         showButtons
         showCloseIcon={false}
       />
 
       <KeeperModal
         visible={confirmPassVisible}
+        closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Confirm Passcode"
+        showCloseIcon={false}
+        title="Enter Passcode"
         subTitleWidth={wp(240)}
-        subTitle=""
+        subTitle="Confirm passcode to unhide wallets"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -294,7 +297,7 @@ const styles = StyleSheet.create({
   },
   learnMoreText: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 0.24,
     alignSelf: 'center',
   },
   cancelBtn: {
@@ -343,10 +346,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   BalanceModalContainer: {
-    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
   },
   walletsContainer: {
     marginHorizontal: 20,
     marginTop: '5%',
+  },
+  modalContainer: {
+    gap: 40,
+  },
+  unhideText: {
+    fontSize: 13,
+    width: wp(200),
   },
 });

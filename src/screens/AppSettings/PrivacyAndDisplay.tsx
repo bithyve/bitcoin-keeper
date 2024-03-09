@@ -154,7 +154,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
           </Box>
 
           <Box alignItems="flex-end">
-            {passcode.length === 4 && (
+            {passcode.length === 4 && passcode === confirmPasscode && (
               <TouchableOpacity
                 onPress={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
@@ -296,7 +296,7 @@ function PrivacyAndDisplay() {
             />
             <OptionCard
               title={settings.shareAnalytics}
-              description={settings.rememberPasscode}
+              description={settings.shareAnalyticsDesc}
               Icon={
                 <Switch
                   onValueChange={async () => await toggleSentryReports()}
@@ -333,6 +333,7 @@ function PrivacyAndDisplay() {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             primaryText="Confirm"
