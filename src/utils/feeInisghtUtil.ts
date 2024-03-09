@@ -65,16 +65,13 @@ export const generateFeeInsightStatement = (data: HistoricalInisightData[]) => {
   const dayComparison = latestFee > oneDayAgoFee ? 'up' : 'down';
   const weekComparison = latestFee > oneWeekAgoFee ? 'up' : 'down';
 
-  // Handle cases where the fee didn't change
-  const dayComparisonText = latestFee === oneDayAgoFee ? 'the same as' : dayComparison;
-  const weekComparisonText = latestFee === oneWeekAgoFee ? 'the same as' : weekComparison;
 
   return {
-    latestFee: `${latestFee} sats/vByte`,
-    dayComparisonText: dayComparisonText,
-    oneDayAgoFee:`${oneDayAgoFee} sats/vByte`,
-    weekComparisonText: weekComparisonText,
-    oneWeekAgoFee: `${oneWeekAgoFee} sats/vByte`,
+    latestFee: `${latestFee}`,
+    dayComparisonText: dayComparison,
+    oneDayAgoFee:`${oneDayAgoFee}`,
+    weekComparisonText: weekComparison,
+    oneWeekAgoFee: `${oneWeekAgoFee}`,
   };
 };
 

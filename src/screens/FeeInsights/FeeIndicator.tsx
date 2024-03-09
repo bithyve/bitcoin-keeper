@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import { SegmentedArc } from '@shipt/segmented-arc-for-react-native';
 import Fonts from 'src/constants/Fonts';
-import { useColorMode } from 'native-base';
+import { View, useColorMode } from 'native-base';
 import customTheme from 'src/navigation/themes';
 import { calculateIndicatorScale } from 'src/utils/feeInisghtUtil';
 interface Props {
@@ -10,38 +10,21 @@ interface Props {
 }
 
 const FeeIndicator = (props: Props) => {
-  const range = ['10', '20', '30', '40', '50'];
+  const range = [''];
   const { percentageDifference } = props;
   const { colorMode } = useColorMode();
 
   const segments = [
     {
-      scale: 0.25,
-      filledColor: customTheme.colors[colorMode].forestGreen,
-      emptyColor: customTheme.colors[colorMode].forestGreen,
+      scale: 1,
+      filledColor: customTheme.colors[colorMode].pantoneGreen,
+      emptyColor: customTheme.colors[colorMode].pantoneGreen,
       data: { label: 'LOW' },
-    },
-    {
-      scale: 0.25,
-      filledColor: customTheme.colors[colorMode].amber,
-      emptyColor: customTheme.colors[colorMode].amber,
-      data: { label: 'MEDIUM' },
-    },
-    {
-      scale: 0.25,
-      filledColor: customTheme.colors[colorMode].amber,
-      emptyColor: customTheme.colors[colorMode].amber,
-      data: { label: 'MEDIUM' },
-    },
-    {
-      scale: 0.25,
-      filledColor: customTheme.colors[colorMode].errorRed,
-      emptyColor: customTheme.colors[colorMode].errorRed,
-      data: { label: 'HIGH' },
     },
   ];
 
   return (
+    <View style={styles.container}>
     <SegmentedArc
       segments={segments}
       fillValue={calculateIndicatorScale(percentageDifference)}
@@ -50,10 +33,14 @@ const FeeIndicator = (props: Props) => {
       showArcRanges={false}
       ranges={range}
       radius={40}
+      filledArcWidth={6}
+      emptyArcWidth={6}
+      spaceBetweenSegments={0}
       rangesTextStyle={styles.rangeTextStyle}
-      capInnerColor={customTheme.colors[colorMode].primaryGreen}
+      capInnerColor={customTheme.colors[colorMode].pantoneGreen}
       capOuterColor={customTheme.colors[colorMode].OffWhite}
     />
+    </View>
   );
 };
 
@@ -61,7 +48,6 @@ export default FeeIndicator;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 10,
   },
   rangeTextStyle: {
     fontSize: 12,

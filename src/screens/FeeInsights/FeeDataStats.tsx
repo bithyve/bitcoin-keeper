@@ -4,108 +4,59 @@ import Relay from 'src/services/operations/Relay';
 import Text from 'src/components/KeeperText';
 import { useColorMode } from 'native-base';
 import { useAppSelector } from 'src/store/hooks';
+import FeeInsightCard from './FeeInsightCard';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 interface DataItem {
-  label: string;
-  suffix: string;
-  prefix: string;
-  format: boolean;
+  btc_data: {
+    btc_price_change_percent: number;
+    btc_price_usd: number;
+    last_updated: number;
+  };
+  suggested_fee: number;
 }
 
-const DataPoints = {
-  blocks_24h: {
-    label: 'Blocks',
-    suffix: '',
-    prefix: '',
-    format: false,
-  },
-  suggested_transaction_fee_per_byte_sat: {
-    label: 'Suggested txn fee',
-    suffix: ' sat(s)/vB',
-    prefix: '',
-    format: false,
-  },
-  average_transaction_fee_usd_24h: {
-    label: 'Average txn fee',
-    suffix: '',
-    prefix: '$',
-    format: false,
-  },
-  transactions_24h: {
-    label: 'Transaction in 24h',
-    suffix: '',
-    prefix: '',
-    format: true,
-  },
-  market_price_usd: {
-    label: 'BTC Market Price',
-    suffix: '',
-    prefix: '$',
-    format: true,
-  },
-  market_price_usd_change_24h_percentage: {
-    label: 'Market Price change USD',
-    suffix: '%',
-    prefix: '',
-    format: false,
-  },
-  average_transaction_fee_24h: {
-    label: 'Average txn fee',
-    suffix: ' sats/vB',
-    prefix: '',
-    format: false,
-  },
-};
-
 const FeeDataStats = () => {
-  const [feeInsight, setFeeInsight] = useState({});
+  const [feeInsight, setFeeInsight] = useState<DataItem>({
+    btc_data: {
+      btc_price_change_percent: 0,
+      btc_price_usd: 0,
+      last_updated: 0,
+    },
+    suggested_fee: 0,
+  });
   const { colorMode } = useColorMode();
+  const exchangeRates = useExchangeRates();
   const { currencyKind } = useAppSelector((state) => state.settings);
+  const currencyCode = useCurrencyCode();
   useEffect(() => {
     const fetchInsightData = async () => {
-        const result = await Relay.feeOneDayInsights();
-        if (result && result.data) {
-          setFeeInsight(result.data);
-        }
+      const result = await Relay.fetchFeeInsightData();
+      if (result && result.btc_data) {
+        setFeeInsight(result);
+      }
     };
 
     fetchInsightData();
   }, []);
 
-  function formatData(data: DataItem, value: number) {
-    let finalStr = `${data.prefix}${Math.round(value * 100) / 100}${data.suffix}`;
-    if (!data.format) {
-      return finalStr;
-    }
-    var result = finalStr;
-    var lastThree = result.substring(result.length - 3);
-    var otherNumbers = result.substring(0, result.length - 3);
-    if (otherNumbers != '') lastThree = ',' + lastThree;
-    result = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThree;
-    return result;
+  function convertFiatToSats(fiatAmount: number) {
+    return exchangeRates && exchangeRates[currencyCode]
+      ? (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
+      : 0;
   }
 
-  const renderStatsUI = () => {
-    return Object.entries(feeInsight || {}).map(([key, value]: [string, number]) => {
-      if (DataPoints[key]) {
-        if (currencyKind !== 'BITCOIN' && key === 'average_transaction_fee_24h') {
-          return null;
-        }
-        if (currencyKind !== 'FIAT' && key === 'average_transaction_fee_usd_24h') {
-          return null;
-        }
-        return (
-          <View style={styles.boxWrapper} key={key}>
-            <Text style={styles.dataLabel}>{DataPoints[key].label}</Text>
-            <Text style={styles.dataLabel}>{formatData(DataPoints[key], value)}</Text>
-          </View>
-        );
-      }
-      return null;
-    });
-  };
+  function addCommas(value: string) {
+    var lastThree = value.substring(value.length - 3);
+    var otherNumbers = value.substring(0, value.length - 3);
+    if (otherNumbers != '') lastThree = ',' + lastThree;
+    value = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThree;
+    return value;
+  }
 
-  if(feeInsight && Object.keys(feeInsight).length === 0){
+  if (feeInsight && Object.keys(feeInsight).length === 0) {
     return null;
   }
 
@@ -114,12 +65,37 @@ const FeeDataStats = () => {
       <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>
         24 hours statistics
       </Text>
-      {feeInsight ? renderStatsUI() : <Text color={`${colorMode}.SlateGrey`} style={styles.dataStats}>No data available.</Text>}
+      <View style={styles.cardWrapper}>
+        <FeeInsightCard
+          line1={'BTC'}
+          line2={'Market Price'}
+          suffix={''}
+          stats={`$${addCommas(String(feeInsight.btc_data.btc_price_usd))}`}
+        />
+        <FeeInsightCard
+          line1={'Market price'}
+          line2={'change USD'}
+          suffix={'%'}
+          stats={feeInsight.btc_data.btc_price_change_percent.toFixed(2)}
+        />
+        {currencyKind === 'BITCOIN' && <FeeInsightCard
+          line1={'Suggested'}
+          line2={'txn fee (fast)'}
+          suffix={' sats/vByte'}
+          stats={feeInsight.suggested_fee}
+        />}
+        {currencyKind === 'FIAT' && <FeeInsightCard
+          line1={'Suggested'}
+          line2={'txn fee (fast)'}
+          suffix={''}
+          stats={`$${convertFiatToSats(feeInsight.suggested_fee).toFixed(5)}`}
+        />}
+      </View>
     </View>
   );
 };
 
-export default FeeDataStats;
+export default React.memo(FeeDataStats);
 
 const styles = StyleSheet.create({
   container: {
@@ -143,6 +119,10 @@ const styles = StyleSheet.create({
   titleLabel: {
     fontSize: 16,
     letterSpacing: 1,
-    marginBottom: 5,
+  },
+  cardWrapper: {
+    flexDirection: 'row',
+    marginTop: 10,
+    gap: 7,
   },
 });

@@ -13,6 +13,7 @@ interface Props {
 
 const FeerateStatement = (props: Props) => {
   const [shortFeeStatement, setShortFeeStatement] = useState('');
+  const [arrowPointer, setArrowPointer] = useState('higher');
   const [percentageDifference, setPercentageDifference] = useState(0);
   const { showFeesInsightModal, feeInsightData } = props;
   useEffect(() => {
@@ -42,8 +43,10 @@ const FeerateStatement = (props: Props) => {
     if (difference === 0) {
       resultStatement = 'Fees are the same as the usual average.';
     } else if (difference > 0) {
+      setArrowPointer('higher');
       resultStatement = `Fees are ${percentageDifference.toFixed(2)}% higher than usual.`;
     } else {
+      setArrowPointer('lower');
       resultStatement = `Fees are ${Math.abs(percentageDifference).toFixed(2)}% lower than usual.`;
     }
     setPercentageDifference(percentageDifference);
@@ -55,19 +58,22 @@ const FeerateStatement = (props: Props) => {
   }
 
   return (
-      <TouchableOpacity onPress={showFeesInsightModal} style={styles.feeInsightContainer}>
-        <Text style={styles.highAlertSatsFee}>
-          {shortFeeStatement}
-          {'\n'}
-          <Text style={styles.viewMore}>View insights</Text>
-        </Text>
-        <View style={styles.feeIndicatorWrapper}>
-          <FeeIndicator percentageDifference={percentageDifference} />
+    <TouchableOpacity onPress={showFeesInsightModal} style={styles.feeInsightContainer}>
+      <View style={styles.feeIndicatorWrapper}>
+        <FeeIndicator percentageDifference={percentageDifference} />
+      </View>
+      <View style={styles.divider}></View>
+      <View style={styles.statementWrapper}>
+        <Text style={styles.highAlertSatsFee}>Fees are</Text>
+        <View>
+          <Text style={styles.percentageStatement}>{Math.abs(Number(percentageDifference.toFixed(2)))}%</Text>
+          <Text style={styles.highAlertSatsFee}>{arrowPointer} than usual</Text>
         </View>
-        <View style={styles.ctaContainer}>
-          <RightArrowIcon />
-        </View>
-      </TouchableOpacity>
+      </View>
+      <View style={styles.ctaContainer}>
+        <RightArrowIcon />
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -75,9 +81,15 @@ export default FeerateStatement;
 
 const styles = StyleSheet.create({
   feeInsightContainer: {
-    width:'100%',
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  divider: {
+    flex: 1,
+  },
+  statementWrapper: {
+    flex: 1,
   },
   highlightFee: {
     fontSize: 14,
@@ -85,7 +97,8 @@ const styles = StyleSheet.create({
   },
   feeIndicatorWrapper: {
     position: 'absolute',
-    right: -20,
+    left: -20,
+    top:10
   },
   viewMore: {
     fontSize: 12,
@@ -95,8 +108,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: Fonts.FiraSansCondensedRegular,
   },
+  percentageStatement: {
+    fontSize: 16,
+    fontFamily: Fonts.FiraSansCondensedBold,
+  },
   ctaContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    width: 20,
   },
 });

@@ -500,13 +500,15 @@ function HighFeeAlert({
   const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
   return (
     <>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+     <View style={styles.boxWrapper}>
+     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
           <Text style={styles.highAlertFiatFee}>{selectedFee}&nbsp;&nbsp;</Text>
           <Text style={styles.highAlertSatsFee}>{getBalance(selectedFee)}</Text>
         </Box>
       </Box>
+      <View style={styles.divider}/>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
@@ -514,13 +516,17 @@ function HighFeeAlert({
           <Text style={styles.highAlertSatsFee}>{getBalance(amountToSend)}</Text>
         </Box>
       </Box>
+     </View>
+     <Text style={styles.statsTitle}>Fee Stats</Text>
       {OneDayHistoricalFee.length>0 && <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
         <FeerateStatement
           showFeesInsightModal={showFeesInsightModal}
           feeInsightData={OneDayHistoricalFee}
         />
       </Box>}
+      <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
     </>
+    
   );
 }
 
@@ -1103,25 +1109,41 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.FiraSansCondensedRegular,
     letterSpacing: 0.55,
   },
+  statsTitle: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedMedium,
+    letterSpacing: 0.55,
+    marginLeft:5
+  },
   highFeeDetailsWrapper: {
     flexDirection: 'row',
     width: '100%',
   },
+  boxWrapper:{
+    flexDirection:'row',
+    marginBottom: 10,
+    width:'100%'
+  },
+  divider:{
+    width:5,
+    height:'100%'
+  },
   highFeeDetailsContainer: {
-    width: windowWidth * 0.8,
     padding: 10,
-    marginVertical: 10,
+    flex:1,
+    borderRadius:10
   },
   feeStatementContainer:{
     width: windowWidth * 0.8,
     padding: 10,
-    marginVertical: 10,
+    marginVertical: 5,
+    borderRadius:10
   },
   feeStatementWrapper:{
     width:'100%',
     padding: 10,
     marginVertical: 10,
-    borderRadius:10
+    borderRadius:10,
   },
   highAlertFiatFee: {
     fontSize: 16,

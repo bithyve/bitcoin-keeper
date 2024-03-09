@@ -9,8 +9,8 @@ import { useColorMode } from 'native-base';
 import { calculateAverageBlockTime, generateFeeInsightStatement } from 'src/utils/feeInisghtUtil';
 import Fonts from 'src/constants/Fonts';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
-
-
+import FeeInsightCard from './FeeInsightCard';
+import FeeDataSource from './FeeDataSource';
 
 const FeeInsightsContent = () => {
   const [oneWeekFeeRate, setOneWeekFreeRate] = useState([]);
@@ -53,7 +53,7 @@ const FeeInsightsContent = () => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ minHeight: 400 }}>
         <View style={[styles.headerWrapper, { backgroundColor: `${colorMode}.seashellWhite` }]}>
           <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>
-            Fee Insights
+            BTC transaction fee insights
           </Text>
         </View>
         {isLoading ? (
@@ -62,21 +62,31 @@ const FeeInsightsContent = () => {
           </View>
         ) : (
           <>
-            <Text style={styles.statementWrapper}>
-              Average txn fee is{' '}
-              <Text style={styles.highlightFee}>{feeInsightStatement.latestFee}</Text>,{' '}
-              {feeInsightStatement.dayComparisonText} from{' '}
-              <Text style={styles.highlightFee}>{feeInsightStatement.oneDayAgoFee}</Text> yesterday
-              and {feeInsightStatement.weekComparisonText}{' '}
-              <Text style={styles.highlightFee}>{feeInsightStatement.oneWeekAgoFee}</Text> a
-              week ago.
-              {'\n'}
-              {'\n'}
-              Blocks are being mined at an average of{' '}
-              <Text style={styles.highlightFee}>{blockTime}</Text> in the last 24 hours.
-            </Text>
+            <View style={styles.cardWrapper}>
+              <FeeInsightCard
+                line1={'Current'}
+                line2={'average'}
+                suffix={' sats/vByte'}
+                stats={feeInsightStatement.latestFee}
+              />
+              <FeeInsightCard
+                line1={'From'}
+                line2={'yesterday'}
+                suffix={' sats/vByte'}
+                stats={feeInsightStatement.oneDayAgoFee}
+                showArrow={true}
+                pointer={feeInsightStatement.dayComparisonText}
+              />
+              <FeeInsightCard
+                line1={`This week's`}
+                line2={'average'}
+                suffix={' sats/vByte'}
+                stats={feeInsightStatement.oneWeekAgoFee}
+              />
+            </View>
             <FeeGraph dataSet={oneWeekFeeRate} recentData={oneDayFeeRate} />
             <FeeDataStats />
+            <FeeDataSource/>
           </>
         )}
       </ScrollView>
@@ -112,5 +122,10 @@ const styles = StyleSheet.create({
   },
   highlightFee: {
     fontFamily: Fonts.FiraSansCondensedBold,
+  },
+  cardWrapper: {
+    flexDirection: 'row',
+    marginTop: 20,
+    gap: 7,
   },
 });
