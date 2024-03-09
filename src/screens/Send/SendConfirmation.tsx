@@ -53,6 +53,7 @@ import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
 import FeerateStatement from 'src/screens/FeeInsights/FeerateStatement';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import Fonts from 'src/constants/Fonts';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,

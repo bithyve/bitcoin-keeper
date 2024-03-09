@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   addNowWrapper: {
-    width: '25%',
+    width: '28%',
   },
   addNowCTAWrapper: {
     padding: 5,
