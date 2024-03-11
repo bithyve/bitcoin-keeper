@@ -35,6 +35,7 @@ function WalletFingerprint({ title, fingerprint, copy }: Props) {
         </Text>
       </Box>
       <Pressable
+        testID={`btn_copyToClipboard${fingerprint}`}
         backgroundColor={`${colorMode}.whiteText`}
         style={styles.iconContainer}
         onPress={() => {
