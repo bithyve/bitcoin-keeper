@@ -6,21 +6,26 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
+import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import InheritanceHeader from '../InheritanceHeader';
 
 function CanaryWallets({}) {
   const { colorMode } = useColorMode();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
-      <KeeperHeader />
-      <ScrollView contentContainerStyle={{ alignItems: 'center', height: '100%' }}>
+      <InheritanceHeader />
+      <ScrollView contentContainerStyle={styles.mainContainer}>
         <Text style={styles.heading}>Canary Wallets</Text>
         <Text style={styles.description}>Alert on key compromise</Text>
         <Text style={styles.commonTextStyle}>
           Each key used in a multi-key wallet can also be used as a single-key wallet itself.
           Keeping funds in these wallets act as Canary.
         </Text>
-        <Box style={styles.circleStyle} />
+
+        <Box style={styles.circleStyle}>
+          <CanaryIcon />
+        </Box>
         <Text style={styles.commonTextStyle}>
           If someone gets access to one of the keys and finds funds in the single-key wallet they
           may try to withdraw those funds. This will be detected by the app and the user will be
@@ -39,6 +44,7 @@ const styles = StyleSheet.create({
     gap: 25,
     marginTop: 20,
   },
+  mainContainer: { height: '100%', marginLeft: wp(20) },
   walletType: {
     justifyContent: 'space-between',
     gap: 10,
@@ -52,16 +58,12 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   commonTextStyle: {
-    textAlign: 'center',
+    // textAlign: 'center',
     marginTop: hp(40),
     color: Colors.white,
   },
   circleStyle: {
-    backgroundColor: 'rgba(7,59,54,0.7)',
-    borderRadius: 100,
-    marginTop: hp(40),
-    height: hp(170),
-    width: wp(170),
+    alignItems: 'center',
   },
 });
 
