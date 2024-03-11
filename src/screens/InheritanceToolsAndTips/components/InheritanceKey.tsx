@@ -7,14 +7,16 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
+import InheritanceHeader from '../InheritanceHeader';
+import DashedButton from 'src/components/DashedButton';
 
 function InheritanceKey({}) {
   const { colorMode } = useColorMode();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
-      <KeeperHeader />
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+      <InheritanceHeader />
+      <ScrollView>
         <Text style={styles.heading}>Inheritance Key</Text>
         <Text style={styles.description}>Set up an additional key</Text>
         <Text style={styles.commonTextStyle}>
@@ -26,12 +28,11 @@ function InheritanceKey({}) {
           This gives time to the user to decline the request if they don’t identify it. The request
           alerts are sent on the app and can also be sent on email or via. sms.
         </Text>
-        <Box style={styles.addContainer}>
-          <Text color={`${colorMode}.white`}>Configuration files as on 21st March 2024</Text>
-          <AddCard
+        <Box mt={20} alignItems={'center'}>
+          <DashedButton
+            description="Lorem ipsum dolor amet"
+            callback={() => {}}
             name="Add inheritance key"
-            nameColor={`${colorMode}.white`}
-            borderColor={`${colorMode}.white`}
           />
         </Box>
 
@@ -66,7 +67,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   commonTextStyle: {
-    textAlign: 'center',
     marginTop: hp(40),
     color: Colors.white,
   },

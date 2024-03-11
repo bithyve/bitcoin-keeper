@@ -2,19 +2,20 @@ import React from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
+import InheritanceHeader from '../InheritanceHeader';
+import DashedButton from 'src/components/DashedButton';
+import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 
 function WalletConfigurationFiles({}) {
   const { colorMode } = useColorMode();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
-      <KeeperHeader />
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+      <InheritanceHeader />
+      <ScrollView>
         <Text style={styles.heading}>Wallet Configuration Files</Text>
         <Text style={styles.description}>Download for all vaults</Text>
         <Text style={styles.commonTextStyle}>
@@ -25,12 +26,14 @@ function WalletConfigurationFiles({}) {
           For multisig wallets or vaults, it is mportant to have the configuration files along with
           the minimum number of keys needed.
         </Text>
-        <Box style={styles.addContainer}>
-          <Text color={`${colorMode}.white`}>Configuration files as on 21st March 2024</Text>
-          <AddCard
+        <Box style={styles.circleStyle}>
+          <CanaryIcon />
+        </Box>
+        <Box mt={5} alignItems={'center'}>
+          <DashedButton
+            description="Configuration files as on 21st March 2024"
+            callback={() => {}}
             name="Download Document"
-            nameColor={`${colorMode}.white`}
-            borderColor={`${colorMode}.white`}
           />
         </Box>
 
@@ -66,8 +69,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   commonTextStyle: {
-    textAlign: 'center',
-    marginTop: hp(40),
+    marginTop: hp(20),
     color: Colors.white,
   },
   addContainer: {
@@ -79,6 +81,10 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: hp(40),
     color: Colors.white,
+  },
+  circleStyle: {
+    alignItems: 'center',
+    marginTop: hp(20),
   },
 });
 

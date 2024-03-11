@@ -21,6 +21,7 @@ type AddSignerCardProps = {
   loading?: boolean;
   borderColor?: string;
   nameColor?: string;
+  icon?: any;
 };
 
 function AddCard({
@@ -32,6 +33,7 @@ function AddCard({
   loading = false,
   borderColor,
   nameColor,
+  icon = <AddCardIcon />,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
@@ -46,9 +48,9 @@ function AddCard({
             width={iconWidth}
             height={iconHeight}
             backgroundColor={Colors.pantoneGreen}
-            icon={<AddCardIcon />}
+            icon={icon}
           />
-          <Text semiBold color={`${colorMode}.headerText`} style={styles.nameStyle}>
+          <Text semiBold color={`${colorMode}.white`} style={styles.nameStyle}>
             {name}
           </Text>
           {loading ? <ActivityIndicator /> : null}

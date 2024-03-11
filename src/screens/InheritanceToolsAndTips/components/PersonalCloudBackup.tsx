@@ -2,21 +2,22 @@ import React from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
+import InheritanceHeader from '../InheritanceHeader';
+import DashedButton from 'src/components/DashedButton';
+import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 
 function PersonalCloudBackup({}) {
   const { colorMode } = useColorMode();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
-      <KeeperHeader />
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+      <InheritanceHeader />
+      <ScrollView>
         <Text style={styles.heading}>Personal Cloud Backup</Text>
-        <Text style={styles.description}>Use your iCloud or Google Drive</Text>
+        <Text style={styles.description}>Use your iCloud</Text>
         <Text style={styles.commonTextStyle}>
           Wallet configuration files for vaults can alternatively be stored on the users personal
           cloud. This ensures that the user has access to them even if they do not have the Keeper
@@ -26,11 +27,14 @@ function PersonalCloudBackup({}) {
           These files are also encrypted with the Mater Recovery Key which needs to be backed up
           properly.
         </Text>
-        <Box style={styles.addContainer}>
-          <AddCard
-            name="Backup configuration file"
-            nameColor={`${colorMode}.white`}
-            borderColor={`${colorMode}.white`}
+        <Box style={styles.circleStyle}>
+          <CanaryIcon />
+        </Box>
+        <Box mt={5} alignItems={'center'}>
+          <DashedButton
+            description="Lorem ipsum dolor amet"
+            callback={() => {}}
+            name="Manage Cloud Backup"
           />
         </Box>
 
@@ -65,7 +69,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   commonTextStyle: {
-    textAlign: 'center',
     marginTop: hp(40),
     color: Colors.white,
   },
@@ -76,6 +79,10 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: hp(40),
     color: Colors.white,
+  },
+  circleStyle: {
+    alignItems: 'center',
+    marginTop: hp(20),
   },
 });
 

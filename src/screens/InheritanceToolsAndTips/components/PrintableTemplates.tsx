@@ -7,27 +7,33 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
+import InheritanceHeader from '../InheritanceHeader';
+import DownloadIcon from 'src/assets/images/download-icon.svg';
 
 function PrintableTemplates({}) {
   const { colorMode } = useColorMode();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
-      <KeeperHeader />
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+      <InheritanceHeader />
+      <ScrollView>
         <Text style={styles.heading}>Printable Templates</Text>
-        <Text style={styles.commonTextStyle}>{'Trusted Individuals\nBackup 12-word phrase'}</Text>
+        <Text style={styles.commonTextStyle}>{'Recovery Phrase Template\n12 or 24 words'}</Text>
         <Text style={styles.commonTextStyle}>
-          A simple template to note down a list of trusted contacts and their details. This can then
-          be stored along with the keys or separately.
+          This is a simple template that can be printed out on a small piece of paper (ideally
+          acid-free).
         </Text>
-        <Text style={styles.commonTextStyle}>Refer to Safeguarding Tips for more details</Text>
+        <Text style={styles.commonTextStyle}>
+          12 or 24 words recovery phrase can then be written down on them with an archival type pen
+          and the sheet laminated at home.
+        </Text>
         <Box style={styles.addContainer}>
           <Text color={`${colorMode}.white`}>All Descriptors on 21st March 2024</Text>
           <AddCard
             name="Download Document"
             nameColor={`${colorMode}.white`}
             borderColor={`${colorMode}.white`}
+            icon={<DownloadIcon />}
           />
         </Box>
 
@@ -62,14 +68,12 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   commonTextStyle: {
-    textAlign: 'center',
     marginTop: hp(40),
     color: Colors.white,
   },
   addContainer: {
-    marginTop: hp(40),
+    marginTop: hp(100),
     gap: 10,
-    alignItems: 'center',
   },
   leftTextStyle: {
     textAlign: 'left',

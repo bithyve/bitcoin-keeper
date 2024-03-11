@@ -29,7 +29,6 @@ function DashedButton({
   return (
     <TouchableOpacity onPress={() => callback(name)}>
       <Box style={[styles.AddCardContainer]}>
-        {/* <Box style={styles.detailContainer}> */}
         <HexagonIcon
           width={iconWidth}
           height={iconHeight}
@@ -40,7 +39,6 @@ function DashedButton({
           <Text color={`${colorMode}.choosePlanHome`}>{name}</Text>
           <Text color={`${colorMode}.choosePlanHome`}>{description}</Text>
         </Box>
-        {/* </Box> */}
       </Box>
     </TouchableOpacity>
   );
@@ -48,7 +46,7 @@ function DashedButton({
 
 const styles = StyleSheet.create({
   AddCardContainer: {
-    width: wp(305),
+    width: wp(320),
     padding: 10,
     height: hp(70),
     borderRadius: 10,
