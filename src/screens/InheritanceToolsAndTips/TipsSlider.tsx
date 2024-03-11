@@ -7,10 +7,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
+import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 
 const { width } = Dimensions.get('window');
 
-function TipsSlider({ navigation, items }) {
+function TipsSlider({ items }) {
   const { colorMode } = useColorMode();
   const onboardingSlideRef = useRef(null);
   const { translations } = useContext(LocalizationContext);
@@ -30,26 +31,25 @@ function TipsSlider({ navigation, items }) {
   return (
     <Box style={styles.container} backgroundColor="light.pantoneGreen">
       <SafeAreaView style={styles.safeAreaViewWrapper}>
-        <Box flex={0.9}>
+        <Box>
           <FlatList
             ref={onboardingSlideRef}
             data={items}
             horizontal
             snapToInterval={width}
             showsHorizontalScrollIndicator={false}
-            snapToAlignment="center"
+            contentContainerStyle={{ flexWrap: 'wrap' }}
             disableIntervalMomentum
             decelerationRate="fast"
             onViewableItemsChanged={onViewRef.current}
             viewabilityConfig={viewConfigRef.current}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <OnboardingSlideComponent
+              <TipsSliderContentComponent
                 title={item.title}
-                illustration={item.illustration}
+                icon={item.icon}
                 paragraph={item.paragraph}
-                currentPosition={currentPosition}
-                navigation={navigation}
+                paragraph2={item.paragraph2}
               />
             )}
           />

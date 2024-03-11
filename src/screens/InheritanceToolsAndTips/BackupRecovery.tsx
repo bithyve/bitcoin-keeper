@@ -42,7 +42,7 @@ function BackupRecovery({ navigation }) {
       <Box mt={hp(40)}>
         <OptionCard
           title="Backup and Recovery Tips"
-          description="Lorem ipsum dolor sit amet"
+          description="Suggestions for secure backup"
           LeftIcon={<VaultGreenIcon />}
           callback={() => {
             navigate('BackupAndRecoveryTips');
