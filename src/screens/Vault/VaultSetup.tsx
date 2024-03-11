@@ -44,7 +44,7 @@ function NumberInput({ value, onDecrease, onIncrease }) {
 }
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultSetup'>;
-const VaultSetup = ({ route }: ScreenProps) => {
+function VaultSetup({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -112,13 +112,13 @@ const VaultSetup = ({ route }: ScreenProps) => {
     }
   };
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={preDefinedScheme ? vault.SetupyourVault : vault.AddCustomMultiSig}
         subtitle={vault.configureScheme}
-        //To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <VStack style={{ margin: 20, flex: 1 }}>
@@ -145,23 +145,27 @@ const VaultSetup = ({ route }: ScreenProps) => {
             height={20}
           />
           <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-          <Text style={{ fontSize: 14 }} color={`${colorMode}.SlateGrey`} testID="text_totalKeys">
+          <Text style={{ fontSize: 14 }} color={`${colorMode}.primaryText`} testID="text_totalKeys">
             Total Keys for vault configuration
           </Text>
           <Text
             style={{ fontSize: 12 }}
-            color={`${colorMode}.GreenishGrey`}
+            color={`${colorMode}.secondaryText`}
             testID="text_totalKeys_subTitle"
           >
             Select the total number of keys
           </Text>
           <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-          <Text style={{ fontSize: 14 }} color={`${colorMode}.SlateGrey`} testID="text_requireKeys">
+          <Text
+            style={{ fontSize: 14 }}
+            color={`${colorMode}.primaryText`}
+            testID="text_requireKeys"
+          >
             Required Keys
           </Text>
           <Text
             style={{ fontSize: 12 }}
-            color={`${colorMode}.GreenishGrey`}
+            color={`${colorMode}.secondaryText`}
             testID="text_requireKeys_subTitle"
           >
             Minimum number of keys to broadcast a transaction
@@ -172,17 +176,15 @@ const VaultSetup = ({ route }: ScreenProps) => {
       {!preDefinedScheme && (
         <Box style={styles.mt20}>
           <Note
-            title={'Note'}
-            subtitle={
-              'Please ensure you have a specific reason to create a non-standard multisig setup'
-            }
+            title="Note"
+            subtitle="Please ensure you have a specific reason to create a non-standard multisig setup"
           />
         </Box>
       )}
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
-};
+}
 
 export default VaultSetup;
 

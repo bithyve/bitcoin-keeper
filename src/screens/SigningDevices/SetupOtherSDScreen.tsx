@@ -120,7 +120,7 @@ function SetupOtherSDScreen({ route }) {
               ? { name: 'ManageSigners' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
-            showToast(`signer added successfully`, <TickIcon />);
+            showToast('signer added successfully', <TickIcon />);
             resetQR();
           }
         } else {

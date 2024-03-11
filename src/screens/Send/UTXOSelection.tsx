@@ -2,8 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { BtcToSats, SatsToBtc } from 'src/constants/Bitcoin';
-import useBalance from 'src/hooks/useBalance';
+import { BtcToSats } from 'src/constants/Bitcoin';
 
 import { hp, wp, windowWidth } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -23,7 +22,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOSelection'>;
-const UTXOSelection = ({ route }: ScreenProps) => {
+function UTXOSelection({ route }: ScreenProps) {
   const navigation = useNavigation();
   const { sender, amount, address } = route.params || {};
   const utxos = _.clone(sender.specs.confirmedUTXOs);
@@ -39,7 +38,7 @@ const UTXOSelection = ({ route }: ScreenProps) => {
   const [showFeeErrorMessage, setShowFeeErrorMessage] = useState(false);
 
   useEffect(() => {
-    let minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+    const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
 
     let outgoingAmount = Number(amount);
     // all comparisons are done in sats
@@ -74,7 +73,7 @@ const UTXOSelection = ({ route }: ScreenProps) => {
     );
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Select UTXOs"
         subtitle={`Select a minimum of ${amount} BTC to proceed`}
@@ -119,7 +118,7 @@ const UTXOSelection = ({ route }: ScreenProps) => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#FDF7F0',

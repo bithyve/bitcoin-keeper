@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
@@ -23,8 +22,8 @@ import {
   electrumClientConnectionExecuted,
   electrumClientConnectionInitiated,
 } from 'src/store/reducers/login';
-import AddNode from './AddNodeModal';
 import Node from 'src/services/electrum/node';
+import AddNode from './AddNodeModal';
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -78,7 +77,7 @@ function NodeSettings() {
     console.log('nodeList', nodeList.length);
     if (nodeList.length === 1) {
       showToast(
-        `Unable to delete. Please add another node before deleting this.`,
+        'Unable to delete. Please add another node before deleting this.',
         <ToastErrorIcon />
       );
       return;
@@ -253,7 +252,7 @@ function NodeSettings() {
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
-        buttonTextColor="#FAFAFA"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}

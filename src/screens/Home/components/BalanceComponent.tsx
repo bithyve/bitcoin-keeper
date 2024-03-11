@@ -10,18 +10,19 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.walletWrapper}>
-      <HStack color={`${colorMode}.black`} space={2}>
-        <Text style={[styles.noOfWallet, { fontWeight: 'bold' }]}>{count}</Text>
+      <HStack color={`${colorMode}.black`} space={1}>
+        <Text style={styles.noOfWallet} bold>
+          {count}
+        </Text>
         <Text style={styles.noOfWallet}>Wallet{count > 1 && 's'}</Text>
       </HStack>
       <TouchableOpacity onPress={setIsShowAmount} style={styles.amount}>
         <CurrencyInfo
-          hideAmounts={false}
           amount={balance}
-          hideAmounts={isShowAmount ? false : true}
-          fontSize={27}
-          color={Colors.RichBlack}
-          variation="dark"
+          hideAmounts={!isShowAmount}
+          fontSize={26}
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.RichBlackDark}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
         />
       </TouchableOpacity>
     </Box>
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   noOfWallet: {
-    fontSize: 27,
+    fontSize: 22,
     lineHeight: 27,
   },
   amount: {

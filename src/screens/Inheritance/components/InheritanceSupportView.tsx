@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-/* eslint-disable no-unused-vars */
+
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
@@ -52,13 +52,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     marginHorizontal: 10,
-    marginBottom: 20
+    marginBottom: 20,
   },
   headerIconWrapper: {
-    width: '20%'
+    width: '20%',
   },
   headerTitleWrapper: {
-    width: '80%'
+    width: '80%',
   },
   title: {
     fontSize: 16,

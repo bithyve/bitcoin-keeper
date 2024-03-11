@@ -121,6 +121,43 @@ export const getBackupDuration = () =>
   config.ENVIRONMENT === APP_STAGE.PRODUCTION ? 1.555e7 : 1800;
 
 export const emailCheck = (email) => {
-  let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
   return reg.test(email);
 };
+
+export function numberToOrdinal(cardinal) {
+  const ordinals = [
+    'Zeroth',
+    'First',
+    'Second',
+    'Third',
+    'Fourth',
+    'Fifth',
+    'Sixth',
+    'Seventh',
+    'Eighth',
+    'Ninth',
+    'Tenth',
+    'Eleventh',
+    'Twelfth',
+    'Thirteenth',
+    'Fourteenth',
+    'Fifteenth',
+    'Sixteenth',
+    'Seventeenth',
+    'Eighteenth',
+    'Nineteenth',
+    'Twentieth',
+  ];
+
+  if (cardinal < 0 || cardinal >= ordinals.length) {
+    return '';
+  }
+
+  return ordinals[cardinal];
+}
+
+// Format number with comma
+// Example: 1000000 => 1,000,000
+export const formatNumber = (value: string) =>
+  value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');

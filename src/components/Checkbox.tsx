@@ -3,7 +3,6 @@ import React from 'react';
 import Selected from 'src/assets/images/selected.svg';
 import UnSelected from 'src/assets/images/unselected.svg';
 import Text from './KeeperText';
-import Fonts from 'src/constants/Fonts';
 
 function CheckBox(props) {
   const IconName = props.isChecked ? <Selected /> : <UnSelected />;
@@ -12,7 +11,9 @@ function CheckBox(props) {
     <View style={styles.container}>
       <Pressable onPress={props.onPress}>{IconName}</Pressable>
       <View style={{ flexDirection: 'column', marginLeft: 15 }}>
-        <Text style={styles.title}>{props.title}</Text>
+        <Text style={styles.title} medium>
+          {props.title}
+        </Text>
         {props.subTitle && props.subTitle.length > 0 && (
           <Text style={styles.subtitle} color="light.secondaryText">
             {props.subTitle}
@@ -35,7 +36,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontFamily: Fonts.FiraSansCondensedMedium,
     color: '#041513',
   },
   subtitle: {

@@ -1,6 +1,11 @@
-import { Signer } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from './enum';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType } from 'src/core/wallets/enums';
+import { InheritanceKeyInfo } from 'src/services/interfaces';
+import { UAI } from 'src/models/interfaces/Uai';
+import { getSignerNameFromType } from 'src/hardware';
 import { getJSONFromRealmObject } from './utils';
+import { RealmSchema } from './enum';
+import _ from 'lodash';
 
 export const runRealmMigrations = ({
   oldRealm,
@@ -53,7 +58,7 @@ export const runRealmMigrations = ({
           const signerObject: Signer = {
             masterFingerprint: signer.masterFingerprint,
             type: signer.type,
-            signerName: signer.signerName,
+            signerName: getSignerNameFromType(signer.type),
             signerDescription: signer.signerDescription,
             lastHealthCheck: signer.lastHealthCheck,
             addedOn: signer.addedOn,
@@ -67,6 +72,102 @@ export const runRealmMigrations = ({
           newRealm.create(RealmSchema.Signer, signerObject, Realm.UpdateMode.All);
         });
       }
+    });
+  }
+
+  // IKS migration: single to multiple config support
+  if (oldRealm.schemaVersion < 61) {
+    // 61 schema version corresponds to ASSISTED_KEYS_MIGRATION_VERSION for upgrade sequence(v2 to v3 migration)
+    const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
+    const activeVault: Vault = oldVaults.filter((vault) => !vault.archived)[0] || null;
+
+    if (activeVault) {
+      const { signers } = activeVault;
+      const signerMap = {};
+      oldRealm
+        .objects(RealmSchema.Signer)
+        .forEach((signer) => (signerMap[(signer as any).masterFingerprint] = signer));
+
+      for (const signer of signers) {
+        const signerType = signerMap[signer.masterFingerprint].type;
+        if (signerType === SignerType.INHERITANCEKEY) {
+          const IKSSigner: Signer = signerMap[signer.masterFingerprint];
+          const previousConfig = (IKSSigner.inheritanceKeyInfo as any).configuration; // previous schema for IKS had single configuration
+
+          previousConfig.id = activeVault.id;
+          const updatedInheritanceKeyInfo: InheritanceKeyInfo = {
+            configurations: [previousConfig],
+            policy: IKSSigner.inheritanceKeyInfo.policy,
+          };
+
+          const updateProps = {
+            inheritanceKeyInfo: updatedInheritanceKeyInfo,
+          };
+
+          const signerObjects = newRealm.objects(RealmSchema.Signer) as any;
+          const IKSSignerObject = signerObjects.filtered(
+            `${'masterFingerprint'} == '${IKSSigner.masterFingerprint}'`
+          )[0];
+
+          for (const [key, value] of Object.entries(updateProps)) {
+            // realm is already in write mode(hence we don't have to wrap this statement in realm.write())
+            IKSSignerObject[key] = value;
+          }
+        }
+      }
+    }
+  } // end of IKS migration
+
+  // uai migrations
+  if (oldRealm.schemaVersion < 67) {
+    const oldUAIs = oldRealm.objects(RealmSchema.UAI) as any;
+    const newUAIs = newRealm.objects(RealmSchema.UAI) as UAI[];
+    for (const objectIndex in newUAIs) {
+      newUAIs[objectIndex].uaiDetails = { heading: oldUAIs[objectIndex].title };
+    }
+  }
+
+  if (oldRealm.schemaVersion < 70 && oldRealm.schemaVersion >= 66) {
+    const vaultXpubMap = {};
+    const newVaults: Vault[] = newRealm.objects(RealmSchema.Vault);
+
+    newVaults.forEach((vault) => {
+      const { signers } = vault;
+      vaultXpubMap[vault.id] = signers.map((signer) => signer.xpub);
+    });
+
+    const newVaultSigners: VaultSigner[] = newRealm.objects(RealmSchema.VaultSigner);
+    const signerXpubMap = {};
+    const duplicateSigners = [];
+
+    for (const signer of newVaultSigners) {
+      const { xpub } = signer;
+      if (signerXpubMap[xpub]) {
+        duplicateSigners.push(signer);
+      }
+      signerXpubMap[xpub] = _.merge({}, signerXpubMap[xpub] || {}, signer.toJSON());
+    }
+
+    const singleCopyOfDuplicateSigners = duplicateSigners.reduce((acc, signer) => {
+      const { xpub } = signer;
+      if (acc[xpub]) {
+        return acc;
+      }
+      acc[xpub] = signerXpubMap[xpub];
+      return acc;
+    }, {});
+
+    if (duplicateSigners.length) {
+      newRealm.delete(duplicateSigners);
+    }
+    Object.values(singleCopyOfDuplicateSigners).forEach((signer) => {
+      newRealm.create(RealmSchema.VaultSigner, signer, Realm.UpdateMode.All);
+    });
+
+    newVaults.forEach((vault) => {
+      vault.signers = vaultXpubMap[vault.id].map((xpub) => {
+        return newRealm.objects(RealmSchema.VaultSigner).filtered(`xpub == '${xpub}'`)[0];
+      });
     });
   }
 };

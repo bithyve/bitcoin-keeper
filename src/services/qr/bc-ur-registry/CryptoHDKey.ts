@@ -93,7 +93,7 @@ export class CryptoHDKey extends RegistryItem implements ICryptoKey {
       depth = 0;
       index = 0;
     } else {
-      depth = this.getOrigin()?.getComponents().length || this.getOrigin()?.getDepth() as number;
+      depth = this.getOrigin()?.getComponents().length || (this.getOrigin()?.getDepth() as number);
       const paths = this.getOrigin()?.getComponents() as PathComponent[];
       const lastPath = paths[paths.length - 1];
       if (lastPath) {
@@ -114,7 +114,16 @@ export class CryptoHDKey extends RegistryItem implements ICryptoKey {
     indexBuffer.writeUInt32BE(index, 0);
     const chainCode = this.getChainCode();
     const key = this.getKey();
-    return encode(Buffer.concat([version, depthBuffer, parentFingerprint, indexBuffer, chainCode as Buffer, key as Buffer]));
+    return encode(
+      Buffer.concat([
+        version,
+        depthBuffer,
+        parentFingerprint,
+        indexBuffer,
+        chainCode as Buffer,
+        key as Buffer,
+      ])
+    );
   };
 
   public getRegistryType = () => RegistryTypes.CRYPTO_HDKEY;
@@ -123,7 +132,9 @@ export class CryptoHDKey extends RegistryItem implements ICryptoKey {
     let result = '';
     if (this.getOrigin()) {
       if (this.getOrigin()?.getSourceFingerprint() && this.getOrigin()?.getPath()) {
-        result += `${this.getOrigin()?.getSourceFingerprint()?.toString('hex')}/${this.getOrigin()?.getPath()}`;
+        result += `${this.getOrigin()
+          ?.getSourceFingerprint()
+          ?.toString('hex')}/${this.getOrigin()?.getPath()}`;
       }
     }
     result += this.getBip32Key();
@@ -214,9 +225,7 @@ export class CryptoHDKey extends RegistryItem implements ICryptoKey {
     const useInfo = map[Keys.use_info]
       ? CryptoCoinInfo.fromDataItem(map[Keys.use_info])
       : undefined;
-    const origin = map[Keys.origin]
-      ? CryptoKeypath.fromDataItem(map[Keys.origin])
-      : undefined;
+    const origin = map[Keys.origin] ? CryptoKeypath.fromDataItem(map[Keys.origin]) : undefined;
     const children = map[Keys.children]
       ? CryptoKeypath.fromDataItem(map[Keys.children])
       : undefined;

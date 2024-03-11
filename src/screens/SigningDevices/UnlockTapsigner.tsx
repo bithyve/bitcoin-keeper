@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { CKTapCard } from 'cktap-protocol-react-native';
 
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getTapsignerErrorMessage } from 'src/hardware/tapsigner';
+import { getTapsignerErrorMessage, unlockRateLimit } from 'src/hardware/tapsigner';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
@@ -19,7 +19,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
-import { unlockRateLimit } from 'src/hardware/tapsigner';
 import Note from 'src/components/Note/Note';
 
 function UnlockTapsigner() {
@@ -48,7 +47,7 @@ function UnlockTapsigner() {
       console.log(authDelay);
       if (authDelay === 0) {
         navigation.dispatch(CommonActions.goBack());
-        showToast(`Tapsigner unlocked successfully`, <TickIcon />);
+        showToast('Tapsigner unlocked successfully', <TickIcon />);
       } else {
         if (Platform.OS === 'ios') {
           NFC.showiOSMessage(
@@ -81,7 +80,7 @@ function UnlockTapsigner() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={'Unlock TAPSIGNER rate-limit'}
+        title="Unlock TAPSIGNER rate-limit"
         subtitle="You might have entered the wrong pin too many times, please unlock here and try again"
       />
       <ScrollView />
@@ -91,7 +90,7 @@ function UnlockTapsigner() {
           primaryCallback={unlockTapsignerWithProgress}
           primaryLoading={inProgress}
         />
-        <Note title={'Note'} subtitle="This might take approximately 15s or less" />
+        <Note title="Note" subtitle="This might take approximately 15s or less" />
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>

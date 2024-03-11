@@ -1,19 +1,12 @@
-/* eslint-disable no-lonely-if */
 /* eslint-disable no-continue */
-/* eslint-disable camelcase */
-/* eslint-disable guard-for-in */
+
 /* eslint-disable no-await-in-loop */
-/* eslint-disable no-dupe-else-if */
-/* eslint-disable no-empty */
+
 /* eslint-disable prefer-const */
-/* eslint-disable consistent-return */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-plusplus */
+
 /* eslint-disable prefer-destructuring */
-/* eslint-disable no-restricted-syntax */
 
 import * as bitcoinJS from 'bitcoinjs-lib';
-import * as ecc from 'tiny-secp256k1';
 
 import ECPairFactory from 'ecpair';
 import coinselect from 'coinselect';
@@ -23,6 +16,8 @@ import { parseInt } from 'lodash';
 import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
+import RestClient, { TorStatus } from 'src/services/rest/RestClient';
+import ecc from './noble_ecc';
 import {
   AverageTxFees,
   AverageTxFeesByNetwork,
@@ -49,15 +44,15 @@ import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 
+bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
   /* !! TESTNET ONLY !!
-     as the redeem script for vault is heavy(esp. 3-of-5/3-of-6), 
+     as the redeem script for vault is heavy(esp. 3-of-5/3-of-6),
      the nodes reject the tx if the overall fee for the tx is low(which is the case w/ electrum)
      therefore we up the feeRatesPerByte by 1 to handle this case until we find a better sol
     */
@@ -144,8 +139,9 @@ export default class WalletOperations {
       if (
         externalAddresses[inputAddress] !== undefined ||
         internalAddresses[inputAddress] !== undefined
-      )
+      ) {
         amount -= input.value;
+      }
 
       senderAddresses.push(inputAddress);
       fee += input.value;
@@ -158,8 +154,9 @@ export default class WalletOperations {
       if (
         externalAddresses[outputAddress] !== undefined ||
         internalAddresses[outputAddress] !== undefined
-      )
+      ) {
         amount += output.value;
+      }
 
       recipientAddresses.push(outputAddress);
       fee -= output.value;
@@ -273,8 +270,9 @@ export default class WalletOperations {
       const addresses = [];
 
       let purpose;
-      if (wallet.entityKind === EntityKind.WALLET)
+      if (wallet.entityKind === EntityKind.WALLET) {
         purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+      }
 
       const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
       const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
@@ -481,8 +479,9 @@ export default class WalletOperations {
   static fetchFeeRatesByPriority = async () => {
     // main: mempool.space, fallback: fulcrum target block based fee estimator
 
-    if (config.NETWORK_TYPE === NetworkType.TESTNET)
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
       return WalletOperations.mockFeeRatesForTestnet();
+    }
 
     try {
       const endpoint =
@@ -675,10 +674,12 @@ export default class WalletOperations {
         const debitedAmount = netAmount + fee;
         if (!inputs || debitedAmount > confirmedBalance) {
           // to previous priority assets
-          if (priority === TxPriority.MEDIUM)
+          if (priority === TxPriority.MEDIUM) {
             txPrerequisites[priority] = txPrerequisites[TxPriority.LOW];
-          if (priority === TxPriority.HIGH)
+          }
+          if (priority === TxPriority.HIGH) {
             txPrerequisites[priority] = txPrerequisites[TxPriority.MEDIUM];
+          }
         } else {
           txPrerequisites[priority] = {
             inputs,
@@ -744,10 +745,11 @@ export default class WalletOperations {
       });
 
       let p2sh;
-      if (derivationPurpose === DerivationPurpose.BIP49)
+      if (derivationPurpose === DerivationPurpose.BIP49) {
         p2sh = bitcoinJS.payments.p2sh({
           redeem: p2wpkh,
         });
+      }
 
       let path;
       let masterFingerprint;
@@ -895,8 +897,9 @@ export default class WalletOperations {
         network,
       });
 
-      for (const input of inputs)
+      for (const input of inputs) {
         this.addInputToPSBT(PSBT, wallet, input, network, derivationPurpose, scriptType);
+      }
 
       const {
         outputs: outputsWithChange,
@@ -1212,9 +1215,9 @@ export default class WalletOperations {
         selectedUTXOs
       );
 
-      if (minTxPrerequisites.balance < netAmount + minTxPrerequisites.fee)
+      if (minTxPrerequisites.balance < netAmount + minTxPrerequisites.fee) {
         throw new Error('Insufficient balance');
-      else txPrerequisites = minTxPrerequisites.txPrerequisites;
+      } else txPrerequisites = minTxPrerequisites.txPrerequisites;
     }
 
     if (Object.keys(txPrerequisites).length) {

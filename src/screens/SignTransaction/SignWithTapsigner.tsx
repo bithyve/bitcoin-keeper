@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
@@ -17,12 +17,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { getTapsignerErrorMessage } from 'src/hardware/tapsigner';
 
 function SignWithTapsigner() {
+  const { colorMode } = useColorMode();
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
 
-  const { params = { signTransaction: () => {} } as any } = useRoute();
+  const { params = { signTransaction: () => { } } as any } = useRoute();
   const { signTransaction, textRef, vaultId = '' } = params;
 
   const onPressHandler = (digit) => {
@@ -71,7 +72,7 @@ function SignWithTapsigner() {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1}>
         <KeeperHeader
           title="Sign with TAPSIGNER"

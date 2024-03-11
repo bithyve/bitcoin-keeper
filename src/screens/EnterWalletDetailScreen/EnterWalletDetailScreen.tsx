@@ -1,16 +1,13 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Select, useColorMode } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
-import BitcoinWhiteIcon from 'src/assets/images/btc_white.svg';
 import BitcoinInput from 'src/assets/images/btc_black.svg';
 import BitcoinWhite from 'src/assets/images/btc_white.svg';
 import KeeperText from 'src/components/KeeperText';
@@ -30,15 +27,19 @@ import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';
 import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import KeeperTextInput from 'src/components/KeeperTextInput';
+import Breadcrumbs from 'src/components/Breadcrumbs';
+import { formatNumber } from 'src/utils/utilities';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 
 // eslint-disable-next-line react/prop-types
-function EnterWalletDetailScreen({ route }) {
+function EnterWalletDetailScreen({ navigation, route }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { translations } = useContext(LocalizationContext);
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
@@ -71,7 +72,7 @@ function EnterWalletDetailScreen({ route }) {
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
     setTimeout(() => {
-      //TODO: remove this timeout once the crypto is optimised
+      // TODO: remove this timeout once the crypto is optimised
       const derivationConfig: DerivationConfig = {
         path,
         purpose: Number(purpose),
@@ -116,11 +117,6 @@ function EnterWalletDetailScreen({ route }) {
     }
   }, [relayWalletUpdate, relayWalletError]);
 
-  // Format number with comma
-  // Example: 1000000 => 1,000,000
-  const formatNumber = (value: string) =>
-    value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
   function FailedModalContent() {
     return (
       <Box w="100%">
@@ -153,200 +149,101 @@ function EnterWalletDetailScreen({ route }) {
     }
   };
 
-  const renderAdvanceOptions = () => (
-    <Box>
-      <KeeperText style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
-        {common.path}
-      </KeeperText>
-      <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
-        <Input
-          backgroundColor={`${colorMode}.seashellWhite`}
-          placeholder={common.path}
-          placeholderTextColor={`${colorMode}.GreyText`}
-          value={path}
-          onChangeText={(value) => {
-            setPath(value);
-          }}
-          style={styles.inputField}
-          width={wp(260)}
-          autoCorrect={false}
-          marginY={2}
-          borderWidth="0"
-          maxLength={20}
-        />
-      </Box>
-      <KeeperText style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
-        {common.purpose}
-      </KeeperText>
-      <Select
-        style={{ backgroundColor: 'red' }}
-        selectedValue={purpose}
-        minWidth="200"
-        accessibilityLabel={common.chooseService}
-        placeholder={common.choosePurpose}
-        mt={1}
-        onValueChange={(itemValue) => setPurpose(itemValue)}
-      >
-        <Select.Item label={wallet.purposelabel01} value={`${DerivationPurpose.BIP44}`} />
-        <Select.Item label={wallet.purposelabel02} value={`${DerivationPurpose.BIP49}`} />
-        <Select.Item label={wallet.purposelabel03} value={`${DerivationPurpose.BIP84}`} />
-      </Select>
-    </Box>
-  );
-
   return (
-    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBarComponent padding={50} />
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
+        // To-Do-Learn-More
       />
-      <View marginX={4} marginY={4}>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
-          <Input
-            backgroundColor={`${colorMode}.seashellWhite`}
-            placeholder={wallet.WalletNamePlaceHolder}
-            placeholderTextColor={`${colorMode}.GreyText`}
-            value={walletName}
-            onChangeText={(value) => {
-              if (route.params?.name === walletName) {
-                setWalletName('');
-                return;
-              }
-              setWalletName(value);
-            }}
-            style={styles.inputField}
-            width={wp(260)}
-            autoCorrect={false}
-            marginY={2}
-            borderWidth="0"
-            maxLength={20}
-            testID={`input_wallet_name`}
-          />
-          <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
-            {walletName && walletName.length}/20
-          </KeeperText>
-        </Box>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
-          <Input
-            backgroundColor={`${colorMode}.seashellWhite`}
-            placeholder={wallet.WalletDescriptionPlaceholder}
-            placeholderTextColor={`${colorMode}.GreyText`}
-            value={walletDescription}
-            onChangeText={(value) => {
-              if (route.params?.description === walletDescription) {
-                setWalletDescription('');
-                return;
-              }
-              setWalletDescription(value);
-            }}
-            style={styles.inputField}
-            width={wp(260)}
-            autoCorrect={false}
-            borderWidth="0"
-            marginY={2}
-            maxLength={40}
-            testID={`input_wallet_description`}
-          />
-          <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
-            {walletDescription && walletDescription.length}/40
-          </KeeperText>
-        </Box>
-        {/* <Box marginTop={5}> */}
-        {/* <KeeperText style={styles.autoTransferText} color={`${colorMode}.GreyText`}>
-            {wallet.AutoTransferInitiated}
-          </KeeperText> */}
-        {/* <Box style={styles.transferPolicyTextArea} backgroundColor={`${colorMode}.seashellWhite`}>
-            <Box style={styles.bitcoinLogo}>
-              {colorMode === 'light' ? (
-                <BitcoinGreyIcon height="15" width="15" />
-              ) : (
-                <BitcoinWhiteIcon height="15" width="15" />
-              )}
-            </Box>
-            <KeeperText style={styles.splitter} color={`${colorMode}.divider`}>
-              |
-            </KeeperText>
-            <Box style={styles.transferPolicyInputWrapper}>
+      <Box style={{ flex: 1, justifyContent: 'space-between' }}>
+        <Box style={styles.fieldsContainer}>
+          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
+            <KeeperTextInput
+              placeholder={wallet.WalletNamePlaceHolder}
+              value={walletName}
+              onChangeText={(value) => {
+                if (route.params?.name === walletName) {
+                  setWalletName('');
+                  return;
+                }
+                setWalletName(value);
+              }}
+              maxLength={20}
+              testID="input_wallet_name"
+            />
+          </Box>
+          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
+            <KeeperTextInput
+              placeholder={wallet.WalletDescriptionPlaceholder}
+              value={walletDescription}
+              onChangeText={(value) => {
+                if (
+                  route.params?.description === walletDescription &&
+                  walletDescription.length > 0
+                ) {
+                  setWalletDescription('');
+                  return;
+                }
+                setWalletDescription(value);
+              }}
+              maxLength={40}
+              testID="input_wallet_description"
+            />
+          </Box>
+          <Box>
+            <Box style={styles.amountWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <Box>
+                {getCurrencyImageByRegion(
+                  currencyCode,
+                  'dark',
+                  CurrencyKind.BITCOIN,
+                  colorMode === 'light' ? BitcoinInput : BitcoinWhite
+                )}
+              </Box>
+              <Box width={0.5} backgroundColor={`${colorMode}.divider`} opacity={0.3} height={8} />
               <Input
                 backgroundColor={`${colorMode}.seashellWhite`}
+                placeholder={importWallet.enterAmount}
                 placeholderTextColor={`${colorMode}.GreyText`}
-                value={formatNumber(transferPolicy)}
-                onChangeText={(value) => setTransferPolicy(value)}
-                autoCorrect={false}
-                fontSize={15}
-                fontWeight="300"
-                style={styles.transferPolicyInput}
-                keyboardType="numeric"
+                width="85%"
+                fontSize={14}
+                fontWeight={300}
+                letterSpacing={1.04}
                 borderWidth="0"
-                // letterSpacing={3}
-                color={`${colorMode}.greenText`}
-                testID={`input_${formatNumber(transferPolicy)}`}
+                value={formatNumber(transferPolicy)}
+                onChangeText={(value) => {
+                  setTransferPolicy(value);
+                }}
+                variant="unstyled"
+                keyboardType="numeric"
+                InputRightElement={<KeeperText bold>{common.sats}</KeeperText>}
+                testID="input_transfer_policy"
               />
             </Box>
-            <Box style={styles.sats}>
-              <KeeperText type="bold">{common.sats}</KeeperText>
-            </Box>
-          </Box> */}
-        {/* <KeeperText style={styles.autoTransferTextDesc} color={`${colorMode}.GreyText`}>
-            {wallet.AutoTransferInitiatedDesc}
-          </KeeperText> */}
-        {/* </Box> */}
-        <Text style={styles.transferText} color={`${colorMode}.primaryText`}>
-          {importWallet.autoTransfer}
-        </Text>
-        <Box style={styles.amountWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Box mx={3}>
-            {getCurrencyImageByRegion(
-              currencyCode,
-              'dark',
-              currentCurrency,
-              colorMode === 'light' ? BitcoinInput : BitcoinWhite
-            )}
+            <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
+              {importWallet.walletBalance}
+            </Text>
           </Box>
-          <Box width={0.5} backgroundColor={`${colorMode}.divider`} opacity={0.3} height={8} />
-          <Input
-            backgroundColor={`${colorMode}.seashellWhite`}
-            placeholder={importWallet.enterAmount}
-            placeholderTextColor={`${colorMode}.GreyText`}
-            width="87%"
-            h={10}
-            fontSize={14}
-            fontWeight={300}
-            letterSpacing={1.04}
-            borderWidth="0"
-            value={formatNumber(transferPolicy)}
-            onChangeText={(value) => {
-              setTransferPolicy(value);
-            }}
-            variant="unstyled"
-            keyboardType="numeric"
-            InputRightElement={
-              <Box style={styles.sats}>
-                <KeeperText type="bold">{common.sats}</KeeperText>
-              </Box>
-            }
-            testID="input_transfer_policy"
-          />
         </Box>
-        <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
-          {importWallet.walletBalance}
-        </Text>
-        {walletType === WalletType.IMPORTED && renderAdvanceOptions()}
-        <View marginY={5}>
+        <Box style={styles.footer}>
+          <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />
           <Buttons
-            secondaryText={common.cancel}
-            secondaryCallback={() => {
-              navigtaion.goBack();
-            }}
-            primaryText={`${common.create}`}
-            primaryCallback={createNewWallet}
+            primaryText={
+              walletType === WalletType.DEFAULT ? `${common.create}` : `${common.proceed}`
+            }
+            primaryCallback={() =>
+              walletType === WalletType.DEFAULT
+                ? createNewWallet()
+                : navigation.navigate('EnterWalletPath', {
+                    createNewWallet,
+                  })
+            }
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
-        </View>
-      </View>
-
+        </Box>
+      </Box>
       <KeeperModal
         dismissible
         close={() => {}}
@@ -363,97 +260,42 @@ function EnterWalletDetailScreen({ route }) {
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
-    </Box>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  Container: {
-    flex: 1,
-    padding: 20,
-  },
-  autoTransferText: {
-    fontSize: 12,
-    // letterSpacing: '0.6@s',
-  },
-  autoTransferTextDesc: {
-    fontSize: 10,
-    paddingTop: 10,
-    letterSpacing: 0.5,
-  },
-  transferPolicyInput: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  addWalletDescription: {
-    fontSize: 12,
-    lineHeight: 15,
-    letterSpacing: 0.5,
-  },
   inputFieldWrapper: {
-    flexDirection: 'row',
     borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 5,
-  },
-  inputField: {
-    marginVertical: 10,
-    fontSize: 12,
-    letterSpacing: 0.96,
-  },
-  limitText: {
-    marginRight: 10,
-    fontSize: 10,
-    alignSelf: 'flex-end',
-  },
-  transferPolicyInputWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  transferPolicyTextArea: {
-    flexDirection: 'row',
-    width: '100%',
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  splitter: {
-    fontSize: 30,
-    paddingTop: 18,
-    paddingRight: 5,
-    opacity: 0.25,
-  },
-  bitcoinLogo: {
-    paddingTop: 15,
-    paddingLeft: 10,
-    paddingRight: 5,
-    paddingBottom: 15,
-    opacity: 0.25,
-  },
-  sats: {
-    bottom: -8,
-  },
-  //
-  transferText: {
-    width: '100%',
-    fontSize: 12,
-    marginHorizontal: 2,
-    marginTop: hp(22),
-    letterSpacing: 0.6,
   },
   amountWrapper: {
-    marginTop: hp(10),
+    marginTop: hp(30),
     flexDirection: 'row',
-    marginHorizontal: 2,
+    height: hp(50),
     alignItems: 'center',
-    borderRadius: 5,
+    borderRadius: 10,
+    padding: 10,
+    gap: 10,
+    justifyContent: 'space-between',
   },
   balanceCrossesText: {
-    width: '100%',
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,
-    marginHorizontal: 2,
+    marginHorizontal: 10,
+  },
+  fieldsContainer: {
+    marginVertical: 40,
+    marginHorizontal: 10,
+    gap: hp(10),
+  },
+  footer: {
+    flexDirection: 'row',
+    marginHorizontal: 10,
+    marginVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
+
 export default EnterWalletDetailScreen;

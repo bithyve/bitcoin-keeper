@@ -26,7 +26,7 @@ import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/core/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
-const ScanAndInstruct = ({ onBarCodeRead }) => {
+function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
@@ -55,10 +55,11 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
       <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
     </VStack>
   );
-};
+}
 
 function RegisterWithChannel() {
   const { params } = useRoute();
+  const { colorMode } = useColorMode();
   const { vaultKey, vaultId } = params as { vaultKey: VaultSigner; vaultId: string };
   const { signer } = useSignerFromKey(vaultKey);
 
@@ -72,7 +73,7 @@ function RegisterWithChannel() {
 
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;
-    let sha = crypto.createHash('sha256');
+    const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
@@ -128,7 +129,7 @@ function RegisterWithChannel() {
   }, [channel]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Register with Keeper Hardware Interface"
         subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to register with the device`}

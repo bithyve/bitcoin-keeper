@@ -1,7 +1,6 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import React, { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';
-import Fonts from 'src/constants/Fonts';
 
 type WalletCardProps = {
   id: number;
@@ -46,14 +45,15 @@ function WalletCard({
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
               numberOfLines={1}
               style={styles.walletName}
+              medium={isSelected}
             >
               {walletName}
             </Text>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              numberOfLines={1}
-              fontSize={11}
-              light
+              fontSize={isSelected ? 11 : 10}
+              numberOfLines={2}
+              style={styles.walletDesc}
             >
               {walletDescription}
             </Text>
@@ -102,6 +102,11 @@ const styles = StyleSheet.create({
   },
   walletName: {
     fontSize: 12,
+    letterSpacing: 0.12,
+  },
+  walletDesc: {
+    letterSpacing: 0.11,
+    lineHeight: 18,
   },
 });
 

@@ -52,6 +52,7 @@ function DowngradeModalContent({ navigation, app }) {
       {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
       <Box alignItems="center" flexDirection="row">
         <TouchableOpacity
+          testID="btn_choosePlan"
           style={[styles.cancelBtn]}
           onPress={() => {
             navigation.navigate('ChoosePlan');
@@ -64,6 +65,7 @@ function DowngradeModalContent({ navigation, app }) {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          testID="btn_downgradeplan"
           onPress={() => {
             downgradeToPleb(dispatch, app);
           }}
@@ -81,7 +83,7 @@ function DowngradeModalContent({ navigation, app }) {
   );
 }
 
-export const DowngradeModal = ({ navigation }) => {
+export function DowngradeModal({ navigation }) {
   const { colorMode } = useColorMode();
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { recepitVerificationFailed } = useAppSelector((state) => state.login);
@@ -104,7 +106,7 @@ export const DowngradeModal = ({ navigation }) => {
       showCloseIcon={false}
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
   cancelBtn: {

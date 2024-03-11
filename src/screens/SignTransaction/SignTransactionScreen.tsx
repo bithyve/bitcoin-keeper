@@ -26,56 +26,42 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import useWallets from 'src/hooks/useWallets';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSignerMap from 'src/hooks/useSignerMap';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import {
   signTransactionWithColdCard,
-  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import useSignerMap from 'src/hooks/useSignerMap';
 import SignerList from './SignerList';
 import SignerModals from './SignerModals';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, collaborativeWalletId, vaultId } = (route.params || {
+  const { note, label, vaultId } = (route.params || {
     note: '',
     label: [],
-    collaborativeWalletId: '',
     vaultId: '',
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
-    collaborativeWalletId: string;
     vaultId: string;
   };
 
   const { activeVault: defaultVault } = useVault({
-    collaborativeWalletId,
     vaultId,
   });
 
   const { signers: vaultKeys, scheme } = defaultVault;
 
   const { signerMap } = useSignerMap();
-  const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
-  let parentCollaborativeWallet: Wallet;
-  if (collaborativeWalletId) {
-    parentCollaborativeWallet = wallets.find(
-      (wallet) => wallet && wallet.id === collaborativeWalletId
-    );
-  }
-
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions, common } = translations;
 
@@ -154,7 +140,7 @@ function SignTransactionScreen() {
 
   useEffect(() => {
     defaultVault.signers.forEach((vaultKey) => {
-      const isCoSignerMyself = vaultKey.masterFingerprint === collaborativeWalletId;
+      const isCoSignerMyself = signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER;
       if (isCoSignerMyself) {
         // self sign PSBT
         signTransaction({ xfp: vaultKey.xfp });
@@ -256,13 +242,15 @@ function SignTransactionScreen() {
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
-          const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
-            signingPayload,
-            serializedPSBT,
-            xfp,
-            thresholdDescriptors,
-          });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          showToast('Signing via inheritance key is not available yet.');
+          // TODO: implement inheritance key signing, rewire the threshold descriptor w/ inheritance config; check InheritanceKeyServer.thresholdDescriptors
+          // const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
+          //   signingPayload,
+          //   serializedPSBT,
+          //   xfp,
+          //   thresholdDescriptors,
+          // });
+          // dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -274,8 +262,8 @@ function SignTransactionScreen() {
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
-        } else if (SignerType.KEEPER === signerType) {
-          const signedSerializedPSBT = signCosignerPSBT(parentCollaborativeWallet, serializedPSBT);
+        } else if (SignerType.MY_KEEPER === signerType) {
+          const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         }
@@ -345,7 +333,7 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (vaultKey.masterFingerprint === collaborativeWalletId) {
+        if (signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER) {
           signTransaction({ xfp: vaultKey.xfp });
           return;
         }
@@ -396,13 +384,13 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId, vaultId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, vaultId } },
         ],
       })
     );
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
@@ -483,7 +471,6 @@ function SignTransactionScreen() {
         signTransaction={signTransaction}
         textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
-        collaborativeWalletId={collaborativeWalletId}
         signerMap={signerMap}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />

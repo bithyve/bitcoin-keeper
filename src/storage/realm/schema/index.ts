@@ -14,7 +14,6 @@ import {
   UTXOInfoSchema,
   Tags,
   AddressCacheSchema,
-  CollaborativeWalletDetailsSchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -33,7 +32,7 @@ import {
   InheritancePolicyAlertSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
-import { UAISchema } from './uai';
+import { UAIDetailsSchema, UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
@@ -71,6 +70,7 @@ export default [
   VaultSpecsSchema,
   BackupSchema,
   UAISchema,
+  UAIDetailsSchema,
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
@@ -78,5 +78,4 @@ export default [
   NodeConnectSchema,
   WhirlpoolConfigSchema,
   WhirlpoolWalletDetailsSchema,
-  CollaborativeWalletDetailsSchema,
 ];

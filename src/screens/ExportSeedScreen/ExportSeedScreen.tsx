@@ -3,7 +3,6 @@ import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -19,7 +18,6 @@ import { globalStyles } from 'src/constants/globalStyles';
 import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import Fonts from 'src/constants/Fonts';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SignerType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -65,7 +63,7 @@ function ExportSeedScreen({ route, navigation }) {
               opacity={showWordIndex === index ? 1 : 0.5}
               style={styles.seedCardWrapper}
             >
-              <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
+              <Text style={styles.seedTextStyle} medium color={`${colorMode}.greenText2`}>
                 {index < 9 ? '0' : null}
                 {index + 1}
               </Text>
@@ -159,7 +157,7 @@ function ExportSeedScreen({ route, navigation }) {
                     {common.showAsQR}
                   </Text>
                   {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-              
+
                 </Text> */}
                 </VStack>
               </HStack>
@@ -276,7 +274,6 @@ const styles = StyleSheet.create({
   },
   seedTextStyle: {
     fontSize: 19,
-    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 1.64,
     marginRight: 5,
   },

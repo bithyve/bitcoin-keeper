@@ -7,7 +7,13 @@ import moment from 'moment';
 import { ActivityIndicator, Alert, Clipboard, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import {
+  EntityKind,
+  KeyGenerationMode,
+  SignerStorage,
+  SignerType,
+  XpubTypes,
+} from 'src/core/wallets/enums';
 import {
   generateCosignerMapIds,
   generateMobileKey,
@@ -78,10 +84,13 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
-import SignerCard from '../AddSigner/SignerCard';
+import Import from 'src/assets/images/import.svg';
+import Add from 'src/assets/images/add_white.svg';
 import useSigners from 'src/hooks/useSigners';
-
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -98,12 +107,14 @@ const getSignerContent = (
   type: SignerType,
   isMultisig: boolean,
   translations: any,
-  isHealthcheck: boolean
+  isHealthcheck: boolean,
+  colorMode: string
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       return {
+        type: SignerType.COLDCARD,
         Illustration: <ColdCardSetupImage />,
         Instructions: [
           'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
@@ -120,6 +131,7 @@ const getSignerContent = (
         isMultisig ? 'MultiSig' : 'SingleSig'
       } and Native Segwit in the options section.`;
       return {
+        type: SignerType.JADE,
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
@@ -133,17 +145,42 @@ const getSignerContent = (
       };
     case SignerType.KEEPER:
       return {
+        type: SignerType.KEEPER,
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a wallet or create a new one from your Linked Wallets',
-          'Within settings choose Show co-signer Details to scan the QR',
+          'Choose a Mobile Key from your Keeper app (create) or from another Keeper app (import)',
+          'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
         title: 'Keep your Device Ready',
-        subTitle: 'Keep your Collaborative Key ready before proceeding',
-        options: [],
+        subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
+        options: [
+          {
+            title: `Import a ${getSignerNameFromType(type)}`,
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.RussetBrown`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.IMPORT,
+          },
+          {
+            title: `Add a New ${getSignerNameFromType(type)}`,
+            icon: (
+              <CircleIconWrapper
+                icon={<Add />}
+                backgroundColor={`${colorMode}.RussetBrown`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.NEW,
+          },
+        ],
       };
     case SignerType.MOBILE_KEY:
       return {
+        type: SignerType.MOBILE_KEY,
         Illustration: <MobileKeyIllustration />,
         Instructions: [
           'Make sure that this wallet’s Recovery Key is backed-up properly to secure this key.',
@@ -157,6 +194,7 @@ const getSignerContent = (
         ? 'Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n'
         : 'Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
       return {
+        type: SignerType.KEYSTONE,
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
@@ -173,6 +211,7 @@ const getSignerContent = (
         isMultisig ? 'Multisig' : 'Singlesig'
       } > QR Code.\n`;
       return {
+        type: SignerType.PASSPORT,
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
@@ -186,12 +225,13 @@ const getSignerContent = (
       };
     case SignerType.POLICY_SERVER:
       return {
+        type: SignerType.POLICY_SERVER,
         Illustration: <SigningServerIllustration />,
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks it health']
           : [
-              `A 2FA authenticator will have to be set up to use this option.`,
-              `On providing the correct code from the auth app, the signer will sign the transaction.`,
+              'A 2FA authenticator will have to be set up to use this option.',
+              'On providing the correct code from the auth app, the signer will sign the transaction.',
             ],
         title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
         subTitle: 'A signer will hold one of the keys of the vault',
@@ -202,6 +242,7 @@ const getSignerContent = (
         isMultisig ? 'Multisig' : 'Singlesig'
       } > Native Segwit > Keeper.\n`;
       return {
+        type: SignerType.SEEDSIGNER,
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
@@ -218,11 +259,12 @@ const getSignerContent = (
         isMultisig ? 'Multisig' : 'Singlesig'
       } > Native Segwit.\n`;
       return {
+        type: SignerType.SPECTER,
         Illustration: <SpecterSetupImage />,
         Instructions: isTestnet()
           ? [
               specterInstructions,
-              `Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen`,
+              'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
             ]
           : [specterInstructions],
         title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
@@ -231,6 +273,7 @@ const getSignerContent = (
       };
     case SignerType.BITBOX02:
       return {
+        type: SignerType.BITBOX02,
         Illustration: <BitboxImage />,
         Instructions: [
           `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02. `,
@@ -242,6 +285,7 @@ const getSignerContent = (
       };
     case SignerType.TREZOR:
       return {
+        type: SignerType.TREZOR,
         Illustration: <TrezorSetup />,
         Instructions: [
           `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor. `,
@@ -253,6 +297,7 @@ const getSignerContent = (
       };
     case SignerType.LEDGER:
       return {
+        type: SignerType.LEDGER,
         Illustration: <LedgerImage />,
         Instructions: [
           `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Ledger. `,
@@ -264,17 +309,32 @@ const getSignerContent = (
       };
     case SignerType.SEED_WORDS:
       return {
+        type: SignerType.SEED_WORDS,
         Illustration: <SeedWordsIllustration />,
         Instructions: [
-          'This mnemonic (12 words) needs to be noted down and kept offline (the private keys are not stored on the app',
-          'Make sure that you’re noting down the words in private as exposing them will compromise the Seed Key',
+          'Make sure you secure the 12-word phrase in a safe place.',
+          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12 word Recovery Key.\nPlease note them down and store safely',
-        options: [],
+        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        options: [
+          {
+            title: 'Import',
+            icon: <Import />,
+            callback: () => {},
+            name: KeyGenerationMode.IMPORT,
+          },
+          {
+            title: 'Create',
+            icon: <RecoverImage />,
+            callback: () => {},
+            name: KeyGenerationMode.CREATE,
+          },
+        ],
       };
     case SignerType.TAPSIGNER:
       return {
+        type: SignerType.TAPSIGNER,
         Illustration: <TapsignerSetupImage />,
         Instructions: [
           'You will need the Pin/CVC given at\n the back of the TAPSIGNER',
@@ -286,6 +346,7 @@ const getSignerContent = (
       };
     case SignerType.OTHER_SD:
       return {
+        type: SignerType.OTHER_SD,
         Illustration: <OtherSDSetup />,
         Instructions: [
           'Provide the Signer details either by entering them or scanning',
@@ -298,29 +359,42 @@ const getSignerContent = (
 
     case SignerType.INHERITANCEKEY:
       return {
+        type: SignerType.INHERITANCEKEY,
         Illustration: <InhertanceKeyIcon />,
         title: 'Setting up an Inheritance Key',
         subTitle: 'This step will add an additional, mandatory key to your m-of-n vault',
         Instructions: [
           'This Key would only get activated after the other two Keys have signed',
-          `On activation the Key would send emails to your email id for 30 days for you to decline using it`,
+          'On activation the Key would send emails to your email id for 30 days for you to decline using it',
         ],
         options: [
           {
             title: 'Configure a New Key',
             icon: <RecoverImage />,
             callback: () => {},
-            name: 'newKey',
+            name: KeyGenerationMode.NEW,
           },
           {
             title: 'Recover Existing Key',
             icon: <RecoverImage />,
-            name: 'recoverKey',
+            name: KeyGenerationMode.RECOVER,
           },
         ],
       };
+    case SignerType.MY_KEEPER:
+      return {
+        type: SignerType.MY_KEEPER,
+        Illustration: <SeedWordsIllustration />,
+        Instructions: [
+          'Make sure you secure the 12-word phrase in a safe place.',
+          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
+        ],
+        title: isHealthcheck ? 'Verify Recovery Key' : 'Setting up Seed Key',
+        subTitle: 'Enter the Recovery Key to do a health check ',
+      };
     default:
       return {
+        type,
         Illustration: null,
         Instructions: [],
         title: tapsigner.SetupTitle,
@@ -351,17 +425,17 @@ function SignerContent({
   Instructions,
   mode,
   options,
-  setSelectInheritanceType,
-  selectInheritanceType,
+  keyGenerationMode,
   sepInstruction = '',
+  onSelect,
 }: {
   Illustration: Element;
   Instructions: Array<string>;
   mode: InteracationMode;
   options?: any;
-  setSelectInheritanceType: (index) => any;
-  selectInheritanceType: any;
+  keyGenerationMode: any;
   sepInstruction?: String;
+  onSelect: (option) => any;
 }) {
   const { colorMode } = useColorMode();
   return (
@@ -375,7 +449,7 @@ function SignerContent({
           <Instruction text={instruction} key={instruction} />
         ))}
         {sepInstruction && (
-          <Text fontSize={13} color={`${colorMode}.SlateGrey`}>
+          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
             {sepInstruction}
           </Text>
         )}
@@ -390,12 +464,13 @@ function SignerContent({
         {options &&
           options.map((option, index) => (
             <SignerCard
-              isSelected={index === selectInheritanceType}
+              key={option.name}
+              isSelected={index === keyGenerationMode}
               isFullText={true}
               name={option.title}
               icon={option.icon}
               onCardSelect={() => {
-                setSelectInheritanceType(index);
+                onSelect(option);
               }}
             />
           ))}
@@ -514,22 +589,49 @@ const verifyJade = (qrData, signer) => {
   return masterFingerprint === signer.masterFingerprint;
 };
 
-const setupKeeperSigner = (qrData, isMultisig) => {
+export const setupKeeperSigner = (qrData) => {
   try {
-    const { mfp, xpubDetails } = JSON.parse(qrData);
+    let xpub, derivationPath, masterFingerprint, xpubDetails, xpriv;
+    let signerType = SignerType.KEEPER;
+    try {
+      const data = extractKeyFromDescriptor(qrData);
+      xpub = data.xpub;
+      derivationPath = data.derivationPath;
+      masterFingerprint = data.masterFingerprint;
+      if (!data.forMultiSig) {
+        throw new HWError(HWErrorType.INVALID_SIG);
+      }
+    } catch (err) {
+      // support crypto-account
+      if (qrData.xPub) {
+        xpub = qrData.xPub;
+        derivationPath = qrData.derivationPath;
+        masterFingerprint = qrData.mfp;
+      } else if (qrData.xpubDetails) {
+        xpub = qrData.xpubDetails[XpubTypes.P2WSH].xpub;
+        xpriv = qrData.xpubDetails[XpubTypes.P2WSH].xpriv;
+        derivationPath = qrData.xpubDetails[XpubTypes.P2WSH].derivationPath;
+        masterFingerprint = qrData.mfp;
+        signerType = SignerType.MY_KEEPER;
+      } else {
+        throw err;
+      }
+    }
     const { signer: ksd, key } = generateSignerFromMetaData({
-      xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
-      derivationPath: isMultisig
-        ? xpubDetails[XpubTypes.P2WSH].derivationPath
-        : xpubDetails[XpubTypes.P2WPKH].derivationPath,
-      masterFingerprint: mfp,
-      signerType: SignerType.KEEPER,
+      xpub,
+      xpriv,
+      derivationPath,
+      masterFingerprint,
+      signerType,
       storageType: SignerStorage.WARM,
       isMultisig: true,
       xpubDetails,
     });
     return { signer: ksd, key };
   } catch (err) {
+    if (err instanceof HWError) {
+      throw err;
+    }
     const message = crossInteractionHandler(err);
     throw new Error(message);
   }
@@ -794,7 +896,7 @@ function HardwareModalMap({
   const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { signers } = useSigners();
-  const signingDevices = signers;
+  const myAppKeyCount = signers.filter((signer) => signer.type === SignerType.MY_KEEPER).length;
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   const appId = useAppSelector((state) => state.storage.appId);
@@ -847,9 +949,31 @@ function HardwareModalMap({
           type,
           mode,
           signer,
+          addSignerFlow,
         },
       })
     );
+  };
+
+  const generateMyAppKey = async () => {
+    try {
+      setInProgress(true);
+      getCosignerDetails(primaryMnemonic, myAppKeyCount).then((cosigner) => {
+        const hw = setupKeeperSigner(cosigner);
+        if (hw) {
+          dispatch(addSigningDevice([hw.signer]));
+          const navigationState = addSignerFlow
+            ? { name: 'ManageSigners' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
+        }
+        setInProgress(false);
+      });
+    } catch (err) {
+      setInProgress(true);
+      captureError(err);
+      showToast('Key could not be added, please try again', <ToastErrorIcon />, 3000);
+    }
   };
 
   const navigateToSigningServerSetup = async () => {
@@ -916,12 +1040,12 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToSeedWordSetup = () => {
+  const navigateToSeedWordSetup = (isImport = false) => {
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.VAULT_ADDITION) {
+    } else if (mode === InteracationMode.VAULT_ADDITION && !isImport) {
       close();
       const mnemonic = bip39.generateMnemonic();
       navigation.dispatch(
@@ -950,11 +1074,35 @@ function HardwareModalMap({
           name: 'EnterSeedScreen',
           params: {
             mode,
-            isHealthCheck: true,
+            isHealthCheck: false,
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
             addSignerFlow,
+          },
+        })
+      );
+    } else if (isImport) {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'EnterSeedScreen',
+          params: {
+            mode,
+            isImport,
+            isHealthCheck: false,
+            signer,
+            isMultisig,
+            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+            addSignerFlow,
+            importSeedCta: (mnemonic) => {
+              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+              dispatch(addSigningDevice([signer]));
+              const navigationState = addSignerFlow
+                ? { name: 'ManageSigners' }
+                : { name: 'AddSigningDevice', merge: true, params: {} };
+              navigation.dispatch(CommonActions.navigate(navigationState));
+              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+            },
           },
         })
       );
@@ -975,7 +1123,7 @@ function HardwareModalMap({
           hw = setupSpecter(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
-          hw = setupKeeperSigner(qrData, isMultisig);
+          hw = setupKeeperSigner(qrData);
           break;
         case SignerType.KEYSTONE:
           hw = setupKeystone(qrData, isMultisig);
@@ -1022,9 +1170,7 @@ function HardwareModalMap({
           `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
           <ToastErrorIcon />
         );
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        navigation.goBack();
       }
     }
   };
@@ -1117,8 +1263,9 @@ function HardwareModalMap({
     const findSigningServer = async (otp) => {
       try {
         setInProgress(true);
-        if (vaultSigners.length <= 1)
+        if (vaultSigners.length <= 1) {
           throw new Error('Add two other devices first to do a health check');
+        }
         const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
         const ids = vaultSigners.map((signer) =>
           WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network)
@@ -1131,9 +1278,9 @@ function HardwareModalMap({
             signerPolicy: response.policy,
           });
           if (mapped) {
-            showToast(`Signing Server verified successfully`, <TickIcon />);
+            showToast('Signing Server verified successfully', <TickIcon />);
           } else {
-            showToast(`Something Went Wrong!`, <ToastErrorIcon />);
+            showToast('Something Went Wrong!', <ToastErrorIcon />);
           }
         }
       } catch (err) {
@@ -1271,7 +1418,7 @@ function HardwareModalMap({
   };
 
   const handleInheritanceKey = () => {
-    if (selectInheritanceType === 1) {
+    if (keyGenerationMode === 1) {
       requestInheritanceKeyRecovery();
     } else {
       setupInheritanceKey();
@@ -1288,13 +1435,14 @@ function HardwareModalMap({
   //       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
   //       const ids = vaultSigners.map((signer) => signer.xfp);
   //       const response = await InheritanceKeyServer.findIKSSetup(ids, thresholdDescriptors);
+  //       note: findIKSSetup will only be able to provide the id in the setupInfo
   //       if (response.setupInfo.id) {
   //         const mapped = mapUnknownSigner({
   //           masterFingerprint: response.setupInfo.masterFingerprint,
   //           type: SignerType.POLICY_SERVER,
   //           inheritanceKeyInfo: {
-  //             configuration: response.setupInfo.configuration,
-  //             policy: response.setupInfo?.policy,
+  //             configuration: response.setupInfo.configuration, // not available
+  //             policy: response.setupInfo?.policy,              // not available
   //           },
   //         });
   //         if (mapped) {
@@ -1386,16 +1534,19 @@ function HardwareModalMap({
           storageType: SignerStorage.WARM,
           isMultisig: true,
           inheritanceKeyInfo: {
-            configuration: setupInfo.configuration,
-            // policy: setupInfo.policy,      // policy doesn't really apply to the heir
+            // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
+            configurations: [], // setupInfo.configurations,
+            policy: setupInfo.policy,
           },
           xfp: setupInfo.id,
         });
-        if (setupInfo.configuration.bsms) {
-          initateRecovery(setupInfo.configuration.bsms);
-        } else {
-          // showToast('Cannot recreate vault as BSMS was not present', <ToastErrorIcon />);
-        }
+
+        // Recovery flow via BSMS is disabled for now. TODO: once backup via BSMS is enabled, we can enable recovery via BSMS as well
+        // if (setupInfo.configurations[0].bsms) {
+        //   initateRecovery(setupInfo.configurations[0].bsms);
+        // } else {
+        //   // showToast('Cannot recreate vault as BSMS was not present', <ToastErrorIcon />);
+        // }
         dispatch(addSigningDevice([inheritanceKey]));
         dispatch(setInheritanceRequestId('')); // clear approved request
         showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
@@ -1426,7 +1577,7 @@ function HardwareModalMap({
       showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
     } catch (err) {
       console.log({ err });
-      showToast(`Failed to add inheritance key`, <TickIcon />);
+      showToast('Failed to add inheritance key', <TickIcon />);
     }
   };
 
@@ -1438,9 +1589,39 @@ function HardwareModalMap({
     unsupported,
     options,
     sepInstruction = '',
-  } = getSignerContent(type, isMultisig, translations, isHealthcheck);
+    type: signerType,
+  } = getSignerContent(type, isMultisig, translations, isHealthcheck, colorMode);
 
-  const [selectInheritanceType, setSelectInheritanceType] = useState(1);
+  const [keyGenerationMode, setKeyGenerationMode] = useState(0);
+
+  const onSelect = (option) => {
+    switch (signerType) {
+      case SignerType.INHERITANCEKEY:
+        if (option.name === KeyGenerationMode.NEW) {
+          setKeyGenerationMode(0);
+        } else {
+          setKeyGenerationMode(1);
+        }
+        break;
+      case SignerType.KEEPER:
+        if (option.name === KeyGenerationMode.IMPORT) {
+          setKeyGenerationMode(0);
+        } else {
+          setKeyGenerationMode(1);
+        }
+      case SignerType.SEED_WORDS:
+        if (option.name === KeyGenerationMode.IMPORT) {
+          setKeyGenerationMode(0);
+        } else {
+          setKeyGenerationMode(1);
+        }
+
+        break;
+      default:
+        break;
+    }
+  };
+
   const Content = useCallback(
     () => (
       <SignerContent
@@ -1448,12 +1629,12 @@ function HardwareModalMap({
         Instructions={Instructions}
         mode={mode}
         options={options}
-        setSelectInheritanceType={setSelectInheritanceType}
-        selectInheritanceType={selectInheritanceType}
+        keyGenerationMode={keyGenerationMode}
         sepInstruction={sepInstruction}
+        onSelect={onSelect}
       />
     ),
-    [selectInheritanceType]
+    [keyGenerationMode]
   );
 
   const buttonCallback = () => {
@@ -1468,6 +1649,13 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
+        if (keyGenerationMode === 0) {
+          return navigateToSeedWordSetup(true);
+        } else {
+          return navigateToSeedWordSetup();
+        }
+
+      case SignerType.MY_KEEPER:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
       case SignerType.TREZOR:
@@ -1479,7 +1667,11 @@ function HardwareModalMap({
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.KEEPER:
-        return navigateToAddQrBasedSigner();
+        if (keyGenerationMode === 0) {
+          return navigateToAddQrBasedSigner();
+        } else {
+          return generateMyAppKey();
+        }
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
       case SignerType.INHERITANCEKEY:
@@ -1488,7 +1680,6 @@ function HardwareModalMap({
         return null;
     }
   };
-
   return (
     <>
       <KeeperModal
@@ -1496,7 +1687,7 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText="Proceed"
+        buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
@@ -1514,6 +1705,7 @@ function HardwareModalMap({
             ? close
             : null
         }
+        loading={inProgress}
       />
       <KeeperModal
         visible={passwordModal && mode === InteracationMode.VAULT_ADDITION}

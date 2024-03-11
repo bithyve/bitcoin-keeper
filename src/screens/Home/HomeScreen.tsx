@@ -1,18 +1,15 @@
-import { Linking, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { VisibilityType, WalletType } from 'src/core/wallets/enums';
-import TickIcon from 'src/assets/images/icon_tick.svg';
+import { VisibilityType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
-import { resetElectrumNotConnectedErr } from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
@@ -22,10 +19,13 @@ import InheritanceIcon from 'src/assets/images/inheri.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { urlParamsToObj } from 'src/core/utils';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
+import InititalAppController from './InititalAppController';
+import { formatNumber } from 'src/utils/utilities';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -45,7 +45,6 @@ function NewHomeScreen({ navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { wallets } = useWallets({ getAll: true });
-  const { collaborativeWallets } = useCollaborativeWallet();
   const { allVaults, activeVault } = useVault({
     includeArchived: false,
     getFirst: true,
@@ -58,7 +57,6 @@ function NewHomeScreen({ navigation }) {
     (item) => item !== null
   );
   const [isShowAmount, setIsShowAmount] = useState(false);
-  const [addImportVisible, setAddImportVisible] = useState(false);
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
@@ -66,138 +64,40 @@ function NewHomeScreen({ navigation }) {
   const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
   const netBalanceAllVaults = calculateBalancesForVaults(allVaults);
 
-  const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
   const { showToast } = useToastMessage();
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
-  const electrumClientConnectionStatus = useAppSelector(
-    (state) => state.login.electrumClientConnectionStatus
-  );
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
-  const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
-  const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
-
-  function handleDeepLinkEvent({ url }) {
-    if (url) {
-      if (url.includes('backup')) {
-        const splits = url.split('backup/');
-        const decoded = Buffer.from(splits[1], 'base64').toString();
-        const params = urlParamsToObj(decoded);
-        if (params.seed) {
-          navigation.navigate('EnterWalletDetail', {
-            seed: params.seed,
-            name: `${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
-            path: params.path,
-            appId: params.appId,
-            description: `Imported from ${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
-            type: WalletType.IMPORTED,
-          });
-        } else {
-          showToast('Invalid deeplink');
-        }
-      }
-    }
-  }
-
-  async function handleDeepLinking() {
-    try {
-      const initialUrl = await Linking.getInitialURL();
-      if (initialUrl) {
-        if (initialUrl.includes('backup')) {
-          const splits = initialUrl.split('backup/');
-          const decoded = Buffer.from(splits[1], 'base64').toString();
-          const params = urlParamsToObj(decoded);
-          if (params.seed) {
-            navigation.navigate('EnterWalletDetail', {
-              seed: params.seed,
-              name: `${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
-              path: params.path,
-              appId: params.appId,
-              purpose: params.purpose,
-              description: `Imported from ${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
-              type: WalletType.IMPORTED,
-            });
-          } else {
-            showToast('Invalid deeplink');
-          }
-        } else if (initialUrl.includes('create/')) {
-        }
-      }
-    } catch (error) {
-      //
-    }
-  }
 
   useEffect(() => {
-    Linking.addEventListener('url', handleDeepLinkEvent);
-    handleDeepLinking();
-    return () => {
-      Linking.removeAllListeners('url');
-    };
-  }, []);
-
-  useEffect(() => {
-    if (electrumClientConnectionStatus.success) {
-      showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
-      if (electrumErrorVisible) setElectrumErrorVisible(false);
-    } else if (electrumClientConnectionStatus.failed) {
-      showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
-      setElectrumErrorVisible(true);
-    }
-  }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
-
-  useEffect(() => {
-    if (electrumClientConnectionStatus.setElectrumNotConnectedErr) {
-      showToast(`${electrumClientConnectionStatus.setElectrumNotConnectedErr}`, <ToastErrorIcon />);
-      dispatch(resetElectrumNotConnectedErr());
-    }
-  }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
-
-  useEffect(() => {
-    if (relayWalletUpdate) {
-      if (defaultWalletCreation && wallets[collaborativeWallets.length]) {
-        navigation.navigate('SetupCollaborativeWallet', {
-          coSigner: wallets[collaborativeWallets.length],
-          walletId: wallets[collaborativeWallets.length].id,
-          collaborativeWalletsCount: collaborativeWallets.length,
-        });
-        dispatch(resetRealyWalletState());
-        setDefaultWalletCreation(false);
-      }
-    }
     if (relayWalletError) {
       showToast(
         realyWalletErrorMessage || 'Something went wrong - Wallet creation failed',
         <ToastErrorIcon />
       );
-      setDefaultWalletCreation(false);
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
+
   const cardsData = [
     {
       name: 'Buy\nBitcoin',
       icon: <BTC />,
-      callback: onPressBuyBitcoin,
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin' })),
+      cardPillText: `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+        currencyCodeExchangeRate.buy.toFixed(0)
+      )}`,
     },
     {
-      name: 'Manage\nAll Signers',
+      name: 'Manage\nKeys',
       icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance & Security Tools',
+      name: 'Inheritance & Security',
       icon: <InheritanceIcon />,
       callback: () => {
         const eligible = plan === SubscriptionTier.L3.toUpperCase();
@@ -221,7 +121,12 @@ function NewHomeScreen({ navigation }) {
   ];
 
   return (
-    <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
+      <InititalAppController
+        navigation={navigation}
+        electrumErrorVisible={electrumErrorVisible}
+        setElectrumErrorVisible={setElectrumErrorVisible}
+      />
       <TopSection colorMode={colorMode} top={top} cardsData={cardsData} />
       <WalletsList
         allWallets={allWallets}
@@ -231,19 +136,9 @@ function NewHomeScreen({ navigation }) {
         setIsShowAmount={() => setIsShowAmount(!isShowAmount)}
       />
       <HomeModals
-        addImportVisible={addImportVisible}
         electrumErrorVisible={electrumErrorVisible}
-        showBuyRampModal={showBuyRampModal}
-        setAddImportVisible={setAddImportVisible}
         setElectrumErrorVisible={setElectrumErrorVisible}
-        setShowBuyRampModal={setShowBuyRampModal}
-        receivingAddress={receivingAddress}
-        balance={balance}
-        presentationName={presentationName}
         navigation={navigation}
-        wallets={wallets}
-        collaborativeWallets={collaborativeWallets}
-        setDefaultWalletCreation={setDefaultWalletCreation}
       />
     </Box>
   );
