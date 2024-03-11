@@ -42,9 +42,9 @@ const FeeDataStats = () => {
     fetchInsightData();
   }, []);
 
-  function convertFiatToSats(fiatAmount: number) {
+  function convertSatsToFiat(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
-      ? (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
+      ? (fiatAmount / SATOSHIS_IN_BTC) * exchangeRates[currencyCode].last
       : 0;
   }
 
@@ -88,7 +88,7 @@ const FeeDataStats = () => {
           line1={'Suggested'}
           line2={'txn fee (fast)'}
           suffix={''}
-          stats={`$${convertFiatToSats(feeInsight.suggested_fee).toFixed(5)}`}
+          stats={`$${convertSatsToFiat(feeInsight.suggested_fee).toFixed(5)}`}
         />}
       </View>
     </View>
