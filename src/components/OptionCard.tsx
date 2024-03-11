@@ -7,6 +7,7 @@ import { StyleSheet } from 'react-native';
 
 type OptionProps = {
   title: string;
+  preTitle?: string;
   description: string;
   callback?: () => void;
   titleColor?: string;
@@ -19,6 +20,7 @@ type OptionProps = {
 
 export function OptionCard({
   title,
+  preTitle,
   description,
   Icon,
   callback = null,
@@ -42,6 +44,16 @@ export function OptionCard({
         <HStack style={styles.iconContainer}>
           {LeftIcon && LeftIcon}
           <VStack>
+            {preTitle && (
+              <Text
+                italic
+                color={`${colorMode}.LightGreenish`}
+                testID={`text_${title.replace(/ /g, '_')}`}
+                style={{ fontSize: 13, letterSpacing: 0.13 }}
+              >
+                {preTitle}
+              </Text>
+            )}
             <Text
               color={titleColor || `${colorMode}.primaryText`}
               testID={`text_${title.replace(/ /g, '_')}`}

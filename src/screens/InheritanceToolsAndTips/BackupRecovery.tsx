@@ -19,18 +19,21 @@ function BackupRecovery({ navigation }) {
   return (
     <ScrollView>
       <OptionCard
+        preTitle="Never accessed"
         title="Master Recovery Key"
         description="Backup 12-word phrase"
         LeftIcon={<WalletGreenIcon />}
         callback={() => navigate('MasterRecoveryKey')}
       />
       <OptionCard
+        preTitle="Never accessed"
         title="Personal Cloud Backup"
         description="Use your iCloud or Google Drive"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('PersonalCloudBackup')}
       />
       <OptionCard
+        preTitle="Never accessed"
         title="Wallet Configuration Files"
         description="Manual download (advanced)"
         LeftIcon={<VaultGreenIcon />}
@@ -41,6 +44,7 @@ function BackupRecovery({ navigation }) {
 
       <Box mt={hp(40)}>
         <OptionCard
+          preTitle="Never accessed"
           title="Backup and Recovery Tips"
           description="Suggestions for secure backup"
           LeftIcon={<VaultGreenIcon />}

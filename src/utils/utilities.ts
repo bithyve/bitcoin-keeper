@@ -1,5 +1,6 @@
 import config, { APP_STAGE } from 'src/core/config';
 import { Alert } from 'react-native';
+import moment from 'moment';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -161,3 +162,20 @@ export function numberToOrdinal(cardinal) {
 // Example: 1000000 => 1,000,000
 export const formatNumber = (value: string) =>
   value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+export const getTimeDifferenceInWords = (pastTime, currentTime) => {
+  var duration = moment.duration(currentTime.diff(pastTime));
+  var days = duration.days();
+  var hours = duration.hours();
+  var minutes = duration.minutes();
+
+  if (days > 0) {
+    return days + ' days ago';
+  } else if (hours > 0) {
+    return hours + ' hours ago';
+  } else if (minutes > 0) {
+    return minutes + ' minutes ago';
+  } else {
+    return 'just now';
+  }
+};

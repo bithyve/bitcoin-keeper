@@ -13,18 +13,21 @@ function KeySecurity({ navigation }) {
   return (
     <ScrollView>
       <OptionCard
+        preTitle="Never accessed"
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
         LeftIcon={<WalletGreenIcon />}
         callback={() => navigate('DiscountCodes')}
       />
       <OptionCard
+        preTitle="Never accessed"
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={<Bird />}
         callback={() => navigate('CanaryWallets')}
       />
       <OptionCard
+        preTitle="Never accessed"
         title="Assisted Keys"
         description="Assisted Keys"
         LeftIcon={<VaultGreenIcon />}
@@ -32,12 +35,14 @@ function KeySecurity({ navigation }) {
       />
       <Box paddingTop={10}>
         <OptionCard
+          preTitle="Never accessed"
           title="Secure Usage Tips"
           description="Recommendations while transacting"
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeGuardingTips')}
         />
         <OptionCard
+          preTitle="Never accessed"
           title="Safekeeping Tips"
           description="Key storage best practices"
           LeftIcon={<VaultGreenIcon />}
