@@ -1,5 +1,5 @@
 import React from 'react';
-import { useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { wp } from 'src/constants/responsive';
@@ -7,6 +7,7 @@ import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import Text from 'src/components/KeeperText';
+import Breadcrumbs from 'src/components/Breadcrumbs';
 
 function InheritanceTips({}) {
   const { colorMode } = useColorMode();

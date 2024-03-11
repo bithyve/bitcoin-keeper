@@ -1,21 +1,13 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 
-import { LocalizationContext } from 'src/context/Localization/LocContext';
-
-import { hp, wp } from 'src/constants/responsive';
-
-import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 
 const { width } = Dimensions.get('window');
 
 function TipsSlider({ items }) {
-  const { colorMode } = useColorMode();
   const onboardingSlideRef = useRef(null);
-  const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
 
   useEffect(() => {
@@ -54,6 +46,14 @@ function TipsSlider({ items }) {
             )}
           />
         </Box>
+        <Box alignItems="center" flexDirection="row" height={5}>
+          {items.map((item, index) => (
+            <Box
+              key={item.id}
+              style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
+            />
+          ))}
+        </Box>
       </SafeAreaView>
     </Box>
   );
@@ -68,5 +68,19 @@ const styles = StyleSheet.create({
   safeAreaViewWrapper: {
     flex: 1,
     position: 'relative',
+  },
+  selectedDot: {
+    width: 25,
+    height: 5,
+    borderRadius: 5,
+    backgroundColor: '#E3BE96',
+    marginEnd: 5,
+  },
+  unSelectedDot: {
+    width: 6,
+    height: 5,
+    borderRadius: 5,
+    backgroundColor: '#89AEA7',
+    marginEnd: 5,
   },
 });
