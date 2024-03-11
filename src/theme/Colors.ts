@@ -45,6 +45,7 @@ const Colors = {
   // PearlGrey: 'rgba(250,252,252,1)',
   pantoneGreen: 'rgba(45,103,89,1)',
   pantoneGreenLight: 'rgba(45,103,89,0.08)',
+  lightGreen: 'rgb(65, 117, 104)',
   // Champagne: 'rgba(247,242,236,1)',
   // Warmbeige: 'rgba(247, 242, 236, 1)',
   RussetBrown: 'rgba(145, 120, 93, 1)',
@@ -87,7 +88,7 @@ const Colors = {
   SeashellDark: 'rgba(72,81,79,1)',
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
   CoffeeDark: 'rgba(150,130,111, 1)',
-  Periwinkle: 'rgba(184, 182, 208, 1)'
+  Periwinkle: 'rgba(184, 182, 208, 1)',
   // ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;

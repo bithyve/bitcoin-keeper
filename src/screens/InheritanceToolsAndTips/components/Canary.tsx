@@ -8,6 +8,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import InheritanceHeader from '../InheritanceHeader';
+import DashedButton from 'src/components/DashedButton';
 
 function CanaryWallets({}) {
   const { colorMode } = useColorMode();
@@ -31,6 +32,13 @@ function CanaryWallets({}) {
           may try to withdraw those funds. This will be detected by the app and the user will be
           advised to change that key from any multi-key setup.
         </Text>
+        <Box mt={5}>
+          <DashedButton
+            description="Lorem ipsum dolor amet"
+            callback={() => {}}
+            name="Manage Keys"
+          />
+        </Box>
         <Text style={styles.commonTextStyle}>
           These wallets can be accessed and funded from the Settings of any key
         </Text>
@@ -44,7 +52,9 @@ const styles = StyleSheet.create({
     gap: 25,
     marginTop: 20,
   },
-  mainContainer: { height: '100%', marginLeft: wp(20) },
+  mainContainer: {
+    marginLeft: wp(20),
+  },
   walletType: {
     justifyContent: 'space-between',
     gap: 10,
@@ -64,6 +74,7 @@ const styles = StyleSheet.create({
   },
   circleStyle: {
     alignItems: 'center',
+    marginTop: hp(20),
   },
 });
 

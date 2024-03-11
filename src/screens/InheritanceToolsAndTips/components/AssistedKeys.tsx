@@ -7,31 +7,35 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
-
+import InheritanceHeader from '../InheritanceHeader';
+import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
+import DashedButton from 'src/components/DashedButton';
 function AssistedKeys({}) {
   const { colorMode } = useColorMode();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
-      <KeeperHeader />
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+      <InheritanceHeader />
+      <ScrollView>
         <Text style={styles.heading}>Assisted Keys</Text>
         <Text style={styles.description}>Server hosted signers</Text>
         <Text style={styles.commonTextStyle}>
           Keeper offers two Assisted Keys Signing Server: allows an automated script to sign the txn
           when correct 2FA code is provided. You can also setup a spending policy
         </Text>
-        <Box style={styles.circleStyle} />
+        <Box style={styles.circleStyle}>
+          <AssistedKeysIcon />
+        </Box>
         <Text style={styles.commonTextStyle}>
           Inheritance Key: signs a txn after a delay of 15 days during which the user can cancel the
           request
         </Text>
 
-        <Box style={styles.addCardStyle}>
-          <AddCard
+        <Box mt={5} alignItems={'center'}>
+          <DashedButton
+            description="Lorem ipsum dolor amet"
+            callback={() => {}}
             name="Add Assisted Keys"
-            borderColor={`${colorMode}.white`}
-            nameColor={`${colorMode}.white`}
           />
         </Box>
         <Box style={[styles.leftTextStyle]}>
@@ -65,7 +69,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   commonTextStyle: {
-    textAlign: 'center',
     marginTop: hp(40),
     color: Colors.white,
   },
@@ -78,11 +81,8 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   circleStyle: {
-    backgroundColor: 'rgba(7,59,54,0.7)',
-    borderRadius: 100,
-    marginTop: hp(40),
-    height: hp(170),
-    width: wp(170),
+    alignItems: 'center',
+    marginTop: hp(20),
   },
   notes: { alignItems: 'flex-start' },
 });

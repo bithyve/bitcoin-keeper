@@ -19,7 +19,7 @@ function InheritanceHeader({}: Props) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
-    marginBottom: hp(50),
+    marginBottom: hp(20),
   },
 });
 export default InheritanceHeader;
