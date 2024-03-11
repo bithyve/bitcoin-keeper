@@ -188,6 +188,7 @@ function UpdateWalletDetails({ route }) {
             </KeeperText>
             <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Input
+                testID="input_path"
                 placeholder={importWallet.derivationPath}
                 // style={styles.textInput}
                 placeholderTextColor={`${colorMode}.White`} // TODO: change to colorMode and use native base component

@@ -35,7 +35,7 @@ function SignerList({
     config.NETWORK_TYPE === NetworkType.TESTNET &&
     !signer.isMock;
   return (
-    <TouchableOpacity onPress={callback}>
+    <TouchableOpacity testID={`btn_transactionSigner`} onPress={callback}>
       <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
           <Box flexDirection="row">

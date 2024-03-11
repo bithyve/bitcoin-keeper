@@ -84,6 +84,7 @@ function ReceiveScreen({ route }: { route }) {
                 value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
+                testID="input_receiveAmount"
               />
             </Box>
 
@@ -116,7 +117,11 @@ function ReceiveScreen({ route }: { route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={common.receive} subtitle={walletTranslation.receiveSubTitle} />
-      <Box style={styles.qrWrapper} borderColor={`${colorMode}.qrBorderColor`}>
+      <Box
+        testID="view_recieveAddressQR"
+        style={styles.qrWrapper}
+        borderColor={`${colorMode}.qrBorderColor`}
+      >
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
           logoBackgroundColor="transparent"
