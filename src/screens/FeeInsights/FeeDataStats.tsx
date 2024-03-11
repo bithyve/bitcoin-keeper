@@ -70,7 +70,7 @@ const FeeDataStats = () => {
           line1={'BTC'}
           line2={'Market Price'}
           suffix={''}
-          stats={`$${addCommas(String(feeInsight.btc_data.btc_price_usd))}`}
+          stats={`$ ${addCommas(String(feeInsight.btc_data.btc_price_usd))}`}
         />
         <FeeInsightCard
           line1={'Market price'}
@@ -88,7 +88,7 @@ const FeeDataStats = () => {
           line1={'Suggested'}
           line2={'txn fee (fast)'}
           suffix={''}
-          stats={`$${convertSatsToFiat(feeInsight.suggested_fee).toFixed(5)}`}
+          stats={`$ ${convertSatsToFiat(feeInsight.suggested_fee).toFixed(5)}`}
         />}
       </View>
     </View>

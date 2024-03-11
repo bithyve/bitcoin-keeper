@@ -4,24 +4,26 @@ import Text from 'src/components/KeeperText';
 import Fonts from 'src/constants/Fonts';
 import { Box, useColorMode } from 'native-base';
 
-
-interface Props{
+interface Props {
   line1: string;
   line2: string;
   suffix: string;
-  stats:  string | number;
+  stats: string | number;
   showArrow?: boolean;
   pointer?: string;
 }
 
-const FeeInsightCard = (props:Props) => {
-const { colorMode } = useColorMode();
+const FeeInsightCard = (props: Props) => {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
       <Text style={styles.lineOneStyle}>{props.line1}</Text>
       <Text style={styles.lineOneStyle}>{props.line2}</Text>
       <View style={styles.statsWrapper}>
-        <Text style={styles.statStyle}>{props.stats}<Text style={styles.statsSuffix}>{props.suffix}</Text></Text>
+        <Text>
+            <Text style={styles.statsWrapper}>{props.stats}</Text>
+            <Text style={styles.statStyle}>{props.suffix}</Text>
+        </Text>
       </View>
     </Box>
   );
@@ -34,22 +36,21 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 10,
     padding: 10,
-
   },
   lineOneStyle: {
     fontSize: 12,
     fontFamily: Fonts.FiraSansCondensedMedium,
-    lineHeight:14
+    lineHeight: 14,
   },
   statsWrapper: {
-    marginTop:5
+    marginTop: 5,
   },
   statStyle: {
     fontSize: 11,
     fontFamily: Fonts.FiraSansCondensedMedium,
   },
   statsSuffix: {
-    fontSize: 10,
-    fontFamily: Fonts.FiraSansCondensedRegular,
+    fontSize: 11,
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
 });

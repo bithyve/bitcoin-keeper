@@ -552,7 +552,9 @@ function HighFeeAlert({
           />
         </Box>
       )}
-      <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
+      <Box width={'70%'}>
+        <Text style={styles.highFeeNote}>If not urgent, you could consider waiting for the fees to reduce</Text>
+      </Box>
     </>
   );
 }
@@ -1235,6 +1237,10 @@ const styles = StyleSheet.create({
   highAlertFiatFee: {
     fontSize: 16,
     fontWeight: '700',
+  },
+  highFeeNote: {
+    fontSize: 13,
+    letterSpacing: 0.13,
   },
   circle: {
     width: 20,

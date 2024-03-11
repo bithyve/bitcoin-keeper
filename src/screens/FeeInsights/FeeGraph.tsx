@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { LinearGradient, Stop } from 'react-native-svg';
+import Fonts from 'src/constants/Fonts';
 import { HistoricalInisightData } from 'src/nativemodules/interface';
 import customTheme from 'src/navigation/themes';
 
@@ -49,13 +50,13 @@ const FeeGraph = (props: Props) => {
         yAxisColor={ customTheme.colors[colorMode].lightSeashell}
         xAxisColor={ customTheme.colors[colorMode].lightSeashell}
         yAxisLabelWidth={18}
-        color={ customTheme.colors[colorMode].fadedblue}
-        yAxisTextStyle={{ color:  customTheme.colors[colorMode].primaryText, fontSize: 10, }}
+        color={ customTheme.colors[colorMode].pantoneGreen}
+        yAxisTextStyle={{ color:  customTheme.colors[colorMode].pantoneGreen, fontSize: 10, fontFamily: Fonts.FiraSansSemiBold }}
         areaGradientId="ag"
         areaGradientComponent={() => {
           return (
             <LinearGradient id="ag" x1="1" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor={customTheme.colors[colorMode].fadedblue} />
+              <Stop offset="0" stopColor={customTheme.colors[colorMode].pantoneGreen} />
               <Stop offset="1" stopColor={customTheme.colors[colorMode].seashellWhite} />
             </LinearGradient>
           );
