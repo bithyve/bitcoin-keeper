@@ -195,6 +195,7 @@ function NodeSettings() {
                     </Box>
                     <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
                       <TouchableOpacity
+                        testID="btn_disconnetNode"
                         onPress={() => {
                           if (!isConnected) onConnectToNode(item);
                           else onDisconnectToNode(item);
@@ -213,7 +214,7 @@ function NodeSettings() {
                         </Box>
                       </TouchableOpacity>
                       <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
-                      <TouchableOpacity onPress={() => onDelete(item)}>
+                      <TouchableOpacity testID="btn_deleteNode" onPress={() => onDelete(item)}>
                         <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                           <DeleteIcon />
                           <Text style={[styles.actionText, { paddingTop: 2 }]}>
@@ -229,7 +230,7 @@ function NodeSettings() {
           />
         </Box>
       )}
-      <TouchableOpacity onPress={onAdd}>
+      <TouchableOpacity testID="btn_addNode" onPress={onAdd}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
           {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
           <Text style={[styles.addNewNodeText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>
