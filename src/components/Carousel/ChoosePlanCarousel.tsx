@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { hp } from 'src/constants/responsive';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { useQuery } from '@realm/react';
 import ChoosePlanCarouselItem from './ChoosePlanCarouselItem';

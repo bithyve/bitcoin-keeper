@@ -72,6 +72,7 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -447,8 +448,7 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${
-          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -481,23 +481,21 @@ function MixProgress({
     );
   }
 
-  const { colorMode } = useColorMode();
-
   return (
     <Box style={styles.container}>
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <KeeperHeader
           enableBack={false}
           title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>
-          <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.currentUtxoTitle}>
             {'Current UTXO: '}
           </Text>
           <Text
             numberOfLines={1}
-            color="light.secondaryText"
+            color={`${colorMode}.secondaryText`}
             style={styles.currentUtxoText}
             ellipsizeMode="middle"
           >
@@ -618,7 +616,7 @@ const getStyles = (clock) =>
       letterSpacing: 0.4,
       marginLeft: wp(5),
       marginTop: hp(3),
-      width: '100%',
+      width: '95%',
       flexWrap: 'wrap',
     },
     progressStepsTextWrapper: {

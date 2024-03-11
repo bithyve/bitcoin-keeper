@@ -1,4 +1,4 @@
-import { Box, ScrollView, VStack } from 'native-base';
+import { Box, ScrollView, useColorMode, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -7,17 +7,17 @@ import { SignerType } from 'src/core/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import useSigners from 'src/hooks/useSigners';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 type IProps = {
   navigation: any;
@@ -28,6 +28,7 @@ type IProps = {
   };
 };
 function AssignSignerType({ route }: IProps) {
+  const { colorMode } = useColorMode();
   const { vault } = route.params;
   const { signers: appSigners } = useSigners();
   const [visible, setVisible] = useState(false);
@@ -74,7 +75,7 @@ function AssignSignerType({ route }: IProps) {
   }, []);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Identify your signer"
         subtitle="for better communication and conectivity"
@@ -113,22 +114,22 @@ function AssignSignerType({ route }: IProps) {
                   key={type}
                 >
                   <Box
-                    backgroundColor="light.primaryBackground"
+                    backgroundColor={`${colorMode}.seashellWhite`}
                     borderTopRadius={first ? 15 : 0}
                     borderBottomRadius={last ? 15 : 0}
                     opacity={disabled ? 0.5 : 1}
                   >
                     <Box style={styles.walletMapContainer}>
                       <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
-                      <Box backgroundColor="light.divider" style={styles.divider} />
+                      <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
                       <VStack style={styles.content}>
                         <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
-                        <Text color="light.inActiveMsg" style={styles.messageText}>
+                        <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
                           {message}
                         </Text>
                       </VStack>
                     </Box>
-                    <Box backgroundColor="light.divider" style={styles.dividerStyle} />
+                    <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
                   </Box>
                 </TouchableOpacity>
               );
@@ -170,8 +171,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dividerStyle: {
-    opacity: 0.1,
+    opacity: 0.6,
     width: windowWidth * 0.8,
+    alignSelf: 'center',
     height: 0.5,
   },
   divider: {

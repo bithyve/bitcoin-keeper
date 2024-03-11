@@ -1,4 +1,4 @@
-import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 export type AppStackParams = {
@@ -25,9 +25,7 @@ export type AppStackParams = {
   ChoosePlan: undefined;
   EnterWalletDetail: undefined;
   UpdateWalletDetails: undefined;
-  EditWalletDetails: { wallet: Wallet | Vault };
   WalletDetailsSettings: undefined;
-  ImportDescriptorScreen: undefined;
   CollaborativeWalletSettings: undefined;
   AddAmount: undefined;
   ExportSeed: undefined;
@@ -41,7 +39,6 @@ export type AppStackParams = {
     vaultId: string;
     vaultTransferSuccessful: boolean;
     autoRefresh: boolean;
-    collaborativeWalletId: string;
   };
   UTXOManagement:
     | {
@@ -49,14 +46,12 @@ export type AppStackParams = {
         routeName: string;
         accountType?: string;
         vaultId: string;
-        collaborativeWalletId?: string;
       }
     | {
         data: Wallet | Vault;
         routeName: string;
         accountType: string;
         vaultId?: string;
-        collaborativeWalletId?: string;
       };
   WalletSettings: undefined;
   BackupWallet: undefined;
@@ -92,7 +87,7 @@ export type AppStackParams = {
   PoolSelection: undefined;
   BroadcastPremix: undefined;
   WhirlpoolConfiguration: undefined;
-  CosignerDetails: undefined;
+  CosignerDetails: { signer: Signer };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
@@ -113,6 +108,7 @@ export type AppStackParams = {
     vaultKeys: VaultSigner[];
   };
   AppBackupSettings: undefined;
+  BuyBitcoin: undefined;
 };
 
 // Usage:

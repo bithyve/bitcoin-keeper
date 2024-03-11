@@ -33,14 +33,14 @@ import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
 import { createDecipheriv } from 'src/core/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
-const ScanAndInstruct = ({ onBarCodeRead, mode }) => {
+function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
@@ -71,7 +71,7 @@ const ScanAndInstruct = ({ onBarCodeRead, mode }) => {
       <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
     </VStack>
   );
-};
+}
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
@@ -99,7 +99,7 @@ function ConnectChannel() {
 
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;
-    let sha = crypto.createHash('sha256');
+    const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });

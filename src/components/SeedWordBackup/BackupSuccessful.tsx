@@ -15,7 +15,9 @@ function BackupSuccessful(props) {
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box style={styles.closeBtnWrapper}>
-          <Text color={`${colorMode}.white`} style={styles.closeText}>X</Text>
+          <Text color={`${colorMode}.white`} style={styles.closeText}>
+            X
+          </Text>
         </Box>
       </TouchableOpacity>
       <Box style={styles.paragraphWrapper}>

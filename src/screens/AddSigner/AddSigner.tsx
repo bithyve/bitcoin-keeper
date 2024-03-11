@@ -22,19 +22,19 @@ function AddSigner({ navigation }) {
   };
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Warmbeige`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={signer.addSigner} subtitle={signer.addSignerSubTitle} />
       <ScrollView showsVerticalScrollIndicator={true}>
         <Box style={styles.signerContainer}>
           <SignerCard
-            walletName={'Testing'}
-            walletDescription={'Description'}
+            walletName="Testing"
+            walletDescription="Description"
             icon={colorMode === 'dark' ? <WalletActiveIcon /> : <WalletDark />}
             selectedCard={selectedCard}
             onCardSelect={onCardSelect}
           />
 
-          <AddCard name={'Add'} onCardSelect={onCardSelect} />
+          <AddCard name="Add" onCardSelect={onCardSelect} />
         </Box>
       </ScrollView>
     </ScreenWrapper>

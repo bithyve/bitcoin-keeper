@@ -6,15 +6,16 @@ import Clipboard from '@react-native-community/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Text from './KeeperText';
 import { hp } from 'src/constants/responsive';
+import Text from './KeeperText';
 
 type Props = {
   fingerprint: string;
   title?: string;
+  copy?: Function;
 };
 
-function WalletFingerprint({ title, fingerprint }: Props) {
+function WalletFingerprint({ title, fingerprint, copy }: Props) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
@@ -24,19 +25,21 @@ function WalletFingerprint({ title, fingerprint }: Props) {
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box style={styles.textContainer}>
-        <Text color={`${colorMode}.black`} style={styles.heading}>
-          {title ? title : 'Wallet Fingerprint'}
-        </Text>
-        <Text color={`${colorMode}.GreenishGrey`} style={styles.value}>
+        {title && (
+          <Text color={`${colorMode}.black`} style={styles.heading}>
+            {title}
+          </Text>
+        )}
+        <Text color={`${colorMode}.secondaryText`} numberOfLines={1} style={styles.value}>
           {fingerprint}
         </Text>
       </Box>
       <Pressable
-        backgroundColor={`${colorMode}.OffWhite`}
+        backgroundColor={`${colorMode}.whiteText`}
         style={styles.iconContainer}
         onPress={() => {
           Clipboard.setString(fingerprint);
-          showToast(walletTranslation.walletIdCopied, <TickIcon />);
+          copy ? copy() : showToast(walletTranslation.walletIdCopied, <TickIcon />);
         }}
       >
         <CopyIcon />

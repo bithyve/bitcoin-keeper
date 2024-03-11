@@ -19,7 +19,7 @@ export class PathComponent {
 
     if (this.index && (this.index & PathComponent.HARDENED_BIT) !== 0) {
       throw new Error(
-        `#[ur-registry][PathComponent][fn.constructor]: Invalid index ${this.index} - most significant bit cannot be set`,
+        `#[ur-registry][PathComponent][fn.constructor]: Invalid index ${this.index} - most significant bit cannot be set`
       );
     }
   }

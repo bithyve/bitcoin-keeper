@@ -45,7 +45,7 @@ function ImportWalletScreen() {
 
     launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
-        showToast('Camera device has been cancled', <ToastErrorIcon />);
+        showToast('Camera device has been canceled', <ToastErrorIcon />);
       } else if (response.errorCode === 'camera_unavailable') {
         showToast('Camera not available on device', <ToastErrorIcon />);
       } else if (response.errorCode === 'permission') {
@@ -80,7 +80,7 @@ function ImportWalletScreen() {
     }
   };
 
-  //TODO: add learn more modal
+  // TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView

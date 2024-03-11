@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
 
 import axios, { AxiosInstance } from 'axios';
@@ -19,7 +17,7 @@ export enum BITCOIN_NETWORK {
   MAINNET = 'MAINNET',
 }
 
-export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/';
+export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/hc/en-us/';
 export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/';
 
 // defaults to development environment
@@ -41,6 +39,7 @@ const DEFAULT_CONFIG = {
 
 class Configuration {
   public RELAY = config.RELAY?.trim() ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
+
   // RAMP details
   public RAMP_BASE_URL: string = config.RAMP_BASE_URL
     ? config.RAMP_BASE_URL.trim()
@@ -56,7 +55,7 @@ class Configuration {
 
   public HEXA_ID: string = config.HEXA_ID?.trim() ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID; // for legacy-relay interaction
 
-  public BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH = `m/83696968'/39'/0'/12'/83696968'`;
+  public BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH = "m/83696968'/39'/0'/12'/83696968'";
 
   public VAC_CHILD_INDEX: number = 3012009;
 
@@ -96,6 +95,7 @@ class Configuration {
     baseURL: this.SIGNING_SERVER,
     timeout: this.REQUEST_TIMEOUT,
   });
+
   public SIGNING_SERVER_RSA_PUBKEY: string = config.SIGNING_SERVER_RSA_PUBKEY
     ? config.SIGNING_SERVER_RSA_PUBKEY.trim()
     : DEFAULT_CONFIG.SIGNING_SERVER_RSA_PUBKEY;

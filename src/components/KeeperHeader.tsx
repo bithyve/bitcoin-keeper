@@ -10,6 +10,7 @@ import Text from 'src/components/KeeperText';
 type Props = {
   title?: string;
   titleColor?: string;
+  mediumTitle?: boolean;
   subtitle?: string;
   subTitleColor?: string;
   onPressHandler?: () => void;
@@ -28,6 +29,7 @@ function KeeperHeader({
   subtitle = '',
   titleColor,
   subTitleColor,
+  mediumTitle = false,
   onPressHandler,
   enableBack = true,
   learnMore = false,
@@ -63,7 +65,7 @@ function KeeperHeader({
                 style={styles.learnMoreContainer}
               >
                 <Text color={learnTextColor} style={styles.learnMoreText}>
-                  Learn More
+                  Need Help?
                 </Text>
               </Box>
             </TouchableOpacity>
@@ -76,17 +78,19 @@ function KeeperHeader({
           <Box>
             {title && (
               <Text
+                numberOfLines={1}
                 style={styles.addWalletText}
-                color={titleColor ? titleColor : `${colorMode}.headerText`}
+                color={titleColor || `${colorMode}.headerText`}
                 testID="text_header_title"
+                medium={mediumTitle}
               >
                 {title}
               </Text>
             )}
             {subtitle && (
               <Text
-                style={[styles.addWalletDescription]}
-                color={subTitleColor ? subTitleColor : `${colorMode}.black`}
+                style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
+                color={subTitleColor || `${colorMode}.black`}
                 testID="text_header_subtitle"
               >
                 {subtitle}
@@ -106,14 +110,13 @@ const getStyles = (marginLeft: boolean) =>
       backgroundColor: 'transparent',
     },
     addWalletText: {
-      lineHeight: 26,
-      letterSpacing: 0.8,
+      letterSpacing: 0.18,
       fontSize: 18,
     },
     addWalletDescription: {
       fontSize: 14,
-      lineHeight: 20,
-      letterSpacing: 0.5,
+      lineHeight: 18,
+      width: windowWidth * 0.8,
     },
     backContainer: {
       justifyContent: 'space-between',
@@ -148,9 +151,12 @@ const getStyles = (marginLeft: boolean) =>
       justifyContent: 'space-between',
     },
     headerInfo: {
-      paddingLeft: marginLeft ? '10%' : 0,
+      paddingLeft: marginLeft ? '10%' : '5%',
       flexDirection: 'row',
       gap: 10,
+    },
+    smallWidth: {
+      width: windowWidth * 0.45,
     },
   });
 export default KeeperHeader;

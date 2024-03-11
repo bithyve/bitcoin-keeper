@@ -8,7 +8,7 @@ import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -17,8 +17,6 @@ import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wal
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
-import { SDIcons } from './SigningDeviceIcons';
-import DescriptionModal from './components/EditDescriptionModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
@@ -29,13 +27,22 @@ import { hp, wp } from 'src/constants/responsive';
 import ActionCard from 'src/components/ActionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import { InheritanceAlert, InheritancePolicy } from 'src/services/interfaces';
+import {
+  InheritanceAlert,
+  InheritanceConfiguration,
+  InheritancePolicy,
+} from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
+import { getSignerNameFromType } from 'src/hardware';
+import config from 'src/core/config';
+import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import DescriptionModal from './components/EditDescriptionModal';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -47,7 +54,7 @@ function SignerAdvanceSettings({ route }: any) {
     signer: signerFromParam,
   }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
   const { signerMap } = useSignerMap();
-  const signer = signerFromParam ? signerFromParam : signerMap[vaultKey.masterFingerprint];
+  const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
@@ -88,10 +95,9 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       }
 
-      const thresholdDescriptors = activeVault.signers.map((signer) => signer.xfp).slice(0, 2);
-
-      if (signer.inheritanceKeyInfo === undefined)
+      if (signer.inheritanceKeyInfo === undefined) {
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+      }
 
       const existingPolicy: InheritancePolicy = signer.inheritanceKeyInfo.policy;
       const existingAlert: InheritanceAlert | any =
@@ -114,10 +120,23 @@ function SignerAdvanceSettings({ route }: any) {
         },
       };
 
+      let configurationForVault: InheritanceConfiguration = null;
+      for (const config of signer.inheritanceKeyInfo.configurations) {
+        if (config.id === vaultId) {
+          configurationForVault = config;
+          break;
+        }
+      }
+
+      if (!configurationForVault) {
+        showToast(`Something went wrong, IKS configuration missing for vault: ${vaultId}`);
+        return;
+      }
+
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         vaultKey.xfp,
         updatedPolicy,
-        thresholdDescriptors
+        configurationForVault
       );
 
       if (updated) {
@@ -188,7 +207,7 @@ function SignerAdvanceSettings({ route }: any) {
       <Box alignItems="center">
         <WarningIllustration />
         <Box>
-          <Text color="light.greenText" style={styles.warningText}>
+          <Text color={`${colorMode}.greenText`} style={styles.warningText}>
             If the signer is identified incorrectly there may be repurcusssions with general signer
             interactions like signing etc.
           </Text>
@@ -197,7 +216,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
-  const EditModalContent = () => {
+  function EditModalContent() {
     const [email, setEmail] = useState(currentEmail);
     const [emailStatusFail, setEmailStatusFail] = useState(false);
     return (
@@ -257,7 +276,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           >
             <Box backgroundColor={`${colorMode}.greenButtonBackground`} style={styles.cta}>
-              <Text style={styles.ctaText} color={'light.white'} bold>
+              <Text style={styles.ctaText} color="light.white" bold>
                 Update
               </Text>
             </Box>
@@ -265,13 +284,13 @@ function SignerAdvanceSettings({ route }: any) {
         )}
       </Box>
     );
-  };
+  }
 
   function DeleteEmailModalContent() {
     return (
-      <Box height={200} justifyContent={'flex-end'}>
+      <Box height={200} justifyContent="flex-end">
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
             You would not receive daily reminders about your Inheritance Key if it is used
           </Text>
         </Box>
@@ -299,9 +318,65 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const signPSBT = (serializedPSBT, resetQR) => {
+    try {
+      let signedSerialisedPSBT;
+      try {
+        const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+      } catch (e) {
+        captureError(e);
+      }
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ShowQR',
+          params: {
+            data: signedSerialisedPSBT,
+            encodeToBytes: false,
+            title: 'Signed PSBT',
+            subtitle: 'Please scan until all the QR data has been retrieved',
+            type: SignerType.KEEPER,
+          },
+        })
+      );
+    } catch (e) {
+      resetQR();
+      showToast('Please scan a valid PSBT', null, 3000, true);
+    }
+  };
+
+  const navigateToScanPSBT = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ScanQR',
+        params: {
+          title: 'Scan a PSBT file',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          onQrScan: signPSBT,
+          setup: true,
+          type: SignerType.KEEPER,
+          isHealthcheck: true,
+          signer,
+          disableMockFlow: true,
+        },
+      })
+    );
+  };
+
+  const navigateToCosignerDetails = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'CosignerDetails',
+        params: { signer },
+      })
+    );
+  };
+
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
-  const isAssistedKey = isPolicyServer || isInheritanceKey;
+  const isAppKey = signer.type === SignerType.KEEPER;
+  const isMyAppKey = signer.type === SignerType.MY_KEEPER;
+  const isAssistedKey = isPolicyServer || isInheritanceKey || isAppKey || isMyAppKey;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
@@ -309,11 +384,16 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
+
+  const isAMF =
+    signer.type === SignerType.TAPSIGNER &&
+    config.NETWORK_TYPE === NetworkType.TESTNET &&
+    !signer.isMock;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Advanced Settings"
-        subtitle={`for ${signer.signerName}`}
+        subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -321,16 +401,20 @@ function SignerAdvanceSettings({ route }: any) {
           />
         }
       />
-      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: '10%' }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: hp(10),
+        }}
+      >
         <OptionCard
-          title={'Edit Description'}
-          description={`Short description to help you remember`}
+          title="Edit Description"
+          description="Short description to help you remember"
           callback={openDescriptionModal}
         />
         {isInheritanceKey && vaultId && (
           <OptionCard
-            title={'Registered Email'}
-            description={`Delete or Edit registered email`}
+            title="Registered Email"
+            description="View, change or delete"
             callback={() => {
               setEditEmailModal(true);
             }}
@@ -338,17 +422,12 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isAssistedKey || !vaultId ? null : (
           <OptionCard
-            title={'Manual Registration'}
-            description={`Register your active vault`}
+            title="Manual Registration"
+            description="Register your active vault"
             callback={registerSigner}
           />
         )}
-        {/* disabling this temporarily */}
-        {/* <OptionCard
-          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
-          description="Identify your signer type for enhanced connectivity and communication"
-          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-        /> */}
+
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
@@ -356,19 +435,47 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToPolicyChange}
           />
         )}
+        {isPolicyServer && vaultId && (
+          <OptionCard
+            title="Forgot 2FA"
+            description="Lost access to the 2FA app"
+            callback={() => {
+              showToast(
+                'If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again',
+                null,
+                7000
+              );
+            }}
+          />
+        )}
         {isTapsigner && (
           <OptionCard
-            title="Unlock card"
+            title="Unlock Card"
             description="Run the unlock card process if it's rate-limited"
             callback={navigateToUnlockTapsigner}
           />
         )}
-        {/* ---------TODO Pratyaksh--------- */}
-        {/* <OptionCard title="XPub" description="Lorem Ipsum Dolor" callback={() => {}} /> */}
-      </ScrollView>
-      <VStack>
-        <Box ml={2} style={{ marginVertical: 20 }}>
-          {`Wallet used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
+        {(isAppKey || isMyAppKey) && (
+          <OptionCard
+            title="Key Details"
+            description="xPub for adding to another vault"
+            callback={navigateToCosignerDetails}
+          />
+        )}
+        {isMyAppKey && (
+          <OptionCard
+            title="Sign a transaction"
+            description="Using a PSBT file"
+            callback={navigateToScanPSBT}
+          />
+        )}
+        <OptionCard
+          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
+          description="Select from signer list"
+          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
+        />
+        <Box style={styles.signerText}>
+          {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
         <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
           {signerVaults.map((vault) => (
@@ -381,10 +488,10 @@ function SignerAdvanceSettings({ route }: any) {
             />
           ))}
         </ScrollView>
-        <Box style={styles.fingerprint}>
-          <WalletFingerprint title="Signer Fingerprint" fingerprint={vaultId} />
-        </Box>
-      </VStack>
+      </ScrollView>
+      <Box style={styles.fingerprint}>
+        <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
+      </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
@@ -400,13 +507,14 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setWarning(false)}
         title="Changing signer Type"
         subTitle="Are you sure you want to change the signer type?"
-        subTitleColor="light.secondaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonText="Continue"
-        buttonTextColor="light.white"
         secondaryButtonText="Cancel"
         secondaryCallback={() => setWarning(false)}
         buttonCallback={navigateToAssignSigner}
-        textColor="light.primaryText"
         Content={WarningContent}
       />
       <KeeperModal
@@ -414,9 +522,10 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setEditEmailModal(false)}
         title="Registered Email"
         subTitle="Delete or edit registered email"
-        subTitleColor="light.secondaryText"
-        buttonTextColor="light.white"
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={EditModalContent}
       />
       <KeeperModal
@@ -424,9 +533,10 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDeleteEmailModal(false)}
         title="Deleting Registered Email"
         subTitle="Are you sure you want to delete email id?"
-        subTitleColor="light.secondaryText"
-        buttonTextColor="light.white"
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonText="Delete"
         buttonCallback={() => {
           updateIKSPolicy(currentEmail);
@@ -591,5 +701,9 @@ const styles = StyleSheet.create({
   },
   fingerprint: {
     alignItems: 'center',
+  },
+  signerText: {
+    marginVertical: hp(15),
+    marginHorizontal: 10,
   },
 });

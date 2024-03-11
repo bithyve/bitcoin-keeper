@@ -31,8 +31,8 @@ function AppBackupSettings() {
         showsVerticalScrollIndicator={false}
       >
         <OptionCard
-          title={'View Recovery Keys'}
-          description={'you can view keys'}
+          title="View Recovery Keys"
+          description="you can view keys"
           callback={() => {
             setConfirmPassVisible(true);
           }}
@@ -42,9 +42,9 @@ function AppBackupSettings() {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery key'}
+        subTitle="To backup app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

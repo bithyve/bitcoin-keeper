@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
-import Text from './KeeperText';
 import Colors from 'src/theme/Colors';
+import Text from './KeeperText';
 import HexagonIcon from './HexagonIcon';
 
 type AddSignerCardProps = {
@@ -12,6 +12,7 @@ type AddSignerCardProps = {
   cardStyles?: ViewStyle;
   iconWidth?: number;
   iconHeight?: number;
+  loading?: boolean;
 };
 
 function AddCard({
@@ -20,10 +21,11 @@ function AddCard({
   cardStyles,
   iconWidth = 40,
   iconHeight = 34,
+  loading = false,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity onPress={() => callback(name)}>
+    <TouchableOpacity activeOpacity={0.95} onPress={() => callback(name)}>
       <Box
         backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={`${colorMode}.pantoneGreen`}
@@ -36,9 +38,10 @@ function AddCard({
             backgroundColor={Colors.pantoneGreen}
             icon={<AddCardIcon />}
           />
-          <Text color={`${colorMode}.SlateGrey`} style={styles.nameStyle}>
+          <Text semiBold color={`${colorMode}.headerText`} style={styles.nameStyle}>
             {name}
           </Text>
+          {loading ? <ActivityIndicator /> : null}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -53,16 +56,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
   },
   nameStyle: {
-    fontSize: 12,
-    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
   },
 
   detailContainer: {
-    gap: 2,
+    gap: 8,
     marginTop: 15,
     alignItems: 'center',
   },

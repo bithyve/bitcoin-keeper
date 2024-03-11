@@ -1,7 +1,6 @@
-/* eslint-disable no-nested-ternary */
-/* eslint-disable no-plusplus */
 import { call, put, select } from 'redux-saga/effects';
 import {
+  cryptoRandom,
   decrypt,
   encrypt,
   generateEncryptionKey,
@@ -15,9 +14,10 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import Relay from 'src/services/operations/Relay';
 import semver from 'semver';
-import { uaiType } from 'src/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';
 
+import dbManager from 'src/storage/realm/dbManager';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -45,7 +45,6 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import dbManager from 'src/storage/realm/dbManager';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
@@ -54,6 +53,7 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
+import { createUaiMap } from '../reducers/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -91,7 +91,13 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchExchangeRates());
 
     yield put(
-      uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT, uaiType.DEFAULT])
+      uaiChecks([
+        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+        uaiType.SECURE_VAULT,
+        uaiType.VAULT_TRANSFER,
+        uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+        uaiType.DEFAULT,
+      ])
     );
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
@@ -170,14 +176,17 @@ function* credentialsAuthWorker({ payload }) {
 
           yield put(fetchExchangeRates());
           yield put(getMessages());
+
           yield put(
             uaiChecks([
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               uaiType.SECURE_VAULT,
-              uaiType.DEFAULT,
               uaiType.VAULT_TRANSFER,
+              uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+              uaiType.DEFAULT,
             ])
           );
+
           yield put(resetSyncing());
           yield call(generateSeedHash);
           yield put(setRecepitVerificationFailed(!response.isValid));
@@ -208,8 +217,18 @@ export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
-  console.log({ oldPasscode, newPasscode });
   try {
+    const hash = yield call(hash512, oldPasscode);
+    const encryptedKey = yield call(SecureStore.fetch, hash);
+    const decryptedKey = yield call(decrypt, hash, encryptedKey);
+    const newHash = yield call(hash512, newPasscode);
+    const newEncryptedKey = yield call(encrypt, newHash, decryptedKey);
+    if (!(yield call(SecureStore.store, newHash, newEncryptedKey))) {
+      return;
+    }
+    const removedOldKey = yield call(SecureStore.remove, hash);
+    yield put(credsChanged('changed'));
+
     // todo
   } catch (err) {
     console.log({
@@ -255,7 +274,7 @@ function* generateSeedHash() {
       RealmSchema.KeeperApp
     );
     const words = primaryMnemonic.split(' ');
-    const random = Math.floor(Math.random() * words.length);
+    const random = Math.floor(cryptoRandom() * words.length);
     const hash = yield call(hash512, words[random]);
     yield put(setPinResetCreds({ hash, index: random }));
     yield put(resetPinFailAttempts());

@@ -1,8 +1,8 @@
 import { SignerType } from 'src/core/wallets/enums';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import useSignerMap from './useSignerMap';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import useSignerMap from './useSignerMap';
 import usePlan from './usePlan';
 
 const areSignersSame = ({ existingKeys, vaultKeys }) => {
@@ -31,7 +31,7 @@ const useSignerIntel = ({
   const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
 
   const amfSigners = [];
-  for (let mfp of selectedSigners.keys()) {
+  for (const mfp of selectedSigners.keys()) {
     const signer = signerMap[mfp];
     if (isSignerAMF(signer)) amfSigners.push(signer.type);
   }

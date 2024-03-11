@@ -1,22 +1,22 @@
-import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useState } from 'react';
-import { Box } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { hp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import { useNavigation } from '@react-navigation/native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
 function VaultConfigurationCreation() {
+  const { colorMode } = useColorMode();
   const [inputText, setInputText] = useState('');
   const { recoveryLoading, recoveryError, initateRecovery } = useConfigRecovery();
   const { navigate } = useNavigation();
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();
@@ -27,11 +27,12 @@ function VaultConfigurationCreation() {
             title="Recover Using Wallet Configuration File"
             subtitle="Recover the vault from output descriptor/configuration/BSMS File"
           />
-          <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
-            <TextInput
+          <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+            <Input
               placeholder="Enter the Wallet Configuration File"
-              placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+              placeholderTextColor={`${colorMode}.primaryText`} // TODO: change to colorMode and use native base component
               style={styles.textInput}
+              variant="unstyled"
               value={inputText}
               onChangeText={(text) => {
                 setInputText(text);

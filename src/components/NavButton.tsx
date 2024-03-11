@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import LinkIcon from 'src/assets/images/link.svg';
+import LinkIcon from 'src/assets/images/link_black.svg';
 import openLink from 'src/utils/OpenLink';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
@@ -51,9 +51,9 @@ const styles = StyleSheet.create({
     gap: 7,
   },
   heading: {
-    fontWeight: '400',
     fontSize: 13,
-    letterSpacing: 0.79,
+    letterSpacing: 0.13,
+    lineHeight: 16,
   },
   link: {
     justifyContent: 'center',

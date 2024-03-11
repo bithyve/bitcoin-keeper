@@ -14,18 +14,18 @@ import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import DotView from 'src/components/DotView';
 import Buttons from 'src/components/Buttons';
 import { useQuery } from '@realm/react';
 import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
-import KeeperFooter from '../KeeperFooter';
 
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import AdvnaceOptions from 'src/assets/images/settings.svg';
+import KeeperFooter from '../KeeperFooter';
+import HealthCheckComponent from './HealthCheckComponent';
 
-function BackupHealthCheckList() {
+function BackupHealthCheckList({ isUaiFlow }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -39,7 +39,7 @@ function BackupHealthCheckList() {
   )[0];
   const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
-  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
+  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(isUaiFlow);
   const history = useMemo(() => data.sorted('date', true), [data]);
 
   const onPressConfirm = () => {
@@ -91,6 +91,11 @@ function BackupHealthCheckList() {
     },
   ];
 
+  const replaceText = (inputString) => {
+    var replacedString = inputString.replace(/SEED_BACKUP/gi, 'RECOVERY_KEY');
+    return replacedString;
+  };
+
   return (
     <Box>
       <Box height={hp(520)}>
@@ -118,7 +123,7 @@ function BackupHealthCheckList() {
                 <DotView height={2} width={2} color={`${colorMode}.RussetBrown`} />
               </Box>
               <Text color={`${colorMode}.GreenishGrey`} fontSize={12} bold ml={5} opacity={0.7}>
-                {item?.title}
+                {replaceText(item?.title)}
               </Text>
               <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
                 {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}

@@ -11,23 +11,26 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 
-function WalletBackHistoryScreen() {
+function WalletBackHistoryScreen({ route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const [isLearnMore, setIsLearnMore] = useState(false);
-  const { BackupWallet } = translations;
+  const { seed } = translations;
+  const isUaiFlow = route.params?.isUaiFlow || false;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={BackupWallet.myWalletBackupTitle}
-        learnMore
-        learnMorePressed={() => {
-          setIsLearnMore(true);
-        }}
+        title={seed.backupPhrase}
+        //-----TODO LEARN MORE------
+        // learnMore
+        // learnTextColor={`${colorMode}.white`}
+        // learnMorePressed={() => {
+        //   setIsLearnMore(true);
+        // }}
       />
       <Box mx={wp(5)}>
-        <BackupHealthCheckList />
+        <BackupHealthCheckList isUaiFlow={isUaiFlow} />
       </Box>
       <KeeperModal
         visible={isLearnMore}

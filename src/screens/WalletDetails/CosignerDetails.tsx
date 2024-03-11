@@ -5,41 +5,35 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import Buttons from 'src/components/Buttons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import Note from 'src/components/Note/Note';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import ShareWithNfc from '../NFCChannel/ShareWithNfc';
-import { useQuery } from '@realm/react';
 import { getKeyExpression } from 'src/core/utils';
 import { XpubTypes } from 'src/core/wallets/enums';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
-function CosignerDetails() {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
+function CosignerDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
-  const { params } = useRoute();
-  const { wallet } = params as { wallet: Wallet };
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
   const navgation = useNavigation();
-
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const { signer } = route.params;
 
   useEffect(() => {
-    setTimeout(() => {
-      const details = getCosignerDetails(wallet);
-      const keyDescriptor = getKeyExpression(
-        details.mfp,
-        details.xpubDetails[XpubTypes.P2WSH].derivationPath,
-        details.xpubDetails[XpubTypes.P2WSH].xpub,
-        false
-      );
-      setDetails(keyDescriptor);
-    }, 200);
+    if (!details) {
+      setTimeout(() => {
+        const keyDescriptor = getKeyExpression(
+          signer.masterFingerprint,
+          signer.signerXpubs[XpubTypes.P2WSH][0].derivationPath,
+          signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+          false
+        );
+        setDetails(keyDescriptor);
+      }, 200);
+    }
   }, []);
 
   return (
@@ -54,7 +48,6 @@ function CosignerDetails() {
           copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
           subText="Co-signer Details"
           copyable={false}
-          keeper={keeper}
         />
       </Box>
       <ScrollView contentContainerStyle={{ alignItems: 'center' }}>

@@ -1,6 +1,6 @@
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
@@ -18,11 +18,12 @@ import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
-import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function SignWithQR() {
+  const { colorMode } = useColorMode();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
@@ -31,17 +32,15 @@ function SignWithQR() {
   const dispatch = useDispatch();
   const {
     vaultKey,
-    collaborativeWalletId = '',
     vaultId = '',
   }: {
     vaultKey: VaultSigner;
-    collaborativeWalletId: string;
     vaultId: string;
   } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
     (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
-  const { activeVault } = useVault({ collaborativeWalletId, vaultId });
+  const { activeVault } = useVault({ vaultId });
   const isSingleSig = activeVault.scheme.n === 1;
   const { signer } = useSignerFromKey(vaultKey);
 
@@ -97,11 +96,11 @@ function SignWithQR() {
   const navigateToVaultRegistration = () =>
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
-        {signer.type === SignerType.KEEPER ? (
+        {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
           <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
             <ShareWithNfc data={serializedPSBT} />
           </ScrollView>

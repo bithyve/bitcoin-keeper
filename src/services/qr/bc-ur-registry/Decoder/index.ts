@@ -34,7 +34,7 @@ export class URRegistryDecoder extends URDecoder {
         return CryptoAccount.fromCBOR(ur.cbor);
       default:
         throw new UnknownURTypeError(
-          `#[ur-registry][Decoder][fn.resultRegistryType]: registry type ${ur.type} is not supported now`,
+          `#[ur-registry][Decoder][fn.resultRegistryType]: registry type ${ur.type} is not supported now`
         );
     }
   };

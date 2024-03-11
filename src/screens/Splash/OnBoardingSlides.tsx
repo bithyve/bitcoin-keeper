@@ -106,13 +106,13 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}>
+              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}>
                 <Box
                   borderColor="light.lightAccent"
-                  backgroundColor="light.gradientEnd"
+                  backgroundColor="light.modalGreenLearnMore"
                   style={styles.seeFAQWrapper}
                 >
-                  <Text color="light.lightAccent" bold style={styles.seeFAQText}>
+                  <Text color={`${colorMode}.accent`} bold style={styles.seeFAQText}>
                     {common.seeFAQs}
                   </Text>
                 </Box>
@@ -182,8 +182,8 @@ const styles = StyleSheet.create({
   },
   cta: {
     borderRadius: 10,
-    width: wp(110),
-    height: hp(40),
+    width: wp(120),
+    height: hp(50),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -208,15 +208,16 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 14,
+    letterSpacing: 0.42,
     textAlign: 'center',
     opacity: 0.7,
   },
   startAppText: {
     fontSize: 13,
-    letterSpacing: 1,
+    letterSpacing: 0.78,
   },
   seeFAQWrapper: {
-    borderWidth: 0.7,
+    borderWidth: 0.5,
     borderRadius: 30,
     width: 120,
     alignItems: 'center',
@@ -224,6 +225,7 @@ const styles = StyleSheet.create({
     height: hp(40),
   },
   seeFAQText: {
-    fontSize: 14,
+    fontSize: 13,
+    letterSpacing: 0.26,
   },
 });

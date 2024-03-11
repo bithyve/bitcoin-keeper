@@ -39,7 +39,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
     () => (
       <View>
         <Box style={{ alignSelf: 'center', marginRight: 35 }}>{config.Illustration}</Box>
-        <Pressable
+        {/* <Pressable // TODO: Resolve BSMS encryption before re-enabling this
           onPress={() => {
             setBackupBSMS(!backupBSMS);
           }}
@@ -59,7 +59,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
             />
           )}
           <Text style={{ fontSize: 14, marginLeft: 15 }}>Backup vault Config (BSMS)</Text>
-        </Pressable>
+        </Pressable> */}
         <Box marginTop="4">
           {config.Instructions.map((instruction) => (
             <Instruction text={instruction} key={instruction} />

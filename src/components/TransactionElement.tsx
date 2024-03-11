@@ -39,7 +39,7 @@ function TransactionElement({
             {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
           </Box>
           <Box style={styles.transactionContainer}>
-            <Text color={`${colorMode}.GreenishGrey`} style={styles.transactionIdText}>
+            <Text color={`${colorMode}.GreenishGrey`} medium style={styles.transactionIdText}>
               {date}
             </Text>
             <Text
@@ -55,7 +55,7 @@ function TransactionElement({
           <CurrencyInfo
             hideAmounts={false}
             amount={transaction?.amount}
-            fontSize={17}
+            fontSize={18}
             color={`${colorMode}.dateText`}
             variation={colorMode === 'light' ? 'dark' : 'light'}
           />
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   },
   transactionIdText: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 0.12,
     width: wp(125),
     marginHorizontal: 3,
   },

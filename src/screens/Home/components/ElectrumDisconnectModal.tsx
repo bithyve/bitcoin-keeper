@@ -26,7 +26,7 @@ function ElectrumErrorContent() {
   );
 }
 
-const ElectrumDisconnectModal = ({ electrumErrorVisible, setElectrumErrorVisible }) => {
+function ElectrumDisconnectModal({ electrumErrorVisible, setElectrumErrorVisible }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -46,7 +46,7 @@ const ElectrumDisconnectModal = ({ electrumErrorVisible, setElectrumErrorVisible
       Content={ElectrumErrorContent}
     />
   );
-};
+}
 
 export default ElectrumDisconnectModal;
 
