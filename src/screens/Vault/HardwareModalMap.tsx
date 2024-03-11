@@ -91,6 +91,7 @@ import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import SignerCard from '../AddSigner/SignerCard';
+import useWithPasscode from 'src/hooks/useWithPasscode';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -892,6 +893,7 @@ function HardwareModalMap({
 
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
+  const { withPasscode, CheckPasscodeModal } = useWithPasscode();
 
   const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
@@ -1670,7 +1672,7 @@ function HardwareModalMap({
         if (keyGenerationMode === 0) {
           return navigateToAddQrBasedSigner();
         } else {
-          return generateMyAppKey();
+          return withPasscode(() => generateMyAppKey);
         }
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
@@ -1745,6 +1747,7 @@ function HardwareModalMap({
         Content={fetchSigningServerSetup}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
+      <CheckPasscodeModal />
     </>
   );
 }
