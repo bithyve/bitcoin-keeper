@@ -18,6 +18,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 type IProps = {
   navigation: any;
@@ -38,6 +39,7 @@ function AssignSignerType({ route }: IProps) {
     setVisible(true);
   };
   const { plan } = usePlan();
+  const navigation = useNavigation();
 
   const availableSigners = [
     SignerType.TAPSIGNER,
@@ -98,18 +100,30 @@ function AssignSignerType({ route }: IProps) {
                 { m: 2, n: 3 },
                 appSigners
               );
+
               let message = connectivityStatus;
               if (!connectivityStatus) {
                 message = getSDMessage({ type });
               }
+
+              const navigateToUpgrade = () => {
+                navigation.dispatch(CommonActions.navigate('ChoosePlan'));
+              };
+
+              const shouldNavigateToUpgrade = disabled && message.includes('upgrade');
+
               const first = index === 0;
               const last = index === availableSigners.length - 1;
               return (
                 <TouchableOpacity
-                  disabled={disabled}
+                  disabled={shouldNavigateToUpgrade ? false : disabled}
                   activeOpacity={0.7}
                   onPress={() => {
-                    assignSignerType(type);
+                    if (shouldNavigateToUpgrade) {
+                      navigateToUpgrade();
+                    } else {
+                      assignSignerType(type);
+                    }
                   }}
                   key={type}
                 >
