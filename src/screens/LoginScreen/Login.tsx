@@ -422,6 +422,7 @@ function LoginScreen({ navigation, route }) {
             {passcode.length === 4 && (
               <Box>
                 <CustomButton
+                  testID="btn_login"
                   onPress={() => {
                     setLoginError(false);
                     setLogging(true);
