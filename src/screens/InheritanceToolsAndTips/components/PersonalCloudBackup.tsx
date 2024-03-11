@@ -7,7 +7,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
-import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import PersonalCloudBackupIcon from 'src/assets/images/personal-cloud-backup.svg';
 
 function PersonalCloudBackup({}) {
   const { colorMode } = useColorMode();
@@ -28,7 +28,7 @@ function PersonalCloudBackup({}) {
           properly.
         </Text>
         <Box style={styles.circleStyle}>
-          <CanaryIcon />
+          <PersonalCloudBackupIcon />
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton

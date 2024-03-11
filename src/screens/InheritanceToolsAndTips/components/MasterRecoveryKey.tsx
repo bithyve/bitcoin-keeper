@@ -7,7 +7,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
-import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import MasterRecoveryKeyIcon from 'src/assets/images/master-recovery-key.svg';
 
 function MasterRecoveryKey({}) {
   const { colorMode } = useColorMode();
@@ -32,7 +32,7 @@ function MasterRecoveryKey({}) {
           which is updated automatically.
         </Text>
         <Box style={styles.circleStyle}>
-          <CanaryIcon />
+          <MasterRecoveryKeyIcon />
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton

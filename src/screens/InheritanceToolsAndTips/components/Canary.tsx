@@ -2,10 +2,9 @@ import React from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, wp } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
@@ -16,7 +15,7 @@ function CanaryWallets({}) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <ScrollView contentContainerStyle={styles.mainContainer}>
+      <ScrollView>
         <Text style={styles.heading}>Canary Wallets</Text>
         <Text style={styles.description}>Alert on key compromise</Text>
         <Text style={styles.commonTextStyle}>
@@ -52,9 +51,7 @@ const styles = StyleSheet.create({
     gap: 25,
     marginTop: 20,
   },
-  mainContainer: {
-    marginLeft: wp(20),
-  },
+
   walletType: {
     justifyContent: 'space-between',
     gap: 10,

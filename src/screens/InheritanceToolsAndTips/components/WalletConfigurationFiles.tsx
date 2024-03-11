@@ -7,7 +7,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
-import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import WalletConfigFilesIcon from 'src/assets/images/wallet-config-files.svg';
 
 function WalletConfigurationFiles({}) {
   const { colorMode } = useColorMode();
@@ -27,7 +27,7 @@ function WalletConfigurationFiles({}) {
           the minimum number of keys needed.
         </Text>
         <Box style={styles.circleStyle}>
-          <CanaryIcon />
+          <WalletConfigFilesIcon />
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
