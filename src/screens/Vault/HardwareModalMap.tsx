@@ -968,6 +968,7 @@ function HardwareModalMap({
             ? { name: 'ManageSigners' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
+          showToast(`${hw.signer.signerName} added successfully`, <TickIcon />);
         }
         setInProgress(false);
       });
