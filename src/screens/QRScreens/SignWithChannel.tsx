@@ -65,6 +65,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
 }
 
 function SignWithChannel() {
+  const { colorMode } = useColorMode();
   const { params } = useRoute();
   const { vaultKey, vaultId = '' } = params as {
     vaultKey: VaultSigner;
@@ -191,7 +192,7 @@ function SignWithChannel() {
   }, [channel]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Sign with Keeper Hardware Interface"
         subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to sign with the device`}

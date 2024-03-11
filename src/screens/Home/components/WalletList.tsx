@@ -12,7 +12,7 @@ import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
-import EmptyCard from 'src/components/EmptyCard';
+import WalletInfoEmptyState from './WalletInfoEmptyState';
 
 export function WalletsList({
   allWallets,
@@ -29,50 +29,37 @@ export function WalletsList({
         count={allWallets.length}
         balance={totalBalance}
       />
-      {allWallets.length ? (
-        <FlatList
-          contentContainerStyle={styles.walletDetailWrapper}
-          horizontal
-          data={allWallets}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item: wallet }) => (
-            <TouchableOpacity
-              style={styles.walletCardWrapper}
-              onPress={() => handleWalletPress(wallet, navigation)}
-            >
-              <WalletInfoCard
-                isShowAmount={isShowAmount}
-                setIsShowAmount={setIsShowAmount}
-                tags={getWalletTags(wallet)}
-                walletName={wallet.presentationData.name}
-                walletDescription={wallet.presentationData.description}
-                icon={getWalletIcon(wallet)}
-                amount={calculateWalletBalance(wallet)}
-              />
-            </TouchableOpacity>
-          )}
-          ListFooterComponent={() => (
-            <AddCard
-              name="Add"
-              cardStyles={{ height: hp(260), width: wp(130) }}
-              callback={() => navigation.navigate('AddWallet')}
+      <FlatList
+        contentContainerStyle={styles.walletDetailWrapper}
+        horizontal
+        data={allWallets}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item: wallet }) => (
+          <TouchableOpacity
+            testID={`btn_${wallet.presentationData.name}`}
+            style={styles.walletCardWrapper}
+            onPress={() => handleWalletPress(wallet, navigation)}
+          >
+            <WalletInfoCard
+              isShowAmount={isShowAmount}
+              setIsShowAmount={setIsShowAmount}
+              tags={getWalletTags(wallet)}
+              walletName={wallet.presentationData.name}
+              walletDescription={wallet.presentationData.description}
+              icon={getWalletIcon(wallet)}
+              amount={calculateWalletBalance(wallet)}
             />
-          )}
-        />
-      ) : (
-        <HStack style={styles.emptyCardContainer}>
-          <EmptyCard
-            name="Add"
-            cardStyles={{ height: hp(260), width: wp(130) }}
-            callback={() => navigation.navigate('AddWallet')}
-          />
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={<WalletInfoEmptyState />}
+        ListFooterComponent={() => (
           <AddCard
-            name="Add"
+            name={'Add\nWallet'}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
           />
-        </HStack>
-      )}
+        )}
+      />
     </Box>
   );
 }
@@ -100,7 +87,7 @@ const getWalletTags = (wallet) => {
       else walletKind = 'IMPORTED WALLET';
     }
 
-    return ['SINGLE SIG', walletKind];
+    return ['SINGLE-KEY', walletKind];
   }
 };
 

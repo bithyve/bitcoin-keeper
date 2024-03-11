@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import React, { useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 
@@ -10,15 +10,14 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Keyboard, StyleSheet } from 'react-native';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { useNavigation } from '@react-navigation/native';
 
 function TimelockScreen() {
-  const navigation = useNavigation();
+  const { colorMode } = useColorMode();
   const [amount, setAmount] = useState('');
 
   return (
     <Box flex={1} position="relative">
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <Box marginX={3}>
           <Box width={wp(320)}>
             <KeeperHeader
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     fontSize: 13,
     letterSpacing: 2.6,
     height: hp(50),

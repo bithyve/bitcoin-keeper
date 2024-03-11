@@ -30,10 +30,9 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
-import SettingsIcon from 'src/assets/images/settings_white.svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import TierUpgradeModal from './TierUpgradeModal';
+import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 
 function ChoosePlan() {
   const route = useRoute();
@@ -373,8 +372,11 @@ function ChoosePlan() {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        boldTitle
+        mediumTitle
         subtitle="Upgrade or downgrade"
+        rightComponent={
+          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
+        }
         // To-Do-Learn-More
       />
       <KeeperModal
@@ -405,7 +407,7 @@ function ChoosePlan() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ height: '70%', marginVertical: 0 }}
+          style={{ height: '100%', marginVertical: 0 }}
         >
           <ChoosePlanCarousel
             data={items}
@@ -427,23 +429,23 @@ function ChoosePlan() {
           <Box>
             <Box ml={5}>
               <Box>
-                <Text fontSize={14} color={`${colorMode}.pantoneGreen`} letterSpacing={1.12}>
-                  {getBenifitsTitle(items[currentPosition].name)}:
+                <Text fontSize={16} color={`${colorMode}.headerText`} letterSpacing={0.16}>
+                  {getBenifitsTitle(items[currentPosition].name)}
                 </Text>
               </Box>
               <Box mt={1}>
                 {items?.[currentPosition]?.benifits.map(
                   (i) =>
                     i !== '*Coming soon' && (
-                      <Box flexDirection="row" alignItems="center" key={i}>
+                      <Box style={styles.benefitContainer} key={i}>
+                        <Box style={styles.dot} backgroundColor={`${colorMode}.primaryText`} />
                         <Text
-                          fontSize={13}
+                          fontSize={12}
                           color={`${colorMode}.GreyText`}
-                          mb={2}
                           ml={3}
                           letterSpacing={0.65}
                         >
-                          {`• ${i}`}
+                          {` ${i}`}
                         </Text>
                       </Box>
                     )
@@ -468,20 +470,20 @@ function ChoosePlan() {
           />
         </Box>
         <Pressable
-          width="35%"
           activeOpacity={0.6}
           onPress={restorePurchases}
           testID="btn_restorePurchases"
+          borderColor={`${colorMode}.learnMoreBorder`}
+          backgroundColor={`${colorMode}.RussetBrown`}
+          style={styles.restorePurchaseWrapper}
         >
-          <Box
-            borderColor={`${colorMode}.learnMoreBorder`}
-            backgroundColor={`${colorMode}.RussetBrown`}
-            style={styles.restorePurchaseWrapper}
+          <Text
+            style={styles.restorePurchase}
+            medium
+            color={colorMode === 'light' ? 'light.white' : '#24312E'}
           >
-            <Text fontSize={12} bold color={colorMode === 'light' ? 'light.white' : '#24312E'}>
-              {choosePlan.restorePurchases}
-            </Text>
-          </Box>
+            {choosePlan.restorePurchases}
+          </Text>
         </Pressable>
       </Box>
     </ScreenWrapper>
@@ -493,12 +495,12 @@ const styles = StyleSheet.create({
     margin: 1,
     alignItems: 'flex-end',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     width: '100%',
   },
   restorePurchaseWrapper: {
-    padding: 1,
-    marginBottom: 10,
+    padding: 3,
+    marginBottom: 5,
     borderRadius: 5,
     borderWidth: 0.7,
     alignItems: 'center',
@@ -506,7 +508,23 @@ const styles = StyleSheet.create({
   },
   comingSoonText: {
     fontSize: 10,
+    letterSpacing: 0.1,
     marginLeft: 10,
+  },
+  benefitContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 5 / 2,
+    alignSelf: 'center',
+  },
+  restorePurchase: {
+    fontSize: 12,
+    letterSpacing: 0.24,
   },
 });
 export default ChoosePlan;

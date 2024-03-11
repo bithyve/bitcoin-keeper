@@ -1,4 +1,4 @@
-import { Box, ScrollView, View } from 'native-base';
+import { Box, ScrollView, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -54,13 +54,14 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
 };
 
 function ColdCardSetupContent() {
+  const { colorMode } = useColorMode();
   return (
     <View justifyContent="flex-start" width={wp(300)}>
       <Box ml={wp(21)}>
         <ColdCardSetupImage />
       </Box>
       <Box marginTop="4" alignItems="flex-start">
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             'Export the vault config by going to Setting > Multisig > Then select the wallet > Export '
           }
@@ -102,6 +103,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
     first?: boolean;
     last?: boolean;
   };
+  const { colorMode } = useColorMode();
   const { signingDevices } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
 
@@ -136,7 +138,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
           }}
         >
           <Box
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.seashellWhite`}
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
@@ -160,7 +162,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
           title="Recover using Coldcard"
           subTitle="Keep your Coldcard ready"
           buttonText="Proceed"
-          buttonTextColor="light.white"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={() => {
             navigation.dispatch(
               CommonActions.navigate({
@@ -170,7 +175,6 @@ function SigningDeviceConfigRecovery({ navigation }) {
             );
             close();
           }}
-          textColor="light.primaryText"
           Content={ColdCardSetupContent}
         />
 
@@ -197,7 +201,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Select signer"
         subtitle="To recover your vault"

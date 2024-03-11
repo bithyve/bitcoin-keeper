@@ -33,7 +33,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import {
   signTransactionWithColdCard,
-  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
@@ -243,13 +242,15 @@ function SignTransactionScreen() {
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
-          const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
-            signingPayload,
-            serializedPSBT,
-            xfp,
-            thresholdDescriptors,
-          });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          showToast('Signing via inheritance key is not available yet.');
+          // TODO: implement inheritance key signing, rewire the threshold descriptor w/ inheritance config; check InheritanceKeyServer.thresholdDescriptors
+          // const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
+          //   signingPayload,
+          //   serializedPSBT,
+          //   xfp,
+          //   thresholdDescriptors,
+          // });
+          // dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -389,7 +390,7 @@ function SignTransactionScreen() {
     );
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"

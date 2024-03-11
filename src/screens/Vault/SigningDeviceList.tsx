@@ -123,25 +123,29 @@ function SigningDeviceList() {
 
     return (
       <React.Fragment key={type}>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={onPress}
-          disabled={disabled}
-          style={{
-            opacity: disabled ? 0.4 : 1,
-          }}
-        >
+        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={disabled}>
           <Box
-            backgroundColor={`${colorMode}.primaryBackground`}
-            borderTopRadius={first ? 15 : 0}
-            borderBottomRadius={last ? 15 : 0}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderTopRadius={first ? 10 : 0}
+            borderBottomRadius={last ? 10 : 0}
           >
-            <Box style={styles.walletMapContainer}>
+            <Box
+              style={[
+                styles.walletMapContainer,
+                {
+                  opacity: disabled ? 0.4 : 1,
+                },
+              ]}
+            >
               <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
-              <Box backgroundColor="light.divider" style={styles.divider} />
+              <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
-                <Text color="light.inActiveMsg" style={styles.messageText} numberOfLines={2}>
+                <Text
+                  color={`${colorMode}.inActiveMsg`}
+                  style={styles.messageText}
+                  numberOfLines={2}
+                >
                   {message}
                 </Text>
               </Box>
@@ -167,7 +171,7 @@ function SigningDeviceList() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={vault.SelectSigner}
+        title={vault.Addsigner}
         subtitle={vault.SelectSignerSubtitle}
         learnMore
         learnBackgroundColor={`${colorMode}.RussetBrown`}
@@ -218,7 +222,7 @@ function SigningDeviceList() {
           title="Signers"
           subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
           modalBackground={`${colorMode}.modalGreenBackground`}
-          buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
           buttonBackground={`${colorMode}.modalWhiteButton`}
           buttonText="Add Now"
           buttonCallback={() => {
@@ -229,13 +233,13 @@ function SigningDeviceList() {
           DarkCloseIcon
           learnMore
           learnMoreCallback={() =>
-            openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)
+            openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
           }
         />
       </Box>
       <Box style={styles.noteContainer}>
         <Note
-          title="Security Tip"
+          title="Note"
           subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
           subtitleColor="GreyText"
         />
@@ -290,8 +294,9 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.6,
   },
   dividerStyle: {
-    opacity: 0.1,
-    width: windowWidth * 0.8,
+    opacity: 0.6,
+    width: '85%',
+    alignSelf: 'center',
     height: 0.5,
   },
   divider: {

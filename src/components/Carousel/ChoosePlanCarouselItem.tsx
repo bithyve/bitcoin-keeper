@@ -101,7 +101,7 @@ function ChoosePlanCarouselItem({
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
       <Box
-        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.SmokeGreen`}
+        backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.choosePlanCard`}
         style={[
           styles.wrapperView,
           {
@@ -114,14 +114,14 @@ function ChoosePlanCarouselItem({
           {item.productIds.includes(subscription.productId.toLowerCase()) ? (
             <Box
               alignSelf="flex-start"
-              backgroundColor={colorMode === 'light' ? 'light.white' : '#E3BE96'}
+              backgroundColor={`${colorMode}.primaryBackground`}
               borderRadius={10}
               mx={2}
               py={0.5}
               px={2}
             >
-              <Text fontSize={8} letterSpacing={0.64} bold color={`${colorMode}.pantoneGreen`}>
-                Current
+              <Text fontSize={8} letterSpacing={0.56} bold color={`${colorMode}.pantoneGreen`}>
+                CURRENT
               </Text>
             </Box>
           ) : (
@@ -130,20 +130,36 @@ function ChoosePlanCarouselItem({
             </Box>
           )}
           <Box
-            backgroundColor={isSelected ? `${colorMode}.DeepOlive` : `${colorMode}.PaleKhaki`}
+            backgroundColor={
+              isSelected
+                ? `${colorMode}.choosePlanIconBackSelected`
+                : `${colorMode}.choosePlanIconBack`
+            }
             style={styles.circle}
           >
             {item.name === 'Pleb' && <PlebIcon />}
             {item.name === 'Hodler' && <HodlerIcon />}
             {item.name === 'Diamond Hands' && <DiamondIcon />}
           </Box>
-          <Text fontSize={12} bold color={`${colorMode}.white`} mt={2}>
+          <Text
+            fontSize={12}
+            bold={isSelected}
+            medium={!isSelected}
+            color={`${colorMode}.white`}
+            mt={2}
+          >
             {item.name}
           </Text>
-          <Text fontSize={10} color={`${colorMode}.Warmbeige`} mb={4}>
+          <Text fontSize={10} color={`${colorMode}.white`} mb={4}>
             {item.subTitle}
           </Text>
-          <Text textAlign="center" fontSize={isSelected ? 22 : 15} color={`${colorMode}.white`}>
+          <Text
+            textAlign="center"
+            bold={item.productType !== 'free'}
+            fontSize={18}
+            lineHeight={18}
+            color={`${colorMode}.white`}
+          >
             {getAmt}
           </Text>
           <Text fontSize={10} color={`${colorMode}.white`}>
@@ -157,6 +173,7 @@ function ChoosePlanCarouselItem({
             <Box
               style={{
                 marginTop: hp(10),
+                marginBottom: hp(20),
               }}
             >
               <CustomYellowButton

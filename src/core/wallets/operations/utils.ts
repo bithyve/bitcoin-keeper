@@ -1,9 +1,7 @@
 /* eslint-disable prefer-destructuring */
 
-import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import * as ecc from 'tiny-secp256k1';
 import bitcoinMessage from 'bitcoinjs-message';
 
 import { CryptoAccount, CryptoHDKey } from 'src/services/qr/bc-ur-registry';
@@ -15,6 +13,7 @@ import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
 import config from 'src/core/config';
+import BIP32Factory from 'bip32';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
@@ -29,7 +28,10 @@ import {
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
+import ecc from './noble_ecc';
 
+bitcoinJS.initEccLib(ecc);
+const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletUtilities {
@@ -57,7 +59,7 @@ export default class WalletUtilities {
     return bitcoinJS.networks.bitcoin;
   };
 
-  static getFingerprintFromNode = (node: bip32.BIP32Interface) => {
+  static getFingerprintFromNode = (node) => {
     let fingerprintHex = node.fingerprint.toString('hex');
     while (fingerprintHex.length < 8) fingerprintHex = `0${fingerprintHex}`;
     return fingerprintHex.toUpperCase();
@@ -143,7 +145,7 @@ export default class WalletUtilities {
     ECPair.fromWIF(privateKey, network);
 
   static deriveAddressFromKeyPair = (
-    keyPair: bip32.BIP32Interface | ECPairInterface,
+    keyPair: ECPairInterface,
     network: bitcoinJS.Network,
     purpose: DerivationPurpose = DerivationPurpose.BIP84
   ): string => {
@@ -613,7 +615,7 @@ export default class WalletUtilities {
       if (WalletUtilities.isValidAddress(address, network)) {
         return {
           type: PaymentInfoKind.PAYMENT_URI,
-          address: scannedStr,
+          address: address,
           amount: options.amount,
           message: options.message,
         };

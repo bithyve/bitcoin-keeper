@@ -35,7 +35,7 @@ function AddCard({
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity onPress={() => callback(name)}>
+    <TouchableOpacity activeOpacity={0.95} onPress={() => callback(name)}>
       <Box
         backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={borderColor ? borderColor : `${colorMode}.pantoneGreen`}
@@ -48,7 +48,7 @@ function AddCard({
             backgroundColor={Colors.pantoneGreen}
             icon={<AddCardIcon />}
           />
-          <Text color={nameColor ? nameColor : `${colorMode}.SlateGrey`} style={styles.nameStyle}>
+          <Text semiBold color={`${colorMode}.headerText`} style={styles.nameStyle}>
             {name}
           </Text>
           {loading ? <ActivityIndicator /> : null}
@@ -66,17 +66,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
   },
   nameStyle: {
-    fontSize: 12,
-    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
   },
 
   detailContainer: {
-    gap: 2,
+    gap: 8,
     marginTop: 15,
     alignItems: 'center',
   },

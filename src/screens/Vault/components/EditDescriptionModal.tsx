@@ -99,7 +99,6 @@ function DescriptionModal({
       title="Add Description"
       subTitle="Optionally you can add a short description to the signer"
       buttonText="Save"
-      justifyContent="center"
       Content={MemoisedContent}
       buttonCallback={onSave}
     />
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: windowWidth * 0.7,
     fontSize: 13,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1,
     opacity: 0.5,
   },

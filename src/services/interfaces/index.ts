@@ -55,6 +55,7 @@ export interface InheritanceAlert {
 }
 
 export interface InheritanceConfiguration {
+  id: string;
   m: number;
   n: number;
   descriptors: string[];
@@ -72,7 +73,7 @@ export interface EncryptedInheritancePolicy {
 }
 
 export interface InheritanceKeyInfo {
-  configuration: InheritanceConfiguration;
+  configurations: InheritanceConfiguration[];
   policy?: InheritancePolicy;
 }
 

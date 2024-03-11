@@ -30,8 +30,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
-import { getSignerNameFromType } from 'src/hardware';
-import moment from 'moment';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -120,7 +119,7 @@ const onSignerSelect = (
   }
 };
 
-const isSignerValidForScheme = (signer: Signer, scheme, allVaults: Vault[], signerMap) => {
+const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
   const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
   const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
   const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -131,22 +130,32 @@ const isSignerValidForScheme = (signer: Signer, scheme, allVaults: Vault[], sign
     return false;
   }
 
-  if (signer.type === SignerType.POLICY_SERVER) {
-    if (scheme.m < 2 || scheme.n < 3) return false; // signing server key can be added for Vaults w/ m: 2 and n:3
-  } else if (signer.type === SignerType.INHERITANCEKEY) {
-    // inheritance key can be added for Vaults w/ at least 5 keys
-    if (scheme.m < 3 || scheme.n < 5) return false;
-
-    // TEMP: Disabling multiple IKS
-    let IKSExists = false;
-    for (const vault of allVaults) {
-      vault.signers.forEach((key) => {
-        if (signerMap[key.masterFingerprint]?.type === SignerType.INHERITANCEKEY) IKSExists = true;
-      });
+  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+    // scheme based restrictions for assisted keys
+    if (signer.type === SignerType.POLICY_SERVER) {
+      // signing server key can be added starting from Vaults w/ m: 2 and n:3
+      if (scheme.m < 2 || scheme.n < 3) return false;
+    } else if (signer.type === SignerType.INHERITANCEKEY) {
+      // inheritance key can be added starting from Vaults w/ m: 3 and n:5(and even w/ a SS already present, the number of assisted keys < m)
+      if (scheme.m < 3 || scheme.n < 5) return false;
     }
-    if (IKSExists) return false;
-  }
 
+    // count based restrictions for assisted keys
+    const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
+    let existingAssistedKeys = 0;
+    for (const mfp of selectedSigners.keys()) {
+      if (
+        signerMap[mfp].type === SignerType.POLICY_SERVER ||
+        signerMap[mfp].type === SignerType.INHERITANCEKEY
+      ) {
+        existingAssistedKeys++;
+      }
+    }
+    const assistedKeys = existingAssistedKeys + currentAssistedKey;
+    const cannotFormQuorum = assistedKeys < scheme.m; // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
+    const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m; // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
+    if (!cannotFormQuorum || !notRequiredForQuorum) return false;
+  }
   return true;
 };
 
@@ -156,7 +165,8 @@ const setInitialKeys = (
   allVaults,
   signerMap,
   setVaultKeys,
-  setSelectedSigners
+  setSelectedSigners,
+  selectedSigners
 ) => {
   if (activeVault) {
     // setting initital keys (update if scheme has changed)
@@ -166,7 +176,7 @@ const setInitialKeys = (
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
       const signer = signerMap[key.masterFingerprint];
-      if (isSignerValidForScheme(signer, scheme, allVaults, signerMap)) {
+      if (isSignerValidForScheme(signer, scheme, signerMap, selectedSigners)) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
           updatedSignerMap.set(key.masterFingerprint, true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -279,7 +289,7 @@ function Signers({
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     return signers.map((signer) => {
       const disabled =
-        !isSignerValidForScheme(signer, scheme, allVaults, signerMap) ||
+        !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
         (signer.type === SignerType.MY_KEEPER &&
           myAppKeys.length >= 1 &&
           myAppKeys[0].masterFingerprint !== signer.masterFingerprint);
@@ -292,7 +302,7 @@ function Signers({
           disabled={disabled}
           key={signer.masterFingerprint}
           name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
-          description={`Added ${moment(signer.addedOn).calendar()}`}
+          description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) =>
@@ -314,18 +324,20 @@ function Signers({
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
+        {signers.length ? (
+          <Box style={styles.gap10}>
+            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
+              Choose from already added keys
+            </Text>
+            <Box style={styles.addedSigners}>{renderSigners()}</Box>
+          </Box>
+        ) : null}
         <Box style={styles.gap10}>
-          <Text color={`${colorMode}.headerText`} style={styles.title}>
-            Choose from already added keys
-          </Text>
-          <Box style={styles.addedSigners}>{renderSigners()}</Box>
-        </Box>
-        <Box style={styles.gap10}>
-          <Text color={`${colorMode}.headerText`} style={styles.title}>
-            or add a new key
+          <Text color={`${colorMode}.headerText`} bold style={styles.title}>
+            {signers.length ? 'or' : ''} add a new key
           </Text>
           <AddCard
-            name="Add Signer"
+            name="Add a key"
             cardStyles={styles.addCard}
             callback={() =>
               navigation.dispatch(
@@ -393,7 +405,15 @@ function AddSigningDevice() {
   }, [realySignersUpdateErrorMessage]);
 
   useEffect(() => {
-    setInitialKeys(activeVault, scheme, allVaults, signerMap, setVaultKeys, setSelectedSigners);
+    setInitialKeys(
+      activeVault,
+      scheme,
+      allVaults,
+      signerMap,
+      setVaultKeys,
+      setSelectedSigners,
+      selectedSigners
+    );
   }, []);
 
   const subtitle =

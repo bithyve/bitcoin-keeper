@@ -1,15 +1,16 @@
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { hp } from 'src/constants/responsive';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
 function VaultCreationOptions() {
+  const { colorMode } = useColorMode();
   const { navigate } = useNavigation();
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Methods for creating the Vault"
         subtitle="This method can only be used for creating or restoring the Vault"

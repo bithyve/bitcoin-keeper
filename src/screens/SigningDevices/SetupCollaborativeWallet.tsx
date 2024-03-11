@@ -85,7 +85,7 @@ function SignerItem({
   return (
     <SignerCard
       key={signer.masterFingerprint}
-      name={getSignerNameFromType(signer.type, signer.isMock)}
+      name={getSignerNameFromType(signer.type, signer.isMock, false)}
       description={`Added ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       isSelected={false}
@@ -116,6 +116,7 @@ function SetupCollaborativeWallet() {
     xpub,
     derivationPath,
     masterFingerprint,
+    resetQR,
     xpriv = '',
     goBack = true,
     mine = false
@@ -124,15 +125,14 @@ function SetupCollaborativeWallet() {
       // duplicate check
       if (coSigners.find((item) => item && item.xpub === xpub)) {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
+        resetQR();
         return;
       }
-      // only use one of my app keys
-      if (
-        coSigners.find(
-          (item) => item && signerMap[item.masterFingerprint]?.type === SignerType.MY_KEEPER
-        )
-      ) {
-        showToast('You cannot use more than one of your own App Keys!', <ToastErrorIcon />);
+
+      // only use one of my mobile keys
+      if (signerMap[masterFingerprint]?.type === SignerType.MY_KEEPER) {
+        showToast('You cannot use more than one of your own Mobile Keys!', <ToastErrorIcon />);
+        resetQR();
         return;
       }
       const { key, signer } = generateSignerFromMetaData({
@@ -227,9 +227,9 @@ function SetupCollaborativeWallet() {
     <SignerItem
       vaultKey={item}
       index={index}
-      onQRScan={(data) => {
+      onQRScan={(data, resetQR) => {
         const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
-        pushSigner(xpub, derivationPath, masterFingerprint, '');
+        pushSigner(xpub, derivationPath, masterFingerprint, resetQR, '');
       }}
       signerMap={signerMap}
     />

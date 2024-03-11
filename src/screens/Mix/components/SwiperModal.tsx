@@ -14,7 +14,6 @@ import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
-  console.log('windowHeight', windowHeight);
   return (
     <Box>
       <Box>
@@ -104,7 +103,7 @@ function List() {
         >
           <Pressable
             onPress={() => {
-              openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-whirlpool/`);
+              openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`);
             }}
           >
             <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
@@ -119,11 +118,7 @@ function List() {
             }
           >
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
-              <Text
-                style={styles.ctaText}
-                color={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-                bold
-              >
+              <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>
@@ -152,7 +147,6 @@ function SwiperModal({ enable }) {
     />
   );
 }
-
 const styles = StyleSheet.create({
   contentContaner: {
     width: windowHeight < 650 ? wp(286) : wp(295),

@@ -10,7 +10,7 @@ import { hp } from 'src/constants/responsive';
 import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
-import { InheritancePolicy } from 'src/services/interfaces';
+import { InheritanceConfiguration, InheritancePolicy } from 'src/services/interfaces';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
@@ -36,15 +36,12 @@ function IKSAddEmailPhone({ route }) {
 
   const updateIKSPolicy = async (email: string) => {
     try {
-      const thresholdDescriptors = vault.signers.map((signer) => signer.xfp).slice(0, 2);
       const IKSigner = signerMap[ikVaultKey.masterFingerprint];
-
       if (IKSigner.inheritanceKeyInfo === undefined) {
         showToast('Something went wrong, IKS configuration missing', <TickIcon />);
       }
 
       const existingPolicy: InheritancePolicy = IKSigner.inheritanceKeyInfo.policy;
-
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
         alert: {
@@ -52,10 +49,22 @@ function IKSAddEmailPhone({ route }) {
         },
       };
 
+      let configurationForVault: InheritanceConfiguration = null;
+      for (const config of IKSigner.inheritanceKeyInfo.configurations) {
+        if (config.id === vault.id) {
+          configurationForVault = config;
+          break;
+        }
+      }
+      if (!configurationForVault) {
+        showToast(`Something went wrong, IKS configuration missing for vault ${vault.id}`);
+        return;
+      }
+
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         ikVaultKey.xfp,
         updatedPolicy,
-        thresholdDescriptors
+        configurationForVault
       );
 
       if (updated) {
@@ -75,7 +84,7 @@ function IKSAddEmailPhone({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Add Email" subtitle="To receive periodic notifications" />
       <Box style={styles.inputWrapper}>
         <Input

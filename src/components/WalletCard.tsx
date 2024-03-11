@@ -45,17 +45,17 @@ function WalletCard({
           <Box>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              numberOfLines={numberOfLines}
-              style={[styles.walletName, { fontWeight: isSelected ? 'bold' : '300' }]}
+              numberOfLines={1}
+              style={styles.walletName}
+              medium={isSelected}
             >
               {walletName}
             </Text>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              numberOfLines={1}
-              fontSize={11}
-              light
-              style={{ fontWeight: isSelected ? 'bold' : '300' }}
+              fontSize={isSelected ? 11 : 10}
+              numberOfLines={2}
+              style={styles.walletDesc}
             >
               {walletDescription}
             </Text>
@@ -104,6 +104,11 @@ const styles = StyleSheet.create({
   },
   walletName: {
     fontSize: 12,
+    letterSpacing: 0.12,
+  },
+  walletDesc: {
+    letterSpacing: 0.11,
+    lineHeight: 18,
   },
 });
 

@@ -19,10 +19,13 @@ import InheritanceIcon from 'src/assets/images/inheri.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
 import InititalAppController from './InititalAppController';
+import { formatNumber } from 'src/utils/utilities';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -65,11 +68,6 @@ function NewHomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
 
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  const receivingAddress = idx(wallets[0], (_) => _.specs.receivingAddress) || '';
-  const balance = idx(wallets[0], (_) => _.specs.balances.confirmed) || 0;
-  const presentationName = idx(wallets[0], (_) => _.presentationData.name) || '';
-
   useEffect(() => {
     if (relayWalletError) {
       showToast(
@@ -80,15 +78,21 @@ function NewHomeScreen({ navigation }) {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
+
   const cardsData = [
     {
       name: 'Buy\nBitcoin',
       icon: <BTC />,
-      callback: onPressBuyBitcoin,
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin' })),
+      cardPillText: `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+        currencyCodeExchangeRate.buy.toFixed(0)
+      )}`,
     },
     {
-      name: 'Manage\nAll Signers',
+      name: 'Manage\nKeys',
       icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
@@ -121,7 +125,7 @@ function NewHomeScreen({ navigation }) {
   ];
 
   return (
-    <Box backgroundColor={`${colorMode}.Linen`} style={styles.container}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
       <InititalAppController
         navigation={navigation}
         electrumErrorVisible={electrumErrorVisible}
@@ -137,12 +141,7 @@ function NewHomeScreen({ navigation }) {
       />
       <HomeModals
         electrumErrorVisible={electrumErrorVisible}
-        showBuyRampModal={showBuyRampModal}
         setElectrumErrorVisible={setElectrumErrorVisible}
-        setShowBuyRampModal={setShowBuyRampModal}
-        receivingAddress={receivingAddress}
-        balance={balance}
-        presentationName={presentationName}
         navigation={navigation}
       />
     </Box>

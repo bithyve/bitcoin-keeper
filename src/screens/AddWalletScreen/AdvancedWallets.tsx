@@ -19,32 +19,32 @@ function AdvancedWallets({ navigation }) {
         title="Time Lock"
         description="For 3, 6 or 12 months"
         LeftIcon={<TimeLockIcon />}
-        titleColor={`${colorMode}.DarkSage`}
-        descriptionColor={`${colorMode}.Smoke`}
+        titleColor={`${colorMode}.primaryText`}
+        descriptionColor={`${colorMode}.secondaryText`}
         CardPill={
           <CardPill
             heading="COMING SOON"
-            backgroundColor={`${colorMode}.DarkSage`}
+            backgroundColor={`${colorMode}.choosePlanCard`}
             headingColor={`${colorMode}.white`}
           />
         }
-        callback={() => {}}
+        callback={() => { }}
         disabled
       />
       <OptionCard
         title="Degrading Multisig"
         description="Degrading multi-key wallet"
         LeftIcon={<MultiSigIcon />}
-        titleColor={`${colorMode}.DarkSage`}
-        descriptionColor={`${colorMode}.Smoke`}
+        titleColor={`${colorMode}.primaryText`}
+        descriptionColor={`${colorMode}.secondaryText`}
         CardPill={
           <CardPill
             heading="COMING SOON"
-            backgroundColor={`${colorMode}.DarkSage`}
+            backgroundColor={`${colorMode}.choosePlanCard`}
             headingColor={`${colorMode}.white`}
           />
         }
-        callback={() => {}}
+        callback={() => { }}
         disabled
       />
       <OptionCard

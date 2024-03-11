@@ -43,6 +43,7 @@ export const InheritanceConfigurationSchema: ObjectSchema = {
   name: RealmSchema.InheritanceConfiguration,
   embedded: true,
   properties: {
+    id: 'string',
     m: 'int',
     n: 'int',
     descriptors: 'string[]',
@@ -79,7 +80,7 @@ export const InheritanceKeyInfoSchema: ObjectSchema = {
   name: RealmSchema.InheritanceKeyInfo,
   embedded: true,
   properties: {
-    configuration: RealmSchema.InheritanceConfiguration,
+    configurations: `${RealmSchema.InheritanceConfiguration}[]`,
     policy: `${RealmSchema.InheritancePolicy}?`,
   },
 };
@@ -119,6 +120,7 @@ export const RegistrationInfoSchema: ObjectSchema = {
 
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
+  primaryKey: 'xpub',
   properties: {
     masterFingerprint: 'string',
     xpub: 'string',
@@ -145,6 +147,7 @@ export const SignerSchema: ObjectSchema = {
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
     hidden: { type: 'bool', default: false },
+    extraData: '{}?',
   },
 };
 

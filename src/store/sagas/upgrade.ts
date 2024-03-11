@@ -12,7 +12,7 @@ import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
 import { LabelRefType, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import SigningServer from 'src/services/operations/SigningServer';
 import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
@@ -27,6 +27,7 @@ import {
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
+import { captureError } from 'src/services/sentry';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -156,9 +157,11 @@ export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_L
 
 function* migrateAssistedKeys() {
   try {
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
     const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
-    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+    if (!activeVault) throw new Error('No active vault found');
 
     const { signers } = activeVault;
     const signerMap = {};
@@ -230,7 +233,7 @@ function* migrateStructureforVaultInAppImage() {
   }
 }
 
-// This function updates app keys to enable signing by generating and associating extended keys.
+// This function updates app keys/mobile keys to enable signing by generating and associating extended keys.
 function* updateAppKeysToEnableSigning() {
   try {
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
@@ -240,8 +243,15 @@ function* updateAppKeysToEnableSigning() {
     const extendedKeyMap = generateExtendedKeysForSigners(myAppKeySigners, appKeyWalletMap);
     updateVaultSigners(extendedKeyMap, signers);
     updateSignerDetails(myAppKeySigners, extendedKeyMap);
+    const response = yield call(updateAppImageWorker, { payload: { signers } });
+    if (response.updated) {
+      console.log('Updated the Signers in app image');
+    } else {
+      console.log('Failed to update the update the app image with the updated the structure');
+    }
   } catch (err) {
-    console.log('Error updating app keys', err);
+    console.log('Error updating mobile keys', err);
+    captureError(err);
   }
 }
 
@@ -276,7 +286,6 @@ function updateVaultSigners(extendedKeyMap, signers) {
   const vaultKeys: VaultSigner[] = dbManager.getCollection(RealmSchema.VaultSigner);
   for (const vaultKey of vaultKeys) {
     const signer = signerMap[vaultKey.masterFingerprint];
-    console.log('extendedKeys', extendedKeyMap[vaultKey.masterFingerprint]);
     if (signer && signer.type === SignerType.KEEPER && extendedKeyMap[vaultKey.masterFingerprint]) {
       dbManager.updateObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', vaultKey.xpub, {
         xpriv: extendedKeyMap[vaultKey.masterFingerprint].xpriv,
@@ -285,8 +294,9 @@ function updateVaultSigners(extendedKeyMap, signers) {
   }
 }
 
-function updateSignerDetails(signers, extendedKeyMap) {
-  for (const signer of signers) {
+function updateSignerDetails(signers: Signer[], extendedKeyMap) {
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
     // Update the signer type to MY_KEEPER and the extended keys
     dbManager.updateObjectByPrimaryId(
       RealmSchema.Signer,
@@ -304,6 +314,20 @@ function updateSignerDetails(signers, extendedKeyMap) {
         signerXpubs: updateSignerXpubs(signer, extendedKeyMap[signer.masterFingerprint].xpriv),
       }
     );
+    try {
+      // Update the signer instance number for MY_KEEPER
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          extraData: { instanceNumber: i + 1 },
+        }
+      );
+    } catch (err) {
+      captureError(err);
+      // ignore since instance number is not mandatory
+    }
   }
 }
 
