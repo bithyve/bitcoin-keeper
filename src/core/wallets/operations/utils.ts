@@ -145,9 +145,6 @@ export default class WalletUtilities {
     }
   };
 
-  static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
-    ECPair.fromWIF(privateKey, network);
-
   static toXOnly = (pubKey) => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 
   static deriveAddressFromKeyPair = (
@@ -227,19 +224,16 @@ export default class WalletUtilities {
     }
   };
 
-  static getPrivateKeyByIndex = (
+  static getKeyPairByIndex = (
     xpriv: string,
     internal: boolean,
     index: number,
     network: bitcoinJS.networks.Network
-  ): {
-    privateKey: string;
-    subPath: number[];
-  } => {
+  ): BIP32Interface => {
     const node = bip32.fromBase58(xpriv, network);
     const chain = internal ? 1 : 0;
-    const privateKey = node.derive(chain).derive(index).toWIF();
-    return { privateKey, subPath: [chain, index] };
+    const keyPair: BIP32Interface = node.derive(chain).derive(index);
+    return keyPair;
   };
 
   static getPublicKeyByIndex = (
@@ -396,32 +390,22 @@ export default class WalletUtilities {
     return WalletUtilities.getExtendedPubKeyFromXpub(wallet.specs.xpub, purpose, network);
   };
 
-  static addressToKey = (
+  static addressToPublicKey = (
     address: string,
-    wallet: Wallet | Vault,
-    publicKey: boolean = false
-  ):
-    | {
-        publicKey: Buffer;
-        subPath: number[];
-      }
-    | {
-        privateKey: string;
-        subPath: number[];
-      } => {
+    wallet: Wallet | Vault
+  ): {
+    publicKey: Buffer;
+    subPath: number[];
+  } => {
     const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
     let xpub = null;
-    let xpriv = null;
 
     if (wallet.entityKind === EntityKind.VAULT) {
-      if (!publicKey) throw new Error('internal xpriv not supported in case of Vault');
       if ((wallet as Vault).isMultiSig) throw new Error('MultiSig should use: addressToMultiSig');
-
-      xpub = (wallet as Vault).specs.xpubs[0];
+      xpub = (wallet as Vault).specs.xpubs[0]; // xpub for vault(1-of-1)
     } else {
       xpub = (wallet as Wallet).specs.xpub;
-      xpriv = (wallet as Wallet).specs.xpriv;
     }
 
     const network = WalletUtilities.getNetworkByType(networkType);
@@ -431,32 +415,56 @@ export default class WalletUtilities {
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
-        if (publicKey) {
-          if (addressPubs[address]) {
-            return {
-              publicKey: Buffer.from(addressPubs[address], 'hex'),
-              subPath: [0, itr],
-            };
-          } else return WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network);
-        } else return WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
+        if (addressPubs[address]) {
+          return {
+            publicKey: Buffer.from(addressPubs[address], 'hex'),
+            subPath: [0, itr],
+          };
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network);
       }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (addressCache.internal[itr] === address) {
-        if (publicKey) {
-          if (addressPubs[address]) {
-            return {
-              publicKey: Buffer.from(addressPubs[address], 'hex'),
-              subPath: [1, itr],
-            };
-          } else return WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network);
-        } else return WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
+        if (addressPubs[address]) {
+          return {
+            publicKey: Buffer.from(addressPubs[address], 'hex'),
+            subPath: [1, itr],
+          };
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network);
       }
     }
 
-    throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ${address}`);
+    throw new Error(`Could not find public key for: ${address}`);
+  };
+
+  static addressToKeyPair = (
+    address: string,
+    wallet: Wallet | Vault
+  ): {
+    keyPair: BIP32Interface;
+  } => {
+    const { networkType } = wallet;
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    let xpriv = (wallet as Wallet).specs.xpriv;
+
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+
+    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+      if (addressCache.external[itr] === address)
+        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, false, itr, network) };
+    }
+
+    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= closingIntIndex; itr++) {
+      if (addressCache.internal[itr] === address)
+        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, true, itr, network) };
+    }
+
+    throw new Error(`Could not find public key for: ${address}`);
   };
 
   static createMultiSig = (
@@ -694,6 +702,7 @@ export default class WalletUtilities {
     }
 
     for (const output of outputs) {
+      // case: change exists
       if (!output.address) {
         if ((wallet as Vault).isMultiSig) {
           output.address = changeMultisig.address;
@@ -701,7 +710,8 @@ export default class WalletUtilities {
         }
 
         let xpub = null;
-        if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+        if (wallet.entityKind === EntityKind.VAULT)
+          xpub = (wallet as Vault).specs.xpubs[0]; // 1-of-1 multisig
         else xpub = (wallet as Wallet).specs.xpub;
 
         output.address = WalletUtilities.getAddressByIndex(
@@ -714,11 +724,11 @@ export default class WalletUtilities {
         return { outputs, changeAddress: output.address };
       }
     }
-    // when there's no change
+
+    // case: no change
     if ((wallet as Vault).isMultiSig) {
       return { outputs, changeMultisig };
-    }
-    return { outputs, changeAddress };
+    } else return { outputs, changeAddress };
   };
 
   // test-wallet specific utilities
