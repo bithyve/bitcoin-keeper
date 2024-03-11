@@ -42,7 +42,8 @@ function PrintableTemplates({}) {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            You can add additional information on the template
+            You can write them using long-lasting ink on acid-free paper and home laminate before
+            storage
           </Text>
         </Box>
       </ScrollView>

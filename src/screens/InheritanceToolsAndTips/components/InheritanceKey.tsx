@@ -30,7 +30,7 @@ function InheritanceKey({}) {
         </Text>
         <Box mt={20} alignItems={'center'}>
           <DashedButton
-            description="Lorem ipsum dolor amet"
+            description="Add to the vault you want to bequeath"
             callback={() => {}}
             name="Add inheritance key"
           />

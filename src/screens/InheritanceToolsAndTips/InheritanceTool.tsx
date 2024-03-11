@@ -56,7 +56,7 @@ function InheritanceTool({ navigation }) {
       <Box paddingTop={10}>
         <OptionCard
           title="Inheritance Tips"
-          description="Lorem ipsum dolor sit amet,"
+          description="How to secure keys for the heir"
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('InheritanceTips')}
         />

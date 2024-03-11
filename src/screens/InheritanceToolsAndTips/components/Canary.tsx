@@ -33,7 +33,7 @@ function CanaryWallets({}) {
         </Text>
         <Box mt={5}>
           <DashedButton
-            description="Lorem ipsum dolor amet"
+            description="View keys' details or add new"
             callback={() => {}}
             name="Manage Keys"
           />

@@ -18,8 +18,12 @@ function AssistedKeys({}) {
         <Text style={styles.heading}>Assisted Keys</Text>
         <Text style={styles.description}>Server hosted signers</Text>
         <Text style={styles.commonTextStyle}>
-          Keeper offers two Assisted Keys Signing Server: allows an automated script to sign the txn
-          when correct 2FA code is provided. You can also setup a spending policy
+          <Text bold>Signing Server:</Text> Allows an automated script to sign the transaction when
+          correct 2FA code is provided. You can also setup a spending policy.
+        </Text>
+        <Text style={styles.commonTextStyle}>
+          <Text bold>Inheritance Key:</Text> signs a txn after a delay of 15 days during which the
+          user can cancel the request
         </Text>
         <Box style={styles.circleStyle}>
           <AssistedKeysIcon />

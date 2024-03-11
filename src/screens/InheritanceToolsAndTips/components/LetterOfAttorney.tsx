@@ -39,8 +39,7 @@ function LetterOfAttorney({}) {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua.
+            The key fingerprint information here does not leak any details about your balance.
           </Text>
         </Box>
       </ScrollView>
