@@ -751,7 +751,6 @@ export default class WalletOperations {
           tapInternalKey: WalletUtilities.toXOnly(publicKey),
         });
       } else {
-        // step1: construct bip32 derivation object
         let path;
         let masterFingerprint;
         if (wallet.entityKind === EntityKind.VAULT) {
@@ -776,7 +775,6 @@ export default class WalletOperations {
           network,
         });
 
-        // step1: construct bip32 derivation object
         if (derivationPurpose === DerivationPurpose.BIP84) {
           PSBT.addInput({
             hash: input.txId,

@@ -291,13 +291,7 @@ export const signCosignerPSBT = (xpriv: string, serializedPSBT: string) => {
     const internal = parseInt(pathLevels[pathLevels.length - 2], 10) === 1;
     const childIndex = parseInt(pathLevels[pathLevels.length - 1], 10);
 
-    const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-      xpriv,
-      internal,
-      childIndex,
-      config.NETWORK
-    );
-    const keyPair = WalletUtilities.getKeyPair(privateKey, config.NETWORK);
+    const keyPair = WalletUtilities.getKeyPairByIndex(xpriv, internal, childIndex, config.NETWORK);
     PSBT.signInput(vin, keyPair);
     vin += 1;
   });
