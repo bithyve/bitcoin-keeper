@@ -64,13 +64,9 @@ function ChoosePlanCarouselItem({
     try {
       if (item.productType === 'free') return 'Free';
       if (isMonthly) {
-        return parseFloat(
-          item.monthlyPlanDetails.price.slice(1, item.monthlyPlanDetails.price.length)
-        ).toFixed(0);
+        return item.monthlyPlanDetails.price;
       }
-      return parseFloat(
-        item.yearlyPlanDetails.price.slice(1, item.monthlyPlanDetails.price.length)
-      ).toFixed(0);
+      return item.yearlyPlanDetails.price;
     } catch (error) {
       return '';
     }
@@ -160,8 +156,8 @@ function ChoosePlanCarouselItem({
           <Text
             textAlign="center"
             bold={item.productType !== 'free'}
-            fontSize={isSelected ? 26 : 22}
-            lineHeight={isSelected ? 26 : 22}
+            fontSize={18}
+            lineHeight={18}
             color={`${colorMode}.white`}
           >
             {getAmt}
