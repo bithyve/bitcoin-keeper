@@ -5,6 +5,8 @@ import FeeIndicator from './FeeIndicator';
 import Fonts from 'src/constants/Fonts';
 import Text from 'src/components/KeeperText';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import BTC_DOWN from 'src/assets/images/btc_down.svg';
+import BTC_UP from 'src/assets/images/btc_up.svg';
 
 interface Props {
   showFeesInsightModal: () => void;
@@ -66,7 +68,14 @@ const FeerateStatement = (props: Props) => {
       <View style={styles.statementWrapper}>
         <Text style={styles.highAlertSatsFee}>Fees are</Text>
         <View>
-          <Text style={styles.percentageStatement}>{Math.abs(Number(percentageDifference.toFixed(2)))}%</Text>
+          <View style={styles.textWrapper}>
+            <View style={styles.arrowWrapper}>
+             {arrowPointer==='lower'? <BTC_DOWN />:<BTC_UP/>}
+            </View>
+            <Text style={styles.percentageStatement}>
+              {Math.abs(Number(percentageDifference.toFixed(2)))}%
+            </Text>
+          </View>
           <Text style={styles.highAlertSatsFee}>{arrowPointer} than usual</Text>
         </View>
       </View>
@@ -98,7 +107,7 @@ const styles = StyleSheet.create({
   feeIndicatorWrapper: {
     position: 'absolute',
     left: -20,
-    top:10
+    top: 10,
   },
   viewMore: {
     fontSize: 12,
@@ -116,5 +125,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: 20,
+  },
+  arrowWrapper: {
+    width: 15,
+    height: 20,
+    paddingTop:5
+  },
+  textWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
