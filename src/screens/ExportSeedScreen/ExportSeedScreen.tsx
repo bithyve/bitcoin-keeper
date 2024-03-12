@@ -213,6 +213,7 @@ function ExportSeedScreen({ route, navigation }) {
         dismissible={false}
         close={() => { }}
         title={BackupWallet.backupSuccessTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText="Done"
