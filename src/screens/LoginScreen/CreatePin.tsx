@@ -162,7 +162,7 @@ export default function CreatePin(props) {
   }
 
   return (
-    <Box testID="main" style={styles.container} backgroundColor="light.pantoneGreen">
+    <Box testID="main" style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
