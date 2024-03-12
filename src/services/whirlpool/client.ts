@@ -228,10 +228,8 @@ export default class WhirlpoolClient {
       fields: {},
     };
 
-    const { privateKey } = WalletUtilities.addressToKey(input.address, source) as {
-      privateKey: string;
-      subPath: number[];
-    };
+    const { keyPair } = WalletUtilities.addressToKeyPair(input.address, source);
+    const privateKey = keyPair.toWIF();
 
     const preUserHash = hash256(source.derivationDetails.mnemonic);
     const networkType: Network =
