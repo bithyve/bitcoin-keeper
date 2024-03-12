@@ -10,7 +10,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
