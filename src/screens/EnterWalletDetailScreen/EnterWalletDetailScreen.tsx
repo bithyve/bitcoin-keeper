@@ -1,10 +1,10 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, useColorMode } from 'native-base';
+import { Box, Input, Pressable, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
-import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
+import { NewWalletInfo } from 'src/store/sagas/wallets';
+import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -22,7 +22,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
-import { Linking, StyleSheet } from 'react-native';
+import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';
 import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
@@ -32,9 +32,18 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import { formatNumber } from 'src/utils/utilities';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
+
+const derivationPurposeToLabel = {
+  [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
+  [DerivationPurpose.BIP49]: 'P2SH-P2WPKH: wrapped segwit, single-sig',
+  [DerivationPurpose.BIP44]: 'P2PKH: legacy, single-sig',
+  [DerivationPurpose.BIP86]: 'P2TR: taproot, single-sig',
+};
 
 // eslint-disable-next-line react/prop-types
-function EnterWalletDetailScreen({ navigation, route }) {
+function EnterWalletDetailScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
@@ -43,7 +52,6 @@ function EnterWalletDetailScreen({ navigation, route }) {
   const { translations } = useContext(LocalizationContext);
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route.params?.seed?.replace(/,/g, ' '));
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
@@ -51,50 +59,40 @@ function EnterWalletDetailScreen({ navigation, route }) {
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { hasNewWalletsGenerationFailed, err } = useAppSelector((state) => state.wallet);
-  const [purpose, setPurpose] = useState(route.params?.purpose);
+
+  const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
-  useEffect(() => {
-    if (walletType !== WalletType.DEFAULT) {
-      const path = WalletUtilities.getDerivationPath(
-        EntityKind.WALLET,
-        config.NETWORK_TYPE,
-        0,
-        Number(purpose)
-      );
-      setPath(path);
-    }
-  }, [purpose]);
+  const [showPurpose, setShowPurpose] = useState(false);
+  const [purposeList, setPurposeList] = useState([
+    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
+    { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
+  ]);
+  const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
+  const [arrow, setArrow] = useState(false);
 
   const createNewWallet = useCallback(() => {
+    // Note: only caters to new wallets(imported wallets currently have a different flow)
     setWalletLoading(true);
-    setTimeout(() => {
-      // TODO: remove this timeout once the crypto is optimised
-      const derivationConfig: DerivationConfig = {
-        path,
-        purpose: Number(purpose),
-      };
-      const newWallet: NewWalletInfo = {
-        walletType,
-        walletDetails: {
-          name: walletName,
-          description: walletDescription,
-          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: parseInt(transferPolicy),
-          },
+    const newWallet: NewWalletInfo = {
+      walletType,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
+        derivationConfig: {
+          path,
+          purpose,
         },
-        importDetails: {
-          derivationConfig,
-          mnemonic: importedSeed,
+        transferPolicy: {
+          id: uuidv4(),
+          threshold: parseInt(transferPolicy),
         },
-      };
-      dispatch(addNewWallets([newWallet]));
-    }, 200);
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, transferPolicy]);
 
   useEffect(() => {
@@ -138,14 +136,23 @@ function EnterWalletDetailScreen({ navigation, route }) {
     );
   }
 
-  const onQrScan = (qrData) => {
-    navigtaion.goBack();
-    const words = qrData.split(' ');
-    if (words.length === 12 || words.length === 24) {
-      setImportedSeed(qrData);
-      setWalletType(WalletType.IMPORTED);
+  useEffect(() => {
+    const path = WalletUtilities.getDerivationPath(
+      EntityKind.WALLET,
+      config.NETWORK_TYPE,
+      0,
+      purpose
+    );
+    setPath(path);
+  }, [purpose]);
+
+  const onDropDownClick = () => {
+    if (showPurpose) {
+      setShowPurpose(false);
+      setArrow(false);
     } else {
-      showToast('Invalid QR');
+      setShowPurpose(true);
+      setArrow(true);
     }
   };
 
@@ -225,20 +232,58 @@ function EnterWalletDetailScreen({ navigation, route }) {
               {importWallet.walletBalance}
             </Text>
           </Box>
+          <Box>
+            <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.textInputWrapper}>
+              <Text bold>{path}</Text>
+            </Box>
+            <Box style={{ position: 'relative' }}>
+              <Pressable
+                style={styles.dropDownContainer}
+                backgroundColor={`${colorMode}.seashellWhite`}
+                onPress={onDropDownClick}
+              >
+                <Text fontSize={12} bold color={`${colorMode}.primaryText`}>
+                  {purposeLbl}
+                </Text>
+                <Box
+                  style={[
+                    {
+                      transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
+                    },
+                  ]}
+                >
+                  {colorMode === 'light' ? <RightArrowIcon /> : <IconArrow />}
+                </Box>
+              </Pressable>
+              {showPurpose && (
+                <ScrollView
+                  style={styles.langScrollViewWrapper}
+                  backgroundColor={`${colorMode}.seashellWhite`}
+                >
+                  {purposeList.map((item) => (
+                    <TouchableOpacity
+                      key={item.value}
+                      onPress={() => {
+                        setShowPurpose(false);
+                        setArrow(false);
+                        setPurpose(item.value);
+                        setPurposeLbl(item.label);
+                      }}
+                      style={styles.flagWrapper1}
+                    >
+                      <Text style={styles.purposeText}>{item.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
+            </Box>
+          </Box>
         </Box>
         <Box style={styles.footer}>
           <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />
           <Buttons
-            primaryText={
-              walletType === WalletType.DEFAULT ? `${common.create}` : `${common.proceed}`
-            }
-            primaryCallback={() =>
-              walletType === WalletType.DEFAULT
-                ? createNewWallet()
-                : navigation.navigate('EnterWalletPath', {
-                  createNewWallet,
-                })
-            }
+            primaryText={common.proceed}
+            primaryCallback={createNewWallet}
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
@@ -295,6 +340,43 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  textInputWrapper: {
+    borderRadius: 10,
+    height: hp(50),
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  textInput: {
+    padding: 20,
+  },
+  dropDownContainer: {
+    flexDirection: 'row',
+    gap: 20,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    height: hp(50),
+    marginTop: 10,
+  },
+  langScrollViewWrapper: {
+    borderRadius: 10,
+    zIndex: 10,
+    marginTop: 5,
+    position: 'absolute',
+    alignSelf: 'center',
+    width: '100%',
+  },
+  flagWrapper1: {
+    flexDirection: 'row',
+    height: wp(40),
+    alignItems: 'center',
+  },
+  purposeText: {
+    fontSize: 13,
+    marginLeft: wp(10),
+    letterSpacing: 0.6,
   },
 });
 
