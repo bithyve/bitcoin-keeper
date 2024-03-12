@@ -56,6 +56,7 @@ export const customTheme = extendTheme({
       pantoneGreenLight: Colors.pantoneGreenLight,
       // mainBackground: Colors.LightWhite,
       modalGreenBackground: Colors.pantoneGreen,
+      modalGreenButton: Colors.pantoneGreen,
       modalGreenContent: Colors.White,
       modalWhiteBackground: Colors.LightWhite,
       // modalWhiteButton: Colors.LightWhite,
