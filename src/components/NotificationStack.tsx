@@ -314,7 +314,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       <Animated.View testID={`view_${uai.uaiType}`} style={[animations]}>
         {uai.uaiType === uaiType.DEFAULT ? (
           <UAIEmptyState />
-        ) : (
+        ) : uaiConfig ? (
           <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
             <UAIView
               title={uaiConfig.heading}
@@ -325,7 +325,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               secondaryCallback={uaiConfig.btnConfig.secondary.cta}
             />
           </Box>
-        )}
+        ) : null}
       </Animated.View>
       <KeeperModal
         visible={showModal}
