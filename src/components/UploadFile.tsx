@@ -29,7 +29,7 @@ function UploadFile({ fileHandler }) {
         alignItems: 'center',
       }}
     >
-      <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
+      <Box backgroundColor={`${colorMode}.modalGreenButton`} style={styles.container}>
         <Text style={styles.text} color={`${colorMode}.white`}>
           Import a BSMS or Wallet Configuration File
         </Text>
