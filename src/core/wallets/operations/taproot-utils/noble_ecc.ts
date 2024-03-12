@@ -122,7 +122,7 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
       return ret;
     }),
 
-  // privateNegate: (d: Uint8Array): Uint8Array => necc.utils.privateNegate(d),
+  privateNegate: (d: Uint8Array): Uint8Array => necc.utils.privateNegate(d),
 
   sign: (h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array => {
     return necc.signSync(h, d, { der: false, extraEntropy: e });
