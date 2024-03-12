@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
   percentageStatement: {
     fontSize: 16,
     fontFamily: Fonts.FiraSansCondensedBold,
+    fonntFaimly:'700'
   },
   ctaContainer: {
     justifyContent: 'center',

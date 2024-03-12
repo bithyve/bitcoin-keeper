@@ -17,8 +17,8 @@ const FeeIndicator = (props: Props) => {
   const segments = [
     {
       scale: 1,
-      filledColor: customTheme.colors[colorMode].pantoneGreen,
-      emptyColor: customTheme.colors[colorMode].pantoneGreen,
+      filledColor: customTheme.colors[colorMode].GreenishGrey,
+      emptyColor: customTheme.colors[colorMode].GreenishGrey,
       data: { label: 'LOW' },
     },
   ];
@@ -37,8 +37,8 @@ const FeeIndicator = (props: Props) => {
       emptyArcWidth={6}
       spaceBetweenSegments={0}
       rangesTextStyle={styles.rangeTextStyle}
-      capInnerColor={customTheme.colors[colorMode].pantoneGreen}
-      capOuterColor={customTheme.colors[colorMode].OffWhite}
+      capInnerColor={customTheme.colors[colorMode].GreyText}
+      capOuterColor={customTheme.colors[colorMode].seashellWhite}
     />
     </View>
   );
