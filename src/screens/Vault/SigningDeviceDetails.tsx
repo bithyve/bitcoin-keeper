@@ -236,7 +236,7 @@ function SigningDeviceDetails({ route }) {
       <Box>
         <Center>{assert}</Center>
         <Text
-          color={`${colorMode}.white`}
+          color={`${colorMode}.modalGreenContent`}
           style={{
             fontSize: 13,
             letterSpacing: 0.65,
