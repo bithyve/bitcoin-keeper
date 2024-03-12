@@ -393,7 +393,7 @@ function LoginScreen({ navigation, route }) {
           </Box>
 
           {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
-            <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
+            <Text color={`${colorMode}.white`} px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
             <Switch
@@ -411,7 +411,7 @@ function LoginScreen({ navigation, route }) {
                   setForgotVisible(true);
                 }}
               >
-                <Text color="light.primaryBackground" bold fontSize={14}>
+                <Text color={`${colorMode}.primaryBackground`} bold fontSize={14}>
                   {login.ForgotPasscode}
                 </Text>
               </TouchableOpacity>
