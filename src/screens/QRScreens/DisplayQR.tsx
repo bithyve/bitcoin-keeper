@@ -48,9 +48,9 @@ function DisplayQR({
         onChange={setRotation}
       >
         <Slider.Track bg="gray.300">
-          <Slider.FilledTrack bg="light.primaryGreen" />
+          <Slider.FilledTrack bg={`${colorMode}.primaryGreen`} />
         </Slider.Track>
-        <Slider.Thumb bg="light.primaryGreen" />
+        <Slider.Thumb bg={`${colorMode}.primaryGreen`} />
       </Slider>
       <Text color={`${colorMode}.secondaryText`}>Please rescan if the QR density is changed</Text>
     </VStack>
