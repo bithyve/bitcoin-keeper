@@ -25,6 +25,7 @@ function TorConnectionContent() {
 }
 
 function TorConnectionFailed() {
+  const { colorMode } = useColorMode();
   return (
     <Box width={wp(270)}>
       <Box alignItems="center">
@@ -40,6 +41,7 @@ function TorConnectionFailed() {
 }
 
 function TorModalMap({ visible, close }) {
+  const { colorMode } = useColorMode();
   const [torStatus, settorStatus] = useState<TorStatus>(TorStatus.CONNECTING);
 
   if (visible) {
