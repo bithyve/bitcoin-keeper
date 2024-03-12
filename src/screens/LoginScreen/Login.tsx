@@ -360,7 +360,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Text
               ml={5}
-              color={`${colorMode}.primaryBackground`}
+              color={`${colorMode}.choosePlanHome`}
               fontSize={22}
               style={{
                 marginTop: hp(65),
@@ -369,7 +369,7 @@ function LoginScreen({ navigation, route }) {
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
-              <Text fontSize={13} ml={5} letterSpacing={0.65} color={`${colorMode}.primaryBackground`}>
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color={`${colorMode}.choosePlanHome`}>
                 {login.enter_your}
                 {login.passcode}
               </Text>
