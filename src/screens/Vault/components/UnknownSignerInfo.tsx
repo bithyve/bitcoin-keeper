@@ -32,19 +32,11 @@ function UnknownSignerInfo({ signer }: Props) {
             </Text>
           </Box>
         </Box>
-        <Box style={[styles.gap10, styles.marginRight40]}>
-          <Box>
-            <Text fontSize={11}>Fingerprint</Text>
-            <Text fontSize={11} medium>
-              JWL7U89U
-            </Text>
-          </Box>
-          <Box>
-            <Text fontSize={11}>Master Fingerprint</Text>
-            <Text fontSize={11} medium>
-              {signer.masterFingerprint}
-            </Text>
-          </Box>
+        <Box style={[styles.marginRight40, styles.flexEnd]}>
+          <Text fontSize={11}>Master Fingerprint</Text>
+          <Text fontSize={11} medium>
+            {signer.masterFingerprint}
+          </Text>
         </Box>
       </Box>
       <Box>
@@ -75,5 +67,8 @@ const styles = StyleSheet.create({
   },
   marginRight40: {
     marginRight: 40,
+  },
+  flexEnd: {
+    alignSelf: 'flex-end',
   },
 });
