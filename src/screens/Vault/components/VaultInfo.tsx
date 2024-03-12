@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, HStack, useColorMode, VStack } from 'native-base';
-import { getNetworkAmount } from 'src/constants/Bitcoin';
+import { NetworkAmount } from 'src/constants/Bitcoin';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
@@ -43,7 +43,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={9}>
             Unconfirmed
           </Text>
-          {getNetworkAmount(
+          {NetworkAmount(
             unconfirmed,
             exchangeRates,
             currencyCode,
@@ -54,7 +54,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
+        {NetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
           styles.vaultInfoText,
           { fontSize: 31, lineHeight: 31 },
           2,

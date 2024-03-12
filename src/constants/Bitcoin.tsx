@@ -58,7 +58,7 @@ export const getAmt = (
   return numberWithCommas(amountInSats);
 };
 
-export const getNetworkAmount = (
+export const NetworkAmount = (
   amountInSats: number,
   exchangeRates,
   currencyCode,
