@@ -17,7 +17,7 @@ import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import ecc from './noble_ecc';
+import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
   AverageTxFeesByNetwork,
@@ -41,12 +41,12 @@ import {
   TxPriority,
 } from '../enums';
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
-
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
+
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
@@ -734,64 +734,73 @@ export default class WalletOperations {
   ) => {
     const { isMultiSig } = wallet as Vault;
     if (!isMultiSig) {
-      const { publicKey, subPath } = WalletUtilities.addressToKey(input.address, wallet, true) as {
-        publicKey: Buffer;
-        subPath: number[];
-      };
+      const { publicKey, subPath } = WalletUtilities.addressToPublicKey(input.address, wallet);
 
-      const p2wpkh = bitcoinJS.payments.p2wpkh({
-        pubkey: publicKey,
-        network,
-      });
-
-      let p2sh;
-      if (derivationPurpose === DerivationPurpose.BIP49) {
-        p2sh = bitcoinJS.payments.p2sh({
-          redeem: p2wpkh,
+      if (derivationPurpose === DerivationPurpose.BIP86) {
+        const p2tr = bitcoinJS.payments.p2tr({
+          internalPubkey: WalletUtilities.toXOnly(publicKey),
+          network,
         });
-      }
-
-      let path;
-      let masterFingerprint;
-      if (wallet.entityKind === EntityKind.VAULT) {
-        const signer = (wallet as Vault).signers[0];
-        const { derivationPath, masterFingerprint: mfp } = signer;
-        path = `${derivationPath}/${subPath.join('/')}`;
-        masterFingerprint = mfp;
+        PSBT.addInput({
+          hash: input.txId,
+          index: input.vout,
+          witnessUtxo: {
+            script: p2tr.output,
+            value: input.value,
+          },
+          tapInternalKey: WalletUtilities.toXOnly(publicKey),
+        });
       } else {
-        path = `${(wallet as Wallet).derivationDetails.xDerivationPath}/${subPath.join('/')}`;
-        masterFingerprint = WalletUtilities.getMasterFingerprintForWallet(wallet as Wallet);
-      }
+        let path;
+        let masterFingerprint;
+        if (wallet.entityKind === EntityKind.VAULT) {
+          const signer = (wallet as Vault).signers[0];
+          const { derivationPath, masterFingerprint: mfp } = signer;
+          path = `${derivationPath}/${subPath.join('/')}`;
+          masterFingerprint = mfp;
+        } else {
+          path = `${(wallet as Wallet).derivationDetails.xDerivationPath}/${subPath.join('/')}`;
+          masterFingerprint = WalletUtilities.getMasterFingerprintForWallet(wallet as Wallet);
+        }
+        const bip32Derivation = [
+          {
+            masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+            path: path.replaceAll('h', "'"),
+            pubkey: publicKey,
+          },
+        ];
 
-      const bip32Derivation = [
-        {
-          masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
-          path: path.replaceAll('h', "'"),
+        const p2wpkh = bitcoinJS.payments.p2wpkh({
           pubkey: publicKey,
-        },
-      ];
+          network,
+        });
 
-      if (derivationPurpose === DerivationPurpose.BIP84) {
-        PSBT.addInput({
-          hash: input.txId,
-          index: input.vout,
-          bip32Derivation,
-          witnessUtxo: {
-            script: p2wpkh.output,
-            value: input.value,
-          },
-        });
-      } else if (derivationPurpose === DerivationPurpose.BIP49) {
-        PSBT.addInput({
-          hash: input.txId,
-          index: input.vout,
-          bip32Derivation,
-          witnessUtxo: {
-            script: p2sh.output,
-            value: input.value,
-          },
-          redeemScript: p2wpkh.output,
-        });
+        if (derivationPurpose === DerivationPurpose.BIP84) {
+          PSBT.addInput({
+            hash: input.txId,
+            index: input.vout,
+            bip32Derivation,
+            witnessUtxo: {
+              script: p2wpkh.output,
+              value: input.value,
+            },
+          });
+        } else if (derivationPurpose === DerivationPurpose.BIP49) {
+          const p2sh = bitcoinJS.payments.p2sh({
+            redeem: p2wpkh,
+          });
+
+          PSBT.addInput({
+            hash: input.txId,
+            index: input.vout,
+            bip32Derivation,
+            witnessUtxo: {
+              script: p2sh.output,
+              value: input.value,
+            },
+            redeemScript: p2wpkh.output,
+          });
+        }
       }
     } else {
       const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
@@ -872,7 +881,6 @@ export default class WalletOperations {
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
     customTxPrerequisites?: TransactionPrerequisite,
-    derivationPurpose?: DerivationPurpose,
     scriptType?: BIP48ScriptTypes
   ): Promise<{
     PSBT: bitcoinJS.Psbt;
@@ -897,9 +905,14 @@ export default class WalletOperations {
         network,
       });
 
-      for (const input of inputs) {
+      let derivationPurpose;
+      if (wallet.entityKind === EntityKind.WALLET)
+        derivationPurpose = WalletUtilities.getPurpose(
+          (wallet as Wallet).derivationDetails.xDerivationPath
+        );
+
+      for (const input of inputs)
         this.addInputToPSBT(PSBT, wallet, input, network, derivationPurpose, scriptType);
-      }
 
       const {
         outputs: outputsWithChange,
@@ -935,14 +948,7 @@ export default class WalletOperations {
           output.address === changeAddress
         ) {
           // case: change output for single-sig Vault(p2wpkh)
-          const { publicKey, subPath } = WalletUtilities.addressToKey(
-            changeAddress,
-            wallet,
-            true
-          ) as {
-            publicKey: Buffer;
-            subPath: number[];
-          };
+          const { publicKey, subPath } = WalletUtilities.addressToPublicKey(changeAddress, wallet);
           const signer = (wallet as Vault).signers[0];
           const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
           const path = `${signer.derivationPath}/${subPath.join('/')}`;
@@ -978,17 +984,20 @@ export default class WalletOperations {
   } => {
     try {
       let vin = 0;
-      const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
       for (const input of inputs) {
-        let keyPair;
-        const { privateKey } = WalletUtilities.addressToKey(input.address, wallet) as {
-          privateKey: string;
-          subPath: number[];
-        };
-        keyPair = WalletUtilities.getKeyPair(privateKey, network);
+        let { keyPair } = WalletUtilities.addressToKeyPair(input.address, wallet);
+        const purpose = WalletUtilities.getPurpose(wallet.derivationDetails.xDerivationPath);
 
-        PSBT.signInput(vin, keyPair);
+        if (purpose === DerivationPurpose.BIP86) {
+          // create a tweaked signer to sign P2TR tweaked key
+          const tweakedSigner = keyPair.tweak(
+            bitcoinJS.crypto.taggedHash('TapTweak', WalletUtilities.toXOnly(keyPair.publicKey))
+          );
+
+          PSBT.signTaprootInput(vin, tweakedSigner);
+        } else PSBT.signInput(vin, keyPair);
+
         vin++;
       }
 
@@ -1012,7 +1021,6 @@ export default class WalletOperations {
 
       let vin = 0;
       for (const input of inputs) {
-        let keyPair;
         let internal;
         let index;
         if (input.subPath) {
@@ -1024,13 +1032,7 @@ export default class WalletOperations {
           [internal, index] = subPath;
         }
 
-        const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-          xpriv,
-          !!internal,
-          index,
-          network
-        );
-        keyPair = WalletUtilities.getKeyPair(privateKey, network);
+        const keyPair = WalletUtilities.getKeyPairByIndex(xpriv, !!internal, index, network);
         PSBT.signInput(vin, keyPair);
         vin++;
       }
@@ -1091,14 +1093,10 @@ export default class WalletOperations {
           publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
           subPath = multisigAddress.subPath;
         } else {
-          const singlesigAddress = WalletUtilities.addressToKey(
+          const singlesigAddress = WalletUtilities.addressToPublicKey(
             inputs[inputIndex].address,
-            wallet,
-            true
-          ) as {
-            publicKey: Buffer;
-            subPath: number[];
-          };
+            wallet
+          );
           publicKey = singlesigAddress.publicKey;
           subPath = singlesigAddress.subPath;
         }
@@ -1183,8 +1181,10 @@ export default class WalletOperations {
   ): Promise<{
     txPrerequisites: TransactionPrerequisite;
   }> => {
+    let outgoingAmount = 0;
     recipients = recipients.map((recipient) => {
       recipient.amount = Math.round(recipient.amount);
+      outgoingAmount += recipient.amount;
       return recipient;
     });
 
@@ -1195,36 +1195,9 @@ export default class WalletOperations {
       selectedUTXOs
     );
 
-    let netAmount = 0;
-    recipients.forEach((recipient) => {
-      netAmount += recipient.amount;
-    });
+    if (balance < outgoingAmount + fee) throw new Error('Insufficient balance');
+    if (Object.keys(txPrerequisites).length) return { txPrerequisites };
 
-    if (balance < netAmount + fee) {
-      // check w/ the lowest fee possible for this transaction
-      const minTxFeePerByte = 1; // default minimum relay fee
-      const minAvgTxFee = {
-        ...averageTxFees,
-      };
-      minAvgTxFee[TxPriority.LOW].feePerByte = minTxFeePerByte;
-
-      const minTxPrerequisites = WalletOperations.prepareTransactionPrerequisites(
-        wallet,
-        recipients,
-        minAvgTxFee,
-        selectedUTXOs
-      );
-
-      if (minTxPrerequisites.balance < netAmount + minTxPrerequisites.fee) {
-        throw new Error('Insufficient balance');
-      } else txPrerequisites = minTxPrerequisites.txPrerequisites;
-    }
-
-    if (Object.keys(txPrerequisites).length) {
-      return {
-        txPrerequisites,
-      };
-    }
     throw new Error('Unable to create transaction: inputs failed at coinselect');
   };
 
