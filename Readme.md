@@ -1,12 +1,23 @@
-# Bitcoin Keeper - Your Private Bitcoin Vault
+# Bitcoin Keeper - Secure today, plan for tomorrow
 
 Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, Whirlpool, and Hardware Wallet support. Built with React Native
 
-<img width="1727" alt="Screens" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/da358b64-7e4a-4454-afa7-30210233fef2">
+<img width="1412" alt="Screenshot 2024-03-12 at 5 23 03 PM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/03dc7d17-a946-4cc7-9d13-bbc5d74b771b">
 
 [![Playstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/gpbtn.png)](https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper)
 [![Appstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/applebtn.png)](https://apps.apple.com/us/app/bitcoin-keeper/id1545535925)
 [![PGP_APK](https://github.com/bithyve/bitcoin-keeper/assets/50690016/67693cf0-a059-4391-8b48-a9d46a55e71c)](https://github.com/bithyve/bitcoin-keeper/releases)
+
+Bitcoin Keeper is an open source, bitcoin-only app designed for seasoned bitcoin hodlers. Built to store bitcoin over a prolonged period of time, Keeper helps you source, clean, and stack sats across different kinds of wallets. Keeper also helps you plan your bitcoin inheritance with built in tools and templates that unlock at the Diamond Hands subscription tier.
+
+## Features
+- Create hot wallets or multi-key offline vaults of different m-of-n configurations
+- Supports most of the trusted hardware wallets
+- Several softkey options including Assisted Keys
+- Ready to use Mobile Key when you setup a vault
+- Manage UTXOs and whirlpool them in the hot wallet
+- Plan bitcoin inheritance
+- In-app chat and Concierge services coming soon
 
 
 ## Prerequisites
