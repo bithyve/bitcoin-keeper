@@ -1,5 +1,3 @@
-import Relay from 'src/services/operations/Relay';
-import { getRandomBytes } from 'src/services/operations/encryption';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { VerificationType } from 'src/services/interfaces';
 import SigningServer from 'src/services/operations/SigningServer';
@@ -76,7 +74,6 @@ describe('Vault: Single-sig(1-of-1)', () => {
     await connectToElectrumClient();
 
     const networkType = NetworkType.TESTNET;
-    const network = WalletUtilities.getNetworkByType(networkType);
 
     const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
       primaryMnemonic,
@@ -702,7 +699,7 @@ describe('Vault: AirGapping with Passport', () => {
   test('passport: extract xpub, derivation and master fingerprint from passport export format', () => {
     const decoder = new URRegistryDecoder();
     let bytes;
-    PASSPORT_SS_EXPORT.forEach((item, index) => {
+    PASSPORT_SS_EXPORT.forEach((item) => {
       const { percentage, data } = decodeURBytes(decoder, item.data);
       if (percentage === 100) {
         bytes = data;
@@ -777,7 +774,7 @@ describe('Vault: AirGapping with Jade', () => {
   test('jade: extract xpub, derivation and master fingerprint from jade export format', () => {
     const decoder = new URRegistryDecoder();
     let bytes;
-    JADE_SS_EXPORT.forEach((item, index) => {
+    JADE_SS_EXPORT.forEach((item) => {
       const { percentage, data } = decodeURBytes(decoder, item.data);
       if (percentage === 100) {
         bytes = data;
