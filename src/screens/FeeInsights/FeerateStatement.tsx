@@ -7,6 +7,7 @@ import Text from 'src/components/KeeperText';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import BTC_DOWN from 'src/assets/images/btc_down.svg';
 import BTC_UP from 'src/assets/images/btc_up.svg';
+import { Box } from 'native-base';
 
 interface Props {
   showFeesInsightModal: () => void;
@@ -61,24 +62,24 @@ const FeerateStatement = (props: Props) => {
 
   return (
     <TouchableOpacity onPress={showFeesInsightModal} style={styles.feeInsightContainer}>
-      <View style={styles.feeIndicatorWrapper}>
+      <Box style={styles.feeIndicatorWrapper}>
         <FeeIndicator percentageDifference={percentageDifference} />
-      </View>
+      </Box>
       <View style={styles.divider}></View>
-      <View style={styles.statementWrapper}>
+      <Box style={styles.statementWrapper}>
         <Text style={styles.highAlertSatsFee}>Fees are</Text>
-        <View>
-          <View style={styles.textWrapper}>
-            <View style={styles.arrowWrapper}>
+        <Box>
+          <Box style={styles.textWrapper}>
+            <Box style={styles.arrowWrapper}>
              {arrowPointer==='lower'? <BTC_DOWN />:<BTC_UP/>}
-            </View>
+            </Box>
             <Text style={styles.percentageStatement}>
               {Math.abs(Number(percentageDifference.toFixed(2)))}%
             </Text>
-          </View>
+          </Box>
           <Text style={styles.highAlertSatsFee}>{arrowPointer} than usual</Text>
-        </View>
-      </View>
+        </Box>
+      </Box>
       <View style={styles.ctaContainer}>
         <RightArrowIcon />
       </View>
@@ -118,9 +119,9 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.FiraSansCondensedRegular,
   },
   percentageStatement: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: Fonts.FiraSansCondensedBold,
-    fonntFaimly:'700'
+    fontWeight:'700',
   },
   ctaContainer: {
     justifyContent: 'center',

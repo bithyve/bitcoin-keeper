@@ -8,6 +8,7 @@ import FeeInsightCard from './FeeInsightCard';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import Fonts from 'src/constants/Fonts';
 
 interface DataItem {
   btc_data: {
@@ -117,8 +118,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   titleLabel: {
-    fontSize: 16,
+    fontSize: 18,
     letterSpacing: 1,
+    fontFamily:Fonts.FiraSansRegular
   },
   cardWrapper: {
     flexDirection: 'row',
