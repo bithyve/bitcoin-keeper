@@ -45,7 +45,7 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import { fetchExchangeRates } from '../sagaActions/send_and_receive';
+import { fetchExchangeRates, fetchOneDayInsight } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
@@ -89,7 +89,6 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     yield put(fetchExchangeRates());
-
     yield put(
       uaiChecks([
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
@@ -183,6 +182,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.SECURE_VAULT,
               uaiType.VAULT_TRANSFER,
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+              uaiType.FEE_INISGHT,
               uaiType.DEFAULT,
             ])
           );

@@ -115,3 +115,17 @@ export interface OutputTemplate {
   /// Arbitrary per-output PSBT fields for use by the signer.
   fields: {};
 }
+
+
+
+export interface HistoricalInisightData {
+  avgHeight: number;
+  timestamp: number;
+  avgFee_0: number;
+  avgFee_10: number;
+  avgFee_25: number;
+  avgFee_50: number;
+  avgFee_75: number;
+  avgFee_90: number;
+  avgFee_100: number;
+}

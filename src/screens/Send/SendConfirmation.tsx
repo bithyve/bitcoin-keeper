@@ -49,7 +49,11 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
+import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
+import FeerateStatement from 'src/screens/FeeInsights/FeerateStatement';
+import useOneDayInsight from 'src/hooks/useOneDayInsight';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import Fonts from 'src/constants/Fonts';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -61,7 +65,6 @@ const customFeeOptionTransfers = [
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
-
 function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
@@ -510,7 +513,14 @@ function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) 
   );
 }
 
-function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance }) {
+function HighFeeAlert({
+  transactionPriority,
+  txFeeInfo,
+  amountToSend,
+  getBalance,
+  showFeesInsightModal,
+  OneDayHistoricalFee,
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -518,19 +528,33 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
   const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
   return (
     <>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-        <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>{getBalance(selectedFee)}&nbsp;&nbsp;</Text>
+      <View style={styles.boxWrapper}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+          <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+          <Box style={styles.highFeeDetailsWrapper}>
+            <Text style={styles.highAlertFiatFee}>{getBalance(selectedFee)}&nbsp;&nbsp;</Text>
+          </Box>
         </Box>
-      </Box>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-        <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
+        <View style={styles.divider} />
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+          <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+          <Box style={styles.highFeeDetailsWrapper}>
+            <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
+          </Box>
         </Box>
+      </View>
+      <Text style={styles.statsTitle}>Fee Stats</Text>
+      {OneDayHistoricalFee.length > 0 && (
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
+          <FeerateStatement
+            showFeesInsightModal={showFeesInsightModal}
+            feeInsightData={OneDayHistoricalFee}
+          />
+        </Box>
+      )}
+      <Box width={'70%'}>
+        <Text style={styles.highFeeNote}>If not urgent, you could consider waiting for the fees to reduce</Text>
       </Box>
-      <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
     </>
   );
 }
@@ -622,8 +646,10 @@ function SendConfirmation({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
+  const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
+  const OneDayHistoricalFee = useOneDayInsight();
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -782,6 +808,18 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
+  const toogleFeesInsightModal = () => {
+    if (highFeeAlertVisible) {
+      setHighFeeAlertVisible(false);
+      // To give smooth transcation of modal,
+      // After closing highfee modal.
+      setTimeout(() => {
+        setFeeInsightVisible(true);
+      }, 300);
+    } else {
+      setFeeInsightVisible(!feeInsightVisible);
+    }
+  };
   const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
@@ -847,6 +885,14 @@ function SendConfirmation({ route }) {
             />
           </TouchableOpacity>
         ) : null}
+        {OneDayHistoricalFee.length > 0 && (
+          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
+            <FeerateStatement
+              showFeesInsightModal={toogleFeesInsightModal}
+              feeInsightData={OneDayHistoricalFee}
+            />
+          </Box>
+        )}
         <AmountDetails
           title={walletTransactions.totalAmount}
           satsAmount={
@@ -1001,8 +1047,23 @@ function SendConfirmation({ route }) {
             txFeeInfo={txFeeInfo}
             amountToSend={amount}
             getBalance={getBalance}
+            showFeesInsightModal={toogleFeesInsightModal}
+            OneDayHistoricalFee={OneDayHistoricalFee}
           />
         )}
+      />
+      {/*Fee insight Modal */}
+      <KeeperModal
+        visible={feeInsightVisible}
+        close={toogleFeesInsightModal}
+        showCloseIcon={false}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonText={common.proceed}
+        buttonCallback={toogleFeesInsightModal}
+        Content={() => <FeeInsights />}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
@@ -1137,18 +1198,49 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.55,
   },
+  statsTitle: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedMedium,
+    letterSpacing: 0.55,
+    marginLeft: 5,
+  },
   highFeeDetailsWrapper: {
     flexDirection: 'row',
     width: '100%',
   },
+  boxWrapper: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    width: '100%',
+  },
+  divider: {
+    width: 5,
+    height: '100%',
+  },
   highFeeDetailsContainer: {
+    padding: 10,
+    flex: 1,
+    borderRadius: 10,
+  },
+  feeStatementContainer: {
     width: windowWidth * 0.8,
     padding: 10,
+    marginVertical: 5,
+    borderRadius: 10,
+  },
+  feeStatementWrapper: {
+    width: '100%',
+    padding: 10,
     marginVertical: 10,
+    borderRadius: 10,
   },
   highAlertFiatFee: {
     fontSize: 16,
     fontWeight: '700',
+  },
+  highFeeNote: {
+    fontSize: 13,
+    letterSpacing: 0.13,
   },
   circle: {
     width: 20,

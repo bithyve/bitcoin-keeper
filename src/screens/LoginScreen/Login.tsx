@@ -38,6 +38,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 
 const TIMEOUT = 60;
@@ -85,6 +86,12 @@ function LoginScreen({ navigation, route }) {
       RestClient.unsubscribe(onChangeTorStatus);
     };
   }, [loggingIn]);
+
+
+  useEffect(() => {
+    dispatch(fetchOneDayInsight())
+  }, [])
+  
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -198,6 +205,8 @@ function LoginScreen({ navigation, route }) {
       dispatch(credsAuthenticated(false));
     }
   };
+
+
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
