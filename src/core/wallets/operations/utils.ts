@@ -731,36 +731,6 @@ export default class WalletUtilities {
     } else return { outputs, changeAddress };
   };
 
-  // test-wallet specific utilities
-  static getTestcoins = async (
-    recipientAddress: string,
-    network: bitcoinJS.networks.Network
-  ): Promise<{
-    txid: any;
-    funded: any;
-  }> => {
-    if (network === bitcoinJS.networks.bitcoin) {
-      throw new Error('Invalid network: failed to fund via testnet');
-    }
-
-    const SATOSHIS_IN_BTC = 1e8;
-    const amount = 10000 / SATOSHIS_IN_BTC;
-    try {
-      const res = await RestClient.post(`${config.RELAY}/testnetFaucet`, {
-        recipientAddress,
-        amount,
-      });
-      const { txid, funded } = res.data || res.json;
-      return {
-        txid,
-        funded,
-      };
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-  };
-
   static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {
     const version = Buffer.from('02aa7ed3', 'hex');
     const hdKey = cryptoAccount.getOutputDescriptors()[0].getCryptoKey() as CryptoHDKey;
