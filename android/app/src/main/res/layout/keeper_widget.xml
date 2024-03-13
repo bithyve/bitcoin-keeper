@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corners"
+    >
+
+    <ImageView
+        android:id="@+id/chart_image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:contentDescription="chart"/>
+    <TextView
+        android:id="@+id/sat_byte_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:text="15 sat/byte"
+        android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:background="@android:color/transparent" />
+</RelativeLayout>

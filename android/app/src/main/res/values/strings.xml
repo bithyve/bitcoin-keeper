@@ -3,4 +3,7 @@
     <string name="backup_with_keeper_scheme">keeper</string>
     <string name="backup_with_keeper">Backup with Keeper</string>
     <string name="aiddescription">aiddescription</string>
+    <string name="appwidget_text">Keeper</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">Stay update with BTC Fee rate</string>
 </resources>

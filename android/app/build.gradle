@@ -141,7 +141,10 @@ android {
             resValue "string", "build_config_package", "io.hexawallet.keeper"
         }
     }
-    
+    buildFeatures {
+        viewBinding true
+    }
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
@@ -178,6 +181,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
     implementation "androidx.work:work-runtime:2.7.0"
 }
