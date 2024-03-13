@@ -17,7 +17,7 @@ function VersionHistoryList() {
       style={{ overflow: 'visible' }}
       data={VersionHistoryData.reverse()}
       renderItem={({ item }) => (
-        <Box padding={1} position="relative">
+        <Box marginLeft={1} padding={1} position="relative">
           <Box
             zIndex={99}
             position="absolute"
