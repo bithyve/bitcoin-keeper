@@ -133,7 +133,8 @@ export const generateVault = async ({
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 
   // update cosigners map(if one of the signers is an assisted key)
-  await updateCosignersMapForAssistedKeys(signers, signerMap);
+  // TODO: uncomment this line when the tests are ready
+  // await updateCosignersMapForAssistedKeys(signers, signerMap);
 
   return vault;
 };
