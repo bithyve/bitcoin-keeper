@@ -22,11 +22,9 @@ function AppVersionHistory() {
         title={settings.versionHistoryTitle}
         subtitle={settings.versionHistorySubTitle}
       />
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Box margin={10} testID="view_VersionHistoryList">
-          <VersionHistoryList />
-        </Box>
-      </ScrollView>
+      <Box margin={10} testID="view_VersionHistoryList">
+        <VersionHistoryList />
+      </Box>
       <Text testID="text_appid" selectable style={styles.textAppId}>{`App ID: ${publicId}`}</Text>
     </ScreenWrapper>
   );
