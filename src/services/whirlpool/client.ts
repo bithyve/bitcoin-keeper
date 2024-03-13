@@ -16,6 +16,8 @@ import {
   WhirlpoolInput,
 } from 'src/nativemodules/interface';
 import { hash256 } from 'src/services/operations/encryption';
+import ecc from '../../core/wallets/operations/taproot-utils/noble_ecc';
+bitcoinJS.initEccLib(ecc);
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
