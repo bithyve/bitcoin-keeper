@@ -177,7 +177,6 @@ export default function WhirlpoolConfiguration({ route }) {
 
   const onFeeSelectionCallback = (fee) => {
     setSelectedFee(fee);
-    console.log(fee);
     setShowFee(false);
   };
 
