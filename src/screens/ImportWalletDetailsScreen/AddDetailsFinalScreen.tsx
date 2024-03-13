@@ -154,6 +154,7 @@ function AddDetailsFinalScreen({ route }) {
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
                 maxLength={20}
+                editable={false}
               />
             </Box>
             <TouchableOpacity onPress={onDropDownClick}>

@@ -87,21 +87,15 @@ function ManageWallets() {
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
 
-  const { wallets } = useWallets();
-
-  const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
-    `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
-  );
+  const { wallets } = useWallets({ getAll: true }); // contains all wallets(hidden/unhidden) except for whirlpool wallets
 
   const { allVaults } = useVault({ includeArchived: false });
-  const allWallets: (Wallet | Vault)[] = [...walletsWithoutWhirlpool, ...allVaults].filter(
-    (item) => item !== null
-  );
+  const allWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter((item) => item !== null);
 
-  const visibleWallets = walletsWithoutWhirlpool.filter(
+  const visibleWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
-  const hiddenWallets = walletsWithoutWhirlpool.filter(
+  const hiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);
