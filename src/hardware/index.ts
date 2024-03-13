@@ -51,6 +51,7 @@ export const generateSignerFromMetaData = ({
   signerPolicy = null,
   inheritanceKeyInfo = null,
   isAmf = false,
+  signerCount = 0,
 }): { signer: Signer; key: VaultSigner } => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
@@ -76,9 +77,9 @@ export const generateSignerFromMetaData = ({
     });
   }
 
-  const signerCount = dbManager
-    .getCollection(RealmSchema.Signer)
-    .filter((s) => s.type === signerType).length;
+  signerCount = signerCount
+    ? signerCount
+    : dbManager.getCollection(RealmSchema.Signer).filter((s) => s.type === signerType).length;
 
   const signer: Signer = {
     type: signerType,
