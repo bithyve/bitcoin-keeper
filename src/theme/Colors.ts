@@ -1,7 +1,7 @@
 const Colors = {
   // Light
   White: 'rgba(255,255,255,1)',
-  Glass: 'rgba(255,255,255,2)',
+  // Glass: 'rgba(255,255,255,2)',
   LightYellow: 'rgba(242,237,230,1)',
   LightWhite: 'rgba(247,242,236,1)',
   Isabelline: 'rgba(252,246,239,1)',
@@ -53,7 +53,7 @@ const Colors = {
   // GreenishGrey: 'rgba(62, 82, 77, 1)',
   // brownColor: 'rgba(145, 120, 92, 1)',
   learMoreTextcolor: 'rgba(242, 237, 230, 1)',
-  Linen: 'rgba(240, 235, 230, 1)',
+  // Linen: 'rgba(240, 235, 230, 1)',
   LightBrown: 'rgba(145, 120, 93, 0.08)',
   SlateGreen: 'rgba(165, 180, 174, 1)',
   OffWhite: 'rgba(230,230,223,1)',
