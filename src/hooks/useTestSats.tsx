@@ -8,7 +8,7 @@ import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wal
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useNavigation } from '@react-navigation/native';
 import { NetworkType } from 'src/services/wallets/enums';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import OptionCard from 'src/components/OptionCard';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 

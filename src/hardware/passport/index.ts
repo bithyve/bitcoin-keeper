@@ -1,5 +1,5 @@
 import { HWErrorType } from 'src/models/enums/Hardware';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import HWError from '../HWErrorState';
 

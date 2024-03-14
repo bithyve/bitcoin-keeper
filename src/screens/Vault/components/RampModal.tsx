@@ -5,7 +5,7 @@ import WalletOperations from 'src/services/wallets/operations';
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { fetchRampReservation } from 'src/services/ramp';
+import { fetchRampReservation } from 'src/services/thirdparty/ramp';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { Vault } from 'src/services/wallets/interfaces/vault';

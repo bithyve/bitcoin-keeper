@@ -1,8 +1,8 @@
-import Relay from 'src/services/operations/Relay';
-import { getRandomBytes } from 'src/services/operations/encryption';
+import Relay from 'src/services/backend/Relay';
+import { getRandomBytes } from 'src/services/utilities/encryption';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { VerificationType } from 'src/models/interfaces/AssistedKeys';
-import SigningServer from 'src/services/operations/SigningServer';
+import SigningServer from 'src/services/backend/SigningServer';
 import idx from 'idx';
 import { authenticator } from 'otplib';
 import WalletOperations from 'src/services/wallets/operations';

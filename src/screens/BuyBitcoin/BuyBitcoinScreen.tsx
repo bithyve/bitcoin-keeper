@@ -9,7 +9,7 @@ import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import { getCountry } from 'react-native-localize';
-import { fetchRampReservation } from 'src/services/ramp';
+import { fetchRampReservation } from 'src/services/thirdparty/ramp';
 import { hp, wp } from 'src/constants/responsive';
 import HexagonIcon from 'src/components/HexagonIcon';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';

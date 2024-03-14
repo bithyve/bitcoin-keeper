@@ -8,7 +8,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { DerivationPurpose, EntityKind } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 

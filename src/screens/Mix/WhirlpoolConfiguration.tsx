@@ -16,7 +16,7 @@ import PageIndicator from 'src/components/PageIndicator';
 import { useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolModal } from 'src/store/reducers/wallets';
 import { useDispatch } from 'react-redux';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { TxPriority } from 'src/services/wallets/enums';
 import { AverageTxFees } from 'src/services/wallets/interfaces';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

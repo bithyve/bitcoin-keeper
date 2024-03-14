@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import { call, put } from 'redux-saga/effects';
-import { generateEncryptionKey } from 'src/services/operations/encryption';
+import { generateEncryptionKey } from 'src/services/utilities/encryption';
 import { v4 as uuidv4 } from 'uuid';
 import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
@@ -11,8 +11,8 @@ import { NetworkType, WalletType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
-import Relay from 'src/services/operations/Relay';
-import config from 'src/services/config';
+import Relay from 'src/services/backend/Relay';
+import config from 'src/services/utilities/config';
 import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';

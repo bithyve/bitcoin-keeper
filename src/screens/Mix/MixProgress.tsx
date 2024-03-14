@@ -18,7 +18,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Gear0 from 'src/assets/images/WP.svg';
 import ElectrumClient from 'src/services/electrum/client';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import {
   WHIRLPOOL_ERROR,
   WHIRLPOOL_FAILURE,
@@ -40,7 +40,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import { genrateOutputDescriptors } from 'src/services/utils';
+import { genrateOutputDescriptors } from 'src/services/utilities/utils';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { useQuery } from '@realm/react';
 import { CommonActions } from '@react-navigation/native';

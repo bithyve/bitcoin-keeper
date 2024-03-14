@@ -29,7 +29,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import AddCard from 'src/components/AddCard';
 import useSigners from 'src/hooks/useSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';

@@ -3,7 +3,7 @@ import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork, UTXOInfo } from 'src/services/wallets/interfaces';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { INotification } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';

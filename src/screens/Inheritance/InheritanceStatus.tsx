@@ -23,7 +23,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
 import GenerateRecoveryInstrPDF from 'src/utils/GenerateRecoveryInstrPDF';
-import { genrateOutputDescriptors } from 'src/services/utils';
+import { genrateOutputDescriptors } from 'src/services/utilities/utils';
 import GenerateSecurityTipsPDF from 'src/utils/GenerateSecurityTipsPDF';
 import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import KeeperHeader from 'src/components/KeeperHeader';

@@ -15,7 +15,7 @@ import {
   SignerType,
 } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config, { APP_STAGE } from 'src/services/config';
+import config, { APP_STAGE } from 'src/services/utilities/config';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';

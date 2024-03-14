@@ -4,7 +4,7 @@ import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from 'src/components/Buttons';
-import { cryptoRandom } from 'src/services/operations/encryption';
+import { cryptoRandom } from 'src/services/utilities/encryption';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);

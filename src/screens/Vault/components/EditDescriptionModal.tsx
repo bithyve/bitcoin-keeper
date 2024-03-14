@@ -11,7 +11,7 @@ import Colors from 'src/theme/Colors';
 import Fonts from 'src/constants/Fonts';
 import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType } from 'src/services/wallets/enums';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { SDIcons } from '../SigningDeviceIcons';
 
 function SignerData({ signer }: { signer: Signer }) {

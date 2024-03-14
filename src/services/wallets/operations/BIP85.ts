@@ -2,7 +2,7 @@ import wif from 'wif';
 import bs58 from 'bs58';
 import * as bip39 from 'bip39';
 import crypto from 'crypto';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import BIP32Factory from 'bip32';
 import { WalletType, BIP85Languages, BIP85Words } from '../enums';
 import { BIP85Config } from '../interfaces';

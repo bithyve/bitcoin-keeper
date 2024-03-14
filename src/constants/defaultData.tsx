@@ -2,7 +2,7 @@ import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import React from 'react';
 import LoadingAnimation from 'src/components/Loader';
 import InheritanceToolsIllustartion from 'src/components/SVGComponents/InheritanceToolsIllustartion';
-import { cryptoRandom } from 'src/services/operations/encryption';
+import { cryptoRandom } from 'src/services/utilities/encryption';
 
 export const securityTips = [
   {

@@ -49,7 +49,7 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import {
   extractKeyFromDescriptor,
   generateSignerFromMetaData,
@@ -59,7 +59,7 @@ import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
-import { generateKey, hash512 } from 'src/services/operations/encryption';
+import { generateKey, hash512 } from 'src/services/utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -72,11 +72,11 @@ import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import SigningServer from 'src/services/operations/SigningServer';
+import SigningServer from 'src/services/backend/SigningServer';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import Instruction from 'src/components/Instruction';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';

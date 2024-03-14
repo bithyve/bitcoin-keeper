@@ -1,5 +1,5 @@
 import Scale from 'src/components/Scale';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import BTC from 'src/assets/images/btc_white.svg';
 import { HStack } from 'native-base';

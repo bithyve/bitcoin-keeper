@@ -33,7 +33,7 @@ import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
-import { genrateOutputDescriptors } from 'src/services/utils';
+import { genrateOutputDescriptors } from 'src/services/utilities/utils';
 import { CommonActions } from '@react-navigation/native';
 import SwiperModal from './components/SwiperModal';
 import UtxoSummary from './UtxoSummary';

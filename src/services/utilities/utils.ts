@@ -1,7 +1,7 @@
-import { EntityKind } from './wallets/enums';
-import { Vault, VaultScheme, VaultSigner } from './wallets/interfaces/vault';
-import { Wallet } from './wallets/interfaces/wallet';
-import WalletOperations from './wallets/operations';
+import { EntityKind } from '../wallets/enums';
+import { Vault, VaultScheme, VaultSigner } from '../wallets/interfaces/vault';
+import { Wallet } from '../wallets/interfaces/wallet';
+import WalletOperations from '../wallets/operations';
 
 const crypto = require('crypto');
 

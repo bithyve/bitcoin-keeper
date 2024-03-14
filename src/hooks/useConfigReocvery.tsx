@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ParsedVauleText, parseTextforVaultConfig } from 'src/services/utils';
+import { ParsedVauleText, parseTextforVaultConfig } from 'src/services/utilities/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType, VaultType } from 'src/services/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';

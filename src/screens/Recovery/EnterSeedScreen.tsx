@@ -31,7 +31,7 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/utils/utilities';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { generateSeedWordsKey } from 'src/services/wallets/factories/VaultFactory';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';

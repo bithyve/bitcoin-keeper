@@ -4,7 +4,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -29,7 +29,7 @@ import { signWithLedgerChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createCipheriv, createDecipheriv } from 'src/services/utils';
+import { createCipheriv, createDecipheriv } from 'src/services/utilities/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 

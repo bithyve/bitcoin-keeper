@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import {
   CosignersMapUpdate,
   SignerException,

@@ -3,7 +3,7 @@ import { EntityKind, LabelRefType, TxPriority } from 'src/services/wallets/enums
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';

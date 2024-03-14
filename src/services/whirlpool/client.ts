@@ -15,7 +15,7 @@ import {
   TX0Data,
   WhirlpoolInput,
 } from 'src/nativemodules/interface';
-import { hash256 } from 'src/services/operations/encryption';
+import { hash256 } from 'src/services/utilities/encryption';
 import ecc from '../wallets/operations/taproot-utils/noble_ecc';
 bitcoinJS.initEccLib(ecc);
 

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { SignerStorage, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr } from 'src/store/reducers/login';
-import { urlParamsToObj } from 'src/services/utils';
+import { urlParamsToObj } from 'src/services/utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';

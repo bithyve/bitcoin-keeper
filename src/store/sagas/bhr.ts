@@ -1,18 +1,18 @@
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/services/config';
+import config, { APP_STAGE } from 'src/services/utilities/config';
 import {
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash256,
-} from 'src/services/operations/encryption';
+} from 'src/services/utilities/encryption';
 import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';

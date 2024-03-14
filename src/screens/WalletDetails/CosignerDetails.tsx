@@ -8,7 +8,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { getKeyExpression } from 'src/services/utils';
+import { getKeyExpression } from 'src/services/utilities/utils';
 import { XpubTypes } from 'src/services/wallets/enums';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';

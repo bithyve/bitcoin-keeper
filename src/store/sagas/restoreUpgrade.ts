@@ -1,7 +1,7 @@
 import { call } from 'redux-saga/effects';
 import semver from 'semver';
-import { decrypt, encrypt } from 'src/services/operations/encryption';
-import Relay from 'src/services/operations/Relay';
+import { decrypt, encrypt } from 'src/services/utilities/encryption';
+import Relay from 'src/services/backend/Relay';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 
 export function* applyRestoreSequence({

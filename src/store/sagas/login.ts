@@ -5,14 +5,14 @@ import {
   encrypt,
   generateEncryptionKey,
   hash512,
-} from 'src/services/operations/encryption';
+} from 'src/services/utilities/encryption';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import semver from 'semver';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';

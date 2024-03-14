@@ -28,7 +28,7 @@ import useVault from 'src/hooks/useVault';
 import openLink from 'src/utils/OpenLink';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import KeeperFooter from 'src/components/KeeperFooter';
-import { KEEPER_KNOWLEDGEBASE } from 'src/services/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/services/utilities/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';

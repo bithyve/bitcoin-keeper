@@ -1,4 +1,4 @@
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 
 const finalURL = `https://www.bitcoinkeeper.app/${config.ENVIRONMENT.toLowerCase()}/ramp/`;
 

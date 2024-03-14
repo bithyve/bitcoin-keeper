@@ -9,7 +9,7 @@ import { hp, windowWidth, wp, windowHeight } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
-import { KEEPER_KNOWLEDGEBASE } from 'src/services/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/services/utilities/config';
 import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {

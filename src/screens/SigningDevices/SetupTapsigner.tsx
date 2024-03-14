@@ -27,7 +27,7 @@ import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';

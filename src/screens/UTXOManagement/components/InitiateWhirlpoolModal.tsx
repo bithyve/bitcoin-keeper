@@ -8,7 +8,7 @@ import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { modalParams } from 'src/models/interfaces/UTXOs';
-import { KEEPER_KNOWLEDGEBASE } from 'src/services/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/services/utilities/config';
 
 function InitiateContent() {
   return (

@@ -14,7 +14,7 @@ import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
 import { parseInt } from 'lodash';

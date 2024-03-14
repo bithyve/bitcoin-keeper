@@ -10,7 +10,7 @@ import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
-import { genrateOutputDescriptors } from 'src/services/utils';
+import { genrateOutputDescriptors } from 'src/services/utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import QRCode from 'react-native-qrcode-svg';
 import DisplayQR from './DisplayQR';

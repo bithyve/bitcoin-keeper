@@ -14,7 +14,7 @@ import Link from 'src/assets/images/link.svg';
 import Edit from 'src/assets/images/edit.svg';
 import useBalance from 'src/hooks/useBalance';
 import moment from 'moment';
-import config from 'src/services/config';
+import config from 'src/services/utilities/config';
 import { LabelRefType, LabelType, NetworkType } from 'src/services/wallets/enums';
 import { Transaction } from 'src/services/wallets/interfaces';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
