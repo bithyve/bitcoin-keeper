@@ -13,7 +13,7 @@ import deviceInfoModule from 'react-native-device-info';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { getColdcardDetails } from 'src/hardware/coldcard';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { CommonActions, useNavigation } from '@react-navigation/native';

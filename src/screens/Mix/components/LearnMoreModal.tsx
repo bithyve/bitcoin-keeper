@@ -7,7 +7,7 @@ import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import SomeDefinationIcon from 'src/assets/images/SomeDefination.svg';
 import { modalParams } from 'src/models/interfaces/UTXOs';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 function MixContent() {
   const { colorMode } = useColorMode();

@@ -8,7 +8,7 @@ import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';

@@ -1,7 +1,7 @@
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { VisibilityType, WalletType } from 'src/core/wallets/enums';
+import { VisibilityType, WalletType } from 'src/services/wallets/enums';
 import { useObject, useQuery } from '@realm/react';
 
 type useWalletsInterface = ({ getAll, walletIds }?: { getAll?: boolean; walletIds?: string[] }) => {
