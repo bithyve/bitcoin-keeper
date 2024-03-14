@@ -25,6 +25,7 @@ import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Breadcrumbs from 'src/components/Breadcrumbs';
+import Dropdown from 'src/components/Dropdown';
 
 const seedArray = [
   {
@@ -87,6 +88,66 @@ const seedArray = [
     name: '',
     invalid: true,
   },
+  {
+    id: 13,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 14,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 15,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 16,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 17,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 18,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 19,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 20,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 21,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 22,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 23,
+    name: '',
+    invalid: true,
+  },
+  {
+    id: 24,
+    name: '',
+    invalid: true,
+  },
 ];
 
 function EnterSeedScreen({ route, navigation }) {
@@ -120,6 +181,10 @@ function EnterSeedScreen({ route, navigation }) {
   const [hcLoading, setHcLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
+  const [selectedNumberOfWords, setSelectedNumberOfWords] = useState('12 Seed Words');
+
+  const options = ['12 Seed Words', '18 Seed Words', '24 Seed Words'];
+
   const inputRef = useRef([]);
 
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
@@ -177,15 +242,31 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const onPressImportNewKey = async () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
+    if (activePage === 3) {
+      const seedWord = getSeedWord();
+      importSeedCta(seedWord);
+    }
+    if (activePage === 2) {
+      if (!(selectedNumberOfWords === '18 Seed Words')) {
+        if (isSeedFilled(18)) setActivePage(3);
+        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      } else {
         const seedWord = getSeedWord();
         importSeedCta(seedWord);
-      } else {
-        setActivePage(1);
       }
-    } else {
-      showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+    if (activePage === 1) {
+      if (!(selectedNumberOfWords === '12 Seed Words')) {
+        if (isSeedFilled(12)) setActivePage(2);
+        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      } else {
+        const seedWord = getSeedWord();
+        importSeedCta(seedWord);
+      }
+    }
+    if (activePage === 0) {
+      if (isSeedFilled(6)) setActivePage(1);
+      else showToast('Enter correct seedwords', <ToastErrorIcon />);
     }
   };
 
@@ -301,8 +382,20 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
+  const selectNumberOfWords = (option: string) => {
+    setSelectedNumberOfWords(option);
+  };
+
   const seedItem = (item, index) => {
-    if (activePage === 0 ? index < 6 : index >= 6)
+    if (
+      activePage === 3
+        ? index >= 18 && index < 24
+        : activePage === 2
+        ? index >= 12 && index < 18
+        : activePage === 1
+        ? index >= 6 && index < 12
+        : index < 6
+    )
       return (
         <Box style={styles.inputListWrapper}>
           <Input
@@ -384,8 +477,16 @@ function EnterSeedScreen({ route, navigation }) {
           style={{
             marginVertical: 20,
             flex: 1,
+            gap: hp(20),
           }}
         >
+          {isImport && (
+            <Dropdown
+              label={selectedNumberOfWords}
+              options={options}
+              onOptionSelect={selectNumberOfWords}
+            />
+          )}
           <FlatList
             ref={ref}
             keyExtractor={(item) => item.id}
@@ -436,7 +537,18 @@ function EnterSeedScreen({ route, navigation }) {
           ) : null}
         </Box>
         <Box style={styles.bottomContainerView}>
-          <Breadcrumbs totalScreens={2} currentScreen={activePage + 1} />
+          <Breadcrumbs
+            totalScreens={
+              selectedNumberOfWords === '12 Seed Words'
+                ? 2
+                : selectedNumberOfWords === '18 Seed Words'
+                ? 3
+                : selectedNumberOfWords === '24 Seed Words'
+                ? 4
+                : 0
+            }
+            currentScreen={activePage + 1}
+          />
           {isHealthCheck ? (
             <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
           ) : (

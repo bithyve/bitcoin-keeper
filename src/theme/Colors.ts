@@ -72,7 +72,7 @@ const Colors = {
   // PaleIvory: 'rgba(238,232,225,1)',
   // DarkSage: 'rgba(111,124,119,1)',
   Smoke: 'rgba(162,162,162,1)',
-  // Taupe: 'rgba(118, 118, 128, 1)',
+  Taupe: 'rgba(189, 183, 177, 1)',
   // Crayola: 'rgba(227, 190, 150, 1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
@@ -86,7 +86,7 @@ const Colors = {
   SeashellDark: 'rgba(72,81,79,1)',
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
   CoffeeDark: 'rgba(150,130,111, 1)',
-  Periwinkle: 'rgba(184, 182, 208, 1)'
+  Periwinkle: 'rgba(184, 182, 208, 1)',
   // ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;
