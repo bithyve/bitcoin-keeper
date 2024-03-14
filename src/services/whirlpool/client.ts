@@ -16,6 +16,8 @@ import {
   WhirlpoolInput,
 } from 'src/nativemodules/interface';
 import { hash256 } from 'src/services/operations/encryption';
+import ecc from '../../core/wallets/operations/taproot-utils/noble_ecc';
+bitcoinJS.initEccLib(ecc);
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
@@ -228,10 +230,8 @@ export default class WhirlpoolClient {
       fields: {},
     };
 
-    const { privateKey } = WalletUtilities.addressToKey(input.address, source) as {
-      privateKey: string;
-      subPath: number[];
-    };
+    const { keyPair } = WalletUtilities.addressToKeyPair(input.address, source);
+    const privateKey = keyPair.toWIF();
 
     const preUserHash = hash256(source.derivationDetails.mnemonic);
     const networkType: Network =

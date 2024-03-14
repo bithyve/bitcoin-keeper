@@ -30,8 +30,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
-import { getSignerNameFromType } from 'src/hardware';
-import moment from 'moment';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -302,13 +301,8 @@ function Signers({
         <SignerCard
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={getSignerNameFromType(
-            signer.type,
-            signer.isMock,
-            isAMF,
-            signer.extraData?.instanceNumber
-          )}
-          description={`Added ${moment(signer.addedOn).calendar()}`}
+          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) =>

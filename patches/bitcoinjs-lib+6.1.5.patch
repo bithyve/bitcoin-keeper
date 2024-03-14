@@ -12,7 +12,7 @@ index de7bbb3..70b6ffe 100644
  interface PsbtOptsOptional {
      network?: Network;
 diff --git a/node_modules/bitcoinjs-lib/src/psbt.js b/node_modules/bitcoinjs-lib/src/psbt.js
-index 71c3589..0aefd2a 100644
+index 71c3589..5270d15 100644
 --- a/node_modules/bitcoinjs-lib/src/psbt.js
 +++ b/node_modules/bitcoinjs-lib/src/psbt.js
 @@ -912,6 +912,25 @@ class Psbt {
@@ -41,3 +41,13 @@ index 71c3589..0aefd2a 100644
  }
  exports.Psbt = Psbt;
  /**
+@@ -1299,7 +1318,8 @@ function getAllTaprootHashesForSig(inputIndex, input, inputs, cache) {
+ }
+ function getPrevoutTaprootKey(inputIndex, input, cache) {
+   const { script } = getScriptAndAmountFromUtxo(inputIndex, input, cache);
+-  return (0, psbtutils_1.isP2TR)(script) ? script.subarray(2, 34) : null;
++  // return (0, psbtutils_1.isP2TR)(script) ? script.subarray(2, 34) : null; // script.subarray is returning an array for an unknown reason(due to React Native’s underlying js implementation?) while we require a buffer
++  return (0, psbtutils_1.isP2TR)(script) ? Buffer.from(script.subarray(2, 34)) : null;
+ }
+ function trimTaprootSig(signature) {
+   return signature.length === 64 ? signature : signature.subarray(0, 64);

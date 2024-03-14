@@ -54,7 +54,7 @@ function WalletDetailsSettings({ route }) {
         />
         <OptionCard
           title={importWallet.derivationPath}
-          description={walletTranslation.changeDerivationPath}
+          description={walletTranslation.viewDerivationPath}
           callback={() => {
             navigation.navigate('UpdateWalletDetails', { wallet });
           }}

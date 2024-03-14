@@ -8,6 +8,8 @@ import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
 import { cryptoRandom } from '../operations/encryption';
+import ecc from '../../core/wallets/operations/taproot-utils/noble_ecc';
+bitcoinJS.initEccLib(ecc);
 
 function shufflePeers(peers) {
   for (let i = peers.length - 1; i > 0; i--) {

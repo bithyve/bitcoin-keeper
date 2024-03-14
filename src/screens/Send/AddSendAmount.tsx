@@ -368,8 +368,9 @@ function AddSendAmount({ route }) {
               >
                 <Text
                   testID="text_sendmax"
-                  color={`${colorMode}.ChampagneWhite`}
+                  color={`${colorMode}.seashellWhite`}
                   style={styles.sendMaxText}
+                  medium
                 >
                   Send Max
                 </Text>

@@ -156,7 +156,8 @@ function ChoosePlanCarouselItem({
           <Text
             textAlign="center"
             bold={item.productType !== 'free'}
-            fontSize={isSelected ? 26 : 22}
+            fontSize={18}
+            lineHeight={18}
             color={`${colorMode}.white`}
           >
             {getAmt}

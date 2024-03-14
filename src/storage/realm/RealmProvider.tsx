@@ -26,11 +26,8 @@ const AppWithNetwork = ({ children }) => {
   config.setNetwork(networkType);
 
   useEffect(() => {
-    if (__DEV__ || config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-      console.log('running..');
-      Sentry.init(sentryConfig);
-      dbManager.updateObjectById(RealmSchema.KeeperApp, id, { enableAnalytics: true });
-    }
+    Sentry.init(sentryConfig);
+    dbManager.updateObjectById(RealmSchema.KeeperApp, id, { enableAnalytics: true });
   }, []);
 
   return children;

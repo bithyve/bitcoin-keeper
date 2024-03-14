@@ -32,6 +32,7 @@ import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import TierUpgradeModal from './TierUpgradeModal';
+import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 
 function ChoosePlan() {
   const route = useRoute();
@@ -365,6 +366,9 @@ function ChoosePlan() {
         title={choosePlan.choosePlantitle}
         mediumTitle
         subtitle="Upgrade or downgrade"
+        rightComponent={
+          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
+        }
         // To-Do-Learn-More
       />
       <KeeperModal
@@ -395,7 +399,7 @@ function ChoosePlan() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ height: '70%', marginVertical: 0 }}
+          style={{ height: '100%', marginVertical: 0 }}
         >
           <ChoosePlanCarousel
             data={items}

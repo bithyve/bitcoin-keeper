@@ -107,7 +107,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     })
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
-  // inital app key generation
+  // inital mobile key generation
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const { signers } = useSigners();

@@ -251,8 +251,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
-          heading: 'Backup recovery key',
-          body: 'Backup of recovery key is pending',
+          heading: 'Backup Recovery Key',
+          body: 'Backup of Recovery Key is pending',
           btnConfig: {
             primary: {
               text: 'Continue',
@@ -314,7 +314,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       <Animated.View testID={`view_${uai.uaiType}`} style={[animations]}>
         {uai.uaiType === uaiType.DEFAULT ? (
           <UAIEmptyState />
-        ) : (
+        ) : uaiConfig ? (
           <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
             <UAIView
               title={uaiConfig.heading}
@@ -325,7 +325,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               secondaryCallback={uaiConfig.btnConfig.secondary.cta}
             />
           </Box>
-        )}
+        ) : null}
       </Animated.View>
       <KeeperModal
         visible={showModal}
