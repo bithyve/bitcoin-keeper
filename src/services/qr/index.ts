@@ -7,7 +7,7 @@ import {
 } from 'src/services/qr/bc-ur-registry';
 
 import { Psbt } from 'bitcoinjs-lib';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { captureError } from '../sentry';
 
 export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {

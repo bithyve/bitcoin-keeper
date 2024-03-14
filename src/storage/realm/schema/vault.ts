@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { XpubTypes } from 'src/core/wallets/enums';
+import { XpubTypes } from 'src/services/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 

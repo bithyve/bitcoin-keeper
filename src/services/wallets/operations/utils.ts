@@ -12,7 +12,7 @@ import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
@@ -729,36 +729,6 @@ export default class WalletUtilities {
     if ((wallet as Vault).isMultiSig) {
       return { outputs, changeMultisig };
     } else return { outputs, changeAddress };
-  };
-
-  // test-wallet specific utilities
-  static getTestcoins = async (
-    recipientAddress: string,
-    network: bitcoinJS.networks.Network
-  ): Promise<{
-    txid: any;
-    funded: any;
-  }> => {
-    if (network === bitcoinJS.networks.bitcoin) {
-      throw new Error('Invalid network: failed to fund via testnet');
-    }
-
-    const SATOSHIS_IN_BTC = 1e8;
-    const amount = 10000 / SATOSHIS_IN_BTC;
-    try {
-      const res = await RestClient.post(`${config.RELAY}/testnetFaucet`, {
-        recipientAddress,
-        amount,
-      });
-      const { txid, funded } = res.data || res.json;
-      return {
-        txid,
-        funded,
-      };
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
   };
 
   static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {

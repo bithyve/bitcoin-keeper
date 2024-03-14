@@ -5,9 +5,9 @@ import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault.svg';
 import useWallets from 'src/hooks/useWallets';
-import { WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 import { CommonActions } from '@react-navigation/native';
-import { VaultScheme } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme } from 'src/services/wallets/interfaces/vault';
 
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });

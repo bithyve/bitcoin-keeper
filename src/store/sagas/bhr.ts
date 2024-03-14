@@ -1,30 +1,30 @@
 import * as bip39 from 'bip39';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import {
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash256,
-} from 'src/services/operations/encryption';
-import BIP85 from 'src/core/wallets/operations/BIP85';
+} from 'src/utils/service-utilities/encryption';
+import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/services/operations/Relay';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import Relay from 'src/services/backend/Relay';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import semver from 'semver';
-import { NodeDetail } from 'src/core/wallets/interfaces';
+import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import {
   refreshWallets,

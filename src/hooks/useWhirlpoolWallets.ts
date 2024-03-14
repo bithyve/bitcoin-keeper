@@ -1,6 +1,6 @@
-import { WalletType } from 'src/core/wallets/enums';
-import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { WalletType } from 'src/services/wallets/enums';
+import { whirlPoolWalletTypes } from 'src/services/wallets/factories/WalletFactory';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';

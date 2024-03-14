@@ -12,8 +12,8 @@ import Note from 'src/components/Note/Note';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import EditWalletDetailsModal from './EditWalletDetailsModal';
 
 function WalletDetailsSettings({ route }) {
