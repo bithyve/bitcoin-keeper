@@ -1,15 +1,15 @@
 import { InteractionManager, Linking } from 'react-native';
 import React, { useEffect } from 'react';
-import { SignerStorage, SignerType, WalletType, XpubTypes } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr } from 'src/store/reducers/login';
-import { urlParamsToObj } from 'src/core/utils';
+import { urlParamsToObj } from 'src/services/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
 import useSigners from 'src/hooks/useSigners';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -32,12 +32,14 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+            name: `${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+            description: `Imported from ${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -58,13 +60,15 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-                } `,
+              name: `${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-                } `,
+              description: `Imported from ${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -95,16 +99,19 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
         setElectrumErrorVisible(true);
       }
-    })
+    });
   }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
       if (electrumClientConnectionStatus.setElectrumNotConnectedErr) {
-        showToast(`${electrumClientConnectionStatus.setElectrumNotConnectedErr}`, <ToastErrorIcon />);
+        showToast(
+          `${electrumClientConnectionStatus.setElectrumNotConnectedErr}`,
+          <ToastErrorIcon />
+        );
         dispatch(resetElectrumNotConnectedErr());
       }
-    })
+    });
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
   // inital mobile key generation
@@ -130,7 +137,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           dispatch(addSigningDevice([signer]));
         });
       }
-    })
+    });
   }, []);
 
   return null;

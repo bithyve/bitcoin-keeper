@@ -1,7 +1,7 @@
 import { NativeModules, Platform } from 'react-native';
 import { logMessage } from 'src/services/sentry';
 import RestClient from 'src/services/rest/RestClient';
-import config from 'src/core/config';
+import config from 'src/services/config';
 import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;

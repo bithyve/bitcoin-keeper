@@ -1,11 +1,11 @@
-import { DerivationPurpose, XpubTypes } from 'src/core/wallets/enums';
-import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { DerivationPurpose, XpubTypes } from 'src/services/wallets/enums';
+import { Vault, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/services/config';
 import { captureError } from 'src/services/sentry';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { SigningPayload } from 'src/core/wallets/interfaces';
+import { SigningPayload } from 'src/services/wallets/interfaces';
 import reverse from 'buffer-reverse';
 import HWError from '../HWErrorState';
 import { getKeypathFromString } from '..';

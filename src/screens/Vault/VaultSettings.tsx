@@ -4,7 +4,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, wp } from 'src/constants/responsive';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import { genrateOutputDescriptors } from 'src/services/utils';
 import Colors from 'src/theme/Colors';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';

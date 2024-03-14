@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { hp, wp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/rightarrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';

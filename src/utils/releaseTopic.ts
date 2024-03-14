@@ -1,4 +1,4 @@
-import config from 'src/core/config';
+import config from 'src/services/config';
 
 export const getReleaseTopic = (appVersion?) => {
   let releaseTopic;

@@ -15,7 +15,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
-import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/services/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';

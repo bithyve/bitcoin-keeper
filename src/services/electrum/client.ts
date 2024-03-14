@@ -1,14 +1,14 @@
-import config from 'src/core/config';
+import config from 'src/services/config';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { NodeDetail } from 'src/core/wallets/interfaces';
-import { NetworkType } from 'src/core/wallets/enums';
+import { NodeDetail } from 'src/services/wallets/interfaces';
+import { NetworkType } from 'src/services/wallets/enums';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
 import { cryptoRandom } from '../operations/encryption';
-import ecc from '../../core/wallets/operations/taproot-utils/noble_ecc';
+import ecc from '../wallets/operations/taproot-utils/noble_ecc';
 bitcoinJS.initEccLib(ecc);
 
 function shufflePeers(peers) {

@@ -5,7 +5,7 @@ import {
   VaultSigner,
   XpubDetailsType,
   signerXpubs,
-} from 'src/core/wallets/interfaces/vault';
+} from 'src/services/wallets/interfaces/vault';
 
 import {
   DerivationPurpose,
@@ -13,11 +13,11 @@ import {
   NetworkType,
   SignerStorage,
   SignerType,
-} from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config, { APP_STAGE } from 'src/core/config';
+} from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config, { APP_STAGE } from 'src/services/config';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';

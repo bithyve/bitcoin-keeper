@@ -1,8 +1,8 @@
 import { call, put, select } from 'redux-saga/effects';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
+import config from 'src/services/config';
+import { NetworkType } from 'src/services/wallets/enums';
 import {
   predefinedMainnetNodes,
   predefinedTestnetNodes,

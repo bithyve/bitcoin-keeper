@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import * as Sentry from '@sentry/react-native';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/services/config';
 import { RealmProvider as Provider, useQuery } from '@realm/react';
 import { stringToArrayBuffer } from 'src/store/sagas/login';
 import { useAppSelector } from 'src/store/hooks';

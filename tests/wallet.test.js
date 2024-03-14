@@ -1,9 +1,9 @@
 import Relay from 'src/services/operations/Relay';
 import { getRandomBytes } from 'src/services/operations/encryption';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { WalletType, NetworkType, TxPriority } from 'src/core/wallets/enums';
-import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import WalletOperations from 'src/services/wallets/operations';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { WalletType, NetworkType, TxPriority } from 'src/services/wallets/enums';
+import { generateWallet } from 'src/services/wallets/factories/WalletFactory';
 import ElectrumClient from 'src/services/electrum/client';
 
 describe('Wallet primitives', () => {

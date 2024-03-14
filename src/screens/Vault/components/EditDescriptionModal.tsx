@@ -3,15 +3,15 @@ import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useCallback, useRef, useState } from 'react';
 import moment from 'moment';
 
-import { Signer } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/constants/Fonts';
 import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
+import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import config from 'src/services/config';
 import { SDIcons } from '../SigningDeviceIcons';
 
 function SignerData({ signer }: { signer: Signer }) {

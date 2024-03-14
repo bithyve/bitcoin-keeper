@@ -21,7 +21,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/services/config';
 
 const { width } = Dimensions.get('window');
 

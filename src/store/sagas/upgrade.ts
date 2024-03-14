@@ -8,16 +8,16 @@ import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
-import { LabelRefType, SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { genrateOutputDescriptors } from 'src/core/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
+import { LabelRefType, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { genrateOutputDescriptors } from 'src/services/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/operations/SigningServer';
-import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
+import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
-import { generateExtendedKeysForCosigner } from 'src/core/wallets/factories/WalletFactory';
+import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,

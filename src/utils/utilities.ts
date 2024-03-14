@@ -1,4 +1,4 @@
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/services/config';
 import { Alert } from 'react-native';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {

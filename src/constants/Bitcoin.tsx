@@ -1,6 +1,6 @@
 import Scale from 'src/components/Scale';
-import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
+import config from 'src/services/config';
+import { NetworkType } from 'src/services/wallets/enums';
 import BTC from 'src/assets/images/btc_white.svg';
 import { HStack } from 'native-base';
 import Text from 'src/components/KeeperText';

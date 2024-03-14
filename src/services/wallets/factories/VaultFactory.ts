@@ -7,7 +7,7 @@ import {
   generateKey,
   hash256,
 } from 'src/services/operations/encryption';
-import config from 'src/core/config';
+import config from 'src/services/config';
 import {
   CosignersMapUpdate,
   CosignersMapUpdateAction,

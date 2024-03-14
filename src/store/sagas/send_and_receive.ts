@@ -1,12 +1,12 @@
-import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { EntityKind, LabelRefType, TxPriority } from 'src/core/wallets/enums';
+import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
+import { EntityKind, LabelRefType, TxPriority } from 'src/services/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import WalletOperations from 'src/services/wallets/operations';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
 import { TransferType } from 'src/models/enums/TransferType';

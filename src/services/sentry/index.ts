@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/react-native';
 
 import { CaptureContext, SeverityLevel, User } from '@sentry/types';
 
-import config from 'src/core/config';
+import config from 'src/services/config';
 
 // Construct a new instrumentation instance. This is needed to communicate between the integration and React
 const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();

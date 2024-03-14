@@ -1,4 +1,4 @@
-import { NetworkType } from 'src/core/wallets/enums';
+import { NetworkType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 
 export const initiateWhirlpoolSocket = (appId: string, network: NetworkType) => {

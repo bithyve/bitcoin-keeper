@@ -20,7 +20,7 @@ import {
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -28,7 +28,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/services/sentry';
-import config from 'src/core/config';
+import config from 'src/services/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -36,7 +36,7 @@ import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createDecipheriv } from 'src/core/utils';
+import { createDecipheriv } from 'src/services/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 

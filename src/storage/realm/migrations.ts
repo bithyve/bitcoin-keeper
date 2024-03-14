@@ -1,5 +1,5 @@
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType } from 'src/core/wallets/enums';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { SignerType } from 'src/services/wallets/enums';
 import { InheritanceKeyInfo } from 'src/services/interfaces';
 import { UAI } from 'src/models/interfaces/Uai';
 import { getSignerNameFromType } from 'src/hardware';

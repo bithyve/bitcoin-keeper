@@ -8,8 +8,8 @@ import {
   VaultScheme,
   VaultSigner,
   signerXpubs,
-} from 'src/core/wallets/interfaces/vault';
-import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
+} from 'src/services/wallets/interfaces/vault';
+import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -22,8 +22,8 @@ import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/services/config';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';

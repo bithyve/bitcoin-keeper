@@ -18,7 +18,7 @@ import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
 import openLink from 'src/utils/OpenLink';
-import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/services/config';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -272,7 +272,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setModalVisible(false);
           setTimeout(() => {
             navigation.replace('App', { screen: 'Home' });
-          }, 500)
+          }, 500);
         }}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(300)}

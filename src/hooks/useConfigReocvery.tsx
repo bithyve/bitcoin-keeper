@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
-import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
+import { ParsedVauleText, parseTextforVaultConfig } from 'src/services/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType, VaultType } from 'src/services/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import { Signer, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import useToastMessage from './useToastMessage';
 import useVault from './useVault';
 

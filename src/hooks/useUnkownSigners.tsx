@@ -1,7 +1,7 @@
 import { useQuery } from '@realm/react';
 import { useDispatch } from 'react-redux';
-import { SignerType } from 'src/core/wallets/enums';
-import { Signer } from 'src/core/wallets/interfaces/vault';
+import { SignerType } from 'src/services/wallets/enums';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import { getSignerNameFromType } from 'src/hardware';
 import { InheritanceKeyInfo, SignerPolicy } from 'src/services/interfaces';
 import { RealmSchema } from 'src/storage/realm/enum';

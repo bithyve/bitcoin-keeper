@@ -4,7 +4,7 @@ import { Box, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';

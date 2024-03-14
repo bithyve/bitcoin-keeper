@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Signer, VaultSigner, signerXpubs } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
@@ -14,7 +14,7 @@ import {
   generateSignerFromMetaData,
   getSignerNameFromType,
 } from 'src/hardware';
-import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -28,9 +28,9 @@ import FloatingCTA from 'src/components/FloatingCTA';
 import useSignerMap from 'src/hooks/useSignerMap';
 import AddCard from 'src/components/AddCard';
 import useSigners from 'src/hooks/useSigners';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
-import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/services/config';
+import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 

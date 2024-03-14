@@ -21,10 +21,10 @@ import Breadcrumbs from 'src/components/Breadcrumbs';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import BuyBitcoinWalletSelectionModal from './components/BuyBitcoinModal';
-import { EntityKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function BuyBitcoinScreen() {
   const { colorMode } = useColorMode();

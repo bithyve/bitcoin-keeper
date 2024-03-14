@@ -19,7 +19,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/services/config';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupInheritance({ route }) {
