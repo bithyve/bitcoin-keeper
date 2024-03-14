@@ -1,14 +1,14 @@
 import { Linking, StyleSheet } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import WalletOperations from 'src/core/wallets/operations';
-import { Box, useColorMode } from 'native-base';
+import WalletOperations from 'src/services/wallets/operations';
+import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { fetchRampReservation } from 'src/services/ramp';
+import { fetchRampReservation } from 'src/services/thirdparty/ramp';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function RampBuyContent({
   vault,

@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';

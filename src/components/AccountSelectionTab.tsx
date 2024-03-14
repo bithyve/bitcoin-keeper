@@ -10,7 +10,7 @@ import PreMix from 'src/assets/images/icon_premix.svg';
 import PostMix from 'src/assets/images/icon_postmix.svg';
 import Deposit from 'src/assets/images/icon_deposit.svg';
 import BadBank from 'src/assets/images/icon_badbank.svg';
-import { WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 
 const AccountTabs = [
   {

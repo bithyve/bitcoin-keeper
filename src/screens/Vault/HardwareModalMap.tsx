@@ -13,12 +13,12 @@ import {
   SignerStorage,
   SignerType,
   XpubTypes,
-} from 'src/core/wallets/enums';
+} from 'src/services/wallets/enums';
 import {
   generateCosignerMapIds,
   generateMobileKey,
   generateSeedWordsKey,
-} from 'src/core/wallets/factories/VaultFactory';
+} from 'src/services/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -46,10 +46,10 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import {
   extractKeyFromDescriptor,
   generateSignerFromMetaData,
@@ -59,7 +59,7 @@ import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
-import { generateKey, hash512 } from 'src/services/operations/encryption';
+import { generateKey, hash512 } from 'src/utils/service-utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -72,15 +72,15 @@ import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import SigningServer from 'src/services/operations/SigningServer';
+import SigningServer from 'src/services/backend/SigningServer';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import Instruction from 'src/components/Instruction';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
@@ -89,7 +89,7 @@ import Add from 'src/assets/images/add_white.svg';
 import useSigners from 'src/hooks/useSigners';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();

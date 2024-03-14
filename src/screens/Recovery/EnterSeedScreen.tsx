@@ -30,14 +30,20 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/utils/utilities';
-import { SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import config from 'src/utils/service-utilities/config';
+import { generateSeedWordsKey } from 'src/services/wallets/factories/VaultFactory';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Fonts from 'src/constants/Fonts';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { InteracationMode } from '../Vault/HardwareModalMap';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode, setupKeeperSigner } from '../Vault/HardwareModalMap';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();

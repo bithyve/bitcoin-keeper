@@ -4,7 +4,7 @@ import { Box, useColorMode, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
@@ -23,7 +23,7 @@ import { authenticator } from 'otplib';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
-import SigningServer from 'src/services/operations/SigningServer';
+import SigningServer from 'src/services/backend/SigningServer';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupSigningServer({ route }: { route }) {

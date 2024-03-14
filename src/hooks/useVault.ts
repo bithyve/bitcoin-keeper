@@ -1,8 +1,8 @@
 import { RealmSchema } from 'src/storage/realm/enum';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
-import { VisibilityType } from 'src/core/wallets/enums';
+import { VisibilityType } from 'src/services/wallets/enums';
 
 type Params =
   | {

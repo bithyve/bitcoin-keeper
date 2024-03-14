@@ -1,6 +1,6 @@
-import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 // types and action creators: dispatched by components and sagas
 export const ADD_LABELS = 'ADD_LABELS';

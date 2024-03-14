@@ -7,11 +7,11 @@ import Buttons from 'src/components/Buttons';
 import { StyleSheet, Text } from 'react-native';
 
 import { hp } from 'src/constants/responsive';
-import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
-import { SignerType } from 'src/core/wallets/enums';
-import { InheritanceConfiguration, InheritancePolicy } from 'src/services/interfaces';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { SignerType } from 'src/services/wallets/enums';
+import { InheritanceConfiguration, InheritancePolicy } from 'src/models/interfaces/AssistedKeys';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/services/sentry';
 import TickIcon from 'src/assets/images/icon_tick.svg';

@@ -7,7 +7,7 @@ import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import Text from 'src/components/KeeperText';
 import Buy from 'src/assets/images/icon_buy.svg';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function VaultFooter({ vault, onPressBuy }: { vault: Vault; onPressBuy: () => void }) {
   const navigation = useNavigation();

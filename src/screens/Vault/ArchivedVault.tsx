@@ -4,7 +4,7 @@ import { Pressable, FlatList, Box, useColorMode } from 'native-base';
 // data
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';

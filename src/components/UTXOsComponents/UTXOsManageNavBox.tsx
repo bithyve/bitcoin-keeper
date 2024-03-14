@@ -3,8 +3,8 @@ import React from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/constants/responsive';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import useBalance from 'src/hooks/useBalance';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,

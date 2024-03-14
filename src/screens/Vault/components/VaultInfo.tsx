@@ -8,7 +8,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp, hp } from 'src/constants/responsive';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();

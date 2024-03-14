@@ -3,7 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import DotView from 'src/components/DotView';
 import moment from 'moment';
-import { Signer } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
 function SigningDeviceChecklist({ item }: { item: Signer }) {
   const { colorMode } = useColorMode();

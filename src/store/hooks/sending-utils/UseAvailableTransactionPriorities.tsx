@@ -1,7 +1,7 @@
 // taken from hexa (hooks)
 
 import { useMemo } from 'react';
-import { TxPriority } from 'src/core/wallets/enums/index';
+import { TxPriority } from 'src/services/wallets/enums/index';
 // import useSendingState from '../state-selectors/sending/UseSendingState'
 const defaultTransactionPrioritiesAvailable = [
   TxPriority.HIGH,

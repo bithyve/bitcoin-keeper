@@ -3,7 +3,7 @@ import { BackupType } from 'src/models/enums/BHR';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 
 const initialState: {
   backupMethod: BackupType | null;

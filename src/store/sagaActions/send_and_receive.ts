@@ -1,10 +1,10 @@
-import { UTXO } from 'src/core/wallets/interfaces';
+import { UTXO } from 'src/services/wallets/interfaces';
 
 import { Action } from 'redux';
 import { Recipient } from 'src/models/interfaces/Recipient';
-import { TxPriority } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { TxPriority } from 'src/services/wallets/enums';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { TransferType } from 'src/models/enums/TransferType';
 import { Satoshis } from 'src/models/types/UnitAliases';
 

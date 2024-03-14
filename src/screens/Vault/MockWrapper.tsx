@@ -2,7 +2,7 @@ import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/
 import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { getMockSigner } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';

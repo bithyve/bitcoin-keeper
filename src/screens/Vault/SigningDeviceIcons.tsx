@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
 import COLDCARDICONLIGHT from 'src/assets/images/coldcard_light.svg';

@@ -8,7 +8,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
