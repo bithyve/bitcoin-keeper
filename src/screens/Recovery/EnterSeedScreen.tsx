@@ -221,7 +221,13 @@ function EnterSeedScreen({ route, navigation }) {
 
   const getSeedWord = () => {
     let seedWord = '';
-    for (let i = 0; i < 12; i++) {
+    const index =
+      selectedNumberOfWords === '12 Seed Words'
+        ? 12
+        : selectedNumberOfWords === '18 Seed Words'
+        ? 18
+        : 24;
+    for (let i = 0; i < index; i++) {
       seedWord += `${seedData[i].name} `;
     }
     return seedWord.trim();
