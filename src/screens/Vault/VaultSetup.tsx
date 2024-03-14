@@ -118,7 +118,7 @@ function VaultSetup({ route }: ScreenProps) {
       <KeeperHeader
         title={preDefinedScheme ? vault.SetupyourVault : vault.AddCustomMultiSig}
         subtitle={vault.configureScheme}
-        // To-Do-Learn-More
+      // To-Do-Learn-More
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <VStack style={{ margin: 20, flex: 1 }}>
@@ -168,7 +168,7 @@ function VaultSetup({ route }: ScreenProps) {
             color={`${colorMode}.secondaryText`}
             testID="text_requireKeys_subTitle"
           >
-            Minimum number of keys to broadcast a transaction
+            Minimum number of keys to sign a transaction
           </Text>
           <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
         </VStack>
