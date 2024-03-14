@@ -4,7 +4,7 @@ import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork, UTXOInfo } from 'src/services/wallets/interfaces';
 import config from 'src/services/config';
-import { INotification } from '../interfaces';
+import { INotification } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
 

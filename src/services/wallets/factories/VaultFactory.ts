@@ -13,7 +13,7 @@ import {
   CosignersMapUpdateAction,
   IKSCosignersMapUpdate,
   IKSCosignersMapUpdateAction,
-} from 'src/services/interfaces';
+} from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/operations/SigningServer';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import {

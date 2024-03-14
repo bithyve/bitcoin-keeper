@@ -6,7 +6,7 @@ import {
   IKSCosignersMapUpdate,
   InheritanceConfiguration,
   InheritancePolicy,
-} from '../interfaces';
+} from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
 import { asymmetricEncrypt, hash256 } from '../operations/encryption/index';
 import { Vault } from '../wallets/interfaces/vault';

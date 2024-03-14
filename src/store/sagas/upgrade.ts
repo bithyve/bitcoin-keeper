@@ -16,7 +16,7 @@ import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vaul
 import SigningServer from 'src/services/operations/SigningServer';
 import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
 import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import {
   updateVersionHistory,

@@ -16,7 +16,7 @@ import {
   InheritancePolicy,
   SignerException,
   SignerRestriction,
-} from 'src/services/interfaces';
+} from 'src/models/interfaces/AssistedKeys';
 import {
   Signer,
   Vault,

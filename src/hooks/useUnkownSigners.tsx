@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { SignerType } from 'src/services/wallets/enums';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { getSignerNameFromType } from 'src/hardware';
-import { InheritanceKeyInfo, SignerPolicy } from 'src/services/interfaces';
+import { InheritanceKeyInfo, SignerPolicy } from 'src/models/interfaces/AssistedKeys';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';

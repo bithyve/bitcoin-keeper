@@ -31,7 +31,7 @@ import {
   InheritanceAlert,
   InheritanceConfiguration,
   InheritancePolicy,
-} from 'src/services/interfaces';
+} from 'src/models/interfaces/AssistedKeys';
 import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';

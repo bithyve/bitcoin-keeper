@@ -6,7 +6,7 @@ import {
   SignerPolicy,
   SignerRestriction,
   SingerVerification,
-} from '../interfaces';
+} from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
 
 const { HEXA_ID, SIGNING_SERVER } = config;
