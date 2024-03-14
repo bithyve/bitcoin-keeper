@@ -1,5 +1,5 @@
 import ElectrumClient from 'src/services/electrum/client';
-import { NodeDetail } from 'src/core/wallets/interfaces';
+import { NodeDetail } from 'src/services/wallets/interfaces';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 

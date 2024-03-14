@@ -18,7 +18,7 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CardPill from 'src/components/CardPill';

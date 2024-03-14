@@ -6,7 +6,7 @@ import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Transaction } from 'src/core/wallets/interfaces';
+import { Transaction } from 'src/services/wallets/interfaces';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 

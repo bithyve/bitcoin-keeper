@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { hp, windowHeight } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
-import { NodeDetail } from 'src/core/wallets/interfaces';
+import { NodeDetail } from 'src/services/wallets/interfaces';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
