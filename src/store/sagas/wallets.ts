@@ -49,7 +49,7 @@ import Relay from 'src/services/backend/Relay';
 import SigningServer from 'src/services/backend/SigningServer';
 import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/services/wallets/factories/VaultFactory';
@@ -58,7 +58,7 @@ import {
   generateWalletSpecsFromMnemonic,
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { generateKey, hash256 } from 'src/services/utilities/encryption';
+import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/services/sentry';
 import ElectrumClient, {
@@ -67,7 +67,7 @@ import ElectrumClient, {
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { genrateOutputDescriptors } from 'src/services/utilities/utils';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import idx from 'idx';
 import _ from 'lodash';
 import { RootState } from '../store';

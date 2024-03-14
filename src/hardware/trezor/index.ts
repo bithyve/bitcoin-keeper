@@ -2,7 +2,7 @@ import { DerivationPurpose, XpubTypes } from 'src/services/wallets/enums';
 import { Vault, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { captureError } from 'src/services/sentry';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/services/wallets/interfaces';

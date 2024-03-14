@@ -18,7 +18,7 @@ import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
 import openLink from 'src/utils/OpenLink';
-import { KEEPER_WEBSITE_BASE_URL } from 'src/services/utilities/config';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();

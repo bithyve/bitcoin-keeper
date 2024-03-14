@@ -5,7 +5,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -23,7 +23,7 @@ import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
 import { SignerType } from 'src/services/wallets/enums';
 import crypto from 'crypto';
-import { createCipheriv, createDecipheriv } from 'src/services/utilities/utils';
+import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function ScanAndInstruct({ onBarCodeRead }) {

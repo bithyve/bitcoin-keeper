@@ -38,7 +38,7 @@ import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { UTXO } from 'src/services/wallets/interfaces';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';

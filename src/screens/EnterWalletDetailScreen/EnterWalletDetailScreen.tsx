@@ -21,7 +21,7 @@ import { v4 as uuidv4 } from 'uuid';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';

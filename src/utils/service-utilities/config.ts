@@ -5,7 +5,7 @@ import axios, { AxiosInstance } from 'axios';
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
 import config from 'react-native-config';
-import { NetworkType, WalletType } from '../wallets/enums';
+import { NetworkType, WalletType } from '../../services/wallets/enums';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',

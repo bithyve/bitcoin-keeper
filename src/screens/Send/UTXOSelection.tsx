@@ -13,7 +13,7 @@ import _ from 'lodash';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { TxPriority, WalletType } from 'src/services/wallets/enums';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';

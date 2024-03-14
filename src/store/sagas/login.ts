@@ -5,7 +5,7 @@ import {
   encrypt,
   generateEncryptionKey,
   hash512,
-} from 'src/services/utilities/encryption';
+} from 'src/utils/service-utilities/encryption';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import LoginMethod from 'src/models/enums/LoginMethod';

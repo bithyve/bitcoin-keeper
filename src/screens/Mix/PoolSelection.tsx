@@ -17,7 +17,7 @@ import useBalance from 'src/hooks/useBalance';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/services/sentry';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import Note from 'src/components/Note/Note';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-nat
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { KEEPER_KNOWLEDGEBASE } from 'src/services/utilities/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';

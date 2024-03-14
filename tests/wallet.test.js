@@ -1,5 +1,5 @@
 import Relay from 'src/services/backend/Relay';
-import { getRandomBytes } from 'src/services/utilities/encryption';
+import { getRandomBytes } from 'src/utils/service-utilities/encryption';
 import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { WalletType, NetworkType, TxPriority } from 'src/services/wallets/enums';

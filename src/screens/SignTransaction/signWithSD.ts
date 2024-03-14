@@ -1,7 +1,7 @@
 import { Alert } from 'react-native';
 import WalletOperations from 'src/services/wallets/operations';
 import { captureError } from 'src/services/sentry';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { generateSeedWordsKey } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';

@@ -8,7 +8,7 @@ import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import DotView from 'src/components/DotView';
 import { modalParams } from 'src/models/interfaces/UTXOs';
-import { KEEPER_KNOWLEDGEBASE } from 'src/services/utilities/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 function PremixContent() {
   const { colorMode } = useColorMode();

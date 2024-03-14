@@ -1,5 +1,5 @@
 import Relay from 'src/services/backend/Relay';
-import { getRandomBytes } from 'src/services/utilities/encryption';
+import { getRandomBytes } from 'src/utils/service-utilities/encryption';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { VerificationType } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';

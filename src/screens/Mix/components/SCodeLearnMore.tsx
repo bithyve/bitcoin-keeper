@@ -6,7 +6,7 @@ import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { modalParams } from 'src/models/interfaces/UTXOs';
 import ScodeIllustration from 'src/assets/images/SomeDefination.svg';
-import { KEEPER_KNOWLEDGEBASE } from 'src/services/utilities/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 function SCodeContent() {
   const { colorMode } = useColorMode();

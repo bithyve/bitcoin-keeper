@@ -37,7 +37,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
-import { KEEPER_KNOWLEDGEBASE } from 'src/services/utilities/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';

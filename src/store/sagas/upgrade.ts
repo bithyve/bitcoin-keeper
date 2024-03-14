@@ -10,7 +10,7 @@ import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
 import { LabelRefType, SignerType, XpubTypes } from 'src/services/wallets/enums';
-import { genrateOutputDescriptors } from 'src/services/utilities/utils';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';

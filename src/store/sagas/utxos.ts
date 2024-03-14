@@ -5,7 +5,7 @@ import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { genrateOutputDescriptors } from 'src/services/utilities/utils';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';

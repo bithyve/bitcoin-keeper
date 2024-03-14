@@ -39,7 +39,7 @@ import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import DescriptionModal from './components/EditDescriptionModal';
 import { SDIcons } from './SigningDeviceIcons';

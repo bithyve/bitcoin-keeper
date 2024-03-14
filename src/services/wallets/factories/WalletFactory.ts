@@ -1,8 +1,8 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
-import { hash256 } from 'src/services/utilities/encryption';
-import config from 'src/services/utilities/config';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import config from 'src/utils/service-utilities/config';
 import {
   EntityKind,
   ImportedKeyType,

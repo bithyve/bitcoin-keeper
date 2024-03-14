@@ -1,6 +1,6 @@
 import { call } from 'redux-saga/effects';
 import semver from 'semver';
-import { decrypt, encrypt } from 'src/services/utilities/encryption';
+import { decrypt, encrypt } from 'src/utils/service-utilities/encryption';
 import Relay from 'src/services/backend/Relay';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 

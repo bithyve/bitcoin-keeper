@@ -9,7 +9,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/services/wallets/enums';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import config, { APP_STAGE } from 'src/services/utilities/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';

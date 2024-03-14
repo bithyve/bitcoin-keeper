@@ -3,7 +3,7 @@ import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/services/wallets/interfaces';
 import { captureError } from 'src/services/sentry';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 
 const bscript = require('bitcoinjs-lib/src/script');
 

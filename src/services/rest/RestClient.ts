@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
-import config from 'src/services/config';
+import config from 'src/utils/service-utilities/config';
 
 const { HEXA_ID } = config;
 const tor = Tor({

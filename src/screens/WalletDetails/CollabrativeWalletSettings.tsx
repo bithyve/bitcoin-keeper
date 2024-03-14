@@ -4,7 +4,7 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
-import { genrateOutputDescriptors } from 'src/services/utilities/utils';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';

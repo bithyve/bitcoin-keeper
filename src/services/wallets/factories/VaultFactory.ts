@@ -6,8 +6,8 @@ import {
   generateEncryptionKey,
   generateKey,
   hash256,
-} from 'src/services/utilities/encryption';
-import config from 'src/services/utilities/config';
+} from 'src/utils/service-utilities/encryption';
+import config from 'src/utils/service-utilities/config';
 import {
   CosignersMapUpdate,
   CosignersMapUpdateAction,

@@ -1,13 +1,13 @@
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/services/utilities/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import {
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash256,
-} from 'src/services/utilities/encryption';
+} from 'src/utils/service-utilities/encryption';
 import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';

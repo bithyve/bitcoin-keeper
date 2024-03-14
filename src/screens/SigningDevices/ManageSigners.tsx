@@ -19,7 +19,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { NetworkType, SignerType } from 'src/services/wallets/enums';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import moment from 'moment';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';

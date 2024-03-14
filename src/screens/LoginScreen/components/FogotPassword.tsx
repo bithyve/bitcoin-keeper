@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { hash512 } from 'src/services/utilities/encryption';
+import { hash512 } from 'src/utils/service-utilities/encryption';
 import Close from 'src/assets/images/modal_close.svg';
 
 function FogotPassword(props) {

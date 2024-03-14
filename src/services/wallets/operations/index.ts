@@ -11,7 +11,7 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import ECPairFactory from 'ecpair';
 import coinselect from 'coinselect';
 import coinselectSplit from 'coinselect/split';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';

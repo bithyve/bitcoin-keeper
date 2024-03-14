@@ -14,7 +14,7 @@ import LinkIcon from 'src/assets/images/link.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
-import config from 'src/services/utilities/config';
+import config from 'src/utils/service-utilities/config';
 import Done from 'src/assets/images/selected.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
