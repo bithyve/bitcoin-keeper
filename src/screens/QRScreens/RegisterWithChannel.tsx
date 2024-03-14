@@ -3,9 +3,9 @@ import { Box, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -21,9 +21,9 @@ import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import crypto from 'crypto';
-import { createCipheriv, createDecipheriv } from 'src/core/utils';
+import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function ScanAndInstruct({ onBarCodeRead }) {

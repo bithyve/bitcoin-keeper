@@ -11,9 +11,9 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyVaultState, resetRealyWalletState } from 'src/store/reducers/bhr';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import { EntityKind } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { EntityKind } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 type Props = {
   wallet: Wallet | Vault | {};

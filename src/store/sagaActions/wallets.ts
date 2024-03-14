@@ -1,7 +1,7 @@
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { VisibilityType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { SignerException, SignerRestriction } from 'src/services/interfaces';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { VisibilityType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { SignerException, SignerRestriction } from 'src/models/interfaces/AssistedKeys';
 import { NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas

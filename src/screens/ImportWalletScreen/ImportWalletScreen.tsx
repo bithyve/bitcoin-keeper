@@ -16,12 +16,12 @@ import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { WalletType } from 'src/core/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { WalletType } from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 function ImportWalletScreen() {
   const { colorMode } = useColorMode();

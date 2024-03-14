@@ -16,16 +16,15 @@ import { useDispatch } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/utils/utilities';
-import { SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { generateSignerFromMetaData } from 'src/hardware';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { InteracationMode } from '../Vault/HardwareModalMap';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Breadcrumbs from 'src/components/Breadcrumbs';
-import Dropdown from 'src/components/Dropdown';
 
 const seedArray = [
   {

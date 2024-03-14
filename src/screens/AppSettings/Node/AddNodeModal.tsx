@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { NodeDetail } from 'src/core/wallets/interfaces';
+import { NodeDetail } from 'src/services/wallets/interfaces';
 import Buttons from 'src/components/Buttons';
 import Switch from 'src/components/Switch/Switch';
 import Text from 'src/components/KeeperText';

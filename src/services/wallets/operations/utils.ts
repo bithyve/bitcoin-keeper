@@ -12,7 +12,7 @@ import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';

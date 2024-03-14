@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useContext, useMemo } from 'react';
-import { UTXO, UTXOInfo } from 'src/core/wallets/interfaces';
+import { UTXO, UTXOInfo } from 'src/services/wallets/interfaces';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { EntityKind, LabelType, WalletType } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { EntityKind, LabelType, WalletType } from 'src/services/wallets/enums';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useQuery } from '@realm/react';

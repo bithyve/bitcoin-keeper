@@ -1,5 +1,5 @@
 import { useQuery } from '@realm/react';
-import { EntityKind } from 'src/core/wallets/enums';
+import { EntityKind } from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 
 const useTransactionLabels = ({ txid, wallet }) => {
