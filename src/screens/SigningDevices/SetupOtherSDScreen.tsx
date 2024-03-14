@@ -57,9 +57,10 @@ function SetupOtherSDScreen({ route }) {
         );
       } else if (mode === InteracationMode.VAULT_ADDITION) {
         dispatch(addSigningDevice([signer]));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        const navigationState = addSignerFlow
+          ? { name: 'ManageSigners' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
       } else if (mode === InteracationMode.HEALTH_CHECK) {
         if (key.xpub === hcSigner.xpub) {

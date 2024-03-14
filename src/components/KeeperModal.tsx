@@ -1,6 +1,12 @@
 import { Box, Modal, Pressable, useColorMode } from 'native-base';
-import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/modal_close.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
@@ -118,7 +124,7 @@ function KeeperModal(props: ModalProps) {
       <Modal.Content
         borderRadius={10}
         marginBottom={Math.max(5, bottomMargin)}
-        maxHeight="full"
+        maxHeight={windowHeight * 0.9}
         width="95%"
       >
         <GestureHandlerRootView>
@@ -140,47 +146,49 @@ function KeeperModal(props: ModalProps) {
                 ) : null}
               </Modal.Header>
             ) : null}
-            <Modal.Body>
-              <Content />
-            </Modal.Body>
-            {((showButtons && learnMore) || !!buttonText) && (
-              <Box style={[styles.footerContainer, learnMore && styles.spaceBetween]}>
-                {learnMore ? (
-                  <Box
-                    borderColor={`${colorMode}.lightAccent`}
-                    backgroundColor={`${colorMode}.modalGreenLearnMore`}
-                    style={styles.learnMoreContainer}
-                  >
-                    <Pressable onPress={learnMoreCallback}>
-                      <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
-                        See FAQs
-                      </Text>
-                    </Pressable>
-                  </Box>
-                ) : (
-                  <Box />
-                )}
-                {!!secondaryButtonText && (
-                  <TouchableOpacity onPress={secondaryCallback}>
-                    <Box style={styles.secCta}>
-                      <Text style={styles.ctaText} color={secButtonTextColor} medium>
-                        {showButtons ? secondaryButtonText : null}
-                      </Text>
+            <ScrollView style={{ maxHeight: windowHeight * 0.8 }}>
+              <Modal.Body>
+                <Content />
+              </Modal.Body>
+              {((showButtons && learnMore) || !!buttonText) && (
+                <Box style={[styles.footerContainer, learnMore && styles.spaceBetween]}>
+                  {learnMore ? (
+                    <Box
+                      borderColor={`${colorMode}.lightAccent`}
+                      backgroundColor={`${colorMode}.modalGreenLearnMore`}
+                      style={styles.learnMoreContainer}
+                    >
+                      <Pressable onPress={learnMoreCallback}>
+                        <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
+                          See FAQs
+                        </Text>
+                      </Pressable>
                     </Box>
-                  </TouchableOpacity>
-                )}
-                {!!buttonText && (
-                  <TouchableOpacity onPress={buttonCallback}>
-                    <Box backgroundColor={buttonBackground} style={styles.cta}>
-                      <Text style={styles.ctaText} color={buttonTextColor} bold>
-                        {showButtons ? buttonText : null}
-                      </Text>
-                      {loading ? <ActivityIndicator /> : null}
-                    </Box>
-                  </TouchableOpacity>
-                )}
-              </Box>
-            )}
+                  ) : (
+                    <Box />
+                  )}
+                  {!!secondaryButtonText && (
+                    <TouchableOpacity onPress={secondaryCallback}>
+                      <Box style={styles.secCta}>
+                        <Text style={styles.ctaText} color={secButtonTextColor} medium>
+                          {showButtons ? secondaryButtonText : null}
+                        </Text>
+                      </Box>
+                    </TouchableOpacity>
+                  )}
+                  {!!buttonText && (
+                    <TouchableOpacity onPress={buttonCallback}>
+                      <Box backgroundColor={buttonBackground} style={styles.cta}>
+                        <Text style={styles.ctaText} color={buttonTextColor} bold>
+                          {showButtons ? buttonText : null}
+                        </Text>
+                        {loading ? <ActivityIndicator /> : null}
+                      </Box>
+                    </TouchableOpacity>
+                  )}
+                </Box>
+              )}
+            </ScrollView>
           </Box>
         </GestureHandlerRootView>
       </Modal.Content>
