@@ -4,49 +4,83 @@ import OptionCard from 'src/components/OptionCard';
 import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import Bird from 'src/assets/images/bird.svg';
+import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import {
+  ASSISTED_KEYS,
+  BUY_NEW_HARDWARE_SIGNER,
+  CANARY_WALLETS,
+  SAFE_KEEPING_TIPS,
+  SECURE_USAGE_TIPS,
+} from 'src/services/channel/constants';
 
 function KeySecurity({ navigation }) {
-  const navigate = (path) => {
-    navigation.navigate(path);
-  };
+  const dispatch = useAppDispatch();
 
+  const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
+  console.log(
+    'inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER]',
+    inheritanceToolVisitedHistory
+  );
+  const navigate = (path, value) => {
+    navigation.navigate(path);
+    dispatch(updateLastVisitedTimestamp({ option: value }));
+  };
   return (
     <ScrollView>
       <OptionCard
-        preTitle="Never accessed"
+        preTitle={`${
+          inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
+            ? 'Never accessed'
+            : 'just now'
+        }`}
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
         LeftIcon={<WalletGreenIcon />}
-        callback={() => navigate('DiscountCodes')}
+        callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       />
       <OptionCard
-        preTitle="Never accessed"
+        preTitle={`${
+          inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
+            ? 'Never accessed'
+            : 'just now'
+        }`}
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={<Bird />}
-        callback={() => navigate('CanaryWallets')}
+        callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
       <OptionCard
-        preTitle="Never accessed"
+        preTitle={`${
+          inheritanceToolVisitedHistory[ASSISTED_KEYS] === undefined ? 'Never accessed' : 'just now'
+        }`}
         title="Assisted Keys"
         description="Assisted Keys"
         LeftIcon={<VaultGreenIcon />}
-        callback={() => navigate('AssistedKeys')}
+        callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
       <Box paddingTop={10}>
         <OptionCard
-          preTitle="Never accessed"
+          preTitle={`${
+            inheritanceToolVisitedHistory[SECURE_USAGE_TIPS] === undefined
+              ? 'Never accessed'
+              : 'just now'
+          }`}
           title="Secure Usage Tips"
           description="Recommendations while transacting"
           LeftIcon={<VaultGreenIcon />}
-          callback={() => navigate('SafeGuardingTips')}
+          callback={() => navigate('SafeGuardingTips', SECURE_USAGE_TIPS)}
         />
         <OptionCard
-          preTitle="Never accessed"
+          preTitle={`${
+            inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS] === undefined
+              ? 'Never accessed'
+              : 'just now'
+          }`}
           title="Safekeeping Tips"
           description="Key storage best practices"
           LeftIcon={<VaultGreenIcon />}
-          callback={() => navigate('SafeKeepingTips')}
+          callback={() => navigate('SafeKeepingTips', SAFE_KEEPING_TIPS)}
         />
       </Box>
     </ScrollView>

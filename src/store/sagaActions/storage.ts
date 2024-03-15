@@ -5,7 +5,6 @@ export const SET_PIN_RESET_CREDS = 'SET_PIN_RESET_CREDS';
 export const INCREASE_PIN_FAIL_ATTEMTS = 'INCREASE_PIN_FAIL_ATTEMTS';
 export const RESET_PIN_FAIL_ATTEMTS = 'RESET_PIN_FAIL_ATTEMTS';
 export const KEY_FETCHED = 'KEY_FETCHED';
-
 export const setupKeeperApp = (fcmToken: string = '', appName: string = '') => ({
   type: SETUP_KEEPER_APP,
   payload: {
@@ -28,6 +27,13 @@ export const setAppId = (appId?: string) => ({
     appId,
   },
 });
+
+// export const setInheritanceTool = (params: string) => ({
+//   type: SET_INHERITANCE_TOOL,
+//   payload: {
+//     params,
+//   },
+// });
 
 export const setPinResetCreds = (hash: string, index: number) => ({
   type: SET_PIN_RESET_CREDS,
