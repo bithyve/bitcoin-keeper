@@ -365,6 +365,7 @@ function AddSendAmount({ route }) {
                 borderColor={`${colorMode}.BrownNeedHelp`}
                 backgroundColor={`${colorMode}.BrownNeedHelp`}
                 style={styles.sendMaxWrapper}
+                testID="btn_sendMax"
               >
                 <Text
                   testID="text_sendmax"

@@ -27,7 +27,7 @@ function TransactionElement({
   const date = moment(transaction?.date)?.format('DD MMM YY  •  HH:mm A');
 
   return (
-    <TouchableOpacity onPress={onPress} testID={`btn_transaction_${index}`}>
+    <TouchableOpacity onPress={onPress} testID={`btn_transaction_${transaction?.txid}`}>
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
           <Box backgroundColor={`${colorMode}.TransactionIconBackColor`} style={styles.circle}>

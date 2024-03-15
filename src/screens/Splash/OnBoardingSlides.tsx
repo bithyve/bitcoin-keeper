@@ -72,6 +72,7 @@ function OnBoardingSlides({ navigation }) {
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={styles.skipTextWrapper}
+                testID="btn_skip"
               >
                 <Text color={`${colorMode}.white`} bold style={styles.skipText}>
                   Skip&nbsp;&nbsp;
@@ -106,7 +107,10 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}>
+              <TouchableOpacity
+                testID="btn_FAQ"
+                onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}
+              >
                 <Box
                   borderColor={`${colorMode}.lightAccent`}
                   backgroundColor={`${colorMode}.modalGreenLearnMore`}
@@ -139,6 +143,7 @@ function OnBoardingSlides({ navigation }) {
                         navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
                       }
                     }}
+                    testID="btn_startApp"
                   >
                     <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
                       <Text bold color={`${colorMode}.greenText`} style={styles.startAppText}>

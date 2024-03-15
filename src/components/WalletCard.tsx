@@ -27,7 +27,7 @@ function WalletCard({
   const isSelected = selectedCard === id;
 
   return (
-    <Pressable onPress={() => onCardSelect(id)}>
+    <Pressable testID={`btn_${walletName}`} onPress={() => onCardSelect(id)}>
       <Box
         borderColor={`${colorMode}.TransactionIconBackColor`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}

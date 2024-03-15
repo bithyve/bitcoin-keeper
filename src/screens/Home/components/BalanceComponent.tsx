@@ -16,7 +16,11 @@ function BalanceComponent({ balance, count, isShowAmount, setIsShowAmount }) {
         </Text>
         <Text style={styles.noOfWallet}>Wallet{count > 1 && 's'}</Text>
       </HStack>
-      <TouchableOpacity onPress={setIsShowAmount} style={styles.amount}>
+      <TouchableOpacity
+        testID="btn_hideUnhideAmount"
+        onPress={setIsShowAmount}
+        style={styles.amount}
+      >
         <CurrencyInfo
           amount={balance}
           hideAmounts={!isShowAmount}
