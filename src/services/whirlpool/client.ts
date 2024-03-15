@@ -1,11 +1,11 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
-import WalletOperations from 'src/core/wallets/operations';
-import { InputUTXOs } from 'src/core/wallets/interfaces';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import WalletOperations from 'src/services/wallets/operations';
+import { InputUTXOs } from 'src/services/wallets/interfaces';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import WhirlpoolServices from 'src/nativemodules/WhirlpoolServices';
-import { NetworkType } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { NetworkType } from 'src/services/wallets/enums';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import {
   InputStructure,
   Network,
@@ -15,7 +15,9 @@ import {
   TX0Data,
   WhirlpoolInput,
 } from 'src/nativemodules/interface';
-import { hash256 } from 'src/services/operations/encryption';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import ecc from '../wallets/operations/taproot-utils/noble_ecc';
+bitcoinJS.initEccLib(ecc);
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
@@ -228,10 +230,8 @@ export default class WhirlpoolClient {
       fields: {},
     };
 
-    const { privateKey } = WalletUtilities.addressToKey(input.address, source) as {
-      privateKey: string;
-      subPath: number[];
-    };
+    const { keyPair } = WalletUtilities.addressToKeyPair(input.address, source);
+    const privateKey = keyPair.toWIF();
 
     const preUserHash = hash256(source.derivationDetails.mnemonic);
     const networkType: Network =

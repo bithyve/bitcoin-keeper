@@ -25,7 +25,7 @@ function AddCard({
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity activeOpacity={0.95} onPress={() => callback(name)}>
+    <TouchableOpacity testID={`btn_${name}`} activeOpacity={0.95} onPress={() => callback(name)}>
       <Box
         backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={`${colorMode}.pantoneGreen`}

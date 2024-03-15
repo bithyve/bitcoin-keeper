@@ -12,8 +12,8 @@ import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
-import config from 'src/core/config';
-import BIP32Factory from 'bip32';
+import config from 'src/utils/service-utilities/config';
+import BIP32Factory, { BIP32Interface } from 'bip32';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
@@ -28,7 +28,7 @@ import {
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
-import ecc from './noble_ecc';
+import ecc from './taproot-utils/noble_ecc';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -105,6 +105,9 @@ export default class WalletUtilities {
   static getPurpose = (derivationPath: string): DerivationPurpose => {
     const purpose = parseInt(derivationPath.split('/')[1], 10);
     switch (purpose) {
+      case DerivationPurpose.BIP86:
+        return DerivationPurpose.BIP86;
+
       case DerivationPurpose.BIP84:
         return DerivationPurpose.BIP84;
 
@@ -128,6 +131,7 @@ export default class WalletUtilities {
   ) => {
     switch (purpose) {
       case DerivationPurpose.BIP84:
+      case DerivationPurpose.BIP86:
         return network === bitcoinJS.networks.bitcoin ? '04b24746' : '045f1cf6'; // zpub/vpub
 
       case DerivationPurpose.BIP49:
@@ -141,14 +145,19 @@ export default class WalletUtilities {
     }
   };
 
-  static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
-    ECPair.fromWIF(privateKey, network);
+  static toXOnly = (pubKey) => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 
   static deriveAddressFromKeyPair = (
-    keyPair: ECPairInterface,
+    keyPair: ECPairInterface | BIP32Interface,
     network: bitcoinJS.Network,
     purpose: DerivationPurpose = DerivationPurpose.BIP84
   ): string => {
+    if (purpose === DerivationPurpose.BIP86) {
+      return bitcoinJS.payments.p2tr({
+        internalPubkey: WalletUtilities.toXOnly(keyPair.publicKey),
+        network,
+      }).address;
+    }
     if (purpose === DerivationPurpose.BIP84) {
       return bitcoinJS.payments.p2wpkh({
         pubkey: keyPair.publicKey,
@@ -170,6 +179,8 @@ export default class WalletUtilities {
         network,
       }).address;
     }
+
+    throw new Error("Unsupported derivation purpose, can't derive address");
   };
 
   static deriveMultiSig = (
@@ -213,19 +224,16 @@ export default class WalletUtilities {
     }
   };
 
-  static getPrivateKeyByIndex = (
+  static getKeyPairByIndex = (
     xpriv: string,
     internal: boolean,
     index: number,
     network: bitcoinJS.networks.Network
-  ): {
-    privateKey: string;
-    subPath: number[];
-  } => {
+  ): BIP32Interface => {
     const node = bip32.fromBase58(xpriv, network);
     const chain = internal ? 1 : 0;
-    const privateKey = node.derive(chain).derive(index).toWIF();
-    return { privateKey, subPath: [chain, index] };
+    const keyPair: BIP32Interface = node.derive(chain).derive(index);
+    return keyPair;
   };
 
   static getPublicKeyByIndex = (
@@ -268,7 +276,7 @@ export default class WalletUtilities {
     };
   };
 
-  static getP2SH = (keyPair: bip32.BIP32Interface, network: bitcoinJS.Network): bitcoinJS.Payment =>
+  static getP2SH = (keyPair: BIP32Interface, network: bitcoinJS.Network): bitcoinJS.Payment =>
     bitcoinJS.payments.p2sh({
       redeem: bitcoinJS.payments.p2wpkh({
         pubkey: keyPair.publicKey,
@@ -382,32 +390,22 @@ export default class WalletUtilities {
     return WalletUtilities.getExtendedPubKeyFromXpub(wallet.specs.xpub, purpose, network);
   };
 
-  static addressToKey = (
+  static addressToPublicKey = (
     address: string,
-    wallet: Wallet | Vault,
-    publicKey: boolean = false
-  ):
-    | {
-        publicKey: Buffer;
-        subPath: number[];
-      }
-    | {
-        privateKey: string;
-        subPath: number[];
-      } => {
+    wallet: Wallet | Vault
+  ): {
+    publicKey: Buffer;
+    subPath: number[];
+  } => {
     const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
     let xpub = null;
-    let xpriv = null;
 
     if (wallet.entityKind === EntityKind.VAULT) {
-      if (!publicKey) throw new Error('internal xpriv not supported in case of Vault');
       if ((wallet as Vault).isMultiSig) throw new Error('MultiSig should use: addressToMultiSig');
-
-      xpub = (wallet as Vault).specs.xpubs[0];
+      xpub = (wallet as Vault).specs.xpubs[0]; // xpub for vault(1-of-1)
     } else {
       xpub = (wallet as Wallet).specs.xpub;
-      xpriv = (wallet as Wallet).specs.xpriv;
     }
 
     const network = WalletUtilities.getNetworkByType(networkType);
@@ -417,32 +415,56 @@ export default class WalletUtilities {
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
-        if (publicKey) {
-          if (addressPubs[address]) {
-            return {
-              publicKey: Buffer.from(addressPubs[address], 'hex'),
-              subPath: [0, itr],
-            };
-          } else return WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network);
-        } else return WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
+        if (addressPubs[address]) {
+          return {
+            publicKey: Buffer.from(addressPubs[address], 'hex'),
+            subPath: [0, itr],
+          };
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network);
       }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (addressCache.internal[itr] === address) {
-        if (publicKey) {
-          if (addressPubs[address]) {
-            return {
-              publicKey: Buffer.from(addressPubs[address], 'hex'),
-              subPath: [1, itr],
-            };
-          } else return WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network);
-        } else return WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
+        if (addressPubs[address]) {
+          return {
+            publicKey: Buffer.from(addressPubs[address], 'hex'),
+            subPath: [1, itr],
+          };
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network);
       }
     }
 
-    throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ${address}`);
+    throw new Error(`Could not find public key for: ${address}`);
+  };
+
+  static addressToKeyPair = (
+    address: string,
+    wallet: Wallet | Vault
+  ): {
+    keyPair: BIP32Interface;
+  } => {
+    const { networkType } = wallet;
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    let xpriv = (wallet as Wallet).specs.xpriv;
+
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+
+    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+      if (addressCache.external[itr] === address)
+        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, false, itr, network) };
+    }
+
+    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= closingIntIndex; itr++) {
+      if (addressCache.internal[itr] === address)
+        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, true, itr, network) };
+    }
+
+    throw new Error(`Could not find public key for: ${address}`);
   };
 
   static createMultiSig = (
@@ -680,6 +702,7 @@ export default class WalletUtilities {
     }
 
     for (const output of outputs) {
+      // case: change exists
       if (!output.address) {
         if ((wallet as Vault).isMultiSig) {
           output.address = changeMultisig.address;
@@ -687,7 +710,8 @@ export default class WalletUtilities {
         }
 
         let xpub = null;
-        if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+        if (wallet.entityKind === EntityKind.VAULT)
+          xpub = (wallet as Vault).specs.xpubs[0]; // 1-of-1 multisig
         else xpub = (wallet as Wallet).specs.xpub;
 
         output.address = WalletUtilities.getAddressByIndex(
@@ -700,41 +724,11 @@ export default class WalletUtilities {
         return { outputs, changeAddress: output.address };
       }
     }
-    // when there's no change
+
+    // case: no change
     if ((wallet as Vault).isMultiSig) {
       return { outputs, changeMultisig };
-    }
-    return { outputs, changeAddress };
-  };
-
-  // test-wallet specific utilities
-  static getTestcoins = async (
-    recipientAddress: string,
-    network: bitcoinJS.networks.Network
-  ): Promise<{
-    txid: any;
-    funded: any;
-  }> => {
-    if (network === bitcoinJS.networks.bitcoin) {
-      throw new Error('Invalid network: failed to fund via testnet');
-    }
-
-    const SATOSHIS_IN_BTC = 1e8;
-    const amount = 10000 / SATOSHIS_IN_BTC;
-    try {
-      const res = await RestClient.post(`${config.RELAY}/testnetFaucet`, {
-        recipientAddress,
-        amount,
-      });
-      const { txid, funded } = res.data || res.json;
-      return {
-        txid,
-        funded,
-      };
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
+    } else return { outputs, changeAddress };
   };
 
   static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {
@@ -769,13 +763,12 @@ export default class WalletUtilities {
     return null;
   };
 
-  // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
   static getDerivationForScriptType = (scriptType: ScriptTypes, account = 0) => {
     const testnet = isTestnet();
     const networkType = testnet ? 1 : 0;
     switch (scriptType) {
       case ScriptTypes.P2WSH: // multisig native segwit
-        return `m/48'/${networkType}'/${account}'/2'`;
+        return `m/48'/${networkType}'/${account}'/2'`; // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
       case ScriptTypes.P2WPKH: // singlesig native segwit
         return `m/84'/${networkType}'/${account}'`;
       case ScriptTypes['P2SH-P2WPKH']: // singlesig wrapped segwit
@@ -786,6 +779,23 @@ export default class WalletUtilities {
         return `m/86'/${networkType}'/${account}'`;
       default: // multisig wrapped segwit
         return `m/48'/${networkType}'/${account}'/2'`;
+    }
+  };
+
+  static getScriptTypeFromPurpose = (purpose: DerivationPurpose) => {
+    switch (purpose) {
+      case DerivationPurpose.BIP86:
+        return ScriptTypes.P2TR;
+      case DerivationPurpose.BIP84:
+        return ScriptTypes.P2WPKH;
+      case DerivationPurpose.BIP49:
+        return ScriptTypes['P2SH-P2WPKH'];
+      case DerivationPurpose.BIP48:
+        return ScriptTypes.P2WSH;
+      case DerivationPurpose.BIP44:
+        return ScriptTypes.P2PKH;
+      default:
+        throw new Error(`Purpose:${purpose} not supported`);
     }
   };
 

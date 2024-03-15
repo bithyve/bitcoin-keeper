@@ -1,4 +1,4 @@
-import { NetworkType } from 'src/core/wallets/enums';
+import { NetworkType } from 'src/services/wallets/enums';
 import SubScription from './Subscription';
 import { BackupType } from '../enums/BHR';
 

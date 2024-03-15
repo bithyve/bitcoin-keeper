@@ -5,12 +5,12 @@ import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import CheckIcon from 'src/assets/images/checked.svg';
 import Next from 'src/assets/images/icon_arrow.svg';
 import React from 'react';
-import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import moment from 'moment';
 import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
+import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import config from 'src/utils/service-utilities/config';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
@@ -35,7 +35,7 @@ function SignerList({
     config.NETWORK_TYPE === NetworkType.TESTNET &&
     !signer.isMock;
   return (
-    <TouchableOpacity onPress={callback}>
+    <TouchableOpacity testID={`btn_transactionSigner`} onPress={callback}>
       <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
           <Box flexDirection="row">

@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
 import HexagonIcon from 'src/components/HexagonIcon';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
@@ -9,8 +9,8 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { EntityKind, VaultType } from 'src/core/wallets/enums';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { EntityKind, VaultType } from 'src/services/wallets/enums';
 
 type Props = {
   allWallets: (Wallet | Vault)[];

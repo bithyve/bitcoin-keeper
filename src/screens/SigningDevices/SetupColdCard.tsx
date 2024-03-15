@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { getColdcardDetails, getConfigDetails } from 'src/hardware/coldcard';
 
 import { Box, useColorMode } from 'native-base';
@@ -23,7 +23,7 @@ import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import { Signer } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';

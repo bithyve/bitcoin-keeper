@@ -11,12 +11,12 @@ import QRCode from 'react-native-qrcode-svg';
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
-import WalletOperations from 'src/core/wallets/operations';
+import WalletOperations from 'src/services/wallets/operations';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -73,6 +73,7 @@ function ReceiveScreen({ route }: { route }) {
                 value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
+                testID="input_receiveAmount"
               />
             </Box>
 
@@ -104,7 +105,11 @@ function ReceiveScreen({ route }: { route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={common.receive} subtitle={walletTranslation.receiveSubTitle} />
-      <Box style={styles.qrWrapper} borderColor={`${colorMode}.qrBorderColor`}>
+      <Box
+        testID="view_recieveAddressQR"
+        style={styles.qrWrapper}
+        borderColor={`${colorMode}.qrBorderColor`}
+      >
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
           logoBackgroundColor="transparent"

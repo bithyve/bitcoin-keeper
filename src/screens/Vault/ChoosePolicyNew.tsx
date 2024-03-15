@@ -7,7 +7,7 @@ import {
   SignerPolicy,
   SignerRestriction,
   VerificationType,
-} from 'src/services/interfaces';
+} from 'src/models/interfaces/AssistedKeys';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 

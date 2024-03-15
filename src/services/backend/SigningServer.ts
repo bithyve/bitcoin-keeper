@@ -1,12 +1,12 @@
 import { AxiosResponse } from 'axios';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import {
   CosignersMapUpdate,
   SignerException,
   SignerPolicy,
   SignerRestriction,
   SingerVerification,
-} from '../interfaces';
+} from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
 
 const { HEXA_ID, SIGNING_SERVER } = config;

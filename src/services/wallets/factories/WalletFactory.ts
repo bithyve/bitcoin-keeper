@@ -1,8 +1,8 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
-import { hash256 } from 'src/services/operations/encryption';
-import config from 'src/core/config';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import config from 'src/utils/service-utilities/config';
 import {
   EntityKind,
   ImportedKeyType,
@@ -206,6 +206,9 @@ export const generateWallet = async ({
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
+  const scriptType: ScriptTypes = WalletUtilities.getScriptTypeFromPurpose(
+    WalletUtilities.getPurpose(derivationDetails.xDerivationPath)
+  );
 
   const wallet: Wallet = {
     id,
@@ -216,7 +219,7 @@ export const generateWallet = async ({
     derivationDetails,
     presentationData,
     specs,
-    scriptType: ScriptTypes.P2WPKH,
+    scriptType,
     transferPolicy,
     depositWalletId,
   };
@@ -288,13 +291,7 @@ export const signCosignerPSBT = (xpriv: string, serializedPSBT: string) => {
     const internal = parseInt(pathLevels[pathLevels.length - 2], 10) === 1;
     const childIndex = parseInt(pathLevels[pathLevels.length - 1], 10);
 
-    const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-      xpriv,
-      internal,
-      childIndex,
-      config.NETWORK
-    );
-    const keyPair = WalletUtilities.getKeyPair(privateKey, config.NETWORK);
+    const keyPair = WalletUtilities.getKeyPairByIndex(xpriv, internal, childIndex, config.NETWORK);
     PSBT.signInput(vin, keyPair);
     vin += 1;
   });

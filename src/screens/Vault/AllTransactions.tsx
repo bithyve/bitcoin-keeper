@@ -9,10 +9,10 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import TransactionElement from 'src/components/TransactionElement';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import useVault from 'src/hooks/useVault';
-import { EntityKind } from 'src/core/wallets/enums';
-import { Transaction } from 'src/core/wallets/interfaces';
+import { EntityKind } from 'src/services/wallets/enums';
+import { Transaction } from 'src/services/wallets/interfaces';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function AllTransactions({ route }) {

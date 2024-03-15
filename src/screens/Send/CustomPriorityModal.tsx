@@ -148,6 +148,7 @@ function CustomPriorityModal(props) {
             </Modal.Header>
             <Box alignItems="center">
               <Input
+                testID="input_customPriority"
                 InputLeftElement={
                   <Box borderRightWidth={0.5} borderRightColor={`${colorMode}.Border`} px="2">
                     <Box>

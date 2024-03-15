@@ -9,7 +9,7 @@ import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import { getCountry } from 'react-native-localize';
-import { fetchRampReservation } from 'src/services/ramp';
+import { fetchRampReservation } from 'src/services/thirdparty/ramp';
 import { hp, wp } from 'src/constants/responsive';
 import HexagonIcon from 'src/components/HexagonIcon';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
@@ -21,10 +21,10 @@ import Breadcrumbs from 'src/components/Breadcrumbs';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import BuyBitcoinWalletSelectionModal from './components/BuyBitcoinModal';
-import { EntityKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function BuyBitcoinScreen() {
   const { colorMode } = useColorMode();
@@ -83,7 +83,11 @@ function BuyBitcoinScreen() {
         // To-Do-Learn-More
       />
       <Box style={styles.container}>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => setWalletSelectionVisible(true)}>
+        <TouchableOpacity
+          testID="btn_walletsModal"
+          activeOpacity={0.8}
+          onPress={() => setWalletSelectionVisible(true)}
+        >
           <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <Text fontSize={13} color={`${colorMode}.primaryText`}>
               Bitcoin will be transferred to
