@@ -24,7 +24,7 @@ function NumberInput({ value, onDecrease, onIncrease }) {
 
   return (
     <HStack style={styles.inputContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-      <TouchableOpacity style={styles.button} onPress={onDecrease}>
+      <TouchableOpacity testID="btn_decreaseValue" style={styles.button} onPress={onDecrease}>
         <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
           -
         </Text>
@@ -34,7 +34,7 @@ function NumberInput({ value, onDecrease, onIncrease }) {
         {value}
       </Text>
       <Box style={{ height: 30, borderRightWidth: 0.2, paddingHorizontal: 5 }} />
-      <TouchableOpacity style={styles.button} onPress={onIncrease}>
+      <TouchableOpacity testID="increaseValue" style={styles.button} onPress={onIncrease}>
         <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
           +
         </Text>

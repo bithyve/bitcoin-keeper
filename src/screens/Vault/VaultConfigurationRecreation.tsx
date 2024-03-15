@@ -29,6 +29,7 @@ function VaultConfigurationCreation() {
           />
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <Input
+              testID="input_walletConfigurationFile"
               placeholder="Enter the Wallet Configuration File"
               placeholderTextColor={`${colorMode}.primaryText`} // TODO: change to colorMode and use native base component
               style={styles.textInput}

@@ -83,7 +83,11 @@ function BuyBitcoinScreen() {
         // To-Do-Learn-More
       />
       <Box style={styles.container}>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => setWalletSelectionVisible(true)}>
+        <TouchableOpacity
+          testID="btn_walletsModal"
+          activeOpacity={0.8}
+          onPress={() => setWalletSelectionVisible(true)}
+        >
           <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <Text fontSize={13} color={`${colorMode}.primaryText`}>
               Bitcoin will be transferred to

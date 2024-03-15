@@ -460,6 +460,7 @@ function EnterSeedScreen({ route }) {
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
+                    testID={`btn_suggested_${word}`}
                     key={word ? `${word + wordIndex}` : wordIndex}
                     style={styles.suggestionTouchView}
                     onPress={() => {
