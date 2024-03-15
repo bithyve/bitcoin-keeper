@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import Success from 'src/assets/images/Success.svg';
 import Text from 'src/components/KeeperText';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { useColorMode, Box } from 'native-base';
 
 function VaultCreatedModal({

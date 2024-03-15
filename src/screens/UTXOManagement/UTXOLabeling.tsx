@@ -6,15 +6,15 @@ import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/constants/responsive';
-import { UTXO } from 'src/core/wallets/interfaces';
-import { NetworkType } from 'src/core/wallets/enums';
+import { UTXO } from 'src/services/wallets/interfaces';
+import { NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import Done from 'src/assets/images/selected.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';

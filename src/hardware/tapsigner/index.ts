@@ -2,9 +2,9 @@
 import { Alert } from 'react-native';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import { captureError } from 'src/services/sentry';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { ScriptTypes, XpubTypes } from 'src/core/wallets/enums';
-import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { ScriptTypes, XpubTypes } from 'src/services/wallets/enums';
+import { VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 
 const getScriptSpecificDetails = async (card, cvc, isMultisig) => {
   const xpubDetails: XpubDetailsType = {};

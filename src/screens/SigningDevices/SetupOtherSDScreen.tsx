@@ -8,7 +8,7 @@ import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -57,9 +57,10 @@ function SetupOtherSDScreen({ route }) {
         );
       } else if (mode === InteracationMode.VAULT_ADDITION) {
         dispatch(addSigningDevice([signer]));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        const navigationState = addSignerFlow
+          ? { name: 'ManageSigners' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
       } else if (mode === InteracationMode.HEALTH_CHECK) {
         if (key.xpub === hcSigner.xpub) {

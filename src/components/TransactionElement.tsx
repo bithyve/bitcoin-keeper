@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
 import { hp, wp } from 'src/constants/responsive';
-import { Transaction } from 'src/core/wallets/interfaces';
+import { Transaction } from 'src/services/wallets/interfaces';
 
 import IconSent from 'src/assets/images/icon_sent_red.svg';
 import IconRecieve from 'src/assets/images/icon_recieved_red.svg';

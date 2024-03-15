@@ -1,10 +1,10 @@
-import { NetworkType } from 'src/core/wallets/enums';
+import { NetworkType } from 'src/services/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
-import { AverageTxFeesByNetwork, UTXOInfo } from 'src/core/wallets/interfaces';
-import config from 'src/core/config';
-import { INotification } from '../interfaces';
+import { AverageTxFeesByNetwork, UTXOInfo } from 'src/services/wallets/interfaces';
+import config from 'src/utils/service-utilities/config';
+import { INotification } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
 
