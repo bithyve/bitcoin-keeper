@@ -163,8 +163,8 @@ export function numberToOrdinal(cardinal) {
 export const formatNumber = (value: string) =>
   value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-export const getTimeDifferenceInWords = (pastTime, currentTime) => {
-  var duration = moment.duration(currentTime.diff(pastTime));
+export const getTimeDifferenceInWords = (pastTime) => {
+  var duration = moment.duration(moment().diff(pastTime));
   var days = duration.days();
   var hours = duration.hours();
   var minutes = duration.minutes();

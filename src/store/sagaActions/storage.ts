@@ -28,13 +28,6 @@ export const setAppId = (appId?: string) => ({
   },
 });
 
-// export const setInheritanceTool = (params: string) => ({
-//   type: SET_INHERITANCE_TOOL,
-//   payload: {
-//     params,
-//   },
-// });
-
 export const setPinResetCreds = (hash: string, index: number) => ({
   type: SET_PIN_RESET_CREDS,
   payload: {

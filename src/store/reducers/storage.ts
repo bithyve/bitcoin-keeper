@@ -1,20 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  ASSISTED_KEYS,
-  MASTER_RECOVERY_KEY,
-  PERSONAL_CLOUD_BACKUP,
-  WALLET_CONFIG_FILES,
-  BUY_NEW_HARDWARE_SIGNER,
-  CANARY_WALLETS,
-  SAFE_KEEPING_TIPS,
-  SECURE_USAGE_TIPS,
-  BACKUP_AND_RECOVERY_FILES,
-  INHERITANCE_KEY,
-  LETTER_OF_ATTORNEY,
-  RECOVERY_INSTRUCRIONS,
-  PRINTABLE_TEMPLATES,
-  INHERITANCE_TIPS,
-} from 'src/services/channel/constants';
 
 interface InheritanceToolVisitedHistory {
   BUY_NEW_HARDWARE_SIGNER: number;
@@ -28,7 +12,7 @@ interface InheritanceToolVisitedHistory {
   BACKUP_AND_RECOVERY_FILES: number;
   INHERITANCE_KEY: number;
   LETTER_OF_ATTORNEY: number;
-  RECOVERY_INSTRUCRIONS: number;
+  RECOVERY_INSTRUCTIONS: number;
   PRINTABLE_TEMPLATES: number;
   INHERITANCE_TIPS: number;
 }
@@ -70,7 +54,7 @@ const initialState: {
     BACKUP_AND_RECOVERY_FILES: null,
     INHERITANCE_KEY: null,
     LETTER_OF_ATTORNEY: null,
-    RECOVERY_INSTRUCRIONS: null,
+    RECOVERY_INSTRUCTIONS: null,
     PRINTABLE_TEMPLATES: null,
     INHERITANCE_TIPS: null,
   },

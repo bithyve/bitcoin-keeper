@@ -13,15 +13,11 @@ import {
   SAFE_KEEPING_TIPS,
   SECURE_USAGE_TIPS,
 } from 'src/services/channel/constants';
+import { getTimeDifferenceInWords } from 'src/utils/utilities';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
-
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
-  console.log(
-    'inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER]',
-    inheritanceToolVisitedHistory
-  );
   const navigate = (path, value) => {
     navigation.navigate(path);
     dispatch(updateLastVisitedTimestamp({ option: value }));
@@ -32,7 +28,7 @@ function KeySecurity({ navigation }) {
         preTitle={`${
           inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
             ? 'Never accessed'
-            : 'just now'
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
         }`}
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
@@ -43,7 +39,7 @@ function KeySecurity({ navigation }) {
         preTitle={`${
           inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
             ? 'Never accessed'
-            : 'just now'
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
         }`}
         title="Canary Wallets"
         description="Alert on key compromise"
@@ -64,7 +60,9 @@ function KeySecurity({ navigation }) {
           preTitle={`${
             inheritanceToolVisitedHistory[SECURE_USAGE_TIPS] === undefined
               ? 'Never accessed'
-              : 'just now'
+              : `${getTimeDifferenceInWords(
+                  inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER]
+                )}`
           }`}
           title="Secure Usage Tips"
           description="Recommendations while transacting"
@@ -75,7 +73,9 @@ function KeySecurity({ navigation }) {
           preTitle={`${
             inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS] === undefined
               ? 'Never accessed'
-              : 'just now'
+              : `${getTimeDifferenceInWords(
+                  inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER]
+                )}`
           }`}
           title="Safekeeping Tips"
           description="Key storage best practices"
