@@ -1,4 +1,4 @@
-import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';

@@ -6,16 +6,16 @@ import {
   generateEncryptionKey,
   generateKey,
   hash256,
-} from 'src/services/operations/encryption';
-import config from 'src/core/config';
+} from 'src/utils/service-utilities/encryption';
+import config from 'src/utils/service-utilities/config';
 import {
   CosignersMapUpdate,
   CosignersMapUpdateAction,
   IKSCosignersMapUpdate,
   IKSCosignersMapUpdateAction,
-} from 'src/services/interfaces';
-import SigningServer from 'src/services/operations/SigningServer';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+} from 'src/models/interfaces/AssistedKeys';
+import SigningServer from 'src/services/backend/SigningServer';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import {
   EntityKind,
   NetworkType,
@@ -97,7 +97,7 @@ export const generateVault = async ({
   if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
 
   const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
-  const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
+  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH; // TODO: find ways to accomodate P2TR 1-of-1 multisig(derivationConfig is not available on Vaults)
 
   const specs: VaultSpecs = {
     xpubs,

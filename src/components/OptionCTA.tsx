@@ -8,7 +8,7 @@ import Text from './KeeperText';
 function OptionCTA({ icon, title, subtitle, callback }) {
   const { colorMode } = useColorMode();
   return (
-    <Pressable onPress={() => callback()}>
+    <Pressable testID={`btn_${title}`} onPress={() => callback()}>
       <Box style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
         <HStack style={styles.main}>
           <HStack style={styles.main}>

@@ -21,7 +21,7 @@ function InheritanceDownloadView(props) {
       </Box>
       <Box style={styles.btnWrapper}>
         {props.isDownload ? (
-          <TouchableOpacity onPress={props.previewPDF}>
+          <TouchableOpacity testID="btn_viewDocument" onPress={props.previewPDF}>
             <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.yellowButtonBackground`}>
               <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>
                 View&nbsp;

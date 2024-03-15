@@ -1,6 +1,6 @@
 import { Psbt } from 'bitcoinjs-lib';
-import { DerivationPurpose } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { DerivationPurpose } from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 export const getSeedSignerDetails = (qrData) => {
   const xpub = qrData.slice(qrData.indexOf(']') + 1);

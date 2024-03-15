@@ -7,7 +7,7 @@ import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 function LinkedWalletContent() {
   return (

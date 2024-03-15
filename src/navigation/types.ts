@@ -1,5 +1,5 @@
-import { Signer, Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 export type AppStackParams = {
   Home: undefined;

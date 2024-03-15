@@ -20,7 +20,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { wp } from 'src/constants/responsive';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';

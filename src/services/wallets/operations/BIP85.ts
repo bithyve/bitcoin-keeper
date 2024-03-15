@@ -2,11 +2,11 @@ import wif from 'wif';
 import bs58 from 'bs58';
 import * as bip39 from 'bip39';
 import crypto from 'crypto';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import BIP32Factory from 'bip32';
 import { WalletType, BIP85Languages, BIP85Words } from '../enums';
 import { BIP85Config } from '../interfaces';
-import ecc from './noble_ecc';
+import ecc from './taproot-utils/noble_ecc';
 
 const bip32 = BIP32Factory(ecc);
 export default class BIP85 {

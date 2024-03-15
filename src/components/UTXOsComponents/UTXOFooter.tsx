@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetails/WalletDetails';

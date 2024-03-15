@@ -32,7 +32,7 @@ export function OptionCard({
 }: OptionProps) {
   const { colorMode } = useColorMode();
   return (
-    <Pressable onPress={callback} disabled={disabled}>
+    <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack
         padding={3}
         width={windowWidth * 0.9}

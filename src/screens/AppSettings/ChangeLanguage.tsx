@@ -47,7 +47,7 @@ function ChangeLanguage() {
 
   function Menu({ label, value, onPress, arrow }) {
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity testID={`btn_${label}`} onPress={onPress}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.btn}>
           <Box style={styles.menuWrapper}>
             <Text color={`${colorMode}.primaryText`} bold style={styles.textCurrency}>
@@ -118,6 +118,7 @@ function ChangeLanguage() {
           <ScrollView style={styles.scrollViewWrapper}>
             {currencyList.map((item) => (
               <TouchableOpacity
+                testID={`btn_currency_${item}`}
                 onPress={() => {
                   setCurrency(item);
                   setVisible(false);
@@ -163,6 +164,7 @@ function ChangeLanguage() {
           <ScrollView style={styles.langScrollViewWrapper}>
             {availableLanguages.map((item) => (
               <TouchableOpacity
+                testID={`btn_language_${item}`}
                 key={item.iso}
                 onPress={() => {
                   setAppLanguage(item.iso);

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import * as Sentry from '@sentry/react-native';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { RealmProvider as Provider, useQuery } from '@realm/react';
 import { stringToArrayBuffer } from 'src/store/sagas/login';
 import { useAppSelector } from 'src/store/hooks';
@@ -26,11 +26,8 @@ const AppWithNetwork = ({ children }) => {
   config.setNetwork(networkType);
 
   useEffect(() => {
-    if (__DEV__ || config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-      console.log('running..');
-      Sentry.init(sentryConfig);
-      dbManager.updateObjectById(RealmSchema.KeeperApp, id, { enableAnalytics: true });
-    }
+    Sentry.init(sentryConfig);
+    dbManager.updateObjectById(RealmSchema.KeeperApp, id, { enableAnalytics: true });
   }, []);
 
   return children;

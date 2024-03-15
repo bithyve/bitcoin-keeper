@@ -7,8 +7,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { EntityKind, VisibilityType, WalletType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { EntityKind, VisibilityType, WalletType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import ShowIcon from 'src/assets/images/show.svg';
@@ -24,7 +24,7 @@ import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useVault from 'src/hooks/useVault';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
@@ -87,21 +87,15 @@ function ManageWallets() {
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
 
-  const { wallets } = useWallets();
-
-  const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
-    `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
-  );
+  const { wallets } = useWallets({ getAll: true }); // contains all wallets(hidden/unhidden) except for whirlpool wallets
 
   const { allVaults } = useVault({ includeArchived: false });
-  const allWallets: (Wallet | Vault)[] = [...walletsWithoutWhirlpool, ...allVaults].filter(
-    (item) => item !== null
-  );
+  const allWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter((item) => item !== null);
 
-  const visibleWallets = walletsWithoutWhirlpool.filter(
+  const visibleWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
-  const hiddenWallets = walletsWithoutWhirlpool.filter(
+  const hiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);

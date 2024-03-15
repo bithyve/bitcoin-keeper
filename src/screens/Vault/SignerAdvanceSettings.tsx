@@ -4,11 +4,11 @@ import { Box, VStack, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -31,16 +31,16 @@ import {
   InheritanceAlert,
   InheritanceConfiguration,
   InheritancePolicy,
-} from 'src/services/interfaces';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+} from 'src/models/interfaces/AssistedKeys';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
-import config from 'src/core/config';
-import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import config from 'src/utils/service-utilities/config';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import DescriptionModal from './components/EditDescriptionModal';
 import { SDIcons } from './SigningDeviceIcons';
 

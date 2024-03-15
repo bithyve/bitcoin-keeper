@@ -1,15 +1,15 @@
 import { AxiosResponse } from 'axios';
-import config from 'src/core/config';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import config from 'src/utils/service-utilities/config';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import {
   EncryptedInheritancePolicy,
   IKSCosignersMapUpdate,
   InheritanceConfiguration,
   InheritancePolicy,
-} from '../interfaces';
+} from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
-import { asymmetricEncrypt, hash256 } from '../operations/encryption/index';
-import { Vault } from '../../core/wallets/interfaces/vault';
+import { asymmetricEncrypt, hash256 } from '../../utils/service-utilities/encryption';
+import { Vault } from '../wallets/interfaces/vault';
 
 const { HEXA_ID, SIGNING_SERVER, SIGNING_SERVER_RSA_PUBKEY } = config;
 

@@ -13,7 +13,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import SubScription from 'src/models/interfaces/Subscription';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';

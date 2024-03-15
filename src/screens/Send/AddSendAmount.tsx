@@ -19,14 +19,14 @@ import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
@@ -37,9 +37,9 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import { UTXO } from 'src/core/wallets/interfaces';
-import config from 'src/core/config';
-import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
+import { UTXO } from 'src/services/wallets/interfaces';
+import config from 'src/utils/service-utilities/config';
+import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
@@ -365,6 +365,7 @@ function AddSendAmount({ route }) {
                 borderColor={`${colorMode}.RussetBrown`}
                 backgroundColor={`${colorMode}.RussetBrown`}
                 style={styles.sendMaxWrapper}
+                testID="btn_sendMax"
               >
                 <Text
                   testID="text_sendmax"

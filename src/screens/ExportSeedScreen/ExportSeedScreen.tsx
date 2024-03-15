@@ -19,9 +19,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { SignerType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
 import Note from 'src/components/Note/Note';
 

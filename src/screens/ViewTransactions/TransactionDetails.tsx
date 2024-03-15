@@ -14,10 +14,10 @@ import Link from 'src/assets/images/link.svg';
 import Edit from 'src/assets/images/edit.svg';
 import useBalance from 'src/hooks/useBalance';
 import moment from 'moment';
-import config from 'src/core/config';
-import { LabelRefType, LabelType, NetworkType } from 'src/core/wallets/enums';
-import { Transaction } from 'src/core/wallets/interfaces';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import config from 'src/utils/service-utilities/config';
+import { LabelRefType, LabelType, NetworkType } from 'src/services/wallets/enums';
+import { Transaction } from 'src/services/wallets/interfaces';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import useTransactionLabels from 'src/hooks/useTransactionLabels';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -208,7 +208,7 @@ function TransactionDetails({ route }) {
               letterSpacing={2.4}
             />
           ) : null}
-          <TouchableOpacity onPress={() => setVisible(true)}>
+          <TouchableOpacity testID="btn_transactionNote" onPress={() => setVisible(true)}>
             <InfoCard
               title={common.note}
               describtion={labels[transaction.txid][0]?.name || 'Add a note'}
@@ -223,7 +223,7 @@ function TransactionDetails({ route }) {
             showIcon={false}
             letterSpacing={2.4}
           />
-          <TouchableOpacity onPress={redirectToBlockExplorer}>
+          <TouchableOpacity testID="btn_transactionId" onPress={redirectToBlockExplorer}>
             <InfoCard
               title={transactions.transactionID}
               describtion={transaction.txid}

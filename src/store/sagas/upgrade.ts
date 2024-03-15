@@ -3,21 +3,21 @@ import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { Platform } from 'react-native';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
-import { LabelRefType, SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { genrateOutputDescriptors } from 'src/core/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import SigningServer from 'src/services/operations/SigningServer';
-import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
-import { generateExtendedKeysForCosigner } from 'src/core/wallets/factories/WalletFactory';
+import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
+import { LabelRefType, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import SigningServer from 'src/services/backend/SigningServer';
+import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
+import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,

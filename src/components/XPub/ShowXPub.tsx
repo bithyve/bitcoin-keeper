@@ -32,7 +32,7 @@ function ShowXPub({
 
   return (
     <>
-      <Box justifyContent="center" alignItems="center">
+      <Box testID="view_xPub" justifyContent="center" alignItems="center">
         <Box>
           {details ? (
             <QRCode value={details} logoBackgroundColor="transparent" size={hp(200)} />
