@@ -4,12 +4,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import idx from 'idx';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import WalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/whirlpool.svg';
+import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -29,6 +30,9 @@ import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { formatNumber } from 'src/utils/utilities';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -79,6 +83,10 @@ function WalletDetails({ route }: ScreenProps) {
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
+
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
 
   useEffect(() => {
     if (!syncing) {
@@ -132,6 +140,17 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
+          cardName={'Buy Bitcoin'}
+          description="into this wallet"
+          callback={() =>
+            navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
+          }
+          icon={<BTC />}
+          cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+            currencyCodeExchangeRate.buy.toFixed(0)
+          )}`}
+        />
+        <ActionCard
           cardName="View All Coins"
           description="Manage Whirlpool and UTXOs"
           callback={() =>
@@ -142,7 +161,6 @@ function WalletDetails({ route }: ScreenProps) {
             })
           }
           icon={<CoinsIcon />}
-          customStyle={{ paddingTop: 0 }}
         />
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>

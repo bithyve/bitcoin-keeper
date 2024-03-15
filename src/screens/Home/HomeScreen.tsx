@@ -14,18 +14,17 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions } from '@react-navigation/native';
-import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import InheritanceIcon from 'src/assets/images/inheri.svg';
+import FaqIcon from 'src/assets/images/faq.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
 import InititalAppController from './InititalAppController';
-import { formatNumber } from 'src/utils/utilities';
+import openLink from 'src/utils/OpenLink';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -78,19 +77,7 @@ function NewHomeScreen({ navigation }) {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currencyCodeExchangeRate = exchangeRates[currencyCode];
-
   const cardsData = [
-    {
-      name: 'Buy\nBitcoin',
-      icon: <BTC />,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin' })),
-      cardPillText: `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-        currencyCodeExchangeRate.buy.toFixed(0)
-      )}`,
-    },
     {
       name: 'Manage\nKeys',
       icon: <SignerIcon />,
@@ -117,6 +104,11 @@ function NewHomeScreen({ navigation }) {
           navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
         }
       },
+    },
+    {
+      name: `Need\nHelp?`,
+      icon: <FaqIcon />,
+      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
   ];
 

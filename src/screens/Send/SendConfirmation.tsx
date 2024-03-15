@@ -1168,9 +1168,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
+    maxWidth: 85,
   },
   cardSubtitle: {
     fontSize: 12,
     letterSpacing: 0.72,
+    maxWidth: wp(100),
   },
 });
