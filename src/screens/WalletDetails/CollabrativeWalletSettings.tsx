@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
