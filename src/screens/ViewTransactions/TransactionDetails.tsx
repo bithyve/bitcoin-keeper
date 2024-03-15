@@ -208,7 +208,7 @@ function TransactionDetails({ route }) {
               letterSpacing={2.4}
             />
           ) : null}
-          <TouchableOpacity onPress={() => setVisible(true)}>
+          <TouchableOpacity testID="btn_transactionNote" onPress={() => setVisible(true)}>
             <InfoCard
               title={common.note}
               describtion={labels[transaction.txid][0]?.name || 'Add a note'}
@@ -223,7 +223,7 @@ function TransactionDetails({ route }) {
             showIcon={false}
             letterSpacing={2.4}
           />
-          <TouchableOpacity onPress={redirectToBlockExplorer}>
+          <TouchableOpacity testID="btn_transactionId" onPress={redirectToBlockExplorer}>
             <InfoCard
               title={transactions.transactionID}
               describtion={transaction.txid}

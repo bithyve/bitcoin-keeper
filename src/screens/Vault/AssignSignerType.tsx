@@ -112,6 +112,7 @@ function AssignSignerType({ route }: IProps) {
                     assignSignerType(type);
                   }}
                   key={type}
+                  testID={`btn_identify_${type}`}
                 >
                   <Box
                     backgroundColor={`${colorMode}.seashellWhite`}

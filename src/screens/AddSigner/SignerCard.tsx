@@ -50,6 +50,7 @@ function SignerCard({
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
+      testID={`btn_${name}`}
     >
       <Box style={styles.selectionIcon}>
         {showSelection &&

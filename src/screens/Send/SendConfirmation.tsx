@@ -837,7 +837,10 @@ function SendConfirmation({ route }) {
         />
         {/* Custom priority diabled for auto transfer  */}
         {transferType !== TransferType.WALLET_TO_VAULT ? (
-          <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+          <TouchableOpacity
+            testID="btn_transactionPriority"
+            onPress={() => setTransPriorityModalVisible(true)}
+          >
             <TransactionPriorityDetails
               transactionPriority={transactionPriority}
               txFeeInfo={txFeeInfo}
