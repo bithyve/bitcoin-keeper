@@ -47,6 +47,7 @@ function Dropdown({ label, options, onOptionSelect }: Props) {
           <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.optionsContainer}>
             {options.map((option) => (
               <TouchableOpacity
+                key={option}
                 onPress={() => {
                   onOptionSelect(option);
                   setIsOpen(false);
