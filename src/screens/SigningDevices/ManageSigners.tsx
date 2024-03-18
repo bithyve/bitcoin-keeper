@@ -76,7 +76,10 @@ function ManageSigners({ route }: ScreenProps) {
   const { top } = useSafeAreaInsets();
 
   return (
-    <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={[styles.wrapper, { paddingTop: top }]}>
+    <Box
+      backgroundColor={`${colorMode}.BrownNeedHelp`}
+      style={[styles.wrapper, { paddingTop: top }]}
+    >
       <Box style={styles.topSection}>
         <KeeperHeader
           title="Manage Keys"
@@ -131,7 +134,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => { }}
+        callback={() => {}}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
@@ -261,8 +264,12 @@ function SignersList({
                   signer
                 )}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-                isSelected={hiding ? selectedSigners.get(signer.masterFingerprint) : false}
-                showSelection={hiding}
+                isSelected={
+                  hiding && !!!vaultKeys?.length
+                    ? selectedSigners.get(signer.masterFingerprint)
+                    : false
+                }
+                showSelection={hiding && !!!vaultKeys?.length}
                 showDot={showDot}
                 isFullText
                 colorVarient="green"
@@ -290,7 +297,7 @@ function SignersList({
         textColor={`${colorMode}.primaryText`}
         Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
       />
-      {hiding ? (
+      {hiding && !!!vaultKeys?.length ? (
         <FloatingCTA primaryText="Hide" primaryCallback={hideKeys} />
       ) : !vaultKeys.length ? (
         <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
