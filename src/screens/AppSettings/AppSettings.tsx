@@ -1,7 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { useQuery } from '@realm/react';
+import { CommonActions } from '@react-navigation/native';
+
+import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
@@ -20,17 +23,15 @@ import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { CommonActions } from '@react-navigation/native';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import BackupModalContent from './BackupModal';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
+import BackupModalContent from './BackupModal';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
