@@ -255,13 +255,13 @@ export default function PoolSelection({ route, navigation }) {
       {feeDiscountPercent !== 0 && (
         <Box style={styles.textArea}>
           <Text color="#017963">Fee Discount</Text>
-          <Text color="light.secondaryText">{selectedPool ? `${feeDiscountPercent}%` : ''}</Text>
+          <Text color={`${colorMode}.secondaryText`}>{selectedPool ? `${feeDiscountPercent}%` : ''}</Text>
         </Box>
       )}
 
       <Box style={styles.textArea}>
         <Text color="#017963">Premix Outputs</Text>
-        <Text color="light.secondaryText">
+        <Text color={`${colorMode}.secondaryText`}>
           {selectedPool ? premixOutput : ''} {selectedPool ? 'UTXOs' : '--'}
         </Text>
       </Box>

@@ -41,7 +41,7 @@ export function KeeperFooter({
               onPress={item.onPress}
               disabled={item.disabled}
             >
-              <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
+              <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
                 <item.Icon />
               </Box>
               <Text

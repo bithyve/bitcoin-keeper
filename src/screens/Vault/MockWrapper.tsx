@@ -69,7 +69,6 @@ function MockWrapper({
   const verifyMockSigner = () => {
     try {
       const data = getMockSigner(signerType);
-      console.log(data.signer.masterFingerprint, mode);
       const handleSuccess = () => {
         dispatch(healthCheckSigner([data.signer]));
         nav.dispatch(CommonActions.goBack());

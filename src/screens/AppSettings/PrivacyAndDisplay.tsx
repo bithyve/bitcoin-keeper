@@ -37,6 +37,7 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 const RNBiometrics = new ReactNativeBiometrics();
 
 function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
   const { login, common } = translations;
@@ -160,7 +161,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
                   dispatch(changeAuthCred(oldPassword, passcode));
                 }}
               >
-                <Box style={styles.cta} backgroundColor="light.primaryGreenBackground">
+                <Box style={styles.cta} backgroundColor={`${colorMode}.primaryGreenBackground`}>
                   <Text style={styles.ctaText} bold>
                     {common.confirm}
                   </Text>
@@ -175,7 +176,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
         onDeletePressed={onDeletePressed}
         onPressNumber={onPressNumber}
         ClearIcon={<DeleteIcon />}
-        keyColor="light.primaryText"
+        keyColor={`${colorMode}.primaryText`}
       />
     </Box>
   );
@@ -237,8 +238,8 @@ function PrivacyAndDisplay() {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {

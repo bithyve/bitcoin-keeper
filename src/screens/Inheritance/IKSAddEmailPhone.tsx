@@ -89,7 +89,7 @@ function IKSAddEmailPhone({ route }) {
       <Box style={styles.inputWrapper}>
         <Input
           placeholderTextColor="grey"
-          backgroundColor="light.primaryBackground"
+          backgroundColor={`${colorMode}.primaryBackground`}
           placeholder="Add email Id"
           placeholderTextColor={`${colorMode}.SlateGreen`}
           style={styles.input}

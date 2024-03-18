@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
@@ -165,10 +165,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                   setShowModal(false);
                   activeVault
                     ? navigtaion.navigate('SendConfirmation', {
-                        uaiSetActionFalse,
-                        walletId: uai.entityId,
-                        transferType: TransferType.WALLET_TO_VAULT,
-                      })
+                      uaiSetActionFalse,
+                      walletId: uai.entityId,
+                      transferType: TransferType.WALLET_TO_VAULT,
+                    })
                     : showToast('No vaults found', <ToastErrorIcon />);
                   skipUaiHandler(uai);
                 },
@@ -339,8 +339,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         buttonCallback={uaiConfig?.modalDetails?.btnConfig.primary.cta}
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
-        buttonTextColor="light.white"
-        Content={() => <Text color="light.greenText">{uaiConfig?.modalDetails?.body}</Text>}
+        buttonTextColor={`${colorMode}.white`}
+        Content={() => <Text color={`${colorMode}.greenText`}>{uaiConfig?.modalDetails?.body}</Text>}
       />
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>
@@ -352,7 +352,7 @@ export default function NotificationStack() {
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
 
-  const removeCard = () => {};
+  const removeCard = () => { };
 
   const flingUp = Gesture.Fling()
     .direction(Directions.UP)

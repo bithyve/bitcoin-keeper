@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
@@ -13,6 +13,7 @@ type Props = {
   enableBack?: boolean;
 };
 function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack = true }: Props) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
@@ -26,7 +27,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
           <Text
             numberOfLines={1}
             style={styles.addWalletText}
-            color="light.greenText2"
+            color={`${colorMode}.greenText2`}
             fontSize={19}
           >
             {title}
@@ -36,7 +37,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
           <Text
             numberOfLines={1}
             style={styles.addWalletDescription}
-            color="light.primaryText"
+            color={`${colorMode}.primaryText`}
             light
             fontSize={12}
           >

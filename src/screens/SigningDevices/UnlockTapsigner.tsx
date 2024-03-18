@@ -44,7 +44,6 @@ function UnlockTapsigner() {
   const unlockCard = React.useCallback(async () => {
     try {
       const { authDelay } = await withModal(async () => unlockRateLimit(card))();
-      console.log(authDelay);
       if (authDelay === 0) {
         navigation.dispatch(CommonActions.goBack());
         showToast('Tapsigner unlocked successfully', <TickIcon />);

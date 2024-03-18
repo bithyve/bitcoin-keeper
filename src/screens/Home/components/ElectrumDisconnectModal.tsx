@@ -40,7 +40,7 @@ function ElectrumDisconnectModal({ electrumErrorVisible, setElectrumErrorVisible
       modalBackground={`${colorMode}.modalWhiteBackground`}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
-      buttonTextColor="light.white"
+      buttonTextColor={`${colorMode}.white`}
       DarkCloseIcon={colorMode === 'dark'}
       buttonCallback={() => setElectrumErrorVisible(false)}
       Content={ElectrumErrorContent}
