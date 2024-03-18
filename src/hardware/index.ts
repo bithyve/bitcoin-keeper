@@ -21,8 +21,6 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 
@@ -51,7 +49,6 @@ export const generateSignerFromMetaData = ({
   signerPolicy = null,
   inheritanceKeyInfo = null,
   isAmf = false,
-  signerCount = 0,
 }): { signer: Signer; key: VaultSigner } => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
@@ -77,10 +74,6 @@ export const generateSignerFromMetaData = ({
     });
   }
 
-  signerCount = signerCount
-    ? signerCount
-    : dbManager.getCollection(RealmSchema.Signer).filter((s) => s.type === signerType).length;
-
   const signer: Signer = {
     type: signerType,
     storageType,
@@ -93,8 +86,6 @@ export const generateSignerFromMetaData = ({
     inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
-    extraData: { instanceNumber: signerCount + 1 },
-    signerDescription: getSignerDescription(signerType, signerCount + 1),
   };
 
   const key: VaultSigner = {

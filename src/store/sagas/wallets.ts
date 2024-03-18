@@ -114,6 +114,7 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
+import { getSignerDescription } from 'src/hardware';
 
 export interface NewVaultDetails {
   name?: string;
@@ -584,13 +585,27 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({ payload: { signers } }) {
+function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   if (!signers.length) return;
 
   const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
   const signerMap = Object.fromEntries(
     existingSigners.map((signer) => [signer.masterFingerprint, signer])
   );
+
+  // update signers with signer count
+  signers = signers.map((signer) => {
+    if (signer.type === SignerType.MY_KEEPER || signer.type === SignerType.KEEPER) {
+      const signerCount = existingSigners.filter(
+        (existingSigner) => existingSigner.masterFingerprint === signer.masterFingerprint
+      ).length;
+      signer.extraData = { instanceNumber: signerCount + 1 };
+      signer.signerDescription = getSignerDescription(signer.type, signerCount + 1);
+      return signer;
+    } else {
+      return signer;
+    }
+  });
 
   for (const newSigner of signers) {
     const existingSigner = signerMap[newSigner.masterFingerprint];
