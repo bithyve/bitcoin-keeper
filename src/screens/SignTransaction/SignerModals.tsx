@@ -71,9 +71,8 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
       <PassportSVG />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${
-            isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
-          }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
+            }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {"\u2022 On the Passport main menu, choose the 'Sign with QR Code' option."}
@@ -110,9 +109,8 @@ function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
     <Box alignItems="center">
       <SpecterSetupImage />
       <Box marginTop={2}>
-        {`\u2022 Make sure ${
-          isMultisig ? 'the multisig wallet is registered with the Specter and ' : ''
-        }the right bitcoin network is set before signing the transaction`}
+        {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Specter and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {
             "\u2022 On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned."
@@ -129,14 +127,12 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
       <KeystoneSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${
-            isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
-          }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
+            }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Keystone ${
-            isMultisig ? 'multisig menu' : 'Generic Wallet section'
-          }, press the scan icon on the top bar and wait for the QR to be scanned.`}
+          {`\u2022 On the Keystone ${isMultisig ? 'multisig menu' : 'Generic Wallet section'
+            }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -215,13 +211,14 @@ function OtherSDContent() {
     </Box>
   );
 }
-export function KeeperContent() {
+export function KeeperContent(props) {
   return (
     <Box alignItems="center">
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {'\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n'}
+          {/* {'\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n'} */}
+          {`Open the other Keeper app > Go to Manage Keys > Access the Mobile Key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
         </Text>
       </Box>
     </Box>
@@ -748,7 +745,7 @@ function SignerModals({
               title="Keep your Device Ready"
               subTitle={`Keep your ${getSignerNameFromType(signer.type)} ready before proceeding`}
               textColor="light.primaryText"
-              Content={() => <KeeperContent />}
+              Content={() => <KeeperContent masterFingerPrint={signer && signer.masterFingerprint} />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
