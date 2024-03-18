@@ -597,6 +597,8 @@ function* addSigningDeviceWorker({ payload: { signers } }) {
     if (!existingSigner) continue;
 
     const keysMatch = (type) =>
+      !!newSigner.signerXpubs[type]?.[0] &&
+      !!existingSigner.signerXpubs[type]?.[0] &&
       newSigner.signerXpubs[type]?.[0]?.xpub === existingSigner.signerXpubs[type]?.[0]?.xpub;
     const singleSigMatch = keysMatch(XpubTypes.P2WPKH);
     const multiSigMatch = keysMatch(XpubTypes.P2WSH);
@@ -624,8 +626,8 @@ function* addSigningDeviceWorker({ payload: { signers } }) {
     }
 
     const keysDifferent = (type) =>
-      newSigner.signerXpubs[type]?.[0] &&
-      existingSigner.signerXpubs[type]?.[0] &&
+      !!newSigner.signerXpubs[type]?.[0] &&
+      !!existingSigner.signerXpubs[type]?.[0] &&
       newSigner.signerXpubs[type][0].xpub !== existingSigner.signerXpubs[type][0].xpub;
 
     if (keysDifferent(XpubTypes.P2WPKH) || keysDifferent(XpubTypes.P2WSH)) {
