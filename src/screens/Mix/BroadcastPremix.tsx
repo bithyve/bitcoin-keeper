@@ -281,14 +281,14 @@ export default function BroadcastPremix({ route, navigation }) {
             Whirlpool Fee
           </Text>
           <Box style={styles.textDirection}>
-            <Text color="light.secondaryText">
+            <Text color={`${colorMode}.secondaryText`}>
               {valueByPreferredUnit(
                 tx0Preview.coordinatorFee?.coordinator
                   ? tx0Preview.coordinatorFee.coordinator[0]
                   : 0
               )}
             </Text>
-            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
           </Box>

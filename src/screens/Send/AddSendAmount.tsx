@@ -290,7 +290,7 @@ function AddSendAmount({ route }) {
           >
             {errorMessage && (
               <Text
-                color="light.indicator"
+                color={`${colorMode}.indicator`}
                 style={{
                   fontSize: 10,
                   letterSpacing: 0.1,
@@ -362,8 +362,8 @@ function AddSendAmount({ route }) {
                     );
                   }
                 }}
-                borderColor={`${colorMode}.RussetBrown`}
-                backgroundColor={`${colorMode}.RussetBrown`}
+                borderColor={`${colorMode}.BrownNeedHelp`}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
                 style={styles.sendMaxWrapper}
                 testID="btn_sendMax"
               >
