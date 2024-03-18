@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
@@ -27,16 +27,18 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import { useAppSelector } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupModalContent from './BackupModal';
+import { setThemeMode } from 'src/store/reducers/settings';
+import ThemeMode from 'src/models/enums/ThemeMode';
 
 function AppSettings({ navigation, route }) {
-  // const { colorMode } = useColorMode();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
 
   const { colorMode, toggleColorMode } = useColorMode();
+  const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
   const data = useQuery(RealmSchema.BackupHistory);
@@ -44,6 +46,14 @@ function AppSettings({ navigation, route }) {
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (colorMode === 'dark') {
+      dispatch(setThemeMode(ThemeMode.DARK));
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT));
+    }
+  }, [colorMode]);
 
   const changeThemeMode = () => {
     toggleColorMode();
