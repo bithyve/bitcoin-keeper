@@ -8,9 +8,14 @@ import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import MasterRecoveryKeyIcon from 'src/assets/images/master-recovery-key.svg';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { CommonActions } from '@react-navigation/native';
 
-function MasterRecoveryKey({}) {
+function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
+  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -36,8 +41,15 @@ function MasterRecoveryKey({}) {
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
-            description="Lorem ipsum dolor amet"
-            callback={() => {}}
+            description="Please view in a private location"
+            callback={() => {
+              navigation.dispatch(
+                CommonActions.navigate('ExportSeed', {
+                  seed: primaryMnemonic,
+                  next: true,
+                })
+              );
+            }}
             name="View Recovery Key"
           />
         </Box>

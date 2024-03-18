@@ -1,12 +1,13 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, wp } from 'src/constants/responsive';
-import Colors from 'src/theme/Colors';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
-import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import ThoroughVerification from 'src/assets/images/thorough-verification.svg';
+import PreliminaryTest from 'src/assets/images/preliminary-test.svg';
+import SecureCoordination from 'src/assets/images/secure-coordination.svg';
+import CrossDeviceVerification from 'src/assets/images/cross-device-verification.svg';
+
 import Text from 'src/components/KeeperText';
 
 function SafeGuardingTips({}) {
@@ -15,7 +16,7 @@ function SafeGuardingTips({}) {
   const tips = [
     {
       title: 'Thorough Verification of Transaction Details',
-      icon: <CanaryIcon />,
+      icon: <ThoroughVerification />,
       paragraph:
         'Carefully review all transaction details, particularly the recipient’s address, within your multi-key setup. This careful attention is essential to avoid errors and secure your transactions, ensuring the safety of your bitcoin.',
       paragraph2:
@@ -24,7 +25,7 @@ function SafeGuardingTips({}) {
 
     {
       title: 'Preliminary Test Transactions',
-      icon: <CanaryIcon />,
+      icon: <PreliminaryTest />,
       paragraph:
         'Before making significant transfers, conduct a small test transaction. This step verifies the transaction’s accuracy and confirms the smooth functioning of your multi-key setup, adding a protective layer to your bitcoin transactions.',
       paragraph2:
@@ -32,7 +33,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Secure Coordination Among Key Holders',
-      icon: <CanaryIcon />,
+      icon: <SecureCoordination />,
       paragraph:
         'Use encrypted communication for coordinating transaction approvals with other key holders. This ensures everyone is on the same page regarding the transaction details, protecting the integrity of your bitcoin transactions.',
       paragraph2:
@@ -40,7 +41,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Cross-Device Verification',
-      icon: <CanaryIcon />,
+      icon: <CrossDeviceVerification />,
       paragraph:
         'To further enhance security, verify transaction details on multiple devices involved in your multi-key setup. This approach can help identify any discrepancies or fraudulent attempts, securing your bitcoin transactions effectively.',
       paragraph2:
@@ -56,11 +57,5 @@ function SafeGuardingTips({}) {
     </ScreenWrapper>
   );
 }
-
-const styles = StyleSheet.create({
-  scrollContainer: {
-    marginLeft: wp(20),
-  },
-});
 
 export default SafeGuardingTips;

@@ -7,8 +7,10 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
+import Chip from 'src/assets/images/chip.svg';
 import DashedButton from 'src/components/DashedButton';
-function AssistedKeys({}) {
+import { CommonActions } from '@react-navigation/native';
+function AssistedKeys({ navigation }) {
   const { colorMode } = useColorMode();
 
   return (
@@ -36,8 +38,9 @@ function AssistedKeys({}) {
         <Box mt={5} alignItems={'center'}>
           <DashedButton
             description="Lorem ipsum dolor amet"
-            callback={() => {}}
+            callback={() => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' }))}
             name="Add Assisted Keys"
+            icon={<Chip />}
           />
         </Box>
         <Box style={[styles.leftTextStyle]}>

@@ -89,22 +89,11 @@ const storageSlice = createSlice({
       state.appVersion = action.payload;
     },
 
-    // setInheritanceTool: (state, action: PayloadAction<InheritanceToolVisitedHistory>) => {
-    //   state.inheritanceToolVisitedHistory = {
-    //     ...state.inheritanceToolVisitedHistory,
-    //     ...action.payload,
-    //   };
-    //   console.log(
-    //     'state.inheritanceToolVisitedHistorystate.inheritanceToolVisitedHistory',
-    //     state.inheritanceToolVisitedHistory
-    //   );
-    // },
     updateLastVisitedTimestamp: (
       state,
       action: PayloadAction<{ option: keyof InheritanceToolVisitedHistory }>
     ) => {
       const { option } = action.payload;
-      console.log('xyxxyxyxyyx', option, action.payload);
       state.inheritanceToolVisitedHistory[option] = Date.now();
     },
     setInheritanceRequestId: (state, action: PayloadAction<string>) => {

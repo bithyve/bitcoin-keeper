@@ -8,6 +8,7 @@ import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import PersonalCloudBackupIcon from 'src/assets/images/personal-cloud-backup.svg';
+import Cloud from 'src/assets/images/cloud.svg';
 
 function PersonalCloudBackup({}) {
   const { colorMode } = useColorMode();
@@ -32,9 +33,10 @@ function PersonalCloudBackup({}) {
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
-            description="Lorem ipsum dolor amet"
+            description="Ensure only you have access"
             callback={() => {}}
             name="Manage Cloud Backup"
+            icon={<Cloud />}
           />
         </Box>
 

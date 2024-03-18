@@ -5,11 +5,13 @@ import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
-import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
+import { CommonActions } from '@react-navigation/native';
+import Chip from 'src/assets/images/chip.svg';
+import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 
-function CanaryWallets({}) {
+function CanaryWallets({ navigation }) {
   const { colorMode } = useColorMode();
 
   return (
@@ -34,8 +36,9 @@ function CanaryWallets({}) {
         <Box mt={5}>
           <DashedButton
             description="View keys' details or add new"
-            callback={() => {}}
+            callback={() => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' }))}
             name="Manage Keys"
+            icon={<Chip />}
           />
         </Box>
         <Text style={styles.commonTextStyle}>

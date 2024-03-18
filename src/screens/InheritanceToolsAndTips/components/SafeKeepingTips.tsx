@@ -5,8 +5,11 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { wp } from 'src/constants/responsive';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
-import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import Text from 'src/components/KeeperText';
+import MultiSig from 'src/assets/images/multsig-tip.svg';
+import DiversifyHardware from 'src/assets/images/diversify-hardware.svg';
+import BackupAcidFree from 'src/assets/images/backup-acidfree.svg';
+import VariedSecuredLocation from 'src/assets/images/varied-secured-location.svg';
 
 function SafeGuardingTips({}) {
   const { colorMode } = useColorMode();
@@ -14,7 +17,7 @@ function SafeGuardingTips({}) {
   const tips = [
     {
       title: 'Activate Multi-Key (Multisig) Security:',
-      icon: <CanaryIcon />,
+      icon: <MultiSig />,
       paragraph:
         'A multi-key, also known as multisig, setup is crucial for enhancing the security of your bitcoin holdings. This method requires multiple approvals for transactions, significantly reducing the risk if one key is compromised. Seed word backups are vital, even with reliable hardware wallets, as devices can fail or get lost, ensuring you can always restore access to your bitcoin.',
       paragraph2:
@@ -22,7 +25,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Diversify Hardware Wallet Usage:',
-      icon: <CanaryIcon />,
+      icon: <DiversifyHardware />,
       paragraph2:
         'This diversification protects against device-specific vulnerabilities, safeguarding your bitcoin from potential threats.',
       paragraph:
@@ -30,7 +33,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Backups on Acid-Free Paper and Metal',
-      icon: <CanaryIcon />,
+      icon: <BackupAcidFree />,
       paragraph2:
         'Metal backups, in particular, are durable against extreme conditions, keeping your recovery information secure. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
       paragraph:
@@ -38,7 +41,7 @@ function SafeGuardingTips({}) {
     },
     {
       title: 'Varied and Secure Storage Locations',
-      icon: <CanaryIcon />,
+      icon: <VariedSecuredLocation />,
       paragraph2:
         'This approach ensures that if one storage method is compromised, the others remain secure, providing a comprehensive safeguarding system for your bitcoin holdings.',
       paragraph:

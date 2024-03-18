@@ -6,6 +6,8 @@ import { wp } from 'src/constants/responsive';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
+import MultiSig from 'src/assets/images/multsig-tip.svg';
+
 import Text from 'src/components/KeeperText';
 
 function BackupAndRecoveryTips({}) {
@@ -14,7 +16,7 @@ function BackupAndRecoveryTips({}) {
   const tips = [
     {
       title: 'Implement Comprehensive Backup Strategies',
-      icon: <CanaryIcon />,
+      icon: <MultiSig />,
       paragraph2:
         'These backups should be stored in secure, discrete locations to ensure redundancy and resilience against loss or environmental damage.',
       paragraph:

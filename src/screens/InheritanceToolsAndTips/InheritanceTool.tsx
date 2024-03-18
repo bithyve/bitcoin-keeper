@@ -1,14 +1,12 @@
 import { Box, ScrollView } from 'native-base';
 import React from 'react';
-import moment from 'moment';
-
 import OptionCard from 'src/components/OptionCard';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import Sword from 'src/assets/images/sword_icon.svg';
 import useWallets from 'src/hooks/useWallets';
-import { WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
+import { VaultScheme } from 'src/services/wallets/interfaces/vault';
 import { CommonActions } from '@react-navigation/native';
-import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
