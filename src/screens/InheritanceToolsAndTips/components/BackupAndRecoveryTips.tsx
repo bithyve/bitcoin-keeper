@@ -5,7 +5,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { wp } from 'src/constants/responsive';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
-import CanaryIcon from 'src/assets/images/canary-wallets.svg';
 import ComprehensiveStrategies from 'src/assets/images/comprehensive_tips.svg';
 import RegularTesting from 'src/assets/images/regular-testing.svg';
 import PracticeRecovery from 'src/assets/images/practice-recovery.svg';

@@ -9,9 +9,14 @@ import { hp } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
 import InheritanceHeader from '../InheritanceHeader';
 import DownloadIcon from 'src/assets/images/download-icon.svg';
+import DashedButton from 'src/components/DashedButton';
+import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
+import { useNavigation } from '@react-navigation/native';
+import RecoveryPhraseIcon from 'src/assets/images/recovery-phrase-template.svg';
 
 function PrintableTemplates({}) {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -27,13 +32,21 @@ function PrintableTemplates({}) {
           12 or 24 words recovery phrase can then be written down on them with an archival type pen
           and the sheet laminated at home.
         </Text>
-        <Box style={styles.addContainer}>
-          <Text color={`${colorMode}.white`}>All Descriptors on 21st March 2024</Text>
-          <AddCard
-            name="Download Document"
-            nameColor={`${colorMode}.white`}
-            borderColor={`${colorMode}.white`}
-            icon={<DownloadIcon />}
+        <Box style={styles.circleStyle}>
+          <RecoveryPhraseIcon />
+        </Box>
+
+        <Box mt={5}>
+          <DashedButton
+            description="Phrase Template"
+            callback={() => {
+              GenerateRecoveryPhraseTemplate().then((res) => {
+                if (res) {
+                  navigation.navigate('PreviewPDF', { source: res });
+                }
+              });
+            }}
+            name="Download Recovery"
           />
         </Box>
 
@@ -80,6 +93,10 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: hp(40),
     color: Colors.white,
+  },
+  circleStyle: {
+    alignItems: 'center',
+    marginTop: hp(20),
   },
 });
 

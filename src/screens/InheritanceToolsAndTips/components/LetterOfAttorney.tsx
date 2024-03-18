@@ -1,15 +1,26 @@
 import React from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
 import InheritanceHeader from '../InheritanceHeader';
-import DownloadIcon from 'src/assets/images/download-icon.svg';
-function LetterOfAttorney({}) {
+import LetterOfattorneyIcon from 'src/assets/images/letterOfAttorney.svg';
+import DashedButton from 'src/components/DashedButton';
+import GenerateLetterToAtternyPDFInheritanceTool from 'src/utils/GenerateLetterToAtternyPDFInheritanceTool';
+
+function LetterOfAttorney() {
+  const { allVaults } = useVault({
+    includeArchived: false,
+    getFirst: true,
+    getHiddenWallets: false,
+  });
+  const fingerPrints = allVaults[0].signers.map((signer) => signer.masterFingerprint);
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -25,12 +36,20 @@ function LetterOfAttorney({}) {
           The information contained here could be used by the attorney or estate planner to create
           the will or other estate planning documents.
         </Text>
-        <Box style={styles.addContainer}>
-          <AddCard
+        <Box style={styles.circleStyle}>
+          <LetterOfattorneyIcon />
+        </Box>
+        <Box mt={5}>
+          <DashedButton
+            description="Lorem ipsum dolor sit amet"
+            callback={() => {
+              GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
+                if (res) {
+                  navigation.navigate('PreviewPDF', { source: res });
+                }
+              });
+            }}
             name="Download Document"
-            nameColor={`${colorMode}.white`}
-            borderColor={`${colorMode}.white`}
-            icon={<DownloadIcon />}
           />
         </Box>
 
@@ -76,6 +95,10 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: hp(40),
     color: Colors.white,
+  },
+  circleStyle: {
+    alignItems: 'center',
+    marginTop: hp(20),
   },
 });
 

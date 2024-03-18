@@ -5,13 +5,15 @@ import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
 import InheritanceHeader from '../InheritanceHeader';
-
-import DownloadIcon from 'src/assets/images/download-icon.svg';
+import DashedButton from 'src/components/DashedButton';
+import { useNavigation } from '@react-navigation/native';
+import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
+import RecoveryPhraseIcon from 'src/assets/images/printable-templates.svg';
 
 function RecoveryInstruction({}) {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -27,12 +29,21 @@ function RecoveryInstruction({}) {
           The document contains no sensitive information. It can be kept along with all the keys or
           separately.
         </Text>
-        <Box style={styles.addContainer}>
-          <AddCard
-            name="Download Document"
-            nameColor={`${colorMode}.white`}
-            borderColor={`${colorMode}.white`}
-            icon={<DownloadIcon />}
+        <Box style={styles.circleStyle}>
+          <RecoveryPhraseIcon />
+        </Box>
+
+        <Box mt={5}>
+          <DashedButton
+            description="Phrase Template"
+            callback={() => {
+              GenerateRecoveryPhraseTemplate().then((res) => {
+                if (res) {
+                  navigation.navigate('PreviewPDF', { source: res });
+                }
+              });
+            }}
+            name="Download Recovery"
           />
         </Box>
 
@@ -78,6 +89,10 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: hp(40),
     color: Colors.white,
+  },
+  circleStyle: {
+    alignItems: 'center',
+    marginTop: hp(20),
   },
 });
 
