@@ -156,6 +156,11 @@
           </g>
         </g>
       </g>
+      <g id="Group_50321" data-name="Group 50321" transform="translate(170.999 200.382)">
+        <g id="Group_50320" data-name="Group 50320">
+          <path id="Path_205442" data-name="Path 205442" d="M409.37,400.744l-7.091,7.487-2.759-3.038-1.634,1.484,3.559,3.919a1.105,1.105,0,0,0,.805.362h.012a1.1,1.1,0,0,0,.8-.345l7.909-8.351Z" transform="translate(-397.886 -400.744)" fill="#b2d0cb"/>
+        </g>
+      </g>
       <g id="Group_50323" data-name="Group 50323" transform="translate(120.275 128.542)">
         <g id="Group_50322" data-name="Group 50322" transform="translate(0 0)">
           <rect id="Rectangle_9501" data-name="Rectangle 9501" width="37.393" height="2.445" fill="#b2d0cb"/>
@@ -216,6 +221,11 @@
           <rect id="Rectangle_9512" data-name="Rectangle 9512" width="17.465" height="2.445" fill="#b2d0cb"/>
         </g>
       </g>
+      <g id="Group_50347" data-name="Group 50347" transform="translate(46.858 68.018)">
+        <g id="Group_50346" data-name="Group 50346" transform="translate(0 0)">
+          <path id="Path_205443" data-name="Path 205443" d="M113.536,89.1l-5.674,5.991-2.208-2.431-1.308,1.187,2.848,3.136a.885.885,0,0,0,.644.29h.009A.882.882,0,0,0,108.49,97l6.329-6.683Z" transform="translate(-104.347 -89.101)" fill="#b2d0cb"/>
+        </g>
+      </g>
       <g id="Group_50349" data-name="Group 50349" transform="translate(12.904 92.391)">
         <g id="Group_50348" data-name="Group 50348" transform="translate(0 0)">
           <rect id="Rectangle_9513" data-name="Rectangle 9513" width="1.622" height="4.085" fill="#508b82"/>
@@ -266,8 +276,6 @@
           <circle id="Ellipse_3201" data-name="Ellipse 3201" cx="5.947" cy="5.947" r="5.947" fill="#508b82"/>
         </g>
       </g>
-      <path id="down_arrow_4" data-name="down arrow 4" d="M11.044,1.04V11.217L9.219,9.392,7.78,10.822l3.548,3.548a1.009,1.009,0,0,0,1.429,0L16.3,10.822,14.865,9.382,13.041,11.2V1.01Z" transform="translate(40.176 64.603)" fill="#b2d0cb" fill-rule="evenodd"/>
-      <path id="down_arrow_4-2" data-name="down arrow 4" d="M11.044,1.04V11.217L9.219,9.392,7.78,10.822l3.548,3.548a1.009,1.009,0,0,0,1.429,0L16.3,10.822,14.865,9.382,13.041,11.2V1.01Z" transform="translate(165.247 198.024)" fill="#b2d0cb" fill-rule="evenodd"/>
     </g>
   </g>
 </svg>

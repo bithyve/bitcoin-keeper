@@ -6,7 +6,10 @@ import { wp } from 'src/constants/responsive';
 import TipsSlider from '../TipsSlider';
 import InheritanceHeader from '../InheritanceHeader';
 import CanaryIcon from 'src/assets/images/canary-wallets.svg';
-import MultiSig from 'src/assets/images/multsig-tip.svg';
+import ComprehensiveStrategies from 'src/assets/images/comprehensive_tips.svg';
+import RegularTesting from 'src/assets/images/regular-testing.svg';
+import PracticeRecovery from 'src/assets/images/practice-recovery.svg';
+import KeepBackups from 'src/assets/images/keep-backups.svg';
 
 import Text from 'src/components/KeeperText';
 
@@ -16,7 +19,7 @@ function BackupAndRecoveryTips({}) {
   const tips = [
     {
       title: 'Implement Comprehensive Backup Strategies',
-      icon: <MultiSig />,
+      icon: <ComprehensiveStrategies />,
       paragraph2:
         'These backups should be stored in secure, discrete locations to ensure redundancy and resilience against loss or environmental damage.',
       paragraph:
@@ -24,7 +27,7 @@ function BackupAndRecoveryTips({}) {
     },
     {
       title: 'Conduct Regular Backup Testing',
-      icon: <CanaryIcon />,
+      icon: <RegularTesting />,
       paragraph2:
         'This involves using the backup information to recover your multi-key setup, ensuring that you can access your bitcoin in emergencies without any obstacles.',
       paragraph:
@@ -33,7 +36,7 @@ function BackupAndRecoveryTips({}) {
     {
       title: 'Practice Recovery by Deletion and Restoration',
 
-      icon: <CanaryIcon />,
+      icon: <PracticeRecovery />,
       paragraph2:
         'This process tests the effectiveness of your backup strategy, ensuring that you can confidently rely on it for recovering access to your bitcoin.',
       paragraph:
@@ -41,7 +44,7 @@ function BackupAndRecoveryTips({}) {
     },
     {
       title: 'Keep Backups and Documentation Updated',
-      icon: <CanaryIcon />,
+      icon: <KeepBackups />,
       paragraph2:
         'Maintaining up-to-date backups is essential for seamless access to your bitcoin, providing security and peace of mind.',
       paragraph:
