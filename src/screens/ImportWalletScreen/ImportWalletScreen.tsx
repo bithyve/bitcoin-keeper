@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useCallback, useContext } from 'react';
+import React, { useContext } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -24,8 +24,6 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import Text from 'src/components/KeeperText';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import OptionCard from 'src/components/OptionCard';
-import DocumentPicker, { types } from 'react-native-document-picker';
-import RNFS from 'react-native-fs';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import Buttons from 'src/components/Buttons';
 

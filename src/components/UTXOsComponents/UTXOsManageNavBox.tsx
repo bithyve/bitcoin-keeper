@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box, Pressable } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/constants/responsive';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -17,13 +17,13 @@ const getTotalBalanceWhirlpoolAccount = (
   whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface
 ) =>
   idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
-    idx(whirlpoolWalletAccountMap, (_) => _.premixWallet.specs.balances.confirmed) +
-    idx(whirlpoolWalletAccountMap, (_) => _.premixWallet.specs.balances.unconfirmed) +
-    idx(whirlpoolWalletAccountMap, (_) => _.postmixWallet.specs.balances.confirmed) +
-    idx(whirlpoolWalletAccountMap, (_) => _.postmixWallet.specs.balances.unconfirmed) +
-    idx(whirlpoolWalletAccountMap, (_) => _.badbankWallet.specs.balances.confirmed) +
-    idx(whirlpoolWalletAccountMap, (_) => _.badbankWallet.specs.balances.unconfirmed) || 0;
+  idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
+  idx(whirlpoolWalletAccountMap, (_) => _.premixWallet.specs.balances.confirmed) +
+  idx(whirlpoolWalletAccountMap, (_) => _.premixWallet.specs.balances.unconfirmed) +
+  idx(whirlpoolWalletAccountMap, (_) => _.postmixWallet.specs.balances.confirmed) +
+  idx(whirlpoolWalletAccountMap, (_) => _.postmixWallet.specs.balances.unconfirmed) +
+  idx(whirlpoolWalletAccountMap, (_) => _.badbankWallet.specs.balances.confirmed) +
+  idx(whirlpoolWalletAccountMap, (_) => _.badbankWallet.specs.balances.unconfirmed) || 0;
 
 function UTXOsManageNavBox({
   onClick,
@@ -34,6 +34,7 @@ function UTXOsManageNavBox({
   isWhirlpoolWallet: boolean;
   wallet: Wallet | Vault;
 }) {
+  const { colorMode } = useColorMode();
   const { getSatUnit, getBalance } = useBalance();
 
   const whirlpoolWalletAccountMap = useWhirlpoolWallets({
@@ -43,7 +44,7 @@ function UTXOsManageNavBox({
   return (
     <Pressable
       style={styles.manageUTXOsWrapper}
-      backgroundColor="light.lightAccent"
+      backgroundColor={`${colorMode}.lightAccent`}
       onPress={onClick}
     >
       {isWhirlpoolWallet ? (

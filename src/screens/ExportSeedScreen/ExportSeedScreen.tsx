@@ -10,7 +10,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
@@ -27,7 +27,6 @@ import Note from 'src/components/Note/Note';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet, common, seed: seedTranslation } = translations;
@@ -156,9 +155,6 @@ function ExportSeedScreen({ route, navigation }) {
                   >
                     {common.showAsQR}
                   </Text>
-                  {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-
-                </Text> */}
                 </VStack>
               </HStack>
               <Box style={styles.backArrow}>
@@ -215,10 +211,11 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         title={BackupWallet.backupSuccessTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText="Done"
         buttonCallback={() => navigation.replace('WalletBackHistory')}
         Content={() => (
@@ -239,8 +236,8 @@ function ExportSeedScreen({ route, navigation }) {
         title={BackupWallet.recoveryPhrase}
         subTitleWidth={wp(260)}
         subTitle={BackupWallet.recoveryPhraseSubTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText={common.done}
         buttonCallback={() => setShowQRVisible(false)}
         Content={() => (

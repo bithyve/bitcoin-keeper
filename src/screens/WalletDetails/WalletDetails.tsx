@@ -116,7 +116,7 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
-            <CardPill heading="SINGLE SIG" backgroundColor={`${colorMode}.PaleTurquoise`} />
+            <CardPill heading="SINGLE SIG" backgroundColor={`${colorMode}.SignleSigCardPillBackColor`} />
             <CardPill heading={wallet.type} />
           </Box>
           <Box style={styles.availableBalanceView}>

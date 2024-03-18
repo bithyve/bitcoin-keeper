@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, Input, InputGroup, Pressable, Stack, Icon, StatusBar } from 'native-base';
+import { Box, Input, InputGroup, Pressable, Stack, Icon, StatusBar, useColorMode } from 'native-base';
 import BackIcon from 'src/assets/images/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import React from 'react';
@@ -23,8 +23,9 @@ const onDeletePressed = () => {
 };
 
 function SendToWallet({ navigation }) {
+  const { colorMode } = useColorMode();
   return (
-    <Box style={styles.Container} backgroundColor="light.secondaryBackground">
+    <Box style={styles.Container} backgroundColor={`${colorMode}.secondaryBackground`}>
       <StatusBar barStyle="dark-content" />
       <Pressable onPress={() => navigation.goBack()} mx={8} my={12}>
         <BackIcon />
@@ -61,22 +62,22 @@ function SendToWallet({ navigation }) {
               />
             }
             placeholder="|  Enter Amount"
-            placeholderTextColor="light.greenText"
+            placeholderTextColor={`${colorMode}.greenText`}
             size="xl"
             width="100%"
           />
         </InputGroup>
-        <Input placeholder="Add Note" placeholderTextColor="light.greenText" size="xl" />
+        <Input placeholder="Add Note" placeholderTextColor={`${colorMode}.greenText`} size="xl" />
       </Stack>
       <Box style={styles.actionButtons}>
         <Pressable onPress={() => console.log('Cancel Pressed')}>
-          <Text mt="12%" mr="10%" color="light.greenText" fontSize={15}>
+          <Text mt="12%" mr="10%" color={`${colorMode}.greenText`} fontSize={15}>
             Cancel
           </Text>
         </Pressable>
         <CustomButton
           value="Send"
-          color="light.white"
+          color={`${colorMode}.white`}
           onPress={() => console.log('Send Pressed')}
         />
       </Box>
@@ -84,7 +85,7 @@ function SendToWallet({ navigation }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>

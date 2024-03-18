@@ -33,7 +33,7 @@ function ArchivedVault({ navigation }) {
             })
           )
         }
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
         height={hp(135)}
         width={wp(300)}
         flexDirection="row"
@@ -53,10 +53,10 @@ function ArchivedVault({ navigation }) {
               marginBottom: hp(10),
             }}
           >
-            <Text color="light.headerText" fontSize={16} bold>
+            <Text color={`${colorMode}.headerText`} fontSize={16} bold>
               {vaultItem?.specs?.transactions?.length}
             </Text>
-            <Text color="light.textBlack" fontSize={12} marginLeft={1} letterSpacing={0.72}>
+            <Text color={`${colorMode}.textBlack`} fontSize={12} marginLeft={1} letterSpacing={0.72}>
               Transactions
             </Text>
           </Box>
@@ -70,7 +70,7 @@ function ArchivedVault({ navigation }) {
               <BTC />
             </Box>
             <Text
-              color="light.textBlack"
+              color={`${colorMode}.textBlack`}
               fontSize={24}
               letterSpacing={1.12}
               style={{
@@ -83,12 +83,12 @@ function ArchivedVault({ navigation }) {
             </Text>
           </Box>
           <Box flexDirection="row">
-            <Text color="light.textBlack" fontSize={12} light letterSpacing={0.02}>
+            <Text color={`${colorMode}.textBlack`} fontSize={12} light letterSpacing={0.02}>
               Archived On
             </Text>
             <Text
               style={styles.date}
-              color="light.textBlack"
+              color={`${colorMode}.textBlack`}
               fontSize={12}
               bold
               letterSpacing={0.02}
@@ -108,7 +108,7 @@ function ArchivedVault({ navigation }) {
       <KeeperHeader
         title="Archived Vaults"
         subtitle="Previously used vaults"
-        headerTitleColor="light.headerText"
+        headerTitleColor={`${colorMode}.headerText`}
       />
       <Box alignItems="center">
         <FlatList

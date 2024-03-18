@@ -77,7 +77,7 @@ function ManageSigners({ route }: ScreenProps) {
   const { top } = useSafeAreaInsets();
 
   return (
-    <Box backgroundColor={`${colorMode}.RussetBrown`} style={[styles.wrapper, { paddingTop: top }]}>
+    <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={[styles.wrapper, { paddingTop: top }]}>
       <Box style={styles.topSection}>
         <KeeperHeader
           title="Manage Keys"
@@ -116,7 +116,7 @@ function FooterIcon({ Icon, colorMode }) {
       width="12"
       height="12"
       borderRadius={30}
-      backgroundColor={`${colorMode}.RussetBrown`}
+      backgroundColor={`${colorMode}.BrownNeedHelp`}
       justifyContent="center"
       alignItems="center"
     >
@@ -132,7 +132,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => {}}
+        callback={() => { }}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>

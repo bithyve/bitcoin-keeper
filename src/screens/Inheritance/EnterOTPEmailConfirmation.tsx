@@ -46,7 +46,7 @@ function EnterOTPEmailConfirmation() {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="light.primaryText"
+        keyColor={`${colorMode}.primaryText`}
         ClearIcon={<DeleteIcon />}
       />
     </ScreenWrapper>

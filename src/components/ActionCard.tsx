@@ -41,7 +41,7 @@ function ActionCard({
             <CardPill heading={cardPillText} backgroundColor={`${colorMode}.btcLabelBack`} />
           </Box>
         )}
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
+        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
           {dottedBorder && (
             <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
@@ -51,7 +51,7 @@ function ActionCard({
           {cardName}
         </Text>
         {description && (
-          <Text fontSize={11} numberOfLines={2} color={`${colorMode}.GreenishGrey`}>
+          <Text fontSize={11} numberOfLines={2} color={`${colorMode}.secondaryText`}>
             {description}
           </Text>
         )}

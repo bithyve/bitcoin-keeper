@@ -15,7 +15,7 @@ function UAIView({
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiMessageText} color={`${colorMode}.RussetBrown`} bold>
+        <Text style={styles.uaiMessageText} color={`${colorMode}.BrownNeedHelp`} bold>
           {title}
         </Text>
         <Text
