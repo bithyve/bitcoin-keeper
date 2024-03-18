@@ -87,7 +87,6 @@ describe('Vault: Single-sig(1-of-1)', () => {
       storageType: SignerStorage.WARM,
       isMultisig: true,
       xpriv,
-      signerCount: 1,
     });
     mobileKey = key1;
   });
@@ -233,7 +232,6 @@ describe('Vault: Multi-sig(2-of-3)', () => {
       storageType: SignerStorage.WARM,
       isMultisig: true,
       xpriv,
-      signerCount: 1,
     });
     mobileKey = key2;
     signers.push(signer2);
@@ -267,7 +265,6 @@ describe('Vault: Multi-sig(2-of-3)', () => {
       storageType: SignerStorage.WARM,
       isMultisig: true,
       signerPolicy: policy,
-      signerCount: 1,
     });
     signingServer = key3;
     signers.push(signer3);
@@ -282,7 +279,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
       signerType: SignerType.SEED_WORDS,
       storageType: SignerStorage.WARM,
       isMultisig: true,
-      signerCount: 1,
+
       xpriv: seedwordSignerConfig.xpriv,
     });
     softSigner = key4;
@@ -484,7 +481,6 @@ describe('Vault: AirGapping with Coldcard', () => {
       signerType: SignerType.COLDCARD,
       storageType: SignerStorage.COLD,
       isMultisig: false,
-      signerCount: 1,
     });
     coldcard = key5;
     signer = signer5;
@@ -551,7 +547,6 @@ describe('Vault: AirGapping with SeedSigner', () => {
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
       isMultisig: false,
-      signerCount: 1,
     });
     seedsigner = key6;
     signer = signer6;
@@ -634,7 +629,6 @@ describe('Vault: AirGapping with Keystone', () => {
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
       isMultisig: false,
-      signerCount: 1,
     });
     keystone = key7;
     signer = signer7;
@@ -720,7 +714,6 @@ describe('Vault: AirGapping with Passport', () => {
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
       isMultisig: false,
-      signerCount: 1,
     });
     passport = key8;
     signer = signer8;
@@ -795,7 +788,6 @@ describe('Vault: AirGapping with Jade', () => {
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
       isMultisig: false,
-      signerCount: 1,
     });
     jade = key9;
     signer = signer9;
@@ -897,7 +889,6 @@ describe('Vault: Multi-sig(3-of-5)', () => {
         signerType: signerTypes[index],
         storageType: SignerStorage.COLD,
         isMultisig: true,
-        signerCount: 1,
       });
     });
 
