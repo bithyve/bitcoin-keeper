@@ -18,7 +18,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, VisibilityType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
@@ -33,6 +33,7 @@ import Text from 'src/components/KeeperText';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import SignerCard from '../AddSigner/SignerCard';
+import idx from 'idx';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -168,6 +169,10 @@ function SignersList({
   const navigation = useNavigation();
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
   const { allVaults } = useVault({ includeArchived: false });
+  const allUnhiddenVaults = allVaults.filter((vault) => {
+    return idx(vault, (_) => _.presentationData.visibility) !== VisibilityType.HIDDEN;
+  });
+
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
@@ -195,7 +200,7 @@ function SignersList({
 
   const hideKeys = () => {
     for (const mfp of selectedSigners.keys()) {
-      for (const vaultItem of allVaults) {
+      for (const vaultItem of allUnhiddenVaults) {
         if (vaultItem.signers.find((signer) => signer.masterFingerprint === mfp)) {
           setVaultUsed(vaultItem);
           setWarning(true);
