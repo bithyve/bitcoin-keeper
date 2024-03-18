@@ -194,8 +194,8 @@ function AddSendAmount({ route }) {
       navigateToNext();
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-        showToast('You have insufficient balance at this time.', null, 1000);
-      } else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
+        showToast('You have insufficient balance at this time.');
+      } else showToast(sendPhaseOneState.failedErrorMessage);
     }
   }, [sendPhaseOneState]);
   useEffect(

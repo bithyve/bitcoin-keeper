@@ -62,7 +62,7 @@ import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { generateKey, hash512 } from 'src/utils/service-utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/models/enums/Hardware';
@@ -764,7 +764,11 @@ function PasswordEnter({
           ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
-        showToast(`${signer.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
         setInProgress(false);
         close();
       } else {
@@ -775,7 +779,7 @@ function PasswordEnter({
     } catch (error) {
       setInProgress(false);
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
       } else if (error.toString() === 'Error') {
         /* empty */
       } else captureError(error);
@@ -798,7 +802,7 @@ function PasswordEnter({
     } catch (error) {
       setInProgress(false);
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         close();
       } else if (error.toString() === 'Error') {
         /* empty */
@@ -972,7 +976,7 @@ function HardwareModalMap({
     } catch (err) {
       setInProgress(true);
       captureError(err);
-      showToast('Key could not be added, please try again', <ToastErrorIcon />, 3000);
+      showToast('Key could not be added, please try again', <ToastErrorIcon />);
     }
   };
 
@@ -991,14 +995,14 @@ function HardwareModalMap({
           showToast('Health check done successfully', <TickIcon />);
         } else {
           close();
-          showToast('Error in Health check', <ToastErrorIcon />, 3000);
+          showToast('Error in Health check', <ToastErrorIcon />);
         }
         setInProgress(false);
       } catch (err) {
         console.log(err);
         setInProgress(false);
         close();
-        showToast('Error in Health check', <ToastErrorIcon />, 3000);
+        showToast('Error in Health check', <ToastErrorIcon />);
       }
     } else {
       navigation.dispatch(
@@ -1062,7 +1066,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             },
             addSignerFlow,
           },
@@ -1101,7 +1109,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             },
           },
         })
@@ -1159,10 +1171,14 @@ function HardwareModalMap({
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(`${hw.signer.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${hw.signer.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         resetQR();
       } else {
         captureError(error);
@@ -1206,12 +1222,12 @@ function HardwareModalMap({
         showToast('Health check done successfully', <TickIcon />);
       } else {
         navigation.dispatch(CommonActions.goBack());
-        showToast('Health check Failed', <ToastErrorIcon />, 3000);
+        showToast('Health check Failed', <ToastErrorIcon />);
       }
     } catch (error) {
       console.log('err');
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         resetQR();
       } else {
         captureError(error);
@@ -1252,7 +1268,11 @@ function HardwareModalMap({
           setInProgress(false);
           dispatch(setSigningDevices(signingServerKey));
           navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-          showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
+          showToast(
+            `${signingServerKey.signerName} added successfully`,
+            <TickIcon />,
+            IToastCategory.SIGNING_DEVICE
+          );
         }
       } catch (err) {
         setInProgress(false);
@@ -1401,7 +1421,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             } else {
               showToast('Incorrect password. Try again!', <ToastErrorIcon />);
             }
@@ -1549,7 +1573,11 @@ function HardwareModalMap({
         // }
         dispatch(addSigningDevice([inheritanceKey]));
         dispatch(setInheritanceRequestId('')); // clear approved request
-        showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${inheritanceKey.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
         navigation.goBack();
       }
     } catch (err) {
@@ -1574,7 +1602,11 @@ function HardwareModalMap({
       });
       setInProgress(false);
       dispatch(addSigningDevice([inheritanceKey]));
-      showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);

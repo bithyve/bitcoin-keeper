@@ -36,7 +36,7 @@ function UnlockTapsigner() {
       if (supported) {
         await start(unlockCard);
       } else if (!DeviceInfo.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+        showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   };
@@ -54,23 +54,18 @@ function UnlockTapsigner() {
             `It was not unlocked completely, please try holding for ${authDelay}s`
           );
         } else {
-          showToast(
-            `It was not unlocked completely, please try holding for ${authDelay}s`,
-            null,
-            4000,
-            true
-          );
+          showToast(`It was not unlocked completely, please try holding for ${authDelay}s`);
         }
       }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       }
       closeNfc();
       card.endNfcSession();

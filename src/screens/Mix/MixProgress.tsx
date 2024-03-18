@@ -297,8 +297,7 @@ function MixProgress({
       const toastDuration = 3000;
       showToast(
         'Mix failed. Please try again later, our best minds are working on it.',
-        <ToastErrorIcon />,
-        toastDuration
+        <ToastErrorIcon />
       );
       setTimeout(() => {
         navigation.goBack();
@@ -333,8 +332,7 @@ function MixProgress({
       );
       showToast(
         'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
-        <TickIcon />,
-        3000
+        <TickIcon />
       );
       try {
         const postmixTags: BIP329Label[] = [];
@@ -451,8 +449,7 @@ function MixProgress({
         ` ${
           err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
-        <ToastErrorIcon />,
-        toastDuration
+        <ToastErrorIcon />
       );
       setTimeout(() => {
         navigation.goBack();
