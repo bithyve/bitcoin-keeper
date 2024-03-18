@@ -66,7 +66,7 @@ function UpdateWalletDetails({ route }) {
     purposeList.find((item) => item.label.split(':')[0] === wallet?.scriptType).value
   );
   const [purposeLbl, setPurposeLbl] = useState(getPurpose(wallet?.scriptType));
-  const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
+  const [path, setPath] = useState(`${wallet?.derivationDetails.bip85Config.derivationPath}`);
   const [warringsVisible, setWarringsVisible] = useState(false);
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
