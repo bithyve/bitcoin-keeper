@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
-import { Box, useColorMode, View } from 'native-base';
-import React, { useContext } from 'react';
+import { Box, useColorMode } from 'native-base';
+import React, { useCallback, useContext } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -8,7 +8,6 @@ import { QRreader } from 'react-native-qr-decode-image-camera';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Note from 'src/components/Note/Note';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
@@ -23,6 +22,12 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import Text from 'src/components/KeeperText';
+import KeeperTextInput from 'src/components/KeeperTextInput';
+import OptionCard from 'src/components/OptionCard';
+import DocumentPicker, { types } from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
+import Breadcrumbs from 'src/components/Breadcrumbs';
+import Buttons from 'src/components/Buttons';
 
 function ImportWalletScreen() {
   const { colorMode } = useColorMode();
@@ -81,72 +86,81 @@ function ImportWalletScreen() {
     }
   };
 
-  // TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
-        style={styles.scrollViewWrapper}
+        style={styles.wrapper}
       >
         <KeeperHeader
           title={wallet.ImportWallet}
           subtitle={importWallet.usingWalletConfigurationFile}
           //TODO: learn more
         />
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          <Box>
-            <Box style={styles.qrcontainer}>
-              <Box style={styles.scanQRText}>
-                <Text bold fontSize={13} color={`${colorMode}.seashellWhite`}>
-                  Scan a QR
-                </Text>
-              </Box>
-              <RNCamera
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={(data) => {
-                  initiateWalletImport(data.data);
-                }}
-                notAuthorizedView={<CameraUnauthorized />}
-              />
-              {/* Upload Image */}
-              <Box style={styles.uploadImageContainer}>
-                <Box borderColor={`${colorMode}.QrCode`} style={styles.acuteBorder} />
-                <UploadImage onPress={handleChooseImage} />
-                <Box
-                  borderColor={`${colorMode}.QrCode`}
-                  style={[styles.acuteBorder, styles.rotate]}
-                />
-              </Box>
+        <ScrollView
+          contentContainerStyle={[styles.scrollViewWrapper, styles.wrapper]}
+          showsVerticalScrollIndicator={false}
+        >
+          <Box style={styles.qrcontainer}>
+            <Box style={styles.scanQRText}>
+              <Text bold fontSize={13} color={`${colorMode}.seashellWhite`}>
+                Scan a QR
+              </Text>
             </Box>
-
-            {/* Note */}
-            {/* <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-              <Note
-                title={common.note}
-                subtitle={importWallet.IWNoteDescription}
-                subtitleColor="GreyText"
+            <RNCamera
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={(data) => {
+                initiateWalletImport(data.data);
+              }}
+              notAuthorizedView={<CameraUnauthorized />}
+            />
+            {/* Upload Image */}
+            <Box style={styles.uploadImageContainer}>
+              <Box borderColor={`${colorMode}.QrCode`} style={styles.acuteBorder} />
+              <UploadImage onPress={handleChooseImage} />
+              <Box
+                borderColor={`${colorMode}.QrCode`}
+                style={[styles.acuteBorder, styles.rotate]}
               />
-            </Box> */}
-
-            {/* <View style={styles.dotContainer}>
-              {[1, 2, 3].map((item, index) => (
-                <View
-                  key={item.toString()}
-                  style={index === 0 ? styles.selectedDot : styles.unSelectedDot}
-                />
-              ))}
-            </View> */}
+            </Box>
+          </Box>
+          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
+            <KeeperTextInput
+              testID="input_wallet_address"
+              placeholder={'or enter address manually'}
+              placeholderTextColor={`${colorMode}.SlateGreen`}
+              value={''}
+              onChangeText={() => {}}
+            />
+          </Box>
+          <Box
+            borderColor={`${colorMode}.inActiveMsg`}
+            style={{ borderWidth: 0.5, width: '95%', alignSelf: 'center', opacity: 0.6 }}
+          />
+          <Box>
+            <OptionCard
+              title={'Upload a file'}
+              description={'Select a file from your storage locations'}
+              callback={() => {}}
+            />
           </Box>
         </ScrollView>
+        <Box style={styles.footer}>
+          <Breadcrumbs totalScreens={2} currentScreen={1} />
+          <Buttons primaryText={common.proceed} primaryCallback={() => {}} />
+        </Box>
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -165,10 +179,9 @@ const styles = StyleSheet.create({
   qrContainer: {
     alignSelf: 'center',
     marginVertical: hp(40),
-    flex: 1,
   },
   scrollViewWrapper: {
-    flex: 1,
+    gap: 20,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -194,7 +207,7 @@ const styles = StyleSheet.create({
   qrcontainer: {
     overflow: 'hidden',
     borderRadius: 10,
-    marginVertical: hp(25),
+    marginTop: hp(30),
     alignItems: 'center',
   },
   walletContainer: {
@@ -263,6 +276,19 @@ const styles = StyleSheet.create({
     zIndex: 99,
     top: hp(40),
     alignSelf: 'center',
+  },
+  inputFieldWrapper: {
+    borderRadius: 10,
+    width: wp(300),
+    alignSelf: 'center',
+  },
+  footer: {
+    flexDirection: 'row',
+    gap: 20,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginHorizontal: 10,
   },
 });
 export default ImportWalletScreen;
