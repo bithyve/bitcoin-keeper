@@ -4,7 +4,7 @@ import { crossInteractionHandler } from 'src/utils/utilities';
 import { XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
-import { extractKeyFromDescriptor, generateSignerFromMetaData } from '.';
+import { extractKeyFromDescriptor, generateSignerFromMetaData } from './index';
 import { getSeedSignerDetails } from './seedsigner';
 import HWError from './HWErrorState';
 import { getSpecterDetails } from './specter';
