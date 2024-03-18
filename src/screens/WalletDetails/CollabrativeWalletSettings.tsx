@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
-import Note from 'src/components/Note/Note';
+// import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
@@ -42,13 +42,13 @@ function CollabrativeWalletSettings() {
         />
         {TestSatsComponent}
       </ScrollView>
-      <Box style={styles.note} backgroundColor="light.secondaryBackground">
+      {/* <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
           title="Note"
           subtitle="Keeper only supports one Collaborative wallet, per hot wallet. So if you import another Wallet Configuration File, you will see a new Collaborative Wallet"
           subtitleColor="GreyText"
         />
-      </Box>
+      </Box> */}
     </ScreenWrapper>
   );
 }

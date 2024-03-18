@@ -295,9 +295,8 @@ function SendingPriority({
                     isSelected={transactionPriority === priority}
                     key={priority}
                     name={String(priority)}
-                    description={`~${
-                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                    } mins`}
+                    description={`~${txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                      } mins`}
                     numberOfLines={2}
                     onCardSelect={() => setTransactionPriority(priority)}
                     customStyle={{
@@ -872,12 +871,12 @@ function SendConfirmation({ route }) {
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
-                  satsEnabled ? 2 : 8
-                )
+                satsEnabled ? 2 : 8
+              )
               : addNumbers(
-                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-                  getBalance(amount)
-                ).toFixed(satsEnabled ? 2 : 8)
+                getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                getBalance(amount)
+              ).toFixed(satsEnabled ? 2 : 8)
           }
           fontSize={17}
           fontWeight="400"
@@ -902,8 +901,11 @@ function SendConfirmation({ route }) {
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewWallets}
         buttonCallback={viewDetails}
-        textcolor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -919,7 +921,7 @@ function SendConfirmation({ route }) {
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
-        textcolor={`${colorMode}.greenText`}
+        textColor={`${colorMode}.greenText`}
         Content={() => (
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
@@ -936,6 +938,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics

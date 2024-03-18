@@ -233,9 +233,9 @@ export default function CreatePin(props) {
       </Box>
       <KeeperModal
         visible={createPassword}
-        close={() => {}}
+        close={() => { }}
         title="Remember your passcode"
-        subTitle="Please remember your passcode and backup your wallet by writing down the 12-word Recovery
+        subTitle="Please remember your passcode and backup your app by writing down the 12-word Recovery
         Key"
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
