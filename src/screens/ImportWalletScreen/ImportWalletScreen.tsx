@@ -22,6 +22,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import Text from 'src/components/KeeperText';
 
 function ImportWalletScreen() {
   const { colorMode } = useColorMode();
@@ -92,13 +93,16 @@ function ImportWalletScreen() {
         <KeeperHeader
           title={wallet.ImportWallet}
           subtitle={importWallet.usingWalletConfigurationFile}
-          learnMore
-          learnBackgroundColor={`${colorMode}.RussetBrown`}
-          learnTextColor={`${colorMode}.white`}
+          //TODO: learn more
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
+              <Box style={styles.scanQRText}>
+                <Text bold fontSize={13} color={`${colorMode}.seashellWhite`}>
+                  Scan a QR
+                </Text>
+              </Box>
               <RNCamera
                 style={styles.cameraView}
                 captureAudio={false}
@@ -107,28 +111,34 @@ function ImportWalletScreen() {
                 }}
                 notAuthorizedView={<CameraUnauthorized />}
               />
+              {/* Upload Image */}
+              <Box style={styles.uploadImageContainer}>
+                <Box borderColor={`${colorMode}.QrCode`} style={styles.acuteBorder} />
+                <UploadImage onPress={handleChooseImage} />
+                <Box
+                  borderColor={`${colorMode}.QrCode`}
+                  style={[styles.acuteBorder, styles.rotate]}
+                />
+              </Box>
             </Box>
-            {/* Upload Image */}
-
-            <UploadImage onPress={handleChooseImage} />
 
             {/* Note */}
-            <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+            {/* <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
               <Note
                 title={common.note}
                 subtitle={importWallet.IWNoteDescription}
                 subtitleColor="GreyText"
               />
-            </Box>
+            </Box> */}
 
-            <View style={styles.dotContainer}>
+            {/* <View style={styles.dotContainer}>
               {[1, 2, 3].map((item, index) => (
                 <View
                   key={item.toString()}
                   style={index === 0 ? styles.selectedDot : styles.unSelectedDot}
                 />
               ))}
-            </View>
+            </View> */}
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -229,6 +239,30 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: Colors.GrayX11,
     marginEnd: 5,
+  },
+  uploadImageContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    width: '100%',
+    bottom: hp(15),
+  },
+  acuteBorder: {
+    width: wp(45),
+    height: hp(45),
+    borderLeftWidth: 1,
+    borderBottomWidth: 1,
+  },
+  rotate: {
+    transform: [{ rotate: '270deg' }],
+  },
+  scanQRText: {
+    position: 'absolute',
+    zIndex: 99,
+    top: hp(40),
+    alignSelf: 'center',
   },
 });
 export default ImportWalletScreen;

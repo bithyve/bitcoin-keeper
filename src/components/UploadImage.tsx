@@ -24,9 +24,13 @@ function UploadImage({ onPress = () => {} }: Props) {
         alignItems: 'center',
       }}
     >
-      <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
+      <Box
+        backgroundColor={`${colorMode}.brownColor`}
+        borderColor={`${colorMode}.brownColor`}
+        style={styles.container}
+      >
         <ImageIcon />
-        <Text style={styles.text} color="white">
+        <Text medium style={styles.text} color={`${colorMode}.primaryBackground`}>
           {importWallet.uploadFromGallery}
         </Text>
       </Box>
@@ -37,13 +41,13 @@ function UploadImage({ onPress = () => {} }: Props) {
 const styles = StyleSheet.create({
   container: {
     padding: 5,
-    paddingHorizontal: 10,
     borderRadius: 5,
+    borderWidth: 0.5,
     flexDirection: 'row',
     alignItems: 'center',
   },
   text: {
-    letterSpacing: 0.6,
+    letterSpacing: 0.24,
     fontSize: 12,
     marginLeft: 5,
   },
