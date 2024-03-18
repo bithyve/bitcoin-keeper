@@ -106,7 +106,7 @@ export const customTheme = extendTheme({
       indicator: Colors.OutrageousOrange,
       addTransactionText: Colors.PineTree,
       sendMax: Colors.JackoBean,
-      inActiveMsg: Colors.SpanishGray,
+      inActiveMsg: Colors.RichBlack,
       vaultCardText: Colors.Bisque,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient

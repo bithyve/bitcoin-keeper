@@ -902,8 +902,11 @@ function SendConfirmation({ route }) {
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewWallets}
         buttonCallback={viewDetails}
-        textcolor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -919,7 +922,7 @@ function SendConfirmation({ route }) {
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
-        textcolor={`${colorMode}.greenText`}
+        textColor={`${colorMode}.greenText`}
         Content={() => (
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
@@ -936,6 +939,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
