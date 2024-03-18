@@ -40,6 +40,8 @@ import {
 } from './signWithSD';
 import SignerList from './SignerList';
 import SignerModals from './SignerModals';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -489,4 +491,4 @@ function SignTransactionScreen() {
   );
 }
 
-export default SignTransactionScreen;
+export default Sentry.withErrorBoundary(SignTransactionScreen, errorBourndaryOptions);

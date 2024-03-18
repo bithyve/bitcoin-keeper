@@ -34,6 +34,8 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import SignerCard from '../AddSigner/SignerCard';
 import idx from 'idx';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -357,4 +359,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManageSigners;
+export default Sentry.withErrorBoundary(ManageSigners, errorBourndaryOptions);

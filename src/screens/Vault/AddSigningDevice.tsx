@@ -35,6 +35,8 @@ import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
 import { SDIcons } from './SigningDeviceIcons';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import * as Sentry from '@sentry/react-native';
 
 const { width } = Dimensions.get('screen');
 
@@ -557,4 +559,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddSigningDevice;
+export default Sentry.withErrorBoundary(AddSigningDevice, errorBourndaryOptions);

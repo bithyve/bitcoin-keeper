@@ -50,6 +50,8 @@ import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -1033,7 +1035,7 @@ function SendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default SendConfirmation;
+export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   priorityRowContainer: {
