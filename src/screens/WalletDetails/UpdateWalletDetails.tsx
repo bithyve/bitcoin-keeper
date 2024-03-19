@@ -178,7 +178,7 @@ function UpdateWalletDetails({ route }) {
                     }}
                     style={styles.flagWrapper1}
                   >
-                    <Text style={styles.purposeText}>{item.label}</Text>
+                    <Text style={styles.purposeText} color={`${colorMode}.GreyText`}>{item.label}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -294,7 +294,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: wp(10),
     letterSpacing: 0.6,
-    color: 'light.GreyText',
   },
   contentText: {
     fontSize: 13,
