@@ -8,7 +8,7 @@ import Text from './KeeperText';
 
 type EmptyCardProps = {
   name: string;
-  callback?: (param: any) => void;
+  callback?: any;
   cardStyles?: ViewStyle;
   iconWidth?: number;
   iconHeight?: number;

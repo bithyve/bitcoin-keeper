@@ -44,7 +44,7 @@ function AssistedKeysSlider({ items }) {
                 icon={item.icon}
                 paragraph={item.paragraph}
                 paragraph2={item.paragraph2}
-                callback={item.callBack}
+                callback={item.callback}
                 note={item.note}
                 buttonTitle={item.buttonTitle}
                 buttonDescription={item.buttonDescription}

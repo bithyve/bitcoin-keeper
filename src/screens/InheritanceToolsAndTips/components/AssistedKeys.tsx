@@ -7,10 +7,11 @@ import Add from 'src/assets/images/add-green.svg';
 
 import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
 import AssistedKeysSlider from '../AssistedKeysSlider';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 function InheritanceTips({}) {
   const { colorMode } = useColorMode();
-
+  const navigation = useNavigation();
   const tips = [
     {
       title: 'Signing Server',
@@ -20,7 +21,7 @@ function InheritanceTips({}) {
         'Please setup the 2FA on a different phone. You would only require the 2FA for a specified amount that would be within a range set by you. Below the minimum amount the 2FA won’t be needed, while you’ll be prompted to use a different key beyond the maximum amount.',
       paragraph:
         'Allows an automated script to sign the transaction when correct 2FA code is provided. The Key is meant to give you flexibility in signing transactions via the spend policy feature.',
-      callBack: () => {},
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
       buttonIcon: <Chip />,
       buttonTitle: 'Manage Keys',
       buttonDescription: 'Setup Signer Server',
@@ -34,7 +35,8 @@ function InheritanceTips({}) {
         'When a request is made to use this key for signing or recovery, there is a 30 day delay. This gives time to the user to decline the request if they don’t identify it. The request alerts are sent on the app and can also be sent on email or via sms.',
       paragraph:
         'Inheritance Key is an additional key available to increase the security of the vault without having to buy a hardware signer. It is available to all Diamond Hands subscribers.',
-      callBack: () => {},
+      // callback: () => navigation.dispatch(CommonActions.navigate({ name: 'AddSigner' })),
+
       buttonIcon: <Add />,
       buttonTitle: 'Add Inheritance Key',
       buttonDescription: 'Add to the vault you want to bequeath',
