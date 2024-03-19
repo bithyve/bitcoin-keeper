@@ -23,7 +23,7 @@ function SignWithTapsigner() {
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
 
-  const { params = { signTransaction: () => { } } as any } = useRoute();
+  const { params = { signTransaction: () => {} } as any } = useRoute();
   const { signTransaction, textRef, vaultId = '' } = params;
 
   const onPressHandler = (digit) => {
@@ -60,11 +60,11 @@ function SignWithTapsigner() {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (err.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       }
       setNfcVisible(false);
       card.endNfcSession();

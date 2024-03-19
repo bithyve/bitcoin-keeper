@@ -26,7 +26,8 @@ import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
 import InititalAppController from './InititalAppController';
 import { formatNumber } from 'src/utils/utilities';
-
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
   let totalConfirmedBalance = 0;
@@ -144,7 +145,7 @@ function NewHomeScreen({ navigation }) {
   );
 }
 
-export default NewHomeScreen;
+export default Sentry.withErrorBoundary(NewHomeScreen, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   container: {

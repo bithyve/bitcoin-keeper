@@ -23,7 +23,7 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
@@ -136,10 +136,14 @@ function ConnectChannel() {
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
-        showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${bitbox02.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -173,10 +177,14 @@ function ConnectChannel() {
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
-        showToast(`${trezor.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${trezor.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -209,10 +217,14 @@ function ConnectChannel() {
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
-        showToast(`${ledger.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${ledger.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -268,7 +280,7 @@ function ConnectChannel() {
         }
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else {

@@ -137,7 +137,7 @@ function UTXOElement({
               Object.keys(selectedUTXOMap).length >= 1 &&
               initateWhirlpoolMix
             ) {
-              showToast(walletTranslation.utxoAllowedTime, null, 3000);
+              showToast(walletTranslation.utxoAllowedTime);
               return;
             }
             mapToUpdate[utxoId] = true;

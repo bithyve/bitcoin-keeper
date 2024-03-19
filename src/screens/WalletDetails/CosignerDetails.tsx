@@ -13,6 +13,9 @@ import { XpubTypes } from 'src/services/wallets/enums';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+import idx from 'idx';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { captureError } from 'src/services/sentry';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
 function CosignerDetails({ route }: ScreenProps) {
@@ -22,16 +25,42 @@ function CosignerDetails({ route }: ScreenProps) {
   const navgation = useNavigation();
   const { signer } = route.params;
 
+  const fetchKeyExpression = (type: XpubTypes) => {
+    try {
+      if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
+        const keyDescriptor = getKeyExpression(
+          signer.masterFingerprint,
+          idx(signer, (_) => _.signerXpubs[type][0].derivationPath),
+          idx(signer, (_) => _.signerXpubs[type][0].xpub),
+          false
+        );
+        return keyDescriptor;
+      } else {
+        throw new Error(`Missing key details for ${type} type.`);
+      }
+    } catch (error) {
+      throw new Error(`Missing key details for ${type} type.`);
+    }
+  };
+
   useEffect(() => {
     if (!details) {
       setTimeout(() => {
-        const keyDescriptor = getKeyExpression(
-          signer.masterFingerprint,
-          signer.signerXpubs[XpubTypes.P2WSH][0].derivationPath,
-          signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
-          false
-        );
-        setDetails(keyDescriptor);
+        try {
+          const keyDescriptor = fetchKeyExpression(XpubTypes.P2WSH);
+          setDetails(keyDescriptor);
+        } catch (error) {
+          captureError(error);
+          try {
+            const keyDescriptor = fetchKeyExpression(XpubTypes.P2WPKH);
+            setDetails(keyDescriptor);
+          } catch (error) {
+            showToast(
+              `We're sorry, but we have trouble retrieving the key information`,
+              <ToastErrorIcon />
+            );
+          }
+        }
       }, 200);
     }
   }, []);

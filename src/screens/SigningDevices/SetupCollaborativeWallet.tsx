@@ -158,7 +158,7 @@ function SetupCollaborativeWallet() {
     } catch (err) {
       console.log(err);
       const message = crossInteractionHandler(err);
-      showToast(message, <ToastErrorIcon />, 4000);
+      showToast(message, <ToastErrorIcon />);
     }
   };
 
@@ -218,7 +218,7 @@ function SetupCollaborativeWallet() {
     }
     if (hasNewVaultGenerationFailed) {
       setIsCreating(false);
-      showToast('Error creating collaborative wallet', <ToastErrorIcon />, 4000);
+      showToast('Error creating collaborative wallet', <ToastErrorIcon />);
       captureError(error);
     }
   }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, coSigners]);

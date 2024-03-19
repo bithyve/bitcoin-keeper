@@ -21,7 +21,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
 import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import SigningServer from 'src/services/backend/SigningServer';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -83,7 +83,11 @@ function SetupSigningServer({ route }: { route }) {
       ? { name: 'ManageSigners' }
       : { name: 'AddSigningDevice', merge: true, params: {} };
     navigation.dispatch(CommonActions.navigate(navigationState));
-    showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
+    showToast(
+      `${signingServerKey.signerName} added successfully`,
+      <TickIcon />,
+      IToastCategory.SIGNING_DEVICE
+    );
   };
 
   useEffect(() => {
