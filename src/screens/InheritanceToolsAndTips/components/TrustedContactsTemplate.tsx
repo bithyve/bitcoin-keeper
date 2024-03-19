@@ -10,6 +10,7 @@ import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
+import GenerateTrustedContactsPDF from 'src/utils/GenerateTrustedContactsPDF';
 
 function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();
@@ -34,7 +35,7 @@ function TrustedContactTemplates({}) {
           <DashedButton
             description="Contacts Template"
             callback={() => {
-              GenerateRecoveryPhraseTemplate().then((res) => {
+              GenerateTrustedContactsPDF().then((res) => {
                 if (res) {
                   navigation.navigate('PreviewPDF', { source: res });
                 }

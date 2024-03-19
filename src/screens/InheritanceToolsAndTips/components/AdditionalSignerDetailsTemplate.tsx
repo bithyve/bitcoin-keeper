@@ -10,6 +10,7 @@ import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import AdditionalSignerIcon from 'src/assets/images/additional-signer-icon.svg';
+import GenerateAdditionalKeyDetailsTemplate from 'src/utils/GenerateAdditionalKeyDetailsTemplate';
 
 function AdditionalSignerDetailsTemplate({}) {
   const { colorMode } = useColorMode();
@@ -35,7 +36,7 @@ function AdditionalSignerDetailsTemplate({}) {
           <DashedButton
             description="Details Template"
             callback={() => {
-              GenerateRecoveryPhraseTemplate().then((res) => {
+              GenerateAdditionalKeyDetailsTemplate().then((res) => {
                 if (res) {
                   navigation.navigate('PreviewPDF', { source: res });
                 }

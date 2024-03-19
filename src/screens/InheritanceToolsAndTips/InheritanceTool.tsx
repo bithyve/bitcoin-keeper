@@ -89,7 +89,7 @@ function InheritanceTool({ navigation }) {
                 inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS]
               )}`
         }`}
-        title="Additional Key Details DOCUMENT WIP"
+        title="Additional Key Details"
         description="Template to share useful key details"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('AdditionalSignerDetailsTemplate', ADDITIONAL_SIGNER_DETAILS)}
