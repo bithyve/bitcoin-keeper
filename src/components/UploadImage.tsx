@@ -25,8 +25,8 @@ function UploadImage({ onPress = () => {} }: Props) {
       }}
     >
       <Box
-        backgroundColor={`${colorMode}.brownColor`}
-        borderColor={`${colorMode}.brownColor`}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
+        borderColor={`${colorMode}.BrownNeedHelp`}
         style={styles.container}
       >
         <ImageIcon />
