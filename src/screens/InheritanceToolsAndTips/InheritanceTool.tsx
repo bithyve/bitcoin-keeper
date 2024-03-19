@@ -75,7 +75,7 @@ function InheritanceTool({ navigation }) {
                 inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE]
               )}`
         }`}
-        title="Trusted Contacts DOCUMENT WIP"
+        title="Trusted Contacts"
         description="Template to share details of contacts"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('TrustedContactTemplates', TRUSTED_CONTACTS_TEMPLATE)}
