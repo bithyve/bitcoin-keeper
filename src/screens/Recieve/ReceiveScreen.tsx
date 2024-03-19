@@ -2,22 +2,18 @@
 import Text from 'src/components/KeeperText';
 
 import { Box, Input, useColorMode } from 'native-base';
-import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import QRCode from 'react-native-qrcode-svg';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
-import CopyIcon from 'src/assets/images/icon_copy.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { hp, windowHeight } from 'src/constants/responsive';
-import useToastMessage from 'src/hooks/useToastMessage';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
@@ -26,8 +22,7 @@ import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 import useBalance from 'src/hooks/useBalance';
-import LoginMethod from 'src/models/enums/LoginMethod';
-import { useAppSelector } from 'src/store/hooks';
+import ReceiveAddress from './ReceiveAddress';
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -42,9 +37,6 @@ function ReceiveScreen({ route }: { route }) {
 
   const { translations } = useContext(LocalizationContext);
   const { common, home, wallet: walletTranslation } = translations;
-  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
-    (state) => state.settings
-  );
 
   useEffect(() => {
     const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
@@ -60,16 +52,13 @@ function ReceiveScreen({ route }: { route }) {
     } else if (paymentURI) setPaymentURI(null);
   }, [amount]);
 
-  const { showToast } = useToastMessage();
-
   function AddAmountContent() {
     return (
       <View>
         <View style={styles.Container}>
-          <View style={styles.inputParentView}>
+          <View>
             <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
               <View style={styles.btcIconWrapper}>
-                {/* {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />} */}
                 {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
               </View>
               <Box
@@ -97,7 +86,6 @@ function ReceiveScreen({ route }: { route }) {
                 primaryText="Add"
                 primaryCallback={() => {
                   setModalVisible(false);
-                  // navigtaion.navigate('Receive', { amount, wallet });
                 }}
               />
             </View>
@@ -138,40 +126,25 @@ function ReceiveScreen({ route }: { route }) {
           </Text>
         </Box>
       </Box>
-      <TouchableOpacity
-        activeOpacity={0.4}
-        testID="btn_copy_address"
-        onPress={() => {
-          Clipboard.setString(paymentURI || receivingAddress);
-          showToast(walletTranslation.addressCopied, <TickIcon />);
-        }}
-        style={styles.inputContainer}
-      >
-        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text width="80%" marginLeft={4} numberOfLines={1}>
-            {paymentURI || receivingAddress}
-          </Text>
+      <Box style={styles.addressContainer}>
+        <ReceiveAddress address={paymentURI || receivingAddress} />
+        <MenuItemButton
+          onPress={() => setModalVisible(true)}
+          icon={<BtcGreen />}
+          title={home.AddAmount}
+          subTitle={walletTranslation.addSpecificInvoiceAmt}
+        />
+      </Box>
 
-          <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
-            <CopyIcon />
-          </Box>
-        </Box>
-      </TouchableOpacity>
-      <MenuItemButton
-        onPress={() => setModalVisible(true)}
-        icon={<BtcGreen />}
-        title={home.AddAmount}
-        subTitle={walletTranslation.addSpecificInvoiceAmt}
-      />
       <Box style={styles.Note}>
         <Note
-          title={wallet.entityKind === 'VAULT' ? 'Security Tip' : home.AddAmount}
+          title={'Note'}
           subtitle={
             wallet.entityKind === 'VAULT'
               ? walletTranslation.addressReceiveDirectly
               : home.reflectSats
           }
-          subtitleColor="GreyText"
+          subtitleColor="GreenishGrey"
         />
       </Box>
       <KeeperModal
@@ -214,25 +187,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1.08,
     width: '100%',
   },
-  inputContainer: {
-    alignItems: 'center',
-    borderBottomLeftRadius: 10,
-    borderTopLeftRadius: 10,
-    marginTop: windowHeight > 600 ? hp(40) : 0,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomLeftRadius: 10,
-    borderTopLeftRadius: 10,
-  },
-  copyIconWrapper: {
-    padding: 10,
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-  },
   Container: {
     padding: 10,
   },
@@ -241,9 +195,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1.04,
-  },
-  inputParentView: {
-    // marginHorizontal: 8,
   },
   inputWrapper01: {
     flexDirection: 'row',
@@ -264,6 +215,9 @@ const styles = StyleSheet.create({
   },
   bottomBtnView: {
     marginBottom: 10,
+  },
+  addressContainer: {
+    marginHorizontal: wp(20),
   },
 });
 
