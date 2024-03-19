@@ -43,7 +43,7 @@ function RecoveryPhraseTemplate({}) {
                 }
               });
             }}
-            name="Download Recovery"
+            name="View Recovery"
           />
         </Box>
 

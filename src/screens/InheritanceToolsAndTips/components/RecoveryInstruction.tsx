@@ -10,6 +10,8 @@ import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import RecoveryPhraseIcon from 'src/assets/images/printable-templates.svg';
+import GenerateRecoveryInstrPDF from 'src/utils/GenerateRecoveryInstrPDF';
+import GenerateRecoveryInstrcutionsPDF from 'src/utils/GenerateRecoveryInstrcutionsPDF';
 
 function RecoveryInstruction({}) {
   const { colorMode } = useColorMode();
@@ -35,15 +37,15 @@ function RecoveryInstruction({}) {
 
         <Box mt={5}>
           <DashedButton
-            description="Phrase Template"
+            description="For the heir or beneficiary"
             callback={() => {
-              GenerateRecoveryPhraseTemplate().then((res) => {
+              GenerateRecoveryInstrcutionsPDF().then((res) => {
                 if (res) {
                   navigation.navigate('PreviewPDF', { source: res });
                 }
               });
             }}
-            name="Download Recovery"
+            name="View Recovery Instructions "
           />
         </Box>
 
