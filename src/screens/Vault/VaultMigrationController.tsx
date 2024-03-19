@@ -177,8 +177,7 @@ function VaultMigrationController({
       if (unconfirmed) {
         showToast(
           'You have unconfirmed balance, please try again in some time',
-          <ToastErrorIcon />,
-          4000
+          <ToastErrorIcon />
         );
         navigation.dispatch(
           CommonActions.reset({
