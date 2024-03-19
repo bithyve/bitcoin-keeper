@@ -26,6 +26,22 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 
+function ImportWalletContent() {
+  return (
+    <View marginY={5}>
+      <Box alignSelf="center">
+        <VaultSetupIcon />
+      </Box>
+      <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
+        Scan the wallet configuration file of the wallet you wish to import. You can import as many wallets as you like.
+      </Text>
+      <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
+        Please ensure that nobody else has access to this configuration file QR to avoid them recreating your wallet.
+      </Text>
+    </View>
+  );
+}
+
 function ImportWalletScreen() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -83,22 +99,6 @@ function ImportWalletScreen() {
       showToast('Invalid Import Key');
     }
   };
-
-  function ImportWalletContent() {
-    return (
-      <View marginY={5}>
-        <Box alignSelf="center">
-          <VaultSetupIcon />
-        </Box>
-        <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-          Scan the wallet configuration file of the wallet you wish to import. You can import as many wallets as you like.
-        </Text>
-        <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-          Please ensure that nobody else has access to this configuration file QR to avoid them recreating your wallet.
-        </Text>
-      </View>
-    );
-  }
 
   // TODO: add learn more modal
   return (
