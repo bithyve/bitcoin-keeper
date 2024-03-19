@@ -228,7 +228,6 @@ export function KeeperContent(props) {
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
-          {/* {'\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n'} */}
           {`Open the other Keeper app > Go to Manage Keys > Access the Mobile Key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
         </Text>
       </Box>
