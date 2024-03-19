@@ -1,9 +1,11 @@
-import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import { crossInteractionHandler } from 'src/utils/utilities';
-import { XpubDetailsType } from 'src/core/wallets/interfaces/vault';
-import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import config from 'src/core/config';
+import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
+import {
+  generateMobileKey,
+  generateSeedWordsKey,
+} from 'src/services/wallets/factories/VaultFactory';
 import { extractKeyFromDescriptor, generateSignerFromMetaData } from './index';
 import { getSeedSignerDetails } from './seedsigner';
 import HWError from './HWErrorState';
@@ -11,6 +13,11 @@ import { getSpecterDetails } from './specter';
 import { getKeystoneDetails } from './keystone';
 import { getJadeDetails } from './jade';
 import { getPassportDetails } from './passport';
+import config from 'src/utils/service-utilities/config';
+import { extractColdCardExport } from './coldcard';
+import { getLedgerDetailsFromChannel } from './ledger';
+import { getTrezorDetails } from './trezor';
+import { getBitbox02Details } from './bitbox';
 
 const setupPassport = (qrData, isMultisig) => {
   const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
@@ -219,13 +226,85 @@ const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
   return { signer: softSigner, key };
 };
 
+const setupColdcard = (data, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = extractColdCardExport(
+    data,
+    isMultisig
+  );
+  const { signer, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    isMultisig,
+    signerType: SignerType.COLDCARD,
+    storageType: SignerStorage.COLD,
+    xpubDetails,
+  });
+  return { signer, key };
+};
+
+const setupLedger = (data, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = getLedgerDetailsFromChannel(
+    data,
+    isMultisig
+  );
+  const { signer, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    isMultisig,
+    signerType: SignerType.LEDGER,
+    storageType: SignerStorage.COLD,
+    xpubDetails,
+  });
+  return { signer, key };
+};
+
+const setupTrezor = (data, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = getTrezorDetails(
+    data,
+    isMultisig
+  );
+  const { signer, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    isMultisig,
+    signerType: SignerType.TREZOR,
+    storageType: SignerStorage.COLD,
+    xpubDetails,
+  });
+  return { signer, key };
+};
+
+const setupBitbox = (data, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = getBitbox02Details(
+    data,
+    isMultisig
+  );
+  const { signer, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    isMultisig,
+    signerType: SignerType.BITBOX02,
+    storageType: SignerStorage.COLD,
+    xpubDetails,
+  });
+  return { signer, key };
+};
+
 export {
   setupPassport,
   setupSeedSigner,
-  setupSpecter,
-  setupKeystone,
   setupJade,
+  setupKeystone,
+  setupSpecter,
   setupKeeperSigner,
+  setupColdcard,
   setupMobileKey,
   setupSeedWordsBasedKey,
+  setupLedger,
+  setupTrezor,
+  setupBitbox,
 };
