@@ -60,6 +60,27 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
     </Pressable>
   );
 }
+function StartNewModalContent() {
+  const { colorMode } = useColorMode();
+  return (
+    <Box style={{ width: windowWidth * 0.8 }}>
+      <Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Create new single-key wallets: </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>You can use these wallets to store small amounts of bitcoin for day to day transactions.</Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Create new multi-key wallets: </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>Setup multi-key wallets as per your needs and convenience for long term hodling. You would be able to choose your desired configuration of keys. Note that we call multi-key wallets as vault within Keeper.</Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Recover an existing app: </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>Have an inaccessible Keeper app with various wallets and vaults in it? You have nothing to worry if you have that wallet’s 12-word Recovery Key. Just insert those words to recover that Keeper app and all your wallets would be restored as expected.</Text>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
@@ -159,26 +180,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
     );
   }
-  function StartNewModalContent() {
-    return (
-      <Box style={{ width: windowWidth * 0.8 }}>
-        <Box>
-          <Box>
-            <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Create new single-key wallets: </Text>
-            <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>You can use these wallets to store small amounts of bitcoin for day to day transactions.</Text>
-          </Box>
-          <Box>
-            <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Create new multi-key wallets: </Text>
-            <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>Setup multi-key wallets as per your needs and convenience for long term hodling. You would be able to choose your desired configuration of keys. Note that we call multi-key wallets as vault within Keeper.</Text>
-          </Box>
-          <Box>
-            <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Recover an existing app: </Text>
-            <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>Have an inaccessible Keeper app with various wallets and vaults in it? You have nothing to worry if you have that wallet’s 12-word Recovery Key. Just insert those words to recover that Keeper app and all your wallets would be restored as expected.</Text>
-          </Box>
-        </Box>
-      </Box>
-    );
-  }
+
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
