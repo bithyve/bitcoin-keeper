@@ -103,7 +103,9 @@ function VaultMigrationController({
       navigation.dispatch(
         CommonActions.navigate('SendConfirmation', {
           sender: activeVault,
-          recipients,
+          recipient: temporaryVault,
+          address: recipients[0].address,
+          amount: parseInt(recipients[0].amount, 10),
           transferType: TransferType.VAULT_TO_VAULT,
         })
       );
