@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
 import { Box, useColorMode, View } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -87,7 +87,11 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
       });
       setInProgress(false);
       dispatch(addSigningDevice([inheritanceKey]));
-      showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
