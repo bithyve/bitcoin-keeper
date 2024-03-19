@@ -2,7 +2,7 @@ import Scale from 'src/components/Scale';
 import config from 'src/utils/service-utilities/config';
 import { NetworkType } from 'src/services/wallets/enums';
 import BTC from 'src/assets/images/btc_white.svg';
-import { HStack } from 'native-base';
+import { HStack, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 import Colors from 'src/theme/Colors';
@@ -58,7 +58,7 @@ export const getAmt = (
   return numberWithCommas(amountInSats);
 };
 
-export const getNetworkAmount = (
+export const NetworkAmount = (
   amountInSats: number,
   exchangeRates,
   currencyCode,
@@ -66,6 +66,7 @@ export const getNetworkAmount = (
   textStyles = [{}],
   scale = 1
 ) => {
+  const { colorMode } = useColorMode();
   let text: string;
   if (isTestnet()) {
     text = `${amountInSats}`;
@@ -80,7 +81,7 @@ export const getNetworkAmount = (
           {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
         </Scale>
       ) : null}
-      <Text color="light.white" style={textStyles}>
+      <Text color={`${colorMode}.white`} style={textStyles}>
         {text}
         <Text style={{ fontSize: 12 }}> {getUnit(currentCurrency)}</Text>
       </Text>

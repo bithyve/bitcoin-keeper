@@ -342,7 +342,7 @@
     "ViewDetails": "View Details",
     "ViewWallets": "View Wallets",
     "approveTransVault": "Approve Transfer to vault",
-    "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction attransaction, at 100,000 sats that needs your approval",
+    "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction at 100,000 sats that needs your approval",
     "TransNow": "Transfer Now",
     "AddWalletCosigner": "Add Wallet as co-signer",
     "AddWalletCosignerSubTitle": "You are about to add this wallet as a co-signer for a Keeper app vault.",

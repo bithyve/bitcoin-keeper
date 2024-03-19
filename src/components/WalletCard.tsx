@@ -31,13 +31,13 @@ function WalletCard({
   return (
     <Pressable testID={`btn_${walletName}`} onPress={() => onCardSelect(id)}>
       <Box
-        borderColor={`${colorMode}.Eggshell`}
+        borderColor={`${colorMode}.TransactionIconBackColor`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
         style={[styles.walletContainer, !isSelected && { opacity: 0.5 }]}
       >
         <Box style={styles.detailContainer}>
           <Box
-            backgroundColor={isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.RussetBrown`}
+            backgroundColor={isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.BrownNeedHelp`}
             style={styles.circle}
           >
             {isSelected ? selectedIcon : icon}
