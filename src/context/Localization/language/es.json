@@ -754,6 +754,7 @@
     "addSigner": "Add Signer",
     "addSignerSubTitle": "to Valinor",
     "addSigners": "Add Signers",
-    "addKeys": "Add keys"
+    "addKeys": "Add keys",
+    "keyDetails": "Key Details"
   }
 }
