@@ -59,7 +59,7 @@ function MasterRecoveryKey({ navigation }) {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            Master Recovery Key also gives access to app’s hot keys and so need to be secured
+            Master Recovery Key also gives access to the app’s hot keys. Please secure the key
             properly.
           </Text>
         </Box>

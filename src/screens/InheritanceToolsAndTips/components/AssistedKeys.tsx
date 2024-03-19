@@ -20,11 +20,11 @@ function InheritanceTips({}) {
       paragraph2:
         'Please setup the 2FA on a different phone. You would only require the 2FA for a specified amount that would be within a range set by you. Below the minimum amount the 2FA won’t be needed, while you’ll be prompted to use a different key beyond the maximum amount.',
       paragraph:
-        'Allows an automated script to sign the transaction when correct 2FA code is provided. The Key is meant to give you flexibility in signing transactions via the spend policy feature.',
+        'Allows an automated script to sign the transaction when correct 2FA code is provided. The Key allows you to easily sign a transaction via a simple 2FA code instead of using a hardware signer.',
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
       buttonIcon: <Chip />,
-      buttonTitle: 'Manage Keys',
-      buttonDescription: 'Setup Signer Server',
+      buttonTitle: 'View Signing Server',
+      buttonDescription: 'Added on Hodler Tier',
       note: 'Signing Server is a hot key. Please decide the amount you’d like to use Signing Server for, carefully.',
     },
     {

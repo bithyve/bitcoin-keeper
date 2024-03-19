@@ -45,8 +45,8 @@ function WalletConfigurationFiles() {
           the minimum number of keys needed.
         </Text>
         <Text style={styles.commonTextStyle}>
-          For multisig wallets or vaults, it is mportant to have the configuration files along with
-          the minimum number of keys needed.
+          The wallet configuration file, also known as Output Descriptor or the BSMS file is an
+          important item for vault recovery. Please store it carefully.
         </Text>
         <Box style={styles.circleStyle}>
           <WalletConfigFilesIcon />
