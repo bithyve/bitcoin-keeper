@@ -11,15 +11,17 @@ import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import {
-  INHERITANCE_KEY,
+  ADDITIONAL_SIGNER_DETAILS,
   INHERITANCE_TIPS,
   LETTER_OF_ATTORNEY,
   PRINTABLE_TEMPLATES,
   RECOVERY_INSTRUCTIONS,
+  RECOVERY_PHRASE_TEMPLATE,
+  TRUSTED_CONTACTS_TEMPLATE,
 } from 'src/services/channel/constants';
+import { hp } from 'src/constants/responsive';
 
 function InheritanceTool({ navigation }) {
-  const { wallets } = useWallets({ getAll: true });
   const dispatch = useAppDispatch();
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
 
@@ -27,30 +29,19 @@ function InheritanceTool({ navigation }) {
     navigation.navigate(path);
     dispatch(updateLastVisitedTimestamp({ option: value }));
   };
-  const navigateToVaultSetup = (scheme: VaultScheme) => {
-    navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup', params: { scheme } }));
-  };
-
-  const navigateToWalletCreation = () => {
-    navigation.navigate('EnterWalletDetail', {
-      name: `Wallet ${wallets.length + 1}`,
-      description: '',
-      type: WalletType.DEFAULT,
-    });
-  };
 
   return (
     <ScrollView>
       <OptionCard
         preTitle={`${
-          inheritanceToolVisitedHistory[INHERITANCE_KEY] === undefined
+          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS] === undefined
             ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_KEY])}`
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS])}`
         }`}
-        title="Inheritance Key"
-        description="Additional signer for your vault"
-        LeftIcon={<Sword />}
-        callback={() => navigate('InheritanceKey', INHERITANCE_KEY)}
+        title="Recovery Instructions"
+        description="For the heir or beneficiary"
+        LeftIcon={<VaultGreenIcon />}
+        callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
       />
       <OptionCard
         preTitle={`${
@@ -63,17 +54,47 @@ function InheritanceTool({ navigation }) {
         LeftIcon={<Sword />}
         callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
       />
+
       <OptionCard
         preTitle={`${
-          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS] === undefined
+          inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE] === undefined
             ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS])}`
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE])}`
         }`}
-        title="Recovery Instructions"
-        description="For the heir or beneficiary"
+        title="Recovery Phrase"
+        description="Template to write down your seed words"
         LeftIcon={<VaultGreenIcon />}
-        callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
+        callback={() => navigate('RecoveryPhraseTemplate', RECOVERY_PHRASE_TEMPLATE)}
       />
+
+      <OptionCard
+        preTitle={`${
+          inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE] === undefined
+            ? 'Never accessed'
+            : `${getTimeDifferenceInWords(
+                inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE]
+              )}`
+        }`}
+        title="Trusted Contacts DOCUMENT WIP"
+        description="Template to share details of contacts"
+        LeftIcon={<VaultGreenIcon />}
+        callback={() => navigate('TrustedContactTemplates', TRUSTED_CONTACTS_TEMPLATE)}
+      />
+
+      <OptionCard
+        preTitle={`${
+          inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS] === undefined
+            ? 'Never accessed'
+            : `${getTimeDifferenceInWords(
+                inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS]
+              )}`
+        }`}
+        title="Additional Key Details DOCUMENT WIP"
+        description="Template to share useful key details"
+        LeftIcon={<VaultGreenIcon />}
+        callback={() => navigate('AdditionalSignerDetailsTemplate', ADDITIONAL_SIGNER_DETAILS)}
+      />
+
       <OptionCard
         preTitle={`${
           inheritanceToolVisitedHistory[PRINTABLE_TEMPLATES] === undefined
@@ -98,6 +119,7 @@ function InheritanceTool({ navigation }) {
           callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
         />
       </Box>
+      <Box style={{ marginBottom: hp(100) }} />
     </ScrollView>
   );
 }

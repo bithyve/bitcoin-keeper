@@ -113,11 +113,13 @@ export type AppStackParams = {
   PersonalCloudBackup: undefined;
   WalletConfigurationFiles: undefined;
   BackupAndRecoveryTips: undefined;
-  InheritanceKey: undefined;
   RecoveryInstruction: undefined;
   LetterOfAttorney: undefined;
   PrintableTemplates: undefined;
   InheritanceTips: undefined;
+  RecoveryPhraseTemplate: undefined;
+  TrustedContactTemplates: undefined;
+  AdditionalSignerDetailsTemplate: undefined;
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];

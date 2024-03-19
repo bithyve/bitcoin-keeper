@@ -4,11 +4,11 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BackIcon from 'src/assets/images/back_white.svg';
 import { hp } from 'src/constants/responsive';
-type Props = {};
-function InheritanceHeader({}: Props) {
+type Props = { slider?: boolean };
+function InheritanceHeader({ slider = false }: Props) {
   const navigation = useNavigation();
   return (
-    <Box style={styles.container}>
+    <Box style={[styles.container, { marginBottom: slider ? 0 : hp(20) }]}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <BackIcon />
       </TouchableOpacity>
@@ -19,7 +19,7 @@ function InheritanceHeader({}: Props) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
-    marginBottom: hp(20),
+    // marginBottom: hp(20),
   },
 });
 export default InheritanceHeader;

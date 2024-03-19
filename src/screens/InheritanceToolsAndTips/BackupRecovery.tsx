@@ -58,7 +58,7 @@ function BackupRecovery({ navigation }) {
             ? 'Never accessed'
             : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[WALLET_CONFIG_FILES])}`
         }`}
-        title="Wallet Configuration Files"
+        title="Wallet Configuration Files DOCUMENT WIP"
         description="Manual download (advanced)"
         LeftIcon={<VaultGreenIcon />}
         callback={() => {

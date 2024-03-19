@@ -10,11 +10,13 @@ interface InheritanceToolVisitedHistory {
   PERSONAL_CLOUD_BACKUP: number;
   WALLET_CONFIG_FILES: number;
   BACKUP_AND_RECOVERY_FILES: number;
-  INHERITANCE_KEY: number;
   LETTER_OF_ATTORNEY: number;
   RECOVERY_INSTRUCTIONS: number;
   PRINTABLE_TEMPLATES: number;
   INHERITANCE_TIPS: number;
+  RECOVERY_PHRASE_TEMPLATE: number;
+  TRUSTED_CONTACTS_TEMPLATE: number;
+  ADDITIONAL_SIGNER_DETAILS: number;
 }
 
 const initialState: {
@@ -52,11 +54,13 @@ const initialState: {
     PERSONAL_CLOUD_BACKUP: null,
     WALLET_CONFIG_FILES: null,
     BACKUP_AND_RECOVERY_FILES: null,
-    INHERITANCE_KEY: null,
     LETTER_OF_ATTORNEY: null,
     RECOVERY_INSTRUCTIONS: null,
     PRINTABLE_TEMPLATES: null,
     INHERITANCE_TIPS: null,
+    RECOVERY_PHRASE_TEMPLATE: null,
+    TRUSTED_CONTACTS_TEMPLATE: null,
+    ADDITIONAL_SIGNER_DETAILS: null,
   },
 };
 

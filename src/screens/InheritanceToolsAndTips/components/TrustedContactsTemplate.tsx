@@ -2,37 +2,45 @@ import React from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import KeeperHeader from 'src/components/KeeperHeader';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
-import AddCard from 'src/components/AddCard';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
+import { useNavigation } from '@react-navigation/native';
+import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
+import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
 
-function InheritanceKey({}) {
+function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading}>Inheritance Key</Text>
-        <Text style={styles.description}>Set up an additional key</Text>
+        <Text style={styles.heading}>Trusted Contacts Template</Text>
+        <Text style={styles.description}>Details of people to assist your heir</Text>
         <Text style={styles.commonTextStyle}>
-          Inheritance Key is an additional key available to increase the security of the vault
-          without having to buy a hardware signer. It is available to all Diamond Hands subscribers.
+          A simple template to note down a list of trusted contacts and their details. This can then
+          be stored along with the keys or separately.
         </Text>
-        <Text style={styles.commonTextStyle}>
-          When a request is made to use this key for signing or recovery, there is a 15 day delay.
-          This gives time to the user to decline the request if they don’t identify it. The request
-          alerts are sent on the app and can also be sent on email or via. sms.
-        </Text>
-        <Box mt={20} alignItems={'center'}>
+
+        <Box style={styles.circleStyle}>
+          <TrustedContactIcon />
+        </Box>
+        <Text style={styles.commonTextStyle}>Refer to Safeguarding Tips for more details</Text>
+        <Box mt={5}>
           <DashedButton
-            description="Add to the vault you want to bequeath"
-            callback={() => {}}
-            name="Add inheritance key"
+            description="Contacts Template"
+            callback={() => {
+              GenerateRecoveryPhraseTemplate().then((res) => {
+                if (res) {
+                  navigation.navigate('PreviewPDF', { source: res });
+                }
+              });
+            }}
+            name="View Trusted"
           />
         </Box>
 
@@ -41,7 +49,7 @@ function InheritanceKey({}) {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            Inheritance Key can be added when creating any vault or after creating one.
+            Please ensure that these individuals would be willing to help your heir selflessly.
           </Text>
         </Box>
       </ScrollView>
@@ -71,15 +79,18 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   addContainer: {
-    marginTop: hp(40),
+    marginTop: hp(100),
     gap: 10,
-    alignItems: 'center',
   },
   leftTextStyle: {
     textAlign: 'left',
     marginTop: hp(40),
     color: Colors.white,
   },
+  circleStyle: {
+    alignItems: 'center',
+    marginTop: hp(20),
+  },
 });
 
-export default InheritanceKey;
+export default TrustedContactTemplates;

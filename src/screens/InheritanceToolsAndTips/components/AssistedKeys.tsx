@@ -1,95 +1,53 @@
 import React from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
-import { StyleSheet } from 'react-native';
-import Text from 'src/components/KeeperText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
-import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
 import Chip from 'src/assets/images/chip.svg';
-import DashedButton from 'src/components/DashedButton';
-import { CommonActions } from '@react-navigation/native';
-function AssistedKeys({ navigation }) {
+import Add from 'src/assets/images/add-green.svg';
+
+import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
+import AssistedKeysSlider from '../AssistedKeysSlider';
+
+function InheritanceTips({}) {
   const { colorMode } = useColorMode();
+
+  const tips = [
+    {
+      title: 'Signing Server',
+      description: 'Use 2FA code to sign a transaction',
+      icon: <AssistedKeysIcon />,
+      paragraph2:
+        'Please setup the 2FA on a different phone. You would only require the 2FA for a specified amount that would be within a range set by you. Below the minimum amount the 2FA won’t be needed, while you’ll be prompted to use a different key beyond the maximum amount.',
+      paragraph:
+        'Allows an automated script to sign the transaction when correct 2FA code is provided. The Key is meant to give you flexibility in signing transactions via the spend policy feature.',
+      callBack: () => {},
+      buttonIcon: <Chip />,
+      buttonTitle: 'Manage Keys',
+      buttonDescription: 'Setup Signer Server',
+      note: 'Signing Server is a hot key. Please decide the amount you’d like to use Signing Server for, carefully.',
+    },
+    {
+      title: 'Inheritance Key',
+      description: 'To be considered while inheritance planning',
+      icon: <AssistedKeysIcon />,
+      paragraph2:
+        'When a request is made to use this key for signing or recovery, there is a 30 day delay. This gives time to the user to decline the request if they don’t identify it. The request alerts are sent on the app and can also be sent on email or via sms.',
+      paragraph:
+        'Inheritance Key is an additional key available to increase the security of the vault without having to buy a hardware signer. It is available to all Diamond Hands subscribers.',
+      callBack: () => {},
+      buttonIcon: <Add />,
+      buttonTitle: 'Add Inheritance Key',
+      buttonDescription: 'Add to the vault you want to bequeath',
+      note: 'Please provide detailed explanations and support to your heir via the inheritance document templates',
+    },
+  ];
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
-      <InheritanceHeader />
-      <ScrollView>
-        <Text style={styles.heading}>Assisted Keys</Text>
-        <Text style={styles.description}>Server hosted signers</Text>
-        <Text style={styles.commonTextStyle}>
-          <Text bold>Signing Server:</Text> Allows an automated script to sign the transaction when
-          correct 2FA code is provided. You can also setup a spending policy.
-        </Text>
-        <Text style={styles.commonTextStyle}>
-          <Text bold>Inheritance Key:</Text> signs a txn after a delay of 15 days during which the
-          user can cancel the request
-        </Text>
-        <Box style={styles.circleStyle}>
-          <AssistedKeysIcon />
-        </Box>
-        <Text style={styles.commonTextStyle}>
-          Inheritance Key: signs a txn after a delay of 15 days during which the user can cancel the
-          request
-        </Text>
-
-        <Box mt={5} alignItems={'center'}>
-          <DashedButton
-            description="Lorem ipsum dolor amet"
-            callback={() => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' }))}
-            name="Add Assisted Keys"
-            icon={<Chip />}
-          />
-        </Box>
-        <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
-            Note:
-          </Text>
-          <Text color={`${colorMode}.white`}>
-            These keys can be added from the Manage Keys section on the Home Screen
-          </Text>
-        </Box>
-      </ScrollView>
+      <InheritanceHeader slider={true} />
+      <AssistedKeysSlider items={tips} />
     </ScreenWrapper>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    gap: 25,
-    marginTop: 20,
-  },
-  walletType: {
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  heading: {
-    fontSize: 18,
-    color: Colors.white,
-  },
-  description: {
-    fontSize: 14,
-    color: Colors.white,
-  },
-  commonTextStyle: {
-    marginTop: hp(40),
-    color: Colors.white,
-  },
-  leftTextStyle: {
-    textAlign: 'left',
-    marginTop: hp(40),
-    color: Colors.white,
-  },
-  addCardStyle: {
-    marginTop: hp(20),
-  },
-  circleStyle: {
-    alignItems: 'center',
-    marginTop: hp(20),
-  },
-  notes: { alignItems: 'flex-start' },
-});
-
-export default AssistedKeys;
+export default InheritanceTips;
