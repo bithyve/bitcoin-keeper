@@ -599,7 +599,7 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
     signers = signers.map((signer) => {
       if (signer.type === SignerType.MY_KEEPER || signer.type === SignerType.KEEPER) {
         const signerCount = existingSigners.filter(
-          (existingSigner) => existingSigner.masterFingerprint === signer.masterFingerprint
+          (existingSigner) => existingSigner.type === signer.type
         ).length;
         signer.extraData = { instanceNumber: signerCount + 1 };
         signer.signerDescription = getSignerDescription(signer.type, signerCount + 1);
