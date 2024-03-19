@@ -39,7 +39,7 @@ function KeySecurity({ navigation }) {
         preTitle={`${
           inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
             ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
         }`}
         title="Canary Wallets"
         description="Alert on key compromise"
@@ -48,7 +48,9 @@ function KeySecurity({ navigation }) {
       />
       <OptionCard
         preTitle={`${
-          inheritanceToolVisitedHistory[ASSISTED_KEYS] === undefined ? 'Never accessed' : 'just now'
+          inheritanceToolVisitedHistory[ASSISTED_KEYS] === undefined
+            ? 'Never accessed'
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[ASSISTED_KEYS])}`
         }`}
         title="Assisted Keys"
         description="Assisted Keys"
@@ -60,9 +62,7 @@ function KeySecurity({ navigation }) {
           preTitle={`${
             inheritanceToolVisitedHistory[SECURE_USAGE_TIPS] === undefined
               ? 'Never accessed'
-              : `${getTimeDifferenceInWords(
-                  inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER]
-                )}`
+              : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[SECURE_USAGE_TIPS])}`
           }`}
           title="Secure Usage Tips"
           description="Recommendations while transacting"
@@ -73,9 +73,7 @@ function KeySecurity({ navigation }) {
           preTitle={`${
             inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS] === undefined
               ? 'Never accessed'
-              : `${getTimeDifferenceInWords(
-                  inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER]
-                )}`
+              : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS])}`
           }`}
           title="Safekeeping Tips"
           description="Key storage best practices"
