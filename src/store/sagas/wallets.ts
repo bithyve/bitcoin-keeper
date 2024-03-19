@@ -587,69 +587,70 @@ export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT
 function* addSigningDeviceWorker({ payload: { signers } }) {
   if (!signers.length) return;
 
-  const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-  const signerMap = Object.fromEntries(
-    existingSigners.map((signer) => [signer.masterFingerprint, signer])
-  );
+  try {
+    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const signerMap = Object.fromEntries(
+      existingSigners.map((signer) => [signer.masterFingerprint, signer])
+    );
+    const signersToUpdate = [];
 
-  for (const newSigner of signers) {
-    const existingSigner = signerMap[newSigner.masterFingerprint];
-    if (!existingSigner) continue;
-
-    const keysMatch = (type) =>
+    const keysMatch = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&
       !!existingSigner.signerXpubs[type]?.[0] &&
       newSigner.signerXpubs[type]?.[0]?.xpub === existingSigner.signerXpubs[type]?.[0]?.xpub;
-    const singleSigMatch = keysMatch(XpubTypes.P2WPKH);
-    const multiSigMatch = keysMatch(XpubTypes.P2WSH);
 
-    if (singleSigMatch || multiSigMatch) {
-      if (newSigner.type === SignerType.UNKOWN_SIGNER) return false;
-
-      yield put(setRelaySignersUpdateLoading(true));
-      const response = yield call(updateAppImageWorker, { payload: { signers } });
-
-      if (response.updated) {
-        dbManager.createObject(
-          RealmSchema.Signer,
-          {
-            ...existingSigner,
-            type: newSigner.type,
-            signerXpubs: _.merge(newSigner.signerXpubs, existingSigner.signerXpubs),
-          },
-          Realm.UpdateMode.Modified
-        );
-        return true;
-      }
-      yield put(relaySignersUpdateFail(response.error));
-      return false;
-    }
-
-    const keysDifferent = (type) =>
+    const keysDifferent = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&
       !!existingSigner.signerXpubs[type]?.[0] &&
       newSigner.signerXpubs[type][0].xpub !== existingSigner.signerXpubs[type][0].xpub;
 
-    if (keysDifferent(XpubTypes.P2WPKH) || keysDifferent(XpubTypes.P2WSH)) {
-      yield put(
-        relaySignersUpdateFail(
-          'A different account has already been added. Please use the existing key for this signer.'
-        )
-      );
-      return false;
+    for (const newSigner of signers) {
+      const existingSigner = signerMap[newSigner.masterFingerprint];
+      if (!existingSigner) {
+        signersToUpdate.push(newSigner);
+        continue;
+      }
+
+      const singleSigMatch = keysMatch(XpubTypes.P2WPKH, newSigner, existingSigner);
+      const multiSigMatch = keysMatch(XpubTypes.P2WSH, newSigner, existingSigner);
+
+      // if the new signer has the same xpubs as the existing signer, then update the type and xpubs
+      if (singleSigMatch || multiSigMatch) {
+        signersToUpdate.push({
+          ...existingSigner,
+          type:
+            existingSigner.type === SignerType.UNKOWN_SIGNER ? newSigner.type : existingSigner.type,
+          signerXpubs: _.merge(existingSigner.signerXpubs, newSigner.signerXpubs),
+        });
+        continue;
+      }
+
+      const singleSigDifferent = keysDifferent(XpubTypes.P2WPKH, newSigner, existingSigner);
+      const multiSigDifferent = keysDifferent(XpubTypes.P2WSH, newSigner, existingSigner);
+
+      // if the new signer has multiple accounts of the same type, then let the user know and skip the update
+      if (singleSigDifferent || multiSigDifferent) {
+        yield put(
+          relaySignersUpdateFail(
+            `A different account has already been added. Please use the existing key for the signer ${newSigner.masterFingerprint}`
+          )
+        );
+        continue;
+      }
     }
+    if (signersToUpdate.length) {
+      yield put(setRelaySignersUpdateLoading(true));
+      const response = yield call(updateAppImageWorker, { payload: { signers: signersToUpdate } });
+      if (response.updated) {
+        dbManager.createObjectBulk(RealmSchema.Signer, signersToUpdate, Realm.UpdateMode.Modified);
+      } else {
+        yield put(relaySignersUpdateFail(response.error));
+      }
+    }
+  } catch (error) {
+    captureError(error);
+    yield put(relaySignersUpdateFail('An error occurred while updating signers.'));
   }
-
-  yield put(setRelaySignersUpdateLoading(true));
-  const response = yield call(updateAppImageWorker, { payload: { signers } });
-
-  if (response.updated) {
-    dbManager.createObjectBulk(RealmSchema.Signer, signers, Realm.UpdateMode.Modified);
-    return true;
-  }
-
-  yield put(relaySignersUpdateFail(response.error));
-  return false;
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
