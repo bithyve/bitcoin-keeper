@@ -2,9 +2,8 @@
 /* eslint-disable react/jsx-no-bind */
 import * as bip39 from 'bip39';
 
-import { Box, ScrollView, View } from 'native-base';
+import { Box, ScrollView, useColorMode, View } from 'native-base';
 import {
-  Alert,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
@@ -31,20 +30,20 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/utils/utilities';
-import config from 'src/core/config';
-import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import config from 'src/utils/service-utilities/config';
+import { generateSeedWordsKey } from 'src/services/wallets/factories/VaultFactory';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Fonts from 'src/constants/Fonts';
-import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode, setupKeeperSigner } from '../Vault/HardwareModalMap';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -130,6 +129,7 @@ function EnterSeedScreen({ route }) {
       invalid: true,
     },
   ]);
+  const { colorMode } = useColorMode();
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
@@ -280,7 +280,7 @@ function EnterSeedScreen({ route }) {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="light.greenText" fontSize={13} padding={2}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
           Make sure the words are entered in the correct sequence
         </Text>
       </View>
@@ -293,7 +293,7 @@ function EnterSeedScreen({ route }) {
         <Box alignSelf="center">
           <SuccessSvg />
         </Box>
-        <Text color="light.greenText" fontSize={13} padding={2}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
           The BIP-85 wallets and vault in the app are recovered.
         </Text>
       </View>
@@ -397,8 +397,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -460,6 +460,7 @@ function EnterSeedScreen({ route }) {
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
+                    testID={`btn_suggested_${word}`}
                     key={word ? `${word + wordIndex}` : wordIndex}
                     style={styles.suggestionTouchView}
                     onPress={() => {
@@ -481,7 +482,7 @@ function EnterSeedScreen({ route }) {
           ) : null}
         </View>
         <View style={styles.bottomContainerView}>
-          <Text style={styles.seedDescText} color="light.GreyText" testID="text_enterSeedNote">
+          <Text style={styles.seedDescText} color={`${colorMode}.GreyText`} testID="text_enterSeedNote">
             {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>
@@ -507,9 +508,9 @@ function EnterSeedScreen({ route }) {
           title={seed.InvalidSeeds}
           subTitle={seed.seedDescription}
           buttonText="Retry"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           buttonCallback={closeInvalidSeedsModal}
-          textColor="light.primaryText"
+          textColor={`${colorMode}.primaryText`}
           Content={InValidSeedsScreen}
         />
         <KeeperModal
@@ -518,7 +519,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);

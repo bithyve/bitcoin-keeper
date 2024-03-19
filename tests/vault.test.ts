@@ -1,15 +1,15 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { VerificationType } from 'src/services/interfaces';
-import SigningServer from 'src/services/operations/SigningServer';
+import { VerificationType } from 'src/models/interfaces/AssistedKeys';
+import SigningServer from 'src/services/backend/SigningServer';
 import idx from 'idx';
 import { authenticator } from 'otplib';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import WalletOperations from 'src/services/wallets/operations';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import {
   generateMobileKey,
   generateSeedWordsKey,
   generateVault,
-} from 'src/core/wallets/factories/VaultFactory';
+} from 'src/services/wallets/factories/VaultFactory';
 import {
   DerivationPurpose,
   NetworkType,
@@ -17,7 +17,8 @@ import {
   SignerType,
   TxPriority,
   VaultType,
-} from 'src/core/wallets/enums';
+} from 'src/services/wallets/enums';
+import { extractColdCardExport } from 'src/hardware/coldcard';
 import {
   generateSignerFromMetaData,
   getSignerNameFromType,
@@ -35,7 +36,6 @@ import {
   SEEDSIGNER_MS_EXPORT,
   SEEDSIGNER_SS_EXPORT,
 } from './signingDeviceExportFormats';
-import { extractColdCardExport } from 'src/hardware/coldcard';
 import { getSeedSignerDetails, updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { decodeURBytes } from 'src/services/qr';
 import { getKeystoneDetails, getTxHexFromKeystonePSBT } from 'src/hardware/keystone';

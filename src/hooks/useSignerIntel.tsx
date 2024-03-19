@@ -1,7 +1,7 @@
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useSignerMap from './useSignerMap';
 import usePlan from './usePlan';
 

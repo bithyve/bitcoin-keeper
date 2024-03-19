@@ -19,7 +19,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupInheritance({ route }) {
@@ -150,10 +150,10 @@ function SetupInheritance({ route }) {
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => proceedCallback()}>
             <Box
               borderColor={`${colorMode}.learnMoreBorder`}
-              backgroundColor="light.lightAccent"
+              backgroundColor={`${colorMode}.lightAccent`}
               style={styles.upgradeNowContainer}
             >
-              <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
+              <Text color={`${colorMode}.learnMoreBorder`} style={styles.upgradeNowText}>
                 {common.proceed}
               </Text>
             </Box>

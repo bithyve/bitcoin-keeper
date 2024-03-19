@@ -1,4 +1,4 @@
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 
 export const enum BackupType {
   SEED = 'SEED',

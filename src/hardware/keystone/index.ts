@@ -1,5 +1,5 @@
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { DerivationPurpose } from 'src/core/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { DerivationPurpose } from 'src/services/wallets/enums';
 import * as bitcoin from 'bitcoinjs-lib';
 
 const getKeystoneDetails = (qrData) => {

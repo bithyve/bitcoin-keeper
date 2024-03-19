@@ -7,9 +7,9 @@ import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
@@ -72,6 +72,7 @@ function ColdCardSetupContent() {
 }
 
 function PassportSetupContent() {
+  const { colorMode } = useColorMode();
   return (
     <View>
       <Box ml={wp(21)}>
@@ -79,7 +80,7 @@ function PassportSetupContent() {
       </Box>
       <Box marginTop="4">
         <Text
-          color="light.greenText"
+          color={`${colorMode}.greenText`}
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -144,15 +145,15 @@ function SigningDeviceConfigRecovery({ navigation }) {
           >
             <Box style={styles.walletMapContainer}>
               <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
-              <Box backgroundColor="light.divider" style={styles.divider} />
+              <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
-                <Text color="light.inActiveMsg" style={styles.messageText}>
+                <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
                   {message}
                 </Text>
               </Box>
             </Box>
-            <Box backgroundColor="light.divider" style={styles.dividerStyle} />
+            <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
 
@@ -183,9 +184,9 @@ function SigningDeviceConfigRecovery({ navigation }) {
           close={close}
           title="Recover using Passport (Batch 2)"
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
-          subTitleColor="light.secondaryText"
+          subTitleColor={`${colorMode}.secondaryText`}
           buttonText="Continue"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           buttonCallback={() => {
             navigate('LoginStack', {
               screen: 'ScanQRFileRecovery',
@@ -193,7 +194,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
             });
             close();
           }}
-          textColor="light.primaryText"
+          textColor={`${colorMode}.primaryText`}
           Content={PassportSetupContent}
         />
       </>

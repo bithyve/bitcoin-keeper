@@ -1,7 +1,7 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { TxPriority, VaultType } from 'src/core/wallets/enums';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { TxPriority, VaultType } from 'src/services/wallets/enums';
+import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { TransferType } from 'src/models/enums/TransferType';
@@ -10,14 +10,14 @@ import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
-import WalletOperations from 'src/core/wallets/operations';
+import WalletOperations from 'src/services/wallets/operations';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 
 function VaultMigrationController({
   vaultCreating,

@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-nat
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -12,7 +12,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import NFC from 'src/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import openLink from 'src/utils/OpenLink';
@@ -25,7 +25,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { useRoute } from '@react-navigation/native';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useSigners from 'src/hooks/useSigners';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SDIcons } from './SigningDeviceIcons';
@@ -174,7 +174,7 @@ function SigningDeviceList() {
         title={vault.Addsigner}
         subtitle={vault.SelectSignerSubtitle}
         learnMore
-        learnBackgroundColor={`${colorMode}.RussetBrown`}
+        learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
         learnTextColor={`${colorMode}.white`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));

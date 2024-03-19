@@ -31,15 +31,15 @@ function TimelockScreen() {
             >
               <Input
                 placeholder=""
-                placeholderTextColor="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
                 borderWidth="0"
                 value={amount}
                 onFocus={() => Keyboard.dismiss()}
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
               />
               <Text
-                color="light.textColor2"
+                color={`${colorMode}.textColor2`}
                 bold
                 letterSpacing={2.8}
                 fontSize={13}
@@ -66,8 +66,8 @@ function TimelockScreen() {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          clear={() => {}}
-          color="light.greenText"
+          clear={() => { }}
+          color={`${colorMode}.greenText`}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
         />

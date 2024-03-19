@@ -4,7 +4,7 @@ import { Box, Input, Pressable, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
+import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -20,8 +20,8 @@ import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { v4 as uuidv4 } from 'uuid';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/utils/service-utilities/config';
 import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';
@@ -161,7 +161,7 @@ function EnterWalletDetailScreen({ route }) {
       <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
-        // To-Do-Learn-More
+      // To-Do-Learn-More
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
@@ -291,7 +291,7 @@ function EnterWalletDetailScreen({ route }) {
       </Box>
       <KeeperModal
         dismissible
-        close={() => {}}
+        close={() => { }}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -301,7 +301,7 @@ function EnterWalletDetailScreen({ route }) {
           // setInitiating(true)
         }}
         showButtons
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />

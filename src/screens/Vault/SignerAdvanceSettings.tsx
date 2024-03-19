@@ -4,11 +4,11 @@ import { Box, VStack, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -31,16 +31,16 @@ import {
   InheritanceAlert,
   InheritanceConfiguration,
   InheritancePolicy,
-} from 'src/services/interfaces';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+} from 'src/models/interfaces/AssistedKeys';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
-import config from 'src/core/config';
-import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import config from 'src/utils/service-utilities/config';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import DescriptionModal from './components/EditDescriptionModal';
 import { SDIcons } from './SigningDeviceIcons';
 
@@ -247,7 +247,7 @@ function SignerAdvanceSettings({ route }: any) {
                 <DeleteIcon />
               </Box>
               <Box>
-                <Text style={styles.fw800} color={`${colorMode}.RussetBrown`} fontSize={13}>
+                <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
                   Delete Email
                 </Text>
                 <Box fontSize={12}>This is a irreversible action</Box>
@@ -260,7 +260,7 @@ function SignerAdvanceSettings({ route }: any) {
           <Text style={styles.noteText} color={`${colorMode}.primaryGreenBackground`}>
             Note:
           </Text>
-          <Text color="light.greenText" style={styles.noteDescription}>
+          <Text color={`${colorMode}.greenText`} style={styles.noteDescription}>
             If notification is not declined continuously for 30 days, the Key would be activated
           </Text>
         </Box>
@@ -276,7 +276,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           >
             <Box backgroundColor={`${colorMode}.greenButtonBackground`} style={styles.cta}>
-              <Text style={styles.ctaText} color="light.white" bold>
+              <Text style={styles.ctaText} color={`${colorMode}.white`} bold>
                 Update
               </Text>
             </Box>
@@ -484,7 +484,7 @@ function SignerAdvanceSettings({ route }: any) {
               description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
-              callback={() => {}}
+              callback={() => { }}
             />
           ))}
         </ScrollView>

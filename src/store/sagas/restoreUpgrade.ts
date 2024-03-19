@@ -1,8 +1,8 @@
 import { call } from 'redux-saga/effects';
 import semver from 'semver';
-import { decrypt, encrypt } from 'src/services/operations/encryption';
-import Relay from 'src/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { decrypt, encrypt } from 'src/utils/service-utilities/encryption';
+import Relay from 'src/services/backend/Relay';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 export function* applyRestoreSequence({
   previousVersion,

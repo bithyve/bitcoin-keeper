@@ -9,21 +9,21 @@ import {
   VisibilityType,
   WalletType,
   XpubTypes,
-} from 'src/core/wallets/enums';
+} from 'src/services/wallets/enums';
 import {
   InheritanceConfiguration,
   InheritanceKeyInfo,
   InheritancePolicy,
   SignerException,
   SignerRestriction,
-} from 'src/services/interfaces';
+} from 'src/models/interfaces/AssistedKeys';
 import {
   Signer,
   Vault,
   VaultPresentationData,
   VaultScheme,
   VaultSigner,
-} from 'src/core/wallets/interfaces/vault';
+} from 'src/services/wallets/interfaces/vault';
 import {
   TransferPolicy,
   Wallet,
@@ -31,7 +31,7 @@ import {
   WalletPresentationData,
   WhirlpoolConfig,
   WalletDerivationDetails,
-} from 'src/core/wallets/interfaces/wallet';
+} from 'src/services/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
@@ -45,20 +45,20 @@ import {
 import { Alert } from 'react-native';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/services/operations/Relay';
-import SigningServer from 'src/services/operations/SigningServer';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import Relay from 'src/services/backend/Relay';
+import SigningServer from 'src/services/backend/SigningServer';
+import WalletOperations from 'src/services/wallets/operations';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
-import { generateVault } from 'src/core/wallets/factories/VaultFactory';
+import { generateVault } from 'src/services/wallets/factories/VaultFactory';
 import {
   generateWallet,
   generateWalletSpecsFromMnemonic,
-} from 'src/core/wallets/factories/WalletFactory';
+} from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { generateKey, hash256 } from 'src/services/operations/encryption';
+import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/services/sentry';
 import ElectrumClient, {
@@ -66,8 +66,8 @@ import ElectrumClient, {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import idx from 'idx';
 import _ from 'lodash';
 import { RootState } from '../store';

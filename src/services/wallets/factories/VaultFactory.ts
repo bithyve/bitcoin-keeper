@@ -6,16 +6,16 @@ import {
   generateEncryptionKey,
   generateKey,
   hash256,
-} from 'src/services/operations/encryption';
-import config from 'src/core/config';
+} from 'src/utils/service-utilities/encryption';
+import config from 'src/utils/service-utilities/config';
 import {
   CosignersMapUpdate,
   CosignersMapUpdateAction,
   IKSCosignersMapUpdate,
   IKSCosignersMapUpdateAction,
-} from 'src/services/interfaces';
-import SigningServer from 'src/services/operations/SigningServer';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+} from 'src/models/interfaces/AssistedKeys';
+import SigningServer from 'src/services/backend/SigningServer';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import {
   EntityKind,
   NetworkType,

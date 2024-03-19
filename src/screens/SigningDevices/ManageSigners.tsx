@@ -13,13 +13,13 @@ import { AppStackParams } from 'src/navigation/types';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import SignerIcon from 'src/assets/images/signer_brown.svg';
 import useVault from 'src/hooks/useVault';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
+import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import config from 'src/utils/service-utilities/config';
 import moment from 'moment';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
@@ -77,7 +77,7 @@ function ManageSigners({ route }: ScreenProps) {
   const { top } = useSafeAreaInsets();
 
   return (
-    <Box backgroundColor={`${colorMode}.RussetBrown`} style={[styles.wrapper, { paddingTop: top }]}>
+    <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={[styles.wrapper, { paddingTop: top }]}>
       <Box style={styles.topSection}>
         <KeeperHeader
           title="Manage Keys"
@@ -116,7 +116,7 @@ function FooterIcon({ Icon, colorMode }) {
       width="12"
       height="12"
       borderRadius={30}
-      backgroundColor={`${colorMode}.RussetBrown`}
+      backgroundColor={`${colorMode}.BrownNeedHelp`}
       justifyContent="center"
       alignItems="center"
     >
@@ -132,7 +132,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => {}}
+        callback={() => { }}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>

@@ -10,7 +10,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
@@ -19,15 +19,14 @@ import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { SignerType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
 import Note from 'src/components/Note/Note';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet, common, seed: seedTranslation } = translations;
@@ -156,9 +155,6 @@ function ExportSeedScreen({ route, navigation }) {
                   >
                     {common.showAsQR}
                   </Text>
-                  {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-
-                </Text> */}
                 </VStack>
               </HStack>
               <Box style={styles.backArrow}>
@@ -215,10 +211,11 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         title={BackupWallet.backupSuccessTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText="Done"
         buttonCallback={() => navigation.replace('WalletBackHistory')}
         Content={() => (
@@ -239,8 +236,8 @@ function ExportSeedScreen({ route, navigation }) {
         title={BackupWallet.recoveryPhrase}
         subTitleWidth={wp(260)}
         subTitle={BackupWallet.recoveryPhraseSubTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText={common.done}
         buttonCallback={() => setShowQRVisible(false)}
         Content={() => (

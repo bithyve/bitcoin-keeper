@@ -86,7 +86,7 @@ function SignWithTapsigner() {
             value={cvc}
             onChangeText={setCvc}
           />
-          <Text style={styles.heading} color="light.greenText">
+          <Text style={styles.heading} color={`${colorMode}.greenText`}>
             You will be scanning the TAPSIGNER after this step
           </Text>
           <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>

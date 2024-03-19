@@ -35,7 +35,11 @@ function GenerateVaultDescriptor() {
             <Text noOfLines={4}>{descriptorString}</Text>
           </Box>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onShare} style={styles.buttonContainer}>
+        <TouchableOpacity
+          testID="btn_shareVaultConfiguration"
+          onPress={onShare}
+          style={styles.buttonContainer}
+        >
           <Box>
             <IconShare />
           </Box>

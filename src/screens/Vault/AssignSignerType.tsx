@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
@@ -112,6 +112,7 @@ function AssignSignerType({ route }: IProps) {
                     assignSignerType(type);
                   }}
                   key={type}
+                  testID={`btn_identify_${type}`}
                 >
                   <Box
                     backgroundColor={`${colorMode}.seashellWhite`}

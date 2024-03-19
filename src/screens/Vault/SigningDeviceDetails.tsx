@@ -28,7 +28,7 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
@@ -37,7 +37,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -236,7 +236,7 @@ function SigningDeviceDetails({ route }) {
       <Box>
         <Center>{assert}</Center>
         <Text
-          color="light.white"
+          color={`${colorMode}.modalGreenContent`}
           style={{
             fontSize: 13,
             letterSpacing: 0.65,
@@ -270,7 +270,7 @@ function SigningDeviceDetails({ route }) {
         width="12"
         height="12"
         borderRadius={30}
-        backgroundColor={`${colorMode}.RussetBrown`}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
         justifyContent="center"
         alignItems="center"
       >
@@ -379,14 +379,14 @@ function SigningDeviceDetails({ route }) {
         subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
         buttonText="Do Later"
         secondaryButtonText="Confirm Access"
-        buttonTextColor="light.white"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={() => setSkipHealthCheckModalVisible(false)}
         secondaryCallback={() => {
           dispatch(healthCheckSigner([signer]));
           showToast('Device verified manually!');
           setSkipHealthCheckModalVisible(false);
         }}
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={HealthCheckSkipContent}
       />
       <KeeperModal

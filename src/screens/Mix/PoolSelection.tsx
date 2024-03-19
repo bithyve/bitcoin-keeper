@@ -17,8 +17,8 @@ import useBalance from 'src/hooks/useBalance';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/services/sentry';
-import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
+import config from 'src/utils/service-utilities/config';
+import { NetworkType } from 'src/services/wallets/enums';
 import Note from 'src/components/Note/Note';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LearnMoreModal from './components/LearnMoreModal';
@@ -255,13 +255,13 @@ export default function PoolSelection({ route, navigation }) {
       {feeDiscountPercent !== 0 && (
         <Box style={styles.textArea}>
           <Text color="#017963">Fee Discount</Text>
-          <Text color="light.secondaryText">{selectedPool ? `${feeDiscountPercent}%` : ''}</Text>
+          <Text color={`${colorMode}.secondaryText`}>{selectedPool ? `${feeDiscountPercent}%` : ''}</Text>
         </Box>
       )}
 
       <Box style={styles.textArea}>
         <Text color="#017963">Premix Outputs</Text>
-        <Text color="light.secondaryText">
+        <Text color={`${colorMode}.secondaryText`}>
           {selectedPool ? premixOutput : ''} {selectedPool ? 'UTXOs' : '--'}
         </Text>
       </Box>

@@ -16,9 +16,9 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { TxPriority } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { TxPriority } from 'src/services/wallets/enums';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
 import Checked from 'src/assets/images/check.svg';
@@ -40,11 +40,11 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
-import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
+import { whirlPoolWalletTypes } from 'src/services/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
-import { UTXO } from 'src/core/wallets/interfaces';
+import { UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
@@ -74,7 +74,7 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       minHeight={hp(70)}
     >
       <Box
-        // backgroundColor="light.accent"
+        // backgroundColor={`${colorMode}.accent`}
         // height={10}
         // width={10}
         // borderRadius={20}
@@ -295,9 +295,8 @@ function SendingPriority({
                     isSelected={transactionPriority === priority}
                     key={priority}
                     name={String(priority)}
-                    description={`~${
-                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                    } mins`}
+                    description={`~${txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                      } mins`}
                     numberOfLines={2}
                     onCardSelect={() => setTransactionPriority(priority)}
                     customStyle={{
@@ -328,19 +327,19 @@ function SendingPriority({
 //     <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
 //       <VStack>
 //         <Text
-//           color="light.primaryText"
+//           color={`${colorMode}.primaryText`}
 //           fontSize={14}
 //           letterSpacing={1.12}
 //           marginTop={windowHeight * 0.011}
 //         >
 //           Fees
 //         </Text>
-//         <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} light>
+//         <Text color={`${colorMode}.primaryText`} fontSize={12} letterSpacing={1.12} light>
 //           ~ 10 - 30 mins
 //         </Text>
 //       </VStack>
 //       <Text
-//         color="light.primaryText"
+//         color={`${colorMode}.primaryText`}
 //         fontSize={14}
 //         letterSpacing={1.12}
 //         marginTop={windowHeight * 0.011}
@@ -415,13 +414,14 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
 }
 
 function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) {
+  const { colorMode } = useColorMode();
   return (
     <>
       <View style={{ marginVertical: 25 }}>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
         </Text>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           You can change the policy that triggers auto-transfer to suit your needs
         </Text>
       </View>
@@ -473,7 +473,7 @@ function TransactionPriorityDetails({
               <Box style={styles.transSatsFeeWrapper}>
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
-                <Text color={`${colorMode}.GreenishGrey`} style={styles.transSatsFeeText}>
+                <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
                   {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
                 </Text>
               </Box>
@@ -838,7 +838,10 @@ function SendConfirmation({ route }) {
         />
         {/* Custom priority diabled for auto transfer  */}
         {transferType !== TransferType.WALLET_TO_VAULT ? (
-          <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+          <TouchableOpacity
+            testID="btn_transactionPriority"
+            onPress={() => setTransPriorityModalVisible(true)}
+          >
             <TransactionPriorityDetails
               transactionPriority={transactionPriority}
               txFeeInfo={txFeeInfo}
@@ -869,12 +872,12 @@ function SendConfirmation({ route }) {
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
-                  satsEnabled ? 2 : 8
-                )
+                satsEnabled ? 2 : 8
+              )
               : addNumbers(
-                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-                  getBalance(amount)
-                ).toFixed(satsEnabled ? 2 : 8)
+                getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                getBalance(amount)
+              ).toFixed(satsEnabled ? 2 : 8)
           }
           fontSize={17}
           fontWeight="400"
@@ -899,8 +902,11 @@ function SendConfirmation({ route }) {
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewWallets}
         buttonCallback={viewDetails}
-        textcolor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -916,7 +922,7 @@ function SendConfirmation({ route }) {
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
-        textcolor={`${colorMode}.greenText`}
+        textColor={`${colorMode}.greenText`}
         Content={() => (
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
@@ -933,6 +939,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
