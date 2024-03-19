@@ -50,6 +50,8 @@ import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -295,8 +297,9 @@ function SendingPriority({
                     isSelected={transactionPriority === priority}
                     key={priority}
                     name={String(priority)}
-                    description={`~${txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                      } mins`}
+                    description={`~${
+                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                    } mins`}
                     numberOfLines={2}
                     onCardSelect={() => setTransactionPriority(priority)}
                     customStyle={{
@@ -782,7 +785,7 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
-  const addNumbers = (str1, str2) => {
+  const addNumbers = (str1, str2): number => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
 
@@ -796,10 +799,10 @@ function SendConfirmation({ route }) {
       } else {
         // Handle invalid input
         console.error('Invalid input. Please provide valid numeric strings.');
-        return null;
+        return 0;
       }
     } else {
-      const sum = str1 + str2;
+      const sum = Number(str1) || 0 + Number(str2) || 0;
       return sum;
     }
   };
@@ -872,12 +875,12 @@ function SendConfirmation({ route }) {
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
-                satsEnabled ? 2 : 8
-              )
+                  satsEnabled ? 2 : 8
+                )
               : addNumbers(
-                getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-                getBalance(amount)
-              ).toFixed(satsEnabled ? 2 : 8)
+                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                  getBalance(amount)
+                ).toFixed(satsEnabled ? 2 : 8)
           }
           fontSize={17}
           fontWeight="400"
@@ -1032,7 +1035,7 @@ function SendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default SendConfirmation;
+export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   priorityRowContainer: {
@@ -1172,11 +1175,9 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
-    maxWidth: 85,
   },
   cardSubtitle: {
     fontSize: 12,
     letterSpacing: 0.72,
-    maxWidth: wp(100),
   },
 });

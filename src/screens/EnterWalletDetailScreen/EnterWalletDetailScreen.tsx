@@ -93,7 +93,7 @@ function EnterWalletDetailScreen({ route }) {
       },
     };
     dispatch(addNewWallets([newWallet]));
-  }, [walletName, walletDescription, transferPolicy]);
+  }, [walletName, walletDescription, path, purpose, transferPolicy]);
 
   useEffect(() => {
     if (relayWalletUpdate) {

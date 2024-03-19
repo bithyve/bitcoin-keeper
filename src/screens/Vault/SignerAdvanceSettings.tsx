@@ -14,7 +14,7 @@ import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
 import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wallets';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
@@ -179,7 +179,7 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       default:
-        showToast('Comming soon', null, 1000);
+        showToast('Comming soon', null, IToastCategory.DEFAULT, 1000);
         break;
     }
   };
@@ -306,6 +306,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           parentNavigation: navigation,
           vault: activeVault,
+          signer,
         },
       })
     );
@@ -341,7 +342,7 @@ function SignerAdvanceSettings({ route }: any) {
       );
     } catch (e) {
       resetQR();
-      showToast('Please scan a valid PSBT', null, 3000, true);
+      showToast('Please scan a valid PSBT');
     }
   };
 
@@ -443,6 +444,7 @@ function SignerAdvanceSettings({ route }: any) {
               showToast(
                 'If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again',
                 null,
+                IToastCategory.DEFAULT,
                 7000
               );
             }}

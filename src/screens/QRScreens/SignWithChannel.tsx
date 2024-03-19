@@ -128,12 +128,12 @@ function SignWithChannel() {
           (info) => info.vaultId === activeVault.id
         )?.registrationInfo;
         if (!registerationInfo) {
-          showToast('Please register the wallet before signing', null, 1000);
+          showToast('Please register the wallet before signing', null);
           return;
         }
         const hmac = JSON.parse(registerationInfo)?.registeredWallet;
         if (!hmac) {
-          showToast('Please register the wallet before signing', null, 1000);
+          showToast('Please register the wallet before signing', null);
           return;
         }
         const data = {
