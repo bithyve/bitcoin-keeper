@@ -33,6 +33,8 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { formatNumber } from 'src/utils/utilities';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -124,7 +126,10 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
-            <CardPill heading="SINGLE SIG" backgroundColor={`${colorMode}.PaleTurquoise`} />
+            <CardPill
+              heading="SINGLE SIG"
+              backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
+            />
             <CardPill heading={wallet.type} />
           </Box>
           <Box style={styles.availableBalanceView}>
@@ -289,4 +294,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.16,
   },
 });
-export default WalletDetails;
+export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);

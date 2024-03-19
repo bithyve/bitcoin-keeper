@@ -220,7 +220,7 @@ function MixProgress({
         <Box style={inProgress ? styles.timeLineProgressWrapper : styles.timeLineWrapper}>
           {inProgress ? (
             <Box style={styles.animatedCircularborder}>
-              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot}>
+              <Box backgroundColor={`${colorMode}.forestGreen`} style={styles.animatedGreentDot}>
                 <Animated.View style={styles.whirlpoolIconStyle}>
                   <Gear0 />
                 </Animated.View>
@@ -240,18 +240,18 @@ function MixProgress({
                 inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper
               }
             >
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor={`${colorMode}.fadedblue`} style={styles.verticalBorder} />
+              <Box backgroundColor={`${colorMode}.fadedblue`} style={styles.verticalBorder} />
+              <Box backgroundColor={`${colorMode}.fadedblue`} style={styles.verticalBorder} />
             </Box>
           )}
         </Box>
         <Box style={styles.progressStepsTextWrapper}>
-          <Text color="light.secondaryText" style={styles.timeLineTitle}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.timeLineTitle}>
             {title}
           </Text>
           {inProgress ? (
-            <Text color="light.secondaryText" numberOfLines={3} style={styles.timeLineTitle}>
+            <Text color={`${colorMode}.secondaryText`} numberOfLines={3} style={styles.timeLineTitle}>
               {subTitle}
             </Text>
           ) : null}
@@ -297,8 +297,7 @@ function MixProgress({
       const toastDuration = 3000;
       showToast(
         'Mix failed. Please try again later, our best minds are working on it.',
-        <ToastErrorIcon />,
-        toastDuration
+        <ToastErrorIcon />
       );
       setTimeout(() => {
         navigation.goBack();
@@ -333,8 +332,7 @@ function MixProgress({
       );
       showToast(
         'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
-        <TickIcon />,
-        3000
+        <TickIcon />
       );
       try {
         const postmixTags: BIP329Label[] = [];
@@ -451,8 +449,7 @@ function MixProgress({
         ` ${
           err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
-        <ToastErrorIcon />,
-        toastDuration
+        <ToastErrorIcon />
       );
       setTimeout(() => {
         navigation.goBack();

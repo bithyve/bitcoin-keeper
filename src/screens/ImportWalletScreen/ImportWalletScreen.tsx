@@ -93,7 +93,7 @@ function ImportWalletScreen() {
           title={wallet.ImportWallet}
           subtitle={importWallet.usingWalletConfigurationFile}
           learnMore
-          learnBackgroundColor={`${colorMode}.RussetBrown`}
+          learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
           learnTextColor={`${colorMode}.white`}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>

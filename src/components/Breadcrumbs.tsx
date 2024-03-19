@@ -24,7 +24,7 @@ function Breadcrumbs({ totalScreens, currentScreen }: Props) {
               },
             ]}
             backgroundColor={
-              index + 1 === currentScreen ? `${colorMode}.pantoneGreen` : `${colorMode}.RussetBrown`
+              index + 1 === currentScreen ? `${colorMode}.pantoneGreen` : `${colorMode}.BrownNeedHelp`
             }
           />
         );

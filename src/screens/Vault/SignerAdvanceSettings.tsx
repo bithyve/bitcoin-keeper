@@ -14,7 +14,7 @@ import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
 import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wallets';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
@@ -179,7 +179,7 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       default:
-        showToast('Comming soon', null, 1000);
+        showToast('Comming soon', null, IToastCategory.DEFAULT, 1000);
         break;
     }
   };
@@ -247,7 +247,7 @@ function SignerAdvanceSettings({ route }: any) {
                 <DeleteIcon />
               </Box>
               <Box>
-                <Text style={styles.fw800} color={`${colorMode}.RussetBrown`} fontSize={13}>
+                <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
                   Delete Email
                 </Text>
                 <Box fontSize={12}>This is a irreversible action</Box>
@@ -260,7 +260,7 @@ function SignerAdvanceSettings({ route }: any) {
           <Text style={styles.noteText} color={`${colorMode}.primaryGreenBackground`}>
             Note:
           </Text>
-          <Text color="light.greenText" style={styles.noteDescription}>
+          <Text color={`${colorMode}.greenText`} style={styles.noteDescription}>
             If notification is not declined continuously for 30 days, the Key would be activated
           </Text>
         </Box>
@@ -276,7 +276,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           >
             <Box backgroundColor={`${colorMode}.greenButtonBackground`} style={styles.cta}>
-              <Text style={styles.ctaText} color="light.white" bold>
+              <Text style={styles.ctaText} color={`${colorMode}.white`} bold>
                 Update
               </Text>
             </Box>
@@ -306,6 +306,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           parentNavigation: navigation,
           vault: activeVault,
+          signer,
         },
       })
     );
@@ -341,7 +342,7 @@ function SignerAdvanceSettings({ route }: any) {
       );
     } catch (e) {
       resetQR();
-      showToast('Please scan a valid PSBT', null, 3000, true);
+      showToast('Please scan a valid PSBT');
     }
   };
 
@@ -443,6 +444,7 @@ function SignerAdvanceSettings({ route }: any) {
               showToast(
                 'If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again',
                 null,
+                IToastCategory.DEFAULT,
                 7000
               );
             }}
@@ -484,7 +486,7 @@ function SignerAdvanceSettings({ route }: any) {
               description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
-              callback={() => {}}
+              callback={() => { }}
             />
           ))}
         </ScrollView>

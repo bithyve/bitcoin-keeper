@@ -3,8 +3,10 @@ import React from 'react';
 import Selected from 'src/assets/images/selected.svg';
 import UnSelected from 'src/assets/images/unselected.svg';
 import Text from './KeeperText';
+import { useColorMode } from 'native-base';
 
 function CheckBox(props) {
+  const { colorMode } = useColorMode();
   const IconName = props.isChecked ? <Selected /> : <UnSelected />;
 
   return (
@@ -15,7 +17,7 @@ function CheckBox(props) {
           {props.title}
         </Text>
         {props.subTitle && props.subTitle.length > 0 && (
-          <Text style={styles.subtitle} color="light.secondaryText">
+          <Text style={styles.subtitle} color={`${colorMode}.secondaryText`}>
             {props.subTitle}
           </Text>
         )}
