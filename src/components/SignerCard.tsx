@@ -22,13 +22,13 @@ function SignerCard({
   return (
     <Pressable
       backgroundColor={isSelected ? `${colorMode}.Teal` : `${colorMode}.seashellWhite`}
-      borderColor={`${colorMode}.Eggshell`}
+      borderColor={`${colorMode}.TransactionIconBackColor`}
       style={styles.walletContainer}
       onPress={() => onCardSelect(walletName)}
     >
-      <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle} />
+      <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle} />
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.iconWrapper}>
+        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.iconWrapper}>
           {icon}
         </Box>
         <Text
@@ -39,7 +39,7 @@ function SignerCard({
         </Text>
         <Text
           style={styles.walletDescription}
-          color={isSelected ? `${colorMode}.white` : `${colorMode}.GreenishGrey`}
+          color={isSelected ? `${colorMode}.white` : `${colorMode}.secondaryText`}
           numberOfLines={1}
         >
           {walletDescription}

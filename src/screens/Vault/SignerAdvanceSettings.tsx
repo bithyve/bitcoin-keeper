@@ -247,7 +247,7 @@ function SignerAdvanceSettings({ route }: any) {
                 <DeleteIcon />
               </Box>
               <Box>
-                <Text style={styles.fw800} color={`${colorMode}.RussetBrown`} fontSize={13}>
+                <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
                   Delete Email
                 </Text>
                 <Box fontSize={12}>This is a irreversible action</Box>
@@ -260,7 +260,7 @@ function SignerAdvanceSettings({ route }: any) {
           <Text style={styles.noteText} color={`${colorMode}.primaryGreenBackground`}>
             Note:
           </Text>
-          <Text color="light.greenText" style={styles.noteDescription}>
+          <Text color={`${colorMode}.greenText`} style={styles.noteDescription}>
             If notification is not declined continuously for 30 days, the Key would be activated
           </Text>
         </Box>
@@ -276,7 +276,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           >
             <Box backgroundColor={`${colorMode}.greenButtonBackground`} style={styles.cta}>
-              <Text style={styles.ctaText} color="light.white" bold>
+              <Text style={styles.ctaText} color={`${colorMode}.white`} bold>
                 Update
               </Text>
             </Box>
@@ -484,7 +484,7 @@ function SignerAdvanceSettings({ route }: any) {
               description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
-              callback={() => {}}
+              callback={() => { }}
             />
           ))}
         </ScrollView>

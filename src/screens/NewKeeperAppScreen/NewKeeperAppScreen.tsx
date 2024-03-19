@@ -247,7 +247,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -262,7 +262,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -280,7 +280,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -289,7 +289,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />

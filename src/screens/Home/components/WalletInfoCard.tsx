@@ -37,7 +37,7 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.PaleTurquoise`}
+              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`}
             />
           );
         })}

@@ -74,7 +74,7 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       minHeight={hp(70)}
     >
       <Box
-        // backgroundColor="light.accent"
+        // backgroundColor={`${colorMode}.accent`}
         // height={10}
         // width={10}
         // borderRadius={20}
@@ -327,19 +327,19 @@ function SendingPriority({
 //     <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
 //       <VStack>
 //         <Text
-//           color="light.primaryText"
+//           color={`${colorMode}.primaryText`}
 //           fontSize={14}
 //           letterSpacing={1.12}
 //           marginTop={windowHeight * 0.011}
 //         >
 //           Fees
 //         </Text>
-//         <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} light>
+//         <Text color={`${colorMode}.primaryText`} fontSize={12} letterSpacing={1.12} light>
 //           ~ 10 - 30 mins
 //         </Text>
 //       </VStack>
 //       <Text
-//         color="light.primaryText"
+//         color={`${colorMode}.primaryText`}
 //         fontSize={14}
 //         letterSpacing={1.12}
 //         marginTop={windowHeight * 0.011}
@@ -414,13 +414,14 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
 }
 
 function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) {
+  const { colorMode } = useColorMode();
   return (
     <>
       <View style={{ marginVertical: 25 }}>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
         </Text>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           You can change the policy that triggers auto-transfer to suit your needs
         </Text>
       </View>
@@ -472,7 +473,7 @@ function TransactionPriorityDetails({
               <Box style={styles.transSatsFeeWrapper}>
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
-                <Text color={`${colorMode}.GreenishGrey`} style={styles.transSatsFeeText}>
+                <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
                   {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
                 </Text>
               </Box>
