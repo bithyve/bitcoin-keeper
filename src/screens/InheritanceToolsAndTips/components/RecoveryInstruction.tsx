@@ -8,9 +8,7 @@ import { hp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
-import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import RecoveryPhraseIcon from 'src/assets/images/printable-templates.svg';
-import GenerateRecoveryInstrPDF from 'src/utils/GenerateRecoveryInstrPDF';
 import GenerateRecoveryInstrcutionsPDF from 'src/utils/GenerateRecoveryInstrcutionsPDF';
 
 function RecoveryInstruction({}) {
