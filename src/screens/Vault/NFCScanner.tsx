@@ -8,7 +8,7 @@ import Buttons from 'src/components/Buttons';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import useNfcModal from 'src/hooks/useNfcModal';
 import NfcManager from 'react-native-nfc-manager';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import deviceInfoModule from 'react-native-device-info';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -50,10 +50,14 @@ function NFCScanner({ route }) {
         ? { name: 'ManageSigners' }
         : { name: 'AddSigningDevice', merge: true, params: {} };
       navigation.dispatch(CommonActions.navigate(navigationState));
-      showToast(`${signer.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${signer.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
       } else if (error.toString() !== 'Error') {
         captureError(error);
       }
@@ -65,7 +69,7 @@ function NFCScanner({ route }) {
       if (supported) {
         addColdCard();
       } else if (!deviceInfoModule.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+        showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   };

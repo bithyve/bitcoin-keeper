@@ -94,11 +94,11 @@ export default function PoolSelection({ route, navigation }) {
           onPoolSelectionCallback(smallestPool, tx0Data);
         }
       } else {
-        showToast('Error in fetching pools data', <ToastErrorIcon />, 3000);
+        showToast('Error in fetching pools data', <ToastErrorIcon />);
       }
       setPoolLoading(false);
     } catch (error) {
-      showToast('Error in fetching pools data', <ToastErrorIcon />, 3000);
+      showToast('Error in fetching pools data', <ToastErrorIcon />);
       captureError(error);
     }
   };
@@ -166,10 +166,10 @@ export default function PoolSelection({ route, navigation }) {
         setTx0Preview(tx0Preview);
         setShowPools(false);
       } else {
-        showToast('Error in creating Tx0 preview', <ToastErrorIcon />, 3000);
+        showToast('Error in creating Tx0 preview', <ToastErrorIcon />);
       }
     } catch (error) {
-      showToast(`Tx0 preview error: ${error?.message || ''}`, <ToastErrorIcon />, 3000);
+      showToast(`Tx0 preview error: ${error?.message || ''}`, <ToastErrorIcon />);
       captureError(error);
     }
   };

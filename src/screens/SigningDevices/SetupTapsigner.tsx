@@ -21,7 +21,7 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateSignerFromMetaData, isSignerAMF } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -85,7 +85,7 @@ function SetupTapsigner({ route }) {
         if (isHealthcheck) verifyTapsginer();
         await start(addTapsigner);
       } else if (!DeviceInfo.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+        showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   };
@@ -141,7 +141,11 @@ function SetupTapsigner({ route }) {
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${tapsigner.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {
@@ -150,11 +154,11 @@ function SetupTapsigner({ route }) {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!', null);
       }
       closeNfc();
       card.endNfcSession();
@@ -173,7 +177,7 @@ function SetupTapsigner({ route }) {
       };
 
       const handleFailure = () => {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {
@@ -198,11 +202,11 @@ function SetupTapsigner({ route }) {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       }
       closeNfc();
       card.endNfcSession();

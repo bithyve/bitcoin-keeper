@@ -38,6 +38,8 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 function Footer({
   vault,
@@ -573,4 +575,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-export default VaultDetails;
+
+export default Sentry.withErrorBoundary(VaultDetails, errorBourndaryOptions);

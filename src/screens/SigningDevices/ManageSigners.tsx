@@ -15,12 +15,11 @@ import SignerIcon from 'src/assets/images/signer_brown.svg';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, VisibilityType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
-import moment from 'moment';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import KeeperFooter from 'src/components/KeeperFooter';
@@ -34,6 +33,9 @@ import Text from 'src/components/KeeperText';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import SignerCard from '../AddSigner/SignerCard';
+import idx from 'idx';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -51,7 +53,7 @@ function ManageSigners({ route }: ScreenProps) {
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
-      showToast(realySignersUpdateErrorMessage);
+      showToast(realySignersUpdateErrorMessage, null, IToastCategory.SIGNING_DEVICE);
       dispatch(resetSignersUpdateState());
     }
     return () => {
@@ -77,7 +79,10 @@ function ManageSigners({ route }: ScreenProps) {
   const { top } = useSafeAreaInsets();
 
   return (
-    <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={[styles.wrapper, { paddingTop: top }]}>
+    <Box
+      backgroundColor={`${colorMode}.BrownNeedHelp`}
+      style={[styles.wrapper, { paddingTop: top }]}
+    >
       <Box style={styles.topSection}>
         <KeeperHeader
           title="Manage Keys"
@@ -132,7 +137,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         description={vaultUsed.presentationData?.description}
         cardName={vaultUsed.presentationData.name}
         icon={<WalletVault />}
-        callback={() => { }}
+        callback={() => {}}
       />
       <Box style={{ paddingVertical: 20 }}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
@@ -166,6 +171,10 @@ function SignersList({
   const navigation = useNavigation();
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
   const { allVaults } = useVault({ includeArchived: false });
+  const allUnhiddenVaults = allVaults.filter((vault) => {
+    return idx(vault, (_) => _.presentationData.visibility) !== VisibilityType.HIDDEN;
+  });
+
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
@@ -193,7 +202,7 @@ function SignersList({
 
   const hideKeys = () => {
     for (const mfp of selectedSigners.keys()) {
-      for (const vaultItem of allVaults) {
+      for (const vaultItem of allUnhiddenVaults) {
         if (vaultItem.signers.find((signer) => signer.masterFingerprint === mfp)) {
           setVaultUsed(vaultItem);
           setWarning(true);
@@ -262,8 +271,12 @@ function SignersList({
                   signer
                 )}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-                isSelected={hiding ? selectedSigners.get(signer.masterFingerprint) : false}
-                showSelection={hiding}
+                isSelected={
+                  hiding && !!!vaultKeys?.length
+                    ? selectedSigners.get(signer.masterFingerprint)
+                    : false
+                }
+                showSelection={hiding && !!!vaultKeys?.length}
                 showDot={showDot}
                 isFullText
                 colorVarient="green"
@@ -291,7 +304,7 @@ function SignersList({
         textColor={`${colorMode}.primaryText`}
         Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
       />
-      {hiding ? (
+      {hiding && !!!vaultKeys?.length ? (
         <FloatingCTA primaryText="Hide" primaryCallback={hideKeys} />
       ) : !vaultKeys.length ? (
         <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
@@ -346,4 +359,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManageSigners;
+export default Sentry.withErrorBoundary(ManageSigners, errorBourndaryOptions);
