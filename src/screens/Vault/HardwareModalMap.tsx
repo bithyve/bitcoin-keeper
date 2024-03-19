@@ -62,7 +62,7 @@ import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { generateKey, hash512 } from 'src/utils/service-utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/models/enums/Hardware';
@@ -127,17 +127,16 @@ const getSignerContent = (
         options: [],
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
-        isMultisig ? 'MultiSig' : 'SingleSig'
-      } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
+        } and Native Segwit in the options section.`;
       return {
         type: SignerType.JADE,
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-              jadeInstructions,
-              'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
-            ]
+            jadeInstructions,
+            'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
+          ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -159,7 +158,7 @@ const getSignerContent = (
             icon: (
               <CircleIconWrapper
                 icon={<Import />}
-                backgroundColor={`${colorMode}.RussetBrown`}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
                 width={35}
               />
             ),
@@ -170,7 +169,7 @@ const getSignerContent = (
             icon: (
               <CircleIconWrapper
                 icon={<Add />}
-                backgroundColor={`${colorMode}.RussetBrown`}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
                 width={35}
               />
             ),
@@ -198,26 +197,25 @@ const getSignerContent = (
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-              keystoneInstructions,
-              'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
-            ]
+            keystoneInstructions,
+            'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
+          ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
         options: [],
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > QR Code.\n`;
       return {
         type: SignerType.PASSPORT,
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-              passportInstructions,
-              'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
-            ]
+            passportInstructions,
+            'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
+          ]
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -230,42 +228,40 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks it health']
           : [
-              'A 2FA authenticator will have to be set up to use this option.',
-              'On providing the correct code from the auth app, the signer will sign the transaction.',
-            ],
+            'A 2FA authenticator will have to be set up to use this option.',
+            'On providing the correct code from the auth app, the signer will sign the transaction.',
+          ],
         title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
         subTitle: 'A signer will hold one of the keys of the vault',
         options: [],
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > Native Segwit > Keeper.\n`;
       return {
         type: SignerType.SEEDSIGNER,
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-              seedSignerInstructions,
-              'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
-            ]
+            seedSignerInstructions,
+            'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
+          ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
         options: [],
       };
     case SignerType.SPECTER:
-      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit.\n`;
+      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > Native Segwit.\n`;
       return {
         type: SignerType.SPECTER,
         Illustration: <SpecterSetupImage />,
         Instructions: isTestnet()
           ? [
-              specterInstructions,
-              'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
-            ]
+            specterInstructions,
+            'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
+          ]
           : [specterInstructions],
         title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
         subTitle: 'Keep your device ready and powered before proceeding',
@@ -321,13 +317,13 @@ const getSignerContent = (
           {
             title: 'Import',
             icon: <Import />,
-            callback: () => {},
+            callback: () => { },
             name: KeyGenerationMode.IMPORT,
           },
           {
             title: 'Create',
             icon: <RecoverImage />,
-            callback: () => {},
+            callback: () => { },
             name: KeyGenerationMode.CREATE,
           },
         ],
@@ -371,7 +367,7 @@ const getSignerContent = (
           {
             title: 'Configure a New Key',
             icon: <RecoverImage />,
-            callback: () => {},
+            callback: () => { },
             name: KeyGenerationMode.NEW,
           },
           {
@@ -742,6 +738,7 @@ function PasswordEnter({
   isMultisig;
   addSignerFlow;
 }) {
+  const { colorMode } = useColorMode();
   const [password, setPassword] = useState('');
   const { showToast } = useToastMessage();
   const [inProgress, setInProgress] = useState(false);
@@ -764,7 +761,11 @@ function PasswordEnter({
           ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
-        showToast(`${signer.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
         setInProgress(false);
         close();
       } else {
@@ -775,7 +776,7 @@ function PasswordEnter({
     } catch (error) {
       setInProgress(false);
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
       } else if (error.toString() === 'Error') {
         /* empty */
       } else captureError(error);
@@ -798,7 +799,7 @@ function PasswordEnter({
     } catch (error) {
       setInProgress(false);
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         close();
       } else if (error.toString() === 'Error') {
         /* empty */
@@ -831,7 +832,7 @@ function PasswordEnter({
         textColor
         length={4}
       />
-      <Text style={styles.infoText} color="light.greenText">
+      <Text style={styles.infoText} color={`${colorMode}.greenText`}>
         The app will use the Mobile Key to sign on entering the correct Passcode
       </Text>
       <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -850,7 +851,7 @@ function PasswordEnter({
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="light.primaryText"
+        keyColor={`${colorMode}.primaryText`}
         ClearIcon={<DeleteIcon />}
       />
     </Box>
@@ -972,7 +973,7 @@ function HardwareModalMap({
     } catch (err) {
       setInProgress(true);
       captureError(err);
-      showToast('Key could not be added, please try again', <ToastErrorIcon />, 3000);
+      showToast('Key could not be added, please try again', <ToastErrorIcon />);
     }
   };
 
@@ -991,14 +992,14 @@ function HardwareModalMap({
           showToast('Health check done successfully', <TickIcon />);
         } else {
           close();
-          showToast('Error in Health check', <ToastErrorIcon />, 3000);
+          showToast('Error in Health check', <ToastErrorIcon />);
         }
         setInProgress(false);
       } catch (err) {
         console.log(err);
         setInProgress(false);
         close();
-        showToast('Error in Health check', <ToastErrorIcon />, 3000);
+        showToast('Error in Health check', <ToastErrorIcon />);
       }
     } else {
       navigation.dispatch(
@@ -1062,7 +1063,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             },
             addSignerFlow,
           },
@@ -1101,7 +1106,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             },
           },
         })
@@ -1159,10 +1168,14 @@ function HardwareModalMap({
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(`${hw.signer.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${hw.signer.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         resetQR();
       } else {
         captureError(error);
@@ -1206,12 +1219,12 @@ function HardwareModalMap({
         showToast('Health check done successfully', <TickIcon />);
       } else {
         navigation.dispatch(CommonActions.goBack());
-        showToast('Health check Failed', <ToastErrorIcon />, 3000);
+        showToast('Health check Failed', <ToastErrorIcon />);
       }
     } catch (error) {
       console.log('err');
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         resetQR();
       } else {
         captureError(error);
@@ -1252,7 +1265,11 @@ function HardwareModalMap({
           setInProgress(false);
           dispatch(setSigningDevices(signingServerKey));
           navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-          showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
+          showToast(
+            `${signingServerKey.signerName} added successfully`,
+            <TickIcon />,
+            IToastCategory.SIGNING_DEVICE
+          );
         }
       } catch (err) {
         setInProgress(false);
@@ -1321,7 +1338,7 @@ function HardwareModalMap({
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color="light.greenText">
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -1339,7 +1356,7 @@ function HardwareModalMap({
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -1401,7 +1418,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             } else {
               showToast('Incorrect password. Try again!', <ToastErrorIcon />);
             }
@@ -1549,7 +1570,11 @@ function HardwareModalMap({
         // }
         dispatch(addSigningDevice([inheritanceKey]));
         dispatch(setInheritanceRequestId('')); // clear approved request
-        showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${inheritanceKey.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
         navigation.goBack();
       }
     } catch (err) {
@@ -1574,7 +1599,11 @@ function HardwareModalMap({
       });
       setInProgress(false);
       dispatch(addSigningDevice([inheritanceKey]));
-      showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
@@ -1688,7 +1717,7 @@ function HardwareModalMap({
         title={title}
         subTitle={subTitle}
         buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
-        buttonTextColor="light.white"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -1702,8 +1731,8 @@ function HardwareModalMap({
           isHealthcheck
             ? skipHealthCheckCallBack
             : type === SignerType.INHERITANCEKEY
-            ? close
-            : null
+              ? close
+              : null
         }
         loading={inProgress}
       />
@@ -1714,7 +1743,7 @@ function HardwareModalMap({
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={() =>
           PasswordEnter({
             primaryMnemonic,
@@ -1740,8 +1769,8 @@ function HardwareModalMap({
         close={close}
         title="Confirm OTP to setup 2FA"
         subTitle="To complete setting up the signer"
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={fetchSigningServerSetup}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}

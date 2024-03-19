@@ -66,8 +66,8 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
         </Box>
         <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID="btnHide">
           <Box
-            borderColor="light.RussetBrown"
-            backgroundColor="light.RussetBrown"
+            borderColor={`${colorMode}.BrownNeedHelp`}
+            backgroundColor={`${colorMode}.BrownNeedHelp`}
             style={styles.learnMoreContainer}
           >
             {isHidden ? <ShowIcon /> : <HideWalletIcon />}
@@ -170,7 +170,7 @@ function ManageWallets() {
             }}
             activeOpacity={0.5}
           >
-            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
               Continue to Hide
             </Text>
           </TouchableOpacity>
@@ -183,7 +183,7 @@ function ManageWallets() {
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
                   Move Funds
                 </Text>
               </Box>
@@ -214,9 +214,9 @@ function ManageWallets() {
             onBtnPress={
               item.presentationData.visibility === VisibilityType.HIDDEN
                 ? () => {
-                    setConfirmPassVisible(true);
-                    setSelectedWallet(item);
-                  }
+                  setConfirmPassVisible(true);
+                  setSelectedWallet(item);
+                }
                 : () => updateWalletVisibility(item, true)
             }
           />
@@ -228,7 +228,7 @@ function ManageWallets() {
       {/* TODO: showAll/hideAll wallet functionality
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
+        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.bottomIcon}>
           <ShowAllIcon />
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
@@ -245,7 +245,7 @@ function ManageWallets() {
         title="You have funds in your wallet"
         subTitle="You have sats in your wallet. Are you sure you want to hide it?"
         Content={BalanceAlertModalContent}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={false}
         showButtons

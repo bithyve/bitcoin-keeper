@@ -17,7 +17,7 @@ function VersionHistoryList() {
       style={{ overflow: 'visible' }}
       data={VersionHistoryData.reverse()}
       renderItem={({ item }) => (
-        <Box marginLeft={1} padding={1} position="relative">
+        <Box testID="view_versionHistory" marginLeft={1} padding={1} position="relative">
           <Box
             zIndex={99}
             position="absolute"
@@ -27,9 +27,9 @@ function VersionHistoryList() {
             padding={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color="light.lightAccent" />
+            <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
           </Box>
-          <Box borderLeftColor="light.lightAccent" borderLeftWidth={1} width="100%">
+          <Box borderLeftColor={`${colorMode}.lightAccent`} borderLeftWidth={1} width="100%">
             <Text
               color={`${colorMode}.GreyText`}
               fontSize={10}

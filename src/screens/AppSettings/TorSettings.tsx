@@ -105,7 +105,7 @@ function TorSettings() {
         Content={() => (
           <Box alignItems="center">
             <Box marginTop={2}>
-              <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+              <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
                 {
                   '\u2022 This will redirect you to the Orbot app and you can configure the connection from there.'
                 }

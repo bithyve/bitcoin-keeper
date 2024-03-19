@@ -1,51 +1,62 @@
 import React, { useContext } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import CopyIcon from 'src/assets/images/copy.svg';
-import { StyleSheet } from 'react-native';
+import { Share, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { hp } from 'src/constants/responsive';
-import Text from './KeeperText';
+import { hp, wp } from 'src/constants/responsive';
+import Text from 'src/components/KeeperText';
+import { captureError } from 'src/services/sentry';
 
 type Props = {
-  fingerprint: string;
-  title?: string;
-  copy?: Function;
+  address: string;
 };
 
-function WalletFingerprint({ title, fingerprint, copy }: Props) {
+function ReceiveAddress({ address }: Props) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
 
+  const shareAddress = async () => {
+    try {
+      await Share.share({ message: address });
+    } catch (error) {
+      captureError(error);
+    }
+  };
+
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
+    <Pressable
+      onPress={() => {
+        Clipboard.setString(address);
+        showToast(walletTranslation.addressCopied, <TickIcon />);
+      }}
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={styles.container}
+    >
       <Box style={styles.textContainer}>
-        {title && (
-          <Text color={`${colorMode}.black`} style={styles.heading}>
-            {title}
-          </Text>
-        )}
-        <Text color={`${colorMode}.secondaryText`} numberOfLines={1} style={styles.value}>
-          {fingerprint}
+        <Text
+          color={`${colorMode}.secondaryText`}
+          ellipsizeMode="middle"
+          numberOfLines={1}
+          fontSize={13}
+        >
+          {address}
         </Text>
       </Box>
       <Pressable
-        testID={`btn_copyToClipboard${fingerprint}`}
+        testID={`btn_copyToClipboard${address}`}
         backgroundColor={`${colorMode}.whiteText`}
         style={styles.iconContainer}
-        onPress={() => {
-          Clipboard.setString(fingerprint);
-          copy ? copy() : showToast(walletTranslation.walletIdCopied, <TickIcon />);
-        }}
+        onPress={shareAddress}
       >
         <CopyIcon />
       </Pressable>
-    </Box>
+    </Pressable>
   );
 }
 
@@ -54,28 +65,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '90%',
+    width: '100%',
     borderRadius: 10,
-    height: 60,
+    height: hp(60),
     marginVertical: hp(20),
   },
-  heading: {
-    fontSize: 14,
-  },
   value: {
-    fontSize: 16,
+    fontSize: 13,
+    letterSpacing: 0.39,
   },
   iconContainer: {
     borderRadius: 10,
     margin: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 56,
+    width: wp(56),
     height: '95%',
   },
   textContainer: {
-    margin: 10,
+    width: '80%',
+    paddingHorizontal: 10,
   },
 });
 
-export default WalletFingerprint;
+export default ReceiveAddress;

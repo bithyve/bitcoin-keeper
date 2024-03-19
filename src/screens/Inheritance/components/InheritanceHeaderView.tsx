@@ -1,17 +1,18 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 
 function InheritanceHeaderView(props) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.iconWrapper}>{props.icon}</Box>
       <Box style={styles.titleWrapper}>
-        <Text color="light.textWallet" style={styles.titleText}>
+        <Text color={`${colorMode}.textWallet`} style={styles.titleText}>
           {props.title}
         </Text>
-        <Text color="light.secondaryText" style={styles.subTitleText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.subTitleText}>
           {props.subTitle}
         </Text>
       </Box>

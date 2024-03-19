@@ -294,11 +294,11 @@ export const getDeviceStatus = (
     case SignerType.KEEPER:
       return !addSignerFlow && scheme?.n < 2
         ? {
-            message: `You can add an ${getSignerNameFromType(
-              type
-            )} in a multisig configuration only`,
-            disabled: true,
-          }
+          message: `You can add an ${getSignerNameFromType(
+            type
+          )} in a multisig configuration only`,
+          disabled: true,
+        }
         : { message: '', disabled: false };
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
@@ -371,16 +371,26 @@ const getInheritanceKeyStatus = (
 
 export const getSDMessage = ({ type }: { type: SignerType }) => {
   switch (type) {
-    case SignerType.COLDCARD:
-    case SignerType.LEDGER:
-    case SignerType.PASSPORT:
-    case SignerType.BITBOX02:
-    case SignerType.SPECTER:
+    case SignerType.COLDCARD: {
+      return 'Secure signers from Coinkite'
+    }
+    case SignerType.LEDGER: {
+      return 'Trusted signers from SatoshiLabs'
+    }
+    case SignerType.PASSPORT: {
+      return 'Passport signers from Foundation Devices'
+    }
+    case SignerType.BITBOX02: {
+      return 'Swiss Made signer from BitBox'
+    }
+    case SignerType.SPECTER: {
+      return 'A DIY signer from Spector Solutions'
+    }
     case SignerType.KEYSTONE: {
-      return 'Register for full verification';
+      return 'Open Source signer from keyst.one';
     }
     case SignerType.JADE: {
-      return 'Optional registration';
+      return 'Great signer from Blockstream';
     }
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
@@ -393,7 +403,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Hot keys on the server';
     }
     case SignerType.SEEDSIGNER: {
-      return 'Register during txn signing';
+      return 'A DIY stateless signer';
     }
     case SignerType.SEED_WORDS: {
       return 'Blind signer when sending';
@@ -402,7 +412,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Blind signer, no verification';
     }
     case SignerType.TREZOR: {
-      return 'Manually verify addresses';
+      return 'Trusted signers from SatoshiLabs';
     }
     case SignerType.OTHER_SD: {
       return 'Varies with different signer';

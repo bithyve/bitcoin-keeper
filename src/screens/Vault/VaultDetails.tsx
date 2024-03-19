@@ -38,6 +38,8 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 function Footer({
   vault,
@@ -99,7 +101,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
       <HStack style={styles.pillsContainer}>
         <CardPill
           heading={`${vault.scheme.m} of ${vault.scheme.n}`}
-          backgroundColor={`${colorMode}.PaleTurquoise`}
+          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
         />
         <CardPill
           heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
@@ -294,7 +296,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             }
             subtitle={vault.presentationData?.description}
             learnMore
-            learnTextColor="light.white"
+            learnTextColor={`${colorMode}.white`}
             learnBackgroundColor="rgba(0,0,0,.2)"
             learnMorePressed={() => dispatch(setIntroModal(true))}
             contrastScreen={true}
@@ -573,4 +575,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-export default VaultDetails;
+
+export default Sentry.withErrorBoundary(VaultDetails, errorBourndaryOptions);

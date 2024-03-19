@@ -345,7 +345,7 @@ function EnterSeedScreen({ route, navigation }) {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="light.greenText" fontSize={13}>
+        <Text color={`${colorMode}.greenText`} fontSize={13}>
           Make sure the words are entered in the correct sequence
         </Text>
       </View>
@@ -358,7 +358,7 @@ function EnterSeedScreen({ route, navigation }) {
         <Box alignSelf="center">
           <SuccessSvg />
         </Box>
-        <Text color="light.greenText" fontSize={13}>
+        <Text color={`${colorMode}.greenText`} fontSize={13}>
           The BIP-85 wallets and vault in the app are recovered.
         </Text>
       </View>
@@ -524,6 +524,7 @@ function EnterSeedScreen({ route, navigation }) {
               <Box style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <Pressable
+                    testID={`btn_suggested_${word}`}
                     key={word ? `${word + wordIndex}` : wordIndex}
                     style={styles.suggestionTouchView}
                     onPress={() => {
@@ -572,9 +573,9 @@ function EnterSeedScreen({ route, navigation }) {
           title={seed.InvalidSeeds}
           subTitle={seed.seedDescription}
           buttonText="Retry"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           buttonCallback={closeInvalidSeedsModal}
-          textColor="light.primaryText"
+          textColor={`${colorMode}.primaryText`}
           Content={InValidSeedsScreen}
         />
         <KeeperModal

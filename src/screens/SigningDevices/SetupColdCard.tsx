@@ -13,7 +13,7 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
@@ -71,14 +71,14 @@ function SetupColdCard({ route }) {
           addColdCardWithProgress();
         }
       } else if (!DeviceInfo.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+        showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   }, []);
 
   const handleNFCError = (error) => {
     if (error instanceof HWError) {
-      showToast(error.message, <ToastErrorIcon />, 3000);
+      showToast(error.message, <ToastErrorIcon />);
     } else if (error.toString() !== 'Error') {
       captureError(error);
     }
@@ -124,7 +124,11 @@ function SetupColdCard({ route }) {
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
 
-      showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${coldcard.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       handleNFCError(error);
     }
@@ -139,7 +143,7 @@ function SetupColdCard({ route }) {
         showToast('ColdCard verified successfully', <TickIcon />);
       };
       const showVerificationError = () => {
-        showToast('Something went wrong!', <ToastErrorIcon />, 3000);
+        showToast('Something went wrong!', <ToastErrorIcon />);
       };
       if (mode === InteracationMode.IDENTIFICATION) {
         const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.COLDCARD });
@@ -157,7 +161,7 @@ function SetupColdCard({ route }) {
       }
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
       } else if (error.toString() === 'Error') {
         // ignore if user cancels NFC interaction
       } else captureError(error);

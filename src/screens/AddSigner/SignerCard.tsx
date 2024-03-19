@@ -40,7 +40,7 @@ function SignerCard({
 }: SignerCardProps) {
   const { colorMode } = useColorMode();
   const backgroundColor =
-    colorVarient === 'brown' ? `${colorMode}.RussetBrown` : `${colorMode}.pantoneGreen`;
+    colorVarient === 'brown' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.pantoneGreen`;
 
   return (
     <Pressable
@@ -50,6 +50,7 @@ function SignerCard({
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
+      testID={`btn_${name}`}
     >
       <Box style={styles.selectionIcon}>
         {showSelection &&

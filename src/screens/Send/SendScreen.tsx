@@ -49,7 +49,8 @@ import idx from 'idx';
 import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
-
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -277,7 +278,7 @@ function SendScreen({ route }) {
             <UploadImage onPress={handleChooseImage} />
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
-                testID="input_address"
+                testID="input_receive_address"
                 placeholder="or enter address manually"
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}
@@ -421,4 +422,4 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
 });
-export default SendScreen;
+export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);
