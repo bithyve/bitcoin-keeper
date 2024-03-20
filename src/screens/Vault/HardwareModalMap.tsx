@@ -983,7 +983,7 @@ function HardwareModalMap({
     }
   };
 
-  const navigateToSigningServerSetup = async () => {
+  const checkSigningServerHealth = async () => {
     if (mode === InteracationMode.HEALTH_CHECK) {
       try {
         setInProgress(true);
@@ -1007,14 +1007,16 @@ function HardwareModalMap({
         close();
         showToast('Error in Health check', <ToastErrorIcon />);
       }
-    } else {
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ChoosePolicyNew',
-          params: { signer, addSignerFlow, vaultId },
-        })
-      );
     }
+  };
+
+  const navigateToSigningServerSetup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChoosePolicyNew',
+        params: { signer, addSignerFlow, vaultId },
+      })
+    );
   };
 
   const navigateToSetupWithChannel = () => {
@@ -1353,7 +1355,7 @@ function HardwareModalMap({
               <CustomGreenButton
                 onPress={() => {
                   if (mode === InteracationMode.HEALTH_CHECK) {
-                    navigateToSigningServerSetup();
+                    checkSigningServerHealth();
                     setSigningServerHealthCheckOTPModal(false);
                   } else {
                     if (mode === InteracationMode.IDENTIFICATION) findSigningServer(otp);
@@ -1686,7 +1688,9 @@ function HardwareModalMap({
       case SignerType.COLDCARD:
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
-        return setSigningServerHealthCheckOTPModal(true);
+        if (mode === InteracationMode.HEALTH_CHECK)
+          return setSigningServerHealthCheckOTPModal(true);
+        else return navigateToSigningServerSetup();
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
@@ -1721,6 +1725,7 @@ function HardwareModalMap({
         return null;
     }
   };
+
   return (
     <>
       <KeeperModal
