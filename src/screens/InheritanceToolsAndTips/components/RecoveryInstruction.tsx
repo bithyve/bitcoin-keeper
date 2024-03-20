@@ -10,6 +10,7 @@ import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
 import RecoveryPhraseIcon from 'src/assets/images/printable-templates.svg';
 import GenerateRecoveryInstrcutionsPDF from 'src/utils/GenerateRecoveryInstrcutionsPDF';
+import DownArrow from 'src/assets/images/down_arrow.svg';
 
 function RecoveryInstruction({}) {
   const { colorMode } = useColorMode();
@@ -35,6 +36,7 @@ function RecoveryInstruction({}) {
 
         <Box mt={5}>
           <DashedButton
+            icon={<DownArrow />}
             description="For the heir or beneficiary"
             callback={() => {
               GenerateRecoveryInstrcutionsPDF().then((res) => {

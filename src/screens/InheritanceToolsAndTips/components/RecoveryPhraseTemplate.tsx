@@ -10,6 +10,7 @@ import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import RecoveryPhraseIcon from 'src/assets/images/recovery-phrase-icon.svg';
+import DownArrow from 'src/assets/images/down_arrow.svg';
 
 function RecoveryPhraseTemplate({}) {
   const { colorMode } = useColorMode();
@@ -35,6 +36,7 @@ function RecoveryPhraseTemplate({}) {
         </Text>
         <Box mt={5}>
           <DashedButton
+            icon={<DownArrow />}
             description="Phrase Template"
             callback={() => {
               GenerateRecoveryPhraseTemplate().then((res) => {

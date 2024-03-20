@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -10,11 +10,13 @@ import DashedButton from 'src/components/DashedButton';
 import WalletConfigFilesIcon from 'src/assets/images/wallet-config-files.svg';
 import GenerateAllVaultsFilePDF from 'src/utils/GenerateAllVaultsFilePDF';
 import { useNavigation } from '@react-navigation/native';
-import { Vault } from 'src/services/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import DownArrow from 'src/assets/images/down_arrow.svg';
 
 function WalletConfigurationFiles() {
+  const [fingerPrints, setFingerPrints] = useState(null);
+
   const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
 
@@ -24,14 +26,16 @@ function WalletConfigurationFiles() {
     getHiddenWallets: false,
   });
   const allVault = [allVaults].filter((item) => item !== null);
-
   useEffect(() => {
-    allVault.map((vault: any) => {
-      console.log('vault', vault[0]);
-      const descriptorString = genrateOutputDescriptors(vault[0]);
-      //WORK IN PROGRESS
-      console.log('descriptorStringdescriptorStringdescriptorString', descriptorString);
-    });
+    let array = [];
+    if (allVault) {
+      allVault[0]?.map((vault: any) => {
+        const descriptorString = genrateOutputDescriptors(vault);
+        //WORK IN PROGRESS
+        array.push({ file: descriptorString });
+      });
+      setFingerPrints(array);
+    }
   }, []);
 
   return (
@@ -51,11 +55,13 @@ function WalletConfigurationFiles() {
         <Box style={styles.circleStyle}>
           <WalletConfigFilesIcon />
         </Box>
+        {console.log('fingerPrintsfingerPrintsfingerPrintsfingerPrintsfingerPrints', fingerPrints)}
         <Box mt={5} alignItems={'center'}>
           <DashedButton
+            icon={<DownArrow />}
             description="Configuration files as on 21st March 2024"
             callback={() => {
-              GenerateAllVaultsFilePDF().then((res) => {
+              GenerateAllVaultsFilePDF(fingerPrints).then((res) => {
                 if (res) {
                   navigtaion.navigate('PreviewPDF', { source: res });
                 }

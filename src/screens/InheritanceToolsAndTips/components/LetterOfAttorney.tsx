@@ -11,6 +11,7 @@ import InheritanceHeader from '../InheritanceHeader';
 import LetterOfattorneyIcon from 'src/assets/images/letterOfAttorney.svg';
 import DashedButton from 'src/components/DashedButton';
 import GenerateLetterToAtternyPDFInheritanceTool from 'src/utils/GenerateLetterToAtternyPDFInheritanceTool';
+import DownArrow from 'src/assets/images/down_arrow.svg';
 
 function LetterOfAttorney() {
   const { allVaults } = useVault({
@@ -18,7 +19,7 @@ function LetterOfAttorney() {
     getFirst: true,
     getHiddenWallets: false,
   });
-  const fingerPrints = allVaults[0].signers.map((signer) => signer.masterFingerprint);
+  const fingerPrints = allVaults[0]?.signers.map((signer) => signer.masterFingerprint);
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
@@ -41,6 +42,7 @@ function LetterOfAttorney() {
         </Box>
         <Box mt={5}>
           <DashedButton
+            icon={<DownArrow />}
             description="Lorem ipsum dolor sit amet"
             callback={() => {
               GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
@@ -49,7 +51,7 @@ function LetterOfAttorney() {
                 }
               });
             }}
-            name="Download Document"
+            name="View Document"
           />
         </Box>
 

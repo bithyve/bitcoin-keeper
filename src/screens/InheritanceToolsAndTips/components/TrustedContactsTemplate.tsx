@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
 import GenerateTrustedContactsPDF from 'src/utils/GenerateTrustedContactsPDF';
+import DownArrow from 'src/assets/images/down_arrow.svg';
 
 function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();
@@ -33,6 +34,7 @@ function TrustedContactTemplates({}) {
         <Text style={styles.commonTextStyle}>Refer to Safeguarding Tips for more details</Text>
         <Box mt={5}>
           <DashedButton
+            icon={<DownArrow />}
             description="Contacts Template"
             callback={() => {
               GenerateTrustedContactsPDF().then((res) => {

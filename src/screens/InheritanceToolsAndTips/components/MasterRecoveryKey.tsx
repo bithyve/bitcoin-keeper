@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, Icon, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -12,6 +12,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { CommonActions } from '@react-navigation/native';
+import DownArrow from 'src/assets/images/down_arrow.svg';
 
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
@@ -41,6 +42,7 @@ function MasterRecoveryKey({ navigation }) {
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
+            icon={<DownArrow />}
             description="Please view in a private location"
             callback={() => {
               navigation.dispatch(

@@ -55,7 +55,7 @@ function KeySecurity({ navigation }) {
         preTitle="coming soon"
         title="Canary Wallets"
         description="Alert on key compromise"
-        LeftIcon={<Bird />}
+        LeftIcon={<Bird fill="pink" />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
       {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'HODLER'} />}

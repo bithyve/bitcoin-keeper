@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import AdditionalSignerIcon from 'src/assets/images/additional-signer-icon.svg';
 import GenerateAdditionalKeyDetailsTemplate from 'src/utils/GenerateAdditionalKeyDetailsTemplate';
+import DownArrow from 'src/assets/images/down_arrow.svg';
 
 function AdditionalSignerDetailsTemplate({}) {
   const { colorMode } = useColorMode();
@@ -34,6 +35,7 @@ function AdditionalSignerDetailsTemplate({}) {
 
         <Box mt={5}>
           <DashedButton
+            icon={<DownArrow />}
             description="Details Template"
             callback={() => {
               GenerateAdditionalKeyDetailsTemplate().then((res) => {
