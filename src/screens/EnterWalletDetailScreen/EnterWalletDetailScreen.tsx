@@ -88,7 +88,7 @@ function EnterWalletDetailScreen({ route }) {
         },
         transferPolicy: {
           id: uuidv4(),
-          threshold: parseInt(transferPolicy),
+          threshold: transferPolicy ? parseInt(transferPolicy) : 0,
         },
       },
     };
