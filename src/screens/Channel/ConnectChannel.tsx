@@ -39,6 +39,7 @@ import crypto from 'crypto';
 import { createDecipheriv } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
 
 function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
@@ -109,20 +110,7 @@ function ConnectChannel() {
     channel.on(BITBOX_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getBitbox02Details(
-          decrypted,
-          isMultisig
-        );
-        const { signer: bitbox02 } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.BITBOX02,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
-
+        const { signer: bitbox02 } = setupBitbox(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(bitbox02));
           navigation.dispatch(
@@ -152,19 +140,7 @@ function ConnectChannel() {
     channel.on(TREZOR_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getTrezorDetails(
-          decrypted,
-          isMultisig
-        );
-        const { signer: trezor } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.TREZOR,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
+        const { signer: trezor } = setupTrezor(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(trezor));
           navigation.dispatch(
@@ -193,17 +169,7 @@ function ConnectChannel() {
     channel.on(LEDGER_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } =
-          getLedgerDetailsFromChannel(decrypted, isMultisig);
-        const { signer: ledger } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.LEDGER,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
+        const { signer: ledger } = setupLedger(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(ledger));
           navigation.dispatch(
