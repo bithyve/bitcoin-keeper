@@ -533,7 +533,9 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
           <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
         </Box>
       </Box>
-      <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
+      <Box width={'70%'}>
+        <Text fontSize={13}>If not urgent, you could consider waiting for the fees to reduce</Text>
+      </Box>
     </>
   );
 }
@@ -994,7 +996,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={`Network fee is higher than the amount you are sending`}
+        subTitle={'Network fee is higher than 10% of the amount being sent'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

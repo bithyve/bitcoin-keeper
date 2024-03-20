@@ -903,6 +903,7 @@ function HardwareModalMap({
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
+  const [otp, setOtp] = useState('');
 
   const navigateToTapsignerSetup = () => {
     if (mode === InteracationMode.RECOVERY) {
@@ -985,7 +986,7 @@ function HardwareModalMap({
           signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
           WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
         );
-        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp);
+        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp, Number(otp));
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
@@ -1305,7 +1306,7 @@ function HardwareModalMap({
         Alert.alert(`${err}`);
       }
     };
-    const [otp, setOtp] = useState('');
+
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
       if (otp.length < 6) {
