@@ -190,7 +190,7 @@ const getSignerContent = (
         Instructions: [
           'Make sure that this wallet’s Recovery Key is backed-up properly to secure this key.',
         ],
-        title: isHealthcheck ? 'Verify Mobile Key' : 'Set up a Mobile Key',
+        title: isHealthcheck ? 'Verify Recovery Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
         options: [],
       };

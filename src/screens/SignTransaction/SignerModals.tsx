@@ -221,14 +221,14 @@ function OtherSDContent() {
     </Box>
   );
 }
-export function KeeperContent() {
+export function KeeperContent(props) {
   const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
-          {'\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n'}
+          {`Open the other Keeper app > Go to Manage Keys > Access the Mobile Key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
         </Text>
       </Box>
     </Box>
@@ -758,7 +758,7 @@ function SignerModals({
               title="Keep your Device Ready"
               subTitle={`Keep your ${getSignerNameFromType(signer.type)} ready before proceeding`}
               textColor={`${colorMode}.primaryText`}
-              Content={() => <KeeperContent />}
+              Content={() => <KeeperContent masterFingerPrint={signer && signer.masterFingerprint} />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
