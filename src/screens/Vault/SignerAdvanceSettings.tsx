@@ -429,7 +429,7 @@ function SignerAdvanceSettings({ route }: any) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Advanced Settings"
+        title="Settings"
         subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
         icon={
           <CircleIconWrapper

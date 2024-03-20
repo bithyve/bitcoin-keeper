@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -48,6 +48,7 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -198,6 +199,8 @@ const getSignerContent = (type: SignerType) => {
 };
 
 function SigningDeviceDetails({ route }) {
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslations } = translations;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -333,9 +336,9 @@ function SigningDeviceDetails({ route }) {
         learnMore
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
-        title={getSignerNameFromType(signer.type, signer.isMock, false)}
+        title={signerTranslations.keyDetails}
         subtitle={
-          signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+          `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
         icon={
           <CircleIconWrapper
