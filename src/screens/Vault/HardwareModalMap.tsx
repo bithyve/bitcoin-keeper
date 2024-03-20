@@ -908,6 +908,7 @@ function HardwareModalMap({
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
   const [otp, setOtp] = useState('');
+  const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
 
   const navigateToTapsignerSetup = () => {
     if (mode === InteracationMode.RECOVERY) {
@@ -1676,7 +1677,7 @@ function HardwareModalMap({
     ),
     [keyGenerationMode]
   );
-  const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
+
   const buttonCallback = () => {
     close();
     switch (type) {
