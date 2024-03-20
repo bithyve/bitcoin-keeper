@@ -216,7 +216,7 @@ function EnterSeedScreen({ route }) {
 
     const handleSuccess = () => {
       dispatch(healthCheckSigner([signer]));
-      showToast('Seed Key health check successfull', <TickIcon />);
+      showToast('Health check successful!', <TickIcon />);
       navigation.dispatch(CommonActions.goBack());
     };
 
