@@ -1,7 +1,7 @@
 import * as bip39 from 'bip39';
 import { Box, Input, Pressable, ScrollView, View, useColorMode } from 'native-base';
 import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
@@ -27,128 +27,15 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import Dropdown from 'src/components/Dropdown';
 
-const seedArray = [
-  {
-    id: 1,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 2,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 3,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 4,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 5,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 6,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 7,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 8,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 9,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 10,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 11,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 12,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 13,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 14,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 15,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 16,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 17,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 18,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 19,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 20,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 21,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 22,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 23,
-    name: '',
-    invalid: true,
-  },
-  {
-    id: 24,
-    name: '',
-    invalid: true,
-  },
-];
+type seedWordItem = {
+  id: number;
+  name: string;
+  invalid: boolean;
+};
+
+const SEED_WORDS_12 = '12 Seed Words';
+const SEED_WORDS_18 = '18 Seed Words';
+const SEED_WORDS_24 = '24 Seed Words';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
@@ -174,16 +61,16 @@ function EnterSeedScreen({ route, navigation }) {
 
   const ref = useRef<FlatList>(null);
   const [activePage, setActivePage] = useState(0);
-  const [seedData, setSeedData] = useState(seedArray);
+  const [seedData, setSeedData] = useState<seedWordItem[]>();
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [hcLoading, setHcLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
-  const [selectedNumberOfWords, setSelectedNumberOfWords] = useState('12 Seed Words');
+  const [selectedNumberOfWords, setSelectedNumberOfWords] = useState(SEED_WORDS_12);
 
-  const options = ['12 Seed Words', '18 Seed Words', '24 Seed Words'];
+  const options = [SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24];
 
   const inputRef = useRef([]);
 
@@ -201,6 +88,22 @@ function EnterSeedScreen({ route, navigation }) {
   useEffect(() => {
     if (appImageError) openInvalidSeedsModal();
   }, [appRecoveryLoading, appImageError, appImageRecoverd]);
+
+  const generateSeedWordsArray = useCallback(() => {
+    const seedArray = [];
+    for (let i = 1; i <= 24; i++) {
+      seedArray.push({
+        id: i,
+        name: '',
+        invalid: true,
+      });
+    }
+    return seedArray;
+  }, []);
+
+  useEffect(() => {
+    setSeedData(generateSeedWordsArray());
+  }, []);
 
   useEffect(() => {
     if (appId && recoveryLoading) {
@@ -222,9 +125,9 @@ function EnterSeedScreen({ route, navigation }) {
   const getSeedWord = () => {
     let seedWord = '';
     const index =
-      selectedNumberOfWords === '12 Seed Words'
+      selectedNumberOfWords === SEED_WORDS_12
         ? 12
-        : selectedNumberOfWords === '18 Seed Words'
+        : selectedNumberOfWords === SEED_WORDS_18
         ? 18
         : 24;
     for (let i = 0; i < index; i++) {
@@ -253,7 +156,7 @@ function EnterSeedScreen({ route, navigation }) {
       importSeedCta(seedWord);
     }
     if (activePage === 2) {
-      if (!(selectedNumberOfWords === '18 Seed Words')) {
+      if (!(selectedNumberOfWords === SEED_WORDS_18)) {
         if (isSeedFilled(18)) setActivePage(3);
         else showToast('Enter correct seedwords', <ToastErrorIcon />);
       } else {
@@ -262,7 +165,7 @@ function EnterSeedScreen({ route, navigation }) {
       }
     }
     if (activePage === 1) {
-      if (!(selectedNumberOfWords === '12 Seed Words')) {
+      if (!(selectedNumberOfWords === SEED_WORDS_12)) {
         if (isSeedFilled(12)) setActivePage(2);
         else showToast('Enter correct seedwords', <ToastErrorIcon />);
       } else {
@@ -392,7 +295,7 @@ function EnterSeedScreen({ route, navigation }) {
     setSelectedNumberOfWords(option);
   };
 
-  const seedItem = (item, index) => {
+  const seedItem = (item: seedWordItem, index: number) => {
     if (
       activePage === 3
         ? index >= 18 && index < 24
@@ -546,11 +449,11 @@ function EnterSeedScreen({ route, navigation }) {
         <Box style={styles.bottomContainerView}>
           <Breadcrumbs
             totalScreens={
-              selectedNumberOfWords === '12 Seed Words'
+              selectedNumberOfWords === SEED_WORDS_12
                 ? 2
-                : selectedNumberOfWords === '18 Seed Words'
+                : selectedNumberOfWords === SEED_WORDS_18
                 ? 3
-                : selectedNumberOfWords === '24 Seed Words'
+                : selectedNumberOfWords === SEED_WORDS_24
                 ? 4
                 : 0
             }
