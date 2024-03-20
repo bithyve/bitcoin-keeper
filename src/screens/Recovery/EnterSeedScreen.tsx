@@ -348,8 +348,8 @@ function EnterSeedScreen({ route }) {
         <Box marginX={10} mt={25}>
           {isHealthCheck ? (
             <SeedWordsView
-              title="Seed key health check"
-              subtitle="Enter the seed key"
+              title="Mobile key health check"
+              subtitle="Enter 12-word mnemonic"
               onPressHandler={() => navigation.goBack()}
             />
           ) : isImport ? (
@@ -483,7 +483,7 @@ function EnterSeedScreen({ route }) {
         </View>
         <View style={styles.bottomContainerView}>
           <Text style={styles.seedDescText} color={`${colorMode}.GreyText`} testID="text_enterSeedNote">
-            {seed.enterRecoveryPhraseNote}
+            {isHealthCheck ? 'Your Recovery Key secures all your Mobile (hot) Keys and can be found in App Settings' : seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
