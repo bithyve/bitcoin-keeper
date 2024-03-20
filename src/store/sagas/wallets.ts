@@ -114,6 +114,7 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
+import { getSignerDescription } from 'src/hardware';
 
 export interface NewVaultDetails {
   name?: string;
@@ -584,7 +585,7 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({ payload: { signers } }) {
+function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   if (!signers.length) return;
 
   try {
@@ -593,6 +594,20 @@ function* addSigningDeviceWorker({ payload: { signers } }) {
       existingSigners.map((signer) => [signer.masterFingerprint, signer])
     );
     const signersToUpdate = [];
+
+    // update signers with signer count
+    signers = signers.map((signer) => {
+      if (signer.type === SignerType.MY_KEEPER || signer.type === SignerType.KEEPER) {
+        const signerCount = existingSigners.filter(
+          (existingSigner) => existingSigner.type === signer.type
+        ).length;
+        signer.extraData = { instanceNumber: signerCount + 1 };
+        signer.signerDescription = getSignerDescription(signer.type, signerCount + 1);
+        return signer;
+      } else {
+        return signer;
+      }
+    });
 
     const keysMatch = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&

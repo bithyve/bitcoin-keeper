@@ -222,10 +222,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   );
 
   const NewVaultContent = useCallback(
-    () => (
+    (m: number, n: number) => (
       <Box>
         <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          Your 3-of-6 vault has been setup successfully. You can start receiving/transfering bitcoin
+          {`Your ${m}-of-${n} vault has been setup successfully. You can start receiving/transfering bitcoin`}
         </Text>
         <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
           For sending bitcoin out of the vault you will need the signers{' '}
@@ -361,7 +361,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         secondaryButtonText="Cancel"
         secondaryCallback={() => setVaultCreated(false)}
         close={() => setVaultCreated(false)}
-        Content={NewVaultContent}
+        Content={() => NewVaultContent(vault.scheme.m, vault.scheme.n)}
       />
       <KeeperModal
         visible={introModal}
