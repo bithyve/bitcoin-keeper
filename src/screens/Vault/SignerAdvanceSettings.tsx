@@ -306,6 +306,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           parentNavigation: navigation,
           vault: activeVault,
+          signer,
         },
       })
     );
@@ -376,7 +377,8 @@ function SignerAdvanceSettings({ route }: any) {
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
   const isAppKey = signer.type === SignerType.KEEPER;
   const isMyAppKey = signer.type === SignerType.MY_KEEPER;
-  const isAssistedKey = isPolicyServer || isInheritanceKey || isAppKey || isMyAppKey;
+  const signersWithoutRegistration = isAppKey || isMyAppKey;
+  const isAssistedKey = isPolicyServer || isInheritanceKey;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
@@ -420,7 +422,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-        {isAssistedKey || !vaultId ? null : (
+        {isAssistedKey || signersWithoutRegistration || !vaultId ? null : (
           <OptionCard
             title="Manual Registration"
             description="Register your active vault"
@@ -470,11 +472,13 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToScanPSBT}
           />
         )}
-        <OptionCard
-          title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
-          description="Select from signer list"
-          callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
-        />
+        {isAssistedKey || signersWithoutRegistration ? null : (
+          <OptionCard
+            title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
+            description="Select from signer list"
+            callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
+          />
+        )}
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
@@ -485,7 +489,7 @@ function SignerAdvanceSettings({ route }: any) {
               description={vault.presentationData?.description}
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
-              callback={() => { }}
+              callback={() => {}}
             />
           ))}
         </ScrollView>

@@ -7,15 +7,10 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['./test-setup.js'],
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?@?react-native|@react-native-community|@react-navigation)',
+    'node_modules/(?!(jest-)?@?react-native|@react-native-community|@react-navigation|redux-persist)',
   ],
   moduleNameMapper: {
     '\\.svg': '<rootDir>/__mocks__/svgMock.js',
   },
-  moduleDirectories: [
-    'node_modules',
-    './src/utils',
-    './src/core',
-    // './',
-  ],
+  moduleDirectories: ['node_modules', './src/utils', './src/core'],
 };
