@@ -228,7 +228,7 @@ const getSignerContent = (
         type: SignerType.POLICY_SERVER,
         Illustration: <SigningServerIllustration />,
         Instructions: isHealthcheck
-          ? ['A request to the signer will be made to checks it health']
+          ? ['A request to the signer will be made to checks its health']
           : [
               'A 2FA authenticator will have to be set up to use this option.',
               'On providing the correct code from the auth app, the signer will sign the transaction.',
@@ -361,25 +361,32 @@ const getSignerContent = (
       return {
         type: SignerType.INHERITANCEKEY,
         Illustration: <InhertanceKeyIcon />,
-        title: 'Setting up an Inheritance Key',
-        subTitle: 'This step will add an additional, mandatory key to your m-of-n vault',
-        Instructions: [
-          'This Key would only get activated after the other two Keys have signed',
-          'On activation the Key would send emails to your email id for 30 days for you to decline using it',
-        ],
-        options: [
-          {
-            title: 'Configure a New Key',
-            icon: <RecoverImage />,
-            callback: () => {},
-            name: KeyGenerationMode.NEW,
-          },
-          {
-            title: 'Recover Existing Key',
-            icon: <RecoverImage />,
-            name: KeyGenerationMode.RECOVER,
-          },
-        ],
+        title: isHealthcheck ? 'Verify Inheritance Key' : 'Setting up an Inheritance Key',
+        subTitle: isHealthcheck
+          ? ''
+          : 'This step will add an additional, mandatory key to your m-of-n vault',
+
+        Instructions: isHealthcheck
+          ? ['A request to the inheritance key will be made to checks its health']
+          : [
+              'This Key would only get activated after the other two Keys have signed',
+              'On activation the Key would send emails to your email id for 30 days for you to decline using it',
+            ],
+        options: isHealthcheck
+          ? []
+          : [
+              {
+                title: 'Configure a New Key',
+                icon: <RecoverImage />,
+                callback: () => {},
+                name: KeyGenerationMode.NEW,
+              },
+              {
+                title: 'Recover Existing Key',
+                icon: <RecoverImage />,
+                name: KeyGenerationMode.RECOVER,
+              },
+            ],
       };
     case SignerType.MY_KEEPER:
       return {
@@ -1452,11 +1459,40 @@ function HardwareModalMap({
     }
   };
 
+  const checkIKSHealth = async () => {
+    try {
+      setInProgress(true);
+      const signerXfp = WalletUtilities.getFingerprintFromExtendedKey(
+        signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      );
+      const { isIKSAvailable } = await InheritanceKeyServer.checkIKSHealth(signerXfp);
+      if (isIKSAvailable) {
+        dispatch(healthCheckSigner([signer]));
+        close();
+        showToast('Health check done successfully', <TickIcon />);
+      } else {
+        close();
+        showToast('Error in Health check', <ToastErrorIcon />);
+      }
+      setInProgress(false);
+    } catch (err) {
+      console.log(err);
+      setInProgress(false);
+      close();
+      showToast('Error in Health check', <ToastErrorIcon />);
+    }
+  };
+
   const handleInheritanceKey = () => {
-    if (keyGenerationMode === 1) {
-      requestInheritanceKeyRecovery();
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      checkIKSHealth();
     } else {
-      setupInheritanceKey();
+      if (keyGenerationMode === 1) {
+        requestInheritanceKeyRecovery();
+      } else {
+        setupInheritanceKey();
+      }
     }
   };
 
