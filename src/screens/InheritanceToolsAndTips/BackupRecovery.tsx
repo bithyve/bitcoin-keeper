@@ -2,6 +2,9 @@ import { Box, ScrollView } from 'native-base';
 import React from 'react';
 import OptionCard from 'src/components/OptionCard';
 import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
+import MrkIcon from 'src/assets/images/icon_mrk.svg';
+import CloudUser from 'src/assets/images/cloud_user.svg';
+import File from 'src/assets/images/files.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import { hp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -38,7 +41,7 @@ function BackupRecovery({ navigation }) {
         }`}
         title="Master Recovery Key"
         description="Backup 12-word phrase"
-        LeftIcon={<WalletGreenIcon />}
+        LeftIcon={<MrkIcon />}
         callback={() => navigate('MasterRecoveryKey', MASTER_RECOVERY_KEY)}
       />
       <OptionCard
@@ -49,7 +52,7 @@ function BackupRecovery({ navigation }) {
         }`}
         title="Personal Cloud Backup"
         description="Use your iCloud or Google Drive"
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={<CloudUser />}
         callback={() => navigate('PersonalCloudBackup', PERSONAL_CLOUD_BACKUP)}
       />
       <OptionCard
@@ -60,7 +63,7 @@ function BackupRecovery({ navigation }) {
         }`}
         title="Wallet Configuration Files DOCUMENT WIP"
         description="Manual download (advanced)"
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={<File />}
         callback={() => {
           navigate('WalletConfigurationFiles', WALLET_CONFIG_FILES);
         }}

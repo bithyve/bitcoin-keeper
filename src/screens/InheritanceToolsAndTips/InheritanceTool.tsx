@@ -3,10 +3,12 @@ import React from 'react';
 import OptionCard from 'src/components/OptionCard';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import Sword from 'src/assets/images/sword_icon.svg';
-import useWallets from 'src/hooks/useWallets';
-import { WalletType } from 'src/services/wallets/enums';
-import { VaultScheme } from 'src/services/wallets/interfaces/vault';
-import { CommonActions } from '@react-navigation/native';
+import File from 'src/assets/images/files.svg';
+import EditFile from 'src/assets/images/edit_file.svg';
+import RecoveryIcon from 'src/assets/images/recovery_icon.svg';
+import ContactIcon from 'src/assets/images/contacts.svg';
+import AdditionalDetailIcon from 'src/assets/images/addtional_details.svg';
+
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -40,7 +42,7 @@ function InheritanceTool({ navigation }) {
         }`}
         title="Recovery Instructions"
         description="For the heir or beneficiary"
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={<File />}
         callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
       />
       <OptionCard
@@ -51,7 +53,7 @@ function InheritanceTool({ navigation }) {
         }`}
         title="Letter to Attorney"
         description="A pre-filled letter template"
-        LeftIcon={<Sword />}
+        LeftIcon={<EditFile />}
         callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
       />
 
@@ -63,7 +65,7 @@ function InheritanceTool({ navigation }) {
         }`}
         title="Recovery Phrase"
         description="Template to write down your seed words"
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={<RecoveryIcon />}
         callback={() => navigate('RecoveryPhraseTemplate', RECOVERY_PHRASE_TEMPLATE)}
       />
 
@@ -77,7 +79,7 @@ function InheritanceTool({ navigation }) {
         }`}
         title="Trusted Contacts"
         description="Template to share details of contacts"
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={<ContactIcon />}
         callback={() => navigate('TrustedContactTemplates', TRUSTED_CONTACTS_TEMPLATE)}
       />
 
@@ -91,11 +93,11 @@ function InheritanceTool({ navigation }) {
         }`}
         title="Additional Key Details"
         description="Template to share useful key details"
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={<AdditionalDetailIcon />}
         callback={() => navigate('AdditionalSignerDetailsTemplate', ADDITIONAL_SIGNER_DETAILS)}
       />
 
-      <OptionCard
+      {/* <OptionCard
         preTitle={`${
           inheritanceToolVisitedHistory[PRINTABLE_TEMPLATES] === undefined
             ? 'Never accessed'
@@ -105,8 +107,8 @@ function InheritanceTool({ navigation }) {
         description="For digital or physical copies"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('PrintableTemplates', PRINTABLE_TEMPLATES)}
-      />
-      <Box paddingTop={10}>
+      /> */}
+      <Box>
         <OptionCard
           preTitle={`${
             inheritanceToolVisitedHistory[INHERITANCE_TIPS] === undefined

@@ -1,7 +1,9 @@
 import { Box, ScrollView } from 'native-base';
 import React from 'react';
 import OptionCard from 'src/components/OptionCard';
-import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
+import CouponIcon from 'src/assets/images/cupon.svg';
+import ServerIcon from 'src/assets/images/server-network.svg';
+
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import Bird from 'src/assets/images/bird.svg';
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
@@ -32,7 +34,7 @@ function KeySecurity({ navigation }) {
         }`}
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
-        LeftIcon={<WalletGreenIcon />}
+        LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       />
       <OptionCard
@@ -54,7 +56,7 @@ function KeySecurity({ navigation }) {
         }`}
         title="Assisted Keys"
         description="Assisted Keys"
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={<ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
       <Box paddingTop={10}>
