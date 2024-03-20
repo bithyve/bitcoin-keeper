@@ -45,11 +45,14 @@ function BackupRecovery({ navigation }) {
         callback={() => navigate('MasterRecoveryKey', MASTER_RECOVERY_KEY)}
       />
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP])}`
-        }`}
+        //-----For Futhure use----
+        // preTitle={`${
+        //   inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP] === undefined
+        //     ? 'Never accessed'
+        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP])}`
+        // }`}
+        disabled
+        preTitle={'coming soon'}
         title="Personal Cloud Backup"
         description="Use your iCloud or Google Drive"
         LeftIcon={<CloudUser />}

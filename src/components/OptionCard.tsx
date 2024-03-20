@@ -55,7 +55,9 @@ export function OptionCard({
               </Text>
             )}
             <Text
-              color={titleColor || `${colorMode}.primaryText`}
+              color={
+                disabled ? `${colorMode}.LightGreenish` : titleColor || `${colorMode}.primaryText`
+              }
               testID={`text_${title.replace(/ /g, '_')}`}
               style={{ fontSize: 13, letterSpacing: 0.13 }}
             >

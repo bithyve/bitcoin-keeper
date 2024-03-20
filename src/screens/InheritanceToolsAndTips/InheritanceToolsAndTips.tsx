@@ -14,9 +14,11 @@ import WalletCard from 'src/components/WalletCard';
 import KeySecuriy from './KeySecurity';
 import BackupRecovery from './BackupRecovery';
 import InheritanceTool from './InheritanceTool';
+import usePlan from 'src/hooks/usePlan';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
+
   const { translations } = useContext(LocalizationContext);
   const { inheritence } = translations;
 

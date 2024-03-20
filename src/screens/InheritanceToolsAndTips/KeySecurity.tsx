@@ -16,9 +16,12 @@ import {
   SECURE_USAGE_TIPS,
 } from 'src/services/channel/constants';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
+import usePlan from 'src/hooks/usePlan';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
+  const { plan } = usePlan();
+
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
     navigation.navigate(path);
@@ -27,22 +30,28 @@ function KeySecurity({ navigation }) {
   return (
     <ScrollView>
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
-        }`}
+        disabled
+        //---for future use---
+        // preTitle={`${
+        //   inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
+        //     ? 'Never accessed'
+        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
+        // }`}
+        preTitle="coming soon"
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       />
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
-        }`}
+        disabled
+        //---for future use---
+        // preTitle={`${
+        //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
+        //     ? 'Never accessed'
+        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
+        // }`}
+        preTitle="coming soon"
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={<Bird />}
@@ -54,6 +63,7 @@ function KeySecurity({ navigation }) {
             ? 'Never accessed'
             : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[ASSISTED_KEYS])}`
         }`}
+        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
         title="Assisted Keys"
         description="Assisted Keys"
         LeftIcon={<ServerIcon />}

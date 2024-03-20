@@ -22,9 +22,12 @@ import {
   TRUSTED_CONTACTS_TEMPLATE,
 } from 'src/services/channel/constants';
 import { hp } from 'src/constants/responsive';
+import usePlan from 'src/hooks/usePlan';
 
 function InheritanceTool({ navigation }) {
   const dispatch = useAppDispatch();
+  const { plan } = usePlan();
+
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
 
   const navigate = (path, value) => {
@@ -36,33 +39,11 @@ function InheritanceTool({ navigation }) {
     <ScrollView>
       <OptionCard
         preTitle={`${
-          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS])}`
-        }`}
-        title="Recovery Instructions"
-        description="For the heir or beneficiary"
-        LeftIcon={<File />}
-        callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
-      />
-      <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY])}`
-        }`}
-        title="Letter to Attorney"
-        description="A pre-filled letter template"
-        LeftIcon={<EditFile />}
-        callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
-      />
-
-      <OptionCard
-        preTitle={`${
           inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE] === undefined
             ? 'Never accessed'
             : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE])}`
         }`}
+        disabled={plan === 'DIAMOND HANDS' ? false : true}
         title="Recovery Phrase"
         description="Template to write down your seed words"
         LeftIcon={<RecoveryIcon />}
@@ -77,6 +58,7 @@ function InheritanceTool({ navigation }) {
                 inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE]
               )}`
         }`}
+        disabled={plan === 'DIAMOND HANDS' ? false : true}
         title="Trusted Contacts"
         description="Template to share details of contacts"
         LeftIcon={<ContactIcon />}
@@ -91,6 +73,7 @@ function InheritanceTool({ navigation }) {
                 inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS]
               )}`
         }`}
+        disabled={plan === 'DIAMOND HANDS' ? false : true}
         title="Additional Key Details"
         description="Template to share useful key details"
         LeftIcon={<AdditionalDetailIcon />}
@@ -108,19 +91,42 @@ function InheritanceTool({ navigation }) {
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('PrintableTemplates', PRINTABLE_TEMPLATES)}
       /> */}
-      <Box>
-        <OptionCard
-          preTitle={`${
-            inheritanceToolVisitedHistory[INHERITANCE_TIPS] === undefined
-              ? 'Never accessed'
-              : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_TIPS])}`
-          }`}
-          title="Inheritance Tips"
-          description="How to secure keys for the heir"
-          LeftIcon={<VaultGreenIcon />}
-          callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
-        />
-      </Box>
+      <OptionCard
+        preTitle={`${
+          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS] === undefined
+            ? 'Never accessed'
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS])}`
+        }`}
+        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        title="Recovery Instructions"
+        description="For the heir or beneficiary"
+        LeftIcon={<File />}
+        callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
+      />
+      <OptionCard
+        preTitle={`${
+          inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY] === undefined
+            ? 'Never accessed'
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY])}`
+        }`}
+        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        title="Letter to Attorney"
+        description="A pre-filled letter template"
+        LeftIcon={<EditFile />}
+        callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
+      />
+      <OptionCard
+        preTitle={`${
+          inheritanceToolVisitedHistory[INHERITANCE_TIPS] === undefined
+            ? 'Never accessed'
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_TIPS])}`
+        }`}
+        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        title="Inheritance Tips"
+        description="How to secure keys for the heir"
+        LeftIcon={<VaultGreenIcon />}
+        callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
+      />
       <Box style={{ marginBottom: hp(100) }} />
     </ScrollView>
   );
