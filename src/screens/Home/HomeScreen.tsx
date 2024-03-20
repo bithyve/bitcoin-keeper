@@ -101,26 +101,26 @@ function NewHomeScreen({ navigation }) {
       name: 'Security and Inheritance',
       icon: <InheritanceIcon />,
       callback: () => {
-        console.log('activeVault', activeVault);
-        const eligible = plan === SubscriptionTier.L3.toUpperCase();
-        if (!eligible) {
-          showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
-          navigation.navigate('ChoosePlan', { planPosition: 2 });
-        } else if (!activeVault) {
-          showToast('Please create a vault to setup inheritance');
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'InheritanceToolsAndTips',
-            })
-          );
-        } else {
-          // navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'InheritanceToolsAndTips',
-            })
-          );
-        }
+        //-----FOR Futhure use------
+        // const eligible = plan === SubscriptionTier.L3.toUpperCase();
+        // if (!eligible) {
+        //   showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
+        //   navigation.navigate('ChoosePlan', { planPosition: 2 });
+        // } else if (!activeVault) {
+        //   showToast('Please create a vault to setup inheritance');
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'InheritanceToolsAndTips',
+        //     })
+        //   );
+        // } else {
+        // navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'InheritanceToolsAndTips',
+          })
+        );
+        // }
       },
     },
   ];

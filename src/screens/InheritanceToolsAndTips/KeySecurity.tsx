@@ -17,6 +17,7 @@ import {
 } from 'src/services/channel/constants';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
+import UpgradeSubscription from './components/UpgradeSubscription';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
@@ -57,6 +58,8 @@ function KeySecurity({ navigation }) {
         LeftIcon={<Bird />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
+      {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'HODLER'} />}
+
       <OptionCard
         preTitle={`${
           inheritanceToolVisitedHistory[ASSISTED_KEYS] === undefined
@@ -69,7 +72,7 @@ function KeySecurity({ navigation }) {
         LeftIcon={<ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
-      <Box paddingTop={10}>
+      <Box paddingTop={4}>
         <OptionCard
           preTitle={`${
             inheritanceToolVisitedHistory[SECURE_USAGE_TIPS] === undefined

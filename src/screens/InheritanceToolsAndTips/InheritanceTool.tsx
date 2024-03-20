@@ -23,6 +23,7 @@ import {
 } from 'src/services/channel/constants';
 import { hp } from 'src/constants/responsive';
 import usePlan from 'src/hooks/usePlan';
+import UpgradeSubscription from './components/UpgradeSubscription';
 
 function InheritanceTool({ navigation }) {
   const dispatch = useAppDispatch();
@@ -37,6 +38,7 @@ function InheritanceTool({ navigation }) {
 
   return (
     <ScrollView>
+      {plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'DIAMOND HANDS'} />}
       <OptionCard
         preTitle={`${
           inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE] === undefined
@@ -91,6 +93,7 @@ function InheritanceTool({ navigation }) {
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('PrintableTemplates', PRINTABLE_TEMPLATES)}
       /> */}
+      {plan !== 'HODLER' && plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'HODLER'} />}
       <OptionCard
         preTitle={`${
           inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS] === undefined
