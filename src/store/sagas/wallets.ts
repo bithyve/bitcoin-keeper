@@ -96,6 +96,7 @@ import {
 import {
   ADD_NEW_VAULT,
   ADD_SIGINING_DEVICE,
+  DELETE_SIGINING_DEVICE,
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
@@ -669,6 +670,51 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
+
+function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
+  try {
+    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const signerMap = Object.fromEntries(
+      existingSigners.map((signer) => [signer.masterFingerprint, signer])
+    );
+    const signersToDelete = [];
+
+    for (const signer of signers) {
+      const existingSigner = signerMap[signer.masterFingerprint];
+      if (!existingSigner) {
+        continue;
+      }
+      signersToDelete.push(signer);
+    }
+
+    if (signersToDelete.length) {
+      // yield put(setRelaySignersUpdateLoading(true));
+      // const response = yield call(updateAppImageWorker, { payload: { signers: signersToDelete } });
+      // if (response.updated) {
+      if (true) {
+        for (const signer of signersToDelete) {
+          yield call(
+            dbManager.deleteObjectByPrimaryKey,
+            RealmSchema.Signer,
+            'masterFingerprint',
+            signer.masterFingerprint
+          );
+        }
+      }
+      // else {
+      //   yield put(relaySignersUpdateFail(response.error));
+      // }
+    }
+  } catch (error) {
+    captureError(error);
+    yield put(relaySignersUpdateFail('An error occurred while deleting signers.'));
+  }
+}
+
+export const deleteSigningDeviceWatcher = createWatcher(
+  deleteSigningDeviceWorker,
+  DELETE_SIGINING_DEVICE
+);
 
 function* migrateVaultWorker({
   payload,

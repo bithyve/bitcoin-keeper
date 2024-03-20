@@ -3,6 +3,7 @@ import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
   addSigningDeviceWatcher,
+  deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
   addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
@@ -92,6 +93,7 @@ const rootSaga = function* () {
     // vaults
     addNewVaultWatcher,
     addSigningDeviceWatcher,
+    deleteSigningDeviceWatcher,
     migrateVaultWatcher,
     finaliseVaultMigrationWatcher,
     updateVaultDetailsWatcher,
