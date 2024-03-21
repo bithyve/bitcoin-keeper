@@ -34,6 +34,7 @@ import { formatNumber } from 'src/utils/utilities';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
+import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 
 const derivationPurposeToLabel = {
   [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
@@ -53,6 +54,7 @@ function EnterWalletDetailScreen({ route }) {
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
+  const [walletCreatedModal, setWalletCreatedModal] = useState(false)
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
   const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
@@ -100,8 +102,9 @@ function EnterWalletDetailScreen({ route }) {
       dispatch(resetRealyWalletState());
       setWalletLoading(false);
       if (walletType === WalletType.DEFAULT) {
-        showToast(wallet.newWalletCreated, <TickIcon />);
-        navigtaion.goBack();
+        setWalletCreatedModal(true);
+        // showToast(wallet.newWalletCreated, <TickIcon />);
+        // navigtaion.goBack();
       } else {
         showToast(wallet.walletImported, <TickIcon />);
         navigtaion.goBack();
@@ -304,6 +307,21 @@ function EnterWalletDetailScreen({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
+      />
+      <WalletVaultCreationModal
+        visible={walletCreatedModal}
+        title={'Wallet Created Successfully!'}
+        subTitle={'Only have small amounts in this wallet'}
+        buttonText={"View Wallet"}
+        descriptionMessage={'You are ready to send and receive sats'}
+        buttonCallback={() => {
+          setWalletCreatedModal(false);
+          // navigtaion.navigate('WalletDetails', { walletId: wallet.id });
+          navigtaion.goBack();
+        }}
+        walletType={walletType}
+        walletName={walletName}
+        walletDescription={walletDescription}
       />
     </ScreenWrapper>
   );
