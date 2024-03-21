@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';

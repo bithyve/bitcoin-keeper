@@ -1,8 +1,7 @@
-import { Box, ScrollView } from 'native-base';
+import { ScrollView } from 'native-base';
 import React from 'react';
 import OptionCard from 'src/components/OptionCard';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
-import Sword from 'src/assets/images/sword_icon.svg';
 import File from 'src/assets/images/files.svg';
 import EditFile from 'src/assets/images/edit_file.svg';
 import RecoveryIcon from 'src/assets/images/recovery_icon.svg';
@@ -16,12 +15,10 @@ import {
   ADDITIONAL_SIGNER_DETAILS,
   INHERITANCE_TIPS,
   LETTER_OF_ATTORNEY,
-  PRINTABLE_TEMPLATES,
   RECOVERY_INSTRUCTIONS,
   RECOVERY_PHRASE_TEMPLATE,
   TRUSTED_CONTACTS_TEMPLATE,
 } from 'src/services/channel/constants';
-import { hp } from 'src/constants/responsive';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
 
