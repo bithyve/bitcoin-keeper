@@ -97,6 +97,7 @@ import {
   ADD_NEW_VAULT,
   ADD_SIGINING_DEVICE,
   DELETE_SIGINING_DEVICE,
+  DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
@@ -1438,3 +1439,21 @@ export const updateWalletsPropertyWatcher = createWatcher(
   updateWalletsPropertyWorker,
   UPDATE_WALLET_PROPERTY
 );
+
+function* deleteVaultWorker({ payload }) {
+  const { vaultId } = payload;
+  try {
+    // yield put(setRelayVaultUpdateLoading(true));
+    // const response = yield call(updateAppImageWorker, { payload: { vaultId } });
+    if (true) {
+      yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
+      // yield put(relayVaultUpdateSuccess());
+    } else {
+      // yield put(relayVaultUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
+  }
+}
+
+export const deleteVaultyWatcher = createWatcher(deleteVaultWorker, DELETE_VAULT);

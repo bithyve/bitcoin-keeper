@@ -21,6 +21,7 @@ import {
   addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
   updateVaultDetailsWatcher,
+  deleteVaultyWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -99,6 +100,7 @@ const rootSaga = function* () {
     updateVaultDetailsWatcher,
     updateSignerDetails,
     updateKeyDetails,
+    deleteVaultyWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,
