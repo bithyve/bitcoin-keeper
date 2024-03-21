@@ -485,6 +485,7 @@
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Recovery Phrase",
     "backupPhrase": "Recovery Key",
+    "walletSeedWords": "Wallet Seed Words",
     "enterRecoveryPhrase": "Recover an existing Keeper App",
     "enterRecoveryPhraseSubTitle": "Enter existing 12-word recovery phrase below",
     "enterRecoveryPhraseNote": "Make sure to use the 12-word recovery phrase in private",
@@ -735,7 +736,7 @@
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
     "recoveryPhrase": "Recovery Phrase",
     "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
-    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access."
+    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key."
   },
   "importWallet": {
     "addDetails": "Add details",
