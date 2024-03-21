@@ -286,11 +286,11 @@ export const getDeviceStatus = (
     case SignerType.KEEPER:
       return !addSignerFlow && scheme?.n < 2
         ? {
-          message: `You can add an ${getSignerNameFromType(
-            type
-          )} in a multisig configuration only`,
-          disabled: true,
-        }
+            message: `You can add an ${getSignerNameFromType(
+              type
+            )} in a multisig configuration only`,
+            disabled: true,
+          }
         : { message: '', disabled: false };
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
@@ -364,19 +364,19 @@ const getInheritanceKeyStatus = (
 export const getSDMessage = ({ type }: { type: SignerType }) => {
   switch (type) {
     case SignerType.COLDCARD: {
-      return 'Secure signers from Coinkite'
+      return 'Secure signers from Coinkite';
     }
     case SignerType.LEDGER: {
-      return 'Trusted signers from SatoshiLabs'
+      return 'Trusted signers from SatoshiLabs';
     }
     case SignerType.PASSPORT: {
-      return 'Passport signers from Foundation Devices'
+      return 'Passport signers from Foundation Devices';
     }
     case SignerType.BITBOX02: {
-      return 'Swiss Made signer from BitBox'
+      return 'Swiss Made signer from BitBox';
     }
     case SignerType.SPECTER: {
-      return 'A DIY signer from Spector Solutions'
+      return 'A DIY signer from Spector Solutions';
     }
     case SignerType.KEYSTONE: {
       return 'Open Source signer from keyst.one';
@@ -389,7 +389,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Use Mobile Key as signer';
     }
     case SignerType.MOBILE_KEY: {
-      return 'Hot keys on this device';
+      return 'Hot key on this app';
     }
     case SignerType.POLICY_SERVER: {
       return 'Hot keys on the server';
@@ -398,10 +398,10 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'A DIY stateless signer';
     }
     case SignerType.SEED_WORDS: {
-      return 'Blind signer when sending';
+      return '12-words key phrase';
     }
     case SignerType.TAPSIGNER: {
-      return 'Blind signer, no verification';
+      return 'Easy-to-use signer from Coinkite';
     }
     case SignerType.TREZOR: {
       return 'Trusted signers from SatoshiLabs';
