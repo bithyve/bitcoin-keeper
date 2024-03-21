@@ -162,7 +162,7 @@ const GenerateRecoveryInstrcutionsPDF = async () => {
       `;
     const options = {
       html,
-      fileName: 'KeySecurityTips',
+      fileName: 'Recovery-Instructions',
       directory: 'Documents',
       base64: true,
     };

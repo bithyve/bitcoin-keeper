@@ -125,7 +125,7 @@ const GenerateTrustedContactsPDF = async () => {
       `;
     const options = {
       html,
-      fileName: 'TrustedContactsTemplate',
+      fileName: 'Trusted-Contacts-Template',
       directory: 'Documents',
       base64: true,
     };

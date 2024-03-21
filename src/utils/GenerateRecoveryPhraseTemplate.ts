@@ -90,7 +90,7 @@ ${tableHTML2}
       `;
     const options = {
       html,
-      fileName: 'RecoveryPhraseInstruction',
+      fileName: 'Recovery-Phrase-Template',
       directory: 'Documents',
       base64: true,
     };

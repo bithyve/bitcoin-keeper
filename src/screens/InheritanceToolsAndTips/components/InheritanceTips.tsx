@@ -22,7 +22,7 @@ function InheritanceTips({}) {
       title: 'Document Multi-Key Setup for Heirs',
       icon: <MultiKeySetupIcon />,
       paragraph2:
-        'Please make sure that your heir has access to the wallet configuration file and knows how to recover a vault using it',
+        'Please make sure that your heir has access to the wallet configuration file and knows how to recover a vault using it.',
       paragraph:
         'Clearly outline your multi-key setup in estate planning documents, specifying who inherits your bitcoin. This ensures heirs have both legal rights and practical guidance for accessing their inheritance, bridging any knowledge gaps.',
     },
@@ -30,15 +30,15 @@ function InheritanceTips({}) {
       title: 'Educate Heirs on Bitcoin and Multi-Key Security',
       icon: <EducateHierIcon />,
       paragraph2:
-        'Ask your heir to test the multi-key setups they create. This would act as good practice for them to inherit your bitcoin',
+        'Ask your heir to test the multi-key setups they create. This would act as good practice for them to inherit your bitcoin.',
       paragraph:
-        'Proactively teach heirs about the importance of bitcoin security, focusing on multi-key practices. Well-informed heirs are better equipped to manage and secure their future digital assets effectively.',
+        'Proactively teach heirs about the importance of bitcoin security, focusing on multi-key practices. Well-informed heirs are better equipped to manage and secure their bitcoin effectively.',
     },
     {
       title: 'Select Knowledgeable Executors or Trustees',
       icon: <SelectKnowledgeIcon />,
       paragraph2:
-        'Please ensure that the trustees are, trustable. Else you run the risk of them colluding to keep your bitcoin for themselves',
+        'Please ensure that the trustees are, trustable. Else you run the risk of them colluding to keep your bitcoin for themselves.',
       paragraph:
         'Choose executors or trustees with a thorough understanding of bitcoin and multi-key systems. Their expertise will be crucial in managing and transferring your bitcoin according to your wishes, ensuring a smooth inheritance process.',
     },
@@ -46,7 +46,7 @@ function InheritanceTips({}) {
       title: 'Regularly Update Estate Plans and Instructions',
       icon: <RegularUpdateIcon />,
       paragraph2:
-        'Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions',
+        'Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions.',
       paragraph:
         'Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs.',
     },

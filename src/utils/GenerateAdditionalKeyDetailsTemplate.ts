@@ -273,7 +273,7 @@ const GenerateAdditionalKeyDetailsTemplate = async () => {
       `;
     const options = {
       html,
-      fileName: 'AdditionalKeyDetailsTemplate',
+      fileName: 'Additional-Key-Details-Template',
       directory: 'Documents',
       base64: true,
     };
