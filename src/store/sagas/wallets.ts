@@ -596,19 +596,28 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
     );
     const signersToUpdate = [];
 
-    // update signers with signer count
-    signers = signers.map((signer) => {
-      if (signer.type === SignerType.MY_KEEPER || signer.type === SignerType.KEEPER) {
-        const signerCount = existingSigners.filter(
-          (existingSigner) => existingSigner.type === signer.type
-        ).length;
-        signer.extraData = { instanceNumber: signerCount + 1 };
-        signer.signerDescription = getSignerDescription(signer.type, signerCount + 1);
-        return signer;
-      } else {
-        return signer;
-      }
-    });
+    try {
+      // update signers with signer count
+      let incrementForCurrentSigners = 0;
+      signers = signers.map((signer) => {
+        if (signer.type === SignerType.MY_KEEPER) {
+          const myAppKeys = existingSigners.filter(
+            (signer) => signer.type === SignerType.MY_KEEPER
+          );
+          const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+          const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
+          signer.extraData = { instanceNumber: instanceNumberToSet };
+          signer.signerDescription = getSignerDescription(signer.type, instanceNumberToSet);
+          incrementForCurrentSigners += 1;
+          return signer;
+        } else {
+          return signer;
+        }
+      });
+    } catch (e) {
+      captureError(e);
+      return;
+    }
 
     const keysMatch = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&

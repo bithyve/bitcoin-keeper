@@ -706,7 +706,7 @@ function HardwareModalMap({
   const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { signers } = useSigners();
-  const myAppKeyCount = signers.filter((signer) => signer.type === SignerType.MY_KEEPER).length;
+  const myAppKeys = signers.filter((signer) => signer.type === SignerType.MY_KEEPER);
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   const appId = useAppSelector((state) => state.storage.appId);
@@ -770,7 +770,8 @@ function HardwareModalMap({
   const generateMyAppKey = async () => {
     try {
       setInProgress(true);
-      getCosignerDetails(primaryMnemonic, myAppKeyCount).then((cosigner) => {
+      const instanceNumberToSet = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+      getCosignerDetails(primaryMnemonic, instanceNumberToSet).then((cosigner) => {
         const hw = setupKeeperSigner(cosigner);
         if (hw) {
           dispatch(addSigningDevice([hw.signer]));
@@ -782,7 +783,7 @@ function HardwareModalMap({
         setInProgress(false);
       });
     } catch (err) {
-      setInProgress(true);
+      setInProgress(false);
       captureError(err);
       showToast('Key could not be added, please try again', <ToastErrorIcon />);
     }
