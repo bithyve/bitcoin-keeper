@@ -116,7 +116,6 @@ function SetupCollaborativeWallet() {
   const [walletType, setWalletType] = useState('')
   const [walletName, setWalletName] = useState('')
   const [walletDescription, setWalletDescription] = useState('')
-  const [walletEntityKind, setWalletEntityKind] = useState('')
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
@@ -208,11 +207,10 @@ function SetupCollaborativeWallet() {
       coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n
     ) {
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
-      const collabWallets = allVaults.find(vault => vault.id === generatedVaultId)
-      setWalletType(collabWallets && collabWallets.type)
-      setWalletName(collabWallets && collabWallets.presentationData.name)
-      setWalletDescription(collabWallets && collabWallets.presentationData.description)
-      setWalletEntityKind(collabWallets && collabWallets.entityKind)
+      const collabWallet = allVaults.find(vault => vault.id === generatedVaultId)
+      setWalletType(collabWallet && collabWallet.type)
+      setWalletName(collabWallet && collabWallet.presentationData.name)
+      setWalletDescription(collabWallet && collabWallet.presentationData.description)
       setWalletCreatedModal(true)
     }
 
@@ -226,16 +224,18 @@ function SetupCollaborativeWallet() {
       setIsCreating(false);
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
       const navigationState = generatedVaultId
-        ? {
-          index: 1,
-          routes: [{ name: 'Home' }],
-        }
-        : {
+        ?
+        {
           index: 1,
           routes: [
             { name: 'Home' },
             { name: 'VaultDetails', params: { vaultId: generatedVaultId } },
           ],
+        }
+        :
+        {
+          index: 1,
+          routes: [{ name: 'Home' }],
         };
       navigation.dispatch(CommonActions.reset(navigationState));
       setWalletCreatedModal(false)
@@ -314,7 +314,6 @@ function SetupCollaborativeWallet() {
         walletType={walletType}
         walletName={walletName}
         walletDescription={walletDescription}
-        walletEntityKind={walletEntityKind}
       />
     </ScreenWrapper>
   );
