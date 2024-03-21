@@ -731,11 +731,11 @@
     "skipHealthCheckPara01": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     "skipHealthCheckPara02": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
     "myWalletBackupTitle": "My Wallet Backup",
-    "SEED_BACKUP_CREATED": "Recovery Phrase backup is created",
-    "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
-    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
-    "recoveryPhrase": "Recovery Phrase",
-    "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
+    "SEED_BACKUP_CREATED": "Recovery Key backup created",
+    "SEED_BACKUP_CONFIRMED": "Recovery Key backup confirmed",
+    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Key health confirmation skipped",
+    "recoveryPhrase": "Recovery Key",
+    "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Key",
     "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access."
   },
   "importWallet": {
