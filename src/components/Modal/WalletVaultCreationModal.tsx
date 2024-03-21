@@ -11,7 +11,6 @@ import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CardPill from "../CardPill";
-import { Vault } from "src/services/wallets/interfaces/vault";
 import idx from "idx";
 import { Wallet } from "src/services/wallets/interfaces/wallet";
 
@@ -25,12 +24,11 @@ const getWalletIcon = (walletType) => {
         return <WalletIcon />;
     }
 };
-const getWalletTags = (walletType, walletEntityKind) => {
-    console.log('walletType', walletType)
-    if (walletEntityKind === EntityKind.VAULT) {
+const getWalletTags = (walletType) => {
+    if (walletType === VaultType.COLLABORATIVE) {
         return [
             `${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
-            `${(walletType as Vault).scheme.m} of ${(walletType as Vault).scheme.n}`,
+            `2 of 3`,
         ];
     } else {
         let walletKind;
@@ -105,7 +103,8 @@ const styles = StyleSheet.create({
         width: wp(300),
     },
     walletVaultInfoContainer: {
-        padding: 15,
+        paddingHorizontal: 15,
+        paddingVertical: 20,
         marginVertical: 20,
         borderRadius: 10
     },
@@ -122,6 +121,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 5,
         justifyContent: 'flex-end',
+        marginBottom: 10
     },
 })
 export default WalletVaultCreationModal
