@@ -45,7 +45,7 @@ function SafeGuardingTips({}) {
       paragraph:
         'To further enhance security, verify transaction details on multiple devices involved in your multi-key setup. This approach can help identify any discrepancies or fraudulent attempts, securing your bitcoin transactions effectively.',
       paragraph2:
-        'You are encouraged to recreate the multi-key setup on another co-ordinator app to have complete independence from Keeper',
+        'You are encouraged to recreate the multi-key setup on another co-ordinator app to have complete independence from Keeper.',
     },
   ];
 

@@ -21,8 +21,8 @@ function AdditionalSignerDetailsTemplate({}) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading}>Additional Signer Details</Text>
-        <Text style={styles.description}>Particulars about each signer in the vault</Text>
+        <Text style={styles.heading}>Additional Key Details</Text>
+        <Text style={styles.description}>Particulars about each key in the vault</Text>
         <Text style={styles.commonTextStyle}>
           This template provides a format where you may store the details of the signers or keys.
           This may be sensitive in nature and so the use of this document should be carefully
@@ -36,7 +36,7 @@ function AdditionalSignerDetailsTemplate({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="Details Template"
+            description="Particulars about each key"
             callback={() => {
               GenerateAdditionalKeyDetailsTemplate().then((res) => {
                 if (res) {
@@ -44,7 +44,7 @@ function AdditionalSignerDetailsTemplate({}) {
                 }
               });
             }}
-            name="View Signer"
+            name="View Key Details Template"
           />
         </Box>
 
@@ -53,7 +53,7 @@ function AdditionalSignerDetailsTemplate({}) {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            Please ensure to keep this document up to date to avoid hassles for the heir
+            Please ensure to keep this document up to date to avoid hassles for the heir.
           </Text>
         </Box>
       </ScrollView>
