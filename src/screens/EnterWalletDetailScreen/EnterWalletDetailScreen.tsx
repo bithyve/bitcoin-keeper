@@ -313,7 +313,7 @@ function EnterWalletDetailScreen({ route }) {
         title={'Wallet Created Successfully!'}
         subTitle={'Only have small amounts in this wallet'}
         buttonText={"View Wallet"}
-        descriptionMessage={'You are ready to send and receive sats'}
+        descriptionMessage={'Make sure you have secured the Recovery Key to backup your wallet'}
         buttonCallback={() => {
           setWalletCreatedModal(false);
           // navigtaion.navigate('WalletDetails', { walletId: wallet.id });
