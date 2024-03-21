@@ -13,16 +13,21 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CardPill from "../CardPill";
 import { Vault } from "src/services/wallets/interfaces/vault";
 import idx from "idx";
+import { Wallet } from "src/services/wallets/interfaces/wallet";
 
 const getWalletIcon = (walletType) => {
     if (walletType === EntityKind.VAULT) {
-        return walletType === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+        return <VaultIcon />;
+    }
+    else if (walletType === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />
     } else {
         return <WalletIcon />;
     }
 };
-const getWalletTags = (walletType) => {
-    if (walletType === EntityKind.VAULT) {
+const getWalletTags = (walletType, walletEntityKind) => {
+    console.log('walletType', walletType)
+    if (walletEntityKind === EntityKind.VAULT) {
         return [
             `${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
             `${(walletType as Vault).scheme.m} of ${(walletType as Vault).scheme.n}`,
@@ -80,7 +85,7 @@ function WalletVaultCreationModal(props) {
             visible={props.visible}
             title={props.title}
             subTitle={props.subTitle}
-            Content={() => (<WalletCreatedModalContent descriptionMessage={props.descriptionMessage} walletType={props.walletType} walletName={props.walletName} walletDescription={props.walletDescription} tags={getWalletTags(props.walletType)} />)}
+            Content={() => (<WalletCreatedModalContent descriptionMessage={props.descriptionMessage} walletType={props.walletType} walletName={props.walletName} walletDescription={props.walletDescription} tags={getWalletTags(props.walletType)} walletEntityKind={props.walletEntityKind} walletEntityKind={props.walletEntityKind} />)}
             buttonText={props.buttonText}
             buttonCallback={() => {
                 props.buttonCallback()
