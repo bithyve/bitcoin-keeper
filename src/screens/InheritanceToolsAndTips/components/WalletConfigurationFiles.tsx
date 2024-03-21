@@ -12,7 +12,8 @@ import GenerateAllVaultsFilePDF from 'src/utils/GenerateAllVaultsFilePDF';
 import { useNavigation } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
-import DownArrow from 'src/assets/images/down_arrow.svg';
+import DownArrow from 'src/assets/images/files.svg';
+import moment from 'moment';
 
 function WalletConfigurationFiles() {
   const [fingerPrints, setFingerPrints] = useState(null);
@@ -45,8 +46,8 @@ function WalletConfigurationFiles() {
         <Text style={styles.heading}>Wallet Configuration Files</Text>
         <Text style={styles.description}>Download for all vaults</Text>
         <Text style={styles.commonTextStyle}>
-          For multisig wallets or vaults, it is mportant to have the configuration files along with
-          the minimum number of keys needed.
+          For multi-key wallets or vaults, it is important to have the configuration files along
+          with the minimum number of keys needed.
         </Text>
         <Text style={styles.commonTextStyle}>
           The wallet configuration file, also known as Output Descriptor or the BSMS file is an
@@ -55,11 +56,10 @@ function WalletConfigurationFiles() {
         <Box style={styles.circleStyle}>
           <WalletConfigFilesIcon />
         </Box>
-        {console.log('fingerPrintsfingerPrintsfingerPrintsfingerPrintsfingerPrints', fingerPrints)}
         <Box mt={5} alignItems={'center'}>
           <DashedButton
             icon={<DownArrow />}
-            description="Configuration files as on 21st March 2024"
+            description={`Configuration files as on ${moment().format('DD MMMM YYYY')}`}
             callback={() => {
               GenerateAllVaultsFilePDF(fingerPrints).then((res) => {
                 if (res) {
@@ -67,7 +67,7 @@ function WalletConfigurationFiles() {
                 }
               });
             }}
-            name="View Document"
+            name="View Wallet Configuration Files"
           />
         </Box>
 
@@ -76,8 +76,8 @@ function WalletConfigurationFiles() {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            When there is anew vault or change in a vault the configuration file needs to be
-            downloaded again
+            When there is a new vault or change in a vault the configuration file needs to be
+            downloaded again.
           </Text>
         </Box>
       </ScrollView>

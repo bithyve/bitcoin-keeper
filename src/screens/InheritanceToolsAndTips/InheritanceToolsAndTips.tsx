@@ -55,7 +55,7 @@ function InheritanceToolsAndTips({ navigation }) {
           <WalletCard
             id={2}
             numberOfLines={2}
-            walletName={`Backup\nRecovery`}
+            walletName={`Backup and\nRecovery`}
             icon={<ImportIcon />}
             selectedIcon={<ImportGreenIcon />}
             selectedCard={selectedCard}
@@ -65,7 +65,7 @@ function InheritanceToolsAndTips({ navigation }) {
           <WalletCard
             id={3}
             numberOfLines={2}
-            walletName={`Inheritance\nTools`}
+            walletName={`Inheritance\nDocuments`}
             icon={<AdvancedIcon />}
             selectedIcon={<AdvancedGreenIcon />}
             selectedCard={selectedCard}
