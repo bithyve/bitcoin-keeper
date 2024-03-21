@@ -35,10 +35,10 @@ function InheritanceTips({}) {
         'When a request is made to use this key for signing or recovery, there is a 30 day delay. This gives time to the user to decline the request if they don’t identify it. The request alerts are sent on the app and can also be sent on email or via sms.',
       paragraph:
         'Inheritance Key is an additional key available to increase the security of the vault without having to buy a hardware signer. It is available to all Diamond Hands subscribers.',
-      // callback: () => navigation.dispatch(CommonActions.navigate({ name: 'AddSigner' })),
+      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
 
       buttonIcon: <Add />,
-      buttonTitle: 'Add Inheritance Key',
+      buttonTitle: 'View Inheritance Key',
       buttonDescription: 'Add to the vault you want to bequeath',
       note: 'Please provide detailed explanations and support to your heir via the inheritance document templates',
     },

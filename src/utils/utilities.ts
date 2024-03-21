@@ -168,14 +168,19 @@ export const getTimeDifferenceInWords = (pastTime) => {
   var days = duration.days();
   var hours = duration.hours();
   var minutes = duration.minutes();
-
-  if (days > 0) {
+  if (days === 1) {
+    return days + ' day ago';
+  } else if (days > 0) {
     return days + ' days ago';
+  } else if (hours === 1) {
+    return hours + ' hour ago';
   } else if (hours > 0) {
     return hours + ' hours ago';
+  } else if (minutes === 1) {
+    return minutes + ' minute ago';
   } else if (minutes > 0) {
     return minutes + ' minutes ago';
   } else {
-    return 'just now';
+    return 'Just now';
   }
 };

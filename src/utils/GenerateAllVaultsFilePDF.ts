@@ -25,16 +25,16 @@ const GenerateAllVaultsFilePDF = async (fingerPrints) => {
           </head>
           <body>
 
-            <h4>Configuration Files Information:</h4>
+            <h4>Vault Configuration File Information:</h4>
             <p style='padding-left:10px'>${fingerPrints
-              .map((keys, index) => `<p>Key ${index + 1} File: ${keys.file}</p>`)
+              .map((keys, index) => `<p>${keys.name}: ${keys.file}</p>`)
               .join('')}</p>
             </body>
         </html>
       `;
     const options = {
       html,
-      fileName: 'LetterToAtterny',
+      fileName: 'Vault-Configuration-file-Information',
       directory: 'Documents',
       base64: true,
     };
