@@ -98,7 +98,7 @@ function NewHomeScreen({ navigation }) {
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Security and Inheritance',
+      name: 'Inheritance Planning',
       icon: <InheritanceIcon />,
       callback: () => {
         //-----FOR Futhure use------
