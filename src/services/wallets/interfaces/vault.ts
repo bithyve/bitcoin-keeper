@@ -100,4 +100,5 @@ export interface Vault {
   specs: VaultSpecs;
   archived: boolean;
   scriptType: ScriptTypes;
+  receivingAddress?: string;
 }

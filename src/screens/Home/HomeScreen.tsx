@@ -86,25 +86,29 @@ function NewHomeScreen({ navigation }) {
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance & Security',
+      name: 'Security and Inheritance',
       icon: <InheritanceIcon />,
       callback: () => {
-        const eligible = plan === SubscriptionTier.L3.toUpperCase();
-        if (!eligible) {
-          showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
-          navigation.navigate('ChoosePlan', { planPosition: 2 });
-        } else if (!activeVault) {
-          showToast('Please create a vault to setup inheritance');
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'AddSigningDevice',
-              merge: true,
-              params: { scheme: { m: 3, n: 5 } },
-            })
-          );
-        } else {
-          navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
-        }
+        //-----FOR Futhure use------
+        // const eligible = plan === SubscriptionTier.L3.toUpperCase();
+        // if (!eligible) {
+        //   showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
+        //   navigation.navigate('ChoosePlan', { planPosition: 2 });
+        // } else if (!activeVault) {
+        //   showToast('Please create a vault to setup inheritance');
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'InheritanceToolsAndTips',
+        //     })
+        //   );
+        // } else {
+        // navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'InheritanceToolsAndTips',
+          })
+        );
+        // }
       },
     },
     {
