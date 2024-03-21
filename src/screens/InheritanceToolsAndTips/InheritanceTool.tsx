@@ -130,7 +130,6 @@ function InheritanceTool({ navigation }) {
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
       />
-      <Box style={{ marginBottom: hp(100) }} />
     </ScrollView>
   );
 }
