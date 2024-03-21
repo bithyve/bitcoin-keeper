@@ -46,7 +46,7 @@ const derivationPurposeToLabel = {
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const currencyCode = useCurrencyCode();
@@ -104,10 +104,10 @@ function EnterWalletDetailScreen({ route }) {
       if (walletType === WalletType.DEFAULT) {
         setWalletCreatedModal(true);
         // showToast(wallet.newWalletCreated, <TickIcon />);
-        // navigtaion.goBack();
+        // navigation.goBack();
       } else {
         showToast(wallet.walletImported, <TickIcon />);
-        navigtaion.goBack();
+        navigation.goBack();
         Linking.openURL(`${route?.params.appId}://backup/true`);
       }
     }
@@ -123,14 +123,14 @@ function EnterWalletDetailScreen({ route }) {
       <Box w="100%">
         <Buttons
           primaryCallback={() => {
-            navigtaion.replace('ChoosePlan');
+            navigation.replace('ChoosePlan');
             dispatch(resetWalletStateFlags());
           }}
           primaryText={choosePlan.viewSubscription}
           activeOpacity={0.5}
           secondaryCallback={() => {
             dispatch(resetWalletStateFlags());
-            navigtaion.replace('ChoosePlan');
+            navigation.replace('ChoosePlan');
           }}
           secondaryText={common.cancel}
           paddingHorizontal={wp(30)}
@@ -316,8 +316,8 @@ function EnterWalletDetailScreen({ route }) {
         descriptionMessage={'Make sure you have secured the Recovery Key to backup your wallet'}
         buttonCallback={() => {
           setWalletCreatedModal(false);
-          // navigtaion.navigate('WalletDetails', { walletId: wallet.id });
-          navigtaion.goBack();
+          // navigation.navigate('WalletDetails', { walletId: wallet.id });
+          navigation.goBack();
         }}
         walletType={walletType}
         walletName={walletName}
