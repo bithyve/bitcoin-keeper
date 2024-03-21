@@ -307,7 +307,7 @@ function SetupCollaborativeWallet() {
         title={'Wallet Created Successfully!'}
         subTitle={'A collaborative with three App Keys on three separate devices.'}
         buttonText={"View Wallet"}
-        descriptionMessage={'You will need two keys to sign a transaction.'}
+        descriptionMessage={'You should ensure you have a copy of the wallet configuration file for this vault'}
         buttonCallback={() => {
           NavigateToNextScreen()
         }}
