@@ -38,6 +38,10 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { formatNumber } from 'src/utils/utilities';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
@@ -190,6 +194,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const transactions = vault?.specs?.transactions || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
 
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
+
   useEffect(() => {
     if (autoRefresh) syncVault();
   }, [autoRefresh]);
@@ -305,6 +313,19 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         </VStack>
       </VStack>
       <HStack style={styles.actionCardContainer}>
+        <ActionCard
+          cardName={'Buy Bitcoin'}
+          description="into this wallet"
+          callback={() =>
+            navigation.dispatch(
+              CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
+            )
+          }
+          icon={<BTC />}
+          cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+            currencyCodeExchangeRate.buy.toFixed(0)
+          )}`}
+        />
         <ActionCard
           cardName="View All Coins"
           description="Manage UTXO"

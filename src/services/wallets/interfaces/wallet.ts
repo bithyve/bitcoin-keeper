@@ -85,6 +85,7 @@ export interface Wallet {
   scriptType: ScriptTypes;
   transferPolicy?: TransferPolicy;
   whirlpoolConfig?: WhirlpoolConfig;
+  receivingAddress?: string;
   depositWalletId?: string; // this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
 }
 

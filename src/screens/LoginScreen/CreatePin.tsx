@@ -191,7 +191,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color={`${colorMode}.black`} style={styles.labelText}>
+                <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>

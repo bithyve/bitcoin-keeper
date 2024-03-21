@@ -99,8 +99,27 @@ import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
 import Login from '../screens/LoginScreen/Login';
+import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/InheritanceToolsAndTips';
+import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 import { AppStackParams } from './types';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
+
+import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary';
+import AssistedKeys from 'src/screens/InheritanceToolsAndTips/components/AssistedKeys';
+import SafeKeepingTips from 'src/screens/InheritanceToolsAndTips/components/SafeKeepingTips';
+import SafeGuardingTips from 'src/screens/InheritanceToolsAndTips/components/SafeGuardingTips';
+import MasterRecoveryKey from 'src/screens/InheritanceToolsAndTips/components/MasterRecoveryKey';
+import PersonalCloudBackup from 'src/screens/InheritanceToolsAndTips/components/PersonalCloudBackup';
+import WalletConfigurationFiles from 'src/screens/InheritanceToolsAndTips/components/WalletConfigurationFiles';
+import BackupAndRecoveryTips from 'src/screens/InheritanceToolsAndTips/components/BackupAndRecoveryTips';
+import InheritanceKey from 'src/screens/InheritanceToolsAndTips/components/InheritanceKey';
+import LetterOfAttorney from 'src/screens/InheritanceToolsAndTips/components/LetterOfAttorney';
+import RecoveryInstruction from 'src/screens/InheritanceToolsAndTips/components/RecoveryInstruction';
+import PrintableTemplates from 'src/screens/InheritanceToolsAndTips/components/PrintableTemplates';
+import InheritanceTips from 'src/screens/InheritanceToolsAndTips/components/InheritanceTips';
+import RecoveryPhraseTemplate from 'src/screens/InheritanceToolsAndTips/components/RecoveryPhraseTemplate';
+import TrustedContactTemplates from 'src/screens/InheritanceToolsAndTips/components/TrustedContactsTemplate';
+import AdditionalSignerDetailsTemplate from 'src/screens/InheritanceToolsAndTips/components/AdditionalSignerDetailsTemplate';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -196,6 +215,27 @@ function AppStack() {
         <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
+        <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
+        <Stack.Screen name="CanaryWallets" component={CanaryWallets} />
+        <Stack.Screen name="AssistedKeys" component={AssistedKeys} />
+        <Stack.Screen name="SafeKeepingTips" component={SafeKeepingTips} />
+        <Stack.Screen name="SafeGuardingTips" component={SafeGuardingTips} />
+        <Stack.Screen name="MasterRecoveryKey" component={MasterRecoveryKey} />
+        <Stack.Screen name="PersonalCloudBackup" component={PersonalCloudBackup} />
+        <Stack.Screen name="WalletConfigurationFiles" component={WalletConfigurationFiles} />
+        <Stack.Screen name="BackupAndRecoveryTips" component={BackupAndRecoveryTips} />
+        <Stack.Screen name="LetterOfAttorney" component={LetterOfAttorney} />
+        <Stack.Screen name="RecoveryInstruction" component={RecoveryInstruction} />
+        <Stack.Screen name="PrintableTemplates" component={PrintableTemplates} />
+        <Stack.Screen name="InheritanceTips" component={InheritanceTips} />
+        <Stack.Screen name="RecoveryPhraseTemplate" component={RecoveryPhraseTemplate} />
+        <Stack.Screen name="TrustedContactTemplates" component={TrustedContactTemplates} />
+        <Stack.Screen
+          name="AdditionalSignerDetailsTemplate"
+          component={AdditionalSignerDetailsTemplate}
+        />
+
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />

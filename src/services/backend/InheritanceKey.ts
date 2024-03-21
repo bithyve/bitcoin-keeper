@@ -267,6 +267,28 @@ export default class InheritanceKeyServer {
     };
   };
 
+  static checkIKSHealth = async (
+    id: string
+  ): Promise<{
+    isIKSAvailable: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/checkIKSHealth`, {
+        HEXA_ID,
+        id,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { isIKSAvailable } = res.data;
+    return {
+      isIKSAvailable,
+    };
+  };
+
   static requestInheritanceKey = async (
     requestId: string,
     cosignersId: string,

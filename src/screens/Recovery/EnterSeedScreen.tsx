@@ -42,7 +42,7 @@ function EnterSeedScreen({ route, navigation }) {
   const { seed } = translations;
 
   const {
-    type,
+    // type,
     mode,
     signer,
     isMultisig,
@@ -184,7 +184,7 @@ function EnterSeedScreen({ route, navigation }) {
 
     const handleSuccess = () => {
       dispatch(healthCheckSigner([signer]));
-      showToast('Seed Key health check successfull', <TickIcon />);
+      showToast('Health check successful!', <TickIcon />);
       navigation.dispatch(CommonActions.goBack());
     };
 
@@ -355,6 +355,7 @@ function EnterSeedScreen({ route, navigation }) {
           />
         </Box>
       );
+    else return null;
   };
 
   return (

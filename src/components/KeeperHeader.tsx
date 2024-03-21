@@ -1,9 +1,10 @@
 import { Box, useColorMode } from 'native-base';
-import BackBlackButton from 'src/assets/images/back.svg';
-import BackWhiteButton from 'src/assets/images/back_white.svg';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+
+import BackBlackButton from 'src/assets/images/back.svg';
+import BackWhiteButton from 'src/assets/images/back_white.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
