@@ -246,25 +246,6 @@ function TextValue({ amt, getValueIcon, inverted = false }) {
   );
 }
 
-function DeductAmount({ isSelected = true }) {
-  return (
-    <Box
-      flexDirection={'row'}
-      backgroundColor={'rgba(253, 247, 240, 1)'}
-      height={50}
-      alignItems={'center'}
-      paddingLeft={5}
-      marginTop={50}
-      borderRadius={10}
-    >
-      <Box paddingRight={2}>
-        {isSelected ? <Checked style={{ alignSelf: 'flex-end' }} /> : <Box style={styles.circle} />}
-      </Box>
-      <Text>Deduct Fees from Amount</Text>
-    </Box>
-  );
-}
-
 function SendingPriority({
   txFeeInfo,
   transactionPriority,
@@ -319,8 +300,6 @@ function SendingPriority({
         name="Custom Priority"
         callback={setVisibleCustomPriorityModal}
       />
-      {/* -------------- TODO Pratyaksh---------- */}
-      <DeductAmount isSelected={true} />
     </Box>
   );
 }

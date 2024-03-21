@@ -21,8 +21,6 @@ import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 
@@ -76,10 +74,6 @@ export const generateSignerFromMetaData = ({
     });
   }
 
-  const signerCount = dbManager
-    .getCollection(RealmSchema.Signer)
-    .filter((s) => s.type === signerType).length;
-
   const signer: Signer = {
     type: signerType,
     storageType,
@@ -92,8 +86,6 @@ export const generateSignerFromMetaData = ({
     inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
-    extraData: { instanceNumber: signerCount + 1 },
-    signerDescription: getSignerDescription(signerType, signerCount + 1),
   };
 
   const key: VaultSigner = {

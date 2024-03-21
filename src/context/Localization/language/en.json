@@ -250,8 +250,14 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions"
   },
+  "DiscountCodes": {
+    "DiscountCodesTitle": "Buy new Hardware Signers",
+    "DiscountCodesDescp": "Discount codes on popular hardware signers"
+  },
   "inheritence": {
     "SetupInheritance": "Setup Inheritance",
+    "SecurityAndInheritance": "Security and Inheritance",
+    "SecurityAndInheritanceDescp": "Tools and tips to secure your bitcoin",
     "Handdownyourbitcoin": "Hand down your bitcoin",
     "Chooseyourbeneficiarycarefully": "Make sure your legacy would be alive and glorious. Choose your beneficiary carefully.",
     "AssignBenificiary": "Assign Benificiary",
@@ -613,8 +619,8 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition",
     "nodeSettings": "Node Settings",
     "nodeSettingsSubtitle": "Configure your node settings",
-    "SecurityAndLogin": "Security & Login",
-    "SecurityAndLoginSubtitle": "App improvement and ease of access",
+    "SecurityAndLogin": "App Access",
+    "SecurityAndLoginSubtitle": "Security, passcode and biometrics",
     "AppLevelSettings": "App-level settings",
     "nodeSettingUsedSoFar": "Node settings used so far",
     "connectToMyNode": "Connect to my node",
@@ -758,6 +764,7 @@
     "addSigner": "Add Signer",
     "addSignerSubTitle": "to Valinor",
     "addSigners": "Add Signers",
-    "addKeys": "Add keys"
+    "addKeys": "Add keys",
+    "keyDetails": "Key Details"
   }
 }

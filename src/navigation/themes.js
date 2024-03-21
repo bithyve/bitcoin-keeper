@@ -112,6 +112,7 @@ export const customTheme = extendTheme({
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.RichGreen, // linearGradient
       error: Colors.CongoPink,
+      LightGreenish: Colors.LightGreenish,
       black: Colors.Black,
       fadedGray: Colors.FadedGray,
       fadedblue: Colors.FadeBlue,
@@ -135,6 +136,7 @@ export const customTheme = extendTheme({
       LightBrown: Colors.LightBrown,
       SignleSigCardPillBackColor: Colors.PaleTurquoise,
       ForestGreenDark: Colors.ForestGreenDark,
+      LightGreen: Colors.lightGreen,
       MintWhisper: Colors.MintWhisper,
       // SlateGrey: Colors.SlateGrey,
       // LightKhaki: Colors.LightKhaki,
@@ -234,6 +236,7 @@ export const customTheme = extendTheme({
       LightBrown: Colors.LightBrown,
       SignleSigCardPillBackColor: Colors.PaleTurquoise,
       ForestGreenDark: Colors.ForestGreenDark,
+      LightGreen: Colors.lightGreen,
       MintWhisper: Colors.MintWhisper,
       // SlateGrey: Colors.SlateGrey,
       // LightKhaki: Colors.LightKhaki,

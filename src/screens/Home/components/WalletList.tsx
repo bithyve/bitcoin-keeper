@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, HStack } from 'native-base';
 import AddCard from 'src/components/AddCard';
 import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -119,5 +119,10 @@ const styles = StyleSheet.create({
   },
   walletCardWrapper: {
     marginRight: 10,
+  },
+  emptyCardContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
   },
 });
