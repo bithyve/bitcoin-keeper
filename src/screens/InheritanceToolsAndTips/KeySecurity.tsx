@@ -38,7 +38,7 @@ function KeySecurity({ navigation }) {
         //     ? 'Never accessed'
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
         // }`}
-        preTitle="coming soon"
+        preTitle="Coming soon"
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
         LeftIcon={<CouponIcon />}
@@ -52,10 +52,10 @@ function KeySecurity({ navigation }) {
         //     ? 'Never accessed'
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
         // }`}
-        preTitle="coming soon"
+        preTitle="Coming soon"
         title="Canary Wallets"
         description="Alert on key compromise"
-        LeftIcon={<Bird fill="pink" />}
+        LeftIcon={<Bird />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
       {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'HODLER'} />}
@@ -68,7 +68,7 @@ function KeySecurity({ navigation }) {
         }`}
         disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
         title="Assisted Keys"
-        description="Assisted Keys"
+        description="Server hosted signers"
         LeftIcon={<ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />

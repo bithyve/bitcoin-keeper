@@ -35,7 +35,7 @@ function TrustedContactTemplates({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="Contacts Template"
+            description="Contact details to assist your heir"
             callback={() => {
               GenerateTrustedContactsPDF().then((res) => {
                 if (res) {
@@ -43,7 +43,7 @@ function TrustedContactTemplates({}) {
                 }
               });
             }}
-            name="View Trusted"
+            name="View Trusted Contacts Template"
           />
         </Box>
 

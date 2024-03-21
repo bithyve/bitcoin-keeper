@@ -40,7 +40,7 @@ function BackupRecovery({ navigation }) {
             : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[MASTER_RECOVERY_KEY])}`
         }`}
         title="Master Recovery Key"
-        description="Backup 12-word phrase"
+        description="Backup 12-word seed phrase"
         LeftIcon={<MrkIcon />}
         callback={() => navigate('MasterRecoveryKey', MASTER_RECOVERY_KEY)}
       />
@@ -52,7 +52,7 @@ function BackupRecovery({ navigation }) {
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP])}`
         // }`}
         disabled
-        preTitle={'coming soon'}
+        preTitle={'Coming soon'}
         title="Personal Cloud Backup"
         description="Use your iCloud or Google Drive"
         LeftIcon={<CloudUser />}

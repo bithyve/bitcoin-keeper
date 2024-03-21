@@ -23,15 +23,15 @@ function MasterRecoveryKey({ navigation }) {
       <InheritanceHeader />
       <ScrollView>
         <Text style={styles.heading}>Master Recovery Key</Text>
-        <Text style={styles.description}>Backup 12-word phrase</Text>
+        <Text style={styles.description}>Backup 12-word seed phrase</Text>
         <Text style={styles.commonTextStyle}>
-          Each of the vault (multisig wallet) has configuration details that are needed during
+          Each of the vault (multi-key wallet) has configuration details that are needed during
           recovery.
         </Text>
 
         <Text style={styles.commonTextStyle}>
-          Your Keeper app’s meta data along with all the configuration files are stored on the cloud
-          in an encrypted manner.
+          Your app’s meta data along with all the configuration files are stored on the Keeper cloud
+          server encrypted with the Recovery Key.
         </Text>
         <Text style={styles.commonTextStyle}>
           Simply backing up or noting down the Master Recovery Key gives you access to all this data
