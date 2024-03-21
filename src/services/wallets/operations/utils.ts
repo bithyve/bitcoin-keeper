@@ -993,23 +993,19 @@ export default class WalletUtilities {
   };
 
   static getInstanceNumberForSigners = (signers: Signer[]) => {
-    let missingInstanceNumber = 1;
-    let currentInstanceNumber = 1;
+    const instanceNumbers = signers
+      .map((signer) => signer.extraData?.instanceNumber)
+      .filter(Number.isInteger);
 
-    for (const signer of signers) {
-      const instanceNumber = signer.extraData?.instanceNumber;
-      if (Number.isInteger(instanceNumber)) {
-        if (instanceNumber === currentInstanceNumber) {
-          currentInstanceNumber++;
-        } else {
-          missingInstanceNumber = currentInstanceNumber;
-          break;
-        }
+    instanceNumbers.sort((a, b) => a - b);
+    let instanceNumber = 0;
+    for (const num of instanceNumbers) {
+      if (num === instanceNumber + 1) {
+        instanceNumber++;
+      } else {
+        break;
       }
     }
-
-    return missingInstanceNumber === currentInstanceNumber
-      ? signers.length + 1
-      : missingInstanceNumber;
+    return instanceNumber;
   };
 }

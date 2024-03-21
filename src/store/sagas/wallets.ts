@@ -602,13 +602,11 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       let incrementForCurrentSigners = 0;
       signers = signers.map((signer) => {
         if (signer.type === SignerType.MY_KEEPER) {
-          const myAppKeys = existingSigners.filter(
-            (signer) => signer.type === SignerType.MY_KEEPER
-          );
+          const myAppKeys = existingSigners.filter((s) => s.type === SignerType.MY_KEEPER);
           const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
           const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
-          signer.extraData = { instanceNumber: instanceNumberToSet };
-          signer.signerDescription = getSignerDescription(signer.type, instanceNumberToSet);
+          signer.extraData = { instanceNumber: instanceNumberToSet + 1 };
+          signer.signerDescription = getSignerDescription(signer.type, instanceNumberToSet + 1);
           incrementForCurrentSigners += 1;
           return signer;
         } else {
