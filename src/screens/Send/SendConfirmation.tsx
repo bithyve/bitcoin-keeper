@@ -255,6 +255,7 @@ function SendingPriority({
   getBalance,
   getSatUnit,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box>
       <Box flexDirection={'row'}>
@@ -288,6 +289,7 @@ function SendingPriority({
                       height: 135,
                       opacity: transactionPriority === priority ? 1 : 0.5,
                     }}
+                    colorMode={colorMode}
                   />
                 </Box>
               </TouchableOpacity>

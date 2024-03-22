@@ -484,6 +484,7 @@ function SignerContent({
               onCardSelect={() => {
                 onSelect(option);
               }}
+              colorMode={colorMode}
             />
           ))}
       </View>

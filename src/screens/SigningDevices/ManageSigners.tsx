@@ -175,6 +175,7 @@ function SignersList({
                 showDot={showDot}
                 isFullText
                 colorVarient="green"
+                colorMode={colorMode}
               />
             );
           })}

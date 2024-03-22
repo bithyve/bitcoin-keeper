@@ -317,6 +317,7 @@ function Signers({
               showToast
             )
           }
+          colorMode={colorMode}
         />
       );
     });
