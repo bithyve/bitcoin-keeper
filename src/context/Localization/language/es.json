@@ -397,7 +397,7 @@
     "transPolicyCantZero": "Transfer Policy cannot be zero",
     "updateWalletPath": "Update Wallet Path",
     "viewWalletPath": "View Wallet Path",
-    "qrofRecoveryPhrase": "The QR below comprises of your 12 word Recovery Phrase",
+    "qrofRecoveryPhrase": "The QR below comprises of your 12 Wallet Seed Words",
     "changePathOfDefaultWallet": "You are changing the derivation path of Default Wallet",
     "changePathOfDefaultWalletSubTitle": "Derivation path changes should only be done by advanced users.",
     "changePathOfDefaultWalletPara01": "Changing the derivation path will mean that you will be using a completely new wallet. All the addresses and transactions will be reset to the new configuration",
@@ -483,11 +483,12 @@
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Backup Phrase",
     "backupPhrase": "Recovery Key",
+    "walletSeedWords": "Wallet Seed Words",
     "enterRecoveryPhrase": "Recover an existing Keeper App",
     "enterRecoveryPhraseSubTitle": "Enter existing 12-word recovery phrase below",
     "enterRecoveryPhraseNote": "Make sure to use the 12-word recovery phrase in private",
     "walletRecoveryPhrase": "Wallet Recovery Phrase",
-    "showXPubNoteSubText": "Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully.",
+    "showXPubNoteSubText": "Losing your Wallet Seed Words may result in permanent loss of funds. Store them carefully.",
     "mobileKeyVerified": "Mobile Key verified successfully",
     "seedWordVerified": "Seed Words verified successfully"
   },
@@ -733,7 +734,7 @@
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
     "recoveryPhrase": "Recovery Phrase",
     "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
-    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access."
+    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key."
   },
   "importWallet": {
     "addDetails": "Add details",

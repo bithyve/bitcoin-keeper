@@ -34,6 +34,7 @@ import { formatNumber } from 'src/utils/utilities';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
+import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 
 const derivationPurposeToLabel = {
   [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
@@ -45,7 +46,7 @@ const derivationPurposeToLabel = {
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const currencyCode = useCurrencyCode();
@@ -53,6 +54,7 @@ function EnterWalletDetailScreen({ route }) {
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
+  const [walletCreatedModal, setWalletCreatedModal] = useState(false)
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
   const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
@@ -100,11 +102,10 @@ function EnterWalletDetailScreen({ route }) {
       dispatch(resetRealyWalletState());
       setWalletLoading(false);
       if (walletType === WalletType.DEFAULT) {
-        showToast(wallet.newWalletCreated, <TickIcon />);
-        navigtaion.goBack();
+        setWalletCreatedModal(true);
       } else {
         showToast(wallet.walletImported, <TickIcon />);
-        navigtaion.goBack();
+        navigation.goBack();
         Linking.openURL(`${route?.params.appId}://backup/true`);
       }
     }
@@ -120,14 +121,14 @@ function EnterWalletDetailScreen({ route }) {
       <Box w="100%">
         <Buttons
           primaryCallback={() => {
-            navigtaion.replace('ChoosePlan');
+            navigation.replace('ChoosePlan');
             dispatch(resetWalletStateFlags());
           }}
           primaryText={choosePlan.viewSubscription}
           activeOpacity={0.5}
           secondaryCallback={() => {
             dispatch(resetWalletStateFlags());
-            navigtaion.replace('ChoosePlan');
+            navigation.replace('ChoosePlan');
           }}
           secondaryText={common.cancel}
           paddingHorizontal={wp(30)}
@@ -304,6 +305,20 @@ function EnterWalletDetailScreen({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
+      />
+      <WalletVaultCreationModal
+        visible={walletCreatedModal}
+        title={'Wallet Created Successfully!'}
+        subTitle={'Only have small amounts in this wallet'}
+        buttonText={"View Wallet"}
+        descriptionMessage={'Make sure you have secured the Recovery Key to backup your wallet'}
+        buttonCallback={() => {
+          setWalletCreatedModal(false);
+          navigation.goBack();
+        }}
+        walletType={walletType}
+        walletName={walletName}
+        walletDescription={walletDescription}
       />
     </ScreenWrapper>
   );

@@ -240,8 +240,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           For sending bitcoin out of the vault you will need the signers{' '}
         </Text>
         <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          This means no one can steal your sats from the vault unless they also have access to your
-          signers{' '}
+          You should ensure you have a copy of the wallet configuration file for this vault{' '}
         </Text>
         <Box style={styles.alignItems}>
           {' '}

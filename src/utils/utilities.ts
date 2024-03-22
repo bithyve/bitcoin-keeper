@@ -1,6 +1,10 @@
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { Alert } from 'react-native';
 import moment from 'moment';
+import idx from 'idx';
+
+import { VaultType, WalletType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -164,23 +168,26 @@ export const formatNumber = (value: string) =>
   value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 export const getTimeDifferenceInWords = (pastTime) => {
-  var duration = moment.duration(moment().diff(pastTime));
-  var days = duration.days();
-  var hours = duration.hours();
-  var minutes = duration.minutes();
-  if (days === 1) {
-    return days + ' day ago';
-  } else if (days > 0) {
-    return days + ' days ago';
-  } else if (hours === 1) {
-    return hours + ' hour ago';
-  } else if (hours > 0) {
-    return hours + ' hours ago';
-  } else if (minutes === 1) {
-    return minutes + ' minute ago';
-  } else if (minutes > 0) {
-    return minutes + ' minutes ago';
+  const timeDifference = moment(pastTime).fromNow();
+  if (timeDifference === 'Invalid date') {
+    return 'Never accessed';
   } else {
-    return 'Just now';
+    return timeDifference.charAt(0).toUpperCase() + timeDifference.slice(1);
+  }
+};
+
+export const getWalletTags = (walletType) => {
+  if (walletType === VaultType.COLLABORATIVE) {
+    return [`${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`, `2 of 3`];
+  } else {
+    let walletKind;
+    if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';
+    else if (walletType === WalletType.IMPORTED) {
+      const isWatchOnly = !idx(walletType as Wallet, (_) => _.specs.xpriv);
+      if (isWatchOnly) walletKind = 'WATCH ONLY';
+      else walletKind = 'IMPORTED WALLET';
+    }
+
+    return ['SINGLE-KEY', walletKind];
   }
 };

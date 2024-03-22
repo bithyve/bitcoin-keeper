@@ -1,6 +1,6 @@
 import cryptoJS from 'crypto-js';
 import { randomBytes } from 'crypto';
-import { RSA } from 'react-native-rsa-native';
+import NodeRSA from 'node-rsa';
 
 export const hash256 = (data: string) => cryptoJS.SHA256(data).toString(cryptoJS.enc.Hex);
 export const hash512 = (data: string) => cryptoJS.SHA512(data).toString(cryptoJS.enc.Hex);
@@ -27,7 +27,8 @@ export const generateKey = (length: number): string => {
 };
 
 export const asymmetricEncrypt = async (data: string, publicKey: string): Promise<string> => {
-  const encrypted = await RSA.encrypt(data, publicKey);
+  const key = new NodeRSA(publicKey);
+  const encrypted = key.encrypt(data, 'base64');
   return encrypted;
 };
 

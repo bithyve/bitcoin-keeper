@@ -158,7 +158,7 @@ function UpdateWalletDetails({ route }) {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={isFromSeed ? seed.recoveryPhrase : walletTranslation.WalletDetails}
+          title={isFromSeed ? seed.walletSeedWords : walletTranslation.WalletDetails}
           subtitle={
             isFromSeed ? walletTranslation.qrofRecoveryPhrase : walletTranslation.viewWalletPath
           }
@@ -205,7 +205,7 @@ function UpdateWalletDetails({ route }) {
               <Box style={{ marginTop: wp(20) }}>
                 <ShowXPub
                   data={words.toString().replace(/,/g, ' ')}
-                  subText={seed.walletRecoveryPhrase}
+                  subText={seed.walletSeedWords}
                   noteSubText={seed.showXPubNoteSubText}
                   copyable={false}
                 />

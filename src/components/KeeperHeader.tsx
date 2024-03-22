@@ -142,7 +142,7 @@ const getStyles = (marginLeft: boolean) =>
     },
     learnMoreText: {
       fontSize: 12,
-      letterSpacing: 0.6,
+      letterSpacing: 0.24,
       alignSelf: 'center',
     },
     headerContainer: {

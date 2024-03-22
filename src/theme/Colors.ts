@@ -54,6 +54,7 @@ const Colors = {
   GreenishGrey: 'rgba(62, 82, 77, 1)',
   LightGreenish: 'rgba(111, 124, 119, 1)',
   brownColor: 'rgba(145, 120, 92, 1)',
+  LightPurple: 'rgba(214, 184, 189, 1)',
   // GreenishGrey: 'rgba(62, 82, 77, 1)',
   // brownColor: 'rgba(145, 120, 92, 1)',
   learMoreTextcolor: 'rgba(242, 237, 230, 1)',
@@ -76,7 +77,7 @@ const Colors = {
   // PaleIvory: 'rgba(238,232,225,1)',
   // DarkSage: 'rgba(111,124,119,1)',
   Smoke: 'rgba(162,162,162,1)',
-  // Taupe: 'rgba(118, 118, 128, 1)',
+  Taupe: 'rgba(189, 183, 177, 1)',
   // Crayola: 'rgba(227, 190, 150, 1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
@@ -91,6 +92,7 @@ const Colors = {
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
   CoffeeDark: 'rgba(150,130,111, 1)',
   Periwinkle: 'rgba(184, 182, 208, 1)',
+  Purple: 'rgba(204, 184, 214, 1)',
   // ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;

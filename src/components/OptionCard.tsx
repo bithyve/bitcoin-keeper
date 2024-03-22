@@ -41,7 +41,7 @@ export function OptionCard({
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
-        <HStack style={styles.iconContainer}>
+        <HStack style={[styles.iconContainer, { opacity: disabled ? 0.6 : 1 }]}>
           {LeftIcon && LeftIcon}
           <VStack>
             {preTitle && (
