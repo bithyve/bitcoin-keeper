@@ -151,6 +151,7 @@ export const customTheme = extendTheme({
       // PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,
+      signerCardPill: Colors.Purple,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -255,6 +256,7 @@ export const customTheme = extendTheme({
       // PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,
+      signerCardPill: Colors.Purple,
     },
   },
   config: {
