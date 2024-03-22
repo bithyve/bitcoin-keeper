@@ -362,19 +362,19 @@ function* whirlpoolWalletsCreation() {
 
     for (const wallet of Wallets) {
       //create new whirlpool wallets for missing config
-      if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+      if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails ?? false) {
         const whirlpoolWalletIds = wallet.whirlpoolConfig.whirlpoolWalletDetails.map(
           (detail) => detail.walletId
         );
         const whirlpoolWallets = Wallets.filter((walletItem) =>
           whirlpoolWalletIds.includes(walletItem.id)
         );
-        if (whirlpoolWallets.length === 0) {
-          yield put(addNewWhirlpoolWallets({ depositWallet: wallet }));
+        if (whirlpoolWallets.length < 3) {
+          yield call(addNewWhirlpoolWallets, { depositWallet: wallet });
         }
       }
       if (garbageIDs.includes(wallet.id)) {
-        yield call(dbManager.deleteObjectById, RealmSchema.Wallet, wallet.id);
+        dbManager.deleteObjectById(RealmSchema.Wallet, wallet.id);
       }
     }
   } catch (err) {
