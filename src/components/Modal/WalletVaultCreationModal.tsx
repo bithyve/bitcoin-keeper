@@ -13,7 +13,7 @@ import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { EntityKind, VaultType } from 'src/services/wallets/enums';
 
-export const getWalletIcon = (walletType) => {
+const getWalletIcon = (walletType) => {
   if (walletType === EntityKind.VAULT) {
     return <VaultIcon />;
   } else if (walletType === VaultType.COLLABORATIVE) {
