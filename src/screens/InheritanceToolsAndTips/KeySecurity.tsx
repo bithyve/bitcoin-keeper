@@ -1,5 +1,5 @@
-import { Box, ScrollView } from 'native-base';
 import React from 'react';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import OptionCard from 'src/components/OptionCard';
 import CouponIcon from 'src/assets/images/cupon.svg';
 import ServerIcon from 'src/assets/images/server-network.svg';
@@ -18,11 +18,13 @@ import {
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
+import CardPill from 'src/components/CardPill';
+import Colors from 'src/theme/Colors';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
+  const colorMode = useColorMode();
   const { plan } = usePlan();
-
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
     navigation.navigate(path);
@@ -32,13 +34,7 @@ function KeySecurity({ navigation }) {
     <ScrollView>
       <OptionCard
         disabled
-        //---for future use---
-        // preTitle={`${
-        //   inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
-        //     ? 'Never accessed'
-        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
-        // }`}
-        preTitle="Coming soon"
+        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
         LeftIcon={<CouponIcon />}
@@ -46,13 +42,7 @@ function KeySecurity({ navigation }) {
       />
       <OptionCard
         disabled
-        //---for future use---
-        // preTitle={`${
-        //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
-        //     ? 'Never accessed'
-        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
-        // }`}
-        preTitle="Coming soon"
+        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={<Bird />}
@@ -61,11 +51,7 @@ function KeySecurity({ navigation }) {
       {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'HODLER'} />}
 
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[ASSISTED_KEYS] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[ASSISTED_KEYS])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
         disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
         title="Assisted Keys"
         description="Server hosted signers"
@@ -74,22 +60,18 @@ function KeySecurity({ navigation }) {
       />
       <Box paddingTop={4}>
         <OptionCard
-          preTitle={`${
-            inheritanceToolVisitedHistory[SECURE_USAGE_TIPS] === undefined
-              ? 'Never accessed'
-              : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[SECURE_USAGE_TIPS])}`
-          }`}
+          preTitle={`${getTimeDifferenceInWords(
+            inheritanceToolVisitedHistory?.[SECURE_USAGE_TIPS]
+          )}`}
           title="Secure Usage Tips"
           description="Recommendations while transacting"
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeGuardingTips', SECURE_USAGE_TIPS)}
         />
         <OptionCard
-          preTitle={`${
-            inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS] === undefined
-              ? 'Never accessed'
-              : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS])}`
-          }`}
+          preTitle={`${getTimeDifferenceInWords(
+            inheritanceToolVisitedHistory?.[SAFE_KEEPING_TIPS]
+          )}`}
           title="Safekeeping Tips"
           description="Key storage best practices"
           LeftIcon={<VaultGreenIcon />}

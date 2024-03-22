@@ -1,5 +1,5 @@
 import React from 'react';
-import { useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import InheritanceHeader from '../InheritanceHeader';
 import Chip from 'src/assets/images/chip.svg';
@@ -8,6 +8,7 @@ import Add from 'src/assets/images/add-green.svg';
 import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
 import AssistedKeysSlider from '../AssistedKeysSlider';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { wp } from 'src/constants/responsive';
 
 function InheritanceTips({}) {
   const { colorMode } = useColorMode();

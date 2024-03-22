@@ -169,7 +169,11 @@ export const formatNumber = (value: string) =>
 
 export const getTimeDifferenceInWords = (pastTime) => {
   const timeDifference = moment(pastTime).fromNow();
-  return timeDifference.charAt(0).toUpperCase() + timeDifference.slice(1);
+  if (timeDifference === 'Invalid date') {
+    return 'Never accessed';
+  } else {
+    return timeDifference.charAt(0).toUpperCase() + timeDifference.slice(1);
+  }
 };
 
 export const getWalletTags = (walletType) => {

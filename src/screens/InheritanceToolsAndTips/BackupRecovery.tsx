@@ -1,7 +1,6 @@
 import { Box, ScrollView } from 'native-base';
 import React from 'react';
 import OptionCard from 'src/components/OptionCard';
-import WalletGreenIcon from 'src/assets/images/wallet_green.svg';
 import MrkIcon from 'src/assets/images/icon_mrk.svg';
 import CloudUser from 'src/assets/images/cloud_user.svg';
 import File from 'src/assets/images/files.svg';
@@ -16,9 +15,10 @@ import {
   PERSONAL_CLOUD_BACKUP,
   WALLET_CONFIG_FILES,
 } from 'src/services/channel/constants';
+import CardPill from 'src/components/CardPill';
+import Colors from 'src/theme/Colors';
 
 function BackupRecovery({ navigation }) {
-  // const { wallets } = useWallets({ getAll: true });
   const dispatch = useAppDispatch();
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
 
@@ -27,18 +27,10 @@ function BackupRecovery({ navigation }) {
     dispatch(updateLastVisitedTimestamp({ option: value }));
   };
 
-  const handleCollaaborativeWalletCreation = () => {
-    navigation.navigate('SetupCollaborativeWallet');
-  };
-
   return (
     <ScrollView>
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[MASTER_RECOVERY_KEY] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[MASTER_RECOVERY_KEY])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[MASTER_RECOVERY_KEY])}`}
         title="Master Recovery Key"
         description="Backup 12-word seed phrase"
         LeftIcon={<MrkIcon />}
@@ -52,18 +44,14 @@ function BackupRecovery({ navigation }) {
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP])}`
         // }`}
         disabled
-        preTitle={'Coming soon'}
+        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Personal Cloud Backup"
         description="Use your iCloud or Google Drive"
-        LeftIcon={<CloudUser />}
+        LeftIcon={<CloudUser fillColor={'#A2A2A2'} />}
         callback={() => navigate('PersonalCloudBackup', PERSONAL_CLOUD_BACKUP)}
       />
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[WALLET_CONFIG_FILES] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[WALLET_CONFIG_FILES])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[WALLET_CONFIG_FILES])}`}
         title="Wallet Configuration Files"
         description="Manual download (advanced)"
         LeftIcon={<File />}
@@ -74,13 +62,9 @@ function BackupRecovery({ navigation }) {
 
       <Box mt={hp(40)}>
         <OptionCard
-          preTitle={`${
-            inheritanceToolVisitedHistory[BACKUP_AND_RECOVERY_FILES] === undefined
-              ? 'Never accessed'
-              : `${getTimeDifferenceInWords(
-                  inheritanceToolVisitedHistory[BACKUP_AND_RECOVERY_FILES]
-                )}`
-          }`}
+          preTitle={`${getTimeDifferenceInWords(
+            inheritanceToolVisitedHistory[BACKUP_AND_RECOVERY_FILES]
+          )}`}
           title="Backup and Recovery Tips"
           description="Suggestions for secure backup"
           LeftIcon={<VaultGreenIcon />}

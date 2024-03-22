@@ -9,6 +9,8 @@ import SecureCoordination from 'src/assets/images/secure-coordination.svg';
 import CrossDeviceVerification from 'src/assets/images/cross-device-verification.svg';
 
 import Text from 'src/components/KeeperText';
+import { wp } from 'src/constants/responsive';
+import { StyleSheet } from 'react-native';
 
 function SafeGuardingTips({}) {
   const { colorMode } = useColorMode();
@@ -52,10 +54,18 @@ function SafeGuardingTips({}) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <Text color={`${colorMode}.white`}>Tips for Doing Transactions Securely</Text>
+      <Text style={styles.container} color={`${colorMode}.white`}>
+        Tips for Doing Transactions Securely
+      </Text>
       <TipsSlider items={tips} />
     </ScreenWrapper>
   );
 }
 
 export default SafeGuardingTips;
+
+const styles = StyleSheet.create({
+  container: {
+    marginLeft: wp(10),
+  },
+});

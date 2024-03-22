@@ -27,7 +27,7 @@ const GenerateAllVaultsFilePDF = async (fingerPrints) => {
 
             <h4>Vault Configuration File Information:</h4>
             <p style='padding-left:10px'>${fingerPrints
-              .map((keys, index) => `<p>${keys.name}: ${keys.file}</p>`)
+              .map((keys, index) => `<p>${keys.file}</p>`)
               .join('')}</p>
             </body>
         </html>

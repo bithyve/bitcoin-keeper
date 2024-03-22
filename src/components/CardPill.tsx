@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from './KeeperText';
+import { wp } from 'src/constants/responsive';
 
 type CardPillProps = {
   heading: string;
@@ -30,7 +31,7 @@ function CardPill({ heading, backgroundColor, headingColor }: CardPillProps) {
 
 const styles = StyleSheet.create({
   pillContainer: {
-    paddingHorizontal: '6%',
+    paddingHorizontal: wp(7),
     height: 17,
     borderRadius: 15,
     alignItems: 'center',
