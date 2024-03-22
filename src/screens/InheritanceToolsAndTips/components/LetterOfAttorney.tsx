@@ -7,6 +7,8 @@ import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
+import useToastMessage from 'src/hooks/useToastMessage';
+
 import InheritanceHeader from '../InheritanceHeader';
 import LetterOfattorneyIcon from 'src/assets/images/letterOfAttorney.svg';
 import DashedButton from 'src/components/DashedButton';
@@ -22,6 +24,7 @@ function LetterOfAttorney() {
   const fingerPrints = allVaults[0]?.signers.map((signer) => signer.masterFingerprint);
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
@@ -45,11 +48,15 @@ function LetterOfAttorney() {
             icon={<DownArrow />}
             description="Pre-filled template for estate planner"
             callback={() => {
-              GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
-                if (res) {
-                  navigation.navigate('PreviewPDF', { source: res });
-                }
-              });
+              if (fingerPrints) {
+                GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
+                  if (res) {
+                    navigation.navigate('PreviewPDF', { source: res });
+                  }
+                });
+              } else {
+                showToast('No vaults found');
+              }
             }}
             name="View Letter to the Attorney"
           />

@@ -16,11 +16,9 @@ function LinkedWalletContent() {
         <VaultSetupIcon />
       </Box>
       <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-        You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper
-      </Text>
-      <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-        When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This
-        ensures you don’t have more sats in hot wallets than you need.
+        When a transaction (send or receive) is submitted to the bitcoin network from a wallet, it
+        may take a little while before it is propagated and be visible to all nodes and wallets.
+        It’s confirmation status also changes as new blocks are mined.{' '}
       </Text>
     </View>
   );
@@ -34,15 +32,15 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       close={() => {
         dispatch(setIntroModal(false));
       }}
-      title="Bip-85 Wallets"
-      subTitle="Create as many (hot) wallets as you want, and backup with a single Recovery Phrase"
+      title="Pull Down to Refresh"
+      subTitle="If you want to check the latest status of a transaction, simply pull down the transaction list and it will fetch the latest status and wallet balance."
       modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={LinkedWalletContent}
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
-      buttonText="Continue"
+      buttonText="Back to Wallet"
       buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => dispatch(setIntroModal(false))}
