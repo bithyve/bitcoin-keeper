@@ -112,10 +112,10 @@ function SetupCollaborativeWallet() {
     new Array(COLLABORATIVE_SCHEME.n).fill(null)
   );
   const [isCreating, setIsCreating] = useState(false);
-  const [walletCreatedModal, setWalletCreatedModal] = useState(false)
-  const [walletType, setWalletType] = useState('')
-  const [walletName, setWalletName] = useState('')
-  const [walletDescription, setWalletDescription] = useState('')
+  const [walletCreatedModal, setWalletCreatedModal] = useState(false);
+  const [walletType, setWalletType] = useState('');
+  const [walletName, setWalletName] = useState('');
+  const [walletDescription, setWalletDescription] = useState('');
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
@@ -207,16 +207,15 @@ function SetupCollaborativeWallet() {
       coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n
     ) {
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
-      const collabWallet = allVaults.find(vault => vault.id === generatedVaultId)
-      setWalletType(collabWallet && collabWallet.type)
-      setWalletName(collabWallet && collabWallet.presentationData.name)
-      setWalletDescription(collabWallet && collabWallet.presentationData.description)
-      setWalletCreatedModal(true)
+      const collabWallet = allVaults.find((vault) => vault.id === generatedVaultId);
+      setWalletType(collabWallet && collabWallet.type);
+      setWalletName(collabWallet && collabWallet.presentationData.name);
+      setWalletDescription(collabWallet && collabWallet.presentationData.description);
+      setWalletCreatedModal(true);
     }
-
   }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, coSigners]);
 
-  const NavigateToNextScreen = () => {
+  const navigateToNextScreen = () => {
     if (
       hasNewVaultGenerationSucceeded &&
       coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n
@@ -224,21 +223,19 @@ function SetupCollaborativeWallet() {
       setIsCreating(false);
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
       const navigationState = generatedVaultId
-        ?
-        {
-          index: 1,
-          routes: [
-            { name: 'Home' },
-            { name: 'VaultDetails', params: { vaultId: generatedVaultId } },
-          ],
-        }
-        :
-        {
-          index: 1,
-          routes: [{ name: 'Home' }],
-        };
+        ? {
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              { name: 'VaultDetails', params: { vaultId: generatedVaultId } },
+            ],
+          }
+        : {
+            index: 1,
+            routes: [{ name: 'Home' }],
+          };
       navigation.dispatch(CommonActions.reset(navigationState));
-      setWalletCreatedModal(false)
+      setWalletCreatedModal(false);
       dispatch(resetVaultFlags());
       dispatch(resetRealyVaultState());
     }
@@ -247,7 +244,7 @@ function SetupCollaborativeWallet() {
       showToast('Error creating collaborative wallet', <ToastErrorIcon />);
       captureError(error);
     }
-  }
+  };
 
   const renderSigner = ({ item, index }) => (
     <SignerItem
@@ -306,10 +303,12 @@ function SetupCollaborativeWallet() {
         visible={walletCreatedModal}
         title={'Wallet Created Successfully!'}
         subTitle={'A collaborative with three App Keys on three separate devices.'}
-        buttonText={"View Wallet"}
-        descriptionMessage={'You should ensure you have a copy of the wallet configuration file for this vault'}
+        buttonText={'View Wallet'}
+        descriptionMessage={
+          'You should ensure you have a copy of the wallet configuration file for this vault'
+        }
         buttonCallback={() => {
-          NavigateToNextScreen()
+          navigateToNextScreen();
         }}
         walletType={walletType}
         walletName={walletName}
