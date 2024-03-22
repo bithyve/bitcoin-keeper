@@ -1,17 +1,15 @@
 import Text from 'src/components/KeeperText';
-import { Box, Modal, Input, useColorMode } from 'native-base';
+import { Box, Modal, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-
-// import Close from 'src/assets/images/modal_close.svg';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useBalance from 'src/hooks/useBalance';
-import BitcoinInput from 'src/assets/images/btc_input.svg';
+import BtcInput from 'src/assets/images/btc_input.svg';
+import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import { calculateCustomFee } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -23,8 +21,6 @@ function CustomPriorityModal(props) {
     close,
     title = 'Title',
     subTitle = null,
-    info = null,
-    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
     buttonText = 'Confirm',
     buttonTextColor = 'white',
     buttonCallback,
@@ -42,8 +38,7 @@ function CustomPriorityModal(props) {
   const [estimationSign, setEstimationSign] = useState('~');
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { translations } = useContext(LocalizationContext);
-  const { common, wallet: walletTranslation } = translations;
-  const { getCurrencyIcon } = useBalance();
+  const { wallet: walletTranslation } = translations;
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
@@ -124,9 +119,6 @@ function CustomPriorityModal(props) {
       >
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
           <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
-            {/* <TouchableOpacity style={styles.close} onPress={close}>
-              <Close />
-            </TouchableOpacity> */}
             <Modal.Header
               alignSelf="flex-start"
               borderBottomWidth={0}
@@ -138,36 +130,30 @@ function CustomPriorityModal(props) {
                 <Text style={styles.title} color={textColor} paddingBottom={2}>
                   {title}
                 </Text>
-                <Text style={styles.subTitle} light color={textColor}>
+                <Text style={styles.subTitle} color={textColor}>
                   {subTitle}
                 </Text>
               </Box>
-              <Box w="20%">
-                <CurrencyTypeSwitch />
-              </Box>
             </Modal.Header>
-            <Box alignItems="center">
-              <Input
-                testID="input_customPriority"
-                InputLeftElement={
-                  <Box borderRightWidth={0.5} borderRightColor={`${colorMode}.Border`} px="2">
-                    <Box>
-                      {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
-                    </Box>
-                  </Box>
-                }
-                backgroundColor={`${colorMode}.seashellWhite`}
-                mx="3"
-                placeholder="Enter Amount"
-                h={windowHeight * 0.05}
-                width="100%"
-                variant="unstyled"
-                value={customPriorityFee}
-              />
+            <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.priorityContainer}>
+              <Box borderRightWidth={0.5} borderRightColor={`${colorMode}.Border`} px="2">
+                <Box>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</Box>
+              </Box>
+              <Text
+                color={customPriorityFee ? `${colorMode}.greenText` : `${colorMode}.SlateGreen`}
+                fontSize={13}
+                bold
+              >
+                {customPriorityFee || 'Enter Amount'}
+              </Text>
             </Box>
             <Box my={windowHeight * 0.03} flexDirection="row" justifyContent="space-between" mx={1}>
-              <Text color={`${colorMode}.greenText`}>{walletTranslation.estimateArrvlTime}</Text>
-              <Text>{customEstBlocks ? `${estimationSign} ${customEstBlocks * 10} mins` : ''}</Text>
+              <Text medium color={`${colorMode}.greenText`}>
+                {walletTranslation.estimateArrvlTime}
+              </Text>
+              <Text fontSize={15}>
+                {customEstBlocks ? `${estimationSign} ${customEstBlocks * 10} mins` : ''}
+              </Text>
             </Box>
 
             <Box
@@ -235,7 +221,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 17,
     borderRadius: 10,
   },
-  // close: {
-  //   alignSelf: 'flex-end',
-  // },
+  priorityContainer: {
+    flexDirection: 'row',
+    gap: 20,
+    alignItems: 'center',
+    height: hp(50),
+    width: '100%',
+    borderRadius: 10,
+  },
 });
