@@ -204,7 +204,8 @@ function SetupCollaborativeWallet() {
   useEffect(() => {
     if (
       hasNewVaultGenerationSucceeded &&
-      coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n
+      coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n &&
+      coSigners.filter((item) => item)?.length > 2
     ) {
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
       const collabWallet = allVaults.find((vault) => vault.id === generatedVaultId);
