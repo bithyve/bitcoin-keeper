@@ -514,20 +514,24 @@ function SignerAdvanceSettings({ route }: any) {
             callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
           />
         )}
-        <OptionCard
-          title="Hide signer"
-          description="Hide this signer from the list"
-          callback={() => {
-            for (const vaultItem of allUnhiddenVaults) {
-              if (vaultItem.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)) {
-                setVaultUsed(vaultItem);
-                setHideWarning(true);
-                return;
+        {isAssistedKey || vaultId ? null : (
+          <OptionCard
+            title="Hide signer"
+            description="Hide this signer from the list"
+            callback={() => {
+              for (const vaultItem of allUnhiddenVaults) {
+                if (
+                  vaultItem.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
+                ) {
+                  setVaultUsed(vaultItem);
+                  setHideWarning(true);
+                  return;
+                }
               }
-            }
-            setConfirmPassVisible(true);
-          }}
-        />
+              setConfirmPassVisible(true);
+            }}
+          />
+        )}
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
