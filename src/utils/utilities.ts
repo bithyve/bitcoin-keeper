@@ -1,6 +1,10 @@
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { Alert } from 'react-native';
 import moment from 'moment';
+import idx from 'idx';
+
+import { VaultType, WalletType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -169,5 +173,21 @@ export const getTimeDifferenceInWords = (pastTime) => {
     return 'Never accessed';
   } else {
     return timeDifference.charAt(0).toUpperCase() + timeDifference.slice(1);
+  }
+};
+
+export const getWalletTags = (walletType) => {
+  if (walletType === VaultType.COLLABORATIVE) {
+    return [`${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`, `2 of 3`];
+  } else {
+    let walletKind;
+    if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';
+    else if (walletType === WalletType.IMPORTED) {
+      const isWatchOnly = !idx(walletType as Wallet, (_) => _.specs.xpriv);
+      if (isWatchOnly) walletKind = 'WATCH ONLY';
+      else walletKind = 'IMPORTED WALLET';
+    }
+
+    return ['SINGLE-KEY', walletKind];
   }
 };

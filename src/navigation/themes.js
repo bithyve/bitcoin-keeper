@@ -136,6 +136,7 @@ export const customTheme = extendTheme({
       LightBrown: Colors.LightBrown,
       SignleSigCardPillBackColor: Colors.PaleTurquoise,
       ForestGreenDark: Colors.ForestGreenDark,
+      dropdownSeparator: Colors.Taupe,
       LightGreen: Colors.lightGreen,
       lightPurple: Colors.LightPurple,
       MintWhisper: Colors.MintWhisper,
@@ -152,6 +153,7 @@ export const customTheme = extendTheme({
       // PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,
+      signerCardPill: Colors.Purple,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -238,6 +240,7 @@ export const customTheme = extendTheme({
       LightBrown: Colors.LightBrown,
       SignleSigCardPillBackColor: Colors.PaleTurquoise,
       ForestGreenDark: Colors.ForestGreenDark,
+      dropdownSeparator: Colors.Taupe,
       LightGreen: Colors.lightGreen,
       MintWhisper: Colors.MintWhisper,
       // SlateGrey: Colors.SlateGrey,
@@ -257,6 +260,7 @@ export const customTheme = extendTheme({
       // PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,
+      signerCardPill: Colors.Purple,
     },
   },
   config: {

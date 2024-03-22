@@ -118,7 +118,7 @@ function ExportSeedScreen({ route, navigation }) {
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <KeeperHeader title={seedText.backupPhrase} subtitle={seedText.SeedDesc} />
+      <KeeperHeader title={seedText.walletSeedWords} subtitle={seedText.SeedDesc} />
 
       <Box style={{ flex: 1 }}>
         <FlatList
