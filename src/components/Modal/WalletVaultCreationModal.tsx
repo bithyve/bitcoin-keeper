@@ -2,19 +2,18 @@ import { Box, useColorMode } from 'native-base';
 import React, { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { wp } from 'src/constants/responsive';
-import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from '../HexagonIcon';
 import KeeperModal from '../KeeperModal';
 import Text from '../KeeperText';
+import CardPill from '../CardPill';
+import { getWalletTags } from 'src/utils/utilities';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import CardPill from '../CardPill';
-import idx from 'idx';
-import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { EntityKind, VaultType } from 'src/services/wallets/enums';
 
-const getWalletIcon = (walletType) => {
+export const getWalletIcon = (walletType) => {
   if (walletType === EntityKind.VAULT) {
     return <VaultIcon />;
   } else if (walletType === VaultType.COLLABORATIVE) {
@@ -23,21 +22,7 @@ const getWalletIcon = (walletType) => {
     return <WalletIcon />;
   }
 };
-const getWalletTags = (walletType) => {
-  if (walletType === VaultType.COLLABORATIVE) {
-    return [`${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`, `2 of 3`];
-  } else {
-    let walletKind;
-    if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';
-    else if (walletType === WalletType.IMPORTED) {
-      const isWatchOnly = !idx(walletType as Wallet, (_) => _.specs.xpriv);
-      if (isWatchOnly) walletKind = 'WATCH ONLY';
-      else walletKind = 'IMPORTED WALLET';
-    }
 
-    return ['SINGLE-KEY', walletKind];
-  }
-};
 function WalletCreatedModalContent(props) {
   const { colorMode } = useColorMode();
   return (
