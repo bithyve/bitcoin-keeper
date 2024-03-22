@@ -89,7 +89,7 @@ function UTXOLabeling() {
 
   useEffect(() => {
     if (apiError) {
-      showToast(apiError.toString(), <ToastErrorIcon />, 3000);
+      showToast(apiError.toString(), <ToastErrorIcon />);
       processDispatched.current = false;
     }
     if (processDispatched.current && !syncingUTXOs) {

@@ -163,8 +163,7 @@ export default function BroadcastPremix({ route, navigation }) {
           }
           showToast(
             'Your Tx0 was broadcasted successfully, you should find the new UTXOs in the Premix account',
-            <TickIcon />,
-            3000
+            <TickIcon />
           );
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           const outputs = PSBT.txOutputs;
@@ -207,11 +206,11 @@ export default function BroadcastPremix({ route, navigation }) {
           setLoading(false);
         } else {
           setLoading(false);
-          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
+          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />);
         }
       } else {
         setLoading(false);
-        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />, 3000);
+        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />);
       }
     } catch (error) {
       const problem = error?.message || '';
@@ -230,7 +229,7 @@ export default function BroadcastPremix({ route, navigation }) {
         default:
       }
 
-      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />, 3000);
+      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />);
       setLoading(false);
       captureError(error);
     }

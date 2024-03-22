@@ -33,6 +33,8 @@ import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
+import useVault from 'src/hooks/useVault';
 
 function SignerItem({
   vaultKey,
@@ -100,14 +102,20 @@ function SetupCollaborativeWallet() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { allVaults } = useVault({ includeArchived: false });
   const { hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, error } = useAppSelector(
     (state) => state.vault
   );
+
   const COLLABORATIVE_SCHEME = { m: 2, n: 3 };
   const [coSigners, setCoSigners] = useState<VaultSigner[]>(
     new Array(COLLABORATIVE_SCHEME.n).fill(null)
   );
   const [isCreating, setIsCreating] = useState(false);
+  const [walletCreatedModal, setWalletCreatedModal] = useState(false);
+  const [walletType, setWalletType] = useState('');
+  const [walletName, setWalletName] = useState('');
+  const [walletDescription, setWalletDescription] = useState('');
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
@@ -158,7 +166,7 @@ function SetupCollaborativeWallet() {
     } catch (err) {
       console.log(err);
       const message = crossInteractionHandler(err);
-      showToast(message, <ToastErrorIcon />, 4000);
+      showToast(message, <ToastErrorIcon />);
     }
   };
 
@@ -198,30 +206,45 @@ function SetupCollaborativeWallet() {
       hasNewVaultGenerationSucceeded &&
       coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n
     ) {
+      const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
+      const collabWallet = allVaults.find((vault) => vault.id === generatedVaultId);
+      setWalletType(collabWallet && collabWallet.type);
+      setWalletName(collabWallet && collabWallet.presentationData.name);
+      setWalletDescription(collabWallet && collabWallet.presentationData.description);
+      setWalletCreatedModal(true);
+    }
+  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, coSigners]);
+
+  const navigateToNextScreen = () => {
+    if (
+      hasNewVaultGenerationSucceeded &&
+      coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n
+    ) {
       setIsCreating(false);
       const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
       const navigationState = generatedVaultId
         ? {
             index: 1,
-            routes: [{ name: 'Home' }],
-          }
-        : {
-            index: 1,
             routes: [
               { name: 'Home' },
               { name: 'VaultDetails', params: { vaultId: generatedVaultId } },
             ],
+          }
+        : {
+            index: 1,
+            routes: [{ name: 'Home' }],
           };
       navigation.dispatch(CommonActions.reset(navigationState));
+      setWalletCreatedModal(false);
       dispatch(resetVaultFlags());
       dispatch(resetRealyVaultState());
     }
     if (hasNewVaultGenerationFailed) {
       setIsCreating(false);
-      showToast('Error creating collaborative wallet', <ToastErrorIcon />, 4000);
+      showToast('Error creating collaborative wallet', <ToastErrorIcon />);
       captureError(error);
     }
-  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, coSigners]);
+  };
 
   const renderSigner = ({ item, index }) => (
     <SignerItem
@@ -275,6 +298,21 @@ function SetupCollaborativeWallet() {
         secondaryText="Cancel"
         primaryLoading={isCreating}
         primaryDisable={coSigners.filter((item) => item)?.length < 2}
+      />
+      <WalletVaultCreationModal
+        visible={walletCreatedModal}
+        title={'Wallet Created Successfully!'}
+        subTitle={'A collaborative with three App Keys on three separate devices.'}
+        buttonText={'View Wallet'}
+        descriptionMessage={
+          'You should ensure you have a copy of the wallet configuration file for this vault'
+        }
+        buttonCallback={() => {
+          navigateToNextScreen();
+        }}
+        walletType={walletType}
+        walletName={walletName}
+        walletDescription={walletDescription}
       />
     </ScreenWrapper>
   );

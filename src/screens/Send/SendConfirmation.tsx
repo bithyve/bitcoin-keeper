@@ -50,6 +50,8 @@ import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -244,25 +246,6 @@ function TextValue({ amt, getValueIcon, inverted = false }) {
   );
 }
 
-function DeductAmount({ isSelected = true }) {
-  return (
-    <Box
-      flexDirection={'row'}
-      backgroundColor={'rgba(253, 247, 240, 1)'}
-      height={50}
-      alignItems={'center'}
-      paddingLeft={5}
-      marginTop={50}
-      borderRadius={10}
-    >
-      <Box paddingRight={2}>
-        {isSelected ? <Checked style={{ alignSelf: 'flex-end' }} /> : <Box style={styles.circle} />}
-      </Box>
-      <Text>Deduct Fees from Amount</Text>
-    </Box>
-  );
-}
-
 function SendingPriority({
   txFeeInfo,
   transactionPriority,
@@ -295,8 +278,9 @@ function SendingPriority({
                     isSelected={transactionPriority === priority}
                     key={priority}
                     name={String(priority)}
-                    description={`~${txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                      } mins`}
+                    description={`~${
+                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                    } mins`}
                     numberOfLines={2}
                     onCardSelect={() => setTransactionPriority(priority)}
                     customStyle={{
@@ -316,8 +300,6 @@ function SendingPriority({
         name="Custom Priority"
         callback={setVisibleCustomPriorityModal}
       />
-      {/* -------------- TODO Pratyaksh---------- */}
-      <DeductAmount isSelected={true} />
     </Box>
   );
 }
@@ -530,7 +512,9 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
           <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
         </Box>
       </Box>
-      <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
+      <Box width={'70%'}>
+        <Text fontSize={13}>If not urgent, you could consider waiting for the fees to reduce</Text>
+      </Box>
     </>
   );
 }
@@ -782,7 +766,7 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
-  const addNumbers = (str1, str2) => {
+  const addNumbers = (str1, str2): number => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
 
@@ -796,10 +780,10 @@ function SendConfirmation({ route }) {
       } else {
         // Handle invalid input
         console.error('Invalid input. Please provide valid numeric strings.');
-        return null;
+        return 0;
       }
     } else {
-      const sum = str1 + str2;
+      const sum = Number(str1) || 0 + Number(str2) || 0;
       return sum;
     }
   };
@@ -872,12 +856,12 @@ function SendConfirmation({ route }) {
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
-                satsEnabled ? 2 : 8
-              )
+                  satsEnabled ? 2 : 8
+                )
               : addNumbers(
-                getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-                getBalance(amount)
-              ).toFixed(satsEnabled ? 2 : 8)
+                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                  getBalance(amount)
+                ).toFixed(satsEnabled ? 2 : 8)
           }
           fontSize={17}
           fontWeight="400"
@@ -991,7 +975,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={`Network fee is higher than the amount you are sending`}
+        subTitle={'Network fee is higher than 10% of the amount being sent'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1032,7 +1016,7 @@ function SendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default SendConfirmation;
+export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   priorityRowContainer: {
@@ -1172,11 +1156,9 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
-    maxWidth: 85,
   },
   cardSubtitle: {
     fontSize: 12,
     letterSpacing: 0.72,
-    maxWidth: wp(100),
   },
 });

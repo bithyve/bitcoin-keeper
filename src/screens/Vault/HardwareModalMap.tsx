@@ -8,17 +8,12 @@ import { ActivityIndicator, Alert, Clipboard, StyleSheet, TouchableOpacity } fro
 import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
-  EntityKind,
   KeyGenerationMode,
   SignerStorage,
   SignerType,
   XpubTypes,
 } from 'src/services/wallets/enums';
-import {
-  generateCosignerMapIds,
-  generateMobileKey,
-  generateSeedWordsKey,
-} from 'src/services/wallets/factories/VaultFactory';
+import { generateCosignerMapIds } from 'src/services/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -62,7 +57,7 @@ import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { generateKey, hash512 } from 'src/utils/service-utilities/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/models/enums/Hardware';
@@ -91,6 +86,16 @@ import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import SignerCard from '../AddSigner/SignerCard';
+import {
+  setupJade,
+  setupKeeperSigner,
+  setupKeystone,
+  setupMobileKey,
+  setupPassport,
+  setupSeedSigner,
+  setupSeedWordsBasedKey,
+  setupSpecter,
+} from 'src/hardware/signerSetup';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -127,16 +132,17 @@ const getSignerContent = (
         options: [],
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-        } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+        isMultisig ? 'MultiSig' : 'SingleSig'
+      } and Native Segwit in the options section.`;
       return {
         type: SignerType.JADE,
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-            jadeInstructions,
-            'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
-          ]
+              jadeInstructions,
+              'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
+            ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -184,7 +190,7 @@ const getSignerContent = (
         Instructions: [
           'Make sure that this wallet’s Recovery Key is backed-up properly to secure this key.',
         ],
-        title: isHealthcheck ? 'Verify Mobile Key' : 'Set up a Mobile Key',
+        title: isHealthcheck ? 'Verify Recovery Key' : 'Set up a Mobile Key',
         subTitle: 'Your passcode or biometrics act as your key for signing transactions',
         options: [],
       };
@@ -197,25 +203,26 @@ const getSignerContent = (
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-            keystoneInstructions,
-            'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
-          ]
+              keystoneInstructions,
+              'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
+            ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
         options: [],
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > QR Code.\n`;
       return {
         type: SignerType.PASSPORT,
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-            passportInstructions,
-            'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
-          ]
+              passportInstructions,
+              'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
+            ]
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -226,42 +233,44 @@ const getSignerContent = (
         type: SignerType.POLICY_SERVER,
         Illustration: <SigningServerIllustration />,
         Instructions: isHealthcheck
-          ? ['A request to the signer will be made to checks it health']
+          ? ['A request to the signer will be made to checks its health']
           : [
-            'A 2FA authenticator will have to be set up to use this option.',
-            'On providing the correct code from the auth app, the signer will sign the transaction.',
-          ],
+              'A 2FA authenticator will have to be set up to use this option.',
+              'On providing the correct code from the auth app, the signer will sign the transaction.',
+            ],
         title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
         subTitle: 'A signer will hold one of the keys of the vault',
         options: [],
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit > Keeper.\n`;
       return {
         type: SignerType.SEEDSIGNER,
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-            seedSignerInstructions,
-            'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
-          ]
+              seedSignerInstructions,
+              'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
+            ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
         options: [],
       };
     case SignerType.SPECTER:
-      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit.\n`;
+      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit.\n`;
       return {
         type: SignerType.SPECTER,
         Illustration: <SpecterSetupImage />,
         Instructions: isTestnet()
           ? [
-            specterInstructions,
-            'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
-          ]
+              specterInstructions,
+              'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
+            ]
           : [specterInstructions],
         title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
         subTitle: 'Keep your device ready and powered before proceeding',
@@ -317,13 +326,13 @@ const getSignerContent = (
           {
             title: 'Import',
             icon: <Import />,
-            callback: () => { },
+            callback: () => {},
             name: KeyGenerationMode.IMPORT,
           },
           {
             title: 'Create',
             icon: <RecoverImage />,
-            callback: () => { },
+            callback: () => {},
             name: KeyGenerationMode.CREATE,
           },
         ],
@@ -357,25 +366,32 @@ const getSignerContent = (
       return {
         type: SignerType.INHERITANCEKEY,
         Illustration: <InhertanceKeyIcon />,
-        title: 'Setting up an Inheritance Key',
-        subTitle: 'This step will add an additional, mandatory key to your m-of-n vault',
-        Instructions: [
-          'This Key would only get activated after the other two Keys have signed',
-          'On activation the Key would send emails to your email id for 30 days for you to decline using it',
-        ],
-        options: [
-          {
-            title: 'Configure a New Key',
-            icon: <RecoverImage />,
-            callback: () => { },
-            name: KeyGenerationMode.NEW,
-          },
-          {
-            title: 'Recover Existing Key',
-            icon: <RecoverImage />,
-            name: KeyGenerationMode.RECOVER,
-          },
-        ],
+        title: isHealthcheck ? 'Verify Inheritance Key' : 'Setting up an Inheritance Key',
+        subTitle: isHealthcheck
+          ? ''
+          : 'This step will add an additional, mandatory key to your m-of-n vault',
+
+        Instructions: isHealthcheck
+          ? ['A request to the inheritance key will be made to checks its health']
+          : [
+              'This Key would only get activated after the other two Keys have signed',
+              'On activation the Key would send emails to your email id for 30 days for you to decline using it',
+            ],
+        options: isHealthcheck
+          ? []
+          : [
+              {
+                title: 'Configure a New Key',
+                icon: <RecoverImage />,
+                callback: () => {},
+                name: KeyGenerationMode.NEW,
+              },
+              {
+                title: 'Recover Existing Key',
+                icon: <RecoverImage />,
+                name: KeyGenerationMode.RECOVER,
+              },
+            ],
       };
     case SignerType.MY_KEEPER:
       return {
@@ -475,43 +491,9 @@ function SignerContent({
   );
 }
 
-const setupPassport = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getPassportDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer: passport, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.PASSPORT,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer: passport, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
-};
-
 const verifyPassport = (qrData, signer) => {
   const { masterFingerprint } = getPassportDetails(qrData);
   return masterFingerprint === signer.masterFingerprint;
-};
-
-const setupSeedSigner = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getSeedSignerDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer: seedSigner, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.SEEDSIGNER,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer: seedSigner, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
 const verifySeedSigner = (qrData: any, signer: VaultSigner) => {
@@ -519,43 +501,9 @@ const verifySeedSigner = (qrData: any, signer: VaultSigner) => {
   return masterFingerprint === signer.masterFingerprint;
 };
 
-const setupSpecter = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getSpecterDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.SPECTER,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
-};
-
 const verifySpecter = (qrData, signer) => {
   const { masterFingerprint } = getSpecterDetails(qrData);
   return masterFingerprint === signer.masterFingerprint;
-};
-
-const setupKeystone = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getKeystoneDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer: keystone, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.KEYSTONE,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer: keystone, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
 const verifyKeystone = (qrData, signer) => {
@@ -563,74 +511,9 @@ const verifyKeystone = (qrData, signer) => {
   return masterFingerprint === signer.masterFingerprint;
 };
 
-const setupJade = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getJadeDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer: jade, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.JADE,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer: jade, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
-};
-
 const verifyJade = (qrData, signer) => {
   const { masterFingerprint } = getJadeDetails(qrData);
   return masterFingerprint === signer.masterFingerprint;
-};
-
-export const setupKeeperSigner = (qrData) => {
-  try {
-    let xpub, derivationPath, masterFingerprint, xpubDetails, xpriv;
-    let signerType = SignerType.KEEPER;
-    try {
-      const data = extractKeyFromDescriptor(qrData);
-      xpub = data.xpub;
-      derivationPath = data.derivationPath;
-      masterFingerprint = data.masterFingerprint;
-      if (!data.forMultiSig) {
-        throw new HWError(HWErrorType.INVALID_SIG);
-      }
-    } catch (err) {
-      // support crypto-account
-      if (qrData.xPub) {
-        xpub = qrData.xPub;
-        derivationPath = qrData.derivationPath;
-        masterFingerprint = qrData.mfp;
-      } else if (qrData.xpubDetails) {
-        xpub = qrData.xpubDetails[XpubTypes.P2WSH].xpub;
-        xpriv = qrData.xpubDetails[XpubTypes.P2WSH].xpriv;
-        derivationPath = qrData.xpubDetails[XpubTypes.P2WSH].derivationPath;
-        masterFingerprint = qrData.mfp;
-        signerType = SignerType.MY_KEEPER;
-      } else {
-        throw err;
-      }
-    }
-    const { signer: ksd, key } = generateSignerFromMetaData({
-      xpub,
-      xpriv,
-      derivationPath,
-      masterFingerprint,
-      signerType,
-      storageType: SignerStorage.WARM,
-      isMultisig: true,
-      xpubDetails,
-    });
-    return { signer: ksd, key };
-  } catch (err) {
-    if (err instanceof HWError) {
-      throw err;
-    }
-    const message = crossInteractionHandler(err);
-    throw new Error(message);
-  }
 };
 
 const verifyKeeperSigner = (qrData, signer) => {
@@ -641,80 +524,6 @@ const verifyKeeperSigner = (qrData, signer) => {
     const message = crossInteractionHandler(err);
     throw new Error(message);
   }
-};
-
-const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
-  const networkType = config.NETWORK_TYPE;
-
-  // fetched multi-sig mobile key
-  const {
-    xpub: multiSigXpub,
-    xpriv: multiSigXpriv,
-    derivationPath: multiSigPath,
-    masterFingerprint,
-  } = await generateMobileKey(primaryMnemonic, networkType);
-  // fetched single-sig mobile key
-  const {
-    xpub: singleSigXpub,
-    xpriv: singleSigXpriv,
-    derivationPath: singleSigPath,
-  } = await generateMobileKey(primaryMnemonic, networkType, EntityKind.WALLET);
-
-  const xpubDetails: XpubDetailsType = {};
-  xpubDetails[XpubTypes.P2WPKH] = {
-    xpub: singleSigXpub,
-    derivationPath: singleSigPath,
-    xpriv: singleSigXpriv,
-  };
-  xpubDetails[XpubTypes.P2WSH] = {
-    xpub: multiSigXpub,
-    derivationPath: multiSigPath,
-    xpriv: multiSigXpriv,
-  };
-
-  const { signer: mobileKey, key } = generateSignerFromMetaData({
-    xpub: isMultisig ? multiSigXpub : singleSigXpub,
-    derivationPath: isMultisig ? multiSigPath : singleSigPath,
-    masterFingerprint,
-    signerType: SignerType.MOBILE_KEY,
-    storageType: SignerStorage.WARM,
-    isMultisig: true,
-    xpriv: isMultisig ? multiSigXpriv : singleSigXpriv,
-    xpubDetails,
-  });
-  return { signer: mobileKey, key };
-};
-
-export const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
-  const networkType = config.NETWORK_TYPE;
-  // fetched multi-sig seed words based key
-  const {
-    xpub: multiSigXpub,
-    derivationPath: multiSigPath,
-    masterFingerprint,
-  } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
-  // fetched single-sig seed words based key
-  const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
-    mnemonic,
-    networkType,
-    EntityKind.WALLET
-  );
-
-  const xpubDetails: XpubDetailsType = {};
-  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
-  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
-
-  const { signer: softSigner, key } = generateSignerFromMetaData({
-    xpub: isMultisig ? multiSigXpub : singleSigXpub,
-    derivationPath: isMultisig ? multiSigPath : singleSigPath,
-    masterFingerprint,
-    signerType: SignerType.SEED_WORDS,
-    storageType: SignerStorage.WARM,
-    isMultisig,
-    xpubDetails,
-  });
-
-  return { signer: softSigner, key };
 };
 
 function PasswordEnter({
@@ -761,7 +570,11 @@ function PasswordEnter({
           ? { name: 'ManageSigners' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
-        showToast(`${signer.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
         setInProgress(false);
         close();
       } else {
@@ -772,7 +585,7 @@ function PasswordEnter({
     } catch (error) {
       setInProgress(false);
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
       } else if (error.toString() === 'Error') {
         /* empty */
       } else captureError(error);
@@ -795,7 +608,7 @@ function PasswordEnter({
     } catch (error) {
       setInProgress(false);
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         close();
       } else if (error.toString() === 'Error') {
         /* empty */
@@ -899,6 +712,8 @@ function HardwareModalMap({
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
+  const [otp, setOtp] = useState('');
+  const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
 
   const navigateToTapsignerSetup = () => {
     if (mode === InteracationMode.RECOVERY) {
@@ -969,11 +784,11 @@ function HardwareModalMap({
     } catch (err) {
       setInProgress(true);
       captureError(err);
-      showToast('Key could not be added, please try again', <ToastErrorIcon />, 3000);
+      showToast('Key could not be added, please try again', <ToastErrorIcon />);
     }
   };
 
-  const navigateToSigningServerSetup = async () => {
+  const checkSigningServerHealth = async () => {
     if (mode === InteracationMode.HEALTH_CHECK) {
       try {
         setInProgress(true);
@@ -981,30 +796,32 @@ function HardwareModalMap({
           signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
           WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
         );
-        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp);
+        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp, Number(otp));
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
           showToast('Health check done successfully', <TickIcon />);
         } else {
           close();
-          showToast('Error in Health check', <ToastErrorIcon />, 3000);
+          showToast('Error in Health check', <ToastErrorIcon />);
         }
         setInProgress(false);
       } catch (err) {
         console.log(err);
         setInProgress(false);
         close();
-        showToast('Error in Health check', <ToastErrorIcon />, 3000);
+        showToast('Error in Health check', <ToastErrorIcon />);
       }
-    } else {
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ChoosePolicyNew',
-          params: { signer, addSignerFlow, vaultId },
-        })
-      );
     }
+  };
+
+  const navigateToSigningServerSetup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChoosePolicyNew',
+        params: { signer, addSignerFlow, vaultId },
+      })
+    );
   };
 
   const navigateToSetupWithChannel = () => {
@@ -1059,7 +876,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             },
             addSignerFlow,
           },
@@ -1098,7 +919,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             },
           },
         })
@@ -1156,10 +981,14 @@ function HardwareModalMap({
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(`${hw.signer.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${hw.signer.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         resetQR();
       } else {
         captureError(error);
@@ -1203,12 +1032,12 @@ function HardwareModalMap({
         showToast('Health check done successfully', <TickIcon />);
       } else {
         navigation.dispatch(CommonActions.goBack());
-        showToast('Health check Failed', <ToastErrorIcon />, 3000);
+        showToast('Health check Failed', <ToastErrorIcon />);
       }
     } catch (error) {
       console.log('err');
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
         resetQR();
       } else {
         captureError(error);
@@ -1221,71 +1050,76 @@ function HardwareModalMap({
     }
   };
 
-  const fetchSigningServerSetup = () => {
+  const verifySigningServer = async (otp) => {
+    try {
+      setInProgress(true);
+
+      if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        vaultSigners,
+        SignerType.POLICY_SERVER
+      );
+      const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
+      if (response.xpub) {
+        const { signer: signingServerKey } = generateSignerFromMetaData({
+          xpub: response.xpub,
+          derivationPath: response.derivationPath,
+          masterFingerprint: response.masterFingerprint,
+          signerType: SignerType.POLICY_SERVER,
+          storageType: SignerStorage.WARM,
+          isMultisig: true,
+          xfp: response.id,
+          signerPolicy: response.policy,
+        });
+        setInProgress(false);
+        dispatch(setSigningDevices(signingServerKey));
+        navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
+        showToast(
+          `${signingServerKey.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+      }
+    } catch (err) {
+      setInProgress(false);
+      Alert.alert(`${err}`);
+    }
+  };
+
+  const findSigningServer = async (otp) => {
+    try {
+      setInProgress(true);
+      if (vaultSigners.length <= 1) {
+        throw new Error('Add two other devices first to do a health check');
+      }
+      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+      const ids = vaultSigners.map((signer) =>
+        WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network)
+      );
+      const response = await SigningServer.findSignerSetup(ids, otp);
+      if (response.valid) {
+        const mapped = mapUnknownSigner({
+          masterFingerprint: response.masterFingerprint,
+          type: SignerType.POLICY_SERVER,
+          signerPolicy: response.policy,
+        });
+        if (mapped) {
+          showToast('Signing Server verified successfully', <TickIcon />);
+        } else {
+          showToast('Something Went Wrong!', <ToastErrorIcon />);
+        }
+      }
+    } catch (err) {
+      setInProgress(false);
+      Alert.alert(`${err}`);
+    }
+  };
+
+  const SigningServerOTPModal = () => {
     const { translations } = useContext(LocalizationContext);
     const { vault: vaultTranslation, common } = translations;
-    const verifySigningServer = async (otp) => {
-      try {
-        setInProgress(true);
 
-        if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
-        const cosignersMapIds = generateCosignerMapIds(
-          signerMap,
-          vaultSigners,
-          SignerType.POLICY_SERVER
-        );
-        const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
-        if (response.xpub) {
-          const { signer: signingServerKey } = generateSignerFromMetaData({
-            xpub: response.xpub,
-            derivationPath: response.derivationPath,
-            masterFingerprint: response.masterFingerprint,
-            signerType: SignerType.POLICY_SERVER,
-            storageType: SignerStorage.WARM,
-            isMultisig: true,
-            xfp: response.id,
-            signerPolicy: response.policy,
-          });
-          setInProgress(false);
-          dispatch(setSigningDevices(signingServerKey));
-          navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-          showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
-        }
-      } catch (err) {
-        setInProgress(false);
-        Alert.alert(`${err}`);
-      }
-    };
-
-    const findSigningServer = async (otp) => {
-      try {
-        setInProgress(true);
-        if (vaultSigners.length <= 1) {
-          throw new Error('Add two other devices first to do a health check');
-        }
-        const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-        const ids = vaultSigners.map((signer) =>
-          WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network)
-        );
-        const response = await SigningServer.findSignerSetup(ids, otp);
-        if (response.valid) {
-          const mapped = mapUnknownSigner({
-            masterFingerprint: response.masterFingerprint,
-            type: SignerType.POLICY_SERVER,
-            signerPolicy: response.policy,
-          });
-          if (mapped) {
-            showToast('Signing Server verified successfully', <TickIcon />);
-          } else {
-            showToast('Something Went Wrong!', <ToastErrorIcon />);
-          }
-        }
-      } catch (err) {
-        setInProgress(false);
-        Alert.alert(`${err}`);
-      }
-    };
-    const [otp, setOtp] = useState('');
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
       if (otp.length < 6) {
@@ -1325,8 +1159,13 @@ function HardwareModalMap({
             <Box>
               <CustomGreenButton
                 onPress={() => {
-                  if (mode === InteracationMode.IDENTIFICATION) findSigningServer(otp);
-                  verifySigningServer(otp);
+                  if (mode === InteracationMode.HEALTH_CHECK) {
+                    checkSigningServerHealth();
+                    setSigningServerHealthCheckOTPModal(false);
+                  } else {
+                    if (mode === InteracationMode.IDENTIFICATION) findSigningServer(otp);
+                    else verifySigningServer(otp);
+                  }
                 }}
                 value={common.confirm}
               />
@@ -1398,7 +1237,11 @@ function HardwareModalMap({
                 ? { name: 'ManageSigners' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
               navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(`${signer.signerName} added successfully`, <TickIcon />);
+              showToast(
+                `${signer.signerName} added successfully`,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
             } else {
               showToast('Incorrect password. Try again!', <ToastErrorIcon />);
             }
@@ -1414,11 +1257,40 @@ function HardwareModalMap({
     }
   };
 
+  const checkIKSHealth = async () => {
+    try {
+      setInProgress(true);
+      const signerXfp = WalletUtilities.getFingerprintFromExtendedKey(
+        signer.signerXpubs[XpubTypes.P2WSH][0].xpub,
+        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      );
+      const { isIKSAvailable } = await InheritanceKeyServer.checkIKSHealth(signerXfp);
+      if (isIKSAvailable) {
+        dispatch(healthCheckSigner([signer]));
+        close();
+        showToast('Health check done successfully', <TickIcon />);
+      } else {
+        close();
+        showToast('Error in Health check', <ToastErrorIcon />);
+      }
+      setInProgress(false);
+    } catch (err) {
+      console.log(err);
+      setInProgress(false);
+      close();
+      showToast('Error in Health check', <ToastErrorIcon />);
+    }
+  };
+
   const handleInheritanceKey = () => {
-    if (keyGenerationMode === 1) {
-      requestInheritanceKeyRecovery();
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      checkIKSHealth();
     } else {
-      setupInheritanceKey();
+      if (keyGenerationMode === 1) {
+        requestInheritanceKeyRecovery();
+      } else {
+        setupInheritanceKey();
+      }
     }
   };
 
@@ -1546,7 +1418,11 @@ function HardwareModalMap({
         // }
         dispatch(addSigningDevice([inheritanceKey]));
         dispatch(setInheritanceRequestId('')); // clear approved request
-        showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${inheritanceKey.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
         navigation.goBack();
       }
     } catch (err) {
@@ -1571,7 +1447,11 @@ function HardwareModalMap({
       });
       setInProgress(false);
       dispatch(addSigningDevice([inheritanceKey]));
-      showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
@@ -1642,7 +1522,9 @@ function HardwareModalMap({
       case SignerType.COLDCARD:
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
-        return navigateToSigningServerSetup();
+        if (mode === InteracationMode.HEALTH_CHECK)
+          return setSigningServerHealthCheckOTPModal(true);
+        else return navigateToSigningServerSetup();
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
@@ -1677,6 +1559,7 @@ function HardwareModalMap({
         return null;
     }
   };
+
   return (
     <>
       <KeeperModal
@@ -1699,8 +1582,8 @@ function HardwareModalMap({
           isHealthcheck
             ? skipHealthCheckCallBack
             : type === SignerType.INHERITANCEKEY
-              ? close
-              : null
+            ? close
+            : null
         }
         loading={inProgress}
       />
@@ -1730,16 +1613,31 @@ function HardwareModalMap({
       />
       <KeeperModal
         visible={
-          visible &&
-          type === SignerType.POLICY_SERVER &&
-          (mode === InteracationMode.RECOVERY || mode === InteracationMode.IDENTIFICATION)
+          (visible &&
+            type === SignerType.POLICY_SERVER &&
+            (mode === InteracationMode.RECOVERY || mode === InteracationMode.IDENTIFICATION)) ||
+          (type === SignerType.POLICY_SERVER &&
+            mode === InteracationMode.HEALTH_CHECK &&
+            signingServerHealthCheckOTPModal)
         }
-        close={close}
-        title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signer"
+        close={() => {
+          if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK)
+            setSigningServerHealthCheckOTPModal(false);
+          close();
+        }}
+        title={
+          signingServerHealthCheckOTPModal
+            ? 'Confirm OTP to perform health check'
+            : 'Confirm OTP to setup 2FA'
+        }
+        subTitle={
+          signingServerHealthCheckOTPModal
+            ? 'To check health of the signer'
+            : 'To complete setting up the signer'
+        }
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        Content={fetchSigningServerSetup}
+        Content={SigningServerOTPModal}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </>

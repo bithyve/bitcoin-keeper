@@ -47,7 +47,7 @@ export default class SigningServer {
 
   static validate = async (
     id: string,
-    verificationToken
+    verificationToken: number
   ): Promise<{
     valid: boolean;
   }> => {
@@ -73,7 +73,7 @@ export default class SigningServer {
 
   static fetchSignerSetup = async (
     id: string,
-    verificationToken
+    verificationToken: number
   ): Promise<{
     valid: boolean;
     id?: string;
@@ -111,7 +111,7 @@ export default class SigningServer {
 
   static fetchSignerSetupViaCosigners = async (
     cosignersId: string,
-    verificationToken
+    verificationToken: number
   ): Promise<{
     valid: boolean;
     id?: string;
@@ -149,7 +149,7 @@ export default class SigningServer {
 
   static findSignerSetup = async (
     ids: string[],
-    verificationToken
+    verificationToken: number
   ): Promise<{
     valid: boolean;
     id?: string;
@@ -187,7 +187,7 @@ export default class SigningServer {
 
   static updatePolicy = async (
     id: string,
-    verificationToken,
+    verificationToken: number,
     updates: {
       restrictions?: SignerRestriction;
       exceptions?: SignerException;
@@ -279,7 +279,8 @@ export default class SigningServer {
   };
 
   static checkSignerHealth = async (
-    id: string
+    id: string,
+    verificationToken: number
   ): Promise<{
     isSignerAvailable: boolean;
   }> => {
@@ -288,6 +289,7 @@ export default class SigningServer {
       res = await RestClient.post(`${SIGNING_SERVER}v3/checkSignerHealth`, {
         HEXA_ID,
         id,
+        verificationToken,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);

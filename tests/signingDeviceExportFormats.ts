@@ -178,3 +178,53 @@ export const JADE_MS_EXPORT = [
     data: 'UR:CRYPTO-ACCOUNT/6-6/LPAMAMCSKPCYVEDNCMURGHYKAOYKAOCYYNCTECJOAXAXAYCYYNCTECJOAEAEAEKSIMJNFE',
   },
 ];
+
+export const SPECTER_SS_EXPORT = {
+  data: `[7b3dbb45/84h/1h/0h]vpub5Ys6SfiqrjcFR2QUMtmcm8t59ZCCHw3TR6vb6vMAmCo92L7ftMGE4iMyC91eci2LCJKaypT4ErJc3ygcBh7Zq2K81JZKQRwdu8orSkZHzro`,
+};
+
+export const SPECTER_MS_EXPORT = {
+  data: `[7b3dbb45/48h/1h/0h/2h]Vpub5nePDyjmt4kxv41wS2NmY2Gz7nadNvnxVqAuCNaaBFtxafXp34MPY9VqUFPHXuWafdxQKPwpNDPAYgaAVoZyQ12CDU2AP8eaAkz5V6MUrps`,
+};
+
+export const MOBILE_KEY_EXPORT =
+  'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
+
+export const KEEPER_EXTERNAL_EXPORT = {
+  data: '[8FDFB83F/48h/1h/0h/2h]tpubDELcPFbwvZvAQ7PGitsvHLRTgfYZ2TZ83ftYwxbDaxaq3MmpzHZkYB5XWv5EcvuvKvYsyvcPC44VBz2vSyQXSdonrjiQr7BMNLcNL5Rrs73',
+};
+
+export const KEEPER_INTERNAL_EXPORT = 'run run run run run run run run run run run run';
+
+export const SEED_WORDS_EXPORT =
+  'random random random random random random random random random random random random';
+
+export const BITBOX02_EXPORT = {
+  singleSigPath: "m/84'/1'/0'",
+  multiSigPath: "m/48'/1'/0'/2'",
+  singleSigXpub:
+    'tpubDE4P3CgZfAsr12UnfZsu5AVYqc5diwHBnvbnatqi9WA6GuxX7ubZwWKrSEXSQbdjW4ET3yry8N7P23Yqi5LBvmZFvaiLndcW1bGedGqtZuR',
+  multiSigXpub:
+    'tpubDCfY5LvY2n7waA4taJUuTRn3ZAh8JvZK4gBPZyvJHQLKTd3cjopuBJiGcHsG3xj3cwp5av6KMr6Mmo959C1xFrEmLsgxjoSynZxLt7Xa24k',
+  xfp: 'ABCDEF',
+};
+
+export const LEDGER_EXPORT = {
+  singleSigPath: "m/84'/1'/0'",
+  multiSigPath: "m/48'/1'/0'/2'",
+  singleSigXpub:
+    'tpubDE4P3CgZfAsr12UnfZsu5AVYqc5diwHBnvbnatqi9WA6GuxX7ubZwWKrSEXSQbdjW4ET3yry8N7P23Yqi5LBvmZFvaiLndcW1bGedGqtZuR',
+  multiSigXpub:
+    'tpubDCfY5LvY2n7waA4taJUuTRn3ZAh8JvZK4gBPZyvJHQLKTd3cjopuBJiGcHsG3xj3cwp5av6KMr6Mmo959C1xFrEmLsgxjoSynZxLt7Xa24k',
+  xfp: 'ABCDEF',
+};
+
+export const TREZOR_EXPORT = {
+  singleSigPath: "m/84'/1'/0'",
+  multiSigPath: "m/48'/1'/0'/2'",
+  singleSigXpub:
+    'tpubDE4P3CgZfAsr12UnfZsu5AVYqc5diwHBnvbnatqi9WA6GuxX7ubZwWKrSEXSQbdjW4ET3yry8N7P23Yqi5LBvmZFvaiLndcW1bGedGqtZuR',
+  multiSigXpub:
+    'tpubDCfY5LvY2n7waA4taJUuTRn3ZAh8JvZK4gBPZyvJHQLKTd3cjopuBJiGcHsG3xj3cwp5av6KMr6Mmo959C1xFrEmLsgxjoSynZxLt7Xa24k',
+  xfp: 'ABCDEF',
+};

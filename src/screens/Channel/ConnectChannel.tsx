@@ -23,7 +23,7 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
@@ -39,6 +39,7 @@ import crypto from 'crypto';
 import { createDecipheriv } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
 
 function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
@@ -109,20 +110,7 @@ function ConnectChannel() {
     channel.on(BITBOX_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getBitbox02Details(
-          decrypted,
-          isMultisig
-        );
-        const { signer: bitbox02 } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.BITBOX02,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
-
+        const { signer: bitbox02 } = setupBitbox(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(bitbox02));
           navigation.dispatch(
@@ -136,10 +124,14 @@ function ConnectChannel() {
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
-        showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${bitbox02.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -148,19 +140,7 @@ function ConnectChannel() {
     channel.on(TREZOR_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getTrezorDetails(
-          decrypted,
-          isMultisig
-        );
-        const { signer: trezor } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.TREZOR,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
+        const { signer: trezor } = setupTrezor(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(trezor));
           navigation.dispatch(
@@ -173,10 +153,14 @@ function ConnectChannel() {
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
-        showToast(`${trezor.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${trezor.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -185,17 +169,7 @@ function ConnectChannel() {
     channel.on(LEDGER_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, masterFingerprint, xpubDetails } =
-          getLedgerDetailsFromChannel(decrypted, isMultisig);
-        const { signer: ledger } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          masterFingerprint,
-          isMultisig,
-          signerType: SignerType.LEDGER,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
+        const { signer: ledger } = setupLedger(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(ledger));
           navigation.dispatch(
@@ -209,10 +183,14 @@ function ConnectChannel() {
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
-        showToast(`${ledger.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${ledger.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -268,7 +246,7 @@ function ConnectChannel() {
         }
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else {

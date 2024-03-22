@@ -63,9 +63,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       Content={PremixContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() =>
-        openLink(`${KEEPER_KNOWLEDGEBASE}hc/en-us/sections/17237989295773-Whirlpool`)
-      }
+      learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`)}
       buttonText="Proceed"
       buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}

@@ -199,7 +199,7 @@ export const SDIcons = (type: SignerType, light = false) => {
 
 const styles = StyleSheet.create({
   text: {
-    letterSpacing: 1.5,
     fontSize: 14,
+    letterSpacing: 0.14,
   },
 });

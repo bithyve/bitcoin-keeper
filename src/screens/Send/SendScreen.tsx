@@ -49,7 +49,8 @@ import idx from 'idx';
 import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
-
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -421,4 +422,4 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
 });
-export default SendScreen;
+export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);
