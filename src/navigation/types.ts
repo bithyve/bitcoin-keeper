@@ -104,7 +104,6 @@ export type AppStackParams = {
   AssignSignerType: undefined;
   NFCScanner: undefined;
   AddWallet: undefined;
-  AddSigner: undefined;
   CanaryWallets: undefined;
   AssistedKeys: undefined;
   SafeKeepingTips: undefined;
