@@ -102,7 +102,12 @@ import {
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
-import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
+import {
+  deleteAppImageEntityWorker,
+  deleteVaultImageWorker,
+  updateAppImageWorker,
+  updateVaultImageWorker,
+} from './bhr';
 import {
   relaySignersUpdateFail,
   relaySignersUpdateSuccess,
@@ -695,11 +700,17 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
       signersToDelete.push(signer);
     }
 
+    let signersToDeleteIds = [];
+    for (const signer of signersToDelete) {
+      signersToDeleteIds.push(signer.masterFingerprint);
+    }
+
     if (signersToDelete.length) {
-      // yield put(setRelaySignersUpdateLoading(true));
-      // const response = yield call(updateAppImageWorker, { payload: { signers: signersToDelete } });
-      // if (response.updated) {
-      if (true) {
+      yield put(setRelaySignersUpdateLoading(true));
+      const response = yield call(deleteAppImageEntityWorker, {
+        payload: { signerIds: signersToDeleteIds },
+      });
+      if (response.updated) {
         for (const signer of signersToDelete) {
           yield call(
             dbManager.deleteObjectByPrimaryKey,
@@ -708,10 +719,9 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
             signer.masterFingerprint
           );
         }
+      } else {
+        yield put(relaySignersUpdateFail(response.error));
       }
-      // else {
-      //   yield put(relaySignersUpdateFail(response.error));
-      // }
     }
   } catch (error) {
     captureError(error);
@@ -1441,13 +1451,13 @@ export const updateWalletsPropertyWatcher = createWatcher(
 function* deleteVaultWorker({ payload }) {
   const { vaultId } = payload;
   try {
-    // yield put(setRelayVaultUpdateLoading(true));
-    // const response = yield call(updateAppImageWorker, { payload: { vaultId } });
-    if (true) {
+    yield put(setRelayVaultUpdateLoading(true));
+    const response = yield call(deleteVaultImageWorker, { payload: { vaultIds: [vaultId] } });
+    if (response.updated) {
       yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
-      // yield put(relayVaultUpdateSuccess());
+      yield put(relayVaultUpdateSuccess());
     } else {
-      // yield put(relayVaultUpdateFail(response.error));
+      yield put(relayVaultUpdateFail(response.error));
     }
   } catch (err) {
     yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
