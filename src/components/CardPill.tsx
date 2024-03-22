@@ -7,14 +7,15 @@ type CardPillProps = {
   heading: string;
   backgroundColor?: string;
   headingColor?: string;
+  cardStyle?: any;
 };
 
-function CardPill({ heading, backgroundColor, headingColor }: CardPillProps) {
+function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPillProps) {
   const { colorMode } = useColorMode();
   return (
     <Box
       backgroundColor={backgroundColor || `${colorMode}.vaultCardText`}
-      style={styles.pillContainer}
+      style={[styles.pillContainer, cardStyle && cardStyle]}
     >
       <Text
         bold
