@@ -167,7 +167,7 @@ export const generateWallet = async ({
     // case: adding whirlpool wallet
     const mnemonic = parentMnemonic;
     depositWalletId = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: whirlpool wallets have master-fingerprints as their deposit id
-    id = hash256(`${id}${type}`);
+    id = hash256(`${depositWalletId}${type}`);
 
     derivationDetails = {
       instanceNum,
