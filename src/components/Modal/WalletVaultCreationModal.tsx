@@ -83,7 +83,7 @@ function WalletVaultCreationModal(props) {
             visible={props.visible}
             title={props.title}
             subTitle={props.subTitle}
-            Content={() => (<WalletCreatedModalContent descriptionMessage={props.descriptionMessage} walletType={props.walletType} walletName={props.walletName} walletDescription={props.walletDescription} tags={getWalletTags(props.walletType)} walletEntityKind={props.walletEntityKind} walletEntityKind={props.walletEntityKind} />)}
+            Content={() => (<WalletCreatedModalContent descriptionMessage={props.descriptionMessage} walletType={props.walletType} walletName={props.walletName} walletDescription={props.walletDescription} tags={getWalletTags(props.walletType)} walletEntityKind={props.walletEntityKind} />)}
             buttonText={props.buttonText}
             buttonCallback={() => {
                 props.buttonCallback()
