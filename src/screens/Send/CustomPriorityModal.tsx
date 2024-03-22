@@ -7,7 +7,6 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import useBalance from 'src/hooks/useBalance';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import { calculateCustomFee } from 'src/store/sagaActions/send_and_receive';
