@@ -12,7 +12,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -24,17 +23,20 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.gson.JsonObject
 import com.itextpdf.text.Document
+import com.itextpdf.text.Element
+import com.itextpdf.text.Image
 import com.itextpdf.text.PageSize
 import com.itextpdf.text.Paragraph
+import com.itextpdf.text.pdf.BarcodeQRCode
+import com.itextpdf.text.pdf.PdfContentByte
+import com.itextpdf.text.pdf.PdfGState
 import com.itextpdf.text.pdf.PdfWriter
 import org.json.JSONArray
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Collections
-import java.util.Locale
 
 
 class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext),
@@ -44,6 +46,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
     private val FOLDER_NAME = "Bitcoin-Keeper"
     private var apiClient: GoogleSignInClient? = null
     private lateinit var tokenPromise: Promise
+    private val qrImageSize = 350f
 
     init {
         reactContext.addActivityEventListener(this)
@@ -132,11 +135,12 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
             var gFileIds = arrayOf<String>()
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
+                val content = jsonObject.getString("bsms")
+                val vaultName = jsonObject.getString("name")
                 val file = File(
                     reactApplicationContext.filesDir,
-                    "${jsonObject.get("name")}-${formattedDateTime}.pdf"
+                    "${vaultName}-${formattedDateTime}.pdf"
                 )
-                val content = jsonObject.getString("bsms")
                 val document = Document(PageSize.A4)
                 val pdfWriter = PdfWriter.getInstance(document, FileOutputStream(File(file.path)))
                 pdfWriter.setEncryption(
@@ -145,10 +149,23 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
                     PdfWriter.ALLOW_COPY or PdfWriter.ALLOW_PRINTING,
                     PdfWriter.STANDARD_ENCRYPTION_128
                 )
-                val preface = Paragraph()
-                preface.add(Paragraph(content))
                 document.open()
+
+                val preface = Paragraph()
+                preface.add(Paragraph("Vault Name: $vaultName"))
+                preface.add(Paragraph(" "));
+                preface.add(Paragraph(content))
+                preface.add(Paragraph(" "));
+                val barcodeQRCode = BarcodeQRCode(
+                    content,
+                    qrImageSize.toInt(),
+                    qrImageSize.toInt(),
+                    null
+                )
+                val codeQrImage = barcodeQRCode.image
+                codeQrImage.scaleAbsolute(qrImageSize, qrImageSize)
                 document.add(preface)
+                document.add(codeQrImage)
                 document.close()
                 val driveClient =
                     Drive.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance(), credential)
