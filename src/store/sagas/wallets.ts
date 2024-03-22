@@ -108,6 +108,7 @@ import {
   relayVaultUpdateSuccess,
   relayWalletUpdateFail,
   relayWalletUpdateSuccess,
+  setIsCloudBsmsBackupRequired,
   setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
@@ -567,6 +568,7 @@ export function* addNewVaultWorker({
 
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
+      yield put(setIsCloudBsmsBackupRequired(true));
       return true;
     }
     throw new Error('Relay updation failed');

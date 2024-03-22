@@ -103,6 +103,7 @@ import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/Inherit
 import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 import { AppStackParams } from './types';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
+import CloudBackupScreen from 'src/screens/CloudBackup/CloudBackupScreen';
 
 import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary';
 import AssistedKeys from 'src/screens/InheritanceToolsAndTips/components/AssistedKeys';
@@ -286,6 +287,7 @@ function AppStack() {
         <Stack.Screen name="AddSigner" component={AddSigner} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
+        <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

@@ -9,6 +9,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.hexa_keeper.CloudBackupPackage;
 import com.hexa_keeper.KeepScreenAwakePackage;
 import com.hexa_keeper.WhirlpoolPackage;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
@@ -31,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
             packages.add(new WhirlpoolPackage());
             packages.add(new KeepScreenAwakePackage());
+            packages.add(new CloudBackupPackage());
             return packages;
         }
 
@@ -61,6 +63,6 @@ public class MainApplication extends Application implements ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       DefaultNewArchitectureEntryPoint.load();
     }
-    ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    io.hexawallet.keeper.ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }
 }

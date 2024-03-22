@@ -91,11 +91,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
     },
   ];
 
-  const replaceText = (inputString) => {
-    var replacedString = inputString.replace(/SEED_BACKUP/gi, 'RECOVERY_KEY');
-    return replacedString;
-  };
-
   return (
     <Box>
       <Box height={hp(520)}>
@@ -123,7 +118,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
                 <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
               </Box>
               <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
-                {replaceText(item?.title)}
+                {strings[item?.title]}
               </Text>
               <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
                 {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}

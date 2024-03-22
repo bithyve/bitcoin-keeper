@@ -51,7 +51,7 @@ export const genrateOutputDescriptors = (
     )})${includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''}`;
     return des;
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)})${
+  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)}))${
     includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
   }`;
 };
