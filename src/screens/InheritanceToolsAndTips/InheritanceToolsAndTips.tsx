@@ -41,7 +41,7 @@ function InheritanceToolsAndTips({ navigation }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[
           styles.container,
-          { paddingBottom: selectedCard === 3 ? hp(20) : 0 },
+          { paddingBottom: selectedCard === 3 ? hp(40) : 0 },
         ]}
       >
         <WalletCard

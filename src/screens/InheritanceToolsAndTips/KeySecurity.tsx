@@ -61,11 +61,7 @@ function KeySecurity({ navigation }) {
       {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'HODLER'} />}
 
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[ASSISTED_KEYS] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[ASSISTED_KEYS])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
         disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
         title="Assisted Keys"
         description="Server hosted signers"
@@ -74,22 +70,18 @@ function KeySecurity({ navigation }) {
       />
       <Box paddingTop={4}>
         <OptionCard
-          preTitle={`${
-            inheritanceToolVisitedHistory[SECURE_USAGE_TIPS] === undefined
-              ? 'Never accessed'
-              : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[SECURE_USAGE_TIPS])}`
-          }`}
+          preTitle={`${getTimeDifferenceInWords(
+            inheritanceToolVisitedHistory?.[SECURE_USAGE_TIPS]
+          )}`}
           title="Secure Usage Tips"
           description="Recommendations while transacting"
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeGuardingTips', SECURE_USAGE_TIPS)}
         />
         <OptionCard
-          preTitle={`${
-            inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS] === undefined
-              ? 'Never accessed'
-              : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[SAFE_KEEPING_TIPS])}`
-          }`}
+          preTitle={`${getTimeDifferenceInWords(
+            inheritanceToolVisitedHistory?.[SAFE_KEEPING_TIPS]
+          )}`}
           title="Safekeeping Tips"
           description="Key storage best practices"
           LeftIcon={<VaultGreenIcon />}
