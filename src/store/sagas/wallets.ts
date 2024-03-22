@@ -300,9 +300,12 @@ export function* addWhirlpoolWalletsWorker({
       ],
     };
 
+    //update whirlpool config in parent walletId
     yield call(updateWalletsPropertyWorker, {
       payload: { walletId: depositWallet.id, key: 'whirlpoolConfig', value: whirlpoolConfig },
     });
+
+    //create premix,postmix,badbank wallets
     const newWalletsInfo: NewWalletInfo[] = [
       preMixWalletInfo,
       postMixWalletInfo,
