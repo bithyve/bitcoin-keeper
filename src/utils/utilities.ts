@@ -168,25 +168,8 @@ export const formatNumber = (value: string) =>
   value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 export const getTimeDifferenceInWords = (pastTime) => {
-  var duration = moment.duration(moment().diff(pastTime));
-  var days = duration.days();
-  var hours = duration.hours();
-  var minutes = duration.minutes();
-  if (days === 1) {
-    return days + ' day ago';
-  } else if (days > 0) {
-    return days + ' days ago';
-  } else if (hours === 1) {
-    return hours + ' hour ago';
-  } else if (hours > 0) {
-    return hours + ' hours ago';
-  } else if (minutes === 1) {
-    return minutes + ' minute ago';
-  } else if (minutes > 0) {
-    return minutes + ' minutes ago';
-  } else {
-    return 'Just now';
-  }
+  const timeDifference = moment(pastTime).fromNow();
+  return timeDifference.charAt(0).toUpperCase() + timeDifference.slice(1);
 };
 
 export const getWalletTags = (walletType) => {
