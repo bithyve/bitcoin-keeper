@@ -279,14 +279,6 @@ function ChoosePlan() {
           subscriptionOffers: [{ sku, offerToken }],
           purchaseTokenAndroid,
         });
-        // processPurchase({
-        //   productId: sku,
-        //   transactionReceipt: 'keeper-dev-mock-purchase',
-        //   autoRenewingAndroid: true,
-        //   isCanceledAmazon: false,
-        //   transactionDate: Date.now(),
-        //   transactionId: `keeper-dev-mock-purchase-${Date.now()}`,
-        // });
       }
     } catch (err) {
       setRequesting(false);
