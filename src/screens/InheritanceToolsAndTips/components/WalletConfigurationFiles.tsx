@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
+import moment from 'moment';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -11,14 +12,17 @@ import WalletConfigFilesIcon from 'src/assets/images/wallet-config-files.svg';
 import GenerateAllVaultsFilePDF from 'src/utils/GenerateAllVaultsFilePDF';
 import { useNavigation } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
+import useToastMessage from 'src/hooks/useToastMessage';
+
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
-import DownArrow from 'src/assets/images/down_arrow.svg';
+import DownArrow from 'src/assets/images/files.svg';
 
 function WalletConfigurationFiles() {
   const [fingerPrints, setFingerPrints] = useState(null);
 
   const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
+  const { showToast } = useToastMessage();
 
   const { allVaults, activeVault } = useVault({
     includeArchived: false,
@@ -27,14 +31,14 @@ function WalletConfigurationFiles() {
   });
   const allVault = [allVaults].filter((item) => item !== null);
   useEffect(() => {
-    let array = [];
+    let VaultArray = [];
     if (allVault) {
       allVault[0]?.map((vault: any) => {
         const descriptorString = genrateOutputDescriptors(vault);
         //WORK IN PROGRESS
-        array.push({ file: descriptorString });
+        VaultArray.push({ name: vault.presentationData.name, file: descriptorString });
       });
-      setFingerPrints(array);
+      setFingerPrints(VaultArray);
     }
   }, []);
 
@@ -45,8 +49,8 @@ function WalletConfigurationFiles() {
         <Text style={styles.heading}>Wallet Configuration Files</Text>
         <Text style={styles.description}>Download for all vaults</Text>
         <Text style={styles.commonTextStyle}>
-          For multisig wallets or vaults, it is mportant to have the configuration files along with
-          the minimum number of keys needed.
+          For multi-key wallets or vaults, it is important to have the configuration files along
+          with the minimum number of keys needed.
         </Text>
         <Text style={styles.commonTextStyle}>
           The wallet configuration file, also known as Output Descriptor or the BSMS file is an
@@ -55,19 +59,22 @@ function WalletConfigurationFiles() {
         <Box style={styles.circleStyle}>
           <WalletConfigFilesIcon />
         </Box>
-        {console.log('fingerPrintsfingerPrintsfingerPrintsfingerPrintsfingerPrints', fingerPrints)}
         <Box mt={5} alignItems={'center'}>
           <DashedButton
             icon={<DownArrow />}
-            description="Configuration files as on 21st March 2024"
+            description={`Configuration files as on ${moment().format('DD MMMM YYYY')}`}
             callback={() => {
-              GenerateAllVaultsFilePDF(fingerPrints).then((res) => {
-                if (res) {
-                  navigtaion.navigate('PreviewPDF', { source: res });
-                }
-              });
+              if (fingerPrints.length) {
+                GenerateAllVaultsFilePDF(fingerPrints).then((res) => {
+                  if (res) {
+                    navigtaion.navigate('PreviewPDF', { source: res });
+                  }
+                });
+              } else {
+                showToast('No vaults found');
+              }
             }}
-            name="View Document"
+            name="View Wallet Configuration Files"
           />
         </Box>
 
@@ -76,8 +83,8 @@ function WalletConfigurationFiles() {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            When there is anew vault or change in a vault the configuration file needs to be
-            downloaded again
+            When there is a new vault or change in a vault the configuration file needs to be
+            downloaded again.
           </Text>
         </Box>
       </ScrollView>

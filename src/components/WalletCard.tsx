@@ -37,7 +37,9 @@ function WalletCard({
       >
         <Box style={styles.detailContainer}>
           <Box
-            backgroundColor={isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.BrownNeedHelp`}
+            backgroundColor={
+              isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.BrownNeedHelp`
+            }
             style={styles.circle}
           >
             {isSelected ? selectedIcon : icon}
@@ -45,7 +47,7 @@ function WalletCard({
           <Box>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              numberOfLines={1}
+              numberOfLines={numberOfLines}
               style={styles.walletName}
               medium={isSelected}
             >

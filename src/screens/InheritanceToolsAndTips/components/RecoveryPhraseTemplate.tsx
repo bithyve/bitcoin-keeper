@@ -37,7 +37,7 @@ function RecoveryPhraseTemplate({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="Phrase Template"
+            description="To be filled privately"
             callback={() => {
               GenerateRecoveryPhraseTemplate().then((res) => {
                 if (res) {
@@ -45,7 +45,7 @@ function RecoveryPhraseTemplate({}) {
                 }
               });
             }}
-            name="View Recovery"
+            name="View Recovery Phrase Template"
           />
         </Box>
 

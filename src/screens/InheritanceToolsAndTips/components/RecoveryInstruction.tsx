@@ -54,7 +54,7 @@ function RecoveryInstruction({}) {
             Note:
           </Text>
           <Text color={`${colorMode}.white`}>
-            Test the recovery using the instructions provided to ensure everything is in place
+            Test the recovery using the instructions provided to ensure everything is in place.
           </Text>
         </Box>
       </ScrollView>
