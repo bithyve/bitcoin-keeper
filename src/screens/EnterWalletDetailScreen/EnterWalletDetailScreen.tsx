@@ -103,8 +103,6 @@ function EnterWalletDetailScreen({ route }) {
       setWalletLoading(false);
       if (walletType === WalletType.DEFAULT) {
         setWalletCreatedModal(true);
-        // showToast(wallet.newWalletCreated, <TickIcon />);
-        // navigation.goBack();
       } else {
         showToast(wallet.walletImported, <TickIcon />);
         navigation.goBack();
@@ -316,7 +314,6 @@ function EnterWalletDetailScreen({ route }) {
         descriptionMessage={'Make sure you have secured the Recovery Key to backup your wallet'}
         buttonCallback={() => {
           setWalletCreatedModal(false);
-          // navigation.navigate('WalletDetails', { walletId: wallet.id });
           navigation.goBack();
         }}
         walletType={walletType}

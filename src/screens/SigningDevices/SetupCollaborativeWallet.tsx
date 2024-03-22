@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Signer, VaultSigner, signerXpubs, Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
