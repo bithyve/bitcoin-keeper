@@ -2,7 +2,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, StatusBar, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -180,7 +180,7 @@ function LoginScreen({ navigation, route }) {
     }
   }, [isAuthenticated]);
 
-  const loginModalAction = () => {
+  const moveToNext = () => {
     if (isAuthenticated) {
       setLoginModal(false);
       if (relogin) {
@@ -191,11 +191,19 @@ function LoginScreen({ navigation, route }) {
         });
       } else if (appId !== '') {
         updateFCM();
-        navigation.replace('App');
+        navigation.replace('App',{ animation: 'none'});
       } else {
         navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
       }
       dispatch(credsAuthenticated(false));
+    }
+  };
+
+  const loginModalAction = () => {
+    if (Platform.OS === 'android') {
+      moveToNext();
+    } else {
+      setImmediate(moveToNext);
     }
   };
   const updateFCM = async () => {

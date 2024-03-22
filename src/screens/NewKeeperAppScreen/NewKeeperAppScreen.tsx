@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unstable-nested-components */
-import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
+import { ActivityIndicator, StyleSheet, BackHandler, Platform } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -126,6 +126,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
       dispatch(setupKeeperApp());
     }
   }
+
+  const loginNext = () => {
+    if (Platform.OS === 'android') {
+      setModalVisible(false);
+      navigation.replace('App', { screen: 'Home' });
+    } else {
+      setTimeout(() => {
+        setModalVisible(false);
+        navigation.replace('App', { screen: 'Home' });
+      }, 1);
+    }
+  };
 
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
@@ -268,12 +280,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         subTitle={getSignUpModalContent().subTitle}
         Content={SignUpModalContent}
         buttonText={appCreated ? 'Next' : null}
-        buttonCallback={() => {
-          setModalVisible(false);
-          setTimeout(() => {
-            navigation.replace('App', { screen: 'Home' });
-          }, 500);
-        }}
+        buttonCallback={loginNext}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(300)}
         showCloseIcon={false}
