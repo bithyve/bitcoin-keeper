@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
@@ -11,11 +11,11 @@ import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 function LinkedWalletContent() {
   return (
-    <View marginY={5}>
+    <View style={styles.contentContainer}>
       <Box alignSelf="center">
         <VaultSetupIcon />
       </Box>
-      <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
+      <Text style={styles.contentText}>
         When a transaction (send or receive) is submitted to the bitcoin network from a wallet, it
         may take a little while before it is propagated and be visible to all nodes and wallets.
         It’s confirmation status also changes as new blocks are mined.{' '}
@@ -48,5 +48,18 @@ function LearnMoreModal({ introModal, setIntroModal }) {
     />
   );
 }
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    marginVertical: 5,
+  },
+  contentText: {
+    marginTop: hp(20),
+    color: 'white',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    padding: 1,
+  },
+});
 
 export default LearnMoreModal;
