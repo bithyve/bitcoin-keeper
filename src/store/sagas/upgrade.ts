@@ -352,7 +352,6 @@ function updateSignerXpubs(signer, xpriv) {
 
 function* whirlpoolWalletsCreation() {
   try {
-    console.log('running migrations');
     const Wallets: Wallet[] = dbManager.getCollection(RealmSchema.Wallet);
     let depositWalletId; //undefined
     const garbageIDs = [
@@ -371,12 +370,10 @@ function* whirlpoolWalletsCreation() {
           whirlpoolWalletIds.includes(walletItem.id)
         );
         if (whirlpoolWallets.length === 0) {
-          console.log('creating whirlpool wallets for', wallet.id);
           yield put(addNewWhirlpoolWallets({ depositWallet: wallet }));
         }
       }
       if (garbageIDs.includes(wallet.id)) {
-        console.log('Deleting whirlpool wallet', wallet.id, wallet.type);
         yield call(dbManager.deleteObjectById, RealmSchema.Wallet, wallet.id);
       }
     }
