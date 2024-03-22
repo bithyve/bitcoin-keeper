@@ -42,7 +42,6 @@ function EnterSeedScreen({ route, navigation }) {
   const { seed } = translations;
 
   const {
-    // type,
     mode,
     signer,
     isMultisig,
