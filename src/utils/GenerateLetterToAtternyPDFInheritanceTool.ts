@@ -43,6 +43,8 @@ const GenerateLetterToAtternyPDFInheritanceTool = async (fingerPrints) => {
             identifier that can be utilized by a digital asset expert or software, 
             adhering to standard BIP32 derivation paths, to locate and validate the 
             keys during the transfer process.</p>
+            <br />
+            <br />
             <p>It is my explicit intention that the legal title to my bitcoin holdings be 
             transferred to the designated heir or intended beneficiary. However, it is 
             important to note that access to the actual keys and, consequently, the 
@@ -69,7 +71,7 @@ const GenerateLetterToAtternyPDFInheritanceTool = async (fingerPrints) => {
       `;
     const options = {
       html,
-      fileName: 'LetterToAtterny',
+      fileName: 'Letter-To-Attorney',
       directory: 'Documents',
       base64: true,
     };

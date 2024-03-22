@@ -43,7 +43,7 @@ function LetterOfAttorney() {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="Lorem ipsum dolor sit amet"
+            description="Pre-filled template for estate planner"
             callback={() => {
               GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
                 if (res) {
@@ -51,7 +51,7 @@ function LetterOfAttorney() {
                 }
               });
             }}
-            name="View Document"
+            name="View Letter to the Attorney"
           />
         </Box>
 
