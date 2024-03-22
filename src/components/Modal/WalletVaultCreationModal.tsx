@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { wp } from 'src/constants/responsive';
 import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
@@ -83,6 +83,19 @@ function WalletCreatedModalContent(props) {
 }
 function WalletVaultCreationModal(props) {
   const { colorMode } = useColorMode();
+
+  const Content = useCallback(() => {
+    return (
+      <WalletCreatedModalContent
+        descriptionMessage={props.descriptionMessage}
+        walletType={props.walletType}
+        walletName={props.walletName}
+        walletDescription={props.walletDescription}
+        tags={getWalletTags(props.walletType)}
+      />
+    );
+  }, [props.descriptionMessage, props.walletType, props.walletName, props.walletDescription]);
+
   return (
     <KeeperModal
       dismissible
@@ -90,16 +103,7 @@ function WalletVaultCreationModal(props) {
       visible={props.visible}
       title={props.title}
       subTitle={props.subTitle}
-      Content={() => (
-        <WalletCreatedModalContent
-          descriptionMessage={props.descriptionMessage}
-          walletType={props.walletType}
-          walletName={props.walletName}
-          walletDescription={props.walletDescription}
-          tags={getWalletTags(props.walletType)}
-          walletEntityKind={props.walletEntityKind}
-        />
-      )}
+      Content={Content}
       buttonText={props.buttonText}
       buttonCallback={() => {
         props.buttonCallback();
