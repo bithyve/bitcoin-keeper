@@ -351,32 +351,36 @@ function updateSignerXpubs(signer, xpriv) {
 }
 
 function* whirlpoolWalletsCreation() {
-  console.log('running migrations');
-  const Wallets: Wallet[] = dbManager.getCollection(RealmSchema.Wallet);
-  let depositWalletId; //undefined
-  const garbageIDs = [
-    hash256(`${depositWalletId}${WalletType.PRE_MIX}`),
-    hash256(`${depositWalletId}${WalletType.POST_MIX}`),
-    hash256(`${depositWalletId}${WalletType.BAD_BANK}`),
-  ];
+  try {
+    console.log('running migrations');
+    const Wallets: Wallet[] = dbManager.getCollection(RealmSchema.Wallet);
+    let depositWalletId; //undefined
+    const garbageIDs = [
+      hash256(`${depositWalletId}${WalletType.PRE_MIX}`),
+      hash256(`${depositWalletId}${WalletType.POST_MIX}`),
+      hash256(`${depositWalletId}${WalletType.BAD_BANK}`),
+    ];
 
-  for (const wallet of Wallets) {
-    //create new whirlpool wallets for missing config
-    if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
-      const whirlpoolWalletIds = wallet.whirlpoolConfig.whirlpoolWalletDetails.map(
-        (detail) => detail.walletId
-      );
-      const whirlpoolWallets = Wallets.filter((walletItem) =>
-        whirlpoolWalletIds.includes(walletItem.id)
-      );
-      if (whirlpoolWallets.length === 0) {
-        console.log('creating whirlpool wallets for', wallet.id);
-        yield put(addNewWhirlpoolWallets({ depositWallet: wallet }));
+    for (const wallet of Wallets) {
+      //create new whirlpool wallets for missing config
+      if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+        const whirlpoolWalletIds = wallet.whirlpoolConfig.whirlpoolWalletDetails.map(
+          (detail) => detail.walletId
+        );
+        const whirlpoolWallets = Wallets.filter((walletItem) =>
+          whirlpoolWalletIds.includes(walletItem.id)
+        );
+        if (whirlpoolWallets.length === 0) {
+          console.log('creating whirlpool wallets for', wallet.id);
+          yield put(addNewWhirlpoolWallets({ depositWallet: wallet }));
+        }
+      }
+      if (garbageIDs.includes(wallet.id)) {
+        console.log('Deleting whirlpool wallet', wallet.id, wallet.type);
+        yield call(dbManager.deleteObjectById, RealmSchema.Wallet, wallet.id);
       }
     }
-    if (garbageIDs.includes(wallet.id)) {
-      console.log('Deleting whirlpool wallet', wallet.id, wallet.type);
-      yield call(dbManager.deleteObjectById, RealmSchema.Wallet, wallet.id);
-    }
+  } catch (err) {
+    console.log('Error in whirlpoolWalletsCreation:', err);
   }
 }
