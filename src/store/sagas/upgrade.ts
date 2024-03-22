@@ -9,7 +9,7 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
-import { LabelRefType, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -28,12 +28,15 @@ import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { captureError } from 'src/services/sentry';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import { addNewWhirlpoolWallets } from '../sagaActions/wallets';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
 export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
 export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
+export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -58,6 +61,9 @@ export function* applyUpgradeSequence({
   }
   if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION)) {
     yield call(updateAppKeysToEnableSigning);
+  }
+  if (semver.lt(previousVersion, WHIRLPOOL_WALLETS_RECREATION)) {
+    yield call(whirlpoolWalletsCreation);
   }
 
   yield put(setAppVersion(newVersion));
@@ -342,4 +348,35 @@ function updateSignerXpubs(signer, xpriv) {
       },
     ],
   };
+}
+
+function* whirlpoolWalletsCreation() {
+  console.log('running migrations');
+  const Wallets: Wallet[] = dbManager.getCollection(RealmSchema.Wallet);
+  let depositWalletId; //undefined
+  const garbageIDs = [
+    hash256(`${depositWalletId}${WalletType.PRE_MIX}`),
+    hash256(`${depositWalletId}${WalletType.POST_MIX}`),
+    hash256(`${depositWalletId}${WalletType.BAD_BANK}`),
+  ];
+
+  for (const wallet of Wallets) {
+    //create new whirlpool wallets for missing config
+    if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+      const whirlpoolWalletIds = wallet.whirlpoolConfig.whirlpoolWalletDetails.map(
+        (detail) => detail.walletId
+      );
+      const whirlpoolWallets = Wallets.filter((walletItem) =>
+        whirlpoolWalletIds.includes(walletItem.id)
+      );
+      if (whirlpoolWallets.length === 0) {
+        console.log('creating whirlpool wallets for', wallet.id);
+        yield put(addNewWhirlpoolWallets({ depositWallet: wallet }));
+      }
+    }
+    if (garbageIDs.includes(wallet.id)) {
+      console.log('Deleting whirlpool wallet', wallet.id, wallet.type);
+      yield call(dbManager.deleteObjectById, RealmSchema.Wallet, wallet.id);
+    }
+  }
 }
