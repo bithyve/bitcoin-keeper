@@ -30,6 +30,7 @@ import { setAppVersion } from '../reducers/storage';
 import { captureError } from 'src/services/sentry';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import { addNewWhirlpoolWallets } from '../sagaActions/wallets';
+import { addWhirlpoolWalletsWorker } from './wallets';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -359,7 +360,6 @@ function* whirlpoolWalletsCreation() {
       hash256(`${depositWalletId}${WalletType.POST_MIX}`),
       hash256(`${depositWalletId}${WalletType.BAD_BANK}`),
     ];
-
     for (const wallet of Wallets) {
       //create new whirlpool wallets for missing config
       if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails ?? false) {
@@ -370,7 +370,7 @@ function* whirlpoolWalletsCreation() {
           whirlpoolWalletIds.includes(walletItem.id)
         );
         if (whirlpoolWallets.length < 3) {
-          yield call(addNewWhirlpoolWallets, { depositWallet: wallet });
+          yield call(addWhirlpoolWalletsWorker, { payload: { depositWallet: wallet } });
         }
       }
       if (garbageIDs.includes(wallet.id)) {
