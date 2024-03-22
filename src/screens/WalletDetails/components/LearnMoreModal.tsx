@@ -3,7 +3,7 @@ import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
-import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
+import VaultSetupIcon from 'src/assets/images/pull-down-wallet.svg';
 import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
