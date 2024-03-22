@@ -165,7 +165,6 @@ export const formatNumber = (value: string) =>
 
 export const getTimeDifferenceInWords = (pastTime) => {
   const timeDifference = moment(pastTime).fromNow();
-  console.log('timeDifference', timeDifference);
   if (timeDifference === 'Invalid date') {
     return 'Never accessed';
   } else {

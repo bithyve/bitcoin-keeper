@@ -15,6 +15,8 @@ import {
   PERSONAL_CLOUD_BACKUP,
   WALLET_CONFIG_FILES,
 } from 'src/services/channel/constants';
+import CardPill from 'src/components/CardPill';
+import Colors from 'src/theme/Colors';
 
 function BackupRecovery({ navigation }) {
   const dispatch = useAppDispatch();
@@ -42,10 +44,10 @@ function BackupRecovery({ navigation }) {
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP])}`
         // }`}
         disabled
-        preTitle={'Coming soon'}
+        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Personal Cloud Backup"
         description="Use your iCloud or Google Drive"
-        LeftIcon={<CloudUser />}
+        LeftIcon={<CloudUser fillColor={'#A2A2A2'} />}
         callback={() => navigate('PersonalCloudBackup', PERSONAL_CLOUD_BACKUP)}
       />
       <OptionCard

@@ -6,7 +6,7 @@ import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 import InheritanceHeader from '../InheritanceHeader';
@@ -29,7 +29,7 @@ function LetterOfAttorney() {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading}>Letter to the Attorney</Text>
         <Text style={styles.description}>A pre-filled letter template</Text>
         <Text style={styles.commonTextStyle}>
@@ -79,6 +79,9 @@ const styles = StyleSheet.create({
   container: {
     gap: 25,
     marginTop: 20,
+  },
+  marginLeft: {
+    marginLeft: wp(10),
   },
   walletType: {
     justifyContent: 'space-between',

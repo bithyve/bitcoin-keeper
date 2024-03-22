@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import MasterRecoveryKeyIcon from 'src/assets/images/master-recovery-key.svg';
@@ -21,7 +21,7 @@ function MasterRecoveryKey({ navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading}>Master Recovery Key</Text>
         <Text style={styles.description}>Backup 12-word seed phrase</Text>
         <Text style={styles.commonTextStyle}>
@@ -74,6 +74,9 @@ const styles = StyleSheet.create({
   container: {
     gap: 25,
     marginTop: 20,
+  },
+  marginLeft: {
+    marginLeft: wp(10),
   },
   walletType: {
     justifyContent: 'space-between',

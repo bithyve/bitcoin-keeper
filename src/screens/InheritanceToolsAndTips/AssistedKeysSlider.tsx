@@ -4,6 +4,7 @@ import { Box } from 'native-base';
 
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import AssistedKeysContentSlider from './components/AssistedKeysSliderContent';
+import { wp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +25,7 @@ function AssistedKeysSlider({ items }) {
   return (
     <Box style={styles.container} backgroundColor="light.pantoneGreen">
       <SafeAreaView style={styles.safeAreaViewWrapper}>
-        <Box>
+        <Box style={styles.marginLeft}>
           <FlatList
             ref={onboardingSlideRef}
             data={items}
@@ -71,6 +72,9 @@ export default AssistedKeysSlider;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  marginLeft: {
+    marginLeft: wp(5),
   },
   safeAreaViewWrapper: {
     flex: 1,

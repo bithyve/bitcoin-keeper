@@ -54,6 +54,7 @@ const Colors = {
   GreenishGrey: 'rgba(62, 82, 77, 1)',
   LightGreenish: 'rgba(111, 124, 119, 1)',
   brownColor: 'rgba(145, 120, 92, 1)',
+  LightPurple: 'rgba(214, 184, 189, 1)',
   // GreenishGrey: 'rgba(62, 82, 77, 1)',
   // brownColor: 'rgba(145, 120, 92, 1)',
   learMoreTextcolor: 'rgba(242, 237, 230, 1)',

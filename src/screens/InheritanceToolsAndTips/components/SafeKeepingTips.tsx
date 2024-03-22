@@ -52,15 +52,17 @@ function SafeGuardingTips({}) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <Text color={`${colorMode}.white`}>Key Safekeeping Tips</Text>
+      <Text style={styles.container} color={`${colorMode}.white`}>
+        Key Safekeeping Tips
+      </Text>
       <TipsSlider items={tips} />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    marginLeft: wp(20),
+  container: {
+    marginLeft: wp(10),
   },
 });
 
