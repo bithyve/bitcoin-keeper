@@ -34,6 +34,7 @@ import {
 } from './login';
 import {
   backupWarningWatcher,
+  deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
   recoverBackupWatcher,
@@ -128,6 +129,7 @@ const rootSaga = function* () {
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,
+    deleteAppImageEntityWatcher,
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,
