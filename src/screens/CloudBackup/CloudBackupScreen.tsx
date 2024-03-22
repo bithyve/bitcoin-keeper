@@ -93,7 +93,7 @@ const CloudBackupScreen = () => {
               {strings[item.title]}
             </Text>
             <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
-              {moment(item.date).format('DD MMM YYYY, hh:mm A')}
+              {moment(item.date).fromNow()}
             </Text>
           </Box>
         )}
