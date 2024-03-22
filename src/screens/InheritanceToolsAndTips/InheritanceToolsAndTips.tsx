@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
   container: {
     gap: 10,
     marginTop: hp(10),
-    flex: 1,
   },
 });
 

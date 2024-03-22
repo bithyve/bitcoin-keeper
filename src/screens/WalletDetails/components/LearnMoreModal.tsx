@@ -39,6 +39,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       Content={LinkedWalletContent}
       DarkCloseIcon
       learnMore
+      showCloseIcon={false}
       learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
       buttonText="Back to Wallet"
       buttonTextColor={`${colorMode}.modalWhiteButtonText`}
