@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, HStack, ScrollView, useColorMode } from 'native-base';
+import { HStack, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -25,6 +25,7 @@ function InheritanceToolsAndTips({ navigation }) {
   const { inheritence } = translations;
 
   const [selectedCard, selectCard] = useState(1);
+  const setPadding = selectedCard === 3 ? hp(40) : isSmallDevice ? 50 : 0;
 
   const onCardSelect = (id: number) => {
     selectCard(id);
@@ -38,12 +39,7 @@ function InheritanceToolsAndTips({ navigation }) {
         subtitle={inheritence.SecurityAndInheritanceDescp}
         // To-Do-Learn-More
       />
-      <HStack
-        style={[
-          styles.container,
-          { paddingBottom: selectedCard === 3 ? hp(40) : isSmallDevice ? 50 : 0 },
-        ]}
-      >
+      <HStack style={[styles.container, { paddingBottom: setPadding }]}>
         <WalletCard
           id={1}
           numberOfLines={2}

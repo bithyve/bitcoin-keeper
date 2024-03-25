@@ -14,6 +14,7 @@ import usePlan from 'src/hooks/usePlan';
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
   const { plan } = usePlan();
+  const isDiamondHand = plan === 'DIAMOND HANDS' ? true : false;
 
   const navigateToVaultSetup = (scheme: VaultScheme) => {
     navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup', params: { scheme } }));
@@ -46,17 +47,17 @@ function Wallets({ navigation }) {
         callback={() => navigateToVaultSetup({ m: 2, n: 3 })}
       />
 
-      {plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'DIAMOND HANDS'} />}
+      {isDiamondHand && <UpgradeSubscription type={'DIAMOND HANDS'} />}
 
       <OptionCard
-        disabled={plan !== 'DIAMOND HANDS' ? true : false}
+        disabled={isDiamondHand}
         title="3-of-5 Vault"
         description="Deep cold storage"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup({ m: 3, n: 5 })}
       />
       <OptionCard
-        disabled={plan !== 'DIAMOND HANDS' ? true : false}
+        disabled={isDiamondHand}
         title="Collaborative"
         description="With contacts/devices"
         LeftIcon={<CollaborativeIcon />}
