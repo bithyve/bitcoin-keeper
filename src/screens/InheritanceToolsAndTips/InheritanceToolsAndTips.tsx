@@ -23,9 +23,14 @@ function InheritanceToolsAndTips({ navigation }) {
 
   const { translations } = useContext(LocalizationContext);
   const { inheritence } = translations;
-
   const [selectedCard, selectCard] = useState(1);
-  const setPadding = selectedCard === 3 ? hp(40) : isSmallDevice ? 50 : 0;
+
+  let setPadding;
+  if (selectedCard === 3) {
+    setPadding = hp(40);
+  } else {
+    setPadding = isSmallDevice ? 50 : 0;
+  }
 
   const onCardSelect = (id: number) => {
     selectCard(id);

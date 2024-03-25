@@ -14,7 +14,7 @@ import usePlan from 'src/hooks/usePlan';
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
   const { plan } = usePlan();
-  const isDiamondHand = plan === 'DIAMOND HANDS' ? true : false;
+  const isDiamondHand = plan === 'DIAMOND HANDS';
 
   const navigateToVaultSetup = (scheme: VaultScheme) => {
     navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup', params: { scheme } }));
