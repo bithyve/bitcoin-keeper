@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, StatusBar, useColorMode } from 'native-base';
+import { Box, HStack, StatusBar, Switch, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -29,7 +29,6 @@ import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { Shadow } from 'react-native-shadow-2';
 import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -392,18 +391,18 @@ function LoginScreen({ navigation, route }) {
             </Box>
           </Box>
 
-          {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
+          <HStack justifyContent="space-between" mr={10} paddingTop="1">
             <Text color={`${colorMode}.white`} px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
             <Switch
               value={torEnbled}
               trackColor={{ true: '#FFFA' }}
-              thumbColor="#358475"
+              thumbColor={torEnbled ? `${colorMode}.primaryBackground` : '#949494'}
               onChange={toggleTor}
               defaultIsChecked={torEnbled}
             />
-          </HStack> */}
+          </HStack>
           {/* {attempts >= 1 ? (
               <TouchableOpacity
                 style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}
@@ -479,7 +478,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal && !internalCheck}
-        close={() => { }}
+        close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -499,7 +498,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -525,7 +524,7 @@ function LoginScreen({ navigation, route }) {
       />
       <KeeperModal
         visible={incorrectPassword}
-        close={() => { }}
+        close={() => {}}
         title="Incorrect Password"
         subTitle="You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow"
         modalBackground={`${colorMode}.modalWhiteBackground`}
