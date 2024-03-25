@@ -15,9 +15,11 @@ import KeySecuriy from './KeySecurity';
 import BackupRecovery from './BackupRecovery';
 import InheritanceTool from './InheritanceTool';
 import { hp } from 'src/constants/responsive';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
+  const isSmallDevice = useIsSmallDevices();
 
   const { translations } = useContext(LocalizationContext);
   const { inheritence } = translations;
@@ -41,7 +43,7 @@ function InheritanceToolsAndTips({ navigation }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[
           styles.container,
-          { paddingBottom: selectedCard === 3 ? hp(40) : 0 },
+          { paddingBottom: selectedCard === 3 ? hp(40) : isSmallDevice ? 50 : 0 },
         ]}
       >
         <WalletCard
