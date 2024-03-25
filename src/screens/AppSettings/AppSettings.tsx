@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { Box, HStack, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useQuery } from '@realm/react';
 import { CommonActions } from '@react-navigation/native';
 
@@ -104,19 +104,17 @@ function AppSettings({ navigation, route }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
       >
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Box style={styles.actionContainer}>
-            {actionCardData.map((card) => (
-              <ActionCard
-                cardName={card.cardName}
-                icon={card.icon}
-                callback={card.callback}
-                key={card.cardName}
-                customStyle={{ justifyContent: 'flex-end' }}
-              />
-            ))}
-          </Box>
-        </ScrollView>
+        <HStack style={styles.actionContainer}>
+          {actionCardData.map((card) => (
+            <ActionCard
+              cardName={card.cardName}
+              icon={card.icon}
+              callback={card.callback}
+              key={card.cardName}
+              customStyle={{ justifyContent: 'flex-end', width: wp(110) }}
+            />
+          ))}
+        </HStack>
         <OptionCard
           title={settings.DarkMode}
           description={settings.DarkModeSubTitle}
@@ -325,7 +323,7 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 3,
     marginBottom: 20,
   },
   bottomNav: {

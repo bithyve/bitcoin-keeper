@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ScrollView, useColorMode } from 'native-base';
+import { HStack, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -15,14 +15,22 @@ import KeySecuriy from './KeySecurity';
 import BackupRecovery from './BackupRecovery';
 import InheritanceTool from './InheritanceTool';
 import { hp } from 'src/constants/responsive';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
+  const isSmallDevice = useIsSmallDevices();
 
   const { translations } = useContext(LocalizationContext);
   const { inheritence } = translations;
-
   const [selectedCard, selectCard] = useState(1);
+
+  let setPadding;
+  if (selectedCard === 3) {
+    setPadding = hp(40);
+  } else {
+    setPadding = isSmallDevice ? 50 : 0;
+  }
 
   const onCardSelect = (id: number) => {
     selectCard(id);
@@ -36,14 +44,7 @@ function InheritanceToolsAndTips({ navigation }) {
         subtitle={inheritence.SecurityAndInheritanceDescp}
         // To-Do-Learn-More
       />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.container,
-          { paddingBottom: selectedCard === 3 ? hp(40) : 0 },
-        ]}
-      >
+      <HStack style={[styles.container, { paddingBottom: setPadding }]}>
         <WalletCard
           id={1}
           numberOfLines={2}
@@ -74,7 +75,7 @@ function InheritanceToolsAndTips({ navigation }) {
           onCardSelect={onCardSelect}
           arrowStyles={{ marginLeft: 10 }}
         />
-      </ScrollView>
+      </HStack>
       {selectedCard === 1 && <KeySecuriy navigation={navigation} />}
       {selectedCard === 2 && <BackupRecovery navigation={navigation} />}
       {selectedCard === 3 && <InheritanceTool navigation={navigation} />}
@@ -84,7 +85,7 @@ function InheritanceToolsAndTips({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
+    gap: 4,
     marginTop: hp(10),
   },
 });
