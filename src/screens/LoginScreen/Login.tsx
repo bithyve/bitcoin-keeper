@@ -398,7 +398,7 @@ function LoginScreen({ navigation, route }) {
             <Switch
               value={torEnbled}
               trackColor={{ true: '#FFFA' }}
-              thumbColor={torEnbled ? `${colorMode}.primaryBackground` : '#949494'}
+              thumbColor={torEnbled ? '#358475' : '#949494'}
               onChange={toggleTor}
               defaultIsChecked={torEnbled}
             />

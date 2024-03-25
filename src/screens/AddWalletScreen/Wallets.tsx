@@ -8,9 +8,12 @@ import useWallets from 'src/hooks/useWallets';
 import { WalletType } from 'src/services/wallets/enums';
 import { CommonActions } from '@react-navigation/native';
 import { VaultScheme } from 'src/services/wallets/interfaces/vault';
+import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
+import usePlan from 'src/hooks/usePlan';
 
 function Wallets({ navigation }) {
   const { wallets } = useWallets({ getAll: true });
+  const { plan } = usePlan();
 
   const navigateToVaultSetup = (scheme: VaultScheme) => {
     navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup', params: { scheme } }));
@@ -42,13 +45,18 @@ function Wallets({ navigation }) {
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup({ m: 2, n: 3 })}
       />
+
+      {plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'DIAMOND HANDS'} />}
+
       <OptionCard
+        disabled={plan !== 'DIAMOND HANDS' ? true : false}
         title="3-of-5 Vault"
         description="Deep cold storage"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup({ m: 3, n: 5 })}
       />
       <OptionCard
+        disabled={plan !== 'DIAMOND HANDS' ? true : false}
         title="Collaborative"
         description="With contacts/devices"
         LeftIcon={<CollaborativeIcon />}
