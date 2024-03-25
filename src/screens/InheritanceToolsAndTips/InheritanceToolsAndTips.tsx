@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ScrollView, useColorMode } from 'native-base';
+import { Box, HStack, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -38,10 +38,8 @@ function InheritanceToolsAndTips({ navigation }) {
         subtitle={inheritence.SecurityAndInheritanceDescp}
         // To-Do-Learn-More
       />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[
+      <HStack
+        style={[
           styles.container,
           { paddingBottom: selectedCard === 3 ? hp(40) : isSmallDevice ? 50 : 0 },
         ]}
@@ -76,7 +74,7 @@ function InheritanceToolsAndTips({ navigation }) {
           onCardSelect={onCardSelect}
           arrowStyles={{ marginLeft: 10 }}
         />
-      </ScrollView>
+      </HStack>
       {selectedCard === 1 && <KeySecuriy navigation={navigation} />}
       {selectedCard === 2 && <BackupRecovery navigation={navigation} />}
       {selectedCard === 3 && <InheritanceTool navigation={navigation} />}
@@ -86,7 +84,7 @@ function InheritanceToolsAndTips({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
+    gap: 4,
     marginTop: hp(10),
   },
 });
