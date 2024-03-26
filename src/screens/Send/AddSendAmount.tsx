@@ -1,13 +1,5 @@
 import Text from 'src/components/KeeperText';
-import {
-  Box,
-  // HStack,
-  Input,
-  KeyboardAvoidingView,
-  Pressable,
-  useColorMode,
-  // VStack,
-} from 'native-base';
+import { Box, HStack, Input, KeyboardAvoidingView, Pressable, useColorMode } from 'native-base';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -87,7 +79,7 @@ function AddSendAmount({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const { getBalance, getCurrencyIcon } = useBalance();
+  const { getCurrencyIcon, getSatUnit } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
 
   function convertFiatToSats(fiatAmount: number) {
@@ -324,7 +316,7 @@ function AddSendAmount({ route }) {
                   backgroundColor={`${colorMode}.seashellWhite`}
                   placeholder="Enter Amount"
                   placeholderTextColor={`${colorMode}.greenText`}
-                  width="90%"
+                  width="80%"
                   fontSize={14}
                   fontWeight={300}
                   opacity={amount ? 1 : 0.5}
@@ -345,39 +337,45 @@ function AddSendAmount({ route }) {
                   keyboardType="decimal-pad"
                 />
               </Box>
-              <Pressable
-                onPress={() => {
-                  const confirmBalance = sender.specs.balances.confirmed;
-                  if (confirmBalance) {
-                    if (sendMaxFee) {
-                      onSendMax(sendMaxFee, selectedUTXOs);
-                      return;
-                    }
-                    dispatch(
-                      calculateSendMaxFee({
-                        numberOfRecipients: recipientCount,
-                        wallet: sender,
-                        selectedUTXOs,
-                      })
-                    );
-                  }
-                }}
-                borderColor={`${colorMode}.BrownNeedHelp`}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
-                style={styles.sendMaxWrapper}
-                testID="btn_sendMax"
-              >
-                <Text
-                  testID="text_sendmax"
-                  color={`${colorMode}.seashellWhite`}
-                  style={styles.sendMaxText}
-                  medium
-                >
-                  Send Max
+              <HStack style={styles.inputInnerStyle}>
+                {console.log('ssfsdsd')}
+                <Text semiBold color={`${colorMode}.divider`}>
+                  {getSatUnit() && `| ${getSatUnit()}`}
                 </Text>
-              </Pressable>
-            </Box>
 
+                <Pressable
+                  onPress={() => {
+                    const confirmBalance = sender.specs.balances.confirmed;
+                    if (confirmBalance) {
+                      if (sendMaxFee) {
+                        onSendMax(sendMaxFee, selectedUTXOs);
+                        return;
+                      }
+                      dispatch(
+                        calculateSendMaxFee({
+                          numberOfRecipients: recipientCount,
+                          wallet: sender,
+                          selectedUTXOs,
+                        })
+                      );
+                    }
+                  }}
+                  borderColor={`${colorMode}.BrownNeedHelp`}
+                  backgroundColor={`${colorMode}.BrownNeedHelp`}
+                  style={styles.sendMaxWrapper}
+                  testID="btn_sendMax"
+                >
+                  <Text
+                    testID="text_sendmax"
+                    color={`${colorMode}.seashellWhite`}
+                    style={styles.sendMaxText}
+                    medium
+                  >
+                    Send Max
+                  </Text>
+                </Pressable>
+              </HStack>
+            </Box>
             <Box
               backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
@@ -506,6 +504,11 @@ const styles = StyleSheet.create({
     paddingVertical: hp(3),
     borderRadius: 5,
     borderWidth: 1,
+  },
+  inputInnerStyle: {
+    gap: 2,
+    alignItems: 'center',
+    marginLeft: -20,
   },
   sendMaxText: {
     fontSize: 12,
