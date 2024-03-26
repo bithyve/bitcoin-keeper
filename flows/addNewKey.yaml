@@ -2,7 +2,6 @@ appId: io.hexawallet.keeper.development
 ---
 - tapOn:
     id: 'btn_Manage\nKeys'
-    index: 0
 - assertVisible:
     id: 'btn_Add Key'
 - tapOn:

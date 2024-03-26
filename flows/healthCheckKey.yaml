@@ -1,0 +1,17 @@
+appId: io.hexawallet.keeper.development
+---
+- tapOn:
+    id: 'btn_Manage\nKeys'
+- tapOn:
+    id: 'btn_Mobile Key'
+    index: 0
+- tapOn:
+    id: 'btn_Health Check'
+- assertVisible:
+    id: 'modal_secondary_btn'
+- tapOn:
+    id: 'modal_secondary_btn'
+- assertVisible:
+    id: 'modal_secondary_btn'
+- tapOn:
+    id: 'modal_secondary_btn'
