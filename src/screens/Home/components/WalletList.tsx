@@ -34,9 +34,9 @@ export function WalletsList({
         horizontal
         data={allWallets}
         keyExtractor={(item) => item.id}
-        renderItem={({ item: wallet }) => (
+        renderItem={({ item: wallet, index }) => (
           <TouchableOpacity
-            testID={`btn_${wallet.presentationData.name}`}
+            testID={`view_wallet_${index}`}
             style={styles.walletCardWrapper}
             onPress={() => handleWalletPress(wallet, navigation)}
           >
