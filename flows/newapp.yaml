@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper.development
 ---
 - runFlow: setpin.yaml
 - runFlow: login.yaml
