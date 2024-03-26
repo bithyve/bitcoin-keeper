@@ -123,7 +123,7 @@ function SigningDeviceList() {
 
     return (
       <React.Fragment key={type}>
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={disabled}>
+        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={disabled} testID={`btn_${type}`}>
           <Box
             backgroundColor={`${colorMode}.seashellWhite`}
             borderTopRadius={first ? 10 : 0}
@@ -187,7 +187,7 @@ function SigningDeviceList() {
         }}
       />
       <Box style={styles.scrollViewContainer}>
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false} testID={'Signer_Scroll'}>
           {!signersLoaded ? (
             <ActivityIndicator />
           ) : (

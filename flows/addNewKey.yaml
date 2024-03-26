@@ -1,0 +1,21 @@
+appId: io.hexawallet.keeper.development
+---
+- tapOn:
+    id: 'btn_Manage\nKeys'
+    index: 0
+- assertVisible:
+    id: 'btn_Add Key'
+- tapOn:
+    id: 'btn_Add Key'
+- waitForAnimationToEnd:
+    timeout: 5000
+- scroll
+- tapOn:
+    id: 'btn_KEEPER'
+- assertVisible:
+    id: 'btn_Add a New Mobile Key'
+- tapOn:
+    id: 'btn_Add a New Mobile Key'
+- assertVisible: Next
+- tapOn:
+    id: 'modal_primary_btn'

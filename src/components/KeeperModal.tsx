@@ -177,7 +177,7 @@ function KeeperModal(props: ModalProps) {
                     </TouchableOpacity>
                   )}
                   {!!buttonText && (
-                    <TouchableOpacity onPress={buttonCallback}>
+                    <TouchableOpacity onPress={buttonCallback} testID='modal_primary_btn'>
                       <Box backgroundColor={buttonBackground} style={styles.cta}>
                         <Text style={styles.ctaText} color={buttonTextColor} bold>
                           {showButtons ? buttonText : null}
