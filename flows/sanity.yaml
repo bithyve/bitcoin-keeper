@@ -1,6 +1,7 @@
 appId: io.hexawallet.keeper.development
 ---
 - runFlow: newapp.yaml
+- runFlow: addwallet.yaml
 - runFlow: viewwallet.yaml
 - runFlow: appsettings.yaml
 - runFlow: copywalletaddress.yaml

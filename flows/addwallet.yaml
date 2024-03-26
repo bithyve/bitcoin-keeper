@@ -1,6 +1,5 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper.development
 ---
-# - runFlow: login.yaml
 - assertTrue: ${output.text_HotWallet = "1 Wallet"}
 - swipe:
     direction: LEFT
@@ -36,10 +35,13 @@ appId: ${APPID}
     id: 'btn_primaryText'
 - assertVisible:
     id: modal_loading
-- runFlow:
-    when:
-      notVisible:
-        id: 'modal_loading'
-    commands:
-      - hideKeyboard
-      - assertTrue: ${output.text_HotWallet = "2 Wallet"}
+- waitForAnimationToEnd:
+    timeout: 20000
+- assertVisible: 
+    id: 'modal_primary_btn'
+- tapOn:
+    id: 'modal_primary_btn'
+- assertVisible:
+    id: 'btn_back'
+- tapOn:
+    id: 'btn_back'

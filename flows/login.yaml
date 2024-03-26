@@ -1,6 +1,5 @@
 appId: ${APPID}
 ---
-- launchApp
 - extendedWaitUntil:
     visible: 'Enter your passcode'
     timeout: 20000
