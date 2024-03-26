@@ -36,9 +36,9 @@ appId: ${APPID}
 - assertVisible:
     id: 'btn_upload_image'
 - assertVisible:
-    id: 'input_address'
+    id: 'input_receive_address'
 - tapOn:
-    id: 'input_address'
+    id: 'input_receive_address'
 - inputText: 'tb1qq4yupzkhnzlz8kva9udnud6rw5vezk5qr7kp7s'
 - waitForAnimationToEnd:
     timeout: 2000
@@ -52,7 +52,7 @@ appId: ${APPID}
 - assertVisible:
     id: 'input_note'
 - assertVisible:
-    id: 'input_label'
+    id: 'input_amount'
 - tapOn:
     id: 'input_amount'
 - inputText: '0.00001100'
@@ -60,7 +60,7 @@ appId: ${APPID}
     id: 'input_note'
 - inputText: 'Testing with maestro'
 - tapOn:
-    id: 'input_label'
+    id: 'input_amount'
 - inputText: 'Test'
 - hideKeyboard
 - tapOn:
@@ -78,11 +78,11 @@ appId: ${APPID}
 - tapOn:
     id: 'key_1'
 - tapOn:
-    id: 'key_2'
+    id: 'key_1'
 - tapOn:
-    id: 'key_3'
+    id: 'key_1'
 - tapOn:
-    id: 'key_4'
+    id: 'key_1'
 - assertVisible:
     id: 'btn_primaryText'
 - tapOn:
