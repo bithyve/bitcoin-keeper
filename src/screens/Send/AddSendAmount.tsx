@@ -338,7 +338,6 @@ function AddSendAmount({ route }) {
                 />
               </Box>
               <HStack style={styles.inputInnerStyle}>
-                {console.log('ssfsdsd')}
                 <Text semiBold color={`${colorMode}.divider`}>
                   {getSatUnit() && `| ${getSatUnit()}`}
                 </Text>
