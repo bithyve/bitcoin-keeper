@@ -18,9 +18,9 @@ appId: ${APPID}
 - assertVisible: 'Retry'
 - tapOn: 'Retry'
 - tapOn: '1'
-- tapOn: '2'
-- tapOn: '3'
-- tapOn: '4'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
 - assertVisible: 'Proceed'
 - tapOn: 'Proceed'
 - waitForAnimationToEnd:
