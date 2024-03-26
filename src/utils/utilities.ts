@@ -169,7 +169,7 @@ export const formatNumber = (value: string) =>
 
 export const getTimeDifferenceInWords = (pastTime) => {
   const timeDifference = moment(pastTime).fromNow();
-  if (timeDifference === 'Invalid date') {
+  if (timeDifference === 'Invalid date' || pastTime === undefined) {
     return 'Never accessed';
   } else {
     return timeDifference.charAt(0).toUpperCase() + timeDifference.slice(1);

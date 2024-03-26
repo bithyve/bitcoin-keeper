@@ -34,6 +34,12 @@ function KeySecurity({ navigation }) {
     <ScrollView>
       <OptionCard
         disabled
+        //---for future use---
+        // preTitle={`${
+        //   inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
+        //     ? 'Never accessed'
+        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
+        // }`}
         CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Buy new Hardware Signers"
         description="Overview and discount codes"
@@ -42,6 +48,12 @@ function KeySecurity({ navigation }) {
       />
       <OptionCard
         disabled
+        //---for future use---
+        // preTitle={`${
+        //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
+        //     ? 'Never accessed'
+        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
+        // }`}
         CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Canary Wallets"
         description="Alert on key compromise"
