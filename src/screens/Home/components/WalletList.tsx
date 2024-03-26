@@ -57,6 +57,7 @@ export function WalletsList({
             name={'Add\nWallet'}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
+            isAddWallet
           />
         )}
       />

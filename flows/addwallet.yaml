@@ -6,7 +6,6 @@ appId: ${APPID}
     direction: LEFT
 - assertVisible:
     id: 'btn_add_wallet'
-- assertVisible: 'Add a new wallet, import it, or create a collaborative wallet.'
 - tapOn:
     id: 'btn_add_wallet'
 - waitForAnimationToEnd:
@@ -14,34 +13,24 @@ appId: ${APPID}
 - assertTrue: ${output.text_modal_title = "Add or Import Wallet"}
 - assertTrue: ${output.text_modal_subtitle = "Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"}
 - assertVisible:
-    id: 'btn_Add Wallet'
+    id: 'btn_Hot Wallet'
 - assertVisible:
-    id: 'btn_Import Wallet'
+    id: 'btn_2-of-3 Vault'
 - assertVisible:
-    id: 'btn_Add Collaborative Wallet'
-- assertVisible: "Please ensure that Keeper is properly backed up to ensure your bitcoin's security"
+    id: 'btn_3-of-5 Vault'
+- assertVisible:
+    id: 'btn_Collaborative'
 - tapOn:
-    id: btn_Add Wallet
+    id: 'btn_Hot Wallet'
 - waitForAnimationToEnd:
     timeout: 2000
-- tapOn:
-    id: 'input_wallet_name'
-- 'eraseText'
-- inputRandomPersonName
-- inputText: "'s wallet"
-- tapOn:
-    id: 'input_wallet_description'
-- 'eraseText'
-- inputRandomText
-- inputRandomEmail
-- inputRandomNumber
 - tapOn:
     id: 'input_transfer_policy'
 - 'eraseText'
 - inputText: '21000'
 - hideKeyboard
 - assertVisible:
-    id: 'btn_secondaryText'
+    id: 'btn_primaryText'
 - assertTrue: ${output.btn_primaryText = "Create"}
 - tapOn:
     id: 'btn_primaryText'
