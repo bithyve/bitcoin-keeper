@@ -47,7 +47,7 @@ function BackupRecovery({ navigation }) {
         CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Personal Cloud Backup"
         description="Use your iCloud or Google Drive"
-        LeftIcon={<CloudUser fillColor={'#A2A2A2'} />}
+        LeftIcon={<CloudUser />}
         callback={() => navigate('PersonalCloudBackup', PERSONAL_CLOUD_BACKUP)}
       />
       <OptionCard
