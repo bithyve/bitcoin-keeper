@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 40,
     top: 15,
-    width: 65,
+    width: 70,
   },
 });
 export default SigningDeviceList;

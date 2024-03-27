@@ -95,10 +95,10 @@ const getSignerContent = (type: SignerType) => {
       return {
         title: 'Keystone',
         subTitle:
-          'It offers a convenient cold storage solution with open-source firmware, a 4-inch touchscreen, and PSBT Bitcoin multi-sig support. Protect your cryptocurrency with the perfect balance between a secure and convenient hardware wallet with mobile phone support.',
+          'It offers a convenient cold storage solution with open source firmware, a 4-inch touchscreen, and multi-key support. Protect your bitcoin with the right balance between a secure and convenient hardware wallet with mobile phone support.',
         assert: <Keystone />,
         description:
-          '\u2022All hardware wallets need some means of connecting to the network to sign transactions; how “air-gapped” your hardware wallet depends on how it limits the attack surface when transmitting data to an internet-enabled device.\n\u2022 With QR codes, you can verify each and every data transmission to ensure that information coming into the Keystone Hardware Wallet contains no trojans or viruses and information going out doesn’t leak private keys or any other sensitive information.\n\u2022 Keystone Hardware Wallet uses a bank-grade Secure Element to generate true random numbers, derive private and public keys, sign transactions, and [protect private keys from being leaked if an attacker has physical access to the device.',
+          "\u2022 With QR codes, you can verify all data transmission to ensure that information coming into Keystone contains no trojans or viruses, while information going out doesn't leak private keys or any other sensitive information.",
         FAQ: 'https://support.keyst.one/miscellaneous/faq',
       };
     case SignerType.PASSPORT:
@@ -334,7 +334,7 @@ function SigningDeviceDetails({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        learnMore
+        learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
         title={signerTranslations.keyDetails}

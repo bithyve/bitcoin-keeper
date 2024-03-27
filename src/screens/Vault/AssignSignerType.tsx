@@ -19,6 +19,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import UnknownSignerInfo from './components/UnknownSignerInfo';
+import Note from 'src/components/Note/Note';
 
 type IProps = {
   navigation: any;
@@ -92,52 +93,57 @@ function AssignSignerType({ route }: IProps) {
           <ActivityIndicator />
         ) : (
           <Box>
-            {availableSigners.map((type: SignerType, index: number) => {
-              const { disabled, message: connectivityStatus } = getDeviceStatus(
-                type,
-                isNfcSupported,
-                isOnL1,
-                isOnL2,
-                { m: 2, n: 3 },
-                appSigners
-              );
-              let message = connectivityStatus;
-              if (!connectivityStatus) {
-                message = getSDMessage({ type });
-              }
-              const first = index === 0;
-              const last = index === availableSigners.length - 1;
-              return (
-                <TouchableOpacity
-                  disabled={disabled}
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    assignSignerType(type);
-                  }}
-                  key={type}
-                  testID={`btn_identify_${type}`}
-                >
-                  <Box
-                    backgroundColor={`${colorMode}.seashellWhite`}
-                    borderTopRadius={first ? 15 : 0}
-                    borderBottomRadius={last ? 15 : 0}
-                    opacity={disabled ? 0.5 : 1}
+            <Box>
+              {availableSigners.map((type: SignerType, index: number) => {
+                const { disabled, message: connectivityStatus } = getDeviceStatus(
+                  type,
+                  isNfcSupported,
+                  isOnL1,
+                  isOnL2,
+                  { m: 2, n: 3 },
+                  appSigners
+                );
+                let message = connectivityStatus;
+                if (!connectivityStatus) {
+                  message = getSDMessage({ type });
+                }
+                const first = index === 0;
+                const last = index === availableSigners.length - 1;
+                return (
+                  <TouchableOpacity
+                    disabled={disabled}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      assignSignerType(type);
+                    }}
+                    key={type}
+                    testID={`btn_identify_${type}`}
                   >
-                    <Box style={styles.walletMapContainer}>
-                      <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
-                      <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
-                      <VStack style={styles.content}>
-                        <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
-                        <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
-                          {message}
-                        </Text>
-                      </VStack>
+                    <Box
+                      backgroundColor={`${colorMode}.seashellWhite`}
+                      borderTopRadius={first ? 15 : 0}
+                      borderBottomRadius={last ? 15 : 0}
+                      opacity={disabled ? 0.5 : 1}
+                    >
+                      <Box style={styles.walletMapContainer}>
+                        <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
+                        <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
+                        <VStack style={styles.content}>
+                          <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
+                          <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
+                            {message}
+                          </Text>
+                        </VStack>
+                      </Box>
+                      <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
                     </Box>
-                    <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
-                  </Box>
-                </TouchableOpacity>
-              );
-            })}
+                  </TouchableOpacity>
+                );
+              })}
+            </Box>
+            <Box style={styles.noteContainer}>
+              <Note subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault" />
+            </Box>
           </Box>
         )}
         <HardwareModalMap
@@ -194,6 +200,9 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'flex-start',
     paddingLeft: wp(30),
+  },
+  noteContainer: {
+    marginVertical: 40,
   },
 });
 
