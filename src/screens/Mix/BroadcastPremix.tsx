@@ -326,7 +326,7 @@ export default function BroadcastPremix({ route, navigation }) {
                 </Text>
               </Box>
             </Box>
-            <Box style={styles.textArea}>
+            <Box style={styles.textArea} testID='Premixes_container'>
               <Text color="#017963" style={styles.textWidth}>
                 No. of Premixes
               </Text>
