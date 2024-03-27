@@ -5,33 +5,64 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import Buttons from 'src/components/Buttons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import Note from 'src/components/Note/Note';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { getKeyExpression } from 'src/utils/service-utilities/utils';
+import { XpubTypes } from 'src/services/wallets/enums';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
-import { useQuery } from '@realm/react';
+import idx from 'idx';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { captureError } from 'src/services/sentry';
 
-function CosignerDetails() {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'CosignerDetails'>;
+function CosignerDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
-  const { params } = useRoute();
-  const { wallet } = params as { wallet: Wallet };
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
   const navgation = useNavigation();
+  const { signer } = route.params;
 
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const fetchKeyExpression = (type: XpubTypes) => {
+    try {
+      if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
+        const keyDescriptor = getKeyExpression(
+          signer.masterFingerprint,
+          idx(signer, (_) => _.signerXpubs[type][0].derivationPath),
+          idx(signer, (_) => _.signerXpubs[type][0].xpub),
+          false
+        );
+        return keyDescriptor;
+      } else {
+        throw new Error(`Missing key details for ${type} type.`);
+      }
+    } catch (error) {
+      throw new Error(`Missing key details for ${type} type.`);
+    }
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      const details = getCosignerDetails(wallet, keeper.id);
-      setDetails(JSON.stringify(details));
-    }, 200);
+    if (!details) {
+      setTimeout(() => {
+        try {
+          const keyDescriptor = fetchKeyExpression(XpubTypes.P2WSH);
+          setDetails(keyDescriptor);
+        } catch (error) {
+          captureError(error);
+          try {
+            const keyDescriptor = fetchKeyExpression(XpubTypes.P2WPKH);
+            setDetails(keyDescriptor);
+          } catch (error) {
+            showToast(
+              `We're sorry, but we have trouble retrieving the key information`,
+              <ToastErrorIcon />
+            );
+          }
+        }
+      }, 200);
+    }
   }, []);
 
   return (
@@ -46,7 +77,6 @@ function CosignerDetails() {
           copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
           subText="Co-signer Details"
           copyable={false}
-          keeper={keeper}
         />
       </Box>
       <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
@@ -54,11 +84,6 @@ function CosignerDetails() {
       </ScrollView>
       <Box style={styles.bottom}>
         <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
-        <Note
-          title="Note"
-          subtitle="The co-signer details are for the selected wallet only"
-          subtitleColor="GreyText"
-        />
       </Box>
     </ScreenWrapper>
   );
@@ -73,5 +98,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     marginHorizontal: '5%',
+    marginBottom: 25,
   },
 });

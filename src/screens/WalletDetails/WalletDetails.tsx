@@ -1,15 +1,17 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Pressable, StatusBar, useColorMode, VStack } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import idx from 'idx';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WalletIcon from 'src/assets/images/hexagontile_wallet.svg';
+
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
-import Arrow from 'src/assets/images/arrow_brown.svg';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import CoinsIcon from 'src/assets/images/whirlpool.svg';
+import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -17,16 +19,22 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
-import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import useExchangeRates from 'src/hooks/useExchangeRates';
+import { WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import CardPill from 'src/components/CardPill';
+import ActionCard from 'src/components/ActionCard';
+import { AppStackParams } from 'src/navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
-import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
-import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { formatNumber } from 'src/utils/utilities';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -55,13 +63,14 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
   );
 }
 
-function WalletDetails({ route }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'WalletDetails'>;
+function WalletDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const currencyCode = useCurrencyCode();
-  const exchangeRates = useExchangeRates();
-  const { autoRefresh, walletId, walletIndex } = route?.params || {};
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+  const { autoRefresh = false, walletId } = route.params || {};
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -70,18 +79,16 @@ function WalletDetails({ route }) {
     },
   } = wallet;
 
-  const walletType = idx(wallet, (_) => _.type) || 'DEFAULT'
-  const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
-  const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
-  const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
+  const walletType = idx(wallet, (_) => _.type) || 'DEFAULT';
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
+
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
 
   useEffect(() => {
     if (!syncing) {
@@ -99,140 +106,85 @@ function WalletDetails({ route }) {
     dispatch(refreshWallets([wallet], { hardRefresh: true }));
     setPullRefresh(false);
   };
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.greenText2`}>
+    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <StatusBar barStyle="light-content" />
-      <Box style={{ paddingHorizontal: 20, paddingTop: 15 }}>
+      <Box style={styles.topContainer}>
         <KeeperHeader
           learnMore
+          learnTextColor={`${colorMode}.white`}
+          learnBackgroundColor={`${colorMode}.pantoneGreen`}
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
+          title={name}
+          titleColor={`${colorMode}.seashellWhite`}
+          mediumTitle
+          subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
+          subTitleColor={`${colorMode}.seashellWhite`}
+          icon={isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletIcon />}
         />
-        <VStack>
-          <Box style={styles.walletHeaderWrapper}>
-            <Box style={styles.walletIconWrapper}>
-              <Box style={styles.walletIconView} backgroundColor={`${colorMode}.white`}>
-                {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletInsideGreen />}
-              </Box>
-            </Box>
-            <Box style={styles.walletNameWrapper}>
-              <Text color={`${colorMode}.white`} style={styles.walletNameText}>
-                {name}
-              </Text>
-              <Text color={`${colorMode}.white`} style={styles.walletDescText}>
-                {walletType === 'IMPORTED' ? 'Imported wallet' : description}
-              </Text>
-            </Box>
+        <Box style={styles.balanceWrapper}>
+          <Box style={styles.unconfirmBalanceView}>
+            <CardPill
+              heading="SINGLE SIG"
+              backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
+            />
+            <CardPill heading={wallet.type} />
           </Box>
-          <Box style={styles.balanceWrapper}>
-            <Box style={styles.unconfirmBalanceView}>
-              <Text color={`${colorMode}.white`}>Unconfirmed</Text>
-              <CurrencyInfo
-                hideAmounts={false}
-                amount={unconfirmed}
-                fontSize={14}
-                color={`${colorMode}.white`}
-                variation={colorMode === 'light' ? 'light' : 'dark'}
-              />
-            </Box>
-            <Box style={styles.availableBalanceView}>
-              <Text color={`${colorMode}.white`}>Available Balance</Text>
-              <CurrencyInfo
-                hideAmounts={false}
-                amount={confirmed}
-                fontSize={22}
-                color={`${colorMode}.white`}
-                variation={colorMode === 'light' ? 'light' : 'dark'}
-              />
-            </Box>
+          <Box style={styles.availableBalanceView}>
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={unconfirmed + confirmed}
+              fontSize={24}
+              color={`${colorMode}.white`}
+              variation={colorMode === 'light' ? 'light' : 'dark'}
+            />
           </Box>
-        </VStack>
+        </Box>
+      </Box>
+      <Box style={styles.actionCard}>
+        <ActionCard
+          cardName={'Buy Bitcoin'}
+          description="into this wallet"
+          callback={() =>
+            navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
+          }
+          icon={<BTC />}
+          cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+            currencyCodeExchangeRate.buy.toFixed(0)
+          )}`}
+        />
+        <ActionCard
+          cardName="View All Coins"
+          description="Manage Whirlpool and UTXOs"
+          callback={() =>
+            navigation.navigate('UTXOManagement', {
+              data: wallet,
+              routeName: 'Wallet',
+              accountType: WalletType.DEFAULT,
+            })
+          }
+          icon={<CoinsIcon />}
+        />
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
-        <Pressable
-          key={wallet?.id}
-          backgroundColor={`${colorMode}.accent`}
-          style={styles.transferPolicyCard}
-          onPress={() => {
-            navigation.navigate('WalletDetailsSettings', {
-              wallet,
-              editPolicy: true,
-            });
-          }}
-        >
-          <Box style={styles.transferPolicyContent}>
-            <Box
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                color="light.learnMoreBorder"
-                fontSize={12}
-                style={{
-                  letterSpacing: 0.6,
-                }}
-              >
-                Transfer Policy is set at{'  '}
-              </Text>
-              <CurrencyInfo
-                hideAmounts={false}
-                amount={wallet?.transferPolicy.threshold}
-                fontSize={14}
-                color="light.learnMoreBorder"
-                variation="dark"
-              />
-            </Box>
-            <Box>
-              <Arrow />
-            </Box>
-          </Box>
-        </Pressable>
         {wallet ? (
           <>
-            <HStack style={styles.transTitleWrapper}>
-              <Text color={`${colorMode}.black`} fontSize={16} letterSpacing={1.28}>
-                Transactions
-              </Text>
-              {wallet?.specs.transactions.length ? (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('AllTransactions', {
-                      title: 'Wallet Transactions',
-                      subtitle: 'All incoming and outgoing transactions',
-                      entityKind: EntityKind.WALLET,
-                    })
-                  }
-                >
-                  <HStack alignItems="center">
-                    <Text
-                      color={`${colorMode}.primaryGreen`}
-                      marginRight={2}
-                      fontSize={11}
-                      bold
-                      letterSpacing={0.6}
-                    >
-                      View All
-                    </Text>
-                    <IconArrowBlack />
-                  </HStack>
-                </TouchableOpacity>
-              ) : null}
-            </HStack>
+            {wallet?.specs?.transactions?.length ? (
+              <HStack style={styles.transTitleWrapper}>
+                <Text color={`${colorMode}.black`} style={styles.transactionHeading}>
+                  {common.transactions}
+                </Text>
+              </HStack>
+            ) : null}
             <TransactionsAndUTXOs
               transactions={wallet?.specs.transactions}
               setPullRefresh={setPullRefresh}
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <TransactionFooter
-              currentWallet={wallet}
-              onPressBuyBitcoin={onPressBuyBitcoin}
-              walletIndex={walletIndex}
-            />
+            <TransactionFooter currentWallet={wallet} />
           </>
         ) : (
           <Box style={styles.addNewWalletContainer}>
@@ -242,19 +194,11 @@ function WalletDetails({ route }) {
               numberOfLines={2}
               style={styles.addNewWalletText}
             >
-              Add a new wallet or import one
+              {common.addNewWalletOrImport}
             </Text>
           </Box>
         )}
       </VStack>
-      <RampModal
-        showBuyRampModal={showBuyRampModal}
-        setShowBuyRampModal={setShowBuyRampModal}
-        wallet={wallet}
-        receivingAddress={receivingAddress}
-        balance={balance}
-        name={presentationName}
-      />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
     </Box>
   );
@@ -266,17 +210,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flex: 1,
   },
+  topContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
+  },
   walletContainer: {
     paddingHorizontal: wp(28),
-    paddingTop: wp(28),
+    paddingTop: wp(60),
     paddingBottom: 20,
-    borderTopLeftRadius: 20,
     flex: 1,
     justifyContent: 'space-between',
-  },
-  transactionsListContainer: {
-    height: windowHeight > 800 ? '66%' : '58%',
-    position: 'relative',
   },
   addNewWalletText: {
     fontSize: 12,
@@ -291,12 +234,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   walletHeaderWrapper: {
-    margin: wp(15),
+    marginTop: -10,
+    marginHorizontal: wp(15),
     flexDirection: 'row',
     width: '100%',
   },
   walletIconWrapper: {
     width: '15%',
+    marginRight: 7,
   },
   walletNameWrapper: {
     width: '85%',
@@ -317,11 +262,13 @@ const styles = StyleSheet.create({
   balanceWrapper: {
     flexDirection: 'row',
     width: '90%',
-    marginVertical: wp(20),
+    marginVertical: wp(30),
     marginHorizontal: wp(20),
   },
   unconfirmBalanceView: {
     width: '50%',
+    flexDirection: 'row',
+    gap: 5,
   },
   availableBalanceView: {
     width: '50%',
@@ -333,22 +280,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 5,
   },
-  transferPolicyCard: {
-    paddingHorizontal: wp(10),
-    height: hp(50),
-    width: '95%',
-    borderRadius: hp(5),
+  actionCard: {
+    marginTop: 20,
+    marginBottom: -50,
+    zIndex: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 10,
     alignItems: 'center',
-    alignSelf: 'center',
+    justifyContent: 'center',
   },
-  transferPolicyContent: {
-    paddingLeft: wp(10),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
+  transactionHeading: {
+    fontSize: 16,
+    letterSpacing: 0.16,
   },
 });
-export default WalletDetails;
+export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);

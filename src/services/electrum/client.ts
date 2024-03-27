@@ -1,22 +1,19 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable consistent-return */
-/* eslint-disable camelcase */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-console */
-
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { NodeDetail } from 'src/core/wallets/interfaces';
-import { NetworkType } from 'src/core/wallets/enums';
+import { NodeDetail } from 'src/services/wallets/interfaces';
+import { NetworkType } from 'src/services/wallets/enums';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
+import { cryptoRandom } from '../../utils/service-utilities/encryption';
+import ecc from '../wallets/operations/taproot-utils/noble_ecc';
+bitcoinJS.initEccLib(ecc);
 
 function shufflePeers(peers) {
   for (let i = peers.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(cryptoRandom() * (i + 1));
     [peers[i], peers[j]] = [peers[j], peers[i]];
   }
   return peers;
@@ -133,11 +130,12 @@ export default class ElectrumClient {
       if (timeoutId) clearTimeout(timeoutId);
     }
 
-    if (ELECTRUM_CLIENT.isClientConnected)
+    if (ELECTRUM_CLIENT.isClientConnected) {
       return {
         connected: ELECTRUM_CLIENT.isClientConnected,
         connectedTo: ELECTRUM_CLIENT.activePeer.host,
       };
+    }
     return ElectrumClient.reconnect();
   }
 
@@ -222,6 +220,10 @@ export default class ElectrumClient {
     return peers[ELECTRUM_CLIENT.currentPeerIndex];
   }
 
+  public static resetCurrentPeerIndex() {
+    ELECTRUM_CLIENT.currentPeerIndex = -1;
+  }
+
   // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
   // if current peer to use is provided, it will use that peer
   public static setActivePeer(
@@ -230,14 +232,15 @@ export default class ElectrumClient {
     currentPeerToUse?: NodeDetail
   ) {
     // close previous connection
-    if (ELECTRUM_CLIENT.isClientConnected && ELECTRUM_CLIENT.electrumClient?.close)
+    if (ELECTRUM_CLIENT.isClientConnected && ELECTRUM_CLIENT.electrumClient?.close) {
       ELECTRUM_CLIENT.electrumClient.close();
+    }
 
     // set defaults
     ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS;
-    if (config.NETWORK_TYPE === NetworkType.TESTNET)
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
       ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers = shufflePeers(defaultNodes);
-    else ELECTRUM_CLIENT_CONFIG.predefinedPeers = shufflePeers(defaultNodes);
+    } else ELECTRUM_CLIENT_CONFIG.predefinedPeers = shufflePeers(defaultNodes);
 
     // set active node
     let activeNode = currentPeerToUse || privateNodes.filter((node) => node.isConnected)[0];
@@ -247,8 +250,9 @@ export default class ElectrumClient {
 
   public static splitIntoChunks(arr, chunkSize) {
     const groups = [];
-    for (let itr = 0; itr < arr.length; itr += chunkSize)
+    for (let itr = 0; itr < arr.length; itr += chunkSize) {
       groups.push(arr.slice(itr, itr + chunkSize));
+    }
     return groups;
   }
 
@@ -381,8 +385,9 @@ export default class ElectrumClient {
 
         // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
         for (const vout of res[txdata.param]?.vout || []) {
-          if (vout?.scriptPubKey?.address)
+          if (vout?.scriptPubKey?.address) {
             vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+          }
         }
       }
     }
@@ -419,20 +424,23 @@ export default class ElectrumClient {
       console.log(ex);
     }; // mute
     let timeoutId = null;
-    try {
-      const rez = await Promise.race([
-        new Promise((resolve) => {
-          timeoutId = setTimeout(() => resolve('timeout'), connectOverTor ? 21000 : 5000);
-        }),
-        client.connect(),
-      ]);
-      if (rez === 'timeout') return false;
 
-      await client.server_version('2.7.11', '1.4');
-      await client.server_ping();
-      return true;
-    } catch (ex) {
-      console.log(ex);
+    try {
+      const ver = await Promise.race([
+        new Promise((resolve) => {
+          timeoutId = setTimeout(() => resolve('timeout'), 4000);
+        }),
+        client.initElectrum({
+          client: 'btc-k',
+          version: '1.4',
+        }), // should resolve within 4 seconds(prior to timeout)
+      ]);
+      if (ver === 'timeout') throw new Error('Connection time-out');
+
+      if (ver && ver[0]) return true;
+      else throw new Error('failed to connect');
+    } catch (err) {
+      console.log({ err });
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
       client.close();

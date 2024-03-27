@@ -15,8 +15,8 @@ const getStyles = (btnActiveBack) =>
       padding: 4,
     },
     text: {
-      fontSize: 11,
-      padding: 4,
+      paddingVertical: 8,
+      paddingHorizontal: 2,
     },
     containerBtn: {
       margin: 3,
@@ -51,6 +51,8 @@ function Element(props) {
       <Text
         style={props.isActive ? styles.textActive : styles.text}
         color={props.isActive ? textActiveColor : textColor}
+        bold={props.isActive}
+        fontSize={props.isActive ? 10 : 9}
       >
         {props.title}
       </Text>
@@ -69,8 +71,8 @@ function MonthlyYearlySwitch({ value, onValueChange }: Props) {
         style={styles.gradient}
         colors={colorMode === 'dark' ? containerBackgroundColorDark : containerBackgroundColorLight}
       >
-        <Element isActive={value} title="Monthly" />
-        <Element isActive={!value} title="Yearly" />
+        <Element isActive={value} title="MONTHLY" />
+        <Element isActive={!value} title="YEARLY" />
       </KeeperGradient>
     </TouchableOpacity>
   );

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
-import { WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetails/WalletDetails';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperFooter from '../KeeperFooter';
 
 function UTXOFooter({
@@ -16,22 +17,29 @@ function UTXOFooter({
   wallet,
   utxos,
   setRemixingToVault,
+  vaultId,
 }) {
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
+
   const footerItems = [
     {
-      text: 'Select for Mix',
+      text: walletTranslation.selectForMix,
       Icon: MixIcon,
       onPress: () => {
         setEnableSelection(!enableSelection);
         setInitiateWhirlpool(true);
       },
       disabled: !utxos.length,
-      hideItem: !allowedMixTypes.includes(wallet?.type),
+      hideItem: !allowedMixTypes.includes(wallet?.type) || wallet?.entityKind === EntityKind.VAULT,
     },
     {
-      text: wallet.type === WalletType.POST_MIX ? 'Select for Remix' : 'Select for Mix',
+      text:
+        wallet.type === WalletType.POST_MIX
+          ? walletTranslation.selectForRemix
+          : walletTranslation.selectForMix,
       Icon: MixIcon,
       onPress: () => {
         setEnableSelection(!enableSelection);
@@ -42,7 +50,7 @@ function UTXOFooter({
       hideItem: ![WalletType.PRE_MIX, WalletType.POST_MIX].includes(wallet?.type),
     },
     {
-      text: 'Remix to Vault',
+      text: walletTranslation.remixVault,
       Icon: MixIcon,
       onPress: () => {
         if (!activeVault) {
@@ -58,7 +66,7 @@ function UTXOFooter({
       hideItem: WalletType.POST_MIX !== wallet?.type || !activeVault,
     },
     {
-      text: 'Select to Send',
+      text: walletTranslation.selectToSend,
       Icon: Send,
       onPress: () => setEnableSelection(!enableSelection),
       disabled: !utxos.length,

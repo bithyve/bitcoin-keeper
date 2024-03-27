@@ -18,6 +18,13 @@ default_platform(:android)
 platform :android do
   desc "Push a new dev build to Slack"
   lane :dev do
+    file_name = "../../.env"
+    file_url = "https://raw.githubusercontent.com/bithyve/bitcoin-keeper-envs/development/app.development.env"
+    auth_header = "Authorization: token #{ENV["GITHUB_ACCESS_TOKEN"]}"
+    sh(
+      "curl -H '#{auth_header}' -o '#{file_name}' -s '#{file_url}'",
+      step_name: "curl -H '***' -o '#{file_name}' -s '#{file_url}'"
+    )
     store_password = ENV["STORE_PASSWORD"]
     key_password = ENV["KEY_PASSWORD"]
     key_alias = ENV["KEY_ALIAS"]
@@ -43,13 +50,18 @@ platform :android do
 
   desc "Push a new live build to Slack and internal track on Play Store"
   lane :live do
+    file_name = "../../.env"
+    file_url = "https://raw.githubusercontent.com/bithyve/bitcoin-keeper-envs/live/app.live.env"
+    auth_header = "Authorization: token #{ENV["GITHUB_ACCESS_TOKEN"]}"
+    sh(
+      "curl -H '#{auth_header}' -o '#{file_name}' -s '#{file_url}'",
+      step_name: "curl -H '***' -o '#{file_name}' -s '#{file_url}'"
+    )
     store_password = ENV["STORE_PASSWORD"]
     key_password = ENV["KEY_PASSWORD"]
     key_alias = ENV["KEY_ALIAS"]
     releaseFilePath = File.join(Dir.pwd, "../app", "release.keystore")
-
     gradle(task: 'clean')
-    
     gradle(
       task: 'bundle',
       build_type: 'productionRelease',
@@ -64,7 +76,18 @@ platform :android do
     upload_to_play_store(
       track: 'internal'
     )
-    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH]})
+    gradle(
+      task: 'assemble',
+      build_type: 'productionRelease',
+      print_command: false,
+      properties: {
+        "android.injected.signing.store.file" => releaseFilePath,
+        "android.injected.signing.store.password" => store_password,
+        "android.injected.signing.key.alias" => key_alias,
+        "android.injected.signing.key.password" => key_password,
+      }
+    )
+    upload_to_slack({file_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]})
   end
 end
 

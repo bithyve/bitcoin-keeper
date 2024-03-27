@@ -1,34 +1,34 @@
-/* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
 import KeeperHeader from 'src/components/KeeperHeader';
-
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import NFC from 'src/services/nfc';
-
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
 import Note from 'src/components/Note/Note';
-import { SDIcons } from './SigningDeviceIcons';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
+import { useRoute } from '@react-navigation/native';
+import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import useSigners from 'src/hooks/useSigners';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { SDIcons } from './SigningDeviceIcons';
+import CardPill from 'src/components/CardPill';
 
 type HWProps = {
   type: SignerType;
@@ -39,19 +39,31 @@ type HWProps = {
 };
 
 function SigningDeviceList() {
+  const route = useRoute();
+  const {
+    scheme,
+    addSignerFlow = false,
+    vaultId,
+    vaultSigners,
+  }: {
+    scheme: VaultScheme;
+    addSignerFlow: boolean;
+    vaultId: string;
+    vaultSigners?: VaultSigner[];
+  } = route.params as any;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
+
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
-
+  const isMultisig = addSignerFlow ? true : scheme.n !== 1;
+  const { signers } = useSigners();
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
@@ -70,7 +82,7 @@ function SigningDeviceList() {
           <SigningDevicesIllustration />
         </Box>
         <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
-          {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
+          {`In the ${SubscriptionTier.L1} tier, you can add one signer to activate your vault. This can be upgraded to three signers and five signers on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signer is not supported, it will be indicated.`}
         </Text>
       </View>
     );
@@ -85,17 +97,20 @@ function SigningDeviceList() {
     SignerType.LEDGER,
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
-    SignerType.SEEDSIGNER,
-    SignerType.BITBOX02,
     SignerType.PASSPORT,
     SignerType.JADE,
-    SignerType.KEYSTONE,
-    SignerType.OTHER_SD,
-    SignerType.SEED_WORDS,
-    SignerType.MOBILE_KEY,
-    SignerType.POLICY_SERVER,
+    SignerType.SEEDSIGNER,
+    SignerType.SPECTER,
+    SignerType.BITBOX02,
     SignerType.KEEPER,
+    SignerType.SEED_WORDS,
+    SignerType.KEYSTONE,
+    // SignerType.MOBILE_KEY,
+    SignerType.OTHER_SD,
+    SignerType.POLICY_SERVER,
+    SignerType.INHERITANCEKEY,
   ];
+
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
 
@@ -108,39 +123,52 @@ function SigningDeviceList() {
 
     return (
       <React.Fragment key={type}>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={onPress}
-          disabled={disabled}
-          style={{
-            opacity: disabled ? 0.4 : 1,
-          }}
-        >
+        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={disabled}>
           <Box
-            backgroundColor={`${colorMode}.primaryBackground`}
-            borderTopRadius={first ? 15 : 0}
-            borderBottomRadius={last ? 15 : 0}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderTopRadius={first ? 10 : 0}
+            borderBottomRadius={last ? 10 : 0}
+            alignItems={'center'}
           >
-            <Box style={styles.walletMapContainer}>
+            {type === SignerType.TREZOR && (
+              <Box style={styles.cardPillContainer}>
+                <CardPill heading="COMING SOON" backgroundColor={`${colorMode}.signerCardPill`} />
+              </Box>
+            )}
+            <Box
+              style={[
+                styles.walletMapContainer,
+                {
+                  opacity: disabled ? 0.4 : 1,
+                },
+              ]}
+            >
               <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
-              <Box backgroundColor="light.divider" style={styles.divider} />
+              <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
-                <Text color="light.inActiveMsg" style={styles.messageText}>
+                <Text
+                  color={`${colorMode}.secondaryText`}
+                  style={styles.messageText}
+                  numberOfLines={2}
+                >
                   {message}
                 </Text>
               </Box>
             </Box>
-            <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
+            {!last && <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />}
           </Box>
         </TouchableOpacity>
         <HardwareModalMap
           visible={visible}
           close={close}
           type={type}
-          mode={InteracationMode.SIGNING}
+          mode={InteracationMode.VAULT_ADDITION}
           isMultisig={isMultisig}
           primaryMnemonic={primaryMnemonic}
+          addSignerFlow={addSignerFlow}
+          vaultId={vaultId}
+          vaultSigners={vaultSigners}
         />
       </React.Fragment>
     );
@@ -149,9 +177,11 @@ function SigningDeviceList() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={vault.SelectSigner}
-        subtitle={vault.ForVault}
+        title={vault.Addsigner}
+        subtitle={vault.SelectSignerSubtitle}
         learnMore
+        learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
+        learnTextColor={`${colorMode}.white`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
@@ -161,42 +191,52 @@ function SigningDeviceList() {
           {!signersLoaded ? (
             <ActivityIndicator />
           ) : (
-            <Box paddingY="4">
-              {sortedSigners?.map((type: SignerType, index: number) => {
-                const { disabled, message: connectivityStatus } = getDeviceStatus(
-                  type,
-                  isNfcSupported,
-                  vaultSigners,
-                  isOnL1
-                );
-                let message = connectivityStatus;
-                if (!connectivityStatus) {
-                  message = getSDMessage({ type });
-                }
-                return (
-                  <HardWareWallet
-                    key={type}
-                    type={type}
-                    first={index === 0}
-                    last={index === 9}
-                    disabled={disabled}
-                    message={message}
-                  />
-                );
-              })}
-            </Box>
+            <>
+              <Box paddingY="4">
+                {sortedSigners?.map((type: SignerType, index: number) => {
+                  const { disabled, message: connectivityStatus } = getDeviceStatus(
+                    type,
+                    isNfcSupported,
+                    isOnL1,
+                    isOnL2,
+                    scheme,
+                    signers,
+                    addSignerFlow
+                  );
+                  let message = connectivityStatus;
+                  if (!connectivityStatus) {
+                    message = getSDMessage({ type });
+                  }
+                  return (
+                    <HardWareWallet
+                      key={type}
+                      type={type}
+                      first={index === 0}
+                      last={index === sortedSigners.length - 1}
+                      disabled={disabled}
+                      message={message}
+                    />
+                  );
+                })}
+              </Box>
+              <Note
+                title="Note"
+                subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
+                subtitleColor="GreyText"
+                width={wp(340)}
+              />
+            </>
           )}
         </ScrollView>
-
         <KeeperModal
           visible={sdModal}
           close={() => {
             dispatch(setSdIntroModal(false));
           }}
-          title="Signing Devices"
-          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
+          title="Signers"
+          subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
           modalBackground={`${colorMode}.modalGreenBackground`}
-          buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
           buttonBackground={`${colorMode}.modalWhiteButton`}
           buttonText="Add Now"
           buttonCallback={() => {
@@ -206,15 +246,11 @@ function SigningDeviceList() {
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
-          learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)}
+          learnMoreCallback={() =>
+            openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
+          }
         />
       </Box>
-      <Note
-        title="Security Tip"
-        subtitle="Please use the Health Check feature to ensure that your device is working and available as expected"
-        subtitleColor="GreyText"
-        width={windowWidth * 0.8}
-      />
     </ScreenWrapper>
   );
 }
@@ -229,7 +265,7 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: '2%',
+    flex: 1,
   },
   scrollViewWrapper: {
     height: windowHeight > 800 ? '76%' : '74%',
@@ -243,38 +279,42 @@ const styles = StyleSheet.create({
   },
   walletMapContainer: {
     alignItems: 'center',
-    height: windowHeight * 0.08,
+    minHeight: windowHeight * 0.08,
     flexDirection: 'row',
-    paddingLeft: wp(40),
   },
   walletMapWrapper: {
     marginRight: wp(20),
     alignItems: 'center',
-    width: wp(15),
   },
   walletMapLogoWrapper: {
-    marginLeft: wp(23),
+    marginLeft: wp(20),
     justifyContent: 'flex-end',
-    marginTop: hp(20),
+    marginVertical: hp(20),
   },
   messageText: {
     fontSize: 10,
-    fontWeight: '400',
-    letterSpacing: 1.3,
-    marginTop: hp(5),
+    letterSpacing: 0.1,
+    width: windowWidth * 0.6,
   },
   dividerStyle: {
-    opacity: 0.1,
-    width: windowWidth * 0.8,
+    opacity: 0.6,
+    width: '85%',
+    alignSelf: 'center',
     height: 0.5,
   },
   divider: {
-    opacity: 0.5,
-    height: hp(26),
-    width: 1.5,
+    opacity: 0.4,
+    height: hp(25),
+    width: 1,
   },
   italics: {
     fontStyle: 'italic',
+  },
+  cardPillContainer: {
+    position: 'absolute',
+    right: 40,
+    top: 15,
+    width: 65,
   },
 });
 export default SigningDeviceList;

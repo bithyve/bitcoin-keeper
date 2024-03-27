@@ -1,38 +1,56 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
+import { useQuery } from '@realm/react';
+import { RNCamera } from 'react-native-camera';
+import { useNavigation } from '@react-navigation/native';
 
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import Note from 'src/components/Note/Note';
-import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { useNavigation } from '@react-navigation/native';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { WalletType } from 'src/core/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { WalletType } from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useQuery } from '@realm/react';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import KeeperModal from 'src/components/KeeperModal';
+import Text from 'src/components/KeeperText';
 
-function ImportWalletScreen({ route }) {
+function ImportWalletContent() {
+  return (
+    <View marginY={5}>
+      <Box alignSelf="center">
+        <VaultSetupIcon />
+      </Box>
+      <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
+        Scan the wallet configuration file of the wallet you wish to import. You can import as many wallets as you like.
+      </Text>
+      <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
+        Please ensure that nobody else has access to this configuration file QR to avoid them recreating your wallet.
+      </Text>
+    </View>
+  );
+}
+
+function ImportWalletScreen() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { home } = translations;
-  // const { sender } = route.params as { sender: Wallet | Vault };
-  // const network = WalletUtilities.getNetworkByType(sender.networkType);
+  const { common, importWallet, wallet } = translations;
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const [introModal, setIntroModal] = useState(false)
 
   const handleChooseImage = () => {
     const options = {
@@ -47,7 +65,7 @@ function ImportWalletScreen({ route }) {
 
     launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
-        showToast('Camera device has been cancled', <ToastErrorIcon />);
+        showToast('Camera device has been canceled', <ToastErrorIcon />);
       } else if (response.errorCode === 'camera_unavailable') {
         showToast('Camera not available on device', <ToastErrorIcon />);
       } else if (response.errorCode === 'permission') {
@@ -57,7 +75,7 @@ function ImportWalletScreen({ route }) {
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
-            handleTextChange(data);
+            initiateWalletImport(data);
           })
           .catch((err) => {
             showToast('Invalid or No related QR code');
@@ -66,16 +84,23 @@ function ImportWalletScreen({ route }) {
     });
   };
 
-  const handleTextChange = (info: string) => {
-    info = info.trim();
-    navigation.navigate('ImportWalletDetails', {
-      seed: info,
-      type: WalletType.IMPORTED,
-      name: `Wallet ${wallets.length + 1}`,
-      description: 'Single-sig Wallet',
-    });
+  const initiateWalletImport = (data: string) => {
+    try {
+      const importedKey = data.trim();
+      const importedKeyDetails = WalletUtilities.getImportedKeyDetails(importedKey);
+      navigation.navigate('ImportWalletDetails', {
+        importedKey,
+        importedKeyDetails,
+        type: WalletType.IMPORTED,
+        name: `Wallet ${wallets.length + 1}`,
+        description: importedKeyDetails.watchOnly ? 'Watch Only' : 'Imported Wallet',
+      });
+    } catch (err) {
+      showToast('Invalid Import Key');
+    }
   };
 
+  // TODO: add learn more modal
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -84,7 +109,14 @@ function ImportWalletScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle="Scan your seed words/Backup Phrase" />
+        <KeeperHeader
+          title={wallet.ImportWallet}
+          subtitle={importWallet.usingWalletConfigurationFile}
+          learnMore
+          learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
+          learnTextColor={`${colorMode}.white`}
+          learnMorePressed={() => setIntroModal(true)}
+        />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
@@ -92,7 +124,7 @@ function ImportWalletScreen({ route }) {
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
-                  handleTextChange(data.data);
+                  initiateWalletImport(data.data);
                 }}
                 notAuthorizedView={<CameraUnauthorized />}
               />
@@ -105,7 +137,7 @@ function ImportWalletScreen({ route }) {
             <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
               <Note
                 title={common.note}
-                subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+                subtitle={importWallet.IWNoteDescription}
                 subtitleColor="GreyText"
               />
             </Box>
@@ -119,6 +151,24 @@ function ImportWalletScreen({ route }) {
               ))}
             </View>
           </Box>
+          <KeeperModal
+            visible={introModal}
+            close={() => {
+              setIntroModal(false)
+            }}
+            title="Import Wallets:"
+            subTitle="Have other bitcoin wallets that you’d like to access from Keeper? Import them for a seamless experience."
+            modalBackground={`${colorMode}.modalGreenBackground`}
+            textColor={`${colorMode}.modalGreenContent`}
+            Content={ImportWalletContent}
+            DarkCloseIcon
+            learnMore
+            // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+            buttonText="Continue"
+            buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+            buttonBackground={`${colorMode}.modalWhiteButton`}
+            buttonCallback={() => setIntroModal(false)}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenWrapper>

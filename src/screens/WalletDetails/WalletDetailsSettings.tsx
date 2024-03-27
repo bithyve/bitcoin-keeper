@@ -9,62 +9,61 @@ import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import EditWalletDetailsModal from './EditWalletDetailsModal';
 
 function WalletDetailsSettings({ route }) {
   const { colorMode } = useColorMode();
-  const { wallet, editPolicy = false } = route.params || {};
+  const { wallet }: { wallet: Wallet } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
-  const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const [walletDetailVisible, setWalletDetailVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
+  const { importWallet, common } = translations;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Wallet Details" subtitle="Name, details and transfer policy" />
+      <KeeperHeader
+        title={walletTranslation.WalletDetails}
+        subtitle={walletTranslation.walletDetailsSubTitle}
+      />
 
       <ScrollView
         contentContainerStyle={styles.optionsListContainer}
         showsVerticalScrollIndicator={false}
       >
         <OptionCard
-          title="Edit Wallet Name & Description"
-          description="Change wallet name & description"
+          title={walletTranslation.EditWalletDeatils}
+          description={walletTranslation.changeWalletDetails}
           callback={() => {
-            navigation.navigate('EditWalletDetails', { wallet });
+            setWalletDetailVisible(true);
           }}
         />
         <OptionCard
-          title="Show xPub"
-          description="Use to create an external, watch-only wallet"
+          title={walletTranslation.showXPub}
+          description={walletTranslation.showXPubSubTitle}
           callback={() => {
             setXPubVisible(true);
           }}
         />
         <OptionCard
-          title="Derivation Path"
-          description="Change Derivation path"
+          title={importWallet.derivationPath}
+          description={walletTranslation.viewDerivationPath}
           callback={() => {
             navigation.navigate('UpdateWalletDetails', { wallet });
-          }}
-        />
-        <OptionCard
-          title="Transfer Policy"
-          description={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
-          callback={() => {
-            setTransferPolicyVisible(true);
           }}
         />
       </ScrollView>
       <Box style={styles.note}>
         <Note
-          title="Note"
-          subtitle="These settings are for your selected wallet only and does not affect other wallets"
+          title={common.note}
+          subtitle={walletTranslation.walletDetailsNote}
           subtitleColor="GreyText"
         />
       </Box>
@@ -72,22 +71,20 @@ function WalletDetailsSettings({ route }) {
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
-          title="Wallet xPub"
-          subTitleWidth={wp(240)}
-          subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
+          showCloseIcon={false}
+          modalBackground={`${colorMode}.primaryBackground`}
+          title={walletTranslation.XPubTitle}
           textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
-          // eslint-disable-next-line react/no-unstable-nested-components
+          subTitle={walletTranslation.walletXPubSubTitle}
+          subTitleColor={`${colorMode}.secondaryText`}
+          subTitleWidth={wp(300)}
           Content={() => (
             <ShowXPub
-              data={wallet?.specs?.xpub}
+              data={wallet ? WalletUtilities.getExtendedPubKeyFromWallet(wallet) : ''}
               copy={() => {
                 setXPubVisible(false);
-                showToast('Xpub Copied Successfully', <TickIcon />);
+                showToast(walletTranslation.xPubCopyToastMsg, <TickIcon />);
               }}
-              copyable
               close={() => setXPubVisible(false)}
               subText={walletTranslation?.AccountXpub}
               noteSubText={walletTranslation?.AccountXpubNote}
@@ -95,27 +92,18 @@ function WalletDetailsSettings({ route }) {
           )}
         />
         <KeeperModal
-          visible={transferPolicyVisible}
-          close={() => {
-            setTransferPolicyVisible(false);
-          }}
-          title="Edit Transfer Policy"
-          subTitle="Threshold amount at which transfer is triggered"
+          visible={walletDetailVisible}
+          close={() => setWalletDetailVisible(false)}
+          title="Edit name & description"
+          subTitleWidth={wp(240)}
+          subTitle="This will reflect on the home screen"
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           DarkCloseIcon={colorMode === 'dark'}
+          showCloseIcon={false}
           Content={() => (
-            <TransferPolicy
-              wallet={wallet}
-              close={() => {
-                showToast('Transfer Policy Changed', <TickIcon />);
-                setTransferPolicyVisible(false);
-              }}
-              secondaryBtnPress={() => {
-                setTransferPolicyVisible(false);
-              }}
-            />
+            <EditWalletDetailsModal wallet={wallet} close={() => setWalletDetailVisible(false)} />
           )}
         />
       </Box>

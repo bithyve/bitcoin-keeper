@@ -7,6 +7,7 @@ import { BackupType } from 'src/models/enums/BHR';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
+import { cryptoRandom } from 'src/utils/service-utilities/encryption';
 
 function HealthCheckComponent(props) {
   const navigation = useNavigation();
@@ -17,9 +18,8 @@ function HealthCheckComponent(props) {
   const [seedWord, setSeedWord] = useState('');
   const [strongPassword, setStrongPassword] = useState('');
   const { words } = props;
-  const [index] = useState(Math.floor(Math.random() * words.length));
+  const [index] = useState(Math.floor(cryptoRandom() * words.length));
   const [invalid, setInvalid] = useState(false);
-  console.log(props.password);
 
   const getSeedNumber = (seedNumber) => {
     switch (seedNumber + 1) {
@@ -78,10 +78,9 @@ function HealthCheckComponent(props) {
         return 'twelfth';
     }
   };
-
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
-      if (seedWord === words[index]) {
+      if (seedWord.toLocaleLowerCase() === words[index]) {
         props.onConfirmed('');
       } else {
         setInvalid(true);

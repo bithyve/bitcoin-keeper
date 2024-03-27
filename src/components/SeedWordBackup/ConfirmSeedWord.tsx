@@ -4,6 +4,7 @@ import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from 'src/components/Buttons';
+import { cryptoRandom } from 'src/utils/service-utilities/encryption';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
@@ -11,7 +12,7 @@ function ConfirmSeedWord(props) {
   const { common } = translations;
   const { words } = props;
   const [seedWord, setSeedWord] = useState('');
-  const [index] = useState(Math.floor(Math.random() * words.length));
+  const [index] = useState(Math.floor(cryptoRandom() * words.length));
   const [invalid, setInvalid] = useState(false);
 
   const getSeedNumber = (seedNumber) => {

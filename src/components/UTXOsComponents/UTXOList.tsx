@@ -1,14 +1,14 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
-import { UTXO } from 'src/core/wallets/interfaces';
+import { UTXO } from 'src/services/wallets/interfaces';
 import Selected from 'src/assets/images/selected.svg';
-import { WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -17,7 +17,8 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
+import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Label({
   name,
@@ -115,16 +116,15 @@ function UTXOElement({
   const allowSelection = enableSelection && item.confirmed;
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
 
   return (
     <TouchableOpacity
       style={styles.utxoCardContainer}
       onPress={() => {
         if (enableSelection && !item.confirmed) {
-          showToast(
-            'Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID',
-            <ToastErrorIcon />
-          );
+          showToast(walletTranslation.intiatePremixToastMsg, <ToastErrorIcon />);
           return;
         }
         if (allowSelection) {
@@ -137,7 +137,7 @@ function UTXOElement({
               Object.keys(selectedUTXOMap).length >= 1 &&
               initateWhirlpoolMix
             ) {
-              showToast('Only a single UTXO mix allowed at a time', null, 3000);
+              showToast(walletTranslation.utxoAllowedTime);
               return;
             }
             mapToUpdate[utxoId] = true;
@@ -218,6 +218,8 @@ function UTXOList({
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
   const { labels } = useLabelsNew({ utxos: utxoState, wallet: currentWallet });
   const dispatch = useDispatch();
   const { walletSyncing } = useAppSelector((state) => state.wallet);
@@ -250,8 +252,8 @@ function UTXOList({
         <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
           <EmptyStateView
             IllustartionImage={emptyIcon}
-            title="No UTXOs yet"
-            subTitle="UTXOs from all your Tx0s land here."
+            title={walletTranslation.noUTXOYet}
+            subTitle={walletTranslation.noUTXOYetSubTitle}
           />
         </Box>
       }

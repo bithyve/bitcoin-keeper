@@ -11,13 +11,15 @@ type FooterItem = {
   disabled?: boolean;
   hideItem?: boolean;
 };
-export const KeeperFooter = ({
+export function KeeperFooter({
   items,
   wrappedScreen = true,
+  marginX = 10,
 }: {
   items: FooterItem[];
+  marginX?: number;
   wrappedScreen?: boolean;
-}) => {
+}) {
   const { colorMode } = useColorMode();
   const footerItemsToRender = items.filter((item) => !item.hideItem);
   return (
@@ -26,23 +28,27 @@ export const KeeperFooter = ({
       <Box
         flexDirection="row"
         justifyContent={footerItemsToRender.length > 2 ? 'space-between' : 'space-around'}
-        marginX={10}
+        marginX={marginX}
         marginTop={3}
-        alignItems={'flex-start'}
+        alignItems="flex-start"
       >
         {footerItemsToRender.map((item) => {
           return (
             <TouchableOpacity
+              testID={`btn_${item.text}`}
               key={item.text}
               style={styles.IconWrapper}
               onPress={item.onPress}
               disabled={item.disabled}
             >
-              <item.Icon />
+              <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
+                <item.Icon />
+              </Box>
               <Text
                 color={`${colorMode}.primaryText`}
                 style={[styles.footerText, { maxWidth: windowWidth / footerItemsToRender.length }]}
                 numberOfLines={2}
+                medium
               >
                 {item.text}
               </Text>
@@ -52,23 +58,32 @@ export const KeeperFooter = ({
       </Box>
     </Box>
   );
-};
+}
 
 export default KeeperFooter;
 
 const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
-    letterSpacing: 0.84,
+    letterSpacing: 0.36,
     textAlign: 'center',
     paddingHorizontal: 5,
   },
   IconWrapper: {
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    gap: 10,
   },
   border: {
     borderWidth: 0.5,
     opacity: 0.2,
+    marginBottom: 10,
+  },
+  circle: {
+    width: 38,
+    height: 38,
+    borderRadius: 38 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

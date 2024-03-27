@@ -30,7 +30,7 @@ const GenerateSecurityTipsPDF = async () => {
             <h4>Key Security Tips:</h4>
             <p>This document is one of three Inheritance Planning documents provided by Keeper. The other 2 being: Letter to the Attorney and Recovery Instructions for your heir. This document is auto-produced by the Bitcoin Keeper app. To learn more visit bitcoinkeeper.app</p>
             <p>Getting Started: </p>
-            <p>A multisig enhances wallet security by distributing control and access, thus reducing the risk of unauthorized access, fraudulent activities, and loss of funds. The bitcoin your heir would inherit is within such a setup, i.e. your Vault. This document offers suggestions for storing keys and access & recovery mechanisms safely so that your intended beneficiary* can easily access your bitcoin when needed.</p>
+            <p>A multisig enhances wallet security by distributing control and access, thus reducing the risk of unauthorized access, fraudulent activities, and loss of funds. The bitcoin your heir would inherit is within such a setup, i.e. your vault. This document offers suggestions for storing keys and access & recovery mechanisms safely so that your intended beneficiary* can easily access your bitcoin when needed.</p>
             <p>Also, the following information is only meant to help you start planning your bitcoin inheritance and should be considered as partial information for your bitcoin inheritance planning. We recommend you also speak with your estate planners to customize a plan that works best for you and to ensure that legal title also passes to your heir(s). </p>
             <p>*Please note that the term intended beneficiary is not being used in legal terminology.</p>
             <p>Checklist before storing away your keys: </p>
@@ -118,7 +118,7 @@ const GenerateSecurityTipsPDF = async () => {
             <p>Recovery phrases come into play when a key becomes inaccessible. Some of the reasons for inaccessibility may be the degradation of devices storing the keys or the souring of relationships with people entrusted with them. Thus it is important that you not only backup the device storing a key properly, but also test out your recovery mechanism. Once satisfied, please consider etching the seed words onto stainless steel plates for longevity. Please consider etching the seed words of your hardware wallets onto steel plates and storing them in tamper-evident bags.  </p>
             <p>When you are satisfied with the arrangements you’ve made to store access and backup mechanisms, a point to decide is whether you want to store them along with the devices that have your keys or store them separately. This is an important decision and should be taken carefully.</p>
             <p>To be avoided:</p>
-            <p>Treasure hunts: Please do not simply share keys with people you trust in your lifetime. They may collude and access the Vault after you pass away.</p>
+            <p>Treasure hunts: Please do not simply share keys with people you trust in your lifetime. They may collude and access the vault after you pass away.</p>
             <p>Photographing things: Photographs of seed words and pins may give unintended access to your private keys. Please avoid photographing them.</p>
             <p>Unprotected Storage: Avoid storing your pins/seed words in random files that could be easily accessed or hacked. </p>
             <p>Entrusting all your keys to one person or storing them all in one place: This action beats the purpose of a multi-sig setup and creates a single point of failure.</p>
@@ -137,7 +137,7 @@ const GenerateSecurityTipsPDF = async () => {
       `;
     const options = {
       html,
-      fileName: `KeySecurityTips`,
+      fileName: 'KeySecurityTips',
       directory: 'Documents',
       base64: true,
     };

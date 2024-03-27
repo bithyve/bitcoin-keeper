@@ -1,11 +1,11 @@
 /* eslint-disable no-await-in-loop */
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { Signer, Vault, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/utils/service-utilities/config';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { SigningPayload } from 'src/core/wallets/interfaces';
+import { SigningPayload } from 'src/services/wallets/interfaces';
 import { captureError } from 'src/services/sentry';
 import reverse from 'buffer-reverse';
 import ElectrumClient from 'src/services/electrum/client';
@@ -25,7 +25,7 @@ export const getBitbox02Details = (data, isMultisig) => {
     return {
       xpub,
       derivationPath,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       xpubDetails,
     };
   } catch (_) {
@@ -33,10 +33,14 @@ export const getBitbox02Details = (data, isMultisig) => {
   }
 };
 
-export const getWalletConfigForBitBox02 = ({ vault }: { vault: Vault }) => {
-  const ourXPubIndex = vault.signers.findIndex((signer) => signer.type === SignerType.BITBOX02);
+export const getWalletConfigForBitBox02 = ({ vault, signer }: { vault: Vault; signer: Signer }) => {
+  const ourXPubIndex = vault.signers.findIndex(
+    (vaultKey) =>
+      signer.type === SignerType.BITBOX02 && signer.masterFingerprint === vaultKey.masterFingerprint
+  );
   const keypathAccountDerivation = vault.signers.find(
-    (signer) => signer.type === SignerType.BITBOX02
+    (vaultKey) =>
+      signer.type === SignerType.BITBOX02 && signer.masterFingerprint === vaultKey.masterFingerprint
   ).derivationPath;
   return {
     ourXPubIndex,
@@ -49,69 +53,70 @@ export const getWalletConfigForBitBox02 = ({ vault }: { vault: Vault }) => {
 export const getTxForBitBox02 = async (
   serializedPSBT: string,
   signingPayload: SigningPayload[],
-  signer: VaultSigner,
+  vaultKey: VaultSigner,
   isMultisig: boolean,
-  vault: Vault
+  vault: Vault,
+  signer: Signer
 ) => {
   try {
     const payload = signingPayload[0];
     const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
-    const {
-      inputs: inputUtxos,
-      outputs: outputUtxos,
-      change: changeAddress,
-      inputsToSign,
-    } = payload;
-    const keypathAccount = getKeypathFromString(signer.derivationPath);
+    const { change: changeAddress } = payload;
+    const keypathAccount = getKeypathFromString(vaultKey.derivationPath);
     const inputs = [];
     let index = 0;
     const { version, locktime } = psbt;
+    const inputUtxos = psbt.data.inputs;
     for (const input of psbt.txInputs) {
-      const { subPath } = inputsToSign[index];
-      const [, c, a] = subPath.split('/');
+      const subPath = psbt.data.inputs[index].bip32Derivation[0].path.split('/');
+      const c = subPath[subPath.length - 2];
+      const a = subPath[subPath.length - 1];
       const reversedHash = reverse(input.hash);
       const txid = reversedHash.toString('hex');
       const prevTxs = await ElectrumClient.getTransactionsById([txid]);
       const tx = prevTxs[txid];
       const { version, locktime, vin, vout } = tx;
       inputs.push({
-        prevOutHash: input.hash,
-        prevOutIndex: inputUtxos[index].vout,
-        prevOutValue: inputUtxos[index].value.toString(),
+        prevOutHash: input.hash.toString('hex'),
+        prevOutIndex: input.index,
+        prevOutValue: inputUtxos[index].witnessUtxo.value.toString(),
         sequence: input.sequence,
         keypath: keypathAccount.concat([Number(c), Number(a)]),
         prevTx: {
           version,
           locktime,
           inputs: vin.map((input) => ({
-            prevOutHash: reverse(Buffer.from(input.txid, 'hex')),
+            prevOutHash: reverse(Buffer.from(input.txid, 'hex')).toString('hex'),
             prevOutIndex: input.vout,
-            signatureScript: Buffer.from(input.scriptSig.hex, 'hex'),
+            signatureScript: input.scriptSig.hex,
             sequence: input.sequence,
           })),
           outputs: vout.map((output) => ({
             value: BtcToSats(output.value).toString(),
-            pubkeyScript: Buffer.from(output.scriptPubKey.hex, 'hex'),
+            pubkeyScript: output.scriptPubKey.hex,
           })),
         },
       });
       index += 1;
     }
-    const outputs = psbt.txOutputs.map((output, index) => {
+    const outputs = psbt.txOutputs.map((output) => {
       const isChangeOutput = output.address === changeAddress;
       return isChangeOutput
         ? {
             ours: true,
-            value: outputUtxos[index].value.toString(),
+            value: output.value.toString(),
             keypath: keypathAccount.concat([1, vault.specs.nextFreeChangeAddressIndex]),
           }
         : {
             ours: false,
-            value: outputUtxos[index].value.toString(),
-            payload: WalletUtilities.getPubkeyHashFromScript(output.address, output.script),
+            value: output.value.toString(),
+            payload: WalletUtilities.getPubkeyHashFromScript(
+              output.address,
+              output.script
+            ).toString('hex'),
           };
     });
-    const walletConfig = isMultisig ? getWalletConfigForBitBox02({ vault }) : null;
+    const walletConfig = isMultisig ? getWalletConfigForBitBox02({ vault, signer }) : null;
     return {
       inputs,
       outputs,
@@ -119,7 +124,7 @@ export const getTxForBitBox02 = async (
       walletConfig,
       version,
       locktime,
-      derivationPath: signer.derivationPath,
+      derivationPath: vaultKey.derivationPath,
     };
   } catch (error) {
     captureError(error);
@@ -132,10 +137,10 @@ export const getSignedSerializedPSBTForBitbox02 = (unsignedPSBT, signatures, sig
     const { inputsToSign } = signingPayload[0];
     for (let inputIndex = 0; inputIndex < inputsToSign.length; inputIndex += 1) {
       const { sighashType, publicKey } = inputsToSign[inputIndex];
-      PSBT.addSignedDisgest(
+      PSBT.addSignedDigest(
         inputIndex,
         Buffer.from(publicKey, 'hex'),
-        Buffer.from(signatures[inputIndex]),
+        Buffer.from(signatures[inputIndex], 'hex'),
         sighashType
       );
     }

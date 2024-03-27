@@ -1,4 +1,4 @@
-import { NodeDetail } from 'src/core/wallets/interfaces';
+import { NodeDetail } from 'src/services/wallets/interfaces';
 
 export const predefinedTestnetNodes: NodeDetail[] = [
   {

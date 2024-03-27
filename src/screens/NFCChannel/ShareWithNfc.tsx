@@ -32,7 +32,7 @@ function ShareWithNfc({ data }: { data: string }) {
       cleanUp();
     });
     const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {
-      showToast('Cosiigner details shared successfully', <TickIcon />);
+      showToast('Cosigner details shared successfully', <TickIcon />);
     });
     return () => {
       cleanUp();
@@ -109,8 +109,8 @@ function ShareWithNfc({ data }: { data: string }) {
       )}
       <OptionCTA
         icon={<NFCIcon />}
-        title={`or share on Tap${isIos ? ' to Anroid' : ''}`}
-        subtitle="Bring device close to use NFC"
+        title={`or share on Tap${isIos ? ' to Android' : ''}`}
+        subtitle="Bring devices close to use NFC"
         callback={shareWithNFC}
       />
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />

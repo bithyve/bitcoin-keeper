@@ -1,12 +1,5 @@
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
-import { Box, Text, View, useColorMode } from 'native-base';
+import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, Text, View, useColorMode, ScrollView, Input } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -19,9 +12,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
+import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
+import config from 'src/utils/service-utilities/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
 import { parseInt } from 'lodash';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
@@ -30,32 +24,41 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { v4 as uuidv4 } from 'uuid';
 
+const derivationPurposeToLabel = {
+  [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
+  [DerivationPurpose.BIP49]: 'P2SH-P2WPKH: wrapped segwit, single-sig',
+  [DerivationPurpose.BIP44]: 'P2PKH: legacy, single-sig',
+  [DerivationPurpose.BIP86]: 'P2TR: taproot, single-sig',
+};
+
 function AddDetailsFinalScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
 
   const { translations } = useContext(LocalizationContext);
-  const { home } = translations;
+  const { home, importWallet } = translations;
   const [arrow, setArrow] = useState(false);
-  const [showPurpose, setShowPurpose] = useState(false);
-  const [purposeList, setPurposeList] = useState([
-    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
-    { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
-    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-  ]);
-  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
-  const [purposeLbl, setPurposeLbl] = useState('P2PKH: legacy, single-sig');
-  const [path, setPath] = useState(
-    route.params?.path
-      ? route.params?.path
-      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
-  );
+
+  const { importedKey, importedKeyDetails } = route.params;
   const [walletType, setWalletType] = useState(route.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route.params?.seed);
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
   const [transferPolicy, setTransferPolicy] = useState(route.params?.policy);
+
+  const [showPurpose, setShowPurpose] = useState(false);
+  const [purposeList, setPurposeList] = useState([
+    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
+    { label: 'P2SH-P2WPKH: wrapped segwit, single-sig', value: DerivationPurpose.BIP49 },
+    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
+    { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
+  ]);
+  const [purpose, setPurpose] = useState(importedKeyDetails?.purpose || DerivationPurpose.BIP84);
+  const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
+  const [path, setPath] = useState(
+    route.params?.path ||
+      WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+  );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
   );
@@ -67,38 +70,38 @@ function AddDetailsFinalScreen({ route }) {
       EntityKind.WALLET,
       config.NETWORK_TYPE,
       0,
-      Number(purpose)
+      purpose
     );
     setPath(path);
   }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
-    //TODO: remove this timeout once the crypto is optimised
-    setTimeout(() => {
-      const derivationConfig: DerivationConfig = {
-        path,
-        purpose: Number(purpose),
-      };
-
-      const newWallet: NewWalletInfo = {
-        walletType,
-        walletDetails: {
-          name: walletName,
-          description: walletDescription,
-          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: parseInt(transferPolicy),
-          },
+    const derivationConfig: DerivationConfig = {
+      path,
+      purpose,
+    };
+    const newWallet: NewWalletInfo = {
+      walletType,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
+        derivationConfig: {
+          path,
+          purpose,
         },
-        importDetails: {
-          derivationConfig,
-          mnemonic: importedSeed,
+        transferPolicy: {
+          id: uuidv4(),
+          threshold: parseInt(transferPolicy),
         },
-      };
-      dispatch(addNewWallets([newWallet]));
-    }, 200);
+      },
+      importDetails: {
+        importedKey,
+        importedKeyDetails,
+        derivationConfig,
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, transferPolicy, path]);
 
   useEffect(() => {
@@ -138,36 +141,45 @@ function AddDetailsFinalScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
+        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper]}>
-              <TextInput
-                placeholder="Derivation Path"
+              <Input
+                placeholder={importWallet.derivationPath}
                 style={styles.textInput}
+                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
                 maxLength={20}
+                editable={false}
               />
             </Box>
-            <TouchableOpacity onPress={onDropDownClick} style={styles.dropDownContainer}>
-              <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
-              <Box
-                style={[
-                  styles.icArrow,
-                  {
-                    transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-                  },
-                ]}
-              >
-                <RightArrowIcon />
+            <TouchableOpacity onPress={onDropDownClick}>
+              <Box style={styles.dropDownContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+                <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
+                  {purposeLbl}
+                </Text>
+                <Box
+                  style={[
+                    styles.icArrow,
+                    {
+                      transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
+                    },
+                  ]}
+                >
+                  {colorMode === 'light' ? <RightArrowIcon /> : <IconArrow />}
+                </Box>
               </Box>
             </TouchableOpacity>
           </Box>
           {showPurpose && (
-            <ScrollView style={styles.langScrollViewWrapper}>
+            <ScrollView
+              style={styles.langScrollViewWrapper}
+              backgroundColor={`${colorMode}.seashellWhite`}
+            >
               {purposeList.map((item) => (
                 <TouchableOpacity
                   key={item.value}
@@ -240,12 +252,11 @@ const styles = StyleSheet.create({
   },
   textInput: {
     width: '100%',
-    backgroundColor: Colors.Isabelline,
+    height: 45,
     borderRadius: 10,
     padding: 20,
   },
   dropDownContainer: {
-    backgroundColor: Colors.Isabelline,
     borderRadius: 10,
     paddingVertical: 20,
     marginTop: 10,
@@ -328,15 +339,12 @@ const styles = StyleSheet.create({
     marginTop: hp(10),
   },
   balanceCrossesText: {
-    color: Colors.Feldgrau,
     marginHorizontal: 20,
     fontSize: 12,
-    marginTop: hp(10),
     letterSpacing: 0.96,
     flex: 1,
   },
   ctaBtnWrapper: {
-    // marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
@@ -344,10 +352,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.Platinum,
     borderRadius: 10,
-    margin: 15,
-    width: '90%',
+    marginVertical: 15,
+    width: '100%',
     zIndex: 10,
-    backgroundColor: '#FAF4ED',
   },
   flagWrapper1: {
     flexDirection: 'row',

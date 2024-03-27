@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { NodeDetail } from 'src/core/wallets/interfaces';
+import { NodeDetail } from 'src/services/wallets/interfaces';
 import Buttons from 'src/components/Buttons';
 import Switch from 'src/components/Switch/Switch';
 import Text from 'src/components/KeeperText';
@@ -46,7 +46,11 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
       <Box style={styles.box}>
         <Box style={styles.useSSL}>
           <Text style={styles.useSSLText}>{settings.useSSL}</Text>
-          <Switch value={useSSL} onValueChange={(value) => setUseSSL(value)} />
+          <Switch
+            value={useSSL}
+            onValueChange={(value) => setUseSSL(value)}
+            testID="switch_use_ssl"
+          />
         </Box>
         <Box style={styles.inputArea}>
           <Box

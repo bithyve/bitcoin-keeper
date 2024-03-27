@@ -1,29 +1,31 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/constants/responsive';
 
 function MenuItemButton(props) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity activeOpacity={0.5} style={styles.addAmountContainer} onPress={props.onPress}>
+    <TouchableOpacity
+      testID={`btn_${props.title}`}
+      activeOpacity={0.5}
+      style={styles.addAmountContainer}
+      onPress={props.onPress}
+    >
       <Box
         style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]}
-        backgroundColor={`${colorMode}.seashellWhite`}
+        backgroundColor={`${colorMode}.MintWhisper`}
+        borderColor={`${colorMode}.primaryGreenBackground`}
       >
-        <Box style={styles.iconWrapper}>{props.icon}</Box>
-        <Box style={styles.titleWrapper}>
-          <Text color={`${colorMode}.primaryText`} style={styles.addAmountText}>
+        <Box>{props.icon}</Box>
+        <Box>
+          <Text semiBold color={`${colorMode}.headerText`} style={styles.addAmountText}>
             {props.title}
           </Text>
-          <Text color={`${colorMode}.GreyText`} style={styles.addAmountSubTitleText}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.addAmountSubTitleText}>
             {props.subTitle}
           </Text>
-        </Box>
-        <Box style={styles.arrowWrapper}>
-          <ArrowIcon />
         </Box>
       </Box>
     </TouchableOpacity>
@@ -35,31 +37,23 @@ const styles = StyleSheet.create({
   },
   addAmountWrapper01: {
     flexDirection: 'row',
+    gap: 10,
     width: '100%',
     borderRadius: 10,
-    // justifyContent: 'space-between',
+    borderWidth: 2,
     alignItems: 'center',
-    paddingHorizontal: 10,
-  },
-  iconWrapper: {
-    width: '15%',
-  },
-  titleWrapper: {
-    flexDirection: 'column',
-    width: '80%',
-  },
-  arrowWrapper: {
-    width: '5%',
+    paddingHorizontal: 15,
+    borderStyle: 'dashed',
   },
   addAmountText: {
-    fontWeight: '400',
-    fontSize: 14,
-    letterSpacing: 1.12,
+    fontSize: 13,
+    letterSpacing: 0.26,
+    lineHeight: 20,
   },
   addAmountSubTitleText: {
-    fontWeight: '400',
-    fontSize: 11,
-    letterSpacing: 0.6,
+    fontSize: 12,
+    letterSpacing: 0.12,
+    lineHeight: 14,
   },
 });
 

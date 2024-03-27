@@ -1,18 +1,18 @@
 import * as bip39 from 'bip39';
 import { call, put } from 'redux-saga/effects';
-import { generateEncryptionKey } from 'src/services/operations/encryption';
+import { generateEncryptionKey } from 'src/utils/service-utilities/encryption';
 import { v4 as uuidv4 } from 'uuid';
-import BIP85 from 'src/core/wallets/operations/BIP85';
+import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { NetworkType, WalletType } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { NetworkType, WalletType } from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
-import Relay from 'src/services/operations/Relay';
-import config from 'src/core/config';
+import Relay from 'src/services/backend/Relay';
+import config from 'src/utils/service-utilities/config';
 import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';
@@ -22,6 +22,8 @@ import { resetRealyWalletState } from '../reducers/bhr';
 
 export const defaultTransferPolicyThreshold =
   config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
+
+export const maxTransferPolicyThreshold = 1e11;
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -76,7 +78,7 @@ export function* setupKeeperAppWorker({ payload }) {
         walletType: WalletType.DEFAULT,
         walletDetails: {
           name: 'Wallet 1',
-          description: 'Single-sig bitcoin wallet',
+          description: '',
           transferPolicy: {
             id: uuidv4(),
             threshold: defaultTransferPolicyThreshold,
@@ -138,7 +140,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       walletType: WalletType.DEFAULT,
       walletDetails: {
         name: 'Mobile Wallet',
-        description: 'Single-sig bitcoin wallet',
+        description: '',
         transferPolicy: {
           id: uuidv4(),
           threshold: defaultTransferPolicyThreshold,

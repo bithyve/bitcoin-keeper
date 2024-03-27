@@ -1,10 +1,10 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
@@ -12,57 +12,36 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
-import { RealmSchema } from 'src/storage/realm/enum';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
-import SigningServer from 'src/services/operations/SigningServer';
-import useVault from 'src/hooks/useVault';
-import { setTempShellId } from 'src/store/reducers/vaults';
-import { generateKey } from 'src/services/operations/encryption';
-import { useAppSelector } from 'src/store/hooks';
-import { useQuery } from '@realm/react';
+import SigningServer from 'src/services/backend/SigningServer';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupSigningServer({ route }: { route }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation } = translations;
   const [validationModal, showValidationModal] = useState(false);
-  const { activeVault } = useVault();
-  const { tempShellId } = useAppSelector((state) => state.vault);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
+  const { policy, addSignerFlow = false } = route.params;
 
-  const getShellId = () => {
-    if (activeVault) {
-      return activeVault.shellId;
-    }
-    if (!tempShellId) {
-      const vaultShellId = generateKey(12);
-      dispatch(setTempShellId(vaultShellId));
-      return vaultShellId;
-    }
-    return tempShellId;
-  };
-
-  const fetchSetupData = async () => {
-    const { policy } = route.params;
-    const vaultId = getShellId();
-    const appId = keeper.id;
+  const registerSigningServer = async () => {
     try {
-      const { setupData } = await SigningServer.register(vaultId, appId, policy);
+      const { setupData } = await SigningServer.register(policy);
       setSetupData(setupData);
       setValidationKey(setupData.verification.verifier);
     } catch (err) {
@@ -72,36 +51,47 @@ function SetupSigningServer({ route }: { route }) {
 
   const validateSetup = async () => {
     const verificationToken = Number(otp);
-    const vaultId = getShellId();
-    const appId = keeper.id;
     try {
-      const { valid } = await SigningServer.validate(vaultId, appId, verificationToken);
+      const { valid } = await SigningServer.validate(setupData.id, verificationToken);
       if (valid) setIsSetupValidated(valid);
-      else showToast('Invalid OTP. Please try again!');
+      else {
+        showValidationModal(false);
+        showToast('Invalid OTP. Please try again!');
+      }
     } catch (err) {
-      showToast('Validation failed. Please try again!');
+      showValidationModal(false);
+      showToast(`${err.message}`);
     }
   };
 
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
-    const { bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
-    const signingServerKey = generateSignerFromMetaData({
+    const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
+    const { signer: signingServerKey } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
+      xfp: id,
       signerPolicy: policy,
     });
-    dispatch(addSigningDevice(signingServerKey));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-    showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
+
+    dispatch(addSigningDevice([signingServerKey]));
+    const navigationState = addSignerFlow
+      ? { name: 'ManageSigners' }
+      : { name: 'AddSigningDevice', merge: true, params: {} };
+    navigation.dispatch(CommonActions.navigate(navigationState));
+    showToast(
+      `${signingServerKey.signerName} added successfully`,
+      <TickIcon />,
+      IToastCategory.SIGNING_DEVICE
+    );
   };
 
   useEffect(() => {
-    fetchSetupData();
+    registerSigningServer();
   }, []);
 
   useEffect(() => {
@@ -143,15 +133,8 @@ function SetupSigningServer({ route }: { route }) {
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text
-            fontSize={13}
-            letterSpacing={0.65}
-            width={wp(290)}
-            color="light.greenText"
-            marginTop={2}
-          >
-            If you lose your authenticator app, use the other Signing Devices to reset the Signing
-            Server
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
+            {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
@@ -162,7 +145,7 @@ function SetupSigningServer({ route }: { route }) {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -170,10 +153,10 @@ function SetupSigningServer({ route }: { route }) {
   }, [otp]);
 
   return (
-    <View style={styles.Container} background="light.secondaryBackground">
+    <View style={styles.Container} background={`${colorMode}.secondaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box>
-        <KeeperHeader title="Set up 2FA for Signing Server" subtitle="Scan on any 2FA auth app" />
+        <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
         {validationKey === '' ? (
@@ -194,17 +177,17 @@ function SetupSigningServer({ route }: { route }) {
               logoBackgroundColor="transparent"
               size={hp(200)}
             />
-            <Box background="light.QrCode" height={6} width="100%" justifyContent="center">
+            <Box background={`${colorMode}.QrCode`} height={6} width="100%" justifyContent="center">
               <Text
                 textAlign="center"
-                color="light.recieverAddress"
+                color={`${colorMode}.recieverAddress`}
                 bold
                 fontSize={12}
                 letterSpacing={1.08}
                 width="100%"
                 numberOfLines={1}
               >
-                2FA Signing Server
+                2FA signer
               </Text>
             </Box>
             <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
@@ -213,7 +196,7 @@ function SetupSigningServer({ route }: { route }) {
                 width="90%"
                 alignItems="center"
                 justifyContent="space-between"
-                backgroundColor="light.textInputBackground"
+                backgroundColor={`${colorMode}.textInputBackground`}
                 borderBottomLeftRadius={10}
                 borderTopLeftRadius={10}
               >
@@ -228,7 +211,7 @@ function SetupSigningServer({ route }: { route }) {
                   }}
                 >
                   <Box
-                    backgroundColor="light.copyBackground"
+                    backgroundColor={`${colorMode}.copyBackground`}
                     padding={3}
                     borderTopRightRadius={10}
                     borderBottomRightRadius={10}
@@ -268,8 +251,8 @@ function SetupSigningServer({ route }: { route }) {
           showValidationModal(false);
         }}
         title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signing server"
-        textColor="light.primaryText"
+        subTitle="To complete setting up the signer"
+        textColor={`${colorMode}.primaryText`}
         Content={otpContent}
       />
     </View>
@@ -295,6 +278,12 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
+  },
+  cvvInputInfoText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: '100%',
+    marginTop: 2,
   },
 });
 export default SetupSigningServer;

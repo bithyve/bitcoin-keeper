@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native';
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 export interface Props {
   value: string;
@@ -11,12 +11,13 @@ export interface Props {
   loading?: boolean;
 }
 function CustomButton({ value, onPress, disabled, testID, loading = false }: Props) {
+  const { colorMode } = useColorMode();
   if (loading) {
     return <ActivityIndicator />;
   }
   return (
     <TouchableHighlight
-      style={styles.button}
+      style={[styles.button, { opacity: disabled ? 0.7 : 1 }]}
       disabled={disabled}
       underlayColor="none"
       testID={testID || 'customButton'}
@@ -24,8 +25,8 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
         onPress();
       }}
     >
-      <Box style={styles.buttonContent} backgroundColor="light.white">
-        <Text color="light.greenText" fontSize={12} bold>
+      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.modalWhiteButton`}>
+        <Text color={`${colorMode}.modalWhiteButtonText`} fontSize={12} bold>
           {value}
         </Text>
       </Box>

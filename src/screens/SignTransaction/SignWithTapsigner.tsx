@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
@@ -17,13 +17,14 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { getTapsignerErrorMessage } from 'src/hardware/tapsigner';
 
 function SignWithTapsigner() {
+  const { colorMode } = useColorMode();
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
 
-  const { params = { signTransaction: () => {}, signer: null } as any } = useRoute();
-  const { signTransaction, textRef } = params;
+  const { params = { signTransaction: () => {} } as any } = useRoute();
+  const { signTransaction, textRef, vaultId = '' } = params;
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -59,11 +60,11 @@ function SignWithTapsigner() {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (err.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       }
       setNfcVisible(false);
       card.endNfcSession();
@@ -71,7 +72,7 @@ function SignWithTapsigner() {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1}>
         <KeeperHeader
           title="Sign with TAPSIGNER"
@@ -85,7 +86,7 @@ function SignWithTapsigner() {
             value={cvc}
             onChangeText={setCvc}
           />
-          <Text style={styles.heading} color="light.greenText">
+          <Text style={styles.heading} color={`${colorMode}.greenText`}>
             You will be scanning the TAPSIGNER after this step
           </Text>
           <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>

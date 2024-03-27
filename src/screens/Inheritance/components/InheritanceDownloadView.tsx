@@ -11,7 +11,7 @@ function InheritanceDownloadView(props) {
   return (
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.iconWrapper}>{props.icon}</Box>
-      <Box style={styles.titleWrapper}>
+      <Box style={[styles.titleWrapper, props.disableCallback && { width: '100%' }]}>
         <Text color={`${colorMode}.primaryText`} style={styles.titleText}>
           {props.title}
         </Text>
@@ -21,13 +21,15 @@ function InheritanceDownloadView(props) {
       </Box>
       <Box style={styles.btnWrapper}>
         {props.isDownload ? (
-          <TouchableOpacity onPress={props.previewPDF}>
+          <TouchableOpacity testID="btn_viewDocument" onPress={props.previewPDF}>
             <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.yellowButtonBackground`}>
-              <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>View&nbsp;</Text>
+              <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+                View&nbsp;
+              </Text>
               <ViewIcon />
             </Box>
           </TouchableOpacity>
-        ) : (
+        ) : props.disableCallback ? null : (
           <Box>
             {props.isSetupDone ? (
               <Pressable style={styles.successTickBtn} onPress={props.onPress}>
@@ -35,8 +37,13 @@ function InheritanceDownloadView(props) {
               </Pressable>
             ) : (
               <TouchableOpacity onPress={props.onPress}>
-                <Box style={styles.setupBtn} backgroundColor={`${colorMode}.yellowButtonBackground`}>
-                  <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>&nbsp;&nbsp;Setup</Text>
+                <Box
+                  style={styles.setupBtn}
+                  backgroundColor={`${colorMode}.yellowButtonBackground`}
+                >
+                  <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+                    &nbsp;&nbsp;Setup
+                  </Text>
                 </Box>
               </TouchableOpacity>
             )}

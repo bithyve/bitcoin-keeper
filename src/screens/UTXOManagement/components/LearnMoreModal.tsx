@@ -8,6 +8,7 @@ import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import DotView from 'src/components/DotView';
 import { modalParams } from 'src/models/interfaces/UTXOs';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 function PremixContent() {
   const { colorMode } = useColorMode();
@@ -62,9 +63,9 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       Content={PremixContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+      learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`)}
       buttonText="Proceed"
-      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />

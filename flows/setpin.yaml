@@ -1,9 +1,9 @@
-appId: io.hexawallet.hexakeeper.dev
+appId: ${APPID}
 ---
 - launchApp
 - extendedWaitUntil:
     visible: 'Create a passcode'
-    timeout: 15000
+    timeout: 20000
 - assertNotVisible: 'Create'
 - tapOn:
     id: 'key_1'
@@ -34,6 +34,12 @@ appId: io.hexawallet.hexakeeper.dev
 - tapOn: 'Create'
 - waitForAnimationToEnd:
     timeout: 5000
+- assertVisible: 'Continue'
+- tapOn: 'Continue'
+- swipe:
+    direction: LEFT
+- swipe:
+    direction: LEFT
 - swipe:
     direction: LEFT
 - waitForAnimationToEnd:

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import BtcInput from 'src/assets/images/btc_input.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
@@ -8,7 +8,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { wp } from 'src/constants/responsive';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
@@ -35,7 +35,7 @@ function TransferPolicy({
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, wallet: walletTranslation, settings } = translations;
   const [policyText, setPolicyText] = useState(wallet?.transferPolicy?.threshold?.toString());
   const dispatch = useDispatch();
 
@@ -49,12 +49,12 @@ function TransferPolicy({
 
   useEffect(() => {
     if (relayWalletError) {
-      showToast('Something went wrong');
+      showToast(common.somethingWrong);
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
       close();
-      showToast('Transfer Policy Changed', <TickIcon />);
+      showToast(walletTranslation.TransPolicyChange, <TickIcon />);
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
@@ -78,11 +78,11 @@ function TransferPolicy({
         })
       );
     } else {
-      showToast('Transfer Policy cannot be zero');
+      showToast(walletTranslation.transPolicyCantZero);
     }
   };
   return (
-    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(275)} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(300)}>
       <Box justifyContent="center" alignItems="center">
         <Box
           marginX="5%"
@@ -90,12 +90,13 @@ function TransferPolicy({
           width="100%"
           justifyContent="center"
           alignItems="center"
-          borderRadius={5}
+          borderRadius={10}
           backgroundColor={`${colorMode}.seashellWhite`}
           padding={3}
+          height={50}
         >
-          <View marginLeft={4}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</View>
-          <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
+          <Box pl={5}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</Box>
+          <Box ml={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
             bold
             fontSize={15}
@@ -108,17 +109,17 @@ function TransferPolicy({
           </Text>
         </Box>
       </Box>
-      <Box py={5}>
-        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
-          This will trigger a transfer request which you need to approve
+      <Box py={25}>
+        <Text fontSize={13} color={`${colorMode}.secondaryText`} letterSpacing={0.65}>
+          {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>
       <Buttons
         primaryCallback={presshandler}
-        primaryText={common.confirm}
+        primaryText={settings.SaveChanges}
         secondaryCallback={secondaryBtnPress}
         secondaryText={common.cancel}
-        paddingHorizontal={wp(30)}
+        paddingHorizontal={wp(15)}
         primaryDisable={relayWalletUpdateLoading || relayWalletUpdate}
       />
       {/* keyboardview start */}
@@ -132,4 +133,5 @@ function TransferPolicy({
     </Box>
   );
 }
+
 export default TransferPolicy;

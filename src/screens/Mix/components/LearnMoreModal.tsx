@@ -7,7 +7,7 @@ import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import SomeDefinationIcon from 'src/assets/images/SomeDefination.svg';
 import { modalParams } from 'src/models/interfaces/UTXOs';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 function MixContent() {
   const { colorMode } = useColorMode();
@@ -58,9 +58,9 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       Content={MixContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-whirlpool/`)}
+      learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`)}
       buttonText="Proceed"
-      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />

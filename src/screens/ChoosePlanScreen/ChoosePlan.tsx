@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import { ActivityIndicator, Platform, ScrollView, Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, Pressable } from 'native-base';
@@ -6,9 +5,9 @@ import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
   getAvailablePurchases,
   SubscriptionPurchase,
+  requestSubscription,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
@@ -20,10 +19,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
-import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
-import Relay from 'src/services/operations/Relay';
-import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
+import Relay from 'src/services/backend/Relay';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';
@@ -32,14 +29,19 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useQuery } from '@realm/react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import TierUpgradeModal from './TierUpgradeModal';
+import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 
-function ChoosePlan(props) {
+function ChoosePlan() {
+  const route = useRoute();
+  const navigation = useNavigation();
+  const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
-  const { choosePlan } = translations;
-  const [currentPosition, setCurrentPosition] = useState(0);
+  const { choosePlan, common } = translations;
+  const [currentPosition, setCurrentPosition] = useState(initialPosition);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
   const { showToast } = useToastMessage();
@@ -53,8 +55,8 @@ function ChoosePlan(props) {
   const [isUpgrade, setIsUpgrade] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const navigation = useNavigation();
   const disptach = useDispatch();
+  const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -80,13 +82,14 @@ function ChoosePlan(props) {
   }, []);
 
   async function init() {
+    let data = [];
     try {
       const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
       if (getPlansResponse.plans) {
+        data = getPlansResponse.plans;
         const skus = [];
         getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
-        const data = getPlansResponse.plans;
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
           const monthlyPlans = [];
@@ -134,6 +137,15 @@ function ChoosePlan(props) {
       }
     } catch (error) {
       console.log('error', error);
+      if (error.message.includes('Billing is unavailable.')) {
+        setItems(data);
+        setLoading(false);
+        showToast(error.message);
+        setIsServiceUnavailible(true);
+      } else {
+        navigation.goBack();
+        showToast(error.message);
+      }
     }
   }
 
@@ -160,7 +172,7 @@ function ChoosePlan(props) {
       } else if (response.error) {
         showToast(response.error);
       }
-      await RNIap.finishTransaction({ purchase, isConsumable: false });
+      if (receipt) await RNIap.finishTransaction({ purchase, isConsumable: false });
     } catch (error) {
       setRequesting(false);
       console.log(error);
@@ -241,15 +253,24 @@ function ChoosePlan(props) {
               onPress: () => {},
               style: 'cancel',
             },
-            { text: 'Manage', onPress: () => manageSubscription(response.productId) },
+            {
+              text: 'Manage',
+              onPress: () => manageSubscription(response.productId),
+            },
           ]);
         }
       } else {
+        if (isServiceUnavailible) {
+          showToast(
+            'It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon'
+          );
+          return;
+        }
         setRequesting(true);
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
         const sku = plan.productId;
         const { offerToken } = plan;
-        const purchaseTokenAndroid = null;
+        let purchaseTokenAndroid = null;
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
@@ -260,13 +281,13 @@ function ChoosePlan(props) {
         });
       }
     } catch (err) {
+      setRequesting(false);
       console.log(err);
     }
   }
 
   const onPressModalBtn = () => {
     setShowUpgradeModal(false);
-    navigation.navigate('AddSigningDevice');
   };
 
   const getBenifitsTitle = (name) => {
@@ -274,6 +295,28 @@ function ChoosePlan(props) {
       return `${name}`;
     }
     return `A ${name}`;
+  };
+
+  const getPlanNote = (plan) => {
+    if (plan.name === 'Pleb') return '';
+    let trial = '';
+    let amount = '';
+    if (plan.monthlyPlanDetails || plan.yearlyPlanDetails) {
+      if (isMonthly) {
+        trial = plan.monthlyPlanDetails.trailPeriod;
+        amount = plan.monthlyPlanDetails.price;
+      } else {
+        trial = plan.yearlyPlanDetails.trailPeriod;
+        amount = plan.yearlyPlanDetails.price;
+      }
+    }
+    if (trial) {
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${
+        isMonthly ? 'month' : 'year'
+      }, cancel anytime`;
+    } else {
+      return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
+    }
   };
 
   const restorePurchases = async () => {
@@ -284,7 +327,6 @@ function ChoosePlan(props) {
       if (purchases.length === 0) {
         showToast('No purchases found');
       } else {
-        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < purchases.length; i++) {
           const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {
@@ -322,14 +364,12 @@ function ChoosePlan(props) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={choosePlan.choosePlantitle}
-        subtitle={
-          subscription.name === 'Diamond Hands'
-            ? `You are currently a ${subscription.name}`
-            : `You are currently a ${subscription.name}`
-        }
+        mediumTitle
+        subtitle="Upgrade or downgrade"
         rightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
         }
+        // To-Do-Learn-More
       />
       <KeeperModal
         visible={requesting}
@@ -359,7 +399,7 @@ function ChoosePlan(props) {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ height: '70%', marginVertical: 0 }}
+          style={{ height: '100%', marginVertical: 0 }}
         >
           <ChoosePlanCarousel
             data={items}
@@ -367,6 +407,7 @@ function ChoosePlan(props) {
             onChange={(item) => setCurrentPosition(item)}
             isMonthly={isMonthly}
             requesting={requesting}
+            currentPosition={currentPosition}
           />
 
           <Box
@@ -377,27 +418,37 @@ function ChoosePlan(props) {
             my={5}
           />
 
-          <Box ml={5}>
-            <Box>
-              <Text fontSize={14} color={`${colorMode}.modalGreenTitle`} letterSpacing={1.12}>
-                {getBenifitsTitle(items[currentPosition].name)}:
+          <Box>
+            <Box ml={5}>
+              <Box>
+                <Text fontSize={16} color={`${colorMode}.headerText`} letterSpacing={0.16}>
+                  {getBenifitsTitle(items[currentPosition].name)}
+                </Text>
+              </Box>
+              <Box mt={1}>
+                {items?.[currentPosition]?.benifits.map(
+                  (i) =>
+                    i !== '*Coming soon' && (
+                      <Box style={styles.benefitContainer} key={i}>
+                        <Box style={styles.dot} backgroundColor={`${colorMode}.primaryText`} />
+                        <Text
+                          fontSize={12}
+                          color={`${colorMode}.GreyText`}
+                          ml={3}
+                          letterSpacing={0.65}
+                        >
+                          {` ${i}`}
+                        </Text>
+                      </Box>
+                    )
+                )}
+              </Box>
+            </Box>
+            {items?.[currentPosition]?.name !== 'Pleb' && (
+              <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
+                * COMING SOON
               </Text>
-            </Box>
-            <Box mt={1}>
-              {items[currentPosition].benifits.map((i) => (
-                <Box flexDirection="row" alignItems="center" key={i}>
-                  <Text
-                    fontSize={13}
-                    color={`${colorMode}.GreyText`}
-                    mb={2}
-                    ml={3}
-                    letterSpacing={0.65}
-                  >
-                    {`• ${i}`}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
+            )}
           </Box>
         </ScrollView>
       )}
@@ -405,26 +456,26 @@ function ChoosePlan(props) {
       <Box style={styles.noteWrapper}>
         <Box width="65%">
           <Note
-            title="Note"
+            title={common.note}
             subtitle={formatString(choosePlan.noteSubTitle)}
             subtitleColor="GreyText"
           />
         </Box>
         <Pressable
-          width="35%"
           activeOpacity={0.6}
           onPress={restorePurchases}
           testID="btn_restorePurchases"
+          borderColor={`${colorMode}.learnMoreBorder`}
+          backgroundColor={`${colorMode}.BrownNeedHelp`}
+          style={styles.restorePurchaseWrapper}
         >
-          <Box
-            borderColor={`${colorMode}.learnMoreBorder`}
-            backgroundColor={`${colorMode}.lightAccent`}
-            style={styles.restorePurchaseWrapper}
+          <Text
+            style={styles.restorePurchase}
+            medium
+            color={colorMode === 'light' ? 'light.white' : '#24312E'}
           >
-            <Text fontSize={12} color={colorMode === 'light' ? 'light.learnMoreBorder' : '#24312E'}>
-              Restore Purchases
-            </Text>
-          </Box>
+            {choosePlan.restorePurchases}
+          </Text>
         </Pressable>
       </Box>
     </ScreenWrapper>
@@ -434,18 +485,38 @@ const styles = StyleSheet.create({
   noteWrapper: {
     bottom: 1,
     margin: 1,
-    alignItems: 'center',
+    alignItems: 'flex-end',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     width: '100%',
   },
   restorePurchaseWrapper: {
-    padding: 1,
-    margin: 1,
+    padding: 3,
+    marginBottom: 5,
     borderRadius: 5,
     borderWidth: 0.7,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  comingSoonText: {
+    fontSize: 10,
+    letterSpacing: 0.1,
+    marginLeft: 10,
+  },
+  benefitContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 5 / 2,
+    alignSelf: 'center',
+  },
+  restorePurchase: {
+    fontSize: 12,
+    letterSpacing: 0.24,
   },
 });
 export default ChoosePlan;

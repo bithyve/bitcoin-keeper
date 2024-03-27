@@ -1,10 +1,10 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import persistReducer from 'redux-persist/es/persistReducer';
-import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
+import { ADD_NEW_VAULT } from '../sagaActions/vaults';
 
 export interface VaultCreationPayload {
   hasNewVaultGenerationSucceeded: boolean;
@@ -24,7 +24,6 @@ export interface VaultMigrationCompletionPayload {
 }
 
 export type VaultState = {
-  signers: VaultSigner[];
   isGeneratingNewVault: boolean;
   hasNewVaultGenerationSucceeded: boolean;
   hasNewVaultGenerationFailed: boolean;
@@ -41,13 +40,11 @@ export type VaultState = {
 };
 
 export type SignerUpdatePayload = {
-  signer: VaultSigner;
   key: string;
   value: any;
 };
 
 const initialState: VaultState = {
-  signers: [],
   isGeneratingNewVault: false,
   hasNewVaultGenerationSucceeded: false,
   hasNewVaultGenerationFailed: false,
@@ -67,58 +64,6 @@ const vaultSlice = createSlice({
   name: 'vault',
   initialState,
   reducers: {
-    addSigningDevice: (state, action: PayloadAction<VaultSigner[]>) => {
-      const newSigners = action.payload.filter((signer) => signer && signer.signerId);
-      if (newSigners.length === 0) {
-        return state;
-      }
-      let updatedSigners = [...state.signers];
-      if (newSigners.length === 1) {
-        const newSigner = newSigners[0];
-        const existingSignerIndex = updatedSigners.findIndex(
-          (signer) => signer.masterFingerprint === newSigner.masterFingerprint
-        );
-        if (existingSignerIndex !== -1) {
-          const existingSigner = updatedSigners[existingSignerIndex];
-          const combinedSigner: VaultSigner = {
-            ...newSigner,
-            lastHealthCheck: existingSigner.lastHealthCheck,
-            signerDescription: existingSigner.signerDescription,
-            xpubDetails: { ...existingSigner.xpubDetails, ...newSigner.xpubDetails },
-          };
-
-          updatedSigners[existingSignerIndex] = combinedSigner;
-        } else {
-          updatedSigners.push(newSigner);
-        }
-      } else {
-        updatedSigners.push(...newSigners);
-      }
-      updatedSigners = _.uniqBy(updatedSigners, 'signerId');
-      return { ...state, signers: updatedSigners };
-    },
-    removeSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
-      const signerToRemove =
-        action.payload && action.payload.masterFingerprint ? action.payload : null;
-      if (signerToRemove) {
-        state.signers = state.signers.filter(
-          (signer) => signer.masterFingerprint !== signerToRemove.masterFingerprint
-        );
-      }
-    },
-    clearSigningDevice: (state) => {
-      state.signers = [];
-    },
-    updateSigningDevice: (state, action: PayloadAction<SignerUpdatePayload>) => {
-      const { signer, key, value } = action.payload;
-      state.signers = state.signers.map((item) => {
-        if (item && item.signerId === signer.signerId) {
-          item[key] = value;
-          return item;
-        }
-        return item;
-      });
-    },
     vaultCreated: (state, action: PayloadAction<VaultCreationPayload>) => {
       const {
         hasNewVaultGenerationFailed = false,
@@ -173,9 +118,6 @@ const vaultSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(ADD_SIGINING_DEVICE, (state) => {
-      state.isGeneratingNewVault = true;
-    });
     builder.addCase(ADD_NEW_VAULT, (state) => {
       state.isGeneratingNewVault = false;
     });
@@ -183,16 +125,12 @@ const vaultSlice = createSlice({
 });
 
 export const {
-  addSigningDevice,
   vaultCreated,
   initiateVaultMigration,
   vaultMigrationCompleted,
-  removeSigningDevice,
   setIntroModal,
   setSdIntroModal,
   setWhirlpoolIntro,
-  updateSigningDevice,
-  clearSigningDevice,
   resetVaultMigration,
   setTempShellId,
   setBackupBSMSForIKS,

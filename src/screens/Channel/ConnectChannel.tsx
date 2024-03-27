@@ -7,14 +7,11 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { io } from 'src/services/channel';
 import {
   BITBOX_HEALTHCHECK,
   BITBOX_SETUP,
-  CREATE_CHANNEL,
+  JOIN_CHANNEL,
   LEDGER_HEALTHCHECK,
   LEDGER_SETUP,
   TREZOR_HEALTHCHECK,
@@ -23,24 +20,59 @@ import {
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/services/sentry';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { useQuery } from '@realm/react';
-import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
+import crypto from 'crypto';
+import { createDecipheriv } from 'src/utils/service-utilities/utils';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
+
+function ScanAndInstruct({ onBarCodeRead, mode }) {
+  const { colorMode } = useColorMode();
+  const [channelCreated, setChannelCreated] = useState(false);
+
+  const callback = (data) => {
+    onBarCodeRead(data);
+    setChannelCreated(true);
+  };
+  return !channelCreated ? (
+    <RNCamera
+      autoFocus="on"
+      style={styles.cameraView}
+      captureAudio={false}
+      onBarCodeRead={callback}
+      useNativeZoom
+    />
+  ) : (
+    <VStack>
+      <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {`\u2022 Please ${
+          mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
+        } from the Keeper web interface`}
+      </Text>
+      <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {
+          '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
+        }
+      </Text>
+      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+    </VStack>
+  );
+}
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
@@ -52,64 +84,54 @@ function ConnectChannel() {
     signer,
     mode,
     isMultisig,
+    addSignerFlow = false,
   } = route.params as any;
-  const channel = useRef(io(config.CHANNEL_URL)).current;
-  const [channelCreated, setChannelCreated] = useState(false);
+
+  const [channel] = useState(io(config.CHANNEL_URL));
+  const decryptionKey = useRef();
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { mapUnknownSigner } = useUnkownSigners();
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
-  let id;
-  if (mode === InteracationMode.RECOVERY) {
-    const randomId = Math.random();
-    id = randomId;
-  } else {
-    const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-    id = publicId;
-  }
-
   const onBarCodeRead = ({ data }) => {
-    if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, { room: `${id}${data}`, network: config.NETWORK_TYPE });
-      setChannelCreated(true);
-    }
+    decryptionKey.current = data;
+    const sha = crypto.createHash('sha256');
+    sha.update(data);
+    const room = sha.digest().toString('hex');
+    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
   };
 
   useEffect(() => {
     channel.on(BITBOX_SETUP, async (data) => {
       try {
-        const { xpub, derivationPath, xfp, xpubDetails } = getBitbox02Details(data, isMultisig);
-        const bitbox02 = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          xfp,
-          isMultisig,
-          signerType: SignerType.BITBOX02,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
-
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { signer: bitbox02 } = setupBitbox(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(bitbox02));
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(bitbox02));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          dispatch(addSigningDevice([bitbox02]));
+          const navigationState = addSignerFlow
+            ? { name: 'ManageSigners' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
-        showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(bitbox02.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        showToast(
+          `${bitbox02.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -117,32 +139,28 @@ function ConnectChannel() {
     });
     channel.on(TREZOR_SETUP, async (data) => {
       try {
-        const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(data, isMultisig);
-        const trezor = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          xfp,
-          isMultisig,
-          signerType: SignerType.TREZOR,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { signer: trezor } = setupTrezor(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(trezor));
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(trezor));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          dispatch(addSigningDevice([trezor]));
+          const navigationState = addSignerFlow
+            ? { name: 'ManageSigners' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
-        showToast(`${trezor.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(trezor.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        showToast(
+          `${trezor.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
@@ -150,98 +168,103 @@ function ConnectChannel() {
     });
     channel.on(LEDGER_SETUP, async (data) => {
       try {
-        const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
-          data,
-          isMultisig
-        );
-        const ledger = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          xfp,
-          isMultisig,
-          signerType: SignerType.LEDGER,
-          storageType: SignerStorage.COLD,
-          xpubDetails,
-        });
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { signer: ledger } = setupLedger(decrypted, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(ledger));
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(ledger));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          dispatch(addSigningDevice([ledger]));
+          const navigationState = addSignerFlow
+            ? { name: 'ManageSigners' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
-        showToast(`${ledger.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(ledger.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        showToast(
+          `${ledger.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       } catch (error) {
         if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
+          showToast(error.message, <ToastErrorIcon />);
         } else if (error.toString() === 'Error') {
           // ignore if user cancels NFC interaction
         } else captureError(error);
       }
     });
+
+    const handleVerification = async (data, deviceType) => {
+      const handleSuccess = () => {
+        dispatch(healthCheckSigner([signer]));
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`${signer.signerName} verified successfully`, <TickIcon />);
+      };
+
+      const handleFailure = () => {
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
+      };
+
+      try {
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        let masterFingerprint, signerType;
+
+        switch (deviceType) {
+          case LEDGER_HEALTHCHECK:
+            ({ masterFingerprint } = getLedgerDetailsFromChannel(decrypted, isMultisig));
+            signerType = SignerType.LEDGER;
+            break;
+          case TREZOR_HEALTHCHECK:
+            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
+            signerType = SignerType.TREZOR;
+            break;
+          case BITBOX_HEALTHCHECK:
+            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
+            signerType = SignerType.BITBOX02;
+            break;
+          default:
+            break;
+        }
+
+        if (mode === InteracationMode.IDENTIFICATION) {
+          const mapped = mapUnknownSigner({ masterFingerprint, type: signerType });
+          if (mapped) {
+            handleSuccess();
+          } else {
+            handleFailure();
+          }
+        } else {
+          if (masterFingerprint === signer.masterFingerprint) {
+            handleSuccess();
+          } else {
+            handleFailure();
+          }
+        }
+      } catch (error) {
+        if (error instanceof HWError) {
+          showToast(error.message, <ToastErrorIcon />);
+        } else if (error.toString() === 'Error') {
+          // ignore if user cancels NFC interaction
+        } else {
+          captureError(error);
+        }
+      }
+    };
 
     channel.on(LEDGER_HEALTHCHECK, async (data) => {
-      try {
-        const { xpub } = getLedgerDetailsFromChannel(data, isMultisig);
-        if (signer.xpub === xpub) {
-          dispatch(healthCheckSigner([signer]));
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verified successfully`, <TickIcon />);
-        } else {
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
+      await handleVerification(data, LEDGER_HEALTHCHECK);
     });
+
     channel.on(TREZOR_HEALTHCHECK, async (data) => {
-      try {
-        const { xpub } = getTrezorDetails(data, isMultisig);
-        if (signer.xpub === xpub) {
-          dispatch(healthCheckSigner([signer]));
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verified successfully`, <TickIcon />);
-        } else {
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
+      await handleVerification(data, TREZOR_HEALTHCHECK);
     });
+
     channel.on(BITBOX_HEALTHCHECK, async (data) => {
-      try {
-        const { xpub } = getTrezorDetails(data, isMultisig);
-        if (signer.xpub === xpub) {
-          dispatch(healthCheckSigner([signer]));
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verified successfully`, <TickIcon />);
-        } else {
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
+      await handleVerification(data, BITBOX_HEALTHCHECK);
     });
 
     return () => {
@@ -251,32 +274,15 @@ function ConnectChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={signerType}>
+      <MockWrapper
+        signerType={signerType}
+        addSignerFlow={addSignerFlow}
+        mode={mode}
+        signerXfp={signer?.masterFingerprint}
+      >
         <KeeperHeader title={title} subtitle={subtitle} />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
-          {!channelCreated ? (
-            <RNCamera
-              autoFocus="on"
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={onBarCodeRead}
-              useNativeZoom
-            />
-          ) : (
-            <VStack>
-              <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-                {`\u2022 Please ${
-                  mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
-                } from the Keeper web interface...`}
-              </Text>
-              <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
-                {
-                  '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
-                }
-              </Text>
-              <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
-            </VStack>
-          )}
+          <ScanAndInstruct onBarCodeRead={onBarCodeRead} mode={mode} />
         </ScrollView>
         <Box style={styles.noteWrapper}>
           <Note

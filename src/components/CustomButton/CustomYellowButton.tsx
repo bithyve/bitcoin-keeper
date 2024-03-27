@@ -1,13 +1,15 @@
 import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-
 import Text from 'src/components/KeeperText';
+
 export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
   titleColor?: string;
+  backgroundColor?: string;
+  boldTitle?: boolean;
 }
 function CustomYellowButton(props: Props) {
   const { colorMode } = useColorMode();
@@ -20,8 +22,11 @@ function CustomYellowButton(props: Props) {
       }}
       testID="btn_customYellowButton"
     >
-      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.yellowButtonBackground`}>
-        <Text color={props.titleColor} style={styles.btnText}>
+      <Box
+        style={styles.buttonContent}
+        backgroundColor={props.backgroundColor || `${colorMode}.yellowButtonBackground`}
+      >
+        <Text bold={props.boldTitle} color={props.titleColor} style={styles.btnText}>
           {props.value}
         </Text>
       </Box>
