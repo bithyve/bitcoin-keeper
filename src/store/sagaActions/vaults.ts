@@ -1,12 +1,13 @@
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { NewVaultInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
 export const ADD_NEW_VAULT = 'ADD_NEW_VAULT';
 export const ADD_SIGINING_DEVICE = 'ADD_SIGINING_DEVICE';
+export const DELETE_SIGINING_DEVICE = 'DELETE_SIGINING_DEVICE';
 export const MIGRATE_VAULT = 'MIGRATE_VAULT';
 export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
-export const FINALIZE_IK_SETUP = 'FINALIZE_IK_SETUP';
+export const DELETE_VAULT = 'DELETE_VAULT';
 
 export const addNewVault = (payload: {
   newVaultInfo: NewVaultInfo;
@@ -19,9 +20,14 @@ export const addNewVault = (payload: {
   payload,
 });
 
-export const addSigningDevice = (payload: VaultSigner) => ({
+export const addSigningDevice = (signers: Signer[]) => ({
   type: ADD_SIGINING_DEVICE,
-  payload,
+  payload: { signers },
+});
+
+export const deleteSigningDevice = (signers: Signer[]) => ({
+  type: DELETE_SIGINING_DEVICE,
+  payload: { signers },
 });
 
 export const migrateVault = (newVaultInfo: NewVaultInfo, vaultShellId: string) => ({
@@ -34,7 +40,7 @@ export const finaliseVaultMigration = (payload: string) => ({
   payload: { vaultId: payload },
 });
 
-export const finaliseIKSetup = (vault: Vault) => ({
-  type: FINALIZE_IK_SETUP,
-  payload: { vault },
+export const deleteVault = (payload: string) => ({
+  type: DELETE_VAULT,
+  payload: { vaultId: payload },
 });

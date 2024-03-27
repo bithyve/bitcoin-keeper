@@ -32,7 +32,6 @@ function BackupWallet() {
   const navigation = useNavigation();
 
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
@@ -44,7 +43,7 @@ function BackupWallet() {
       <Box style={styles.optionWrapper}>
         <OptionCard
           title={BackupWallet.exportAppSeed}
-          description={''}
+          description=""
           callback={() => {
             setConfirmPassVisible(true);
           }}
@@ -100,9 +99,9 @@ function BackupWallet() {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'To backup app recovery phrase'}
+        subTitle="To backup app recovery key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

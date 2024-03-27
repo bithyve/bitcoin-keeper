@@ -2,8 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { BtcToSats, SatsToBtc } from 'src/constants/Bitcoin';
-import useBalance from 'src/hooks/useBalance';
+import { BtcToSats } from 'src/constants/Bitcoin';
 
 import { hp, wp, windowWidth } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -14,15 +13,18 @@ import _ from 'lodash';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import config from 'src/core/config';
-import { TxPriority, WalletType } from 'src/core/wallets/enums';
+import config from 'src/utils/service-utilities/config';
+import { TxPriority, WalletType } from 'src/services/wallets/enums';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
-function UTXOSelection({ route }: any) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOSelection'>;
+function UTXOSelection({ route }: ScreenProps) {
   const navigation = useNavigation();
-  const { sender, amount, address } = route.params;
+  const { sender, amount, address } = route.params || {};
   const utxos = _.clone(sender.specs.confirmedUTXOs);
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -36,7 +38,7 @@ function UTXOSelection({ route }: any) {
   const [showFeeErrorMessage, setShowFeeErrorMessage] = useState(false);
 
   useEffect(() => {
-    let minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+    const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
 
     let outgoingAmount = Number(amount);
     // all comparisons are done in sats
@@ -71,7 +73,7 @@ function UTXOSelection({ route }: any) {
     );
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Select UTXOs"
         subtitle={`Select a minimum of ${amount} BTC to proceed`}

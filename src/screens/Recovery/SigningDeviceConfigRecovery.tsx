@@ -1,5 +1,5 @@
-import { Box, ScrollView, View } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { Box, ScrollView, useColorMode, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -7,14 +7,15 @@ import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
   switch (type) {
@@ -38,6 +39,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
     case SignerType.SEED_WORDS:
     case SignerType.MOBILE_KEY:
     case SignerType.KEEPER:
+    case SignerType.MY_KEEPER:
     case SignerType.JADE:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
@@ -52,13 +54,14 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
 };
 
 function ColdCardSetupContent() {
+  const { colorMode } = useColorMode();
   return (
     <View justifyContent="flex-start" width={wp(300)}>
       <Box ml={wp(21)}>
         <ColdCardSetupImage />
       </Box>
       <Box marginTop="4" alignItems="flex-start">
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             'Export the vault config by going to Setting > Multisig > Then select the wallet > Export '
           }
@@ -69,6 +72,7 @@ function ColdCardSetupContent() {
 }
 
 function PassportSetupContent() {
+  const { colorMode } = useColorMode();
   return (
     <View>
       <Box ml={wp(21)}>
@@ -76,7 +80,7 @@ function PassportSetupContent() {
       </Box>
       <Box marginTop="4">
         <Text
-          color="light.greenText"
+          color={`${colorMode}.greenText`}
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -100,6 +104,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
     first?: boolean;
     last?: boolean;
   };
+  const { colorMode } = useColorMode();
   const { signingDevices } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
 
@@ -134,21 +139,21 @@ function SigningDeviceConfigRecovery({ navigation }) {
           }}
         >
           <Box
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.seashellWhite`}
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
               <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
-              <Box backgroundColor="light.divider" style={styles.divider} />
+              <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
-                <Text color="light.inActiveMsg" style={styles.messageText}>
+                <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
                   {message}
                 </Text>
               </Box>
             </Box>
-            <Box backgroundColor="light.divider" style={styles.dividerStyle} />
+            <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
 
@@ -158,15 +163,19 @@ function SigningDeviceConfigRecovery({ navigation }) {
           title="Recover using Coldcard"
           subTitle="Keep your Coldcard ready"
           buttonText="Proceed"
-          buttonTextColor="light.white"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={() => {
-            navigate('LoginStack', {
-              screen: 'ColdCardReocvery',
-              params: { isConfigRecovery: true },
-            });
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddColdCard',
+                params: { mode: InteracationMode.CONFIG_RECOVERY },
+              })
+            );
             close();
           }}
-          textColor="light.primaryText"
           Content={ColdCardSetupContent}
         />
 
@@ -175,9 +184,9 @@ function SigningDeviceConfigRecovery({ navigation }) {
           close={close}
           title="Recover using Passport (Batch 2)"
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
-          subTitleColor="light.secondaryText"
+          subTitleColor={`${colorMode}.secondaryText`}
           buttonText="Continue"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           buttonCallback={() => {
             navigate('LoginStack', {
               screen: 'ScanQRFileRecovery',
@@ -185,7 +194,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
             });
             close();
           }}
-          textColor="light.primaryText"
+          textColor={`${colorMode}.primaryText`}
           Content={PassportSetupContent}
         />
       </>
@@ -193,11 +202,11 @@ function SigningDeviceConfigRecovery({ navigation }) {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Select signer"
         subtitle="To recover your vault"
-        onPressHandler={() => navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' })}
+        onPressHandler={() => navigation.goBack()}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">

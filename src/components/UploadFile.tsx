@@ -28,10 +28,11 @@ function UploadFile({ fileHandler }) {
       style={{
         alignItems: 'center',
       }}
+      testID="btn_importBSMS"
     >
-      <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
-        <Text style={styles.text} color={'light.white'}>
-          Import a BSMS or Output Descriptor File
+      <Box backgroundColor={`${colorMode}.modalGreenButton`} style={styles.container}>
+        <Text style={styles.text} color={`${colorMode}.white`}>
+          Import a BSMS or Wallet Configuration File
         </Text>
       </Box>
     </TouchableOpacity>

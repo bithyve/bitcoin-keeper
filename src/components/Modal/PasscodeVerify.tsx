@@ -8,12 +8,12 @@ import { credsAuth } from 'src/store/sagaActions/login';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
-import KeyPadView from '../AppNumPad/KeyPadView';
-import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from 'src/components/Buttons';
-import Text from '../KeeperText';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { StyleSheet } from 'react-native';
+import KeyPadView from '../AppNumPad/KeyPadView';
+import PinInputsView from '../AppPinInput/PinInputsView';
+import Text from '../KeeperText';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -21,6 +21,7 @@ interface Props {
   useBiometrics: boolean;
   close?: Function;
   onSuccess?: Function;
+  primaryText?: string;
 }
 
 const defaultProps: Props = {
@@ -111,7 +112,7 @@ function PasscodeVerifyModal(props: Props) {
 
   useEffect(() => {
     if (isAuthenticated) {
-      props.onSuccess();
+      props.onSuccess(passcode);
       props.close();
       dispatch(credsAuthenticated(false));
     }
@@ -144,7 +145,7 @@ function PasscodeVerifyModal(props: Props) {
               setLoginError(false);
               attemptLogin(passcode);
             }}
-            primaryText={common.proceed}
+            primaryText={props.primaryText ? props.primaryText : common.proceed}
             activeOpacity={0.5}
             primaryDisable={btnDisable}
           />

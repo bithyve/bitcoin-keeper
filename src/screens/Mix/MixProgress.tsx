@@ -12,13 +12,13 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/services/whirlpool/client';
-import { LabelRefType, WalletType } from 'src/core/wallets/enums';
+import { LabelRefType, WalletType } from 'src/services/wallets/enums';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Gear0 from 'src/assets/images/WP.svg';
 import ElectrumClient from 'src/services/electrum/client';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import {
   WHIRLPOOL_ERROR,
   WHIRLPOOL_FAILURE,
@@ -29,8 +29,8 @@ import {
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { captureError } from 'src/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import { initiateWhirlpoolSocket } from 'src/services/whirlpool/sockets';
@@ -38,11 +38,12 @@ import { io } from 'src/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useVault from 'src/hooks/useVault';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 import { useQuery } from '@realm/react';
+import { CommonActions } from '@react-navigation/native';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -66,10 +67,12 @@ function MixProgress({
       walletPoolMap: any;
       isRemix: boolean;
       remixingToVault: boolean;
+      vaultId: string;
     };
   };
   navigation: any;
 }) {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -85,7 +88,7 @@ function MixProgress({
   });
   const styles = getStyles(clock);
 
-  const { selectedUTXOs, depositWallet, isRemix, remixingToVault } = route.params;
+  const { selectedUTXOs, depositWallet, isRemix, remixingToVault, vaultId } = route.params;
   const statusData = [
     {
       title: 'Subscribing',
@@ -155,7 +158,7 @@ function MixProgress({
   const { postmixWallet, premixWallet } = useWhirlpoolWallets({ wallets: [depositWallet] })[
     depositWallet.id
   ];
-  const { activeVault } = useVault();
+  const { activeVault } = useVault({ vaultId });
   const source = isRemix ? postmixWallet : premixWallet;
   const destination = isRemix && remixingToVault ? activeVault : postmixWallet;
   const { labels } = useLabelsNew({ utxos: selectedUTXOs, wallet: depositWallet });
@@ -217,7 +220,7 @@ function MixProgress({
         <Box style={inProgress ? styles.timeLineProgressWrapper : styles.timeLineWrapper}>
           {inProgress ? (
             <Box style={styles.animatedCircularborder}>
-              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot}>
+              <Box backgroundColor={`${colorMode}.forestGreen`} style={styles.animatedGreentDot}>
                 <Animated.View style={styles.whirlpoolIconStyle}>
                   <Gear0 />
                 </Animated.View>
@@ -237,18 +240,18 @@ function MixProgress({
                 inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper
               }
             >
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor={`${colorMode}.fadedblue`} style={styles.verticalBorder} />
+              <Box backgroundColor={`${colorMode}.fadedblue`} style={styles.verticalBorder} />
+              <Box backgroundColor={`${colorMode}.fadedblue`} style={styles.verticalBorder} />
             </Box>
           )}
         </Box>
         <Box style={styles.progressStepsTextWrapper}>
-          <Text color="light.secondaryText" style={styles.timeLineTitle}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.timeLineTitle}>
             {title}
           </Text>
           {inProgress ? (
-            <Text color="light.secondaryText" numberOfLines={3} style={styles.timeLineTitle}>
+            <Text color={`${colorMode}.secondaryText`} numberOfLines={3} style={styles.timeLineTitle}>
               {subTitle}
             </Text>
           ) : null}
@@ -294,8 +297,7 @@ function MixProgress({
       const toastDuration = 3000;
       showToast(
         'Mix failed. Please try again later, our best minds are working on it.',
-        <ToastErrorIcon />,
-        toastDuration
+        <ToastErrorIcon />
       );
       setTimeout(() => {
         navigation.goBack();
@@ -330,8 +332,7 @@ function MixProgress({
       );
       showToast(
         'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
-        <TickIcon />,
-        3000
+        <TickIcon />
       );
       try {
         const postmixTags: BIP329Label[] = [];
@@ -361,11 +362,17 @@ function MixProgress({
       } finally {
         setTimeout(async () => {
           dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-          navigation.navigate('UTXOManagement', {
-            data: depositWallet,
-            accountType: WalletType.POST_MIX,
-            routeName: 'Wallet',
-          });
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'UTXOManagement',
+              params: {
+                data: depositWallet,
+                accountType: WalletType.POST_MIX,
+                routeName: 'Wallet',
+              },
+              merge: true,
+            })
+          );
         }, 3000);
       }
     }
@@ -426,7 +433,7 @@ function MixProgress({
 
   const initiateWhirlpoolMix = async () => {
     try {
-      // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
+      // ToDo: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       const { height } = await ElectrumClient.getBlockchainHeaders();
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(`${utxo.txId}:${utxo.vout}`);
@@ -442,8 +449,7 @@ function MixProgress({
         ` ${
           err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
-        <ToastErrorIcon />,
-        toastDuration
+        <ToastErrorIcon />
       );
       setTimeout(() => {
         navigation.goBack();
@@ -473,23 +479,21 @@ function MixProgress({
     );
   }
 
-  const { colorMode } = useColorMode();
-
   return (
     <Box style={styles.container}>
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <KeeperHeader
           enableBack={false}
           title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>
-          <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.currentUtxoTitle}>
             {'Current UTXO: '}
           </Text>
           <Text
             numberOfLines={1}
-            color="light.secondaryText"
+            color={`${colorMode}.secondaryText`}
             style={styles.currentUtxoText}
             ellipsizeMode="middle"
           >
@@ -610,7 +614,7 @@ const getStyles = (clock) =>
       letterSpacing: 0.4,
       marginLeft: wp(5),
       marginTop: hp(3),
-      width: '100%',
+      width: '95%',
       flexWrap: 'wrap',
     },
     progressStepsTextWrapper: {

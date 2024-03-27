@@ -1,18 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
-import { Box, View, Pressable } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useDispatch } from 'react-redux';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { setBackupBSMSForIKS } from 'src/store/reducers/vaults';
-import Text from 'src/components/KeeperText';
 import Instruction from 'src/components/Instruction';
 
 const config = {
@@ -25,6 +24,7 @@ const config = {
   subTitle: 'Keep your signer ready before proceeding',
 };
 function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; close: () => void }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
@@ -39,7 +39,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
     () => (
       <View>
         <Box style={{ alignSelf: 'center', marginRight: 35 }}>{config.Illustration}</Box>
-        <Pressable
+        {/* <Pressable // TODO: Resolve BSMS encryption before re-enabling this
           onPress={() => {
             setBackupBSMS(!backupBSMS);
           }}
@@ -59,7 +59,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
             />
           )}
           <Text style={{ fontSize: 14, marginLeft: 15 }}>Backup vault Config (BSMS)</Text>
-        </Pressable>
+        </Pressable> */}
         <Box marginTop="4">
           {config.Instructions.map((instruction) => (
             <Instruction text={instruction} key={instruction} />
@@ -76,18 +76,22 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
       setInProgress(true);
       const { setupData } = await InheritanceKeyServer.initializeIKSetup();
       const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
-      const inheritanceKey = generateSignerFromMetaData({
+      const { signer: inheritanceKey } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp: masterFingerprint,
+        masterFingerprint,
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
-        signerId: id,
+        xfp: id,
         isMultisig: true,
       });
       setInProgress(false);
-      dispatch(addSigningDevice(inheritanceKey));
-      showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+      dispatch(addSigningDevice([inheritanceKey]));
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
@@ -103,9 +107,9 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         title={config.title}
         subTitle={config.subTitle}
         buttonText="Proceed"
-        buttonTextColor="light.white"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={setupInheritanceKey}
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={Content}
       />
     </>

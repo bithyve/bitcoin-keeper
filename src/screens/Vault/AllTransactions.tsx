@@ -1,25 +1,25 @@
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useState } from 'react';
+import { useColorMode } from 'native-base';
+import { useQuery } from '@realm/react';
+import { useDispatch } from 'react-redux';
+
 import KeeperHeader from 'src/components/KeeperHeader';
 import { RealmSchema } from 'src/storage/realm/enum';
 import TransactionElement from 'src/components/TransactionElement';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import useVault from 'src/hooks/useVault';
-import { useQuery } from '@realm/react';
-import { EntityKind } from 'src/core/wallets/enums';
-import { Transaction } from 'src/core/wallets/interfaces';
+import { EntityKind } from 'src/services/wallets/enums';
+import { Transaction } from 'src/services/wallets/interfaces';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function AllTransactions({ route }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
-  const title = route?.params?.title;
-  const entityKind = route?.params?.entityKind;
-  const subtitle = route?.params?.subtitle;
-  const collaborativeWalletId = route?.params?.collaborativeWalletId;
-  const { activeVault: vault } = useVault(collaborativeWalletId);
+  const { title, entityKind, subtitle, vaultId = '' } = route?.params;
+  const { activeVault: vault } = useVault({ vaultId });
 
   const wallet: Wallet = useQuery(RealmSchema.Wallet)
     .map(getJSONFromRealmObject)
@@ -42,7 +42,7 @@ function AllTransactions({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subtitle} />
       <FlatList
         data={entityKind === EntityKind.WALLET ? walletTrans : vaultTrans}

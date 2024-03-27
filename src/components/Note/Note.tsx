@@ -16,7 +16,12 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '1
   return (
     <Box style={styles.container}>
       <Box>
-        <Text testID="text_note_title" color={`${colorMode}.primaryText`} style={styles.title}>
+        <Text
+          testID="text_note_title"
+          medium
+          color={`${colorMode}.headerText`}
+          style={styles.title}
+        >
           {title}
         </Text>
       </Box>
@@ -40,11 +45,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    letterSpacing: 1.12,
+    letterSpacing: 0.14,
   },
   subTitle: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 0.12,
   },
 });
 

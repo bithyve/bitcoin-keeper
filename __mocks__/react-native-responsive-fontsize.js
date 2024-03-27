@@ -1,7 +1,7 @@
-export const RFValue = jest.fn((value, ) => value);
+export const RFValue = jest.fn((value) => value);
 
 const mock = jest.fn().mockImplementation(() => ({
-    RFValue,
-  }));
+  RFValue,
+}));
 
 export default mock;

@@ -1,8 +1,6 @@
-import { CurrencyCodes } from 'src/core/wallets/interfaces';
+import { CurrencyCodes } from 'src/services/wallets/interfaces';
 import { useAppSelector } from '..';
 
 export default function useCurrencyCode(defaultCode = CurrencyCodes.USD): string {
-  return useAppSelector((state) =>
-    state.settings.currencyCode || defaultCode
-  );
+  return useAppSelector((state) => state.settings.currencyCode || defaultCode);
 }

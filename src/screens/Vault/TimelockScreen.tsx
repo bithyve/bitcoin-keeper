@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import React, { useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 
@@ -10,15 +10,14 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Keyboard, StyleSheet } from 'react-native';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { useNavigation } from '@react-navigation/native';
 
 function TimelockScreen() {
-  const navigation = useNavigation();
+  const { colorMode } = useColorMode();
   const [amount, setAmount] = useState('');
 
   return (
     <Box flex={1} position="relative">
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <Box marginX={3}>
           <Box width={wp(320)}>
             <KeeperHeader
@@ -32,15 +31,15 @@ function TimelockScreen() {
             >
               <Input
                 placeholder=""
-                placeholderTextColor="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
                 borderWidth="0"
                 value={amount}
                 onFocus={() => Keyboard.dismiss()}
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
               />
               <Text
-                color="light.textColor2"
+                color={`${colorMode}.textColor2`}
                 bold
                 letterSpacing={2.8}
                 fontSize={13}
@@ -67,8 +66,8 @@ function TimelockScreen() {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          clear={() => {}}
-          color="light.greenText"
+          clear={() => { }}
+          color={`${colorMode}.greenText`}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
         />
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.FiraSansCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     fontSize: 13,
     letterSpacing: 2.6,
     height: hp(50),

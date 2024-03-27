@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
 import { Dimensions } from 'react-native';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
-import { VStack, Slider } from 'native-base';
+import { VStack, Slider, useColorMode } from 'native-base';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
@@ -26,6 +26,7 @@ function DisplayQR({
   type?: BufferEncoding;
   shouldRotate?: boolean;
 }) {
+  const { colorMode } = useColorMode();
   const [rotation, setRotation] = useState(100);
   const { qrData } = useDynamicQrContent({
     data: qrContents,
@@ -47,11 +48,11 @@ function DisplayQR({
         onChange={setRotation}
       >
         <Slider.Track bg="gray.300">
-          <Slider.FilledTrack bg="light.primaryGreen" />
+          <Slider.FilledTrack bg={`${colorMode}.primaryGreen`} />
         </Slider.Track>
-        <Slider.Thumb bg="light.primaryGreen" />
+        <Slider.Thumb bg={`${colorMode}.primaryGreen`} />
       </Slider>
-      <Text color="light.secondaryText">Please rescan if the QR density is changed</Text>
+      <Text color={`${colorMode}.secondaryText`}>Please rescan if the QR density is changed</Text>
     </VStack>
   );
 }

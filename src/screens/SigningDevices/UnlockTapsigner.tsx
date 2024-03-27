@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { CKTapCard } from 'cktap-protocol-react-native';
 
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getTapsignerErrorMessage } from 'src/hardware/tapsigner';
+import { getTapsignerErrorMessage, unlockRateLimit } from 'src/hardware/tapsigner';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
@@ -19,7 +19,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
-import { unlockRateLimit } from 'src/hardware/tapsigner';
 import Note from 'src/components/Note/Note';
 
 function UnlockTapsigner() {
@@ -37,7 +36,7 @@ function UnlockTapsigner() {
       if (supported) {
         await start(unlockCard);
       } else if (!DeviceInfo.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+        showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   };
@@ -45,33 +44,27 @@ function UnlockTapsigner() {
   const unlockCard = React.useCallback(async () => {
     try {
       const { authDelay } = await withModal(async () => unlockRateLimit(card))();
-      console.log(authDelay);
       if (authDelay === 0) {
         navigation.dispatch(CommonActions.goBack());
-        showToast(`Tapsigner unlocked successfully`, <TickIcon />);
+        showToast('Tapsigner unlocked successfully', <TickIcon />);
       } else {
         if (Platform.OS === 'ios') {
           NFC.showiOSMessage(
             `It was not unlocked completely, please try holding for ${authDelay}s`
           );
         } else {
-          showToast(
-            `It was not unlocked completely, please try holding for ${authDelay}s`,
-            null,
-            4000,
-            true
-          );
+          showToast(`It was not unlocked completely, please try holding for ${authDelay}s`);
         }
       }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       }
       closeNfc();
       card.endNfcSession();
@@ -81,7 +74,7 @@ function UnlockTapsigner() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={'Unlock TAPSIGNER rate-limit'}
+        title="Unlock TAPSIGNER rate-limit"
         subtitle="You might have entered the wrong pin too many times, please unlock here and try again"
       />
       <ScrollView />
@@ -91,7 +84,7 @@ function UnlockTapsigner() {
           primaryCallback={unlockTapsignerWithProgress}
           primaryLoading={inProgress}
         />
-        <Note title={'Note'} subtitle="This might take approximately 15s or less" />
+        <Note title="Note" subtitle="This might take approximately 15s or less" />
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>

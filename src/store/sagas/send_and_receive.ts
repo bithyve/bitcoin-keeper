@@ -1,16 +1,17 @@
-import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { EntityKind, LabelRefType, TxPriority } from 'src/core/wallets/enums';
+import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
+import { EntityKind, LabelRefType, TxPriority } from 'src/services/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import Relay from 'src/services/backend/Relay';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import WalletOperations from 'src/services/wallets/operations';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
 import { TransferType } from 'src/models/enums/TransferType';
-import {
+import ElectrumClient, {
+  ELECTRUM_CLIENT,
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
@@ -47,6 +48,7 @@ import {
 } from '../sagaActions/send_and_receive';
 import { addLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
+import { connectToNodeWorker } from './network';
 
 export function* fetchFeeRatesWorker() {
   try {
@@ -123,6 +125,10 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
 export const sendPhaseOneWatcher = createWatcher(sendPhaseOneWorker, SEND_PHASE_ONE);
 
 function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
+  if (!ELECTRUM_CLIENT.isClientConnected) {
+    ElectrumClient.resetCurrentPeerIndex();
+    yield call(connectToNodeWorker);
+  }
   yield put(sendPhaseTwoStarted());
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
@@ -138,6 +144,12 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   );
 
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+  const signerMap = {};
+  if (wallet.entityKind === EntityKind.VAULT) {
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+  }
   try {
     const { txid, serializedPSBTEnvelops, finalOutputs } = yield call(
       WalletOperations.transferST2,
@@ -145,7 +157,8 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       txPrerequisites,
       txnPriority,
       recipients,
-      customTxPrerequisites
+      customTxPrerequisites,
+      signerMap
     );
 
     switch (wallet.entityKind) {
