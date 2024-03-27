@@ -80,4 +80,5 @@ appId: io.hexawallet.keeper.development
     id: 'btn_back'
 - tapOn:
     id: 'btn_back'
+- runFlow: healthCheckKey.yaml
 

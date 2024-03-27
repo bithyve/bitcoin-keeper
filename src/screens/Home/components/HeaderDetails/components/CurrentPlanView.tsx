@@ -16,7 +16,7 @@ function CurrentPlanView({ plan }) {
     <Box style={styles.wrapper}>
       <Box style={styles.planContianer}>
         <TouchableOpacity
-          testID={`btn_choosePlan-${plan}`}
+          testID={`btn_choosePlan`}
           style={styles.plan}
           onPress={() => navigation.navigate('ChoosePlan')}
         >

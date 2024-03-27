@@ -1,8 +1,12 @@
 appId: io.hexawallet.keeper.development
 ---
 - assertTrue: ${output.text_HotWallet = "1 Wallet"}
+- assertVisible:
+    id: 'wallet_list'
 - swipe:
-    direction: LEFT
+   from: 
+    id: 'wallet_list'
+   direction: LEFT
 - assertVisible:
     id: 'btn_add_wallet'
 - tapOn:
@@ -37,7 +41,7 @@ appId: io.hexawallet.keeper.development
     id: modal_loading
 - waitForAnimationToEnd:
     timeout: 20000
-- assertVisible: 
+- assertVisible:
     id: 'modal_primary_btn'
 - tapOn:
     id: 'modal_primary_btn'

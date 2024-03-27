@@ -22,7 +22,7 @@ export function WalletsList({
   setIsShowAmount,
 }) {
   return (
-    <Box style={styles.valueWrapper}>
+    <Box style={styles.valueWrapper} testID='wallet_list'>
       <BalanceComponent
         setIsShowAmount={setIsShowAmount}
         isShowAmount={isShowAmount}
