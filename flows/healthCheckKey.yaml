@@ -15,3 +15,15 @@ appId: io.hexawallet.keeper.development
     id: 'modal_secondary_btn'
 - tapOn:
     id: 'modal_secondary_btn'
+- assertVisible:
+    id: 'btn_back'
+- tapOn:
+    id: 'btn_back'
+- extendedWaitUntil:
+    visible: "Manage Keys"
+    timeout: 20000
+- assertVisible:
+    id: 'btn_back'
+- tapOn:
+    id: 'btn_back'
+
