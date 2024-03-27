@@ -17,10 +17,9 @@ appId: io.hexawallet.keeper.development
     commands:
       - runFlow: refreshwallet.yaml
 - assertVisible:
-    id: 'btn_Receive'
+    id: 'btn_Buy Bitcoin'
 - tapOn:
-    id: 'btn_Receive'
+    id: 'btn_Buy Bitcoin'
 - tapOn:
-    id: 'btn_back'
-- tapOn:
-    id: 'btn_back'
+    id: 'btn_primaryText'
+
