@@ -21,7 +21,7 @@ function HexaToastMessages({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.accent`} style={styles.toast}>
+    <Box backgroundColor={`${colorMode}.accent`} style={styles.toast} testID='toast_message'>
       {error ? <ToastErrorIcon /> : Image ? <Box>{Image}</Box> : null}
       <Text color={`${colorMode}.textBlack`} style={styles.toastMsgText}>
         {ToastBody}

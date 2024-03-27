@@ -85,7 +85,7 @@ function ManageSigners({ route }: ScreenProps) {
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           rightComponent={
-            <TouchableOpacity onPress={navigateToSettings}>
+            <TouchableOpacity onPress={navigateToSettings} testID='btn_manage_singner_setting'>
               <SettingIcon />
             </TouchableOpacity>
           }

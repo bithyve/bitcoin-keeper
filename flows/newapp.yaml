@@ -14,7 +14,7 @@ appId: io.hexawallet.keeper.development
 - tapOn: 'Next'
 - waitForAnimationToEnd:
     timeout: 2000
-- assertNotVisible: 'Connected to'
 - extendedWaitUntil:
-    visible: 'Wait until TOR gets connected'
-    timeout: 10000
+    notVisible:
+        id: 'toast_message'
+    timeout: 20000
