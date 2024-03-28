@@ -94,6 +94,7 @@ function SignerItem({
       showSelection={index === 0}
       colorVarient="green"
       isFullText
+      colorMode={colorMode}
     />
   );
 }

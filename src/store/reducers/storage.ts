@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface InheritanceToolVisitedHistory {
+interface InheritanceToolVisitedHistoryType {
   BUY_NEW_HARDWARE_SIGNER: number;
   CANARY_WALLETS: number;
   ASSISTED_KEYS: number;
@@ -31,7 +31,7 @@ const initialState: {
   appVersion: string;
   inheritanceRequestId: string;
   recoveryAppCreated: boolean;
-  inheritanceToolVisitedHistory: InheritanceToolVisitedHistory;
+  inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
 } = {
   appId: '',
   resetCred: {
@@ -95,9 +95,12 @@ const storageSlice = createSlice({
 
     updateLastVisitedTimestamp: (
       state,
-      action: PayloadAction<{ option: keyof InheritanceToolVisitedHistory }>
+      action: PayloadAction<{ option: keyof InheritanceToolVisitedHistoryType }>
     ) => {
       const { option } = action.payload;
+      if (!state.inheritanceToolVisitedHistory) {
+        state.inheritanceToolVisitedHistory = initialState.inheritanceToolVisitedHistory;
+      }
       state.inheritanceToolVisitedHistory[option] = Date.now();
     },
     setInheritanceRequestId: (state, action: PayloadAction<string>) => {

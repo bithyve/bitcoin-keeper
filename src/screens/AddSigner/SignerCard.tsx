@@ -20,6 +20,7 @@ type SignerCardProps = {
   numberOfLines?: number;
   StaticIcon?: any;
   titleComp?: any;
+  colorMode: string;
 };
 
 function SignerCard({
@@ -37,8 +38,8 @@ function SignerCard({
   StaticIcon = null,
   numberOfLines = 1,
   customStyle,
+  colorMode,
 }: SignerCardProps) {
-  const { colorMode } = useColorMode();
   const backgroundColor =
     colorVarient === 'brown' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.pantoneGreen`;
 

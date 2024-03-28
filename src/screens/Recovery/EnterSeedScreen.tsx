@@ -232,7 +232,11 @@ function EnterSeedScreen({ route, navigation }) {
               handleFailure();
             }
           }
+        } else {
+          setActivePage(1);
         }
+      } else {
+        showToast('Enter all seedwords', <ToastErrorIcon />);
       }
     } catch (err) {
       console.log('Error Soft Key HC', err);
@@ -436,7 +440,8 @@ function EnterSeedScreen({ route, navigation }) {
                       data[onChangeIndex].name = word.trim();
                       setSeedData(data);
                       setSuggestedWords([]);
-                      if (onChangeIndex !== 11) inputRef.current[onChangeIndex + 1].focus();
+                      if (onChangeIndex < (activePage + 1) * 6 - 1)
+                        inputRef.current[onChangeIndex + 1].focus();
                     }}
                   >
                     <Text>{word}</Text>

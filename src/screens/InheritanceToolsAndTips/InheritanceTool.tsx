@@ -37,11 +37,9 @@ function InheritanceTool({ navigation }) {
     <ScrollView>
       {plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'DIAMOND HANDS'} />}
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(
+          inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE]
+        )}`}
         disabled={plan === 'DIAMOND HANDS' ? false : true}
         title="Recovery Phrase"
         description="Template to write down your seed words"
@@ -50,13 +48,9 @@ function InheritanceTool({ navigation }) {
       />
 
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(
-                inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE]
-              )}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(
+          inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE]
+        )}`}
         disabled={plan === 'DIAMOND HANDS' ? false : true}
         title="Trusted Contacts"
         description="Template to share details of contacts"
@@ -65,13 +59,9 @@ function InheritanceTool({ navigation }) {
       />
 
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(
-                inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS]
-              )}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(
+          inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS]
+        )}`}
         disabled={plan === 'DIAMOND HANDS' ? false : true}
         title="Additional Key Details"
         description="Template to share useful key details"
@@ -92,11 +82,9 @@ function InheritanceTool({ navigation }) {
       /> */}
       {plan !== 'HODLER' && plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'HODLER'} />}
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(
+          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS]
+        )}`}
         disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
         title="Recovery Instructions"
         description="For the heir or beneficiary"
@@ -104,11 +92,7 @@ function InheritanceTool({ navigation }) {
         callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
       />
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY])}`}
         disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
         title="Letter to Attorney"
         description="A pre-filled letter template"
@@ -116,11 +100,7 @@ function InheritanceTool({ navigation }) {
         callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
       />
       <OptionCard
-        preTitle={`${
-          inheritanceToolVisitedHistory[INHERITANCE_TIPS] === undefined
-            ? 'Never accessed'
-            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_TIPS])}`
-        }`}
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_TIPS])}`}
         disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
         title="Inheritance Tips"
         description="How to secure keys for the heir"

@@ -155,6 +155,7 @@ const getStyles = (marginLeft: boolean) =>
       paddingLeft: marginLeft ? '10%' : '5%',
       flexDirection: 'row',
       gap: 10,
+      alignItems: 'center',
     },
     smallWidth: {
       width: windowWidth * 0.45,

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
@@ -18,24 +18,14 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerType, VisibilityType } from 'src/services/wallets/enums';
+import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import KeeperFooter from 'src/components/KeeperFooter';
-import FloatingCTA from 'src/components/FloatingCTA';
-import KeeperModal from 'src/components/KeeperModal';
-import ActionCard from 'src/components/ActionCard';
-import WalletVault from 'src/assets/images/wallet_vault.svg';
-import Hide from 'src/assets/images/hide_icon.svg';
-import ShowAll from 'src/assets/images/show_all.svg';
-import Text from 'src/components/KeeperText';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 import SignerCard from '../AddSigner/SignerCard';
-import idx from 'idx';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import SettingIcon from 'src/assets/images/settings.svg';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -78,6 +68,10 @@ function ManageSigners({ route }: ScreenProps) {
 
   const { top } = useSafeAreaInsets();
 
+  const navigateToSettings = () => {
+    navigation.dispatch(CommonActions.navigate('SignerSettings'));
+  };
+
   return (
     <Box
       backgroundColor={`${colorMode}.BrownNeedHelp`}
@@ -90,6 +84,11 @@ function ManageSigners({ route }: ScreenProps) {
           mediumTitle
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
+          rightComponent={
+            <TouchableOpacity onPress={navigateToSettings}>
+              <SettingIcon />
+            </TouchableOpacity>
+          }
           icon={
             <CircleIconWrapper
               backgroundColor={`${colorMode}.seashellWhite`}
@@ -114,40 +113,6 @@ function ManageSigners({ route }: ScreenProps) {
   );
 }
 
-function FooterIcon({ Icon, colorMode }) {
-  return (
-    <Box
-      margin="1"
-      width="12"
-      height="12"
-      borderRadius={30}
-      backgroundColor={`${colorMode}.BrownNeedHelp`}
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Icon />
-    </Box>
-  );
-}
-
-function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
-  return (
-    <Box>
-      <ActionCard
-        description={vaultUsed.presentationData?.description}
-        cardName={vaultUsed.presentationData.name}
-        icon={<WalletVault />}
-        callback={() => {}}
-      />
-      <Box style={{ paddingVertical: 20 }}>
-        <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
-          Either hide the vault or remove the key from the vault to perform this operation.
-        </Text>
-      </Box>
-    </Box>
-  );
-}
-
 function SignersList({
   colorMode,
   vaultKeys,
@@ -165,59 +130,6 @@ function SignersList({
   handleAddSigner: any;
   vault: Vault;
 }) {
-  const [hiding, setHiding] = React.useState(false);
-  const [selectedSigners, setSelectedSigners] = React.useState(new Map());
-  const [warningEnabled, setWarning] = React.useState(false);
-  const navigation = useNavigation();
-  const [vaultUsed, setVaultUsed] = React.useState<Vault>();
-  const { allVaults } = useVault({ includeArchived: false });
-  const allUnhiddenVaults = allVaults.filter((vault) => {
-    return idx(vault, (_) => _.presentationData.visibility) !== VisibilityType.HIDDEN;
-  });
-
-  const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
-
-  const footerItems = [
-    {
-      text: 'Hide Keys',
-      Icon: () => <FooterIcon Icon={Hide} colorMode={colorMode} />,
-      onPress: () => {
-        setHiding(true);
-      },
-    },
-    {
-      text: 'Show All',
-      Icon: () => <FooterIcon Icon={ShowAll} colorMode={colorMode} />,
-      onPress: () => {
-        if (signers.length) {
-          for (const signer of signers) {
-            dispatch(updateSignerDetails(signer, 'hidden', false));
-          }
-          showToast('All keys shown successfully', <TickIcon />);
-        }
-      },
-    },
-  ];
-
-  const hideKeys = () => {
-    for (const mfp of selectedSigners.keys()) {
-      for (const vaultItem of allUnhiddenVaults) {
-        if (vaultItem.signers.find((signer) => signer.masterFingerprint === mfp)) {
-          setVaultUsed(vaultItem);
-          setWarning(true);
-          return;
-        }
-      }
-    }
-    for (const mfp of selectedSigners.keys()) {
-      dispatch(updateSignerDetails(signerMap[mfp], 'hidden', true));
-    }
-    setHiding(false);
-    setSelectedSigners(new Map());
-    showToast('Keys hidden successfully', <TickIcon />);
-  };
-
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
 
   return (
@@ -250,18 +162,6 @@ function SignersList({
               <SignerCard
                 key={signer.masterFingerprint}
                 onCardSelect={() => {
-                  if (hiding) {
-                    if (selectedSigners.has(signer.masterFingerprint)) {
-                      selectedSigners.delete(signer.masterFingerprint);
-                      setSelectedSigners(new Map(selectedSigners));
-                    } else {
-                      const updatedSigners = new Map(
-                        selectedSigners.set(signer.masterFingerprint, true)
-                      );
-                      setSelectedSigners(updatedSigners);
-                    }
-                    return;
-                  }
                   handleCardSelect(signer, item);
                 }}
                 name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
@@ -271,15 +171,11 @@ function SignersList({
                   signer
                 )}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-                isSelected={
-                  hiding && !!!vaultKeys?.length
-                    ? selectedSigners.get(signer.masterFingerprint)
-                    : false
-                }
-                showSelection={hiding && !!!vaultKeys?.length}
+                showSelection={false}
                 showDot={showDot}
                 isFullText
                 colorVarient="green"
+                colorMode={colorMode}
               />
             );
           })}
@@ -288,27 +184,6 @@ function SignersList({
           ) : null}
         </Box>
       </ScrollView>
-      <KeeperModal
-        visible={warningEnabled && !!vaultUsed}
-        close={() => setWarning(false)}
-        title="Key is being used for Vault"
-        subTitle="The Key you are trying to hide is used in one of the visible vaults."
-        buttonText="View Vault"
-        secondaryButtonText="Back"
-        secondaryCallback={() => setWarning(false)}
-        buttonTextColor={`${colorMode}.white`}
-        buttonCallback={() => {
-          setWarning(false);
-          navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
-        }}
-        textColor={`${colorMode}.primaryText`}
-        Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
-      />
-      {hiding && !!!vaultKeys?.length ? (
-        <FloatingCTA primaryText="Hide" primaryCallback={hideKeys} />
-      ) : !vaultKeys.length ? (
-        <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
-      ) : null}
     </SafeAreaView>
   );
 }

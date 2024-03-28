@@ -255,6 +255,7 @@ function SendingPriority({
   getBalance,
   getSatUnit,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box>
       <Box flexDirection={'row'}>
@@ -288,6 +289,7 @@ function SendingPriority({
                       height: 135,
                       opacity: transactionPriority === priority ? 1 : 0.5,
                     }}
+                    colorMode={colorMode}
                   />
                 </Box>
               </TouchableOpacity>
@@ -1002,7 +1004,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter sats to pay per vbyte"
+          subTitle="Enter amount in sats"
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}

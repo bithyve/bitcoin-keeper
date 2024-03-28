@@ -667,7 +667,9 @@
     "shareAnalyticsDesc": "No personal or bitcoin data is shared",
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
-    "changePasscodeDescription": "Easy to remember; hard to guess"
+    "changePasscodeDescription": "Easy to remember; hard to guess",
+    "deleteKeys": "Show and delete keys",
+    "deleteKeysSubtitle": "for hidden keys"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",

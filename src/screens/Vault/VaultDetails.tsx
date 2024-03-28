@@ -110,6 +110,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         <CardPill
           heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
         />
+        {vault.archived ? <CardPill heading={`ARCHIVED`} backgroundColor="grey" /> : null}
       </HStack>
       <CurrencyInfo
         hideAmounts={false}

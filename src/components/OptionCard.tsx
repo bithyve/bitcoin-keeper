@@ -35,13 +35,13 @@ export function OptionCard({
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack
         padding={3}
-        width={windowWidth * 0.9}
+        width={windowWidth * 0.85}
         justifyContent="space-between"
         alignItems="center"
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
-        <HStack style={styles.iconContainer}>
+        <HStack style={[styles.iconContainer, { opacity: disabled ? 0.6 : 1 }]}>
           {LeftIcon && LeftIcon}
           <VStack>
             {preTitle && (

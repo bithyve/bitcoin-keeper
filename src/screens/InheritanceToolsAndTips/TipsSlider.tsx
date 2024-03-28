@@ -3,6 +3,7 @@ import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'rea
 import { Box } from 'native-base';
 
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
+import { wp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -64,6 +65,7 @@ export default TipsSlider;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginLeft: wp(5),
   },
   safeAreaViewWrapper: {
     flex: 1,

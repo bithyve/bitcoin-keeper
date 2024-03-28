@@ -296,6 +296,7 @@ function SigningDeviceDetails({ route }) {
               params: {
                 parentNavigation: navigation,
                 vault: activeVault,
+                signer,
               },
             })
           );
@@ -338,7 +339,8 @@ function SigningDeviceDetails({ route }) {
         learnTextColor={`${colorMode}.white`}
         title={signerTranslations.keyDetails}
         subtitle={
-          `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+          `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
+          `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
         icon={
           <CircleIconWrapper

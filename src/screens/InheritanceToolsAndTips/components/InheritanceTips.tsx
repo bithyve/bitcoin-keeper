@@ -55,15 +55,17 @@ function InheritanceTips({}) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <Text color={`${colorMode}.white`}>Inheritance Tips</Text>
+      <Text style={styles.marginLeft} color={`${colorMode}.white`}>
+        Inheritance Tips
+      </Text>
       <TipsSlider items={tips} />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    marginLeft: wp(20),
+  marginLeft: {
+    marginLeft: wp(10),
   },
 });
 
