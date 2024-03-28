@@ -100,6 +100,7 @@ function ConfirmSeedWord(props) {
             setSeedWord(value.trim());
             setInvalid(false);
           }}
+          fontWeight={seedWord ? 500 : 200}
           style={{
             fontSize: 13,
             letterSpacing: 0.96,
@@ -112,7 +113,7 @@ function ConfirmSeedWord(props) {
       </Box>
       {invalid && (
         <Text color="red.400" fontSize={13} ml={1}>
-          Invalid word
+          Please enter valid seed word
         </Text>
       )}
 
