@@ -236,15 +236,17 @@ function SignerAdvanceSettings({ route }: any) {
 
   function WarningContent() {
     return (
-      <Box alignItems="center">
-        <WarningIllustration />
+      <>
+        <Box alignSelf={'center'} mb={10} mr={10}>
+          <WarningIllustration />
+        </Box>
         <Box>
           <Text color={`${colorMode}.greenText`} style={styles.warningText}>
-            If the signer is identified incorrectly there may be repurcusssions with general signer
+            If the signer is identified incorrectly there may be repercussions with general signer
             interactions like signing etc.
           </Text>
         </Box>
-      </Box>
+      </>
     );
   }
 
@@ -563,7 +565,7 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}
-        title="Changing signer Type"
+        title="Changing Signer Type"
         subTitle="Are you sure you want to change the signer type?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
