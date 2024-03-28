@@ -18,6 +18,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
+import { Alert } from 'react-native';
 
 function VaultMigrationController({
   vaultCreating,
@@ -164,10 +165,17 @@ function VaultMigrationController({
           description,
         },
       };
+      const allVaultIds = allVaults.map((vault) => vault.id);
       const generatedVaultId = generateVaultId(signers, scheme);
-      setGeneratedVaultId(generatedVaultId);
-      dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-      return vaultInfo;
+      if (allVaultIds.includes(generatedVaultId)) {
+        Alert.alert('Vault with this configuration already exisits');
+        navigation.goBack();
+      } else {
+        setGeneratedVaultId(generatedVaultId);
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+
+        return vaultInfo;
+      }
     } catch (err) {
       captureError(err);
       return false;
