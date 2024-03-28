@@ -156,32 +156,34 @@ const getSignerContent = (
           'Choose a Mobile Key from your Keeper app (create) or from another Keeper app (import)',
           'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
-        title: 'Keep your Device Ready',
+        title: isHealthcheck ? `Verify  ${getSignerNameFromType(type)}` : 'Keep your Device Ready',
         subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
-        options: [
-          {
-            title: `Import a ${getSignerNameFromType(type)}`,
-            icon: (
-              <CircleIconWrapper
-                icon={<Import />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
-                width={35}
-              />
-            ),
-            name: KeyGenerationMode.IMPORT,
-          },
-          {
-            title: `Add a New ${getSignerNameFromType(type)}`,
-            icon: (
-              <CircleIconWrapper
-                icon={<Add />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
-                width={35}
-              />
-            ),
-            name: KeyGenerationMode.NEW,
-          },
-        ],
+        options: isHealthcheck
+          ? null
+          : [
+              {
+                title: `Import a ${getSignerNameFromType(type)}`,
+                icon: (
+                  <CircleIconWrapper
+                    icon={<Import />}
+                    backgroundColor={`${colorMode}.BrownNeedHelp`}
+                    width={35}
+                  />
+                ),
+                name: KeyGenerationMode.IMPORT,
+              },
+              {
+                title: `Add a New ${getSignerNameFromType(type)}`,
+                icon: (
+                  <CircleIconWrapper
+                    icon={<Add />}
+                    backgroundColor={`${colorMode}.BrownNeedHelp`}
+                    width={35}
+                  />
+                ),
+                name: KeyGenerationMode.NEW,
+              },
+            ],
       };
     case SignerType.MOBILE_KEY:
       return {
@@ -1548,11 +1550,16 @@ function HardwareModalMap({
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.KEEPER:
-        if (keyGenerationMode === 0) {
+        if (mode === InteracationMode.HEALTH_CHECK) {
           return navigateToAddQrBasedSigner();
         } else {
-          return generateMyAppKey();
+          if (keyGenerationMode === 0) {
+            return navigateToAddQrBasedSigner();
+          } else {
+            return generateMyAppKey();
+          }
         }
+
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
       case SignerType.INHERITANCEKEY:
