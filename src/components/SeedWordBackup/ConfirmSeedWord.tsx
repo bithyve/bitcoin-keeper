@@ -80,7 +80,7 @@ function ConfirmSeedWord(props) {
           {BackupWallet.confirmSeedWord}
         </Text>
         <Text fontSize={13} color={`${colorMode}.secondaryText`} mb={10}>
-          Exactly as they were displayed
+          Type exactly as they were displayed
         </Text>
       </Box>
       <Box>
