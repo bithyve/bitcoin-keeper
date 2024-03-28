@@ -9,12 +9,21 @@ export const RECOVER_BACKUP = 'RECOVER_BACKUP';
 export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
+export const DELETE_APP_IMAGE_ENTITY = 'DELETE_APP_IMAGE_ENTITY';
 
 export const updateAppImage = ({ wallets, signers }) => ({
   type: UPDATE_APP_IMAGE,
   payload: {
     wallets,
     signers,
+  },
+});
+
+export const deleteAppImageEntity = ({ walletIds, signerIds }) => ({
+  type: UPDATE_APP_IMAGE,
+  payload: {
+    walletIds,
+    signerIds,
   },
 });
 

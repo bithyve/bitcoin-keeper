@@ -93,7 +93,6 @@ import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
-import AddSigner from 'src/screens/AddSigner/AddSigner';
 import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
@@ -103,6 +102,8 @@ import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/Inherit
 import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 import { AppStackParams } from './types';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
+import SignerSettings from 'src/screens/SigningDevices/SignerSettings';
+import DeleteKeys from 'src/screens/SigningDevices/DeleteKeys';
 
 import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary';
 import AssistedKeys from 'src/screens/InheritanceToolsAndTips/components/AssistedKeys';
@@ -283,9 +284,10 @@ function AppStack() {
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="NFCScanner" component={NFCScanner} />
         <Stack.Screen name="AddWallet" component={AddWallet} />
-        <Stack.Screen name="AddSigner" component={AddSigner} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
+        <Stack.Screen name="SignerSettings" component={SignerSettings} />
+        <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
       </Stack.Navigator>
     </RealmProvider>
   );

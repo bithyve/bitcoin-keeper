@@ -1,14 +1,14 @@
 import Text from 'src/components/KeeperText';
-import { Box, VStack, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -43,8 +43,27 @@ import config from 'src/utils/service-utilities/config';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import DescriptionModal from './components/EditDescriptionModal';
 import { SDIcons } from './SigningDeviceIcons';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const { width } = Dimensions.get('screen');
+
+function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
+  return (
+    <Box>
+      <ActionCard
+        description={vaultUsed.presentationData?.description}
+        cardName={vaultUsed.presentationData.name}
+        icon={<WalletVault />}
+        callback={() => {}}
+      />
+      <Box style={{ paddingVertical: 20 }}>
+        <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
+          Either hide the vault or remove the key from the vault to perform this operation.
+        </Text>
+      </Box>
+    </Box>
+  );
+}
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
@@ -59,6 +78,9 @@ function SignerAdvanceSettings({ route }: any) {
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
+  const [vaultUsed, setVaultUsed] = React.useState<Vault>();
+  const [warningEnabled, setHideWarning] = React.useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
 
@@ -68,6 +90,9 @@ function SignerAdvanceSettings({ route }: any) {
   const closeDescriptionModal = () => setVisible(false);
 
   const { activeVault, allVaults } = useVault({ vaultId, includeArchived: false });
+  const allUnhiddenVaults = allVaults.filter((vault) => {
+    return idx(vault, (_) => _.presentationData.visibility) !== VisibilityType.HIDDEN;
+  });
   const signerVaults: Vault[] = [];
 
   allVaults.forEach((vault) => {
@@ -79,6 +104,13 @@ function SignerAdvanceSettings({ route }: any) {
       }
     }
   });
+
+  const hideKey = () => {
+    dispatch(updateSignerDetails(signer, 'hidden', true));
+    showToast('Keys hidden successfully', <TickIcon />);
+    const popAction = StackActions.pop(2);
+    navigation.dispatch(popAction);
+  };
 
   const registerColdCard = async () => {
     await withNfcModal(() => registerToColcard({ vault: activeVault }));
@@ -391,6 +423,9 @@ function SignerAdvanceSettings({ route }: any) {
     signer.type === SignerType.TAPSIGNER &&
     config.NETWORK_TYPE === NetworkType.TESTNET &&
     !signer.isMock;
+
+  const onSuccess = () => hideKey();
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -479,6 +514,24 @@ function SignerAdvanceSettings({ route }: any) {
             callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
           />
         )}
+        {isAssistedKey || vaultId ? null : (
+          <OptionCard
+            title="Hide signer"
+            description="Hide this signer from the list"
+            callback={() => {
+              for (const vaultItem of allUnhiddenVaults) {
+                if (
+                  vaultItem.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
+                ) {
+                  setVaultUsed(vaultItem);
+                  setHideWarning(true);
+                  return;
+                }
+              }
+              setConfirmPassVisible(true);
+            }}
+          />
+        )}
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
@@ -549,6 +602,42 @@ function SignerAdvanceSettings({ route }: any) {
         secondaryButtonText="Cancel"
         secondaryCallback={() => setDeleteEmailModal(false)}
         Content={DeleteEmailModalContent}
+      />
+      <KeeperModal
+        visible={warningEnabled && !!vaultUsed}
+        close={() => setHideWarning(false)}
+        title="Key is being used for Vault"
+        subTitle="The Key you are trying to hide is used in one of the visible vaults."
+        buttonText="View Vault"
+        secondaryButtonText="Back"
+        secondaryCallback={() => setHideWarning(false)}
+        buttonTextColor={`${colorMode}.white`}
+        buttonCallback={() => {
+          setHideWarning(false);
+          navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
+        }}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Confirm Passcode"
+        subTitleWidth={wp(240)}
+        subTitle="To hide the key"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onSuccess}
+          />
+        )}
       />
     </ScreenWrapper>
   );
