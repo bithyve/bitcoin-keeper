@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, Pressable, ScrollView, useColorMode } from 'native-base';
+import { Box, Input, Pressable, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
@@ -22,7 +22,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
-import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 import Text from 'src/components/KeeperText';
 import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
@@ -32,16 +32,9 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import { formatNumber } from 'src/utils/utilities';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
-import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
+import SettingsIcon from 'src/assets/images/settings_brown.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
-
-const derivationPurposeToLabel = {
-  [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
-  [DerivationPurpose.BIP49]: 'P2SH-P2WPKH: wrapped segwit, single-sig',
-  [DerivationPurpose.BIP44]: 'P2PKH: legacy, single-sig',
-  [DerivationPurpose.BIP86]: 'P2TR: taproot, single-sig',
-};
+import DerivationPathModalContent from './DerivationPathModal';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -54,7 +47,7 @@ function EnterWalletDetailScreen({ route }) {
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
-  const [walletCreatedModal, setWalletCreatedModal] = useState(false)
+  const [walletCreatedModal, setWalletCreatedModal] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
   const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
@@ -68,13 +61,7 @@ function EnterWalletDetailScreen({ route }) {
       ? route.params?.path
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
-  const [showPurpose, setShowPurpose] = useState(false);
-  const [purposeList, setPurposeList] = useState([
-    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-    { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
-  ]);
-  const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
-  const [arrow, setArrow] = useState(false);
+  const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
 
   const createNewWallet = useCallback(() => {
     // Note: only caters to new wallets(imported wallets currently have a different flow)
@@ -137,32 +124,23 @@ function EnterWalletDetailScreen({ route }) {
     );
   }
 
-  useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      purpose
-    );
-    setPath(path);
-  }, [purpose]);
-
-  const onDropDownClick = () => {
-    if (showPurpose) {
-      setShowPurpose(false);
-      setArrow(false);
-    } else {
-      setShowPurpose(true);
-      setArrow(true);
-    }
-  };
-
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
-      // To-Do-Learn-More
+        rightComponent={
+          <Pressable
+            style={styles.advancedContainer}
+            onPress={() => setAdvancedSettingsVisible(true)}
+          >
+            <SettingsIcon />
+            <Text color={`${colorMode}.BrownNeedHelp`} bold fontSize={13}>
+              Advanced
+            </Text>
+          </Pressable>
+        }
+        // To-Do-Learn-More
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
@@ -216,8 +194,9 @@ function EnterWalletDetailScreen({ route }) {
                 placeholderTextColor={`${colorMode}.GreyText`}
                 width="85%"
                 fontSize={14}
-                fontWeight={300}
+                fontWeight={500}
                 letterSpacing={1.04}
+                height={10}
                 borderWidth="0"
                 value={formatNumber(transferPolicy)}
                 onChangeText={(value) => {
@@ -225,59 +204,13 @@ function EnterWalletDetailScreen({ route }) {
                 }}
                 variant="unstyled"
                 keyboardType="numeric"
-                InputRightElement={<KeeperText bold>{common.sats}</KeeperText>}
+                InputRightElement={<KeeperText medium>{common.sats}</KeeperText>}
                 testID="input_transfer_policy"
               />
             </Box>
             <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
               {importWallet.walletBalance}
             </Text>
-          </Box>
-          <Box>
-            <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.textInputWrapper}>
-              <Text bold>{path}</Text>
-            </Box>
-            <Box style={{ position: 'relative' }}>
-              <Pressable
-                style={styles.dropDownContainer}
-                backgroundColor={`${colorMode}.seashellWhite`}
-                onPress={onDropDownClick}
-              >
-                <Text fontSize={12} bold color={`${colorMode}.primaryText`}>
-                  {purposeLbl}
-                </Text>
-                <Box
-                  style={[
-                    {
-                      transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-                    },
-                  ]}
-                >
-                  {colorMode === 'light' ? <RightArrowIcon /> : <IconArrow />}
-                </Box>
-              </Pressable>
-              {showPurpose && (
-                <ScrollView
-                  style={styles.langScrollViewWrapper}
-                  backgroundColor={`${colorMode}.seashellWhite`}
-                >
-                  {purposeList.map((item) => (
-                    <TouchableOpacity
-                      key={item.value}
-                      onPress={() => {
-                        setShowPurpose(false);
-                        setArrow(false);
-                        setPurpose(item.value);
-                        setPurposeLbl(item.label);
-                      }}
-                      style={styles.flagWrapper1}
-                    >
-                      <Text style={styles.purposeText}>{item.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-            </Box>
           </Box>
         </Box>
         <Box style={styles.footer}>
@@ -291,8 +224,28 @@ function EnterWalletDetailScreen({ route }) {
         </Box>
       </Box>
       <KeeperModal
+        visible={advancedSettingsVisible}
+        close={() => setAdvancedSettingsVisible(false)}
+        title={importWallet.derivationPath}
+        subTitle="Change or update purpose"
+        subTitleWidth={wp(240)}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        showCloseIcon={false}
+        Content={() => (
+          <DerivationPathModalContent
+            initialPath={path}
+            initialPurpose={purpose}
+            closeModal={() => setAdvancedSettingsVisible(false)}
+            setSelectedPath={setPath}
+            setSelectedPurpose={setPurpose}
+          />
+        )}
+      />
+      <KeeperModal
         dismissible
-        close={() => { }}
+        close={() => {}}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -310,7 +263,7 @@ function EnterWalletDetailScreen({ route }) {
         visible={walletCreatedModal}
         title={'Wallet Created Successfully!'}
         subTitle={'Only have small amounts in this wallet'}
-        buttonText={"View Wallet"}
+        buttonText={'View Wallet'}
         descriptionMessage={'Make sure you have secured the Recovery Key to backup your wallet'}
         buttonCallback={() => {
           setWalletCreatedModal(false);
@@ -327,11 +280,12 @@ function EnterWalletDetailScreen({ route }) {
 const styles = StyleSheet.create({
   inputFieldWrapper: {
     borderRadius: 10,
+    marginHorizontal: 10,
   },
   amountWrapper: {
+    marginHorizontal: 10,
     marginTop: hp(30),
     flexDirection: 'row',
-    height: hp(50),
     alignItems: 'center',
     borderRadius: 10,
     padding: 10,
@@ -340,9 +294,9 @@ const styles = StyleSheet.create({
   },
   balanceCrossesText: {
     fontSize: 12,
+    letterSpacing: 0.12,
     marginTop: hp(10),
-    letterSpacing: 0.6,
-    marginHorizontal: 10,
+    marginHorizontal: 12,
   },
   fieldsContainer: {
     marginVertical: 40,
@@ -356,42 +310,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  textInputWrapper: {
-    borderRadius: 10,
-    height: hp(50),
-    justifyContent: 'center',
-    paddingHorizontal: 10,
-  },
-  textInput: {
-    padding: 20,
-  },
-  dropDownContainer: {
+  advancedContainer: {
     flexDirection: 'row',
-    gap: 20,
-    justifyContent: 'space-between',
+    gap: 5,
     alignItems: 'center',
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    height: hp(50),
-    marginTop: 10,
-  },
-  langScrollViewWrapper: {
-    borderRadius: 10,
-    zIndex: 10,
-    marginTop: 5,
-    position: 'absolute',
-    alignSelf: 'center',
-    width: '100%',
-  },
-  flagWrapper1: {
-    flexDirection: 'row',
-    height: wp(40),
-    alignItems: 'center',
-  },
-  purposeText: {
-    fontSize: 13,
-    marginLeft: wp(10),
-    letterSpacing: 0.6,
   },
 });
 
