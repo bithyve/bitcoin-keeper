@@ -108,7 +108,6 @@ function KeeperModal(props: ModalProps) {
   if (!visible) {
     return null;
   }
-
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
   return (
@@ -124,7 +123,7 @@ function KeeperModal(props: ModalProps) {
       <Modal.Content
         borderRadius={10}
         marginBottom={Math.max(5, bottomMargin)}
-        maxHeight={windowHeight * 0.9}
+        maxHeight={windowHeight < 680 ? '94%' : '90%'}
         width="95%"
       >
         <GestureHandlerRootView>
@@ -146,7 +145,10 @@ function KeeperModal(props: ModalProps) {
                 ) : null}
               </Modal.Header>
             ) : null}
-            <ScrollView style={{ maxHeight: windowHeight * 0.8 }}>
+            <ScrollView
+              style={{ maxHeight: windowHeight * 0.8 }}
+              showsVerticalScrollIndicator={false}
+            >
               <Modal.Body>
                 <Content />
               </Modal.Body>
