@@ -1,4 +1,4 @@
-appId: io.hexawallet.keeper.development
+appId: ${APPID}
 ---
 - assertTrue: ${output.text_HotWallet = "1 Wallet"}
 - assertVisible:

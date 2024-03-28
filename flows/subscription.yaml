@@ -1,4 +1,4 @@
-appId: io.hexawallet.keeper.development
+appId: ${APPID}
 ---
 - assertVisible:
     id: 'btn_choosePlan'
