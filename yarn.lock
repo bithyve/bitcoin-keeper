@@ -4461,6 +4461,11 @@
     redux-thunk "^2.4.1"
     reselect "^4.1.5"
 
+"@robbywh/react-native-zendesk-messaging@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@robbywh/react-native-zendesk-messaging/-/react-native-zendesk-messaging-1.1.1.tgz#9fcc1fafb27331f4e6da744e0cd6948a0258b463"
+  integrity sha512-JAJo3T1n7m9uIwc5x2PK/nRmALua/tWBrXUvUSucgDKm9Ersxk+GlLrsKhISC9sXjpwPGL2SfVw752p4I0ft6Q==
+
 "@scure/base@^1.1.1":
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.5.tgz#1d85d17269fe97694b9c592552dd9e5e33552157"
@@ -8229,7 +8234,7 @@ glob@7.1.6:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@^7.0.0, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6, glob@^7.2.3:
+glob@^7.1.3, glob@^7.1.4, glob@^7.1.6, glob@^7.2.3:
   version "7.2.3"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.2.3.tgz#b8df0fb802bbfa8e89bd1d938b4e16578ed44f2b"
   integrity sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==
@@ -11709,7 +11714,6 @@ react-native-blob-util@0.18.3:
   dependencies:
     base-64 "0.1.0"
     glob "^7.2.3"
-
 
 react-native-camera@4.2.1:
   version "4.2.1"
