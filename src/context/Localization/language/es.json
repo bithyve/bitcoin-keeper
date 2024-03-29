@@ -712,7 +712,7 @@
     "startOver": "Start Over",
     "backupSuccessTitle": "Backup Successful",
     "backupSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
-    "backupSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    "backupSuccessParagraph": "You will be reminded again in 180 days.",
     "home": "Home",
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
