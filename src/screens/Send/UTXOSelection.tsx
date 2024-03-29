@@ -1,94 +1,59 @@
 import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
-import React, { useCallback, useState } from 'react';
-import { TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { BtcToSats, SatsToBtc } from 'src/common/constants/Bitcoin';
-import useBalance from 'src/hooks/useBalance';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { BtcToSats } from 'src/constants/Bitcoin';
 
-import { hp, wp, windowWidth } from 'src/common/data/responsiveness/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import { hp, wp, windowWidth } from 'src/constants/responsive';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useAppSelector } from 'src/store/hooks';
-import BtcBlack from 'src/assets/images/btc_black.svg';
-import { UTXO } from 'src/core/wallets/interfaces';
 import Buttons from 'src/components/Buttons';
 import _ from 'lodash';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import config from 'src/core/config';
-import { TxPriority } from 'src/core/wallets/enums';
+import config from 'src/utils/service-utilities/config';
+import { TxPriority, WalletType } from 'src/services/wallets/enums';
+import UTXOList from 'src/components/UTXOsComponents/UTXOList';
+import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
+import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
 
-function UTXOSelection({ route }: any) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOSelection'>;
+function UTXOSelection({ route }: ScreenProps) {
   const navigation = useNavigation();
-  const { sender, amount, address } = route.params;
+  const { sender, amount, address } = route.params || {};
   const utxos = _.clone(sender.specs.confirmedUTXOs);
   const { colorMode } = useColorMode();
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { averageTxFees } = useAppSelector((state) => state.network);
   const [selectionTotal, setSelectionTotal] = useState(0);
-  const [utxoState, setUtxoState] = useState(
-    utxos.map((utxo) => {
-      utxo.selected = false;
-      return utxo;
-    })
-  );
+  const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
-  const RenderTransactionElement = useCallback(
-    ({ item }) => (
-      <TouchableOpacity
-        style={styles.wrapper}
-        onPress={() => {
-          let utxoSum = selectionTotal;
-          setUtxoState(
-            utxoState.map((utxo) => {
-              if (utxo.txId === item.txId) {
-                utxoSum = utxo.selected ? utxoSum - utxo.value : utxoSum + utxo.value;
-                return { ...utxo, selected: !utxo.selected };
-              }
-              return utxo;
-            })
-          );
-          setSelectionTotal(utxoSum);
-        }}
-      >
-        <Box
-          style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]}
-        />
-        <Box style={styles.amountWrapper}>
-          <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
-          <Text style={styles.amountText}>
-            {getBalance(item.value)}
-            <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getSatUnit()}
-            </Text>
-          </Text>
-        </Box>
-        <Box style={styles.container}>
-          <Box style={styles.rowCenter}>
-            <Box style={styles.transactionContainer}>
-              <Text
-                color={`${colorMode}.GreyText`}
-                style={styles.transactionIdText}
-                numberOfLines={1}
-              >
-                {item.txId}
-              </Text>
-            </Box>
-          </Box>
-        </Box>
-      </TouchableOpacity>
-    ),
-    [utxoState]
-  );
-  const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const areEnoughUTXOsSelected =
-    selectionTotal >= Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
-  const showFeeErrorMessage =
-    selectionTotal >= Number(BtcToSats(amount)) &&
-    selectionTotal < Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
+  const [areEnoughUTXOsSelected, setAreEnoughUTXOsSelected] = useState(false);
+  const [showFeeErrorMessage, setShowFeeErrorMessage] = useState(false);
+
+  useEffect(() => {
+    const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+
+    let outgoingAmount = Number(amount);
+    // all comparisons are done in sats
+    if (satsEnabled === false) {
+      outgoingAmount = Number(BtcToSats(amount));
+    }
+    const enoughSelected = selectionTotal >= outgoingAmount + minimumAvgFeeRequired;
+    setAreEnoughUTXOsSelected(enoughSelected);
+
+    const showFeeErr =
+      outgoingAmount <= selectionTotal && selectionTotal < outgoingAmount + minimumAvgFeeRequired;
+
+    setShowFeeErrorMessage(showFeeErr);
+  }, [satsEnabled, selectionTotal, amount]);
+
   const executeSendPhaseOne = () => {
     const recipients = [];
     if (!selectionTotal) {
@@ -97,29 +62,39 @@ function UTXOSelection({ route }: any) {
     }
     recipients.push({
       address,
-      amount,
+      amount: satsEnabled ? amount : BtcToSats(amount),
     });
     dispatch(
       sendPhaseOne({
         wallet: sender,
         recipients,
-        selectedUTXOs: utxoState.filter((utxo) => utxo.selected),
+        selectedUTXOs: utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]),
       })
     );
   };
   return (
-    <ScreenWrapper>
-      <HeaderTitle
-        title="Manual Select UTXOs"
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
+        title="Select UTXOs"
         subtitle={`Select a minimum of ${amount} BTC to proceed`}
-        onPressHandler={() => navigation.goBack()}
       />
-      <FlatList
-        style={{ marginTop: 20 }}
-        data={utxoState}
-        renderItem={({ item }) => <RenderTransactionElement item={item} />}
-        keyExtractor={(item: UTXO) => item.txId}
-        showsVerticalScrollIndicator={false}
+      <UTXOSelectionTotal
+        selectionTotal={selectionTotal}
+        selectedUTXOs={utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`])}
+      />
+      <UTXOList
+        utxoState={utxos.map((utxo) => {
+          utxo.confirmed = true;
+          return utxo;
+        })}
+        enableSelection={true}
+        setSelectionTotal={setSelectionTotal}
+        selectedUTXOMap={selectedUTXOMap}
+        setSelectedUTXOMap={setSelectedUTXOMap}
+        currentWallet={sender}
+        emptyIcon={NoTransactionIcon}
+        selectedAccount={WalletType.DEFAULT}
+        initateWhirlpoolMix={false}
       />
       <Box>
         {showFeeErrorMessage ? (
@@ -127,9 +102,6 @@ function UTXOSelection({ route }: any) {
             Please select more UTXOs to accomidate the minimun fee required
           </Text>
         ) : null}
-        <Text color={`${colorMode}.GreyText`} style={styles.totalAmount} textAlign="right">
-          {SatsToBtc(selectionTotal)}/{amount}
-        </Text>
       </Box>
       <Box style={styles.ctaBtnWrapper}>
         <Box ml={windowWidth * -0.09}>

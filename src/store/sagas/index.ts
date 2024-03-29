@@ -3,6 +3,7 @@ import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
   addSigningDeviceWatcher,
+  deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
   addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
@@ -14,17 +15,15 @@ import {
   updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
   updateSignerDetails,
+  updateKeyDetails,
   updateWalletsPropertyWatcher,
   addWhirlpoolWalletsWatcher,
   addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
+  updateVaultDetailsWatcher,
+  deleteVaultyWatcher,
 } from './wallets';
-import {
-  addUaiStackWatcher,
-  uaiActionedEntityWatcher,
-  uaiActionedWatcher,
-  uaiChecksWatcher,
-} from './uai';
+import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
@@ -35,6 +34,7 @@ import {
 } from './login';
 import {
   backupWarningWatcher,
+  deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
   recoverBackupWatcher,
@@ -95,9 +95,13 @@ const rootSaga = function* () {
     // vaults
     addNewVaultWatcher,
     addSigningDeviceWatcher,
+    deleteSigningDeviceWatcher,
     migrateVaultWatcher,
     finaliseVaultMigrationWatcher,
+    updateVaultDetailsWatcher,
     updateSignerDetails,
+    updateKeyDetails,
+    deleteVaultyWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,
@@ -113,7 +117,6 @@ const rootSaga = function* () {
     uaiChecksWatcher,
     addUaiStackWatcher,
     uaiActionedWatcher,
-    uaiActionedEntityWatcher,
 
     // BHR
     updateAppImageWatcher,
@@ -126,6 +129,7 @@ const rootSaga = function* () {
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,
+    deleteAppImageEntityWatcher,
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,

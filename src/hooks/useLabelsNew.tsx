@@ -1,9 +1,8 @@
-import { useContext } from 'react';
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
-import { UTXO } from 'src/core/wallets/interfaces';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { useQuery } from '@realm/react';
+import { EntityKind, WalletType } from 'src/services/wallets/enums';
+import { UTXO } from 'src/services/wallets/interfaces';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
@@ -16,7 +15,6 @@ const useLabelsNew = ({
   utxos?: UTXO[];
   wallet: Wallet | Vault;
 }) => {
-  const { useQuery } = useContext(RealmWrapperContext);
   const Schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
   const isVault = wallet.entityKind === EntityKind.VAULT;
   const wallets = useQuery(Schema);

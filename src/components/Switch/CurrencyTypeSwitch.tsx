@@ -2,12 +2,11 @@ import React, { useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import { Box } from 'native-base';
-import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import { Box, useColorMode } from 'native-base';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 import IconBitcoin from 'src/assets/images/icon_bitcoin.svg';
 import IconBitcoinWhite from 'src/assets/images/icon_bitcoin_white.svg';
 import IconDoller from 'src/assets/images/icon_dollar.svg';
-import LinearGradient from 'src/components/KeeperGradient';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import useBalance from 'src/hooks/useBalance';
@@ -23,6 +22,7 @@ const styles = StyleSheet.create({
 });
 
 function CurrencyTypeSwitch() {
+  const { colorMode } = useColorMode();
   const { currencyKind } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
   const { getCurrencyIcon, getFiatCurrencyIcon } = useBalance();
@@ -42,13 +42,8 @@ function CurrencyTypeSwitch() {
   }, [currencyKind]);
 
   return (
-    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID='btn_currencyToggle'>
-      <LinearGradient
-        start={[0, 0]}
-        end={[1, 0]}
-        style={styles.container}
-        colors={['light.gradientStart', 'light.gradientEnd']}
-      >
+    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID="btn_currencyToggle">
+      <Box style={styles.container} backgroundColor={`${colorMode}.greenButtonBackground`}>
         <Box
           borderRadius={10}
           justifyContent="space-between"
@@ -59,7 +54,7 @@ function CurrencyTypeSwitch() {
             height={7}
             width={7}
             borderRadius={!prefersBitcoin ? 16 : 0}
-            backgroundColor={!prefersBitcoin ? '#fcfcfc' : null}
+            backgroundColor={!prefersBitcoin ? `${colorMode}.fadedGray` : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
@@ -72,7 +67,7 @@ function CurrencyTypeSwitch() {
             height={7}
             width={7}
             borderRadius={prefersBitcoin ? 16 : 0}
-            backgroundColor={prefersBitcoin ? '#fcfcfc' : null}
+            backgroundColor={prefersBitcoin ? `${colorMode}.fadedGray` : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
@@ -82,7 +77,7 @@ function CurrencyTypeSwitch() {
             {prefersBitcoin ? <IconBitcoin /> : <IconBitcoinWhite />}
           </Box>
         </Box>
-      </LinearGradient>
+      </Box>
     </TouchableOpacity>
   );
 }

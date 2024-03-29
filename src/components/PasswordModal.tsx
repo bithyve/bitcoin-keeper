@@ -1,10 +1,9 @@
-import { Box, Modal, Input } from 'native-base';
+import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Close from 'src/assets/images/modal_close.svg';
-import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BTC from 'src/assets/images/btc_white.svg';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
@@ -13,14 +12,15 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from './KeeperModal';
 
 function PasswordModal(props) {
+  const { colorMode } = useColorMode();
   const {
     visible,
     closePasswordModal,
     title = 'Title',
     subTitle = null,
     dscription = 'Description',
-    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
-    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
+    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback = props.closePasswordModal || null,
@@ -52,12 +52,7 @@ function PasswordModal(props) {
   function RecoverWalletScreen() {
     return (
       <View>
-        <LinearGradient
-          start={[0, 0]}
-          end={[1, 1]}
-          colors={buttonBackground}
-          style={styles.ctabutton}
-        >
+        <Box style={styles.ctabutton} backgroundColor={`${colorMode}.greenButtonBackground`}>
           <Text textAlign="right" fontSize={12} color={buttonTextColor}>
             Last Backup: July 15, 2021
           </Text>
@@ -79,8 +74,8 @@ function PasswordModal(props) {
               </View>
             </View>
           </View>
-        </LinearGradient>
-        <Text color="light.greenText" fontSize={13} padding={2}>
+        </Box>
+        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -98,12 +93,7 @@ function PasswordModal(props) {
       //   justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-        <LinearGradient
-          start={[0, 0]}
-          end={[1, 1]}
-          colors={modalBackground}
-          style={styles.container}
-        >
+        <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>
           <TouchableOpacity style={styles.close} onPress={closePasswordModal}>
             <Close />
           </TouchableOpacity>
@@ -122,7 +112,7 @@ function PasswordModal(props) {
           </Modal.Header>
           <Input
             placeholderTextColor="grey"
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             placeholder="Enter Password"
             width="90%"
             marginY={2}
@@ -148,28 +138,23 @@ function PasswordModal(props) {
               disabled={password.trim() === ''}
               onPress={() => props.onPressNext(password)}
             >
-              <LinearGradient
-                start={[0, 0]}
-                end={[1, 1]}
-                colors={buttonBackground}
-                style={styles.cta}
-              >
+              <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                 <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}
                 </Text>
-              </LinearGradient>
+              </Box>
             </TouchableOpacity>
           </Box>
-        </LinearGradient>
+        </Box>
         <KeeperModal
           visible={recoverySuccessModal}
           close={closeRecovery}
           title={seed.walletRecoverySuccessful}
           subTitle={seed.seedDescription}
           buttonText="View Wallet"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           buttonCallback={passwordScreen}
-          textColor="light.primaryText"
+          textColor={`${colorMode}.primaryText`}
           Content={RecoverWalletScreen}
         />
       </Modal.Content>

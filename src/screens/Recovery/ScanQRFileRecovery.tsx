@@ -1,27 +1,25 @@
-import { Alert, ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
-import { Box, HStack, Text } from 'native-base';
+import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
+import { Box, HStack, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
-import { decodeURBytes } from 'src/core/services/qr';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
+import { decodeURBytes } from 'src/services/qr';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import useToastMessage from 'src/hooks/useToastMessage';
 import UploadFile from 'src/components/UploadFile';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
-import { wp } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
 
 function ScanQRFileRecovery({ route }) {
+  const { colorMode } = useColorMode();
   const { allowFileUploads = true } = route.params || {};
   const { initateRecovery } = useConfigRecovery();
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
-  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
 
   const { common } = translations;
@@ -36,8 +34,7 @@ function ScanQRFileRecovery({ route }) {
 
   useEffect(() => {
     if (qrData) {
-      Alert.alert(qrData.toString());
-      console.log({ qrData });
+      initateRecovery(qrData.toString());
       resetQR();
     }
     return () => {
@@ -52,7 +49,6 @@ function ScanQRFileRecovery({ route }) {
         setQrPercent(100);
       } else {
         const { data: qrInfo, percentage } = decodeURBytes(decoder, data.data);
-        console.log({ qrInfo });
         if (qrInfo) {
           setData(qrInfo);
         }
@@ -62,12 +58,11 @@ function ScanQRFileRecovery({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1}>
-        <HeaderTitle
-          title="Recover Using Vault Configuration File"
-          subtitle="Recover Using Vault Configuration File"
-          paddingLeft={wp(20)}
+        <KeeperHeader
+          title="Recover Using Wallet Configuration File"
+          subtitle="Recover the vault from output descriptor/configuration/BSMS File"
         />
         <Box style={styles.qrcontainer}>
           <RNCamera
@@ -76,11 +71,11 @@ function ScanQRFileRecovery({ route }) {
             onBarCodeRead={onBarCodeRead}
             useNativeZoom
           />
-          <HStack>
-            {qrPercent !== 100 && <ActivityIndicator />}
-            <Text>{`Scanned ${qrPercent}%`}</Text>
-          </HStack>
         </Box>
+        <HStack justifyContent="center" my={2}>
+          {qrPercent !== 100 && <ActivityIndicator />}
+          <Text>{`Scanned ${qrPercent}%`}</Text>
+        </HStack>
         {allowFileUploads && <UploadFile fileHandler={initateRecovery} />}
         <Box style={styles.noteWrapper}>
           <Note
@@ -97,7 +92,7 @@ const styles = StyleSheet.create({
   qrcontainer: {
     borderRadius: 10,
     overflow: 'hidden',
-    marginVertical: 25,
+    marginVertical: 15,
     alignItems: 'center',
   },
   cameraView: {

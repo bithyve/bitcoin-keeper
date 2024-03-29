@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BackupType } from 'src/common/data/enums/BHR';
+import { BackupType } from 'src/models/enums/BHR';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -27,11 +27,16 @@ const initialState: {
   relayWalletError: boolean;
   realyWalletErrorMessage: string;
 
+  relaySignersUpdateLoading: boolean;
+  relaySignersUpdate: boolean;
+  relaySignerUpdateError: boolean;
+  realySignersUpdateErrorMessage: string;
+
   relayVaultUpdateLoading: boolean;
   relayVaultUpdate: boolean;
   relayVaultError: boolean;
   realyVaultErrorMessage: string;
-
+  vaultRecoveryDetails: Object;
   relayVaultReoveryShellId: string;
 } = {
   backupMethod: null,
@@ -51,6 +56,7 @@ const initialState: {
   backupWarning: false,
   signingDevices: [],
   vaultMetaData: {},
+  vaultRecoveryDetails: {},
   relayWalletUpdateLoading: false,
   relayWalletUpdate: false,
   relayWalletError: false,
@@ -60,6 +66,10 @@ const initialState: {
   relayVaultError: false,
   realyVaultErrorMessage: null,
   relayVaultReoveryShellId: null,
+  relaySignersUpdateLoading: false,
+  relaySignersUpdate: false,
+  relaySignerUpdateError: false,
+  realySignersUpdateErrorMessage: null,
 };
 
 const bhrSlice = createSlice({
@@ -78,6 +88,9 @@ const bhrSlice = createSlice({
     setBackupError: (state, action: PayloadAction<{ isError: boolean; error: string }>) => {
       state.backupError = action.payload.error;
       state.isBackupError = action.payload.isError;
+    },
+    setVaultRecoveryDetails: (state, action: PayloadAction<Object>) => {
+      state.vaultRecoveryDetails = action.payload;
     },
     setAppImageRecoverd: (state, action: PayloadAction<boolean>) => {
       state.appImageRecoverd = action.payload;
@@ -138,6 +151,27 @@ const bhrSlice = createSlice({
       state.realyWalletErrorMessage = null;
     },
 
+    setRelaySignersUpdateLoading: (state, action: PayloadAction<boolean>) => {
+      state.relaySignersUpdateLoading = action.payload;
+    },
+    relaySignersUpdateSuccess: (state) => {
+      state.relaySignersUpdate = true;
+      state.relaySignerUpdateError = false;
+      state.relaySignersUpdateLoading = false;
+      state.realySignersUpdateErrorMessage = null;
+    },
+    relaySignersUpdateFail: (state, action: PayloadAction<string>) => {
+      state.relaySignerUpdateError = true;
+      state.relaySignersUpdateLoading = false;
+      state.realySignersUpdateErrorMessage = action.payload;
+    },
+    resetSignersUpdateState: (state) => {
+      state.relaySignersUpdate = false;
+      state.relaySignerUpdateError = false;
+      state.relaySignersUpdateLoading = false;
+      state.realySignersUpdateErrorMessage = null;
+    },
+
     setRelayVaultUpdateLoading: (state, action: PayloadAction<boolean>) => {
       state.relayVaultUpdateLoading = action.payload;
     },
@@ -185,12 +219,18 @@ export const {
   relayWalletUpdateFail,
   resetRealyWalletState,
 
+  setRelaySignersUpdateLoading,
+  relaySignersUpdateSuccess,
+  relaySignersUpdateFail,
+  resetSignersUpdateState,
+
   setRelayVaultUpdateLoading,
   relayVaultUpdateSuccess,
   relayVaultUpdateFail,
   resetRealyVaultState,
 
   setRelayVaultRecoveryShellId,
+  setVaultRecoveryDetails,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -208,14 +248,21 @@ const bhrPersistConfig = {
     'recoverBackupFailed',
     'invalidPassword',
     'backupWarning',
+
     'relayWalletUpdateLoading',
     'relayWalletUpdate',
     'relayWalletError',
     'realyWalletErrorMessage',
+
     'relayVaultUpdateLoading',
     'relayVaultUpdate',
     'relayVaultError',
     'realyVaultErrorMessage',
+
+    'relaySignersUpdateLoading',
+    'relaySignersUpdate',
+    'relaySignerUpdateError',
+    'realySignersUpdateErrorMessage',
   ],
 };
 

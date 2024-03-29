@@ -1,7 +1,7 @@
-import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
-import { UsNumberFormat } from 'src/common/utilities';
+import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
+import { UsNumberFormat } from 'src/utils/utilities';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { useAppSelector } from 'src/store/hooks';
 
 export default function useFormattedAmountText(balance: number): string {

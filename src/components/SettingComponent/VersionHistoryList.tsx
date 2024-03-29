@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Text from 'src/components/KeeperText';
-import { FlatList, Box } from 'native-base';
+import { FlatList, Box, useColorMode } from 'native-base';
 import moment from 'moment';
 
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useQuery } from '@realm/react';
 import DotView from '../DotView';
 
 function VersionHistoryList() {
-  const { useQuery } = useContext(RealmWrapperContext);
+  const { colorMode } = useColorMode();
   const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
 
   return (
@@ -17,21 +17,21 @@ function VersionHistoryList() {
       style={{ overflow: 'visible' }}
       data={VersionHistoryData.reverse()}
       renderItem={({ item }) => (
-        <Box padding={1} position="relative">
+        <Box testID="view_versionHistory" marginLeft={1} padding={1} position="relative">
           <Box
             zIndex={99}
             position="absolute"
             left={-3}
             top={0}
-            backgroundColor="light.secondaryBackground"
+            backgroundColor={`${colorMode}.secondaryBackground`}
             padding={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color="light.lightAccent" />
+            <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
           </Box>
-          <Box borderLeftColor="light.lightAccent" borderLeftWidth={1} width="100%">
+          <Box borderLeftColor={`${colorMode}.lightAccent`} borderLeftWidth={1} width="100%">
             <Text
-              color="light.GreyText"
+              color={`${colorMode}.GreyText`}
               fontSize={10}
               bold
               ml={5}
@@ -39,22 +39,22 @@ function VersionHistoryList() {
               letterSpacing={0.3}
             >
               {/* {item.date} */}
-              {moment(item.date).format('ddd DD MMM YYYY hh:mma')}
+              {moment(item.date).format('ddd DD MMM YYYY HH:mma')}
             </Text>
             <Box
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.seashellWhite`}
               padding={5}
               borderRadius={10}
               my={2}
               ml={5}
             >
-              <Text color="light.headerText" letterSpacing={1} fontSize={14}>
+              <Text color={`${colorMode}.headerText`} letterSpacing={1} fontSize={14}>
                 {item.title}
               </Text>
-              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
+              <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>
                 {item.version}
               </Text>
-              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
+              <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>
                 {item.releaseNote}
               </Text>
             </Box>

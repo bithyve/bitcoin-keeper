@@ -1,273 +1,150 @@
-import React, { useContext, useState } from 'react';
-import { Box, Text, Pressable } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
-import { Share } from 'react-native';
-// components and functions
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import InfoBox from 'src/components/InfoBox';
-import { wp, hp, windowWidth } from 'src/common/data/responsiveness/responsive';
-// icons
-import IconShare from 'src/assets/images/icon_share.svg';
-import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/images/backup.svg';
-import LinearGradient from 'react-native-linear-gradient';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import useBalance from 'src/hooks/useBalance';
-import KeeperModal from 'src/components/KeeperModal';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import Note from 'src/components/Note/Note';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { Box, ScrollView, useColorMode } from 'native-base';
+import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { hp, wp } from 'src/constants/responsive';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import Colors from 'src/theme/Colors';
+import useVault from 'src/hooks/useVault';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import OptionCard from 'src/components/OptionCard';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletFingerprint from 'src/components/WalletFingerPrint';
+import useTestSats from 'src/hooks/useTestSats';
+import KeeperModal from 'src/components/KeeperModal';
+import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { useDispatch } from 'react-redux';
+import { deleteVault } from 'src/store/sagaActions/vaults';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
-type Props = {
-  title: string;
-  subTitle: string;
-  onPress: () => void;
-  Icon: boolean;
-};
+function VaultSettings({ route }) {
+  const { colorMode } = useColorMode();
+  const navigation = useNavigation();
+  const { vaultId } = route.params;
+  const { activeVault: vault } = useVault({ vaultId });
+  const dispatch = useDispatch();
+  const descriptorString = genrateOutputDescriptors(vault);
+  const TestSatsComponent = useTestSats({ wallet: vault });
+  const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const { showToast } = useToastMessage();
 
-function DescritporsModalContent({ descriptorString }) {
-  const onShare = async () => {
-    try {
-      await Share.share({
-        message: descriptorString,
-      });
-    } catch (error: any) {
-      console.log(error.message);
-    }
+  const onSuccess = () => {
+    dispatch(deleteVault(vaultId));
+    const popAction = StackActions.pop(2);
+    navigation.dispatch(popAction);
+    showToast('Vault deleted successfully', <TickIcon />);
   };
 
   return (
-    <Box style={styles.moadalContainer}>
-      <TouchableOpacity
-        onPress={async () => {
-          await onShare();
-        }}
-      >
-        <Box style={styles.inputWrapper} backgroundColor="light.primaryBackground">
-          <Text noOfLines={4}>{descriptorString}</Text>
-        </Box>
-      </TouchableOpacity>
-      <Box style={styles.modalNoteWrapper}>
-        <Note subtitle="Save the file with .bsms extension to import it in other cordinating apps" />
-      </Box>
-      <TouchableOpacity
-        onPress={async () => {
-          await onShare();
-        }}
-        style={styles.buttonContainer}
-      >
-        <Box>
-          <IconShare />
-        </Box>
-        <Text color="light.primaryText" style={styles.shareText}>
-          Share
-        </Text>
-      </TouchableOpacity>
-    </Box>
-  );
-}
-
-function Option({ title, subTitle, onPress, Icon }: Props) {
-  return (
-    <Pressable
-      flexDirection="row"
-      alignItems="center"
-      width="100%"
-      style={{ marginVertical: hp(20) }}
-      onPress={onPress}
-    >
-      {Icon && (
-        <Box width="16%">
-          <BackupIcon />
-        </Box>
-      )}
-      <Box width={Icon ? '80%' : '96%'}>
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
-          {title}
-        </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
-          {subTitle}
-        </Text>
-      </Box>
-      <Box width="4%">
-        <Arrow />
-      </Box>
-    </Pressable>
-  );
-}
-
-function VaultSettings({ route }) {
-  const navigtaion = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
-  const [genratorModalVisible, setGenratorModalVisible] = useState(false);
-  const { getSatUnit, getBalance } = useBalance();
-
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-
-  const descriptorString = genrateOutputDescriptors(vault);
-
-  const {
-    presentationData: { name, description } = { name: '', description: '' },
-    specs: { balances: { confirmed, unconfirmed } } = {
-      balances: { confirmed: 0, unconfirmed: 0 },
-    },
-  } = vault;
-  function VaultCard({ vaultName, vaultBalance, vaultDescription }) {
-    return (
-      <LinearGradient
-        colors={['#B17F44', '#6E4A35']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          borderRadius: hp(20),
-          width: wp(320),
-          height: hp(75),
-          position: 'relative',
-          marginLeft: -wp(20),
-          marginBottom: hp(30),
-        }}
-      >
-        <Box
-          marginTop={hp(17)}
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
-          style={{
-            marginHorizontal: wp(20),
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
+        title="Vault Settings"
+        subtitle="Settings specific to the vault"
+        icon={
+          <HexagonIcon
+            width={44}
+            height={38}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<VaultIcon />}
+          />
+        }
+      />
+      <ScrollView contentContainerStyle={styles.optionViewWrapper}>
+        <OptionCard
+          title="Vault Details"
+          description="Vault name & description"
+          callback={() => {
+            setVaultDetailVisible(true);
           }}
-        >
-          <Box>
-            <Text color="light.white" letterSpacing={0.28} fontSize={14}>
-              {vaultName}
-            </Text>
-            <Text color="light.white" letterSpacing={0.24} fontSize={12} light>
-              {vaultDescription}
-            </Text>
-          </Box>
-          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
-            {vaultBalance}
-            {getSatUnit()}
-          </Text>
-        </Box>
-      </LinearGradient>
-    );
-  }
-  return (
-    <Box style={styles.Container} background="light.secondaryBackground">
-      <StatusBarComponent padding={50} />
-      <Box>
-        <HeaderTitle
-          title="Vault Settings"
-          subtitle="Settings specific to the Vault"
-          onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor="light.textBlack"
-          titleFontSize={20}
-          paddingTop={hp(5)}
-          paddingLeft={hp(25)}
         />
-      </Box>
-      <Box borderBottomColor="light.divider" style={styles.vaultCardWrapper}>
-        <VaultCard
-          vaultName={name}
-          vaultDescription={description}
-          vaultBalance={getBalance(confirmed + unconfirmed)}
+        <OptionCard
+          title="Vault configuration file"
+          description="Vault configuration that needs to be stored privately"
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate('GenerateVaultDescriptor', { descriptorString })
+            );
+          }}
         />
-      </Box>
-      <Box style={styles.optionViewWrapper}>
-        <Option
-          title="Generate Descriptors"
-          subTitle="Vault configuration that needs to be stored privately"
-          onPress={() => setGenratorModalVisible(true)}
-          Icon={false}
+        <OptionCard
+          title="Archived vault"
+          description="View details of old vaults"
+          callback={() => {
+            navigation.dispatch(CommonActions.navigate('ArchivedVault'));
+          }}
         />
-        <Option
-          title="Archived Vault"
-          subTitle="View details of old vaults"
-          onPress={() => navigtaion.navigate('ArchivedVault')}
-          Icon={false}
+        <OptionCard
+          title="Update scheme"
+          description="Update your vault configuration and transfer funds"
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({ name: 'VaultSetup', params: { vaultId } })
+            );
+          }}
         />
-      </Box>
-
-      {/* {Bottom note} */}
-      <Box style={styles.bottomNoteWrapper}>
-        <InfoBox
-          title="Security Tip"
-          desciption="Recreate the Vault on another coordinator software and check if the multisig has the same details"
-          width={windowWidth * 0.8}
+        <OptionCard
+          title="Delete vault"
+          description="This will delete the vault and it is irreversible"
+          callback={() => {
+            setConfirmPassVisible(true);
+          }}
         />
+        {TestSatsComponent}
+      </ScrollView>
+      <Box style={styles.fingerprint}>
+        <WalletFingerprint fingerprint={vaultId} title="Vault Fingerprint" />
       </Box>
       <KeeperModal
-        close={() => setGenratorModalVisible(false)}
-        visible={genratorModalVisible}
-        title="Generate Vault Descriptor"
-        Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
-        subTitle="A descriptor contains sensitive information. Please use with caution"
-        showButtons={false}
+        visible={vaultDetailVisible}
+        close={() => setVaultDetailVisible(false)}
+        title="Edit name & description"
+        subTitleWidth={wp(240)}
+        subTitle="This will reflect on the home screen"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
+        showCloseIcon={false}
+        Content={() => (
+          <EditWalletDetailsModal wallet={vault} close={() => setVaultDetailVisible(false)} />
+        )}
       />
-    </Box>
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Enter Passcode"
+        subTitleWidth={wp(240)}
+        subTitle={'Confirm passcode to delete the vault'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onSuccess}
+          />
+        )}
+      />
+    </ScreenWrapper>
   );
 }
 
-const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-    position: 'relative',
-  },
-  moadalContainer: {
-    // flex: 1,
-    width: wp(280),
-  },
-  inputWrapper: {
-    borderRadius: 10,
-    flexDirection: 'row',
-    height: 150,
-    width: windowWidth * 0.8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-  },
-  IconText: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    borderColor: Colors.Seashell,
-    marginTop: 10,
-    paddingTop: 20,
-    borderTopWidth: 0.5,
-    alignItems: 'center',
-  },
-  shareText: {
-    fontSize: 12,
-    letterSpacing: 0.84,
-    marginVertical: 2.5,
-    paddingLeft: 3,
-  },
-  vaultCardWrapper: {
-    borderBottomWidth: 0.2,
-    marginTop: hp(30),
-    paddingHorizontal: wp(25),
-  },
+const styles = StyleSheet.create({
   optionViewWrapper: {
+    marginTop: hp(30),
     alignItems: 'center',
-    paddingHorizontal: wp(25),
   },
-  bottomNoteWrapper: {
-    position: 'absolute',
-    bottom: hp(45),
-    marginHorizontal: 5,
-  },
-  modalNoteWrapper: {
-    width: '90%',
+  fingerprint: {
+    alignItems: 'center',
   },
 });
 export default VaultSettings;

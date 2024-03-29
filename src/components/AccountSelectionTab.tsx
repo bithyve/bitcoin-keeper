@@ -1,16 +1,16 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Box, HStack, Pressable } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
+import { hp, wp } from 'src/constants/responsive';
+import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 
 import PreMix from 'src/assets/images/icon_premix.svg';
 import PostMix from 'src/assets/images/icon_postmix.svg';
 import Deposit from 'src/assets/images/icon_deposit.svg';
 import BadBank from 'src/assets/images/icon_badbank.svg';
-import { WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 
 const AccountTabs = [
   {
@@ -36,11 +36,12 @@ const AccountTabs = [
 ];
 
 function SingleAccount({ title, Icon, gradient, bold = false, onPress, index }) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={{ flexDirection: 'row' }}>
       <Pressable style={{ alignItems: 'center' }} onPress={onPress}>
         <GradientIcon Icon={Icon} height={hp(45)} gradient={gradient} />
-        <Text numberOfLines={2} bold={bold} color="light.GreyText" style={styles.accountText}>
+        <Text numberOfLines={2} bold={bold} color={`${colorMode}.GreyText`} style={styles.accountText}>
           {title}
         </Text>
       </Pressable>
@@ -62,7 +63,7 @@ export function AccountSelectionTab({
   return (
     <Box style={styles.container}>
       {AccountTabs.map((account, index) => (
-        <Box>
+        <Box key={account.title}>
           <SingleAccount
             title={account.title}
             Icon={account.Icon}
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   accountText: {
     fontSize: 12,

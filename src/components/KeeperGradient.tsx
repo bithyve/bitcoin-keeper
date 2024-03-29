@@ -24,7 +24,7 @@ function KeeperGradient(props: IKeeperGradientProps) {
     location: undefined,
   };
   return (
-    <Box {...updatedProps} bg={{ linearGradient: { colors, start, end, location } }}>
+    <Box {...updatedProps} backgroundColor={colors[0]}>
       {children}
     </Box>
   );

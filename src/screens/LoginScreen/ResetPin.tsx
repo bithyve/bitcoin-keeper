@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import LinearGradient from 'src/components/KeeperGradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { resetPin } from '../../store/sagaActions/login';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { resetPin } from 'src/store/sagaActions/login';
 
 export default function ResetPin(props) {
+  const { colorMode } = useColorMode();
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
@@ -124,10 +124,7 @@ export default function ResetPin(props) {
   }, [passcode, confirmPasscode]);
 
   return (
-    <LinearGradient
-      colors={['light.gradientStart', 'light.gradientEnd']}
-      style={styles.linearGradient}
-    >
+    <Box style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -135,10 +132,10 @@ export default function ResetPin(props) {
         <Box style={styles.wrapper}>
           <Box>
             <Box>
-              <Text style={styles.titleText} color="light.white">
+              <Text style={styles.titleText} color={`${colorMode}.white`}>
                 {login.ResetPasscode}
               </Text>
-              <Text style={styles.labelText} color="light.white">
+              <Text style={styles.labelText} color={`${colorMode}.white`}>
                 {login.Createpasscode}
               </Text>
 
@@ -147,15 +144,10 @@ export default function ResetPin(props) {
               {/*  */}
             </Box>
             <Box>
-              <Text style={styles.labelText} color="light.white">
+              <Text style={styles.labelText} color={`${colorMode}.white`}>
                 {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>
-                {/* pin input view */}
-                {/* <PinInputsView
-                  passCode={confirmPasscode}
-                  passcodeFlag={confirmPasscodeFlag !== 0 && confirmPasscodeFlag===2}
-                /> */}
                 <PinInputsView
                   passCode={confirmPasscode}
                   passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
@@ -167,7 +159,7 @@ export default function ResetPin(props) {
                 />
                 {/*  */}
                 {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                  <Text color="light.error" style={styles.errorText}>
+                  <Text color={`${colorMode}.error`} style={styles.errorText}>
                     {login.MismatchPasscode}
                   </Text>
                 )}
@@ -189,12 +181,12 @@ export default function ResetPin(props) {
           />
         </Box>
       </Box>
-    </LinearGradient>
+    </Box>
   );
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  container: {
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,

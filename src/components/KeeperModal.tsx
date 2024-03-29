@@ -1,6 +1,12 @@
-import { Box, Modal, Pressable } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { Box, Modal, Pressable, useColorMode } from 'native-base';
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/modal_close.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
@@ -9,6 +15,7 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
+import { useKeyboard } from 'src/hooks/useKeyboard';
 
 type ModalProps = {
   visible: boolean;
@@ -16,8 +23,8 @@ type ModalProps = {
   title?: string;
   subTitle?: string;
   subTitleWidth?: number;
-  modalBackground?: string[];
-  buttonBackground?: string[];
+  modalBackground?: string;
+  buttonBackground?: string;
   buttonText?: string;
   buttonTextColor?: string;
   secButtonTextColor?: string;
@@ -35,20 +42,21 @@ type ModalProps = {
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
+  loading?: boolean;
 };
 
 KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: ['light.mainBackground', 'light.mainBackground'],
-  buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
+  modalBackground: 'light.primaryBackground',
+  buttonBackground: 'light.greenButtonBackground',
   buttonText: null,
   buttonTextColor: 'white',
-  secButtonTextColor: '#073E39',
-  buttonCallback: () => { },
+  secButtonTextColor: 'light.headerText',
+  buttonCallback: () => {},
   secondaryButtonText: null,
-  secondaryCallback: () => { },
+  secondaryCallback: () => {},
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -56,10 +64,11 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => { },
+  learnMoreCallback: () => {},
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
+  loading: false,
 };
 
 function KeeperModal(props: ModalProps) {
@@ -88,93 +97,98 @@ function KeeperModal(props: ModalProps) {
     closeOnOverlayClick,
     showCloseIcon,
     justifyContent,
+    loading,
   } = props;
+  const { colorMode } = useColorMode();
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
-
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
+  const isKeyboardOpen = useKeyboard();
+
   if (!visible) {
     return null;
   }
 
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
-  const linearGradient = {
-    colors: modalBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
-  const linearGradientBtn = {
-    colors: buttonBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
-      avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={justifyContent}
+      pb={isKeyboardOpen ? '60%' : '0'}
     >
-      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
+      <Modal.Content
+        borderRadius={10}
+        marginBottom={Math.max(5, bottomMargin)}
+        maxHeight={windowHeight * 0.9}
+        width="95%"
+      >
         <GestureHandlerRootView>
-          <Box backgroundColor={{ linearGradient }} style={styles.container}>
+          <Box backgroundColor={modalBackground} style={styles.container}>
             {showCloseIcon ? (
-              <TouchableOpacity style={styles.close} onPress={close}>
+              <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                 {getCloseIcon()}
               </TouchableOpacity>
             ) : null}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
-                <Text style={styles.title} color={textColor}>
+                <Text testID="text_modal_title" style={styles.title} color={textColor}>
                   {title}
                 </Text>
                 {subTitle ? (
-                  <Text style={styles.subTitle} color={subTitleColor}>
+                  <Text testID="text_modal_subtitle" style={styles.subTitle} color={subTitleColor}>
                     {`${subTitle}`}
                   </Text>
                 ) : null}
               </Modal.Header>
             ) : null}
-            <Modal.Body>
-              <Content />
-            </Modal.Body>
-            {((showButtons && learnMore) || !!buttonText) && (
-              <Box style={styles.footerContainer}>
-                {learnMore ? (
-                  <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
-                    <Pressable onPress={learnMoreCallback}>
-                      <Text color="light.lightAccent" style={styles.seeFAQs} bold>
-                        See FAQs
-                      </Text>
-                    </Pressable>
-                  </Box>
-                ) : (
-                  <Box />
-                )}
-                {!!secondaryButtonText && (
-                  <TouchableOpacity onPress={secondaryCallback}>
-                    <Box style={styles.secCta}>
-                      <Text style={styles.ctaText} color={secButtonTextColor} bold>
-                        {showButtons ? secondaryButtonText : null}
-                      </Text>
+            <ScrollView style={{ maxHeight: windowHeight * 0.8 }}>
+              <Modal.Body>
+                <Content />
+              </Modal.Body>
+              {((showButtons && learnMore) || !!buttonText) && (
+                <Box style={[styles.footerContainer, learnMore && styles.spaceBetween]}>
+                  {learnMore ? (
+                    <Box
+                      borderColor={`${colorMode}.lightAccent`}
+                      backgroundColor={`${colorMode}.modalGreenLearnMore`}
+                      style={styles.learnMoreContainer}
+                    >
+                      <Pressable onPress={learnMoreCallback}>
+                        <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
+                          See FAQs
+                        </Text>
+                      </Pressable>
                     </Box>
-                  </TouchableOpacity>
-                )}
-                {!!buttonText && (
-                  <TouchableOpacity onPress={buttonCallback}>
-                    <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
-                      <Text style={styles.ctaText} color={buttonTextColor} bold>
-                        {showButtons ? buttonText : null}
-                      </Text>
-                    </Box>
-                  </TouchableOpacity>
-                )}
-              </Box>
-            )}
+                  ) : (
+                    <Box />
+                  )}
+                  {!!secondaryButtonText && (
+                    <TouchableOpacity onPress={secondaryCallback}>
+                      <Box style={styles.secCta}>
+                        <Text style={styles.ctaText} color={secButtonTextColor} medium>
+                          {showButtons ? secondaryButtonText : null}
+                        </Text>
+                      </Box>
+                    </TouchableOpacity>
+                  )}
+                  {!!buttonText && (
+                    <TouchableOpacity onPress={buttonCallback}>
+                      <Box backgroundColor={buttonBackground} style={styles.cta}>
+                        <Text style={styles.ctaText} color={buttonTextColor} bold>
+                          {showButtons ? buttonText : null}
+                        </Text>
+                        {loading ? <ActivityIndicator /> : null}
+                      </Box>
+                    </TouchableOpacity>
+                  )}
+                </Box>
+              )}
+            </ScrollView>
           </Box>
         </GestureHandlerRootView>
       </Modal.Content>
@@ -188,16 +202,15 @@ const getStyles = (subTitleWidth) =>
   StyleSheet.create({
     container: {
       borderRadius: 10,
-      alignItems: 'center',
-      padding: '4%',
+      padding: '3%',
     },
     title: {
       fontSize: 19,
-      letterSpacing: 1,
+      letterSpacing: 0.19,
     },
     subTitle: {
-      fontSize: 12,
-      letterSpacing: 1,
+      fontSize: 13,
+      letterSpacing: 0.13,
       width: subTitleWidth,
     },
     secCta: {
@@ -211,7 +224,7 @@ const getStyles = (subTitleWidth) =>
     cta: {
       borderRadius: 10,
       width: wp(120),
-      height: hp(45),
+      height: hp(50),
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -222,7 +235,7 @@ const getStyles = (subTitleWidth) =>
     close: {
       position: 'absolute',
       right: 20,
-      top: 20,
+      top: 16,
     },
     seeFAQs: {
       fontSize: 13,
@@ -232,7 +245,6 @@ const getStyles = (subTitleWidth) =>
       borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#00433A',
       height: hp(34),
       width: wp(110),
       marginLeft: wp(10),
@@ -241,15 +253,21 @@ const getStyles = (subTitleWidth) =>
       alignSelf: 'flex-start',
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
-      width: '95%',
+      width: '90%',
+      marginTop: wp(5),
     },
     bodyContainer: {
       width: '80%',
     },
     footerContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
+      gap: 30,
       alignItems: 'center',
-      width: '100%',
+      marginBottom: 20,
+      marginRight: 10,
+    },
+    spaceBetween: {
+      justifyContent: 'space-between',
     },
   });

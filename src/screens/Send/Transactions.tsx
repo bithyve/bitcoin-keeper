@@ -1,16 +1,13 @@
-// libraries
-import { Box, View } from 'native-base';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { Box, useColorMode, View } from 'native-base';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
-// asserts
 import IconWallet from 'src/assets/images/icon_wallet.svg';
-import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/images/modal_close.svg';
-// components
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 function Transactions({ transactions, addTransaction = () => { } }) {
+  const { colorMode } = useColorMode();
   const renderTranscation = ({ item }: { item; index }) => {
     const { address, amount } = item;
     return (
@@ -19,7 +16,7 @@ function Transactions({ transactions, addTransaction = () => { } }) {
         alignItems="center"
         style={{ marginRight: wp(10) }}
         flexDirection="row"
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
         width={wp(215)}
         height={hp(54)}
         borderRadius={10}
@@ -34,7 +31,7 @@ function Transactions({ transactions, addTransaction = () => { } }) {
               mt="1"
               numberOfLines={1}
               letterSpacing={1.12}
-              color="light.sendCardHeading"
+              color={`${colorMode}.sendCardHeading`}
               width={wp(100)}
             >
               {address}
@@ -69,10 +66,10 @@ function Transactions({ transactions, addTransaction = () => { } }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
 
   buttonBackground: {

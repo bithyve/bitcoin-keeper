@@ -1,32 +1,38 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { TxPriority, VaultType } from 'src/core/wallets/enums';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { TxPriority, VaultType } from 'src/services/wallets/enums';
+import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { clearSigningDevice } from 'src/store/reducers/vaults';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
-import { captureError } from 'src/core/services/sentry';
-import usePlan from 'src/hooks/usePlan';
+import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
-import WalletOperations from 'src/core/wallets/operations';
-import { UNVERIFYING_SIGNERS } from 'src/hardware';
+import WalletOperations from 'src/services/wallets/operations';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
+import { Alert } from 'react-native';
 
-function VaultMigrationController({ vaultCreating, signersState, planStatus, setCreating }: any) {
+function VaultMigrationController({
+  vaultCreating,
+  vaultKeys,
+  scheme,
+  setCreating,
+  name,
+  description,
+  vaultId,
+}) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { activeVault } = useVault();
-  const { subscriptionScheme } = usePlan();
+  const { activeVault, allVaults } = useVault({ vaultId });
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
     (state) => state.network.averageTxFees
@@ -41,6 +47,13 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
   );
 
   const [recipients, setRecepients] = useState<any[]>();
+  const [generatedVaultId, setGeneratedVaultId] = useState('');
+
+  useEffect(() => {
+    if (temporaryVault && temporaryVault.id) {
+      setGeneratedVaultId(temporaryVault.id);
+    }
+  }, [temporaryVault]);
 
   useEffect(() => {
     if (vaultCreating) {
@@ -49,17 +62,24 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
   }, [vaultCreating]);
 
   useEffect(() => {
-    if (relayVaultUpdate) {
+    const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
+    if (relayVaultUpdate && newVault) {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+          { name: 'Home' },
+          {
+            name: 'VaultDetails',
+            params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetRealyVaultState());
-      dispatch(clearSigningDevice());
+      setCreating(false);
+    } else if (relayVaultUpdate) {
+      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
+      dispatch(resetRealyVaultState());
       setCreating(false);
     }
 
@@ -84,14 +104,16 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
       navigation.dispatch(
         CommonActions.navigate('SendConfirmation', {
           sender: activeVault,
-          recipients,
+          recipient: temporaryVault,
+          address: recipients[0].address,
+          amount: parseInt(recipients[0].amount, 10),
           transferType: TransferType.VAULT_TO_VAULT,
         })
       );
     } else if (sendPhaseOneState.hasFailed) {
-      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
         showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
-      else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
+      } else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
     }
   }, [sendPhaseOneState]);
 
@@ -139,66 +161,61 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
         vaultScheme: scheme,
         vaultSigners: signers,
         vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
+          name,
+          description,
         },
       };
-      dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-      return vaultInfo;
+      const allVaultIds = allVaults.map((vault) => vault.id);
+      const generatedVaultId = generateVaultId(signers, scheme);
+      if (allVaultIds.includes(generatedVaultId)) {
+        Alert.alert('Vault with this configuration already exisits');
+        navigation.goBack();
+      } else {
+        setGeneratedVaultId(generatedVaultId);
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+
+        return vaultInfo;
+      }
     } catch (err) {
       captureError(err);
       return false;
     }
   }, []);
 
-  const sanitizeSigners = () =>
-    signersState.map((signer: VaultSigner) => {
-      if (
-        !signer.isMock &&
-        subscriptionScheme.n !== 1 &&
-        !UNVERIFYING_SIGNERS.includes(signer.type) &&
-        signer.registered
-      ) {
-        return { ...signer, registered: false };
-      }
-      return signer;
-    });
-
   const initiateNewVault = () => {
     if (activeVault) {
       if (unconfirmed) {
         showToast(
           'You have unconfirmed balance, please try again in some time',
-          <ToastErrorIcon />,
-          4000
+          <ToastErrorIcon />
         );
         navigation.dispatch(
           CommonActions.reset({
             index: 1,
             routes: [
-              { name: 'NewHome' },
+              { name: 'Home' },
               {
                 name: 'VaultDetails',
-                params: { autoRefresh: true },
+                params: { autoRefresh: true, vaultId: activeVault.id },
               },
             ],
           })
         );
         return;
       }
-      const freshSignersState = sanitizeSigners();
+
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: subscriptionScheme,
-        vaultSigners: freshSignersState,
+        vaultScheme: scheme,
+        vaultSigners: vaultKeys,
         vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
+          name,
+          description,
         },
       };
-      dispatch(migrateVault(vaultInfo, planStatus, activeVault.shellId));
+      dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(signersState, subscriptionScheme);
+      createVault(vaultKeys, scheme);
     }
   };
   return null;

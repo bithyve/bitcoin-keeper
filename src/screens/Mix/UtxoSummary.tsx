@@ -1,15 +1,13 @@
-// utxo summary component
-
 import React from 'react';
 import { StyleSheet } from 'react-native';
-
-import { Box, Text } from 'native-base';
+import { Box, Text, useColorMode } from 'native-base';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import WalletIcon from 'src/assets/images/wallet_color.svg';
 import { useAppSelector } from 'src/store/hooks';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import { SatsToBtc } from 'src/constants/Bitcoin';
 
 export default function UtxoSummary({ utxoCount, totalAmount }) {
+  const { colorMode } = useColorMode();
   const { satsEnabled } = useAppSelector((state) => state.settings);
 
   return (
@@ -20,11 +18,11 @@ export default function UtxoSummary({ utxoCount, totalAmount }) {
       <Box style={styles.utxoSummary}>
         <Box style={styles.utxoTextDirection}>
           <Text style={styles.noOfUtxo}>{utxoCount} </Text>
-          <Text color="light.secondaryText">UTXOs Selected</Text>
+          <Text color={`${colorMode}.secondaryText`}>UTXOs Selected</Text>
         </Box>
         <Box style={styles.sats}>
           <BtcInput />
-          <Text color="light.secondaryText">
+          <Text color={`${colorMode}.secondaryText`}>
             {' '}
             {satsEnabled ? totalAmount : SatsToBtc(totalAmount)}
           </Text>

@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
 import React, { useContext, useMemo } from 'react';
-import { Box } from 'native-base';
-import { TorStatus } from 'src/core/services/rest/RestClient';
-import { TorContext } from 'src/store/contexts/TorContext';
+import { Box, useColorMode } from 'native-base';
+import { TorStatus } from 'src/services/rest/RestClient';
+import { TorContext } from 'src/context/TorContext';
 import Text from './KeeperText';
 
 function TorStatusTag() {
+  const { colorMode } = useColorMode();
   const { torStatus } = useContext(TorContext);
 
   const getTorStatusText = useMemo(() => {
@@ -46,7 +47,7 @@ function TorStatusTag() {
   return (
     <Box style={styles.torStatusWrapper} testID="view_homeTorStatus">
       <Box backgroundColor={getTorStatusColor} borderRadius={10} px={2}>
-        <Text color="light.primaryText" style={styles.torText} bold>
+        <Text color={`${colorMode}.primaryText`} style={styles.torText} bold testID="text_home_tor_status">
           {getTorStatusText}
         </Text>
       </Box>

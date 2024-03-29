@@ -1,17 +1,15 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import TorAsset from 'src/components/Loader';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'src/components/KeeperGradient';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
@@ -20,29 +18,34 @@ import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
-import { isTestnet } from 'src/common/constants/Bitcoin';
-import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import { isTestnet } from 'src/constants/Bitcoin';
+import { getSecurityTip } from 'src/constants/defaultData';
+import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
-import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import SubScription from 'src/common/data/models/interfaces/Subscription';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { Shadow } from 'react-native-shadow-2';
-import ResetPassSuccess from './components/ResetPassSuccess';
-import { credsAuth } from '../../store/sagaActions/login';
-import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
-import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import { credsAuth } from 'src/store/sagaActions/login';
+import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
-import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
+import ResetPassSuccess from './components/ResetPassSuccess';
+import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
-  const { relogin } = route.params;
+  const { colorMode } = useColorMode();
+  const { relogin, title, screen, internalCheck } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -53,14 +56,17 @@ function LoginScreen({ navigation, route }) {
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const { loginMethod, torEnbled } = useAppSelector((state) => state.settings);
-  const { appId, failedAttempts, lastLoginFailedAt, } = useAppSelector((state) => state.storage);
+  const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [incorrectPassword, setIncorrectPassword] = useState(false);
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const [canLogin, setCanLogin] = useState(false);
-  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector((state) => state.login);
+  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector(
+    (state) => state.login
+  );
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -80,18 +86,16 @@ function LoginScreen({ navigation, route }) {
     };
   }, [loggingIn]);
 
-
   useEffect(() => {
     if (failedAttempts >= 1) {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
-      const waitingTime = TIMEOUT * failedAttempts;
-      if (retryTime > waitingTime) {
+      if (retryTime > PasswordTimeout(failedAttempts)) {
         setCanLogin(true);
         return;
       }
       setTimeout(() => {
         setLoginError(true);
-        setErrMessage(`Please try after sometime`);
+        setErrMessage(`Please try after ${PasswordTimeout(failedAttempts) / TIMEOUT} minutes`);
         setCanLogin(false);
       }, 100);
       return;
@@ -158,17 +162,33 @@ function LoginScreen({ navigation, route }) {
       setErrMessage('Incorrect passcode');
       setPasscode('');
       setAttempts(attempts + 1);
+      setIncorrectPassword(true);
       setLogging(false);
     } else {
       setLoginError(false);
     }
   }, [authenticationFailed]);
 
+  useEffect(() => {
+    if (isAuthenticated && internalCheck) {
+      navigation.navigate({
+        name: screen,
+        params: { isAuthenticated: true },
+        merge: true,
+      });
+      dispatch(credsAuthenticated(false));
+    }
+  }, [isAuthenticated]);
+
   const loginModalAction = () => {
     if (isAuthenticated) {
       setLoginModal(false);
       if (relogin) {
-        navigation.goBack();
+        navigation.navigate({
+          name: screen,
+          params: { isAuthenticated: true },
+          merge: true,
+        });
       } else if (appId !== '') {
         updateFCM();
         navigation.replace('App');
@@ -189,6 +209,7 @@ function LoginScreen({ navigation, route }) {
 
   const attemptLogin = (passcode: string) => {
     setLoginModal(true);
+
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -196,6 +217,7 @@ function LoginScreen({ navigation, route }) {
     setLoginError(false);
     setErrMessage('');
     setAttempts(0);
+    setIncorrectPassword(false);
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
@@ -275,22 +297,31 @@ function LoginScreen({ navigation, route }) {
   function LoginModalContent() {
     return (
       <Box style={{ width: wp(280) }}>
-        <Box style={styles.modalAssetsWrapper}>
-          {modelAsset}
-        </Box>
-        <Text color="light.greenText" style={styles.modalMessageText}>
+        <Box style={styles.modalAssetsWrapper}>{modelAsset}</Box>
+        <Text color={`${colorMode}.primaryText`} style={styles.modalMessageText}>
           {modelMessage}
         </Text>
-        {modelButtonText === null ? <Text color="light.greenText" style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
-          This step will take a few seconds. You would be able to proceed soon
-        </Text> : null}
+        {modelButtonText === null ? (
+          <Box style={styles.modalMessageWrapper}>
+            <Box style={{ width: '80%' }}>
+              <Text
+                color={`${colorMode}.primaryText`}
+                style={[styles.modalMessageText, { paddingTop: hp(20) }]}
+              >
+                This step will take a few seconds. You would be able to proceed soon
+              </Text>
+            </Box>
+            <Box style={{ width: '20%' }}>
+              <BounceLoader />
+            </Box>
+          </Box>
+        ) : null}
       </Box>
     );
   }
 
-
   function resetToPleb() {
-    const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
+    const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
     const updatedSubscription: SubScription = {
       receipt: '',
       productId: SubscriptionTier.L1,
@@ -304,63 +335,16 @@ function LoginScreen({ navigation, route }) {
     navigation.replace('App');
   }
 
-  // eslint-disable-next-line react/no-unstable-nested-components
   function NoInternetModalContent() {
     return (
-      <Box width={wp(250)}>
-        <DowngradeToPleb />
-        {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
-        <Box mt={10} alignItems="center" flexDirection="row">
-          <TouchableOpacity
-            style={[
-              styles.cancelBtn,
-            ]}
-            onPress={() => {
-              setLoginError(false);
-              setLogging(false);
-              dispatch(setRecepitVerificationError(false));
-              resetToPleb()
-            }}
-            activeOpacity={0.5}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
-              Continue as Pleb
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              setLoginError(false);
-              setLogging(true);
-              dispatch(setRecepitVerificationError(false));
-            }}
-          >
-            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box
-                style={[styles.createBtn,]}
-                paddingLeft={10}
-                paddingRight={10}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
-              >
-                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-                  Retry
-                </Text>
-              </Box>
-            </Shadow>
-          </TouchableOpacity>
-        </Box>
+      <Box style={styles.noInternetModalContainer}>
+        {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
       </Box>
-    )
+    );
   }
 
   return (
-    <Box style={styles.linearGradient} backgroundColor='light.pantoneGreen'>
+    <Box style={styles.content} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -376,16 +360,16 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Text
               ml={5}
-              color="light.primaryBackground"
+              color={`${colorMode}.choosePlanHome`}
               fontSize={22}
               style={{
                 marginTop: hp(65),
               }}
             >
-              {login.welcomeback}
+              {relogin ? title : login.welcomeback}
             </Text>
             <Box>
-              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.primaryBackground">
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color={`${colorMode}.choosePlanHome`}>
                 {login.enter_your}
                 {login.passcode}
               </Text>
@@ -401,7 +385,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Box>
               {loginError && (
-                <Text style={styles.errorMessage} color="light.error">
+                <Text style={styles.errorMessage} color={`${colorMode}.error`}>
                   {errMessage}
                 </Text>
               )}
@@ -409,7 +393,7 @@ function LoginScreen({ navigation, route }) {
           </Box>
 
           {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
-            <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
+            <Text color={`${colorMode}.white`} px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
             <Switch
@@ -420,37 +404,36 @@ function LoginScreen({ navigation, route }) {
               defaultIsChecked={torEnbled}
             />
           </HStack> */}
-
-          <Box style={styles.btnContainer}>
-            {attempts >= 1 ? (
+          {/* {attempts >= 1 ? (
               <TouchableOpacity
                 style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}
                 onPress={() => {
                   setForgotVisible(true);
                 }}
               >
-                <Text color="light.primaryBackground" bold fontSize={14}>
+                <Text color={`${colorMode}.primaryBackground`} bold fontSize={14}>
                   {login.ForgotPasscode}
                 </Text>
               </TouchableOpacity>
             ) : (
               <Box />
+            )} */}
+          <Box style={styles.btnWrapper}>
+            {passcode.length === 4 && (
+              <Box>
+                <CustomButton
+                  testID="btn_login"
+                  onPress={() => {
+                    setLoginError(false);
+                    setLogging(true);
+                  }}
+                  loading={loggingIn}
+                  value={common.proceed}
+                />
+              </Box>
             )}
-            <Box style={styles.btnWrapper}>
-              {passcode.length === 4 && (
-                <Box>
-                  <CustomButton
-                    onPress={() => {
-                      setLoginError(false);
-                      setLogging(true);
-                    }}
-                    loading={loggingIn}
-                    value={common.proceed}
-                  />
-                </Box>
-              )}
-            </Box>
           </Box>
+          {/* </Box> */}
 
           {/* keyboardview start */}
           <KeyPadView
@@ -495,17 +478,23 @@ function LoginScreen({ navigation, route }) {
         </Box>
       </Box>
       <KeeperModal
-        visible={loginModal}
+        visible={loginModal && !internalCheck}
         close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
-        subTitleColor="light.secondaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
+        // buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
+        buttonTextColor={`${colorMode}.white`}
         showButtons
         Content={LoginModalContent}
-        subTitleWidth={wp(250)}
+        subTitleWidth={wp(280)}
       />
 
       <KeeperModal
@@ -515,25 +504,39 @@ function LoginScreen({ navigation, route }) {
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
         Content={NoInternetModalContent}
-        subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
-        showCloseIcon={false}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        subTitleWidth={wp(230)}
         showButtons
+        buttonText={'Retry'}
+        buttonCallback={() => {
+          setLoginError(false);
+          setLogging(true);
+          dispatch(setRecepitVerificationError(false));
+        }}
+        secondaryButtonText={'Continue as Pleb'}
+        secondaryCallback={() => {
+          setLoginError(false);
+          setLogging(false);
+          dispatch(setRecepitVerificationError(false));
+          resetToPleb();
+        }}
       />
-
-      {/* <KeeperModal
-        dismissible
-        close={() => { setShowDowngradeModal(false) }}
-        visible={showDowngradeModal}
-        title="Failed to validate your subscription"
-        subTitle="Do you want to downgrade to pleb and continue?"
-        Content={DowngradeModalContent}
-        subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
-        showCloseIcon
-        closeOnOverlayClick={() => setShowDowngradeModal(false)}
+      <KeeperModal
+        visible={incorrectPassword}
+        close={() => { }}
+        title="Incorrect Password"
+        subTitle="You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText="Retry"
+        buttonCallback={() => setIncorrectPassword(false)}
         showButtons
-      /> */}
+        subTitleWidth={wp(250)}
+      />
     </Box>
   );
 }
@@ -575,7 +578,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
   },
-  linearGradient: {
+  content: {
     flex: 1,
     padding: 10,
   },
@@ -585,12 +588,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.65,
   },
-  btnContainer: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    width: '100%',
-  },
   forgotPassWrapper: {
     flex: 0.8,
     margin: 20,
@@ -598,15 +595,15 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   btnWrapper: {
+    flex: 1,
     marginTop: 25,
-    alignSelf: 'flex-start',
-    marginRight: 15,
-    width: '35%',
+    alignItems: 'flex-end',
+    width: '92%',
   },
   createBtn: {
     paddingVertical: hp(15),
     borderRadius: 10,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   cancelBtn: {
     marginRight: wp(20),
@@ -617,15 +614,25 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
   },
   modalAssetsWrapper: {
-    width: '88%',
+    width: windowWidth * 0.8,
     alignItems: 'center',
     paddingVertical: hp(20),
   },
   modalMessageText: {
     fontSize: 13,
-    letterSpacing: 0.65,
-    width: wp(275),
-  }
+    letterSpacing: 0.13,
+  },
+  modalMessageWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+  },
+  noInternetModalContainer: {
+    width: wp(200),
+    alignItems: 'center',
+    marginTop: hp(20),
+    marginBottom: hp(60),
+  },
 });
 
 export default LoginScreen;

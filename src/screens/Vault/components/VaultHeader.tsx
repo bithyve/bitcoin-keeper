@@ -1,13 +1,14 @@
-import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { Box } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import BackIcon from 'src/assets/images/back_white.svg';
 import Text from 'src/components/KeeperText';
 import { setIntroModal } from 'src/store/reducers/vaults';
 
 function VaultHeader() {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   return (
@@ -20,7 +21,7 @@ function VaultHeader() {
       </Box>
       <Box width="50%">
         <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-          <Text color="light.white" style={styles.footerText} light>
+          <Text color={`${colorMode}.white`} style={styles.footerText} light>
             Know More
           </Text>
         </TouchableOpacity>

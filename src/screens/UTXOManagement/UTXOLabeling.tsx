@@ -1,25 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-native';
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
-import { UTXO } from 'src/core/wallets/interfaces';
-import { NetworkType } from 'src/core/wallets/enums';
+import { hp, windowWidth } from 'src/constants/responsive';
+import { UTXO } from 'src/services/wallets/interfaces';
+import { NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import Done from 'src/assets/images/selected.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/constants/Bitcoin';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
@@ -89,7 +89,7 @@ function UTXOLabeling() {
 
   useEffect(() => {
     if (apiError) {
-      showToast(apiError.toString(), <ToastErrorIcon />, 3000);
+      showToast(apiError.toString(), <ToastErrorIcon />);
       processDispatched.current = false;
     }
     if (processDispatched.current && !syncingUTXOs) {
@@ -133,16 +133,15 @@ function UTXOLabeling() {
   };
 
   return (
-    <ScreenWrapper>
-      <HeaderTitle
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
         title="UTXO Details"
         subtitle="Easily identify specific aspects of various UTXOs"
-        paddingLeft={25}
       />
       <ScrollView
         style={styles.scrollViewWrapper}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps
+        keyboardShouldPersistTaps="always"
       >
         <View style={styles.subHeader} testID="view_utxosLabelSubHeader">
           <View style={{ flex: 1 }}>
@@ -171,7 +170,7 @@ function UTXOLabeling() {
             </View>
           </View>
         </View>
-        <View style={styles.listContainer}>
+        <Box style={styles.listContainer} backgroundColor={`${colorMode}.seashellWhite`}>
           <View style={{ flexDirection: 'row' }}>
             <Text style={styles.listHeader}>Labels</Text>
           </View>
@@ -187,7 +186,7 @@ function UTXOLabeling() {
               />
             ))}
           </View>
-          <Box style={styles.inputLabeWrapper}>
+          <Box style={styles.inputLabeWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
             <Box style={styles.inputLabelBox}>
               <Input
                 testID="input_utxoLabel"
@@ -202,6 +201,7 @@ function UTXOLabeling() {
                 value={label}
                 autoCorrect={false}
                 autoCapitalize="characters"
+                backgroundColor={`${colorMode}.seashellWhite`}
               />
             </Box>
             <TouchableOpacity
@@ -212,7 +212,7 @@ function UTXOLabeling() {
               <Done />
             </TouchableOpacity>
           </Box>
-        </View>
+        </Box>
         <View style={{ flex: 1 }} />
       </ScrollView>
       <Box style={styles.ctaBtnWrapper}>
@@ -271,7 +271,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: '#F7F2EC',
   },
   inputLabelBox: {
     width: '90%',
@@ -314,7 +313,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     paddingHorizontal: 15,
     paddingVertical: 12,
-    backgroundColor: '#FDF7F0',
     borderRadius: 10,
   },
   listSubContainer: {

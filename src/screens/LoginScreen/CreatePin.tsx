@@ -1,30 +1,33 @@
 /* eslint-disable react/no-unstable-nested-components */
-import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
-import { Dimensions, StatusBar, StyleSheet } from 'react-native';
+import { Box, StatusBar, useColorMode } from 'native-base';
+import { Dimensions, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import LinearGradient from 'src/components/KeeperGradient';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import Passwordlock from 'src/assets/images/passwordlock.svg';
+
+import { storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
-import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
 
 export default function CreatePin(props) {
+  const { colorMode } = useColorMode();
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
+  const [createPassword, setCreatePassword] = useState(false);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { oldPasscode } = props.route.params || {};
   const dispatch = useAppDispatch();
@@ -123,7 +126,7 @@ export default function CreatePin(props) {
   }, [credsChanged]);
 
   useEffect(() => {
-    if (passcode === confirmPasscode) {
+    if (passcode === confirmPasscode && passcode.length === 4) {
       setIsDisabled(false);
     } else {
       setIsDisabled(true);
@@ -131,26 +134,35 @@ export default function CreatePin(props) {
   }, [passcode, confirmPasscode]);
 
   function ElectrumErrorContent() {
+    const { colorMode } = useColorMode();
     return (
       <Box width={wp(320)}>
         <Box margin={hp(5)}>
           <DowngradeToPleb />
         </Box>
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
             Please try again later
           </Text>
         </Box>
       </Box>
     );
   }
+  function CreatePassModalContent() {
+    return (
+      <Box width={wp(60)}>
+        <Box style={styles.passImg}>
+          <Passwordlock />
+        </Box>
+        <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
+          You would be locked out of the app if you forget your passcode and will have to recover it
+        </Text>
+      </Box>
+    );
+  }
 
   return (
-    <Box
-      testID="main"
-      style={styles.linearGradient}
-      backgroundColor='light.pantoneGreen'
-    >
+    <Box testID="main" style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -158,10 +170,10 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} color="light.primaryBackground">
+              <Text style={styles.welcomeText} color={`${colorMode}.choosePlanHome`}>
                 {login.welcome}
               </Text>
-              <Text color="light.primaryBackground" style={styles.labelText}>
+              <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -171,8 +183,7 @@ export default function CreatePin(props) {
                 passcodeFlag={passcodeFlag}
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
-                    ? // ? '#FF8F79'
-                    `light.error`
+                    ? `${colorMode}.error`
                     : 'transparent'
                 }
               />
@@ -180,7 +191,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color="light.primaryBackground" style={styles.labelText}>
+                <Text color={`${colorMode}.choosePlanHome`} style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
@@ -189,35 +200,30 @@ export default function CreatePin(props) {
                     passCode={confirmPasscode}
                     passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
                     borderColor={
-                      passcode !== confirmPasscode && confirmPasscode.length === 4
-                        ? '#FF8F79'
-                        : 'transparent'
-                    }
-                    borderColor={
                       passcode != confirmPasscode && confirmPasscode.length === 4
-                        ? 'light.error'
+                        ? `${colorMode}.error`
                         : 'transparent'
                     }
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color="light.error" style={styles.errorText}>
+                    <Text color={`${colorMode}.error`} italic style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}
                 </Box>
-                <Box alignSelf="flex-end" mr={5} mt={5}>
-                  <CustomButton
-                    disabled={isDisabled}
-                    testID="button"
-                    onPress={() => {
-                      dispatch(storeCreds(passcode));
-                    }}
-                    value={common.create}
-                  />
-                </Box>
               </Box>
             ) : null}
+          </Box>
+          <Box alignSelf="flex-end" mr={5} mt={5}>
+            <CustomButton
+              disabled={isDisabled}
+              testID="button"
+              onPress={() => {
+                setCreatePassword(true);
+              }}
+              value={common.create}
+            />
           </Box>
           <KeyPadView
             onDeletePressed={onDeletePressed}
@@ -226,12 +232,35 @@ export default function CreatePin(props) {
           />
         </Box>
       </Box>
+      <KeeperModal
+        visible={createPassword}
+        close={() => { }}
+        title="Remember your passcode"
+        subTitle="Please remember your passcode and backup your app by writing down the 12-word Recovery
+        Key"
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText="Continue"
+        secondaryButtonText="Back"
+        buttonCallback={() => {
+          dispatch(storeCreds(passcode));
+          setCreatePassword(false);
+        }}
+        secondaryCallback={() => {
+          setCreatePassword(false);
+        }}
+        Content={CreatePassModalContent}
+        showButtons
+        subTitleWidth={wp(80)}
+      />
     </Box>
   );
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  container: {
     flex: 1,
     padding: 10,
   },
@@ -240,27 +269,37 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 0.7,
+    flex: 0.9,
   },
   welcomeText: {
     marginLeft: 18,
     fontSize: 22,
+    letterSpacing: 0.22,
+    lineHeight: 27,
   },
   labelText: {
-    fontSize: 12,
+    fontSize: 14,
+    letterSpacing: 0.14,
     marginLeft: 18,
   },
   errorText: {
-    fontSize: 10,
-    fontWeight: '400',
+    fontSize: 11,
+    letterSpacing: 0.22,
     width: wp('68%'),
     textAlign: 'right',
-    fontStyle: 'italic',
   },
   bitcoinTestnetText: {
     fontWeight: '400',
     paddingHorizontal: 16,
     fontSize: 13,
     letterSpacing: 1,
+  },
+  modalMessageText: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  passImg: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
 });

@@ -2,13 +2,12 @@ import {
   SerializedPSBTEnvelop,
   SigningPayload,
   TransactionPrerequisite,
-  TransactionPrerequisiteElements,
-} from 'src/core/wallets/interfaces/';
+} from 'src/services/wallets/interfaces';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
-import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/enums';
+import { Satoshis } from 'src/models/types/UnitAliases';
+import TransactionFeeSnapshot from 'src/models/types/TransactionFeeSnapshot';
+import { TxPriority } from 'src/services/wallets/enums';
 import idx from 'idx';
 
 export interface SendPhaseOneExecutedPayload {
@@ -24,6 +23,19 @@ export interface SendPhaseOneExecutedPayload {
   err?: string;
 }
 
+export interface CustomFeeCalculatedPayload {
+  successful: boolean;
+  outputs: {
+    customTxPrerequisites: TransactionPrerequisite;
+    recipients?: {
+      address: string;
+      amount: number;
+      name?: string;
+    }[];
+  };
+  err?: string | null;
+}
+
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
   serializedPSBTEnvelops?: SerializedPSBTEnvelop[];
@@ -34,7 +46,7 @@ export interface SendPhaseTwoExecutedPayload {
 export interface UpdatePSBTPayload {
   signedSerializedPSBT?: string;
   signingPayload?: SigningPayload[];
-  signerId: string;
+  xfp: string;
   txHex?: string;
 }
 
@@ -62,7 +74,10 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
-    outputs: { customTxPrerequisites: TransactionPrerequisiteElements } | null;
+    outputs: {
+      customTxPrerequisites: TransactionPrerequisite;
+      recipients: { address: string; amount: number }[];
+    } | null;
   };
   sendPhaseTwo: {
     inProgress: boolean;
@@ -125,15 +140,15 @@ const initialState: {
   transactionFeeInfo: {
     [TxPriority.LOW]: {
       amount: 0,
-      estimatedBlocksBeforeConfirmation: 50,
+      estimatedBlocksBeforeConfirmation: 0,
     },
     [TxPriority.MEDIUM]: {
       amount: 0,
-      estimatedBlocksBeforeConfirmation: 20,
+      estimatedBlocksBeforeConfirmation: 0,
     },
     [TxPriority.HIGH]: {
       amount: 0,
-      estimatedBlocksBeforeConfirmation: 4,
+      estimatedBlocksBeforeConfirmation: 0,
     },
     [TxPriority.CUSTOM]: {
       amount: 0,
@@ -178,6 +193,34 @@ const sendAndReceiveSlice = createSlice({
       state.transactionFeeInfo = transactionFeeInfo;
     },
 
+    customFeeCalculated: (state, action: PayloadAction<CustomFeeCalculatedPayload>) => {
+      const { transactionFeeInfo } = state;
+      let customTxPrerequisites: TransactionPrerequisite;
+      let recipients;
+      const { successful, outputs, err } = action.payload;
+      if (successful) {
+        customTxPrerequisites = outputs.customTxPrerequisites;
+        Object.keys(customTxPrerequisites).forEach((priority) => {
+          transactionFeeInfo[priority].amount = customTxPrerequisites[priority].fee;
+          transactionFeeInfo[priority].estimatedBlocksBeforeConfirmation =
+            customTxPrerequisites[priority].estimatedBlocks;
+        });
+        recipients = outputs.recipients;
+      }
+      state.customPrioritySendPhaseOne = {
+        ...state.customPrioritySendPhaseOne,
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        outputs: {
+          customTxPrerequisites,
+          recipients,
+        },
+      };
+      state.transactionFeeInfo = transactionFeeInfo;
+    },
+
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
       const { successful, txid, serializedPSBTEnvelops, err } = action.payload;
       state.sendPhaseTwo = {
@@ -191,11 +234,11 @@ const sendAndReceiveSlice = createSlice({
     },
 
     updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
-      const { signerId, signingPayload, signedSerializedPSBT, txHex } = action.payload;
+      const { xfp, signingPayload, signedSerializedPSBT, txHex } = action.payload;
       state.sendPhaseTwo = {
         ...state.sendPhaseTwo,
         serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
-          if (envelop.signerId === signerId) {
+          if (envelop.xfp === xfp) {
             envelop.serializedPSBT = signedSerializedPSBT || envelop.serializedPSBT;
             envelop.isSigned =
               signedSerializedPSBT ||
@@ -232,13 +275,29 @@ const sendAndReceiveSlice = createSlice({
     sendPhasesReset: (state) => {
       state.sendMaxFee = 0;
       state.sendPhaseOne = initialState.sendPhaseOne;
+      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
       state.sendPhaseTwo = initialState.sendPhaseTwo;
       state.sendPhaseThree = initialState.sendPhaseThree;
+      state.transactionFeeInfo = initialState.transactionFeeInfo;
     },
     sendPhaseOneReset: (state) => {
       state.sendPhaseOne = initialState.sendPhaseOne;
+      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
       state.sendPhaseTwo = initialState.sendPhaseTwo;
       state.sendPhaseThree = initialState.sendPhaseThree;
+      state.transactionFeeInfo = initialState.transactionFeeInfo;
+    },
+    customPrioritySendPhaseOneReset: (state) => {
+      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+      state.transactionFeeInfo = {
+        ...state.transactionFeeInfo,
+        [TxPriority.CUSTOM]: {
+          amount: 0,
+          estimatedBlocksBeforeConfirmation: 0,
+        },
+      };
     },
     sendPhaseTwoReset: (state) => {
       state.sendPhaseTwo = initialState.sendPhaseTwo;
@@ -259,6 +318,7 @@ const sendAndReceiveSlice = createSlice({
 export const {
   setSendMaxFee,
   sendPhaseOneExecuted,
+  customFeeCalculated,
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
   crossTransferExecuted,
@@ -266,6 +326,7 @@ export const {
   crossTransferReset,
   sendPhasesReset,
   sendPhaseOneReset,
+  customPrioritySendPhaseOneReset,
   sendPhaseTwoReset,
   sendPhaseThreeReset,
   updatePSBTEnvelops,

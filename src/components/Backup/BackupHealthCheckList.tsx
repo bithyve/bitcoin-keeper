@@ -1,44 +1,45 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, ScrollView } from 'native-base';
+import { FlatList, Box, ScrollView, useColorMode } from 'native-base';
 import moment from 'moment';
 import Text from 'src/components/KeeperText';
 
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { BackupHistory, BackupType } from 'src/common/data/enums/BHR';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { BackupHistory, BackupType } from 'src/models/enums/BHR';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import {
-  seedBackedConfirmed,
-} from 'src/store/sagaActions/bhr';
+import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { useNavigation } from '@react-navigation/native';
-import HealthCheckComponent from './HealthCheckComponent';
-import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
-import DotView from '../DotView';
-import Buttons from '../Buttons';
+import { hp, wp } from 'src/constants/responsive';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
+import DotView from 'src/components/DotView';
+import Buttons from 'src/components/Buttons';
+import { useQuery } from '@realm/react';
+import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
 
-function BackupHealthCheckList() {
+import HealthCheck from 'src/assets/images/healthcheck_light.svg';
+import AdvnaceOptions from 'src/assets/images/settings.svg';
+import KeeperFooter from '../KeeperFooter';
+import HealthCheckComponent from './HealthCheckComponent';
+
+function BackupHealthCheckList({ isUaiFlow }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { BackupWallet } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;
-  const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
   const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { backupMethod, seedConfirmed } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
-  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
+  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(isUaiFlow);
   const history = useMemo(() => data.sorted('date', true), [data]);
 
   const onPressConfirm = () => {
@@ -57,63 +58,82 @@ function BackupHealthCheckList() {
     };
   }, [seedConfirmed]);
 
+  function FooterIcon({ Icon }) {
+    return (
+      <Box
+        margin="1"
+        width="12"
+        height="12"
+        borderRadius={30}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Icon />
+      </Box>
+    );
+  }
+
+  const footerItems = [
+    {
+      text: 'Health Check',
+      Icon: () => <FooterIcon Icon={HealthCheck} />,
+      onPress: () => {
+        onPressConfirm();
+      },
+    },
+    {
+      text: 'Settings',
+      Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
+      onPress: () => {
+        navigtaion.dispatch(CommonActions.navigate('AppBackupSettings', {}));
+      },
+    },
+  ];
+
+  const replaceText = (inputString) => {
+    var replacedString = inputString.replace(/SEED_BACKUP/gi, 'RECOVERY_KEY');
+    return replacedString;
+  };
+
   return (
     <Box>
-      <ScrollView height={hp(530)}>
+      <Box height={hp(520)}>
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
-          renderItem={({ item }) => (
-            <Box>
+          renderItem={({ item, index }) => (
+            <Box
+              padding={1}
+              marginLeft={2}
+              borderLeftColor={`${colorMode}.RecoveryBorderColor`}
+              borderLeftWidth={1}
+              width="100%"
+              position="relative"
+              key={index}
+            >
               <Box
-                zIndex={99}
+                zIndex={999}
                 position="absolute"
                 left={-8}
-                backgroundColor="light.secondaryBackground"
-                padding={2}
+                backgroundColor={`${colorMode}.RecoveryBorderColor`}
+                padding={1}
                 borderRadius={15}
               >
-                <DotView height={2} width={2} color="light.lightAccent" />
+                <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
               </Box>
-              <Text
-                color="light.GreyText"
-                fontSize={10}
-                bold
-                ml={5}
-                opacity={0.7}
-                letterSpacing={0.6}
-              >
-                {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
+              <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
+                {replaceText(item?.title)}
               </Text>
-              <Box
-                backgroundColor="light.primaryBackground"
-                padding={5}
-                borderRadius={1}
-                my={2}
-                borderLeftColor="light.lightAccent"
-                borderLeftWidth={1}
-                width="100%"
-                ml={wp(3.5)}
-                position="relative"
-              >
-                <Text color="light.headerText" fontSize={14} letterSpacing={1}>
-                  {strings[item.title]}
-                </Text>
-                {item.subtitle !== '' && (
-                  <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
-                    {item.subtitle}
-                  </Text>
-                )}
-              </Box>
+              <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
+                {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
+              </Text>
             </Box>
           )}
-          keyExtractor={(item) => `${item}`}
         />
-      </ScrollView>
-
-      <Box alignItems="flex-start">
-        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
       </Box>
+
+      <KeeperFooter marginX={0} items={footerItems} />
 
       <ModalWrapper
         visible={showConfirmSeedModal}
@@ -153,7 +173,7 @@ function BackupHealthCheckList() {
           subTitle={BackupWallet.backupSuccessSubTitle}
           paragraph={BackupWallet.backupSuccessParagraph}
           confirmBtnPress={() => {
-            navigtaion.navigate('NewHome');
+            navigtaion.navigate('Home');
           }}
         />
       </ModalWrapper>

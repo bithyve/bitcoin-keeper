@@ -1,139 +1,80 @@
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput } from 'react-native';
-// libraries
-import { Box, Input, View } from 'native-base';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { Box, Input, View, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
-
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import Note from 'src/components/Note/Note';
-import { RNCamera } from 'react-native-camera';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { ScaledSheet } from 'react-native-size-matters';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import BitcoinInput from 'src/assets/images/btc_input.svg';
-// components
-import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import UploadImage from 'src/components/UploadImage';
-import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
-import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
-import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
+import { maxTransferPolicyThreshold } from 'src/store/sagas/storage';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
-  const { showToast } = useToastMessage();
-  const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { home } = translations;
-  const [error, setError] = useState(false); // this state will handle error
+  const { home, importWallet } = translations;
 
-  const name = route?.params?.name;
-  const desc = route?.params?.description;
+  const { importedKey, importedKeyDetails, type, name, description } = route.params;
+  const transferPolicy = maxTransferPolicyThreshold.toString();
+
   const [walletName, setWalletName] = useState(name || '');
-  const [description, setDescription] = useState(desc || '');
-  const [walletType, setWalletType] = useState(route?.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route?.params?.seed?.replace(/,/g, ' '));
-  const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
-
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const [walletDescription, setWalletDescription] = useState(description || '');
 
   const onNextClick = () => {
     navigation.navigate('AddDetailsFinal', {
-      type: walletType,
-      description,
+      type, // walletType
+      description: walletDescription,
       name: walletName,
-      seed: importedSeed,
+      importedKey,
+      importedKeyDetails,
       policy: transferPolicy,
     });
   };
 
-  const formatNumber = (value: string) =>
-    value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const { colorMode } = useColorMode();
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Add details"
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-        />
+        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>
-              <TextInput
-                placeholder="Enter wallet name"
+              <Input
+                placeholder={importWallet.enterWalletName}
                 style={styles.textInput}
+                borderWidth="0"
+                backgroundColor={`${colorMode}.seashellWhite`}
                 value={walletName}
                 onChangeText={(text) => setWalletName(text)}
               />
             </Box>
             <Box style={styles.textInputWrapper}>
-              <TextInput
-                placeholder="Add Description"
-                style={styles.textInput}
-                value={description}
-                onChangeText={(text) => setDescription(text)}
-              />
-            </Box>
-            <Text style={styles.transferText}>Auto transfer initiated at (optional)</Text>
-            <Box flexDirection="row" alignItems="center" style={styles.amountWrapper}>
-              <Box marginRight={2}>
-                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BitcoinInput)}
-              </Box>
-              <Box
-                marginLeft={2}
-                width={0.5}
-                backgroundColor="light.divider"
-                opacity={0.3}
-                height={7}
-              />
               <Input
-                placeholder="Enter Amount"
-                placeholderTextColor="light.GreyText"
-                color="light.greenText"
-                opacity={0.5}
-                width="90%"
-                fontSize={14}
-                fontWeight={300}
-                letterSpacing={1.04}
+                placeholder={importWallet.addDescription}
+                style={styles.textInput}
                 borderWidth="0"
-                value={formatNumber(transferPolicy)}
-                onChangeText={(value) => {
-                  setTransferPolicy(value);
-                }}
-                keyboardType="numeric"
+                backgroundColor={`${colorMode}.seashellWhite`}
+                value={walletDescription}
+                onChangeText={(text) => setWalletDescription(text)}
               />
             </Box>
-            <Text style={styles.balanceCrossesText}>
-              When the wallet balance crosses this amount, a transfer to the Vault is initiated for
-              user approval
-            </Text>
           </Box>
         </ScrollView>
         <View style={styles.dotContainer}>
           <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
             {[1, 2, 3].map((item, index) => (
-              <View key={index} style={index == 1 ? styles.selectedDot : styles.unSelectedDot} />
+              <View
+                key={item.toString()}
+                style={index === 1 ? styles.selectedDot : styles.unSelectedDot}
+              />
             ))}
           </View>
           <Box style={styles.ctaBtnWrapper}>
@@ -156,11 +97,7 @@ function ImportWalletDetailsScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
+const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -170,11 +107,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -185,12 +122,11 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   textInput: {
-    width: '100%',
-    backgroundColor: Colors.Isabelline,
+    width: '90%',
+    height: 45,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   cameraView: {
     height: hp(250),
@@ -222,8 +158,6 @@ const styles = ScaledSheet.create({
   },
   noteWrapper: {
     marginTop: hp(35),
-    // position: 'absolute',
-    // bottom: windowHeight > 680 ? hp(20) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {
@@ -258,30 +192,26 @@ const styles = ScaledSheet.create({
   },
   transferText: {
     width: '100%',
-    color: Colors.Feldgrau,
-    marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
+    marginHorizontal: 2,
     marginTop: hp(22),
     letterSpacing: 0.6,
   },
   amountWrapper: {
-    marginHorizontal: 20,
     marginTop: hp(10),
+    flexDirection: 'row',
+    marginHorizontal: 2,
+    alignItems: 'center',
+    borderRadius: 5,
   },
   balanceCrossesText: {
     width: '100%',
-    color: Colors.Feldgrau,
-    marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,
+    marginHorizontal: 2,
   },
   ctaBtnWrapper: {
-    // marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },

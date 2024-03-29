@@ -2,7 +2,7 @@ import { FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import TransactionElement from 'src/components/TransactionElement';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Box, HStack, VStack } from 'native-base';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -10,7 +10,8 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
-import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, wp } from 'src/constants/responsive';
+import { EntityKind } from 'src/services/wallets/enums';
 
 function TransactionsAndUTXOs({
   transactions,
@@ -21,6 +22,7 @@ function TransactionsAndUTXOs({
   transactions: any[];
   autoRefresh: boolean;
 }) {
+  const { colorMode } = useColorMode();
   const [pullRefresh, setPullRefresh] = useState(false);
   const dispatch = useDispatch();
   const syncVault = () => {
@@ -51,7 +53,7 @@ function TransactionsAndUTXOs({
     <>
       <VStack>
         <HStack justifyContent="space-between">
-          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text color={`${colorMode}.textBlack`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           {transactions.length ? (
@@ -60,15 +62,16 @@ function TransactionsAndUTXOs({
                 <TouchableOpacity
                   onPress={() => {
                     navigation.dispatch(
-                      CommonActions.navigate('VaultTransactions', {
+                      CommonActions.navigate('AllTransactions', {
                         title: 'Vault Transactions',
                         subtitle: 'All incoming and outgoing transactions',
+                        entityKind: EntityKind.VAULT,
                       })
                     );
                   }}
                 >
                   <Text
-                    color="light.primaryGreen"
+                    color={`${colorMode}.primaryGreen`}
                     marginRight={2}
                     fontSize={11}
                     bold

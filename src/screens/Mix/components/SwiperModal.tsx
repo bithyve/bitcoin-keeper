@@ -1,27 +1,28 @@
-import { Box, Pressable } from 'native-base';
-import React, { MutableRefObject, useRef, useState } from 'react';
+import { Box, Pressable, useColorMode } from 'native-base';
+import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-// hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp, windowHeight } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
-// colors, aserts
-import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
+  const { colorMode } = useColorMode();
   return (
     <Box>
       <Box>
-        <Text bold italic style={styles.modalTitle}>
+        <Text bold italic style={styles.modalTitle} color={`${colorMode}.modalGreenContent`}>
           {contentTitle}
         </Text>
-        <Text style={styles.modalSubTitle}>{contentSubTitle}</Text>
+        <Text style={styles.modalSubTitle} color={`${colorMode}.modalGreenContent`}>
+          {contentSubTitle}
+        </Text>
       </Box>
     </Box>
   );
@@ -50,12 +51,9 @@ const renderItem = ({ item }) => (
     />
   </Box>
 );
-const linearGradientBtn = {
-  colors: ['#FFFFFF', '#80A8A1'],
-  start: [0, 0],
-  end: [1, 1],
-};
-function List(props) {
+
+function List() {
+  const { colorMode } = useColorMode();
   const listRef = useRef(null);
   const dispatch = useAppDispatch();
   const [currentPosition, setCurrentPosition] = useState(0);
@@ -81,7 +79,7 @@ function List(props) {
         </TouchableOpacity>
       ) : null}
       <Box style={styles.headerContainer}>
-        <Text style={styles.title} color="light.white">
+        <Text style={styles.title} color={`${colorMode}.modalGreenContent`}>
           Some Definitions:
         </Text>
       </Box>
@@ -98,13 +96,17 @@ function List(props) {
         viewabilityConfig={viewConfigRef.current}
       />
       <Box style={styles.ctaWrapper}>
-        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+        <Box
+          borderColor={`${colorMode}.lightAccent`}
+          backgroundColor={`${colorMode}.modalGreenLearnMore`}
+          style={styles.learnMoreContainer}
+        >
           <Pressable
             onPress={() => {
-              openLink('https://www.bitcoinkeeper.app/');
+              openLink(`${KEEPER_KNOWLEDGEBASE}sections/17237989295773-Whirlpool`);
             }}
           >
-            <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+            <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
               See FAQs
             </Text>
           </Pressable>
@@ -115,8 +117,8 @@ function List(props) {
               currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))
             }
           >
-            <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
-              <Text style={styles.ctaText} color="light.greenText02" bold>
+            <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
+              <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>
@@ -128,6 +130,7 @@ function List(props) {
 }
 
 function SwiperModal({ enable }) {
+  const { colorMode } = useColorMode();
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
   return (
@@ -137,17 +140,16 @@ function SwiperModal({ enable }) {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
       title=""
-      modalBackground={['light.gradientStart', 'light.gradientEnd']}
-      textColor="light.white"
+      modalBackground={`${colorMode}.modalGreenBackground`}
+      textColor={`${colorMode}.modalGreenContent`}
       Content={() => <List />}
       showCloseIcon={false}
     />
   );
 }
-
 const styles = StyleSheet.create({
   contentContaner: {
-    width: wp(290),
+    width: windowHeight < 650 ? wp(286) : wp(295),
   },
   swiperModalIcon: {
     alignSelf: 'center',
@@ -159,14 +161,12 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     textAlign: 'left',
     letterSpacing: 0.65,
-    color: Colors.White,
   },
   modalSubTitle: {
     fontSize: 13,
     lineHeight: 18,
     textAlign: 'left',
     letterSpacing: 0.65,
-    color: Colors.White,
     marginBottom: hp(15),
     maxWidth: wp(270),
   },
@@ -178,7 +178,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#00433A',
     height: hp(34),
     width: wp(110),
   },

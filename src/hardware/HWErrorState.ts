@@ -1,4 +1,4 @@
-import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { HWErrorType } from 'src/models/enums/Hardware';
 
 const ErrorMessageMap = {
   [HWErrorType.INCORRECT_HW]: 'Please interact with the right hardware',

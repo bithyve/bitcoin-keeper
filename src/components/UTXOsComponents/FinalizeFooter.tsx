@@ -1,10 +1,9 @@
 import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Colors from 'src/theme/Colors';
 
 function FinalizeFooter({
   setEnableSelection,
@@ -20,8 +19,12 @@ function FinalizeFooter({
   setRemixingToVault,
 }) {
   const { bottom } = useSafeAreaInsets();
+  const { colorMode } = useColorMode();
   return (
-    <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
+    <Box
+      style={[styles.footerContainer, { marginBottom: bottom / 2 }]}
+      backgroundColor={`${colorMode}.primaryBackground`}
+    >
       <Buttons
         primaryText={
           initiateWhirlpool
@@ -29,7 +32,7 @@ function FinalizeFooter({
             : initateWhirlpoolMix
             ? isRemix
               ? remixingToVault
-                ? 'Remix to Vault'
+                ? 'Remix to vault'
                 : 'Start Remix'
               : 'Start Mix'
             : 'Send'
@@ -63,6 +66,5 @@ const styles = StyleSheet.create({
     bottom: Platform.OS === 'ios' ? 5 : 15,
     width: windowWidth,
     paddingHorizontal: '10%',
-    backgroundColor: Colors.LightWhite,
   },
 });

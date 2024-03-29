@@ -1,31 +1,33 @@
 import { Alert } from 'react-native';
-import WalletOperations from 'src/core/wallets/operations';
-import { captureError } from 'src/core/services/sentry';
-import config from 'src/core/config';
-import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
+import WalletOperations from 'src/services/wallets/operations';
+import { captureError } from 'src/services/sentry';
+import config from 'src/utils/service-utilities/config';
+import { generateSeedWordsKey } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 import { isSignerAMF } from 'src/hardware';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { EntityKind } from 'src/core/wallets/enums';
+import { EntityKind } from 'src/services/wallets/enums';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import SigningServer from 'src/services/backend/SigningServer';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
   signingPayload,
-  currentSigner,
+  currentKey,
   withModal,
   defaultVault,
   serializedPSBT,
   card,
   cvc,
+  signer,
 }) => {
   setTapsignerModal(false);
   const { inputsToSign } = signingPayload[0];
   // AMF flow for signing
-  if (isSignerAMF(currentSigner)) {
+  if (isSignerAMF(signer)) {
     await withModal(() => readTapsigner(card, cvc))();
-    const { xpriv } = currentSigner;
+    const { xpriv } = currentKey;
     const inputs = idx(signingPayload, (_) => _[0].inputs);
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
@@ -37,7 +39,7 @@ export const signTransactionWithTapsigner = async ({
     return { signedSerializedPSBT, signingPayload: null };
   }
   return withModal(async () => {
-    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentSigner);
+    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentKey);
     signingPayload.forEach((payload) => {
       payload.inputsToSign = signedInput;
     });
@@ -64,57 +66,17 @@ export const signTransactionWithColdCard = async ({
   }
 };
 
-export const signTransactionWithLedger = async ({
-  setLedgerModal,
-  currentSigner,
-  signingPayload,
-  defaultVault,
-  serializedPSBT,
-}) => {
-  try {
-    setLedgerModal(false);
-    if (isSignerAMF(currentSigner)) {
-      const { xpriv } = currentSigner;
-      const inputs = idx(signingPayload, (_) => _[0].inputs);
-      if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-      const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
-        defaultVault,
-        inputs,
-        serializedPSBT,
-        xpriv
-      );
-      return { signedSerializedPSBT };
-    }
-  } catch (error) {
-    switch (error.message) {
-      case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':
-        Alert.alert('Unlock the device to connect.');
-        break;
-      case 'Ledger device: UNKNOWN_ERROR (0x6a15)':
-        Alert.alert('Navigate to the correct app in the Ledger.');
-        break;
-      case 'Ledger device: UNKNOWN_ERROR (0x6511)':
-        Alert.alert('Open up the correct app in the Ledger.'); // no app selected
-        break;
-      // unknown error
-      default:
-        captureError(error);
-        Alert.alert('Something went wrong! Please try again');
-    }
-  }
-};
-
 export const signTransactionWithMobileKey = async ({
   setPasswordModal,
   signingPayload,
   defaultVault,
   serializedPSBT,
-  signerId,
+  xfp,
 }) => {
   setPasswordModal(false);
   const inputs = idx(signingPayload, (_) => _[0].inputs);
   if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-  const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+  const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
   const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
     defaultVault,
     inputs,
@@ -125,13 +87,12 @@ export const signTransactionWithMobileKey = async ({
 };
 
 export const signTransactionWithSigningServer = async ({
-  showOTPModal,
-  keeper,
+  xfp,
   signingPayload,
   signingServerOTP,
   serializedPSBT,
-  SigningServer,
-  shellId,
+  showOTPModal,
+  showToast,
 }) => {
   try {
     showOTPModal(false);
@@ -139,17 +100,38 @@ export const signTransactionWithSigningServer = async ({
     const outgoing = idx(signingPayload, (_) => _[0].outgoing);
     if (!childIndexArray) throw new Error('Invalid signing payload');
 
-    const vaultId = shellId;
-    const appId = keeper.id;
     const { signedPSBT } = await SigningServer.signPSBT(
-      vaultId,
-      appId,
+      xfp,
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
       childIndexArray,
       outgoing
     );
-    if (!signedPSBT) throw new Error('signing server: failed to sign');
+    if (!signedPSBT) throw new Error('signer: failed to sign');
+    return { signedSerializedPSBT: signedPSBT };
+  } catch (error) {
+    captureError(error);
+    showToast(`${error.message}`);
+  }
+};
+
+export const signTransactionWithInheritanceKey = async ({
+  signingPayload,
+  serializedPSBT,
+  xfp,
+  thresholdDescriptors,
+}) => {
+  try {
+    const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
+    if (!childIndexArray) throw new Error('Invalid signing payload');
+
+    const { signedPSBT } = await InheritanceKeyServer.signPSBT(
+      xfp,
+      serializedPSBT,
+      childIndexArray
+      // thresholdDescriptors
+    );
+    if (!signedPSBT) throw new Error('inheritance key server: failed to sign');
     return { signedSerializedPSBT: signedPSBT };
   } catch (error) {
     captureError(error);
@@ -162,13 +144,13 @@ export const signTransactionWithSeedWords = async ({
   defaultVault,
   seedBasedSingerMnemonic,
   serializedPSBT,
-  signerId,
+  xfp,
   isMultisig,
 }) => {
   try {
     const inputs = idx(signingPayload, (_) => _[0].inputs);
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-    const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+    const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
     const networkType = config.NETWORK_TYPE;
     // we need this to generate xpriv that's not stored
     const { xpub, xpriv } = generateSeedWordsKey(

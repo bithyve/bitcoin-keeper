@@ -10,18 +10,28 @@ type Props = {
   width?: string | number;
 };
 
-function Note({ title = 'Note', subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) {
+function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '100%' }: Props) {
   const { colorMode } = useColorMode();
 
   return (
     <Box style={styles.container}>
-      <Box opacity={1}>
-        <Text color={`${colorMode}.lightBlack`} style={styles.title}>
+      <Box>
+        <Text
+          testID="text_note_title"
+          medium
+          color={`${colorMode}.headerText`}
+          style={styles.title}
+        >
           {title}
         </Text>
       </Box>
       <Box>
-        <Text width={width} color={`${colorMode}.${subtitleColor}`} style={styles.subTitle}>
+        <Text
+          testID="text_note_subtitle"
+          width={width}
+          color={`${colorMode}.${subtitleColor}`}
+          style={styles.subTitle}
+        >
           {subtitle}
         </Text>
       </Box>
@@ -35,11 +45,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    letterSpacing: 1.12,
+    letterSpacing: 0.14,
   },
   subTitle: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 0.12,
   },
 });
 

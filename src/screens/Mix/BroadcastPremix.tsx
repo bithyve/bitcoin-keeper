@@ -1,39 +1,40 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { ScrollView } from 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import PageIndicator from 'src/components/PageIndicator';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { SatsToBtc } from 'src/constants/Bitcoin';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets, incrementAddressIndex } from 'src/store/sagaActions/wallets';
-import { LabelRefType, WalletType } from 'src/core/wallets/enums';
+import { LabelRefType, WalletType } from 'src/services/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useWallets from 'src/hooks/useWallets';
-import { BIP329Label, InputUTXOs } from 'src/core/wallets/interfaces';
+import { BIP329Label, InputUTXOs } from 'src/services/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WhirlpoolClient from 'src/services/whirlpool/client';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import BroadcastTX0Illustration from 'src/assets/images/BroadcastTX0Illustration.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { CommonActions } from '@react-navigation/native';
 import SwiperModal from './components/SwiperModal';
 import UtxoSummary from './UtxoSummary';
 
@@ -55,6 +56,7 @@ export default function BroadcastPremix({ route, navigation }) {
     selectedPool: PoolData;
     wallet: Wallet;
   } = route.params as any;
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
@@ -161,8 +163,7 @@ export default function BroadcastPremix({ route, navigation }) {
           }
           showToast(
             'Your Tx0 was broadcasted successfully, you should find the new UTXOs in the Premix account',
-            <TickIcon />,
-            3000
+            <TickIcon />
           );
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           const outputs = PSBT.txOutputs;
@@ -205,11 +206,11 @@ export default function BroadcastPremix({ route, navigation }) {
           setLoading(false);
         } else {
           setLoading(false);
-          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
+          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />);
         }
       } else {
         setLoading(false);
-        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />, 3000);
+        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />);
       }
     } catch (error) {
       const problem = error?.message || '';
@@ -228,7 +229,7 @@ export default function BroadcastPremix({ route, navigation }) {
         default:
       }
 
-      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />, 3000);
+      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />);
       setLoading(false);
       captureError(error);
     }
@@ -236,17 +237,22 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const navigateToWalletDetails = () => {
     setShowBroadcastModal(false);
-    navigation.navigate('UTXOManagement', {
-      data: depositWallet,
-      routeName: 'Wallet',
-      accountType: WalletType.PRE_MIX,
-    });
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'UTXOManagement',
+        params: {
+          data: depositWallet,
+          routeName: 'Wallet',
+          accountType: WalletType.PRE_MIX,
+        },
+        merge: true,
+      })
+    );
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle
-        paddingLeft={25}
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
+      <KeeperHeader
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore
@@ -261,8 +267,10 @@ export default function BroadcastPremix({ route, navigation }) {
             Fee
           </Text>
           <Box style={styles.textDirection}>
-            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
-            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            <Text color={`${colorMode}.secondaryText`}>
+              {valueByPreferredUnit(tx0Preview.minerFee)}
+            </Text>
+            <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
           </Box>
@@ -272,14 +280,14 @@ export default function BroadcastPremix({ route, navigation }) {
             Whirlpool Fee
           </Text>
           <Box style={styles.textDirection}>
-            <Text color="light.secondaryText">
+            <Text color={`${colorMode}.secondaryText`}>
               {valueByPreferredUnit(
                 tx0Preview.coordinatorFee?.coordinator
                   ? tx0Preview.coordinatorFee.coordinator[0]
                   : 0
               )}
             </Text>
-            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
           </Box>
@@ -289,8 +297,10 @@ export default function BroadcastPremix({ route, navigation }) {
             Badbank Change
           </Text>
           <Box style={styles.textDirection}>
-            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
-            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            <Text color={`${colorMode}.secondaryText`}>
+              {valueByPreferredUnit(tx0Preview.change)}
+            </Text>
+            <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
           </Box>
@@ -308,8 +318,10 @@ export default function BroadcastPremix({ route, navigation }) {
                 Premix value
               </Text>
               <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{valueByPreferredUnit(premixOutputs[0])}</Text>
-                <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+                <Text color={`${colorMode}.secondaryText`}>
+                  {valueByPreferredUnit(premixOutputs[0])}
+                </Text>
+                <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
                   {getSatUnit()}
                 </Text>
               </Box>
@@ -319,7 +331,7 @@ export default function BroadcastPremix({ route, navigation }) {
                 No. of Premixes
               </Text>
               <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{premixOutputs.length}</Text>
+                <Text color={`${colorMode}.secondaryText`}>{premixOutputs.length}</Text>
               </Box>
             </Box>
           </>
@@ -349,8 +361,8 @@ export default function BroadcastPremix({ route, navigation }) {
         title="Broadcasting Tx0"
         subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground="#F7F2EC"
+        buttonBackground={`${colorMode}.gradientStart`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (
@@ -358,7 +370,7 @@ export default function BroadcastPremix({ route, navigation }) {
             <Box style={styles.BroadcastIllustrationWrapper}>
               <BroadcastTX0Illustration />
             </Box>
-            <Text color="light.greenText" style={styles.BroadcastContentText}>
+            <Text color={`${colorMode}.greenText`} style={styles.BroadcastContentText}>
               The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but
               are encouraged to mix the sats before hodling or spending them.
             </Text>

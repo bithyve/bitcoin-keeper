@@ -1,25 +1,25 @@
 import Text from 'src/components/KeeperText';
-import { Modal, View, Box } from 'native-base';
+import { Modal, View, Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
-import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Close from 'src/assets/images/modal_close.svg';
 
 function SuccessModal(props) {
+  const { colorMode } = useColorMode();
   const {
     visible,
     close,
     title = 'Title',
     subTitle = 'Subtitle',
-    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
-    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
+    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
-    buttonTextColor = 'light.white',
+    buttonTextColor = `${colorMode}.white`,
     buttonCallback = props.close || null,
-    textColor = 'light.GreyText',
+    textColor = `${colorMode}.GreyText`,
     cancelButtonText = 'Cancel',
     cancelButtonColor = '#073E39',
     cancelButtonPressed,
@@ -45,12 +45,7 @@ function SuccessModal(props) {
     >
       <View flex={1} style={styles.viewContainer}>
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-          <LinearGradient
-            start={[0, 0]}
-            end={[1, 1]}
-            colors={modalBackground}
-            style={styles.container}
-          >
+          <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>
             <TouchableOpacity style={styles.close} onPress={close}>
               <Close />
             </TouchableOpacity>
@@ -82,19 +77,14 @@ function SuccessModal(props) {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={buttonPressed}>
-                <LinearGradient
-                  start={[0, 0]}
-                  end={[1, 1]}
-                  colors={buttonBackground}
-                  style={styles.cta}
-                >
+                <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}
                   </Text>
-                </LinearGradient>
+                </Box>
               </TouchableOpacity>
             </Box>
-          </LinearGradient>
+          </Box>
         </Modal.Content>
       </View>
     </Modal>

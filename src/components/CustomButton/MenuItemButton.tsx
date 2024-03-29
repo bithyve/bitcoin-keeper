@@ -1,68 +1,60 @@
-import { StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { Box } from 'native-base';
-import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 
 function MenuItemButton(props) {
-    return (
-        <TouchableOpacity
-            activeOpacity={0.5}
-            style={styles.addAmountContainer}
-            onPress={props.onPress}
-        >
-            <Box style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]} backgroundColor="light.primaryBackground">
-                <Box style={styles.iconWrapper}>
-                    {props.icon}
-                </Box>
-                <Box style={styles.titleWrapper}>
-                    <Text color="light.primaryText" style={styles.addAmountText}>
-                        {props.title}
-                    </Text>
-                    <Text color="light.GreyText" style={styles.addAmountSubTitleText}>
-                        {props.subTitle}
-                    </Text>
-                </Box>
-                <Box style={styles.arrowWrapper}>
-                    <ArrowIcon />
-                </Box>
-            </Box>
-        </TouchableOpacity>
-    )
+  const { colorMode } = useColorMode();
+  return (
+    <TouchableOpacity
+      testID={`btn_${props.title}`}
+      activeOpacity={0.5}
+      style={styles.addAmountContainer}
+      onPress={props.onPress}
+    >
+      <Box
+        style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]}
+        backgroundColor={`${colorMode}.MintWhisper`}
+        borderColor={`${colorMode}.primaryGreenBackground`}
+      >
+        <Box>{props.icon}</Box>
+        <Box>
+          <Text semiBold color={`${colorMode}.headerText`} style={styles.addAmountText}>
+            {props.title}
+          </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.addAmountSubTitleText}>
+            {props.subTitle}
+          </Text>
+        </Box>
+      </Box>
+    </TouchableOpacity>
+  );
 }
 const styles = StyleSheet.create({
-    addAmountContainer: {
-        marginTop: hp(8),
-    },
-    addAmountWrapper01: {
-        flexDirection: 'row',
-        width: '100%',
-        borderRadius: 10,
-        // justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-    },
-    iconWrapper: {
-        width: '15%',
-    },
-    titleWrapper: {
-        flexDirection: "column",
-        width: '80%',
-    },
-    arrowWrapper: {
-        width: '5%',
-    },
-    addAmountText: {
-        fontWeight: '400',
-        fontSize: 14,
-        letterSpacing: 1.12,
-    },
-    addAmountSubTitleText: {
-        fontWeight: '400',
-        fontSize: 11,
-        letterSpacing: 0.6,
-    },
-})
+  addAmountContainer: {
+    marginTop: hp(8),
+  },
+  addAmountWrapper01: {
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%',
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    borderStyle: 'dashed',
+  },
+  addAmountText: {
+    fontSize: 13,
+    letterSpacing: 0.26,
+    lineHeight: 20,
+  },
+  addAmountSubTitleText: {
+    fontSize: 12,
+    letterSpacing: 0.12,
+    lineHeight: 14,
+  },
+});
 
-export default MenuItemButton
+export default MenuItemButton;

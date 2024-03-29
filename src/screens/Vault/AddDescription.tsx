@@ -1,31 +1,27 @@
-import { TextInput } from 'react-native';
-// libraries
+import { StyleSheet, TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/Tapsigner_brown.svg';
-import { ScaledSheet } from 'react-native-size-matters';
-// components
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function AddDescription({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
   return (
-    <Box style={styles.Container}>
+    <Box style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
       <StatusBarComponent padding={50} />
       <Box marginX={3}>
         <Box width={wp(200)}>
-          <HeaderTitle
+          <KeeperHeader
             title="Add Description"
-            subtitle="Optionally you can add a short description to the Signing Device"
-            onPressHandler={() => navigation.goBack()}
-            headerTitleColor="light.textBlack"
-            paddingTop={hp(5)}
+            subtitle="Optionally you can add a short description to the signer"
           />
         </Box>
 
@@ -35,7 +31,7 @@ function AddDescription({ route }) {
             <Text fontSize={14} letterSpacing={1.12}>
               TapSigner
             </Text>
-            <Text fontSize={10} letterSpacing={1} color="light.greenText">
+            <Text fontSize={10} letterSpacing={1} color={`${colorMode}.greenText`}>
               Added on 12 January 2022
             </Text>
           </Box>
@@ -48,7 +44,7 @@ function AddDescription({ route }) {
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
-            placeholderTextColor="light.greenText"
+            placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
           />
         </Box>
 
@@ -65,15 +61,10 @@ function AddDescription({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
-    backgroundColor: 'light.secondaryBackground',
-  },
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
+    padding: 20,
   },
   cardContainer: {
     flexDirection: 'row',
@@ -84,11 +75,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
 
   textInput: {

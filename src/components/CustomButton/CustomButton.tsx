@@ -1,9 +1,7 @@
 import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native';
-
-import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 export interface Props {
   value: string;
@@ -13,12 +11,13 @@ export interface Props {
   loading?: boolean;
 }
 function CustomButton({ value, onPress, disabled, testID, loading = false }: Props) {
+  const { colorMode } = useColorMode();
   if (loading) {
     return <ActivityIndicator />;
   }
   return (
     <TouchableHighlight
-      style={styles.button}
+      style={[styles.button, { opacity: disabled ? 0.7 : 1 }]}
       disabled={disabled}
       underlayColor="none"
       testID={testID || 'customButton'}
@@ -26,18 +25,11 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
         onPress();
       }}
     >
-      {/* <LinearGradient
-        start={[1, 0]}
-        end={[0, 0]}
-        colors={['#80A8A1', '#FFFFFF']}
-        
-      > */}
-      <Box style={styles.linearGradient} backgroundColor='light.white'>
-        <Text color="light.greenText" fontSize={12} bold>
+      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.modalWhiteButton`}>
+        <Text color={`${colorMode}.modalWhiteButtonText`} fontSize={12} bold>
           {value}
         </Text>
       </Box>
-      {/* </LinearGradient> */}
     </TouchableHighlight>
   );
 }
@@ -50,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  linearGradient: {
+  buttonContent: {
     width: 120,
     height: 50,
     borderRadius: 10,

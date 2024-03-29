@@ -1,35 +1,42 @@
-import KeeperModal from 'src/components/KeeperModal';
-import { TextInput } from 'react-native';
-import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack } from 'native-base';
+import { StyleSheet, TextInput } from 'react-native';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useCallback, useRef, useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-
 import moment from 'moment';
 
-import { ScaledSheet } from 'react-native-size-matters';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import { windowWidth } from 'src/constants/responsive';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
+import { getSignerNameFromType } from 'src/hardware';
+import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import config from 'src/utils/service-utilities/config';
 import { SDIcons } from '../SigningDeviceIcons';
 
-function SignerData({ signer }: { signer: VaultSigner }) {
+function SignerData({ signer }: { signer: Signer }) {
+  const { colorMode } = useColorMode();
+  const isAMF =
+    signer.type === SignerType.TAPSIGNER &&
+    config.NETWORK_TYPE === NetworkType.TESTNET &&
+    !signer.isMock;
   return (
     <HStack>
       <Box style={styles.icon}>{SDIcons(signer.type, true).Icon}</Box>
       <VStack marginX="4" maxWidth="80%">
-        <Text style={styles.name} color="light.primaryText" numberOfLines={2}>
-          {signer.signerName}
+        <Text style={styles.name} color={`${colorMode}.primaryText`} numberOfLines={2}>
+          {getSignerNameFromType(signer.type, signer.isMock, isAMF)}
         </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
-          {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
+          {`Added ${moment(signer.lastHealthCheck).calendar().toLocaleLowerCase()}`}
         </Text>
       </VStack>
     </HStack>
   );
 }
 
-function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
+function Content({ signer, descRef }: { signer: Signer; descRef }) {
+  const { colorMode } = useColorMode();
   const updateDescription = useCallback((text) => {
     descRef.current = text;
     setMaxLength(text.length);
@@ -43,7 +50,7 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
     <VStack style={styles.descriptionContainer}>
       <SignerData signer={signer} />
       <Box style={styles.limitTextWrapper}>
-        <Text color="light.GreyText" style={styles.limitText}>
+        <Text color={`${colorMode}.GreyText`} style={styles.limitText}>
           {maxLength}/20
         </Text>
       </Box>
@@ -68,9 +75,10 @@ function DescriptionModal({
 }: {
   visible: boolean;
   close: () => void;
-  signer: VaultSigner;
+  signer: Signer;
   callback: any;
 }) {
+  const { colorMode } = useColorMode();
   const descRef = useRef();
   const MemoisedContent = React.useCallback(
     () => <Content signer={signer} descRef={descRef} />,
@@ -83,12 +91,14 @@ function DescriptionModal({
   return (
     <KeeperModal
       visible={visible}
-      modalBackground={['light.mainBackground', 'light.mainBackground']}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
+      textColor={`${colorMode}.primaryText`}
+      subTitleColor={`${colorMode}.secondaryText`}
+      DarkCloseIcon={colorMode === 'dark'}
       close={close}
       title="Add Description"
-      subTitle="Optionally you can add a short description to the signing device"
+      subTitle="Optionally you can add a short description to the signer"
       buttonText="Save"
-      justifyContent="center"
       Content={MemoisedContent}
       buttonCallback={onSave}
     />
@@ -97,7 +107,7 @@ function DescriptionModal({
 
 export default DescriptionModal;
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   descriptionEdit: {
     height: 45,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -107,7 +117,7 @@ const styles = ScaledSheet.create({
     borderRadius: 10,
     width: windowWidth * 0.7,
     fontSize: 13,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1,
     opacity: 0.5,
   },
@@ -136,7 +146,6 @@ const styles = ScaledSheet.create({
   name: {
     fontSize: 15,
     alignItems: 'center',
-    fontWeight: '200',
     letterSpacing: 1.12,
   },
 });

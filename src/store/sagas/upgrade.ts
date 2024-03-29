@@ -1,37 +1,43 @@
-import { call, put, select } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
 import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { Platform } from 'react-native';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
-import { LabelRefType } from 'src/core/wallets/enums';
-import { genrateOutputDescriptors } from 'src/core/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { setAppVersion, setPinHash } from '../reducers/storage';
-import { stringToArrayBuffer } from './login';
-import { createWatcher } from '../utilities';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
+import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import SigningServer from 'src/services/backend/SigningServer';
+import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
+import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import {
-  resetReduxStore,
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
   migrateLabelsToBip329,
   MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
-import { RootState } from '../store';
-import { generateSeedHash } from '../sagaActions/login';
-import { setupKeeperAppWorker } from './storage';
+import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
+import { createWatcher } from '../utilities';
+import { setAppVersion } from '../reducers/storage';
+import { captureError } from 'src/services/sentry';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import { addNewWhirlpoolWallets } from '../sagaActions/wallets';
+import { addWhirlpoolWalletsWorker } from './wallets';
 
-export const SWITCH_TO_MAINNET_VERSION = '0.0.99';
-export const ADDITION_OF_VAULTSHELL_VERSION = '1.0.1';
-export const BIP329_INTRODUCTION_VERSION = '1.0.7';
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
+export const BIP329_INTRODUCTION_VERSION = '1.0.7';
+export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
+export const KEY_MANAGEMENT_VERSION = '1.1.9';
+export const APP_KEY_UPGRADE_VERSION = '1.1.12';
+export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -41,65 +47,28 @@ export function* applyUpgradeSequence({
   newVersion: string;
 }) {
   console.log(`applying upgrade sequence - from: ${previousVersion} to ${newVersion}`);
-  if (semver.lt(previousVersion, SWITCH_TO_MAINNET_VERSION)) yield call(switchToMainnet);
-  if (semver.lte(previousVersion, ADDITION_OF_VAULTSHELL_VERSION))
-    yield call(additionOfVaultShellId);
-  yield put(setAppVersion(newVersion));
-  yield put(updateVersionHistory(previousVersion, newVersion));
+
   if (
-    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
-    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
+    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION) &&
+    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION)
   ) {
     yield put(migrateLabelsToBip329());
   }
-}
 
-function* switchToMainnet() {
-  const AES_KEY = yield select((state) => state.login.key);
-  const uint8array = yield call(stringToArrayBuffer, AES_KEY);
-
-  // remove existing realm database
-  const deleted = yield call(dbManager.deleteRealm, uint8array);
-  if (!deleted) throw new Error('failed to switch to mainnet');
-
-  // reset redux store
-  const pinHash = yield select((state: RootState) => state.storage.pinHash); // capture pinhash before resetting redux
-  yield put(resetReduxStore());
-
-  // re-initialise a fresh instance of realm
-  yield call(dbManager.initializeRealm, uint8array);
-  // setup the keeper app
-  yield call(setupKeeperAppWorker, { payload: {} });
-
-  // saturate the reducer w/ pin
-  yield put(setPinHash(pinHash));
-  yield put(generateSeedHash());
-}
-
-function* additionOfVaultShellId() {
-  const { id, primarySeed }: KeeperApp = yield call(
-    dbManager.getObjectByIndex,
-    RealmSchema.KeeperApp
-  );
-  const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
-  try {
-    for (const vault of vaults) {
-      vault.shellId = id;
-      const encryptionKey = generateEncryptionKey(primarySeed);
-      const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
-      // updating the vault image on relay
-      const response = yield call(Relay.updateVaultImage, {
-        vaultShellId: vault.shellId,
-        vaultId: vault.id,
-        vault: vaultEncrypted,
-      });
-      if (response.updated) {
-        yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, { shellId: id });
-      }
-    }
-  } catch (err) {
-    console.log(err);
+  if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
+  if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
+    yield call(migrateStructureforSignersInAppImage);
+    yield call(migrateStructureforVaultInAppImage);
   }
+  if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION)) {
+    yield call(updateAppKeysToEnableSigning);
+  }
+  if (semver.lt(previousVersion, WHIRLPOOL_WALLETS_RECREATION)) {
+    yield call(whirlpoolWalletsCreation);
+  }
+
+  yield put(setAppVersion(newVersion));
+  yield put(updateVersionHistory(previousVersion, newVersion));
 }
 
 function* updateVersionHistoryWorker({
@@ -192,3 +161,223 @@ function* migrateLablesWorker() {
 }
 
 export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);
+
+function* migrateAssistedKeys() {
+  try {
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
+
+    if (!activeVault) throw new Error('No active vault found');
+
+    const { signers } = activeVault;
+    const signerMap = {};
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+
+    for (const signer of signers) {
+      const signerType = signerMap[signer.masterFingerprint].type;
+
+      if (signerType === SignerType.POLICY_SERVER) {
+        const cosignersMapUpdates: CosignersMapUpdate[] = yield call(
+          generateCosignerMapUpdates,
+          signerMap,
+          signers,
+          signer
+        );
+        const { migrationSuccessful } = yield call(
+          SigningServer.migrateSignersV2ToV3,
+          activeVault.shellId,
+          app.id,
+          cosignersMapUpdates
+        );
+
+        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(SS)');
+      } else if (signerType === SignerType.INHERITANCEKEY) {
+        const cosignersMapUpdates: IKSCosignersMapUpdate[] = yield call(
+          generateCosignerMapUpdates,
+          signerMap,
+          signers,
+          signer
+        );
+        const { migrationSuccessful } = yield call(
+          InheritanceKeyServer.migrateSignersV2ToV3,
+          activeVault.shellId,
+          cosignersMapUpdates
+        );
+
+        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(IKS)');
+      }
+    }
+  } catch (error) {
+    console.log({ error });
+  }
+}
+
+function* migrateStructureforSignersInAppImage() {
+  try {
+    const response = yield call(updateAppImageWorker, { payload: {} });
+    if (response.updated) {
+      console.log('Updated the Signers in app image');
+    } else {
+      console.log('Failed to update the update the app image with the updated the structure');
+    }
+  } catch (err) {}
+}
+
+function* migrateStructureforVaultInAppImage() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
+
+    console.log('updating vault');
+    const vaultResponse = yield call(updateVaultImageWorker, {
+      payload: { isUpdate: true, vault: activeVault },
+    });
+  } catch (err) {
+    console.log('Something went wrong in updating the vault image', err);
+  }
+}
+
+// This function updates app keys/mobile keys to enable signing by generating and associating extended keys.
+function* updateAppKeysToEnableSigning() {
+  try {
+    const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const signers = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const keeperSigners = signers.filter((signer) => signer.type === SignerType.KEEPER);
+    const { appKeyWalletMap, myAppKeySigners } = mapAppKeysToWallets(wallets, keeperSigners);
+    const extendedKeyMap = generateExtendedKeysForSigners(myAppKeySigners, appKeyWalletMap);
+    updateVaultSigners(extendedKeyMap, signers);
+    updateSignerDetails(myAppKeySigners, extendedKeyMap);
+    const response = yield call(updateAppImageWorker, { payload: { signers } });
+    if (response.updated) {
+      console.log('Updated the Signers in app image');
+    } else {
+      console.log('Failed to update the update the app image with the updated the structure');
+    }
+  } catch (err) {
+    console.log('Error updating mobile keys', err);
+    captureError(err);
+  }
+}
+
+function mapAppKeysToWallets(wallets, keeperSigners) {
+  const appKeyWalletMap = {};
+  const myAppKeySigners = keeperSigners.filter((signer) => {
+    const walletMatch = wallets.find((wallet) => wallet.id === signer.masterFingerprint);
+    if (walletMatch) {
+      appKeyWalletMap[signer.masterFingerprint] = walletMatch;
+      return true;
+    }
+    return false;
+  });
+
+  return { appKeyWalletMap, myAppKeySigners };
+}
+
+function generateExtendedKeysForSigners(signers, appKeyWalletMap) {
+  const extendedKeyMap = {};
+  signers.forEach((signer) => {
+    const { mnemonic } = appKeyWalletMap[signer.masterFingerprint].derivationDetails;
+    const { extendedKeys } = generateExtendedKeysForCosigner(mnemonic);
+    extendedKeyMap[signer.masterFingerprint] = extendedKeys;
+  });
+
+  return extendedKeyMap;
+}
+
+function updateVaultSigners(extendedKeyMap, signers) {
+  const signerMap = {};
+  signers.forEach((signer) => (signerMap[signer.masterFingerprint] = signer));
+  const vaultKeys: VaultSigner[] = dbManager.getCollection(RealmSchema.VaultSigner);
+  for (const vaultKey of vaultKeys) {
+    const signer = signerMap[vaultKey.masterFingerprint];
+    if (signer && signer.type === SignerType.KEEPER && extendedKeyMap[vaultKey.masterFingerprint]) {
+      dbManager.updateObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', vaultKey.xpub, {
+        xpriv: extendedKeyMap[vaultKey.masterFingerprint].xpriv,
+      });
+    }
+  }
+}
+
+function updateSignerDetails(signers: Signer[], extendedKeyMap) {
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
+    // Update the signer type to MY_KEEPER and the extended keys
+    dbManager.updateObjectByPrimaryId(
+      RealmSchema.Signer,
+      'masterFingerprint',
+      signer.masterFingerprint,
+      {
+        type: SignerType.MY_KEEPER,
+      }
+    );
+    dbManager.updateObjectByPrimaryId(
+      RealmSchema.Signer,
+      'masterFingerprint',
+      signer.masterFingerprint,
+      {
+        signerXpubs: updateSignerXpubs(signer, extendedKeyMap[signer.masterFingerprint].xpriv),
+      }
+    );
+    try {
+      // Update the signer instance number for MY_KEEPER
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          extraData: { instanceNumber: i + 1 },
+        }
+      );
+    } catch (err) {
+      captureError(err);
+      // ignore since instance number is not mandatory
+    }
+  }
+}
+
+function updateSignerXpubs(signer, xpriv) {
+  // This function would update the signerXpubs structure with the new xpriv, example provided
+  return {
+    ...signer.signerXpubs,
+    [XpubTypes.P2WSH]: [
+      {
+        ...signer.signerXpubs[XpubTypes.P2WSH][0],
+        xpriv,
+      },
+    ],
+  };
+}
+
+function* whirlpoolWalletsCreation() {
+  try {
+    const Wallets: Wallet[] = dbManager.getCollection(RealmSchema.Wallet);
+    let depositWalletId; //undefined
+    const garbageIDs = [
+      hash256(`${depositWalletId}${WalletType.PRE_MIX}`),
+      hash256(`${depositWalletId}${WalletType.POST_MIX}`),
+      hash256(`${depositWalletId}${WalletType.BAD_BANK}`),
+    ];
+    for (const wallet of Wallets) {
+      //create new whirlpool wallets for missing config
+      if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails ?? false) {
+        const whirlpoolWalletIds = wallet.whirlpoolConfig.whirlpoolWalletDetails.map(
+          (detail) => detail.walletId
+        );
+        const whirlpoolWallets = Wallets.filter((walletItem) =>
+          whirlpoolWalletIds.includes(walletItem.id)
+        );
+        if (whirlpoolWallets.length < 3) {
+          yield call(addWhirlpoolWalletsWorker, { payload: { depositWallet: wallet } });
+        }
+      }
+      if (garbageIDs.includes(wallet.id)) {
+        dbManager.deleteObjectById(RealmSchema.Wallet, wallet.id);
+      }
+    }
+  } catch (err) {
+    console.log('Error in whirlpoolWalletsCreation:', err);
+  }
+}

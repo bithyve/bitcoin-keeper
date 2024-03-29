@@ -1,14 +1,19 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 import Background from 'src/assets/images/whirlpool_background.svg';
+import BackgroundDark from 'src/assets/images/backgroundElementsDark.svg';
 import Gear0 from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
+import WhirlpoolLoaderDark from 'src/assets/images/WhirlpoolLoaderDark.svg';
 import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
-import { windowWidth, windowHeight } from 'src/common/data/responsiveness/responsive';
+import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
+import Gear2Dark from 'src/assets/images/smallGearDark.svg';
+import { windowWidth, windowHeight } from 'src/constants/responsive';
 
 function WhirlpoolLoader() {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -30,20 +35,20 @@ function WhirlpoolLoader() {
   return (
     <Box style={{ alignItems: 'center' }}>
       <Box style={{ width: windowWidth * 0.8, alignItems: 'center', justifyContent: 'center' }}>
-        <Background />
+        {colorMode === 'light' ? <Background /> : <BackgroundDark />}
         <Animated.View style={styles.leftGear}>
-          <Gear2 />
+          {colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>
         <Animated.View style={styles.mainGear}>
           <Animated.View style={{ position: 'absolute', transform: [{ rotate: antiClock }] }}>
-            <Gear1 />
+            {colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
           </Animated.View>
           <Animated.View style={{ position: 'absolute', transform: [{ rotate: clock }] }}>
-            <Gear0 />
+            {colorMode === 'light' ? <Gear0 /> : <WhirlpoolLoaderDark />}
           </Animated.View>
         </Animated.View>
         <Animated.View style={styles.rightGear}>
-          <Gear3 />
+          {colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
         </Animated.View>
       </Box>
     </Box>

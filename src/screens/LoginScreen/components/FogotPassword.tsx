@@ -1,11 +1,11 @@
 import React, { useState, useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { hash512 } from 'src/core/services/operations/encryption';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hash512 } from 'src/utils/service-utilities/encryption';
 import Close from 'src/assets/images/modal_close.svg';
 
 function FogotPassword(props) {
@@ -56,11 +56,13 @@ function FogotPassword(props) {
     }
   }
 
+  const { colorMode } = useColorMode();
+
   return (
-    <Box backgroundColor="light.mainBackground" padding={5}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} padding={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          backgroundColor="light.lightAccent"
+          backgroundColor={`${colorMode}.lightAccent`}
           borderRadius={32}
           h={8}
           width={8}
@@ -92,7 +94,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             pl={5}
             py={4}
             mt={6}
@@ -105,11 +107,7 @@ function FogotPassword(props) {
             secureTextEntry
           />
 
-          {invalid && (
-            <Text color="#FF0000">
-              {login.Invalidword}
-            </Text>
-          )}
+          {invalid && <Text color="#FF0000">{login.Invalidword}</Text>}
         </Box>
       ) : (
         <Box>
@@ -122,7 +120,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             pl={5}
             py={4}
             my={6}

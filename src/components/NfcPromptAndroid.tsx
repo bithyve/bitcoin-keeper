@@ -1,13 +1,14 @@
 import { Animated, Modal, Platform, StyleSheet } from 'react-native';
-import { Pressable, View } from 'native-base';
+import { Pressable, useColorMode, View } from 'native-base';
 
 import NFCSVG from 'src/assets/images/nfc.svg';
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
-import NFC from 'src/core/services/nfc';
+import { windowWidth } from 'src/constants/responsive';
+import NFC from 'src/services/nfc';
 
-function NfcPrompt({ visible, close }: { visible: boolean; close }) {
+function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaText?: string }) {
+  const { colorMode } = useColorMode();
   const animation = React.useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'ios') {
@@ -29,8 +30,14 @@ function NfcPrompt({ visible, close }: { visible: boolean; close }) {
   }
 
   const onCancel = async () => {
-    close();
-    await NFC.cancelRequest();
+    Animated.timing(animation, {
+      duration: 400,
+      toValue: 0,
+      useNativeDriver: true,
+    }).start(async () => {
+      close();
+      await NFC.cancelRequest();
+    });
   };
 
   const bgAnimStyle = {
@@ -53,14 +60,14 @@ function NfcPrompt({ visible, close }: { visible: boolean; close }) {
       <View style={[styles.wrapper]}>
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
-          <View style={styles.center} backgroundColor="light.secondaryBackground">
+          <View style={styles.center} backgroundColor={`${colorMode}.secondaryBackground`}>
             <NFCSVG />
-            <Text color="light.greenText" style={{ textAlign: 'center' }}>
+            <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>
               Please hold until the scanning is complete...
             </Text>
             <Pressable style={styles.cancel} onPress={onCancel}>
-              <Text color="light.greenText" style={{ textAlign: 'center' }}>
-                Cancel
+              <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>
+                {ctaText || 'Cancel'}
               </Text>
             </Pressable>
           </View>

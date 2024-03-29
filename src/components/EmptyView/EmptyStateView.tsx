@@ -1,28 +1,32 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import Colors from 'src/theme/Colors';
+import { hp, windowHeight } from 'src/constants/responsive';
 
 function EmptyStateView({
   IllustartionImage,
   title,
-  subTitle,
+  subTitle = '',
 }: {
   IllustartionImage: any;
   title: string;
-  subTitle: string;
+  subTitle?: string;
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.container}>
-      {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />}
-      <Text italic style={styles.noTransactionTitle}>
-        {title}
-      </Text>
-      <Text italic style={styles.noTransactionSubTitle}>
-        {subTitle}
-      </Text>
+      <Box>
+        <Text style={styles.noTransactionTitle} semiBold color={`${colorMode}.primaryText`}>
+          {title}
+        </Text>
+        {subTitle && (
+          <Text italic style={styles.noTransactionSubTitle} color={`${colorMode}.black`}>
+            {subTitle}
+          </Text>
+        )}
+      </Box>
+      <IllustartionImage />
     </Box>
   );
 }
@@ -31,22 +35,18 @@ const styles = StyleSheet.create({
     marginTop: windowHeight > 800 ? hp(20) : hp(12),
     alignItems: 'center',
     justifyContent: 'flex-end',
+    gap: 20,
   },
   noTransactionTitle: {
-    fontSize: 12,
-    letterSpacing: 0.6,
-    opacity: 0.85,
-    fontWeight: '400',
-    marginTop: hp(20),
-    color: Colors.RichBlack,
+    fontSize: 14,
+    letterSpacing: 0.14,
+    opacity: 0.5,
   },
   noTransactionSubTitle: {
-    fontSize: 12,
+    fontSize: 11,
     letterSpacing: 0.6,
-    opacity: 0.85,
-    fontWeight: '400',
+    opacity: 0.5,
     textAlign: 'center',
-    color: Colors.RichBlack,
   },
 });
 export default EmptyStateView;

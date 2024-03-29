@@ -1,9 +1,10 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 
-import { LocalizationContext } from 'src/common/content/LocContext';
-import Buttons from '../Buttons';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Buttons from 'src/components/Buttons';
+import { cryptoRandom } from 'src/utils/service-utilities/encryption';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
@@ -11,7 +12,7 @@ function ConfirmSeedWord(props) {
   const { common } = translations;
   const { words } = props;
   const [seedWord, setSeedWord] = useState('');
-  const [index] = useState(Math.floor(Math.random() * words.length));
+  const [index] = useState(Math.floor(cryptoRandom() * words.length));
   const [invalid, setInvalid] = useState(false);
 
   const getSeedNumber = (seedNumber) => {
@@ -71,14 +72,14 @@ function ConfirmSeedWord(props) {
         return 'twelfth';
     }
   };
-
+  const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor="light.mainBackground" padding={10} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} padding={10} borderRadius={10}>
       <Box>
-        <Text fontSize={19} color="light.primaryText">
+        <Text fontSize={19} color={`${colorMode}.primaryText`}>
           {BackupWallet.confirmSeedWord}
         </Text>
-        <Text fontSize={13} color="light.secondaryText" mb={10}>
+        <Text fontSize={13} color={`${colorMode}.secondaryText`} mb={10}>
           Exactly as they were displayed
         </Text>
       </Box>
@@ -88,8 +89,8 @@ function ConfirmSeedWord(props) {
         </Text>
         <Input
           placeholder={`Enter ${getHint(index)} word`}
-          placeholderTextColor="light.secondaryText"
-          backgroundColor="light.primaryBackground"
+          placeholderTextColor={`${colorMode}.secondaryText`}
+          backgroundColor={`${colorMode}.seashellWhite`}
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"

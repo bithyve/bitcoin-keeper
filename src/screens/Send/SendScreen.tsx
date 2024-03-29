@@ -7,44 +7,52 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  StyleSheet,
 } from 'react-native';
 // libraries
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
-import IconWallet from 'src/assets/images/icon_wallet.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import KeeperHeader from 'src/components/KeeperHeader';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { EntityKind, PaymentInfoKind } from 'src/core/wallets/enums';
+import { EntityKind, PaymentInfoKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import { RNCamera } from 'react-native-camera';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// components
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { TransferType } from 'src/common/data/enums/TransferType';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { TransferType } from 'src/models/enums/TransferType';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import WalletOperations from 'src/core/wallets/operations';
+import WalletOperations from 'src/services/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
-import { UTXO } from 'src/core/wallets/interfaces';
+import { UTXO } from 'src/services/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
-
+import HexagonIcon from 'src/components/HexagonIcon';
+import idx from 'idx';
+import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
+import Buttons from 'src/components/Buttons';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 function SendScreen({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
@@ -58,12 +66,20 @@ function SendScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
-  const { wallets: allWallets } = useWallets();
-  const { activeVault } = useVault();
-  const otherWallets: Wallet[] = allWallets.filter(
-    (existingWallet) => existingWallet.id !== sender.id
+  const { wallets } = useWallets({ getAll: true });
+  const { allVaults } = useVault({ includeArchived: false });
+  const nonHiddenWallets = wallets.filter(
+    (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
+  );
+  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
+    (item) => item !== null
+  );
+  const otherWallets = allWallets.filter((existingWallet) => existingWallet.id !== sender.id);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
   );
 
   useEffect(() => {
@@ -71,6 +87,17 @@ function SendScreen({ route }) {
       dispatch(sendPhasesReset());
     });
   }, []);
+
+  useEffect(() => {
+    if (sender.entityKind === EntityKind.WALLET) {
+      // disabling send flow for watch-only wallets
+      const isWatchOnly = !idx(sender as Wallet, (_) => _.specs.xpriv);
+      if (isWatchOnly) {
+        showToast('Cannot send via Watch-only wallet', <ToastErrorIcon />);
+        navigation.goBack();
+      }
+    }
+  }, [sender]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -141,70 +168,66 @@ function SendScreen({ route }) {
     });
   };
 
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else {
+      return <WalletIcon />;
+    }
+  };
+
   const handleTextChange = (info: string) => {
     info = info.trim();
-    const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+    let { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+    amount = satsEnabled ? Math.trunc(amount * 1e8) : amount;
     setPaymentInfo(address);
-    const sendingTo = WalletUtilities.getWalletFromAddress(allWallets.concat(activeVault), address);
-    if (sendingTo) {
-      switch (sendingTo.entityKind) {
-        case EntityKind.VAULT:
-          const type =
-            sender.entityKind === EntityKind.VAULT
-              ? TransferType.VAULT_TO_VAULT
-              : TransferType.VAULT_TO_WALLET;
-          navigateToNext(address, type, amount ? amount.toString() : null, sendingTo);
-          break;
-        case EntityKind.WALLET:
-          const transferType =
-            sender.entityKind === EntityKind.WALLET
-              ? TransferType.WALLET_TO_WALLET
-              : TransferType.WALLET_TO_VAULT;
-          navigateToNext(address, transferType, amount ? amount.toString() : null, sendingTo);
-          break;
-        default:
-          showToast('Invalid bitcoin address', <ToastErrorIcon />);
-      }
-      return;
-    }
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         const type =
           sender.entityKind === 'VAULT'
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
-        navigateToNext(address, type, amount ? amount.toString() : null, sendingTo);
+        navigateToNext(address, type, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
         const transferType =
           sender.entityKind === 'VAULT'
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
-        navigateToNext(address, transferType, amount ? amount.toString() : null, sendingTo);
+        navigateToNext(address, transferType, amount ? amount.toString() : null, null);
         break;
       default:
         showToast('Invalid bitcoin address', <ToastErrorIcon />);
     }
   };
 
-  const renderWallets = ({ item }: { item: Wallet }) => {
-    const onPress = () => {
-      if (sender.entityKind === 'VAULT') {
+  const handleProceed = () => {
+    if (selectedItem) {
+      if (sender.entityKind === EntityKind.VAULT) {
         navigateToNext(
-          WalletOperations.getNextFreeAddress(item),
+          WalletOperations.getNextFreeAddress(selectedItem),
           TransferType.VAULT_TO_WALLET,
           null,
-          item
+          selectedItem
         );
       } else {
         navigateToNext(
-          WalletOperations.getNextFreeAddress(item),
+          WalletOperations.getNextFreeAddress(selectedItem),
           TransferType.WALLET_TO_WALLET,
           null,
-          item
+          selectedItem
         );
       }
+    } else {
+      showToast('Please select a wallet or vault');
+    }
+  };
+
+  const renderWallets = ({ item }: { item: Wallet }) => {
+    const onPress = () => {
+      setSelectedItem(item);
     };
+
     return (
       <Box
         justifyContent="center"
@@ -212,8 +235,14 @@ function SendScreen({ route }) {
         style={{ marginRight: wp(10) }}
         width={wp(60)}
       >
-        <TouchableOpacity onPress={onPress} style={styles.buttonBackground}>
-          <IconWallet />
+        <TouchableOpacity onPress={onPress}>
+          <HexagonIcon
+            width={42}
+            height={36}
+            backgroundColor={Colors.RussetBrown}
+            icon={getWalletIcon(item)}
+            showSelection={item?.id === selectedItem?.id}
+          />
         </TouchableOpacity>
         <Box>
           <Text light fontSize={12} mt="1" numberOfLines={1}>
@@ -225,24 +254,19 @@ function SendScreen({ route }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={common.send}
-          subtitle="Scan a bitcoin address"
-          headerTitleColor="light.textBlack"
-          paddingTop={hp(5)}
-          paddingLeft={25}
-        />
+        <KeeperHeader title={common.send} subtitle="Scan a bitcoin address" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
               <RNCamera
+                testID="qrscanner"
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
@@ -251,50 +275,61 @@ function SendScreen({ route }) {
                 notAuthorizedView={<CameraUnauthorized />}
               />
             </Box>
-            {/* Upload Image */}
-
             <UploadImage onPress={handleChooseImage} />
-
-            {/* send manually option */}
-            <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+            <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
+                testID="input_receive_address"
                 placeholder="or enter address manually"
-                placeholderTextColor="light.GreyText"
+                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}
                 value={paymentInfo}
                 onChangeText={handleTextChange}
               />
             </Box>
-
-            {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={2} fontSize={14} letterSpacing={1.12}>
+              <Text
+                color={`${colorMode}.headerText`}
+                marginX={2}
+                fontSize={14}
+                letterSpacing={1.12}
+              >
                 or send to a wallet
               </Text>
               <View>
-                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
+                <View style={styles.walletContainer} backgroundColor={`${colorMode}.seashellWhite`}>
                   <FlatList
                     data={otherWallets}
                     renderItem={renderWallets}
                     keyExtractor={(item) => item.id}
                     horizontal
                     showsHorizontalScrollIndicator={false}
+                    ListEmptyComponent={
+                      <Box style={styles.emptyWalletsContainer}>
+                        <EmptyWalletIcon />
+                        <Box style={styles.emptyWalletText}>
+                          <Text color={`${colorMode}.hexagonIconBackColor`}>
+                            You don't have any wallets yet
+                          </Text>
+                        </Box>
+                      </Box>
+                    }
                   />
                 </View>
+                <Box style={styles.proceedButton}>
+                  <Buttons primaryCallback={handleProceed} primaryText="Proceed" />
+                </Box>
               </View>
             </Box>
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* {Bottom note} */}
       {showNote && (
-        <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
+        <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Note
             title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
             subtitle={
               sender.entityKind === 'VAULT'
-                ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
+                ? 'Check the send-to address on a signer you are going to use to sign the transaction.'
                 : 'Make sure the address or QR is the one where you want to send the funds to'
             }
             subtitleColor="GreyText"
@@ -305,11 +340,7 @@ function SendScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
+const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -319,11 +350,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -344,15 +375,13 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '100%',
+    borderRadius: 10,
     backgroundColor: Colors.Isabelline,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
     padding: 15,
-    fontFamily: Fonts.RobotoCondensedRegular,
     opacity: 0.5,
   },
   cameraView: {
-    height: hp(250),
+    height: hp(220),
     width: wp(375),
   },
   qrcontainer: {
@@ -364,29 +393,33 @@ const styles = ScaledSheet.create({
   walletContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: hp(100),
-    width: wp(330),
+    height: hp(70),
+    width: '95%',
     borderRadius: hp(10),
-    marginHorizontal: wp(12),
+    marginHorizontal: wp(10),
     paddingHorizontal: wp(25),
     marginTop: hp(5),
-  },
-  buttonBackground: {
-    backgroundColor: '#FAC48B',
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   noteWrapper: {
     marginLeft: wp(20),
     position: 'absolute',
-    bottom: windowHeight > 680 ? hp(20) : hp(8),
+    bottom: windowHeight > 680 ? hp(15) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {
-    marginTop: windowHeight > 680 ? hp(20) : hp(10),
+    marginTop: windowHeight > 680 ? hp(10) : hp(10),
+  },
+  emptyWalletsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyWalletText: {
+    position: 'absolute',
+    width: 100,
+    opacity: 0.8,
+  },
+  proceedButton: {
+    marginVertical: 5,
   },
 });
-export default SendScreen;
+export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);

@@ -1,20 +1,20 @@
-import { Input } from 'native-base';
+import { Input, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { Keyboard, View } from 'react-native';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { Keyboard, StyleSheet, View } from 'react-native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
+import Fonts from 'src/constants/Fonts';
 
 function AddAmountScreen({ route }: { route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
@@ -24,22 +24,21 @@ function AddAmountScreen({ route }: { route }) {
 
   return (
     <View style={styles.wrapper}>
-      <View style={[styles.Container, { backgroundColor: 'light.secondaryBackground' }]}>
+      <View style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
         <StatusBarComponent padding={50} />
-        <HeaderTitle
-          title={home.AddAmount}
-          subtitle={home.amountdesc}
-          onPressHandler={() => navigtaion.goBack()}
-        />
+        <KeeperHeader title={home.AddAmount} subtitle={home.amountdesc} />
         <View style={styles.inputParentView}>
-          <View style={[styles.inputWrapper, { backgroundColor: 'light.primaryBackground' }]}>
+          <View
+            style={[styles.inputWrapper, { backgroundColor: `${colorMode}.primaryBackground` }]}
+          >
             <View style={styles.btcIconWrapper}>
               <BtcInput />
             </View>
             <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
             <Input
+              backgroundColor={`${colorMode}.seashellWhite`}
               placeholder={home.ConvertedAmount}
-              placeholderTextColor="light.greenText"
+              placeholderTextColor={`${colorMode}.greenText`}
               style={styles.inputField}
               borderWidth="0"
               value={amount}
@@ -66,7 +65,7 @@ function AddAmountScreen({ route }: { route }) {
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
-          color="light.greenText"
+          color={`${colorMode}.greenText`}
           darkDeleteIcon
         />
       </View>
@@ -74,9 +73,9 @@ function AddAmountScreen({ route }: { route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
-    padding: '20@s',
+    padding: 20,
   },
   wrapper: {
     flex: 1,
@@ -84,7 +83,7 @@ const styles = ScaledSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1.04,
   },
   inputParentView: {

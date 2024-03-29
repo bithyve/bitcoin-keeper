@@ -1,28 +1,27 @@
 import { StyleSheet } from 'react-native';
-import React, { useContext } from 'react';
+import React from 'react';
 import useBalance from 'src/hooks/useBalance';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useAppSelector } from 'src/store/hooks';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import BTC from 'src/assets/images/btc_wallet.svg';
 import Text from 'src/components/KeeperText';
 
 function WalletInfo({ wallets }) {
+  const { colorMode } = useColorMode();
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
     <Box style={styles.headerContainer}>
-      <Text color="light.textWallet" style={styles.headerTitle}>
+      <Text color={`${colorMode}.textWallet`} style={styles.headerTitle}>
         {wallets?.length} Linked Wallets
       </Text>
       <Box style={styles.headerBalanceContainer}>
-        <Box style={styles.headerBTCIcon}>
-          {getCurrencyIcon(BTC, 'dark')}
-        </Box>
-        <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
+        <Box style={styles.headerBTCIcon}>{getCurrencyIcon(BTC, 'dark')}</Box>
+        <Text color={`${colorMode}.textWallet`} fontSize={hp(30)} style={styles.headerBalance}>
           {getBalance(netBalance)}
-          <Text color="light.textColorDark" style={styles.balanceUnit}>
+          <Text color={`${colorMode}.textColorDark`} style={styles.balanceUnit}>
             {getSatUnit()}
           </Text>
         </Text>

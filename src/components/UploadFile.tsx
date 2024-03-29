@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import RNFS from 'react-native-fs';
 
 function UploadFile({ fileHandler }) {
+  const { colorMode } = useColorMode();
   const handleDocumentSelection = useCallback(async () => {
     try {
       const response = await DocumentPicker.pick({
@@ -27,10 +28,11 @@ function UploadFile({ fileHandler }) {
       style={{
         alignItems: 'center',
       }}
+      testID="btn_importBSMS"
     >
-      <Box variant="linearGradient" style={styles.container}>
-        <Text style={styles.text} color={'light.white'}>
-          Import a BSMS or Output Descriptor File
+      <Box backgroundColor={`${colorMode}.modalGreenButton`} style={styles.container}>
+        <Text style={styles.text} color={`${colorMode}.white`}>
+          Import a BSMS or Wallet Configuration File
         </Text>
       </Box>
     </TouchableOpacity>

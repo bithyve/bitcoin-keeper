@@ -1,25 +1,43 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Box } from 'native-base';
+import React, { useContext, useState } from 'react';
+import { Box, useColorMode } from 'native-base';
 
 import BackupHealthCheckList from 'src/components/Backup/BackupHealthCheckList';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import KeeperModal from 'src/components/KeeperModal';
 
-function WalletBackHistoryScreen({ navigation }) {
+function WalletBackHistoryScreen({ route }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { BackupWallet } = translations;
+  const [isLearnMore, setIsLearnMore] = useState(false);
+  const { seed } = translations;
+  const isUaiFlow = route.params?.isUaiFlow || false;
 
   return (
-    <ScreenWrapper>
-      <HeaderTitle title={BackupWallet.myWalletBackupTitle} paddingTop={5} paddingLeft={25} />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
+        title={seed.backupPhrase}
+        //-----TODO LEARN MORE------
+        // learnMore
+        // learnTextColor={`${colorMode}.white`}
+        // learnMorePressed={() => {
+        //   setIsLearnMore(true);
+        // }}
+      />
       <Box mx={wp(5)}>
-        <BackupHealthCheckList />
+        <BackupHealthCheckList isUaiFlow={isUaiFlow} />
       </Box>
+      <KeeperModal
+        visible={isLearnMore}
+        close={() => {
+          setIsLearnMore(false);
+        }}
+      />
     </ScreenWrapper>
   );
 }

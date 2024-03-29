@@ -1,88 +1,41 @@
-import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SendIcon from 'src/assets/images/icon_sent_footer.svg';
+import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
+import SettingIcon from 'src/assets/images/settings_footer.svg';
 
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import Recieve from 'src/assets/images/receive.svg';
-import Send from 'src/assets/images/send.svg';
-import IconSettings from 'src/assets/images/icon_settings.svg';
-import BuyBitcoin from 'src/assets/images/icon_buy.svg';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import useFeatureMap from 'src/hooks/useFeatureMap';
-import useToastMessage from 'src/hooks/useToastMessage';
+import KeeperFooter from 'src/components/KeeperFooter';
+import idx from 'idx';
+import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 
-import BottomMenuItem from '../BottomMenuItem';
-import { allowedRecieveTypes, allowedSendTypes } from '..';
-
-
-function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
-  const { showToast } = useToastMessage();
-  const featureMap = useFeatureMap({ walletIndex });
+function TransactionFooter({ currentWallet }) {
   const navigation = useNavigation();
-  const { bottom } = useSafeAreaInsets();
-  return (
-    <Box
-      style={[styles.footerContainer, { marginBottom: bottom }]}
-      borderColor="light.primaryBackground"
-    >
-      <Box style={styles.border} borderColor="light.GreyText" />
-      <Box style={styles.footerItemContainer}>
-        {allowedSendTypes.includes(currentWallet.type) && (
-          <BottomMenuItem
-            onPress={() =>
-              navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet }))
-            }
-            icon={<Send />}
-            title="Send"
-          />
-        )}
-        {allowedRecieveTypes.includes(currentWallet.type) && (
-          <BottomMenuItem
-            onPress={() =>
-              featureMap.walletRecieve
-                ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
-                : showToast('Please Upgrade', <ToastErrorIcon />)
+  const isWatchOnly = !idx(currentWallet, (_) => _.specs.xpriv);
 
-            }
-            icon={<Recieve />}
-            title="Receive"
-          />
-        )}
-        {allowedRecieveTypes.includes(currentWallet.type) && (
-          <BottomMenuItem onPress={onPressBuyBitcoin} icon={<BuyBitcoin />} title="Buy" />
-        )}
-        <BottomMenuItem
-          onPress={() =>
-            navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet: currentWallet }))
-          }
-          icon={<IconSettings />}
-          title="Settings"
-        />
-      </Box>
-    </Box>
-  );
+  const footerItems = [
+    {
+      Icon: SendIcon,
+      text: 'Send',
+      onPress: () => navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet })),
+      hideItems: !allowedSendTypes.includes(currentWallet.type),
+    },
+    {
+      Icon: RecieveIcon,
+      text: 'Receive',
+      onPress: () =>
+        navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet })),
+      hideItems: !allowedRecieveTypes.includes(currentWallet.type),
+    },
+    {
+      Icon: SettingIcon,
+      text: 'Settings',
+      onPress: () =>
+        navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet: currentWallet })),
+    },
+  ];
+
+  if (isWatchOnly) footerItems.shift(); // disabling send flow for watch-only wallets
+  return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
 
 export default TransactionFooter;
-
-const styles = StyleSheet.create({
-  footerContainer: {
-    bottom: Platform.OS === 'ios' ? 5 : 0,
-    paddingHorizontal: 5,
-    justifyContent: 'center',
-  },
-  border: {
-    borderWidth: 0.5,
-    borderRadius: 20,
-    opacity: 0.2,
-  },
-  footerItemContainer: {
-    flexDirection: 'row',
-    paddingTop: windowHeight > 850 ? 15 : 5,
-    marginBottom: windowHeight > 850 ? hp(10) : 0,
-    justifyContent: 'space-evenly',
-    marginHorizontal: 16,
-  },
-});

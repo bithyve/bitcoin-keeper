@@ -1,21 +1,18 @@
 import * as Sentry from '@sentry/react-native';
-
-import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
-import React, { useEffect } from 'react';
-
-import { AppContextProvider } from 'src/common/content/AppContext';
+import { LogBox, Platform, UIManager } from 'react-native';
+import React, { ReactElement, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
-import { NativeBaseProvider } from 'native-base';
+import { NativeBaseProvider, StatusBar } from 'native-base';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
-import { sentryConfig } from 'src/core/services/sentry';
 import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
-import { customTheme } from './src/common/themes';
+import { TorContextProvider } from 'src/context/TorContext';
+import { HCESessionProvider } from 'react-native-hce';
+import { LocalizationProvider } from 'src/context/Localization/LocContext';
+import { AppContextProvider } from 'src/context/AppContext';
+import { customTheme } from './src/navigation/themes';
 import Navigator from './src/navigation/Navigator';
-import { LocalizationProvider } from './src/common/content/LocContext';
 import { persistor, store } from './src/store/store';
-import { TorContextProvider } from 'src/store/contexts/TorContext';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -30,30 +27,28 @@ if (Platform.OS === 'android') {
   }
 }
 
+function AndroidProvider({ children }: { children: ReactElement }) {
+  return Platform.OS === 'android' ? <HCESessionProvider>{children}</HCESessionProvider> : children;
+}
+
 function App() {
   useEffect(() => {
     initConnection();
-    Sentry.init(sentryConfig);
     return () => {
       endConnection();
     };
   }, []);
 
-  // linear-gradient configs for NativeBase
-  const config = {
-    dependencies: {
-      'linear-gradient': LinearGradient,
-    },
-  };
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NativeBaseProvider theme={customTheme} config={config}>
+      <NativeBaseProvider theme={customTheme}>
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
         <LocalizationProvider>
           <AppContextProvider>
             <TorContextProvider>
-              <Navigator />
+              <AndroidProvider>
+                <Navigator />
+              </AndroidProvider>
             </TorContextProvider>
           </AppContextProvider>
         </LocalizationProvider>

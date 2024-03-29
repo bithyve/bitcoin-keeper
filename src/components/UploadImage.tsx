@@ -1,38 +1,33 @@
-import React from 'react';
-import { Box } from 'native-base';
+import React, { useContext } from 'react';
+import { Box, useColorMode } from 'native-base';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import ImageIcon from 'src/assets/images/image.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
-  onPress: () => void
-}
+  onPress: () => void;
+};
 
-function UploadImage(
-  {
-    onPress = () => { }
-  }: Props
-) {
+function UploadImage({ onPress = () => {} }: Props) {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { importWallet } = translations;
   return (
     <TouchableOpacity
       activeOpacity={0.5}
+      testID="btn_upload_image"
       onPress={onPress}
       style={{
-        alignItems: 'center'
+        alignItems: 'center',
       }}
     >
-      <Box
-        variant="linearGradient"
-        style={styles.container}
-      >
+      <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
         <ImageIcon />
-        <Text
-          style={styles.text}
-          color={'light.white'}
-        >
-          Upload from gallery
+        <Text style={styles.text} color="white">
+          {importWallet.uploadFromGallery}
         </Text>
       </Box>
     </TouchableOpacity>
@@ -45,13 +40,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   text: {
     letterSpacing: 0.6,
     fontSize: 12,
-    marginLeft: 5
-  }
-})
+    marginLeft: 5,
+  },
+});
 
 export default UploadImage;

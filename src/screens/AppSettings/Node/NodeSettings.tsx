@@ -1,19 +1,16 @@
-/* eslint-disable react/no-unstable-nested-components */
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { hp, windowHeight } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
-import { NodeDetail } from 'src/core/wallets/interfaces';
-import HeaderTitle from 'src/components/HeaderTitle';
+import { NodeDetail } from 'src/services/wallets/interfaces';
+import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/add.svg';
-// import EditIcon from 'src/assets/images/edit_yellow.svg';
+import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import ConnectIcon from 'src/assets/images/connectNode.svg';
 import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
@@ -25,10 +22,11 @@ import {
   electrumClientConnectionExecuted,
   electrumClientConnectionInitiated,
 } from 'src/store/reducers/login';
+import Node from 'src/services/electrum/node';
 import AddNode from './AddNodeModal';
-import Node from '../../../core/services/electrum/node';
 
 function NodeSettings() {
+  const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -76,6 +74,13 @@ function NodeSettings() {
   };
 
   const onDelete = async (selectedItem: NodeDetail) => {
+    if (nodeList.length === 1) {
+      showToast(
+        'Unable to delete. Please add another node before deleting this.',
+        <ToastErrorIcon />
+      );
+      return;
+    }
     const isConnected = Node.nodeConnectionStatus(selectedItem);
     if (isConnected) await Node.disconnect(selectedItem);
 
@@ -155,31 +160,9 @@ function NodeSettings() {
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
     setCurrentlySelectedNodeItem(selectedItem);
   };
-  console.log('windowHeight', windowHeight)
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle
-        paddingLeft={25}
-        title={settings.nodeSettings}
-        subtitle={settings.nodeSettingUsedSoFar}
-      />
-      {/* <Box style={styles.nodeConnectSwitchWrapper}>
-        <Box>
-          <Text color="light.primaryText" style={styles.connectToMyNodeTitle}>
-            {settings.connectToMyNode}
-          </Text>
-          <Text style={styles.appSettingSubTitle} color="light.secondaryText">
-            {settings.connectToMyNodeSubtitle}
-          </Text>
-        </Box>
-        <Box>
-          <Switch value={ConnectToNode} onValueChange={onChangeConnectToMyNode} />
-        </Box>
-      </Box> */}
-      {/* <Box borderColor="light.GreyText" style={styles.splitter} /> */}
-      {/* <Box style={styles.nodeListHeader}>
-        <Text style={styles.nodeListTitle}>{settings.currentlyConnected}</Text>
-      </Box> */}
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
+      <KeeperHeader title={settings.nodeSettings} subtitle={settings.nodeSettingUsedSoFar} />
       {nodeList.length > 0 && (
         <Box style={styles.nodesListWrapper}>
           <FlatList
@@ -192,22 +175,10 @@ function NodeSettings() {
                   onPress={() => onSelectedNodeitem(item)}
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
-                  <Box
-                    backgroundColor={isConnected ? 'light.primaryBackground' : 'light.fadedGray'}
-                    style={[styles.nodeList]}
-                  >
-                    <Box
-                      style={[
-                        styles.nodeDetail,
-                        {
-                          backgroundColor: isConnected
-                            ? 'light.primaryBackground'
-                            : 'light.fadedGray',
-                        },
-                      ]}
-                    >
+                  <Box backgroundColor={`${colorMode}.seashellWhite`} style={[styles.nodeList]}>
+                    <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
                       <Box style={{ width: '60%' }}>
-                        <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                        <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.host}
                         </Text>
                         <Text numberOfLines={1} style={styles.nodeTextValue}>
@@ -215,14 +186,15 @@ function NodeSettings() {
                         </Text>
                       </Box>
                       <Box>
-                        <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                        <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.portNumber}
                         </Text>
                         <Text style={styles.nodeTextValue}>{item.port}</Text>
                       </Box>
                     </Box>
-                    <Box style={styles.nodeButtons}>
+                    <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
                       <TouchableOpacity
+                        testID="btn_disconnetNode"
                         onPress={() => {
                           if (!isConnected) onConnectToNode(item);
                           else onDisconnectToNode(item);
@@ -240,8 +212,8 @@ function NodeSettings() {
                           </Text>
                         </Box>
                       </TouchableOpacity>
-                      <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
-                      <TouchableOpacity onPress={() => onDelete(item)}>
+                      <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
+                      <TouchableOpacity testID="btn_deleteNode" onPress={() => onDelete(item)}>
                         <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                           <DeleteIcon />
                           <Text style={[styles.actionText, { paddingTop: 2 }]}>
@@ -257,29 +229,30 @@ function NodeSettings() {
           />
         </Box>
       )}
-
-      <TouchableOpacity onPress={onAdd}>
-        <Box backgroundColor="#E3BE96" style={styles.addNewNode}>
-          <AddIcon />
-          <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
+      <TouchableOpacity testID="btn_addNode" onPress={onAdd}>
+        <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
+          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
+          <Text style={[styles.addNewNodeText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>
+            {settings.addNewNode}
+          </Text>
         </Box>
       </TouchableOpacity>
-
-      <Box style={styles.note} backgroundColor="light.mainBackground">
-        <Note title={common.note} subtitle={settings.nodeSettingsNote} />
+      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
+        <Note title={common.note} subtitle={settings.nodeSettingsNote} subtitleColor="GreyText" />
       </Box>
-
       <KeeperModal
         justifyContent="center"
         visible={visible}
         close={closeAddNodeModal}
         title={settings.nodeDetailsTitle}
         subTitle={settings.nodeDetailsSubtitle}
-        subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonBackground={`${colorMode}.gradientStart`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
-        buttonTextColor="#FAFAFA"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
@@ -292,7 +265,6 @@ function NodeSettings() {
     </ScreenWrapper>
   );
 }
-console.log(windowHeight)
 const styles = StyleSheet.create({
   nodeConnectSwitchWrapper: {
     flexDirection: 'row',
@@ -340,7 +312,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     height: windowHeight > 800 ? '65%' : '56%',
-    // alignItems: 'center',
   },
   nodeListTitle: {
     fontSize: 14,
@@ -416,13 +387,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    width: '100%',
   },
   addNewNodeText: {
     fontSize: 15,
     fontWeight: '400',
     letterSpacing: 0.6,
-    paddingLeft: 10,
   },
 });
 

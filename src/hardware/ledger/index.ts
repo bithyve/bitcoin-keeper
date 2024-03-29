@@ -1,9 +1,9 @@
-import { XpubTypes } from 'src/core/wallets/enums';
-import { XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { XpubTypes } from 'src/services/wallets/enums';
+import { XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { SigningPayload } from 'src/core/wallets/interfaces';
-import { captureError } from 'src/core/services/sentry';
-import config from 'src/core/config';
+import { SigningPayload } from 'src/services/wallets/interfaces';
+import { captureError } from 'src/services/sentry';
+import config from 'src/utils/service-utilities/config';
 
 const bscript = require('bitcoinjs-lib/src/script');
 
@@ -18,7 +18,7 @@ export const getLedgerDetailsFromChannel = (data, isMultisig) => {
     return {
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint: xfp,
       xpubDetails,
     };
   } catch (error) {
@@ -39,7 +39,7 @@ export const signWithLedgerChannel = (serializedPSBT, signingPayload: SigningPay
     const { sighashType, publicKey } = inputsToSign[inputIndex];
     const { signature: derSignature } = signedData[inputIndex];
     const { signature } = bscript.signature.decode(derSignature); // re-encode from der to 64 byte
-    psbtv0.addSignedDisgest(
+    psbtv0.addSignedDigest(
       signedData[inputIndex].inputIndex,
       Buffer.from(publicKey, 'hex'),
       signature,

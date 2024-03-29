@@ -1,55 +1,38 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { ActivityIndicator, TouchableOpacity } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
-
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
-
+import { ActivityIndicator } from 'react-native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { wp, hp } from 'src/constants/responsive';
 import QRCode from 'react-native-qrcode-svg';
-import CopyIcon from 'src/assets/images/icon_copy.svg';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Note from '../Note/Note';
+import WalletFingerprint from '../WalletFingerPrint';
 
 function ShowXPub({
-  wallet,
   data,
-  copy = () => {},
+  copy = () => { },
   subText,
   noteSubText,
   copyable = true,
-  cosignerDetails = false,
-  keeper,
 }: {
   data: string;
-  wallet?: Wallet;
   copy?: Function;
   subText: string;
-  noteSubText: string;
+  noteSubText?: string;
   copyable: boolean;
-  cosignerDetails?: boolean;
-  keeper?: KeeperApp;
 }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [details, setDetails] = useState('');
 
   useEffect(() => {
-    if (cosignerDetails) {
-      setTimeout(() => {
-        setDetails(JSON.stringify(getCosignerDetails(wallet, keeper.id)));
-      }, 200);
-    } else {
-      setDetails(data);
-    }
-  }, [cosignerDetails]);
+    setDetails(data);
+  }, [data]);
 
   return (
     <>
-      <Box justifyContent="center" alignItems="center">
+      <Box testID="view_xPub" justifyContent="center" alignItems="center">
         <Box>
           {details ? (
             <QRCode value={details} logoBackgroundColor="transparent" size={hp(200)} />
@@ -57,62 +40,24 @@ function ShowXPub({
             <ActivityIndicator />
           )}
           <Box
-            backgroundColor="light.QrCode"
+            backgroundColor={`${colorMode}.QrCode`}
             alignItems="center"
             justifyContent="center"
             padding={1}
             width={hp(200)}
           >
-            <Text fontSize={12} color="light.recieverAddress">
+            <Text fontSize={12} bold color={`${colorMode}.BrownNeedHelp`}>
               {subText}
             </Text>
           </Box>
         </Box>
-        <Box padding={2}>
-          {copyable ? (
-            <TouchableOpacity
-              onPress={() => {
-                Clipboard.setString(details);
-                copy();
-              }}
-              style={{
-                flexDirection: 'row',
-                backgroundColor: 'light.textInputBackground',
-                borderTopLeftRadius: 10,
-                borderBottomLeftRadius: 10,
-                width: wp(220),
-                marginTop: hp(30),
-                marginBottom: hp(30),
-              }}
-            >
-              <Box py={2} alignItems="center">
-                <Text fontSize={12} numberOfLines={1} px={3}>
-                  {details}
-                </Text>
-              </Box>
-
-              <Box
-                style={{
-                  width: '15%',
-                  paddingVertical: 3,
-                  backgroundColor: '#CDD8D6',
-                  borderTopRightRadius: 5,
-                  borderBottomRightRadius: 5,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Box>
-                  <CopyIcon />
-                </Box>
-              </Box>
-            </TouchableOpacity>
-          ) : null}
+        <Box padding={2}>{copyable && <WalletFingerprint fingerprint={details} copy={copy} />}</Box>
+      </Box>
+      {noteSubText ? (
+        <Box width={wp(280)}>
+          <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
         </Box>
-      </Box>
-      <Box width={wp(280)}>
-        <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
-      </Box>
+      ) : null}
     </>
   );
 }

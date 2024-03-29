@@ -1,23 +1,23 @@
-/* eslint-disable no-nested-ternary */
-/* eslint-disable no-plusplus */
 import { call, put, select } from 'redux-saga/effects';
 import {
+  cryptoRandom,
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash512,
-} from 'src/core/services/operations/encryption';
+} from 'src/utils/service-utilities/encryption';
 import DeviceInfo from 'react-native-device-info';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import semver from 'semver';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import * as SecureStore from '../../storage/secure-store';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
+import * as SecureStore from 'src/storage/secure-store';
 
+import dbManager from 'src/storage/realm/dbManager';
 import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
@@ -45,7 +45,6 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import dbManager from '../../storage/realm/dbManager';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
@@ -54,6 +53,7 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
+import { createUaiMap } from '../reducers/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -91,7 +91,13 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchExchangeRates());
 
     yield put(
-      uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT, uaiType.DEFAULT])
+      uaiChecks([
+        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+        uaiType.SECURE_VAULT,
+        uaiType.VAULT_TRANSFER,
+        uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+        uaiType.DEFAULT,
+      ])
     );
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
@@ -131,89 +137,98 @@ function* credentialsAuthWorker({ payload }) {
     }
     key = yield call(decrypt, hash, encryptedKey);
     yield put(setKey(key));
-    if (!key) throw new Error('Encryption key is missing');
-    const uint8array = yield call(stringToArrayBuffer, key);
-    yield call(dbManager.initializeRealm, uint8array);
     yield put(setPinHash(hash));
 
-    const previousVersion = yield select((state) => state.storage.appVersion);
-    const newVersion = DeviceInfo.getVersion();
-    const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
-    const lastElement = versionCollection[versionCollection.length - 1];
-    const lastVersionCode = lastElement.version.split(/[()]/);
-    const currentVersionCode = DeviceInfo.getBuildNumber();
-    console.log({ previousVersion, newVersion });
-    if (semver.lt(previousVersion, newVersion)) {
-      yield call(applyUpgradeSequence, { previousVersion, newVersion });
-    } else if (currentVersionCode !== lastVersionCode[1]) {
-      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-        version: `${newVersion}(${currentVersionCode})`,
-        releaseNote: '',
-        date: new Date().toString(),
-        title: `Upgraded from  ${lastVersionCode[1]} to ${currentVersionCode}`,
-      });
-    }
+    if (!key) throw new Error('Encryption key is missing');
+    // case: login
+    if (!payload.reLogin) {
+      const uint8array = yield call(stringToArrayBuffer, key);
+      yield call(dbManager.initializeRealm, uint8array);
+
+      const previousVersion = yield select((state) => state.storage.appVersion);
+      const newVersion = DeviceInfo.getVersion();
+      const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
+      const lastElement = versionCollection[versionCollection.length - 1];
+      const lastVersionCode = lastElement.version.split(/[()]/);
+      const currentVersionCode = DeviceInfo.getBuildNumber();
+      if (semver.lt(previousVersion, newVersion)) {
+        yield call(applyUpgradeSequence, { previousVersion, newVersion });
+      } else if (currentVersionCode !== lastVersionCode[1]) {
+        yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+          version: `${newVersion}(${currentVersionCode})`,
+          releaseNote: '',
+          date: new Date().toString(),
+          title: `Upgraded from  ${lastVersionCode[1]} to ${currentVersionCode}`,
+        });
+      }
+      if (appId) {
+        try {
+          const { id, publicId, subscription }: KeeperApp = yield call(
+            dbManager.getObjectByIndex,
+            RealmSchema.KeeperApp
+          );
+          const response = yield call(Relay.verifyReceipt, id, publicId);
+          yield put(credsAuthenticated(true));
+          yield put(setKey(key));
+
+          const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
+          yield put(setWarning(history));
+
+          yield put(fetchExchangeRates());
+          yield put(getMessages());
+
+          yield put(
+            uaiChecks([
+              uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+              uaiType.SECURE_VAULT,
+              uaiType.VAULT_TRANSFER,
+              uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+              uaiType.DEFAULT,
+            ])
+          );
+
+          yield put(resetSyncing());
+          yield call(generateSeedHash);
+          yield put(setRecepitVerificationFailed(!response.isValid));
+          if (subscription.level === 1 && subscription.name === 'Hodler') {
+            yield put(setRecepitVerificationFailed(true));
+          } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
+            yield put(setRecepitVerificationFailed(true));
+          } else if (subscription.level !== response.level) {
+            yield put(setRecepitVerificationFailed(true));
+          }
+          yield put(connectToNode());
+        } catch (error) {
+          yield put(setRecepitVerificationError(true));
+          // yield put(credsAuthenticated(false));
+          console.log(error);
+        }
+      } else yield put(credsAuthenticated(true));
+    } else yield put(credsAuthenticated(true));
   } catch (err) {
     if (payload.reLogin) {
+      yield put(credsAuthenticated(false));
       // yield put(switchReLogin(false));
     } else yield put(credsAuthenticated(false));
-    return;
   }
-
-  yield put(setKey(key));
-
-  if (!payload.reLogin) {
-    // case: login
-    if (appId) {
-      try {
-        const { id, publicId, subscription }: KeeperApp = yield call(
-          dbManager.getObjectByIndex,
-          RealmSchema.KeeperApp
-        );
-        const response = yield call(Relay.verifyReceipt, id, publicId);
-        yield put(credsAuthenticated(true));
-        yield put(setKey(key));
-
-        const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
-        yield put(setWarning(history));
-
-        yield put(fetchExchangeRates());
-        yield put(getMessages());
-        yield put(
-          uaiChecks([
-            uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-            uaiType.SECURE_VAULT,
-            uaiType.VAULT_MIGRATION,
-            uaiType.DEFAULT,
-          ])
-        );
-        yield put(resetSyncing());
-        yield call(generateSeedHash);
-        yield put(setRecepitVerificationFailed(!response.isValid));
-        if (subscription.level === 1 && subscription.name === 'Hodler') {
-          yield put(setRecepitVerificationFailed(true));
-        } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
-          yield put(setRecepitVerificationFailed(true));
-        } else if (subscription.level !== response.level) {
-          yield put(setRecepitVerificationFailed(true));
-        }
-      } catch (error) {
-        yield put(setRecepitVerificationError(true));
-        // yield put(credsAuthenticated(false));
-        console.log(error);
-      }
-    } else yield put(credsAuthenticated(true));
-  } else yield put(credsAuthenticated(true));
-
-  yield put(connectToNode());
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
-  console.log({ oldPasscode, newPasscode });
   try {
+    const hash = yield call(hash512, oldPasscode);
+    const encryptedKey = yield call(SecureStore.fetch, hash);
+    const decryptedKey = yield call(decrypt, hash, encryptedKey);
+    const newHash = yield call(hash512, newPasscode);
+    const newEncryptedKey = yield call(encrypt, newHash, decryptedKey);
+    if (!(yield call(SecureStore.store, newHash, newEncryptedKey))) {
+      return;
+    }
+    const removedOldKey = yield call(SecureStore.remove, hash);
+    yield put(credsChanged('changed'));
+
     // todo
   } catch (err) {
     console.log({
@@ -259,7 +274,7 @@ function* generateSeedHash() {
       RealmSchema.KeeperApp
     );
     const words = primaryMnemonic.split(' ');
-    const random = Math.floor(Math.random() * words.length);
+    const random = Math.floor(cryptoRandom() * words.length);
     const hash = yield call(hash512, words[random]);
     yield put(setPinResetCreds({ hash, index: random }));
     yield put(resetPinFailAttempts());

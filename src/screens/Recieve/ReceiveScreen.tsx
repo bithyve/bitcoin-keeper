@@ -1,35 +1,32 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, Input } from 'native-base';
-import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import { Box, Input, useColorMode } from 'native-base';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
-import BtcInput from 'src/assets/images/btc_input.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
-import TagsGreen from 'src/assets/images/tags.svg';
-import CopyIcon from 'src/assets/images/icon_copy.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import useToastMessage from 'src/hooks/useToastMessage';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
-import WalletOperations from 'src/core/wallets/operations';
-import MenuItemButton from '../../components/CustomButton/MenuItemButton';
+import WalletOperations from 'src/services/wallets/operations';
+import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BitcoinInput from 'src/assets/images/btc_input.svg';
+import useBalance from 'src/hooks/useBalance';
+import ReceiveAddress from './ReceiveAddress';
 
 function ReceiveScreen({ route }: { route }) {
-  const navigtaion = useNavigation();
+  const { colorMode } = useColorMode();
+  const { getCurrencyIcon } = useBalance();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
 
@@ -39,8 +36,7 @@ function ReceiveScreen({ route }: { route }) {
   const [paymentURI, setPaymentURI] = useState(null);
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { home } = translations;
+  const { common, home, wallet: walletTranslation } = translations;
 
   useEffect(() => {
     const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
@@ -50,32 +46,34 @@ function ReceiveScreen({ route }: { route }) {
   useEffect(() => {
     if (amount) {
       const newPaymentURI = WalletUtilities.generatePaymentURI(receivingAddress, {
-        amount: parseInt(amount) / 10e8,
+        amount: parseInt(amount) / 1e8,
       }).paymentURI;
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);
   }, [amount]);
 
-  const { showToast } = useToastMessage();
-
   function AddAmountContent() {
     return (
       <View>
         <View style={styles.Container}>
-          <View style={styles.inputParentView}>
-            <Box style={styles.inputWrapper01} backgroundColor="light.primaryBackground">
+          <View>
+            <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
               <View style={styles.btcIconWrapper}>
-                <BtcInput />
+                {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
               </View>
-              <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
+              <Box
+                style={styles.verticalDeviderLine}
+                backgroundColor={`${colorMode}.secondaryText`}
+              />
               <Input
                 placeholder={home.ConvertedAmount}
-                placeholderTextColor="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
                 borderWidth="0"
                 value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
+                testID="input_receiveAmount"
               />
             </Box>
 
@@ -88,7 +86,6 @@ function ReceiveScreen({ route }: { route }) {
                 primaryText="Add"
                 primaryCallback={() => {
                   setModalVisible(false);
-                  // navigtaion.navigate('Receive', { amount, wallet });
                 }}
               />
             </View>
@@ -98,79 +95,56 @@ function ReceiveScreen({ route }: { route }) {
           <AppNumPad
             setValue={setAmount}
             clear={() => setAmount('')}
-            color="light.greenText"
-            darkDeleteIcon
+            color={colorMode === 'light' ? '#041513' : '#FFF'}
+            darkDeleteIcon={colorMode === 'light'}
           />
         </View>
       </View>
     );
   }
   return (
-    <ScreenWrapper>
-      <HeaderTitle
-        title={common.receive}
-        subtitle="Native segwit address"
-        onPressHandler={() => navigtaion.goBack()}
-        headerTitleColor="light.textBlack"
-        paddingTop={hp(6)}
-        paddingLeft={hp(25)}
-      />
-      <Box style={styles.qrWrapper}>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader title={common.receive} subtitle={walletTranslation.receiveSubTitle} />
+      <Box
+        testID="view_recieveAddressQR"
+        style={styles.qrWrapper}
+        borderColor={`${colorMode}.qrBorderColor`}
+      >
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
           logoBackgroundColor="transparent"
           size={hp(200)}
         />
-        <Box background="light.QrCode" style={styles.receiveAddressWrapper}>
-          <Text style={styles.receiveAddressText} color="light.recieverAddress">
-            Receive Address
+        <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
+          <Text
+            bold
+            style={styles.receiveAddressText}
+            color={`${colorMode}.recieverAddress`}
+            numberOfLines={1}
+          >
+            {walletTranslation.receiveAddress}
           </Text>
         </Box>
       </Box>
-      {/* {Input Field} */}
-      <TouchableOpacity
-        activeOpacity={0.4}
-        onPress={() => {
-          Clipboard.setString(paymentURI || receivingAddress);
-          showToast('Address Copied Successfully', <TickIcon />);
-        }}
-        style={styles.inputContainer}
-      >
-        <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
-          <Text width="80%" marginLeft={4} numberOfLines={1}>
-            {paymentURI || receivingAddress}
-          </Text>
+      <Box style={styles.addressContainer}>
+        <ReceiveAddress address={paymentURI || receivingAddress} />
+        <MenuItemButton
+          onPress={() => setModalVisible(true)}
+          icon={<BtcGreen />}
+          title={home.AddAmount}
+          subTitle={walletTranslation.addSpecificInvoiceAmt}
+        />
+      </Box>
 
-          <Box backgroundColor="light.copyBackground" style={styles.copyIconWrapper}>
-            <CopyIcon />
-          </Box>
-        </Box>
-      </TouchableOpacity>
-      {/* {Add amount component} */}
-      <MenuItemButton
-        onPress={() => setModalVisible(true)}
-        icon={<BtcGreen />}
-        title={home.AddAmount}
-        subTitle="Add a specific invoice amount"
-      />
-      {/* {Add tags component} */}
-      {/* <MenuItemButton
-        // onPress={() => navigtaion.navigate('UTXOLabeling', { utxo: {}, wallet })}
-        onPress={() => showToast('Comming soon')}
-        icon={<TagsGreen />}
-        title="Add Tags"
-        subTitle="Tags help you remember and identify UTXOs"
-      /> */}
-      {/* {Bottom note} */}
       <Box style={styles.Note}>
         <Note
-          title={wallet.entityKind === 'VAULT' ? 'Security Tip' : home.AddAmount}
+          title={'Note'}
           subtitle={
             wallet.entityKind === 'VAULT'
-              ? 'You can get a receive address directly from a signing device and do not have to trust the Keeper app'
+              ? walletTranslation.addressReceiveDirectly
               : home.reflectSats
           }
-          subtitleColor="GreyText"
+          subtitleColor="GreenishGrey"
         />
       </Box>
       <KeeperModal
@@ -179,7 +153,9 @@ function ReceiveScreen({ route }: { route }) {
         close={() => setModalVisible(false)}
         title={home.AddAmount}
         subTitle={home.amountdesc}
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
       />
     </ScreenWrapper>
@@ -194,10 +170,11 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
   qrWrapper: {
-    marginTop: hp(50),
+    marginTop: windowHeight > 600 ? hp(35) : 0,
     alignItems: 'center',
     alignSelf: 'center',
-    width: hp(200),
+    width: hp(250),
+    borderWidth: 30,
   },
   receiveAddressWrapper: {
     height: 28,
@@ -206,40 +183,18 @@ const styles = StyleSheet.create({
   },
   receiveAddressText: {
     textAlign: 'center',
-    fontWeight: '500',
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',
-    numberOfLines: 1,
-  },
-  inputContainer: {
-    alignItems: 'center',
-    borderBottomLeftRadius: 10,
-    borderTopLeftRadius: 10,
-    marginTop: hp(40),
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  copyIconWrapper: {
-    padding: 10,
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
   },
   Container: {
     padding: 10,
   },
   inputField: {
     color: '#073E39',
-    opacity: 0.5,
-    fontFamily: Fonts.RobotoCondensedBold,
+    opacity: 0.8,
+    fontFamily: Fonts.FiraSansBold,
     letterSpacing: 1.04,
-  },
-  inputParentView: {
-    marginHorizontal: 8,
   },
   inputWrapper01: {
     flexDirection: 'row',
@@ -251,7 +206,7 @@ const styles = StyleSheet.create({
   },
   verticalDeviderLine: {
     marginLeft: 5,
-    width: 1,
+    width: 2,
     opacity: 0.5,
     height: 15,
   },
@@ -260,6 +215,9 @@ const styles = StyleSheet.create({
   },
   bottomBtnView: {
     marginBottom: 10,
+  },
+  addressContainer: {
+    marginHorizontal: wp(20),
   },
 });
 

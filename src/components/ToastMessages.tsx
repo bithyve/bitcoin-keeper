@@ -1,8 +1,10 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { windowWidth, hp } from 'src/common/data/responsiveness/responsive';
+import { windowWidth, hp } from 'src/constants/responsive';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Text from './KeeperText';
 
 HexaToastMessages.defaultProps = {
   Image: null,
@@ -11,16 +13,19 @@ HexaToastMessages.defaultProps = {
 function HexaToastMessages({
   Image,
   error,
-  ToastBody
+  ToastBody,
 }: {
   Image?: any;
   error?: boolean;
-  ToastBody?: any
+  ToastBody?: any;
 }) {
+  const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={error ? 'error.500' : 'light.accent'} style={styles.toast}>
-      {Image && <Box>{Image}</Box>}
-      {ToastBody}
+    <Box backgroundColor={`${colorMode}.accent`} style={styles.toast}>
+      {error ? <ToastErrorIcon /> : Image ? <Box>{Image}</Box> : null}
+      <Text color={`${colorMode}.textBlack`} style={styles.toastMsgText}>
+        {ToastBody}
+      </Text>
     </Box>
   );
 }
@@ -30,7 +35,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 10,
     alignItems: 'center',
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.9,
     paddingLeft: 15,
     bottom: hp(40),
     height: 70,
@@ -42,6 +47,11 @@ const styles = StyleSheet.create({
       width: 0,
       height: 3,
     },
+  },
+  toastMsgText: {
+    marginLeft: 5,
+    fontSize: 14,
+    width: windowWidth * 0.8,
   },
 });
 

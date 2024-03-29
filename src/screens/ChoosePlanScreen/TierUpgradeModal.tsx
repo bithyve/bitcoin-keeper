@@ -1,23 +1,17 @@
-import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { Box, useColorMode } from 'native-base';
+import { wp } from 'src/constants/responsive';
 
 import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
+import AlertIllustrationDark from 'src/assets/images/upgrade-successfulDark.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import React from 'react';
 
-function Content({ isUpgrade }) {
+function Content() {
+  const { colorMode } = useColorMode();
   return (
     <Box width={wp(270)}>
       <Box alignItems="center">
-        <AlertIllustration />
-      </Box>
-      <Box marginTop={hp(40)}>
-        <Text color="light.greenText" fontSize={11} padding={1} letterSpacing={0.65}>
-          {isUpgrade
-            ? `Add signing devices to use the Vault`
-            : 'Add signing devices to use the Vault'}
-        </Text>
+        {colorMode === 'light' ? <AlertIllustration /> : <AlertIllustrationDark />}
       </Box>
     </Box>
   );
@@ -31,6 +25,7 @@ function TierUpgradeModal({
   plan,
   closeOnOverlayClick = true,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <KeeperModal
       visible={visible}
@@ -41,12 +36,15 @@ function TierUpgradeModal({
           ? `You have successfully upgraded to ${plan}`
           : `You have successfully downgraded to ${plan}`
       }
-      subTitleColor="light.secondaryText"
-      buttonText={isUpgrade ? 'Add now' : 'Remove now'}
-      buttonTextColor="light.white"
+      modalBackground={`${colorMode}.modalWhiteBackground`}
+      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.primaryText`}
+      buttonText=""
+      buttonTextColor={`${colorMode}.white`}
+      buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={onPress}
-      textColor="light.primaryText"
-      Content={() => <Content isUpgrade={isUpgrade} />}
+      DarkCloseIcon={colorMode === 'dark'}
+      Content={() => <Content />}
       closeOnOverlayClick={closeOnOverlayClick}
     />
   );

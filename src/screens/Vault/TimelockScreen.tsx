@@ -1,32 +1,27 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import React, { useState } from 'react';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
-// asserts
-import Fonts from 'src/common/Fonts';
-// components, interfaces
-import HeaderTitle from 'src/components/HeaderTitle';
-import { Keyboard } from 'react-native';
+import Fonts from 'src/constants/Fonts';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { Keyboard, StyleSheet } from 'react-native';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { useNavigation } from '@react-navigation/native';
 
 function TimelockScreen() {
-  const navigation = useNavigation();
+  const { colorMode } = useColorMode();
   const [amount, setAmount] = useState('');
 
   return (
     <Box flex={1} position="relative">
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <Box marginX={3}>
           <Box width={wp(320)}>
-            <HeaderTitle
-              onPressHandler={() => navigation.goBack()}
-              title="Timelock Vault"
+            <KeeperHeader
+              title="Timelock vault"
               subtitle="Provide number of blocks from the current block"
             />
             <Box
@@ -36,15 +31,15 @@ function TimelockScreen() {
             >
               <Input
                 placeholder=""
-                placeholderTextColor="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
                 borderWidth="0"
                 value={amount}
                 onFocus={() => Keyboard.dismiss()}
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
               />
               <Text
-                color="light.textColor2"
+                color={`${colorMode}.textColor2`}
                 bold
                 letterSpacing={2.8}
                 fontSize={13}
@@ -71,8 +66,8 @@ function TimelockScreen() {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          clear={() => {}}
-          color="light.greenText"
+          clear={() => { }}
+          color={`${colorMode}.greenText`}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
         />
@@ -81,11 +76,11 @@ function TimelockScreen() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansBold,
     fontSize: 13,
     letterSpacing: 2.6,
     height: hp(50),

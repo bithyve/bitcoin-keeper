@@ -1,15 +1,11 @@
 import React, { useState, useContext } from 'react';
-import Text from 'src/components/KeeperText';
-import { Box, Pressable } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { Box, useColorMode } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { hp, wp } from 'src/constants/responsive';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HealthCheckComponent from 'src/components/Backup/HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import SkipHealthCheck from 'src/components/Backup/SkipHealthCheck';
@@ -17,80 +13,39 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { useAppSelector } from 'src/store/hooks';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import { StyleSheet } from 'react-native';
-
-type Props = {
-  title: string;
-  subTitle: string;
-  onPress: () => void;
-};
+import { useQuery } from '@realm/react';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import OptionCard from 'src/components/OptionCard';
+import KeeperModal from 'src/components/KeeperModal';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function BackupWallet() {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
   const navigation = useNavigation();
 
-  const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
-  function Option({ title, subTitle, onPress }: Props) {
-    return (
-      <Pressable
-        flexDirection="row"
-        justifyContent="space-between"
-        alignItems="center"
-        width="100%"
-        style={{ marginVertical: hp(20) }}
-        onPress={onPress}
-      >
-        <Box width="100%">
-          <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
-            {title}
-          </Text>
-          {subTitle ? (
-            <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
-              {subTitle}
-            </Text>
-          ) : null}
-        </Box>
-        <Box>
-          <Arrow />
-        </Box>
-      </Pressable>
-    );
-  }
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <Box style={styles.wrapper} background="light.secondaryBackground">
-      <StatusBarComponent padding={30} />
-      <Box
-        style={{
-          padding: hp(5),
-        }}
-      >
-        <HeaderTitle
-          title={BackupWallet.backupWallet}
-          subtitle={BackupWallet.backupWalletSubTitle}
-          onPressHandler={() => navigation.goBack()}
-          paddingTop={hp(5)}
-          paddingLeft={25}
-        />
-      </Box>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
+        title={BackupWallet.backupWallet}
+        subtitle={BackupWallet.backupWalletSubTitle}
+      />
       <Box style={styles.optionWrapper}>
-        {/* {backupMethod && <WalletBackHistory navigation />} */}
-        <Option
+        <OptionCard
           title={BackupWallet.exportAppSeed}
-          subTitle=""
-          onPress={() => {
-            navigation.replace('ExportSeed', {
-              seed: primaryMnemonic,
-              next: true,
-            });
+          description=""
+          callback={() => {
+            setConfirmPassVisible(true);
           }}
         />
       </Box>
@@ -139,7 +94,35 @@ function BackupWallet() {
           />
         </ModalWrapper>
       </Box>
-    </Box>
+
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Confirm Passcode"
+        subTitleWidth={wp(240)}
+        subTitle="To backup app recovery key"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={() => {
+              navigation.dispatch(
+                CommonActions.navigate('ExportSeed', {
+                  seed: primaryMnemonic,
+                  next: true,
+                })
+              );
+            }}
+          />
+        )}
+      />
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
@@ -150,7 +133,6 @@ const styles = StyleSheet.create({
   optionWrapper: {
     alignItems: 'center',
     marginTop: hp(40),
-    paddingHorizontal: 25,
   },
 });
 export default BackupWallet;
