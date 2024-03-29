@@ -23,7 +23,7 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import { WalletDerivationDetails } from 'src/services/wallets/interfaces/wallet';
+import { Wallet, WalletDerivationDetails } from 'src/services/wallets/interfaces/wallet';
 import { generateWalletSpecsFromMnemonic } from 'src/services/wallets/factories/WalletFactory';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -66,7 +66,7 @@ function UpdateWalletDetails({ route }) {
     purposeList.find((item) => item.label.split(':')[0] === wallet?.scriptType).value
   );
   const [purposeLbl, setPurposeLbl] = useState(getPurpose(wallet?.scriptType));
-  const [path, setPath] = useState(`${wallet?.derivationDetails.bip85Config.derivationPath}`);
+  const [path, setPath] = useState(`${(wallet as Wallet)?.derivationDetails?.xDerivationPath}`);
   const [warringsVisible, setWarringsVisible] = useState(false);
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
@@ -178,7 +178,9 @@ function UpdateWalletDetails({ route }) {
                     }}
                     style={styles.flagWrapper1}
                   >
-                    <Text style={styles.purposeText} color={`${colorMode}.GreyText`}>{item.label}</Text>
+                    <Text style={styles.purposeText} color={`${colorMode}.GreyText`}>
+                      {item.label}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
