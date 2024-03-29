@@ -1,7 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
-
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from 'src/components/Buttons';
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
@@ -10,7 +9,10 @@ function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { common } = translations;
+  const { colorMode } = useColorMode();
+
   const { words } = props;
+
   const [seedWord, setSeedWord] = useState('');
   const [index] = useState(Math.floor(cryptoRandom() * words.length));
   const [invalid, setInvalid] = useState(false);
@@ -72,7 +74,13 @@ function ConfirmSeedWord(props) {
         return 'twelfth';
     }
   };
-  const { colorMode } = useColorMode();
+
+  const getErrorMsg = () => {
+    return /[A-Z]/.test(seedWord)
+      ? 'Seedwords are case sensitive.'
+      : 'Please enter valid seed word';
+  };
+
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} padding={10} borderRadius={10}>
       <Box>
@@ -113,7 +121,7 @@ function ConfirmSeedWord(props) {
       </Box>
       {invalid && (
         <Text color="red.400" fontSize={13} ml={1}>
-          Please enter valid seed word
+          {getErrorMsg()}
         </Text>
       )}
 
