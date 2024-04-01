@@ -320,12 +320,15 @@ function SignerAdvanceSettings({ route }: any) {
 
   function DeleteEmailModalContent() {
     return (
-      <Box height={200} justifyContent="flex-end">
-        <Box>
-          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
-            You would not receive daily reminders about your Inheritance Key if it is used
+      <Box style={styles.deleteEmailContent}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.emailContainer}>
+          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
+            {currentEmail}
           </Text>
         </Box>
+        <Text color={`${colorMode}.greenText`} style={styles.deleteRegisteredEmailNote}>
+          You would not receive daily reminders about your Inheritance Key if it is used
+        </Text>
       </Box>
     );
   }
@@ -591,10 +594,11 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDeleteEmailModal(false)}
         title="Deleting Registered Email"
         subTitle="Are you sure you want to delete email id?"
+        subTitleWidth={wp(200)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
+        showCloseIcon={false}
         buttonText="Delete"
         buttonCallback={() => {
           updateIKSPolicy(currentEmail);
@@ -799,5 +803,20 @@ const styles = StyleSheet.create({
   signerText: {
     marginVertical: hp(15),
     marginHorizontal: 10,
+  },
+  deleteEmailContent: {
+    gap: 60,
+    marginTop: 40,
+  },
+  deleteRegisteredEmailNote: {
+    width: wp(200),
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  emailContainer: {
+    borderRadius: 10,
+    height: hp(65),
+    padding: 15,
+    justifyContent: 'center',
   },
 });
