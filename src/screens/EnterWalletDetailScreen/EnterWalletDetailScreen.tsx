@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, Input, Pressable, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
@@ -35,6 +35,7 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import SettingsIcon from 'src/assets/images/settings_brown.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import DerivationPathModalContent from './DerivationPathModal';
+import useWallets from 'src/hooks/useWallets';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -43,6 +44,7 @@ function EnterWalletDetailScreen({ route }) {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const currencyCode = useCurrencyCode();
+  const { wallets } = useWallets({ getAll: true });
   const { translations } = useContext(LocalizationContext);
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
@@ -267,7 +269,18 @@ function EnterWalletDetailScreen({ route }) {
         descriptionMessage={'Make sure you have secured the Recovery Key to backup your wallet'}
         buttonCallback={() => {
           setWalletCreatedModal(false);
-          navigation.goBack();
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [
+                { name: 'Home' },
+                {
+                  name: 'WalletDetails',
+                  params: { autoRefresh: true, walletId: wallets[wallets.length - 1].id },
+                },
+              ],
+            })
+          );
         }}
         walletType={walletType}
         walletName={walletName}

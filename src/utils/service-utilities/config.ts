@@ -114,6 +114,11 @@ class Configuration {
     ? config.KEEPER_HWI.trim()
     : DEFAULT_CONFIG.KEEPER_HWI.trim();
 
+  public ZENDESK_CHANNEL_ID = Platform.select({
+    ios: config.ZENDESK_IOS_CHANNEL_ID?.trim(),
+    android: config.ZENDESK_ANDROID_CHANNEL_ID?.trim(),
+  });
+
   constructor() {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()
       ? config.ENVIRONMENT.trim()

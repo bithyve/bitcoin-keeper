@@ -23,6 +23,7 @@ const useToastMessage = () => {
         testID="text_toast"
         style={{ marginLeft: image ? 5 : 0, width, paddingRight: 25 }}
         numberOfLines={3}
+        bold
       >
         {title}
       </Text>

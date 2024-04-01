@@ -36,6 +36,7 @@
     "@realm/react": "0.5.2",
     "@redux-devtools/extension": "3.2.2",
     "@reduxjs/toolkit": "1.8.2",
+    "@robbywh/react-native-zendesk-messaging": "^1.1.1",
     "@sentry/react-native": "^4.2.4",
     "@testing-library/react-native": "11.0.0",
     "@types/crypto-js": "4.1.1",
