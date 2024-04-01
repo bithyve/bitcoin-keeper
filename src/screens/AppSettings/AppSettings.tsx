@@ -18,7 +18,11 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
-import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
+import config, {
+  APP_STAGE,
+  KEEPER_KNOWLEDGEBASE,
+  KEEPER_WEBSITE_BASE_URL,
+} from 'src/utils/service-utilities/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
@@ -32,6 +36,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import BackupModalContent from './BackupModal';
+import { initialize, showMessaging } from '@robbywh/react-native-zendesk-messaging';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -56,9 +61,15 @@ function AppSettings({ navigation, route }) {
     }
   }, [colorMode]);
 
+  useEffect(() => {
+    initialize(config.ZENDESK_CHANNEL_ID);
+  }, []);
+
   const changeThemeMode = () => {
     toggleColorMode();
   };
+
+  const initChat = () => showMessaging();
 
   const actionCardData = [
     {
@@ -80,7 +91,10 @@ function AppSettings({ navigation, route }) {
     {
       cardName: `Need\nHelp?`,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
+      callback: () =>
+        config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
+          ? initChat()
+          : openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
   ];
 

@@ -48,13 +48,9 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 function Footer({
   vault,
   isCollaborativeWallet,
-  identifySigner,
-  setIdentifySignerModal,
 }: {
   vault: Vault;
   isCollaborativeWallet: boolean;
-  identifySigner: Signer;
-  setIdentifySignerModal: any;
 }) {
   const navigation = useNavigation();
   const footerItems = [
@@ -62,11 +58,7 @@ function Footer({
       Icon: SendIcon,
       text: 'Send',
       onPress: () => {
-        if (identifySigner) {
-          setIdentifySignerModal(true);
-        } else {
-          navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-        }
+        navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
       },
     },
     {
@@ -188,7 +180,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [identifySignerModal, setIdentifySignerModal] = useState(true);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const { vaultSigners: keys } = useSigners(vault.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
@@ -277,8 +268,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
-  const identifySigner = keys.find((signer) => signer.type === SignerType.OTHER_SD);
-
   return (
     <Box
       style={styles.container}
@@ -360,12 +349,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
         />
-        <Footer
-          vault={vault}
-          isCollaborativeWallet={isCollaborativeWallet}
-          identifySigner={identifySigner}
-          setIdentifySignerModal={setIdentifySignerModal}
-        />
+        <Footer vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
       </VStack>
       <KeeperModal
         visible={vaultCreated}
