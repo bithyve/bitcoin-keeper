@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -11,10 +11,11 @@ import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
-import Buttons from 'src/components/Buttons';
-import TorStatusTag from 'src/components/TorStatus';
+// import Buttons from 'src/components/Buttons';
+// import TorStatusTag from 'src/components/TorStatus';
 import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import IconRefresh from 'src/assets/images/icon_refresh.svg';
 import TorModalMap from './TorModalMap';
 
 function TorSettings() {
@@ -31,6 +32,25 @@ function TorSettings() {
   useEffect(() => {
     checkTorConnection();
   }, []);
+
+  const getTorStatusText = useMemo(() => {
+    switch (torStatus) {
+      case TorStatus.OFF:
+        return 'Tor Disabled';
+      case TorStatus.CONNECTING:
+        return 'Connecting to Tor';
+      case TorStatus.CONNECTED:
+        return 'Tor enabled';
+      case TorStatus.ERROR:
+        return 'Tor error';
+      case TorStatus.CHECKING:
+        return 'Checking';
+      case TorStatus.CHECK_STATUS:
+        return 'Check status';
+      default:
+        return torStatus;
+    }
+  }, [torStatus]);
 
   const handleInAppTor = () => {
     if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
@@ -66,8 +86,24 @@ function TorSettings() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={settings.torSettingTitle} subtitle={settings.torHeaderSubTitle} />
       <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
-        <Box>
+        {/* <Box>
           <TorStatusTag />
+        </Box> */}
+        <Box style={styles.torStatusContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box style={styles.torStatusInfo}>
+            <Text style={styles.torStatusTitle} semiBold color={`${colorMode}.primaryText`}>
+              {settings.CurrentStatus}
+            </Text>
+            <Text style={styles.torStatusText} color={`${colorMode}.primaryText`}>
+              {getTorStatusText}
+            </Text>
+          </Box>
+          <Pressable style={styles.torStatusButton} onPress={() => checkTorConnection()}>
+            <IconRefresh />
+            <Text style={styles.checkStatusBtnTitle} semiBold color={`${colorMode}.BrownNeedHelp`}>
+              &nbsp;&nbsp;{settings.checkStatus}
+            </Text>
+          </Pressable>
         </Box>
         <OptionCard
           title={settings.torViaOrbot}
@@ -80,11 +116,11 @@ function TorSettings() {
           callback={() => setShowTorModal(true)}
         />
       </ScrollView>
-      <Buttons
+      {/* <Buttons
         primaryText={settings.checkStatus}
         primaryCallback={() => checkTorConnection()}
         primaryLoading={torStatus === TorStatus.CONNECTING || torStatus === TorStatus.CHECKING}
-      />
+      /> */}
       <Box style={styles.note}>
         <Note
           title={common.note}
@@ -121,6 +157,31 @@ function TorSettings() {
 const styles = StyleSheet.create({
   note: {
     marginHorizontal: '5%',
+  },
+  torStatusContainer: {
+    flexDirection: 'row',
+    padding: 15,
+    width: '95%',
+    margin: 15,
+    borderRadius: 10,
+  },
+  torStatusInfo: {
+    width: '60%',
+  },
+  torStatusTitle: {
+    fontSize: 10,
+  },
+  torStatusText: {
+    fontSize: 13,
+  },
+  torStatusButton: {
+    flexDirection: 'row',
+    width: '35%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkStatusBtnTitle: {
+    fontSize: 13,
   },
 });
 
