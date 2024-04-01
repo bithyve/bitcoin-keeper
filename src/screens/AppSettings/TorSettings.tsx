@@ -11,8 +11,6 @@ import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
-// import Buttons from 'src/components/Buttons';
-// import TorStatusTag from 'src/components/TorStatus';
 import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import IconRefresh from 'src/assets/images/icon_refresh.svg';
@@ -116,11 +114,6 @@ function TorSettings() {
           callback={() => setShowTorModal(true)}
         />
       </ScrollView>
-      {/* <Buttons
-        primaryText={settings.checkStatus}
-        primaryCallback={() => checkTorConnection()}
-        primaryLoading={torStatus === TorStatus.CONNECTING || torStatus === TorStatus.CHECKING}
-      /> */}
       <Box style={styles.note}>
         <Note
           title={common.note}
