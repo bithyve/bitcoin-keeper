@@ -263,8 +263,6 @@ const styles = StyleSheet.create({
     padding: 1,
   },
   scrollViewContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
     flex: 1,
   },
   scrollViewWrapper: {
