@@ -405,7 +405,7 @@
     "walletDetailsUpdate": "Wallet details updated",
     "failToUpdate": "Failed to update",
     "walletBalanceMsg": "Wallet has balance: changes not allowed",
-    "transactionBroadcasted": "The transaction has been successfully broadcasted",
+    "transactionBroadcasted": "The transaction has been broadcasted successfully.",
     "sendTransSuccessMsg": " You can view the confirmation status of the transaction on any block explorer or when the vault transaction list is refreshed",
     "PRIORITY": "PRIORITY",
     "ARRIVALTIME": "ARRIVAL TIME",
