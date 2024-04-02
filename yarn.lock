@@ -11831,10 +11831,10 @@ react-native-localize@2.2.2:
   resolved "https://registry.yarnpkg.com/react-native-localize/-/react-native-localize-2.2.2.tgz#a1c6369000c9dae6800eded8ddb1673bf090f84e"
   integrity sha512-j9aAYyuZblq27XPW3h/cZuBP2WA1OOsEPjTHszPQ/YcM9VrrrYnfpJObP4IyghxmS8i+7Jhoh7qp8CjunfrFjw==
 
-react-native-mmkv@2.6.3:
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-2.6.3.tgz#6bfd1b3dd4b264c86e68adbaa9692f3388af2b5d"
-  integrity sha512-CkLAU5EX18eDw0Q+h6qEXPvynb+NVDu54cOY3h4h9VUhaaflfAmGWBJRQCBQz5M0VdnS8utjgJNryTAWKUTqpw==
+react-native-mmkv@2.11.0:
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-2.11.0.tgz#51b9985f6a5c09fe9c16d8c1861cc2901856ace1"
+  integrity sha512-28PdUHjZJmAw3q+8zJDAAdohnZMpDC7WgRUJxACOMkcmJeqS3u5cKS/lSq2bhf1CvaeIiHYHUWiyatUjMRCDQQ==
 
 react-native-modal@13.0.1:
   version "13.0.1"
