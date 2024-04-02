@@ -186,71 +186,69 @@ function SigningDeviceList() {
           dispatch(setSdIntroModal(true));
         }}
       />
-      <Box style={styles.scrollViewContainer}>
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          {!signersLoaded ? (
-            <ActivityIndicator />
-          ) : (
-            <>
-              <Box paddingY="4">
-                {sortedSigners?.map((type: SignerType, index: number) => {
-                  const { disabled, message: connectivityStatus } = getDeviceStatus(
-                    type,
-                    isNfcSupported,
-                    isOnL1,
-                    isOnL2,
-                    scheme,
-                    signers,
-                    addSignerFlow
-                  );
-                  let message = connectivityStatus;
-                  if (!connectivityStatus) {
-                    message = getSDMessage({ type });
-                  }
-                  return (
-                    <HardWareWallet
-                      key={type}
-                      type={type}
-                      first={index === 0}
-                      last={index === sortedSigners.length - 1}
-                      disabled={disabled}
-                      message={message}
-                    />
-                  );
-                })}
-              </Box>
-              <Note
-                title="Note"
-                subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
-                subtitleColor="GreyText"
-                width={wp(340)}
-              />
-            </>
-          )}
-        </ScrollView>
-        <KeeperModal
-          visible={sdModal}
-          close={() => {
-            dispatch(setSdIntroModal(false));
-          }}
-          title="Signers"
-          subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
-          modalBackground={`${colorMode}.modalGreenBackground`}
-          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-          buttonBackground={`${colorMode}.modalWhiteButton`}
-          buttonText="Add Now"
-          buttonCallback={() => {
-            dispatch(setSdIntroModal(false));
-          }}
-          textColor={`${colorMode}.modalGreenContent`}
-          Content={VaultSetupContent}
-          DarkCloseIcon
-          learnMore
-          learnMoreCallback={() =>
-            openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
-          }
-        />
-      </Box>
+      <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+        {!signersLoaded ? (
+          <ActivityIndicator />
+        ) : (
+          <>
+            <Box paddingY="4">
+              {sortedSigners?.map((type: SignerType, index: number) => {
+                const { disabled, message: connectivityStatus } = getDeviceStatus(
+                  type,
+                  isNfcSupported,
+                  isOnL1,
+                  isOnL2,
+                  scheme,
+                  signers,
+                  addSignerFlow
+                );
+                let message = connectivityStatus;
+                if (!connectivityStatus) {
+                  message = getSDMessage({ type });
+                }
+                return (
+                  <HardWareWallet
+                    key={type}
+                    type={type}
+                    first={index === 0}
+                    last={index === sortedSigners.length - 1}
+                    disabled={disabled}
+                    message={message}
+                  />
+                );
+              })}
+            </Box>
+            <Note
+              title="Note"
+              subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
+              subtitleColor="GreyText"
+              width={wp(340)}
+            />
+          </>
+        )}
+      </ScrollView>
+      <KeeperModal
+        visible={sdModal}
+        close={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+        title="Signers"
+        subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonText="Add Now"
+        buttonCallback={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={VaultSetupContent}
+        DarkCloseIcon
+        learnMore
+        learnMoreCallback={() =>
+          openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
+        }
+      />
     </ScreenWrapper>
   );
 }
@@ -261,11 +259,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 5,
     padding: 1,
-  },
-  scrollViewContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
   },
   scrollViewWrapper: {
     height: windowHeight > 800 ? '76%' : '74%',

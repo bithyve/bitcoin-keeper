@@ -80,6 +80,8 @@ import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
 import Import from 'src/assets/images/import.svg';
+import NfcComms from 'src/assets/images/nfc_comms.svg';
+import QRComms from 'src/assets/images/qr_comms.svg';
 import Add from 'src/assets/images/add_white.svg';
 import useSigners from 'src/hooks/useSigners';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
@@ -129,7 +131,30 @@ const getSignerContent = (
         subTitle: `${coldcard.SetupDescription}`,
         sepInstruction:
           'Make sure you remember the account you had chosen (This is important for vault recovery)',
-        options: [],
+        options: [
+          {
+            title: 'NFC',
+            icon: (
+              <CircleIconWrapper
+                icon={<NfcComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.NFC,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+        ],
       };
     case SignerType.JADE:
       const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
@@ -211,7 +236,30 @@ const getSignerContent = (
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
-        options: [],
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+        ],
       };
     case SignerType.PASSPORT:
       const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
@@ -228,7 +276,30 @@ const getSignerContent = (
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
-        options: [],
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+        ],
       };
     case SignerType.POLICY_SERVER:
       return {
@@ -476,10 +547,10 @@ function SignerContent({
         }}
       >
         {options &&
-          options.map((option, index) => (
+          options.map((option) => (
             <SignerCard
               key={option.name}
-              isSelected={index === keyGenerationMode}
+              isSelected={keyGenerationMode === option.name}
               isFullText={true}
               name={option.title}
               icon={option.icon}
@@ -1290,7 +1361,7 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       checkIKSHealth();
     } else {
-      if (keyGenerationMode === 1) {
+      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
         requestInheritanceKeyRecovery();
       } else {
         setupInheritanceKey();
@@ -1473,30 +1544,17 @@ function HardwareModalMap({
     type: signerType,
   } = getSignerContent(type, isMultisig, translations, isHealthcheck, colorMode);
 
-  const [keyGenerationMode, setKeyGenerationMode] = useState(0);
+  const [keyGenerationMode, setKeyGenerationMode] = useState(options[0]?.name || '');
 
   const onSelect = (option) => {
     switch (signerType) {
       case SignerType.INHERITANCEKEY:
-        if (option.name === KeyGenerationMode.NEW) {
-          setKeyGenerationMode(0);
-        } else {
-          setKeyGenerationMode(1);
-        }
-        break;
       case SignerType.KEEPER:
-        if (option.name === KeyGenerationMode.IMPORT) {
-          setKeyGenerationMode(0);
-        } else {
-          setKeyGenerationMode(1);
-        }
       case SignerType.SEED_WORDS:
-        if (option.name === KeyGenerationMode.IMPORT) {
-          setKeyGenerationMode(0);
-        } else {
-          setKeyGenerationMode(1);
-        }
-
+      case SignerType.COLDCARD:
+      case SignerType.PASSPORT:
+      case SignerType.KEYSTONE:
+        setKeyGenerationMode(option.name);
         break;
       default:
         break;
@@ -1532,12 +1590,11 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
-        if (keyGenerationMode === 0) {
+        if (keyGenerationMode === KeyGenerationMode.IMPORT) {
           return navigateToSeedWordSetup(true);
         } else {
           return navigateToSeedWordSetup();
         }
-
       case SignerType.MY_KEEPER:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
@@ -1553,13 +1610,12 @@ function HardwareModalMap({
         if (mode === InteracationMode.HEALTH_CHECK) {
           return navigateToAddQrBasedSigner();
         } else {
-          if (keyGenerationMode === 0) {
+          if (keyGenerationMode === KeyGenerationMode.IMPORT) {
             return navigateToAddQrBasedSigner();
           } else {
             return generateMyAppKey();
           }
         }
-
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
       case SignerType.INHERITANCEKEY:
