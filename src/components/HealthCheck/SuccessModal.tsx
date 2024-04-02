@@ -39,9 +39,9 @@ function SuccessModal(props) {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent="flex-end"
 
-    // zIndex={'-1'}
-    // style={styles.viewContainer}
-    // overlayVisible
+      // zIndex={'-1'}
+      // style={styles.viewContainer}
+      // overlayVisible
     >
       <View flex={1} style={styles.viewContainer}>
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>

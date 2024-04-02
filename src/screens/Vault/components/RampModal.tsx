@@ -1,14 +1,14 @@
 import { Linking, StyleSheet } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import WalletOperations from 'src/core/wallets/operations';
+import WalletOperations from 'src/services/wallets/operations';
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { fetchRampReservation } from 'src/services/ramp';
+import { fetchRampReservation } from 'src/services/thirdparty/ramp';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function RampBuyContent({
   vault,
@@ -76,6 +76,7 @@ function RampBuyContent({
 }
 
 function RampModal({ vault, showBuyRampModal, setShowBuyRampModal }: any) {
+  const { colorMode } = useColorMode();
   const Content = useCallback(
     () => <RampBuyContent vault={vault} setShowBuyRampModal={setShowBuyRampModal} />,
     []
@@ -89,7 +90,7 @@ function RampModal({ vault, showBuyRampModal, setShowBuyRampModal }: any) {
       title="Buy bitcoin with Ramp"
       subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
       subTitleColor="#5F6965"
-      textColor="light.primaryText"
+      textColor={`${colorMode}.primaryText`}
       Content={Content}
     />
   );
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     color: '#00836A',
   },
   addressWrapper: {
-    marginVertical: 4,
+    marginVertical: 10,
     alignItems: 'center',
     borderRadius: 10,
     paddingHorizontal: 4,

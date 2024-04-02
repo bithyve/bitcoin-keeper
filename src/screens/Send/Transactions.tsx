@@ -1,4 +1,4 @@
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
@@ -7,6 +7,7 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 function Transactions({ transactions, addTransaction = () => { } }) {
+  const { colorMode } = useColorMode();
   const renderTranscation = ({ item }: { item; index }) => {
     const { address, amount } = item;
     return (
@@ -15,7 +16,7 @@ function Transactions({ transactions, addTransaction = () => { } }) {
         alignItems="center"
         style={{ marginRight: wp(10) }}
         flexDirection="row"
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
         width={wp(215)}
         height={hp(54)}
         borderRadius={10}
@@ -30,7 +31,7 @@ function Transactions({ transactions, addTransaction = () => { } }) {
               mt="1"
               numberOfLines={1}
               letterSpacing={1.12}
-              color="light.sendCardHeading"
+              color={`${colorMode}.sendCardHeading`}
               width={wp(100)}
             >
               {address}

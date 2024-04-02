@@ -1,37 +1,61 @@
 import React from 'react';
-
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet } from 'react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Dimensions, StyleSheet } from 'react-native';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getWalletConfig } from 'src/hardware';
 import { useDispatch } from 'react-redux';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import useVault from 'src/hooks/useVault';
+import { SignerType } from 'src/services/wallets/enums';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import QRCode from 'react-native-qrcode-svg';
 import DisplayQR from './DisplayQR';
 
+const { width } = Dimensions.get('window');
+
+const SPECTER_PREFIX = 'addwallet keeper vault&';
+
 function RegisterWithQR({ route, navigation }: any) {
-  const { signer }: { signer: VaultSigner } = route.params;
+  const { colorMode } = useColorMode();
+  const { vaultKey, vaultId = '' }: { vaultKey: VaultSigner; vaultId: string } = route.params;
   const dispatch = useDispatch();
-  const { activeVault } = useVault();
-  const walletConfig = getWalletConfig({ vault: activeVault });
+  const { activeVault } = useVault({ vaultId });
+  const { signer } = useSignerFromKey(vaultKey);
+  const walletConfig =
+    signer.type === SignerType.SPECTER
+      ? `${SPECTER_PREFIX}${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${
+          activeVault.isMultiSig ? ' )' : ''
+        }`
+      : getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
-  const markAsregistered = () => {
-    dispatch(updateSignerDetails(signer, 'registered', true));
+  const markAsRegistered = () => {
+    dispatch(
+      updateKeyDetails(vaultKey, 'registered', {
+        registered: true,
+        vaultId: activeVault.id,
+      })
+    );
     navigation.goBack();
   };
+
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Register Signing Device"
-        subtitle="Register the vault with any of the QR based signing devices"
+        title="Register signer"
+        subtitle="Register the vault with any of the QR based signers"
       />
       <Box style={styles.center}>
-        <DisplayQR qrContents={qrContents} toBytes type="hex" />
+        {signer.type === SignerType.SPECTER ? (
+          <QRCode value={walletConfig} size={width * 0.85} ecl="L" />
+        ) : (
+          <DisplayQR qrContents={qrContents} toBytes type="hex" />
+        )}
       </Box>
-      <Buttons primaryText="Done" primaryCallback={markAsregistered} />
+      <Buttons primaryText="Done" primaryCallback={markAsRegistered} />
     </ScreenWrapper>
   );
 }

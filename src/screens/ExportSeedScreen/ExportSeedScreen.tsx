@@ -3,7 +3,6 @@ import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -11,7 +10,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
@@ -19,17 +18,15 @@ import { globalStyles } from 'src/constants/globalStyles';
 import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import Fonts from 'src/constants/Fonts';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { SignerType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
 import Note from 'src/components/Note/Note';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet, common, seed: seedTranslation } = translations;
@@ -42,14 +39,13 @@ function ExportSeedScreen({ route, navigation }) {
   }: { seed: string; wallet: Wallet; isHealthCheck: boolean; signer: VaultSigner } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
-  const { next } = route.params;
+  const { next, viewRecoveryKeys } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
   const [showQRVisible, setShowQRVisible] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
-
   useEffect(() => {
     if (backupMethod !== null && next) {
       setBackupSuccessModal(true);
@@ -58,36 +54,60 @@ function ExportSeedScreen({ route, navigation }) {
 
   function SeedCard({ item, index }: { item; index }) {
     return (
-      <TouchableOpacity
-        testID={`btn_seed_word_${index}`}
-        style={styles.seedCardContainer}
-        onPress={() => {
-          setShowWordIndex((prev) => {
-            if (prev === index) {
-              return '';
-            }
-            return index;
-          });
-        }}
-      >
-        <Box
-          backgroundColor={`${colorMode}.seashellWhite`}
-          opacity={showWordIndex === index ? 1 : 0.5}
-          style={styles.seedCardWrapper}
-        >
-          <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
-            {index < 9 ? '0' : null}
-            {index + 1}
-          </Text>
-          <Text
-            testID={`text_seed_word_${index}`}
-            style={styles.seedTextStyle01}
-            color={`${colorMode}.GreyText`}
+      <>
+        {viewRecoveryKeys ? (
+          <Box style={styles.seedCardContainer}>
+            <Box
+              backgroundColor={`${colorMode}.seashellWhite`}
+              opacity={showWordIndex === index ? 1 : 0.5}
+              style={styles.seedCardWrapper}
+            >
+              <Text style={styles.seedTextStyle} medium color={`${colorMode}.greenText2`}>
+                {index < 9 ? '0' : null}
+                {index + 1}
+              </Text>
+              <Text
+                testID={`text_seed_word_${index}`}
+                style={styles.seedTextStyle01}
+                color={`${colorMode}.GreyText`}
+              >
+                {item}
+              </Text>
+            </Box>
+          </Box>
+        ) : (
+          <TouchableOpacity
+            testID={`btn_seed_word_${index}`}
+            style={styles.seedCardContainer}
+            onPress={() => {
+              setShowWordIndex((prev) => {
+                if (prev === index) {
+                  return '';
+                }
+                return index;
+              });
+            }}
           >
-            {showWordIndex === index ? item : '******'}
-          </Text>
-        </Box>
-      </TouchableOpacity>
+            <Box
+              backgroundColor={`${colorMode}.seashellWhite`}
+              opacity={showWordIndex === index ? 1 : 0.5}
+              style={styles.seedCardWrapper}
+            >
+              <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
+                {index < 9 ? '0' : null}
+                {index + 1}
+              </Text>
+              <Text
+                testID={`text_seed_word_${index}`}
+                style={styles.seedTextStyle01}
+                color={`${colorMode}.GreyText`}
+              >
+                {showWordIndex === index ? item : '******'}
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        )}
+      </>
     );
   }
 
@@ -98,7 +118,7 @@ function ExportSeedScreen({ route, navigation }) {
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <KeeperHeader title={seedText.recoveryPhrase} subtitle={seedText.SeedDesc} />
+      <KeeperHeader title={seedText.walletSeedWords} subtitle={seedText.SeedDesc} />
 
       <Box style={{ flex: 1 }}>
         <FlatList
@@ -110,9 +130,13 @@ function ExportSeedScreen({ route, navigation }) {
         />
       </Box>
       <Box m={2}>
-        <Note title={common.note} subtitle={BackupWallet.recoveryPhraseNote} subtitleColor="GreyText" />
+        <Note
+          title={common.note}
+          subtitle={BackupWallet.recoveryPhraseNote}
+          subtitleColor="GreyText"
+        />
       </Box>
-      {!next && (
+      {!viewRecoveryKeys && !next && (
         <Pressable
           onPress={() => {
             // setShowQRVisible(true);
@@ -131,9 +155,6 @@ function ExportSeedScreen({ route, navigation }) {
                   >
                     {common.showAsQR}
                   </Text>
-                  {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-              
-                </Text> */}
                 </VStack>
               </HStack>
               <Box style={styles.backArrow}>
@@ -155,11 +176,6 @@ function ExportSeedScreen({ route, navigation }) {
           </Box>
         )}
       </Box>
-      {!next && (
-        <Text style={styles.seedDescParagraph} color={`${colorMode}.GreyText`}>
-          {seedText.desc}
-        </Text>
-      )}
       {/* Modals */}
       <Box>
         <ModalWrapper
@@ -197,8 +213,9 @@ function ExportSeedScreen({ route, navigation }) {
         dismissible={false}
         close={() => { }}
         title={BackupWallet.backupSuccessTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText="Done"
         buttonCallback={() => navigation.replace('WalletBackHistory')}
         Content={() => (
@@ -219,8 +236,8 @@ function ExportSeedScreen({ route, navigation }) {
         title={BackupWallet.recoveryPhrase}
         subTitleWidth={wp(260)}
         subTitle={BackupWallet.recoveryPhraseSubTitle}
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText={common.done}
         buttonCallback={() => setShowQRVisible(false)}
         Content={() => (
@@ -254,7 +271,6 @@ const styles = StyleSheet.create({
   },
   seedTextStyle: {
     fontSize: 19,
-    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 1.64,
     marginRight: 5,
   },

@@ -7,7 +7,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NFC from 'src/services/nfc';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { Platform } from 'react-native';
 import idx from 'idx';
@@ -106,7 +106,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
     };
   }, [session]);
 
-  if (signerType !== SignerType.KEEPER) {
+  if (signerType !== SignerType.KEEPER || signerType !== SignerType.MY_KEEPER) {
     return null;
   }
   return (

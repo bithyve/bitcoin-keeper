@@ -1,13 +1,13 @@
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
@@ -16,12 +16,14 @@ import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 function SignWithQR() {
+  const { colorMode } = useColorMode();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
@@ -29,14 +31,18 @@ function SignWithQR() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {
-    signer,
-    collaborativeWalletId = '',
-  }: { signer: VaultSigner; collaborativeWalletId: string } = route.params as any;
+    vaultKey,
+    vaultId = '',
+  }: {
+    vaultKey: VaultSigner;
+    vaultId: string;
+  } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
-    (envelop) => signer.signerId === envelop.signerId
+    (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
-  const { activeVault } = useVault(collaborativeWalletId);
+  const { activeVault } = useVault({ vaultId });
   const isSingleSig = activeVault.scheme.n === 1;
+  const { signer } = useSignerFromKey(vaultKey);
 
   const signTransaction = (signedSerializedPSBT, resetQR) => {
     try {
@@ -47,18 +53,21 @@ function SignWithQR() {
             serializedPSBT,
             signedSerializedPSBT,
           });
-          dispatch(
-            updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
-          );
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
         } else if (signer.type === SignerType.KEYSTONE) {
           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: tx.toHex() }));
+          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
         } else {
-          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, signedSerializedPSBT }));
+          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
         }
       } else {
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            vaultId: activeVault.id,
+          })
+        );
       }
       dispatch(healthCheckSigner([signer]));
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
@@ -75,7 +84,7 @@ function SignWithQR() {
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Scan Signed Transaction`,
+          title: 'Scan Signed Transaction',
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: signTransaction,
           type: signer.type,
@@ -85,18 +94,18 @@ function SignWithQR() {
 
   const encodeToBytes = signer.type === SignerType.PASSPORT;
   const navigateToVaultRegistration = () =>
-    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
   return (
-    <ScreenWrapper>
-      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signing device" />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
+        {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
+          <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+            <ShareWithNfc data={serializedPSBT} />
+          </ScrollView>
+        ) : null}
       </Box>
-      {signer.type === SignerType.KEEPER ? (
-        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-          <ShareWithNfc data={serializedPSBT} />
-        </ScrollView>
-      ) : null}
       <Box style={styles.bottom}>
         <Buttons
           primaryText="Scan PSBT"
@@ -115,6 +124,7 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     marginTop: '10%',
+    flex: 1,
   },
   bottom: {
     marginHorizontal: '5%',

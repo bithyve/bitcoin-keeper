@@ -13,14 +13,14 @@ type FloatingCTAProps = {
   secondaryCallback?: any;
 };
 
-const FloatingCTA = ({
+function FloatingCTA({
   primaryDisable,
   primaryText,
   primaryCallback,
   secondaryText,
   secondaryCallback,
   primaryLoading,
-}: FloatingCTAProps) => {
+}: FloatingCTAProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   secondaryCallback = secondaryCallback || navigation.goBack;
@@ -37,7 +37,7 @@ const FloatingCTA = ({
       />
     </Box>
   );
-};
+}
 
 export default FloatingCTA;
 

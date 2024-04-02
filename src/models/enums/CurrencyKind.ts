@@ -1,5 +1,4 @@
 enum CurrencyKind {
-
   /**
    * Sound Money
    */
@@ -11,4 +10,4 @@ enum CurrencyKind {
   FIAT = 'FIAT',
 }
 
-export default CurrencyKind
+export default CurrencyKind;

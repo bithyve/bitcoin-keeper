@@ -22,6 +22,7 @@ type Props = {
 };
 
 function Option({ title, subTitle, onPress, Icon }: Props) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       flexDirection="row"
@@ -36,10 +37,10 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
         </Box>
       )}
       <Box width={Icon ? '80%' : '96%'}>
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -51,6 +52,7 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
 }
 
 function SigningServerSettings({ route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
 
   function GradientIcon({ height, Icon }) {
@@ -72,7 +74,6 @@ function SigningServerSettings({ route }) {
   }
 
   function VaultCard({ signingServerName, addedOn, signingServerDescription }) {
-    const { colorMode } = useColorMode();
     return (
       <Box
         backgroundColor={`${colorMode}.coffeeBackground`}
@@ -96,13 +97,13 @@ function SigningServerSettings({ route }) {
             <GradientIcon Icon={Server} height={hp(48)} />
           </Box>
           <Box>
-            <Text color="light.white" letterSpacing={0.28} fontSize={14}>
+            <Text color={`${colorMode}.white`} letterSpacing={0.28} fontSize={14}>
               {signingServerName}
             </Text>
-            <Text color="light.vaultCardText" letterSpacing={1} fontSize={10}>
+            <Text color={`${colorMode}.vaultCardText`} letterSpacing={1} fontSize={10}>
               {addedOn}
             </Text>
-            <Text color="light.vaultCardText" letterSpacing={0.6} fontSize={12}>
+            <Text color={`${colorMode}.vaultCardText`} letterSpacing={0.6} fontSize={12}>
               {signingServerDescription}
             </Text>
           </Box>
@@ -111,12 +112,12 @@ function SigningServerSettings({ route }) {
     );
   }
   return (
-    <Box style={styles.Container} background="light.secondaryBackground">
+    <Box style={styles.Container} background={`${colorMode}.secondaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box>
         <KeeperHeader title="Signing Server Settings" subtitle="Lorem Ipsum Dolor" />
       </Box>
-      <Box borderBottomColor="light.divider" marginTop={hp(40)} paddingX={wp(25)}>
+      <Box borderBottomColor={`${colorMode}.divider`} marginTop={hp(40)} paddingX={wp(25)}>
         <VaultCard
           signingServerName="Signing Server"
           signingServerDescription="Lorem ipsum dolor sit amet, "
@@ -134,12 +135,12 @@ function SigningServerSettings({ route }) {
         <OptionCard
           title="Consectetur"
           description="Lorem ipsum dolor sit amet, consectetur"
-          callback={() => {}}
+          callback={() => { }}
         />
         <OptionCard
           title="Consectetur"
           description="Lorem ipsum dolor sit amet, consectetur"
-          callback={() => {}}
+          callback={() => { }}
         />
       </Box>
       <Box position="absolute" bottom={hp(45)} marginX={5}>

@@ -13,9 +13,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import Buttons from 'src/components/Buttons';
 import TorStatusTag from 'src/components/TorStatus';
-import TorModalMap from './TorModalMap';
 import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import TorModalMap from './TorModalMap';
 
 function TorSettings() {
   const { colorMode } = useColorMode();
@@ -64,10 +64,7 @@ function TorSettings() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={settings.torSettingTitle}
-        subtitle={settings.torHeaderSubTitle}
-      />
+      <KeeperHeader title={settings.torSettingTitle} subtitle={settings.torHeaderSubTitle} />
       <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
         <Box>
           <TorStatusTag />
@@ -108,8 +105,10 @@ function TorSettings() {
         Content={() => (
           <Box alignItems="center">
             <Box marginTop={2}>
-              <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-                {`\u2022 This will redirect you to the Orbot app and you can configure the connection from there.`}
+              <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
+                {
+                  '\u2022 This will redirect you to the Orbot app and you can configure the connection from there.'
+                }
               </Text>
             </Box>
           </Box>

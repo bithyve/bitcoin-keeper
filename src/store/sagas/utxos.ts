@@ -1,12 +1,12 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
-import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
-import { LabelRefType } from 'src/core/wallets/enums';
-import Relay from 'src/services/operations/Relay';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { genrateOutputDescriptors } from 'src/core/utils';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
+import { LabelRefType } from 'src/services/wallets/enums';
+import Relay from 'src/services/backend/Relay';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
 
@@ -73,9 +73,9 @@ export function* bulkUpdateLabelsWorker({
     const origin = genrateOutputDescriptors(wallet, false);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
-    const idSuffix = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
+    const idSuffix = txId || `${UTXO.txId}:${UTXO.vout}`;
     if (labelChanges.added) {
-      const ref = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
+      const ref = txId || `${UTXO.txId}:${UTXO.vout}`;
       const type = txId ? LabelRefType.TXN : LabelRefType.OUTPUT;
       addedTags = labelChanges.added.map((label) => ({
         id: `${idSuffix}${label.name}`,

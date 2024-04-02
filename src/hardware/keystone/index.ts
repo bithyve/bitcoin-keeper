@@ -1,5 +1,5 @@
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { DerivationPurpose } from 'src/core/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { DerivationPurpose } from 'src/services/wallets/enums';
 import * as bitcoin from 'bitcoinjs-lib';
 
 const getKeystoneDetails = (qrData) => {
@@ -14,7 +14,7 @@ const getKeystoneDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, xfp: mfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: mfp, forMultiSig, forSingleSig };
 };
 
 const getKeystoneDetailsFromFile = (data) => {
@@ -29,7 +29,7 @@ const getKeystoneDetailsFromFile = (data) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, xfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: xfp, forMultiSig, forSingleSig };
 };
 
 const getTxHexFromKeystonePSBT = (psbt, signedPsbt): bitcoin.Transaction => {

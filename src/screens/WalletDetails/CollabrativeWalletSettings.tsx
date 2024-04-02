@@ -1,53 +1,30 @@
 import React from 'react';
-import { Box, ScrollView } from 'native-base';
+import { ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
-import Note from 'src/components/Note/Note';
-import { SignerType } from 'src/core/wallets/enums';
-import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import useWallets from 'src/hooks/useWallets';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { genrateOutputDescriptors } from 'src/core/utils';
+// import Note from 'src/components/Note/Note';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { StyleSheet } from 'react-native';
-import useToastMessage from 'src/hooks/useToastMessage';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import useVault from 'src/hooks/useVault';
+import useTestSats from 'src/hooks/useTestSats';
 
 function CollabrativeWalletSettings() {
+  const { colorMode } = useColorMode();
   const route = useRoute();
-  const { wallet: collaborativeWallet } = route.params as { wallet: Vault };
+  const { vaultId } = route.params as { vaultId: string };
+  const { activeVault } = useVault({ vaultId });
   const navigation = useNavigation();
-  const wallet = useWallets({ walletIds: [collaborativeWallet.collaborativeWalletId] }).wallets[0];
-  const descriptorString = genrateOutputDescriptors(collaborativeWallet);
-  const { showToast } = useToastMessage();
-
-  const signPSBT = (serializedPSBT, resetQR) => {
-    try {
-      const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
-    } catch (e) {
-      resetQR();
-      showToast('Please scan a valid PSBT', null, 3000, true);
-    }
-  };
+  const descriptorString = genrateOutputDescriptors(activeVault);
+  const TestSatsComponent = useTestSats({ wallet: activeVault });
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Collaborative Wallet Settings"
-        subtitle={collaborativeWallet.presentationData.description}
+        subtitle={activeVault.presentationData.description}
       />
 
       <ScrollView
@@ -55,31 +32,7 @@ function CollabrativeWalletSettings() {
         showsVerticalScrollIndicator={false}
       >
         <OptionCard
-          title="View co-signer Details"
-          description="View co-signer Details"
-          callback={() => {
-            navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
-          }}
-        />
-        <OptionCard
-          title="Sign a PSBT"
-          description="Sign a transaction"
-          callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ScanQR',
-                params: {
-                  title: `Scan PSBT to Sign`,
-                  subtitle: 'Please scan until all the QR data has been retrieved',
-                  onQrScan: signPSBT,
-                  type: SignerType.KEEPER,
-                },
-              })
-            );
-          }}
-        />
-        <OptionCard
-          title="Exporting Output Descriptor/ BSMS"
+          title="Exporting Wallet Configuration File"
           description="To recreate collaborative wallet"
           callback={() => {
             navigation.dispatch(
@@ -87,14 +40,15 @@ function CollabrativeWalletSettings() {
             );
           }}
         />
+        {TestSatsComponent}
       </ScrollView>
-      <Box style={styles.note} backgroundColor="light.secondaryBackground">
+      {/* <Box style={styles.note} backgroundColor={`${colorMode}.secondaryBackground`}>
         <Note
           title="Note"
-          subtitle="Keeper supports ONE collaborative wallet per hot wallet only. So if you import another Output Descriptor, you will see a new Collaborative Wallet"
+          subtitle="Keeper only supports one Collaborative wallet, per hot wallet. So if you import another Wallet Configuration File, you will see a new Collaborative Wallet"
           subtitleColor="GreyText"
         />
-      </Box>
+      </Box>  */}
     </ScreenWrapper>
   );
 }

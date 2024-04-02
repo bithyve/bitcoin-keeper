@@ -10,15 +10,14 @@ import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
-
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { WalletType } from 'src/core/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { WalletType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
@@ -31,6 +30,9 @@ import useWhirlpoolWallets, {
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { resetSyncing } from 'src/store/reducers/wallets';
+import useVault from 'src/hooks/useVault';
+import { AppStackParams } from 'src/navigation/types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -71,6 +73,7 @@ function Footer({
   isRemix,
   setRemixingToVault,
   remixingToVault,
+  vaultId,
 }) {
   const navigation = useNavigation();
 
@@ -127,30 +130,31 @@ function Footer({
       wallet={wallet}
       utxos={utxos}
       setRemixingToVault={setRemixingToVault}
+      vaultId={vaultId}
     />
   );
 }
-
-function UTXOManagement({ route, navigation }) {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOManagement'>;
+function UTXOManagement({ route, navigation }: ScreenProps) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const styles = getStyles();
-  const {
-    data,
-    routeName,
-    accountType,
-  }: { data: Wallet | Vault; routeName: string; accountType: string } = route.params || {};
+  const { data, routeName, accountType, vaultId = '' } = route.params || {};
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const { id } = data;
-  const wallet = useWallets({ walletIds: [id] }).wallets[0];
+  const wallet = vaultId
+    ? useVault({ vaultId }).activeVault
+    : useWallets({ walletIds: [id] }).wallets[0];
 
   const whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface = useWhirlpoolWallets({
     wallets: [wallet],
   })?.[wallet.id];
 
-  const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const isWhirlpoolWallet = vaultId
+    ? false
+    : Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedAccount, setSelectedAccount] = useState<string>();
   const [depositWallet, setDepositWallet] = useState<any>();
@@ -253,7 +257,11 @@ function UTXOManagement({ route, navigation }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <KeeperHeader learnMore learnMorePressed={() => setLearnModalVisible(true)} />
+      <KeeperHeader
+        learnMore
+        learnMorePressed={() => setLearnModalVisible(true)}
+        learnTextColor={`${colorMode}.white`}
+      />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab
           selectedAccount={selectedAccount}
@@ -307,6 +315,7 @@ function UTXOManagement({ route, navigation }) {
           selectedAccount={selectedAccount}
           setRemixingToVault={setRemixingToVault}
           remixingToVault={remixingToVault}
+          vaultId={vaultId}
         />
       ) : null}
       <KeeperModal
@@ -318,7 +327,7 @@ function UTXOManagement({ route, navigation }) {
         title="Caution during the mix"
         subTitle="The mix may take some time to complete. Please do not close the app or navigate away."
         subTitleColor="#5F6965"
-        modalBackground={'#F7F2EC'}
+        modalBackground="#F7F2EC"
         buttonBackground={`${colorMode}.gradientStart`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}

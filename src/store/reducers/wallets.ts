@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { PoolData } from 'src/nativemodules/interface';
 import { reduxStorage } from 'src/storage';
 import { ADD_NEW_WALLETS } from '../sagaActions/wallets';

@@ -7,7 +7,7 @@ import {
   SignerPolicy,
   SignerRestriction,
   VerificationType,
-} from 'src/services/interfaces';
+} from 'src/models/interfaces/AssistedKeys';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 
@@ -28,6 +28,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import useVault from 'src/hooks/useVault';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -39,7 +40,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const isUpdate = route.params.update;
+  const { isUpdate, addSignerFlow, vaultId } = route.params;
   const existingRestrictions: SignerRestriction = route.params.restrictions;
   const existingMaxTransactionRestriction = idx(
     existingRestrictions,
@@ -54,6 +55,7 @@ function ChoosePolicyNew({ navigation, route }) {
   const [minTransaction, setMinTransaction] = useState(
     existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
   );
+  const { activeVault } = useVault({ vaultId });
 
   const dispatch = useDispatch();
 
@@ -82,7 +84,7 @@ function ChoosePolicyNew({ navigation, route }) {
       };
 
       navigation.dispatch(
-        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy, addSignerFlow } })
       );
     }
   };
@@ -104,9 +106,14 @@ function ChoosePolicyNew({ navigation, route }) {
       exceptions,
     };
     const verificationToken = Number(otp);
-    dispatch(updateSignerPolicy(route.params.signer, updates, verificationToken));
+    dispatch(
+      updateSignerPolicy(route.params.signer, route.params.vaultKey, updates, verificationToken)
+    );
     navigation.dispatch(
-      CommonActions.navigate({ name: 'VaultDetails', params: { vaultTransferSuccessful: null } })
+      CommonActions.navigate({
+        name: 'VaultDetails',
+        params: { vaultId: activeVault.id, vaultTransferSuccessful: null },
+      })
     );
   };
 
@@ -143,7 +150,7 @@ function ChoosePolicyNew({ navigation, route }) {
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color="light.greenText">
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -155,7 +162,7 @@ function ChoosePolicyNew({ navigation, route }) {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -164,9 +171,9 @@ function ChoosePolicyNew({ navigation, route }) {
   function Field({ title, subTitle, value, onPress }) {
     return (
       <Box style={styles.fieldWrapper}>
-        <Box width={'60%'}>
+        <Box width="60%">
           <Text style={styles.titleText}>{title}</Text>
-          <Text color="light.GreyText" style={styles.subTitleText}>
+          <Text color={`${colorMode}.GreyText`} style={styles.subTitleText}>
             {subTitle}
           </Text>
         </Box>
@@ -220,7 +227,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => {}}
+          clear={() => { }}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
@@ -232,8 +239,8 @@ function ChoosePolicyNew({ navigation, route }) {
           showValidationModal(false);
         }}
         title="Confirm OTP to change policy"
-        subTitle="To complete setting up the signing server"
-        textColor="light.primaryText"
+        subTitle="To complete setting up the signer"
+        textColor={`${colorMode}.primaryText`}
         Content={otpContent}
       />
     </ScreenWrapper>

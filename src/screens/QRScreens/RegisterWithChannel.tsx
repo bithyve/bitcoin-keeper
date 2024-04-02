@@ -3,9 +3,9 @@ import { Box, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
-import config from 'src/core/config';
+import config from 'src/utils/service-utilities/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -16,16 +16,17 @@ import {
   REGISTRATION_SUCCESS,
 } from 'src/services/channel/constants';
 import { captureError } from 'src/services/sentry';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import crypto from 'crypto';
-import { createCipheriv, createDecipheriv } from 'src/core/utils';
+import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
-const ScanAndInstruct = ({ onBarCodeRead }) => {
+function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
@@ -54,11 +55,13 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
       <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
     </VStack>
   );
-};
+}
 
 function RegisterWithChannel() {
   const { params } = useRoute();
-  const { signer } = params as { signer: VaultSigner };
+  const { colorMode } = useColorMode();
+  const { vaultKey, vaultId } = params as { vaultKey: VaultSigner; vaultId: string };
+  const { signer } = useSignerFromKey(vaultKey);
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
@@ -66,11 +69,11 @@ function RegisterWithChannel() {
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
-  const { activeVault: vault } = useVault();
+  const { activeVault: vault } = useVault({ vaultId });
 
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;
-    let sha = crypto.createHash('sha256');
+    const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
@@ -79,12 +82,17 @@ function RegisterWithChannel() {
   useEffect(() => {
     channel.on(BITBOX_REGISTER, async ({ room }) => {
       try {
-        const walletConfig = getWalletConfigForBitBox02({ vault });
+        const walletConfig = getWalletConfigForBitBox02({ vault, signer });
         channel.emit(BITBOX_REGISTER, {
           data: createCipheriv(JSON.stringify(walletConfig), decryptionKey.current),
           room,
         });
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            vaultId: vault.id,
+          })
+        );
         navgation.goBack();
       } catch (error) {
         captureError(error);
@@ -106,9 +114,12 @@ function RegisterWithChannel() {
       switch (signerType) {
         case SignerType.LEDGER:
           dispatch(
-            updateSignerDetails(signer, 'deviceInfo', { registeredWallet: policy.policyHmac })
+            updateKeyDetails(vaultKey, 'registered', {
+              registered: true,
+              vaultId: vault.id,
+              registrationInfo: JSON.stringify({ registeredWallet: policy.policyHmac }),
+            })
           );
-          dispatch(updateSignerDetails(signer, 'registered', true));
           navgation.goBack();
       }
     });
@@ -118,7 +129,7 @@ function RegisterWithChannel() {
   }, [channel]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Register with Keeper Hardware Interface"
         subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to register with the device`}

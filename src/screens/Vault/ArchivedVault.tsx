@@ -4,7 +4,7 @@ import { Pressable, FlatList, Box, useColorMode } from 'native-base';
 // data
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -12,18 +12,28 @@ import BTC from 'src/assets/images/btc_black.svg';
 import useBalance from 'src/hooks/useBalance';
 import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
+import { CommonActions } from '@react-navigation/native';
 
-function ArchivedVault() {
+function ArchivedVault({ navigation }) {
   const { colorMode } = useColorMode();
   const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => vault.archived);
   const { getBalance } = useBalance();
 
-  function VaultItem({ vaultItem, index }: { vaultItem: Vault; index: number }) {
+  function VaultItem({ vaultItem }: { vaultItem: Vault }) {
     return (
       <Pressable
-        backgroundColor="light.primaryBackground"
+        onPress={() =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'VaultDetails',
+              params: { vaultId: vaultItem.id },
+              merge: true,
+            })
+          )
+        }
+        backgroundColor={`${colorMode}.primaryBackground`}
         height={hp(135)}
         width={wp(300)}
         flexDirection="row"
@@ -43,10 +53,10 @@ function ArchivedVault() {
               marginBottom: hp(10),
             }}
           >
-            <Text color="light.headerText" fontSize={16} bold>
+            <Text color={`${colorMode}.headerText`} fontSize={16} bold>
               {vaultItem?.specs?.transactions?.length}
             </Text>
-            <Text color="light.textBlack" fontSize={12} marginLeft={1} letterSpacing={0.72}>
+            <Text color={`${colorMode}.textBlack`} fontSize={12} marginLeft={1} letterSpacing={0.72}>
               Transactions
             </Text>
           </Box>
@@ -60,7 +70,7 @@ function ArchivedVault() {
               <BTC />
             </Box>
             <Text
-              color="light.textBlack"
+              color={`${colorMode}.textBlack`}
               fontSize={24}
               letterSpacing={1.12}
               style={{
@@ -73,12 +83,12 @@ function ArchivedVault() {
             </Text>
           </Box>
           <Box flexDirection="row">
-            <Text color="light.textBlack" fontSize={12} light letterSpacing={0.02}>
+            <Text color={`${colorMode}.textBlack`} fontSize={12} light letterSpacing={0.02}>
               Archived On
             </Text>
             <Text
               style={styles.date}
-              color="light.textBlack"
+              color={`${colorMode}.textBlack`}
               fontSize={12}
               bold
               letterSpacing={0.02}
@@ -87,19 +97,18 @@ function ArchivedVault() {
             </Text>
           </Box>
         </Box>
-        <Box>{/* <Arrow /> */}</Box>
       </Pressable>
     );
   }
 
-  const renderArchiveVaults = ({ item, index }) => <VaultItem vaultItem={item} index={index} />;
+  const renderArchiveVaults = ({ item }) => <VaultItem vaultItem={item} />;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Archived Vaults"
         subtitle="Previously used vaults"
-        headerTitleColor="light.headerText"
+        headerTitleColor={`${colorMode}.headerText`}
       />
       <Box alignItems="center">
         <FlatList
