@@ -27,6 +27,7 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -186,6 +187,16 @@ const getSignerContent = (type: SignerType) => {
         description:
           '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
         FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
+      };
+    case SignerType.SPECTER:
+      return {
+        title: 'Specter DIY',
+        subTitle:
+          'An open-source hardware wallet for users to take full control over their Bitcoin security.',
+        assert: <SpecterSetupImage />,
+        description:
+          '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
+        FAQ: `https://docs.specter.solutions/diy/faq/`,
       };
     default:
       return {
