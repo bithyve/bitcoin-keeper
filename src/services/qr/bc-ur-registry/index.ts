@@ -32,7 +32,7 @@ import {
 } from './lib';
 
 import { patchTags } from './utils';
-import {CryptoMultiAccounts} from "./extended/CryptoMultiAccounts";
+import { CryptoMultiAccounts } from './extended/CryptoMultiAccounts';
 
 export { DataItem } from './lib';
 
@@ -90,26 +90,26 @@ export {
   ScriptExpressions,
   PathComponent,
   extend,
-  Buffer
+  Buffer,
 };
 
 export * from './errors';
 export * from './Decoder';
 export * from './lib';
-export * from './CryptoAccount'
-export * from './CryptoPSBT'
-export * from './CryptoHDKey'
-export * from './extended/CryptoMultiAccounts'
-export * from './CryptoOutput'
-export * from './CryptoCoinInfo'
-export * from './CryptoECKey'
-export * from './MultiKey'
-export * from './CryptoKeypath'
-export * from './patchCBOR'
-export * from './PathComponent'
-export * from './RegistryItem'
-export * from './RegistryType'
-export * from './types'
-export * from './utils'
+export * from './CryptoAccount';
+export * from './CryptoPSBT';
+export * from './CryptoHDKey';
+export * from './extended/CryptoMultiAccounts';
+export * from './CryptoOutput';
+export * from './CryptoCoinInfo';
+export * from './CryptoECKey';
+export * from './MultiKey';
+export * from './CryptoKeypath';
+export * from './patchCBOR';
+export * from './PathComponent';
+export * from './RegistryItem';
+export * from './RegistryType';
+export * from './types';
+export * from './utils';
 
 export default URlib;

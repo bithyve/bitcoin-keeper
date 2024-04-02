@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, Input, View, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -16,20 +16,19 @@ function ImportWalletDetailsScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet } = translations;
 
-  const name = route?.params?.name;
-  const desc = route?.params?.description;
+  const { importedKey, importedKeyDetails, type, name, description } = route.params;
+  const transferPolicy = maxTransferPolicyThreshold.toString();
+
   const [walletName, setWalletName] = useState(name || '');
-  const [description, setDescription] = useState(desc || '');
-  const [walletType, setWalletType] = useState(route?.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route?.params?.seed?.replace(/,/g, ' '));
-  const [transferPolicy, setTransferPolicy] = useState(maxTransferPolicyThreshold.toString());
+  const [walletDescription, setWalletDescription] = useState(description || '');
 
   const onNextClick = () => {
     navigation.navigate('AddDetailsFinal', {
-      type: walletType,
-      description,
+      type, // walletType
+      description: walletDescription,
       name: walletName,
-      seed: importedSeed,
+      importedKey,
+      importedKeyDetails,
       policy: transferPolicy,
     });
   };
@@ -63,8 +62,8 @@ function ImportWalletDetailsScreen({ route }) {
                 style={styles.textInput}
                 borderWidth="0"
                 backgroundColor={`${colorMode}.seashellWhite`}
-                value={description}
-                onChangeText={(text) => setDescription(text)}
+                value={walletDescription}
+                onChangeText={(text) => setWalletDescription(text)}
               />
             </Box>
           </Box>

@@ -1,11 +1,11 @@
 export default [
   {
-    language: "English",
-    displayTitle: "English",
-    iso: "en",
-    flag: "🇺🇸",
-    country: "United States",
-    country_code: "us",
+    language: 'English',
+    displayTitle: 'English',
+    iso: 'en',
+    flag: '🇺🇸',
+    country: 'United States',
+    country_code: 'us',
   },
   /* {
     {
@@ -56,7 +56,7 @@ export default [
     country: 'India',
     country_code: 'in',
   },
-  
+
     language: 'Marathi',
     displayTitle: 'मराठी',
     iso: 'mr',

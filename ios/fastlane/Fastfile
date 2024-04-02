@@ -18,9 +18,18 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new dev build to TestFlight"
   lane :dev do
+    file_name = "../../.env"
+    file_url = "https://raw.githubusercontent.com/bithyve/bitcoin-keeper-envs/development/app.development.env"
+    auth_header = "Authorization: token #{ENV["GITHUB_ACCESS_TOKEN"]}"
+    sh(
+      "curl -H '#{auth_header}' -o '#{file_name}' -s '#{file_url}'",
+      step_name: "curl -H '***' -o '#{file_name}' -s '#{file_url}'"
+    )
+
     increment_build_number(xcodeproj: "hexa_keeper.xcodeproj")
 
     get_certificates( # Create or get certificate, and install it
+      development: true,
       output_path: "./builds" # Download certificate in the build folder (you don't need to create the folder)
     )
 
@@ -53,7 +62,14 @@ platform :ios do
   end
 
   desc "Push a new live build to TestFlight"
-  lane :live do   
+  lane :live do
+    file_name = "../../.env"
+    file_url = "https://raw.githubusercontent.com/bithyve/bitcoin-keeper-envs/live/app.live.env"
+    auth_header = "Authorization: token #{ENV["GITHUB_ACCESS_TOKEN"]}"
+    sh(
+      "curl -H '#{auth_header}' -o '#{file_name}' -s '#{file_url}'",
+      step_name: "curl -H '***' -o '#{file_name}' -s '#{file_url}'"
+    )
     # increment_build_number(xcodeproj: "hexa_keeper.xcodeproj")
 
     get_certificates( # Create or get certificate, and install it

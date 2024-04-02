@@ -5,7 +5,8 @@ import { useState } from 'react';
 const useTapsignerModal = (card: CKTapCard) => {
   const [nfcVisible, setNfcVisible] = useState<boolean>(false);
 
-  const withModal = (callback) => Platform.select({
+  const withModal = (callback) =>
+    Platform.select({
       android: async () => {
         setNfcVisible(true);
         const resp = await card.nfcWrapper(callback);

@@ -36,20 +36,20 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>283</string>
+	<string>324</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
 	<string>Allow Keeper to interact with nearby NFC devices</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	<key>NSExceptionDomains</key>
+		<key>NSExceptionDomains</key>
 		<dict>
-		<key>localhost</key>
-		<dict>
-			<key>NSExceptionAllowsInsecureHTTPLoads</key>
-			<true/>
-		</dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
@@ -60,15 +60,16 @@
 	<string>Please allow photo library access to campture screenshots and send app feedback</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>FiraSansCondensed-Bold.ttf</string>
-		<string>FiraSansCondensed-MediumItalic.ttf</string>
-		<string>FiraSansCondensed-Italic.ttf</string>
-		<string>FiraSansCondensed-Light.ttf</string>
-		<string>FiraSansCondensed-LightItalic.ttf</string>
-		<string>FiraSansCondensed-Regular.ttf</string>
-		<string>FiraSansCondensed-BoldItalic.ttf</string>
-		<string>FiraSansCondensed-Medium.ttf</string>
-		<string>FiraSansCondensed-SemiBold.ttf</string>
+		<string>FiraSans-Bold.ttf</string>
+		<string>FiraSans-BoldItalic.ttf</string>
+		<string>FiraSans-Italic.ttf</string>
+		<string>FiraSans-Light.ttf</string>
+		<string>FiraSans-LightItalic.ttf</string>
+		<string>FiraSans-Medium.ttf</string>
+		<string>FiraSans-MediumItalic.ttf</string>
+		<string>FiraSans-Regular.ttf</string>
+		<string>FiraSans-SemiBold.ttf</string>
+		<string>FiraSans-SemiBoldItalic.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

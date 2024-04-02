@@ -1,7 +1,7 @@
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { VisibilityType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { SignerException, SignerRestriction } from 'src/services/interfaces';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { VisibilityType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { SignerException, SignerRestriction } from 'src/models/interfaces/AssistedKeys';
 import { NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -30,7 +30,9 @@ export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
 export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
+export const UPDATE_VAULT_DETAILS = 'UPDATE_VAULT_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
+export const UPDATE_KEY_DETAILS = 'UPDATE_KEY_DETAILS';
 export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
 export const ADD_WHIRLPOOL_WALLETS_LOCAL = 'ADD_WHIRLPOOL_WALLETS_LOCAL';
 export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_PATH_PURPOSE_DETAILS';
@@ -112,7 +114,8 @@ export const incrementAddressIndex = (
 });
 
 export const updateSignerPolicy = (
-  signer: VaultSigner,
+  signer: Signer,
+  signingKey: VaultSigner,
   updates: {
     restrictions?: SignerRestriction;
     exceptions?: SignerException;
@@ -122,6 +125,7 @@ export const updateSignerPolicy = (
   type: UPDATE_SIGNER_POLICY,
   payload: {
     signer,
+    signingKey,
     updates,
     verificationToken,
   },
@@ -280,7 +284,7 @@ export const loginWithHexa = (authToken, walletName) => ({
   },
 });
 
-export const testSatsRecieve = (wallet: Wallet) => ({
+export const testSatsRecieve = (wallet: Wallet | Vault) => ({
   type: TEST_SATS_RECIEVE,
   payload: {
     wallet,
@@ -300,6 +304,20 @@ export const updateWalletDetails = (
     details,
   },
 });
+
+export const updateVaultDetails = (
+  vault: Vault,
+  details: {
+    name: string;
+    description: string;
+  }
+) => ({
+  type: UPDATE_VAULT_DETAILS,
+  payload: {
+    vault,
+    details,
+  },
+});
 export const updateWalletPathAndPurposeDetails = (
   wallet: Wallet,
   details: {
@@ -314,8 +332,17 @@ export const updateWalletPathAndPurposeDetails = (
   },
 });
 
-export const updateSignerDetails = (signer: VaultSigner, key: string, value: any) => ({
+export const updateSignerDetails = (signer: Signer, key: string, value: any) => ({
   type: UPDATE_SIGNER_DETAILS,
+  payload: {
+    signer,
+    key,
+    value,
+  },
+});
+
+export const updateKeyDetails = (signer: VaultSigner, key: string, value: any) => ({
+  type: UPDATE_KEY_DETAILS,
   payload: {
     signer,
     key,

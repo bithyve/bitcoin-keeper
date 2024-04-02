@@ -1,23 +1,18 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType, TxPriority } from 'src/services/wallets/enums';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
-
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
-import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SigningServer from 'src/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import idx from 'idx';
@@ -28,59 +23,56 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
-import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import useWallets from 'src/hooks/useWallets';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import SignerModals from './SignerModals';
-import SignerList from './SignerList';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSignerMap from 'src/hooks/useSignerMap';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import {
   signTransactionWithColdCard,
-  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import { useQuery } from '@realm/react';
-import Text from 'src/components/KeeperText';
-import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
+import SignerList from './SignerList';
+import SignerModals from './SignerModals';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, collaborativeWalletId } = (route.params || {
+  const { note, label, vaultId } = (route.params || {
     note: '',
     label: [],
-    collaborativeWalletId: '',
+    vaultId: '',
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
-    collaborativeWalletId: string;
+    vaultId: string;
   };
-  const { activeVault: defaultVault } = useVault(collaborativeWalletId);
-  const { signers, id: vaultId, scheme, shellId } = defaultVault;
-  const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
-  let parentCollaborativeWallet: Wallet;
-  if (collaborativeWalletId) {
-    parentCollaborativeWallet = wallets.find(
-      (wallet) => wallet && wallet.id === collaborativeWalletId
-    );
-  }
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
+  const { activeVault: defaultVault } = useVault({
+    vaultId,
+  });
+
+  const { signers: vaultKeys, scheme } = defaultVault;
+
+  const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions, common, vault } = translations;
+  const { wallet: walletTransactions, common } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
   const [passportModal, setPassportModal] = useState(false);
   const [seedSignerModal, setSeedSignerModal] = useState(false);
+  const [specterModal, setSpecterModal] = useState(false);
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
   const [keeperModal, setKeeperModal] = useState(false);
@@ -90,7 +82,7 @@ function SignTransactionScreen() {
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
-  const [activeSignerId, setActiveSignerId] = useState<string>();
+  const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
   const navigation = useNavigation();
@@ -101,6 +93,7 @@ function SignTransactionScreen() {
     (state) => state.bhr
   );
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
+  const intrimVault = useAppSelector((state) => state.vault.intrimVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const sendFailedMessage = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
@@ -120,13 +113,16 @@ function SignTransactionScreen() {
           { name: 'Home' },
           {
             name: 'VaultDetails',
-            params: { vaultTransferSuccessful: true, autoRefresh: true, collaborativeWalletId },
+            params: {
+              vaultTransferSuccessful: true,
+              autoRefresh: true,
+              vaultId: intrimVault?.id || '',
+            },
           },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       dispatch(resetRealyVaultState());
-      dispatch(clearSigningDevice());
     }
     if (relayVaultError) {
       showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
@@ -141,27 +137,20 @@ function SignTransactionScreen() {
       }
     } else if (sendSuccessful) {
       setVisibleModal(true);
-      // navigation.dispatch(
-      //   CommonActions.reset({
-      //     index: 1,
-      //     routes: [
-      //       { name: 'Home' },
-      //       { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
-      //     ],
-      //   })
-      // );
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
   useEffect(() => {
-    defaultVault.signers.forEach((signer) => {
-      const isCoSignerMyself = signer.masterFingerprint === collaborativeWalletId;
+    defaultVault.signers.forEach((vaultKey) => {
+      const isCoSignerMyself = signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER;
       if (isCoSignerMyself) {
         // self sign PSBT
-        signTransaction({ signerId: signer.signerId });
+        signTransaction({ xfp: vaultKey.xfp });
       }
     });
-    return () => dispatch(sendPhaseThreeReset());
+    return () => {
+      dispatch(sendPhaseThreeReset());
+    };
   }, []);
 
   useEffect(() => {
@@ -190,40 +179,42 @@ function SignTransactionScreen() {
 
   const signTransaction = useCallback(
     async ({
-      signerId,
+      xfp,
       signingServerOTP,
       seedBasedSingerMnemonic,
       thresholdDescriptors,
     }: {
-      signerId?: string;
+      xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
       thresholdDescriptors?: string[];
     } = {}) => {
-      const activeId = signerId || activeSignerId;
-      const currentSigner = signers.filter((signer) => signer.signerId === activeId)[0];
+      const activeId = xfp || activeXfp;
+      const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
+      const signer = signerMap[currentKey.masterFingerprint];
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-          (envelop) => envelop.signerId === activeId
+          (envelop) => envelop.xfp === activeId
         )[0];
         const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
-        const { signerType, serializedPSBT, signingPayload, signerId } = copySerializedPSBTEnvelop;
+        const { signerType, serializedPSBT, signingPayload, xfp } = copySerializedPSBTEnvelop;
         if (SignerType.TAPSIGNER === signerType) {
           const { signingPayload: signedPayload, signedSerializedPSBT } =
             await signTransactionWithTapsigner({
               setTapsignerModal,
               signingPayload,
-              currentSigner,
+              currentKey,
               withModal,
               defaultVault,
               serializedPSBT,
               card,
               cvc: textRef.current,
+              signer,
             });
           dispatch(
-            updatePSBTEnvelops({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
+            updatePSBTEnvelops({ signedSerializedPSBT, xfp, signingPayload: signedPayload })
           );
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(healthCheckSigner([signer]));
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -237,63 +228,59 @@ function SignTransactionScreen() {
             signingPayload,
             defaultVault,
             serializedPSBT,
-            signerId,
+            xfp,
           });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          dispatch(healthCheckSigner([signer]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
-            signerId,
+            xfp,
             signingPayload,
             signingServerOTP,
             serializedPSBT,
             showOTPModal,
             showToast,
           });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
-          const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
-            signingPayload,
-            serializedPSBT,
-            signerId,
-            thresholdDescriptors,
-          });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          showToast('Signing via inheritance key is not available yet.');
+          // TODO: implement inheritance key signing, rewire the threshold descriptor w/ inheritance config; check InheritanceKeyServer.thresholdDescriptors
+          // const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
+          //   signingPayload,
+          //   serializedPSBT,
+          //   xfp,
+          //   thresholdDescriptors,
+          // });
+          // dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
             defaultVault,
             seedBasedSingerMnemonic,
             serializedPSBT,
-            signerId,
+            xfp,
             isMultisig: defaultVault.isMultiSig,
           });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
-        } else if (SignerType.KEEPER === signerType) {
-          const signedSerializedPSBT = signCosignerPSBT(parentCollaborativeWallet, serializedPSBT);
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          dispatch(healthCheckSigner([signer]));
+        } else if (SignerType.MY_KEEPER === signerType) {
+          const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          dispatch(healthCheckSigner([signer]));
         }
       }
     },
-    [activeSignerId, serializedPSBTEnvelops]
+    [activeXfp, serializedPSBTEnvelops]
   );
 
-  const callbackForSigners = ({
-    type,
-    signerId,
-    signerPolicy,
-    inheritanceKeyInfo,
-    masterFingerprint,
-  }: VaultSigner) => {
-    setActiveSignerId(signerId);
+  const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
+    setActiveXfp(vaultKey.xfp);
     if (areSignaturesSufficient()) {
       showToast('We already have enough signatures, you can now broadcast.');
       return;
     }
-    switch (type) {
+    switch (signer.type) {
       case SignerType.TAPSIGNER:
         setTapsignerModal(true);
         break;
@@ -307,17 +294,17 @@ function SignTransactionScreen() {
         setPasswordModal(true);
         break;
       case SignerType.POLICY_SERVER:
-        if (signerPolicy) {
+        if (signer.signerPolicy) {
           const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-            (envelop) => envelop.signerId === signerId
+            (envelop) => envelop.xfp === vaultKey.xfp
           )[0];
           const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
           if (
-            !signerPolicy.exceptions.none &&
-            outgoing <= signerPolicy.exceptions.transactionAmount
+            !signer.signerPolicy.exceptions.none &&
+            outgoing <= signer.signerPolicy.exceptions.transactionAmount
           ) {
             showToast('Auto-signing, send amount smaller than max no-check amount');
-            signTransaction({ signerId }); // case: OTP not required
+            signTransaction({ xfp: vaultKey.xfp }); // case: OTP not required
           } else showOTPModal(true);
         } else showOTPModal(true);
         break;
@@ -326,7 +313,7 @@ function SignTransactionScreen() {
           CommonActions.navigate({
             name: 'InputSeedWordSigner',
             params: {
-              signerId,
+              xfp: vaultKey.xfp,
               onSuccess: signTransaction,
             },
           })
@@ -334,6 +321,9 @@ function SignTransactionScreen() {
         break;
       case SignerType.PASSPORT:
         setPassportModal(true);
+        break;
+      case SignerType.SPECTER:
+        setSpecterModal(true);
         break;
       case SignerType.SEEDSIGNER:
         setSeedSignerModal(true);
@@ -345,15 +335,15 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (masterFingerprint === collaborativeWalletId) {
-          signTransaction({ signerId });
+        if (signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER) {
+          signTransaction({ xfp: vaultKey.xfp });
           return;
         }
         setKeeperModal(true);
         break;
       case SignerType.TREZOR:
         if (defaultVault.isMultiSig) {
-          showToast('Signing with trezor for multisig transactions is coming soon!', null, 4000);
+          showToast('Signing with trezor for multisig transactions is coming soon!');
           return;
         }
         setTrezorModal(true);
@@ -372,7 +362,7 @@ function SignTransactionScreen() {
         showToast('Signing via Inheritance Key is not available', <ToastErrorIcon />);
         break;
       default:
-        showToast(`action not set for ${type}`);
+        showToast(`action not set for ${signer.type}`);
         break;
     }
   };
@@ -396,26 +386,28 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+          { name: 'VaultDetails', params: { autoRefresh: true, vaultId } },
         ],
       })
     );
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <ActivityIndicatorView visible={broadcasting} showLoader />
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Chose at least ${scheme.m} to sign the transaction`}
+        subtitle={`Choose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
-        data={signers}
-        keyExtractor={(item) => item.signerId}
+        data={vaultKeys}
+        keyExtractor={(item) => item.xfp}
         renderItem={({ item }) => (
           <SignerList
-            signer={item}
-            callback={() => callbackForSigners(item)}
+            vaultKey={item}
+            callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
+            signerMap={signerMap}
           />
         )}
       />
@@ -436,19 +428,20 @@ function SignTransactionScreen() {
                 })
               );
             } else {
-              showToast(`Sorry there aren't enough signatures!`);
+              showToast("Sorry there aren't enough signatures!");
             }
           }}
         />
       </Box>
       <Note
         title={common.note}
-        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
+        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signers, it can be broadcasted."
         subtitleColor="GreyText"
       />
       <SignerModals
-        signers={signers}
-        activeSignerId={activeSignerId}
+        vaultId={vaultId}
+        vaultKeys={vaultKeys}
+        activeXfp={activeXfp}
         coldCardModal={coldCardModal}
         tapsignerModal={tapsignerModal}
         ledgerModal={ledgerModal}
@@ -462,6 +455,8 @@ function SignTransactionScreen() {
         trezorModal={trezorModal}
         bitbox02Modal={bitbox02Modal}
         otherSDModal={otherSDModal}
+        specterModal={specterModal}
+        setSpecterModal={setSpecterModal}
         setOtherSDModal={setOtherSDModal}
         setTrezorModal={setTrezorModal}
         setBitbox02Modal={setBitbox02Modal}
@@ -478,7 +473,7 @@ function SignTransactionScreen() {
         signTransaction={signTransaction}
         textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
-        collaborativeWalletId={collaborativeWalletId}
+        signerMap={signerMap}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
@@ -488,7 +483,7 @@ function SignTransactionScreen() {
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewDetails}
         buttonCallback={viewDetails}
-        textcolor={`${colorMode}.greenText`}
+        textColor={`${colorMode}.greenText`}
         buttonTextColor={`${colorMode}.white`}
         Content={SendSuccessfulContent}
       />
@@ -496,4 +491,4 @@ function SignTransactionScreen() {
   );
 }
 
-export default SignTransactionScreen;
+export default Sentry.withErrorBoundary(SignTransactionScreen, errorBourndaryOptions);

@@ -1,5 +1,5 @@
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { DerivationPurpose } from 'src/core/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { DerivationPurpose } from 'src/services/wallets/enums';
 
 export const getJadeDetails = (qrData) => {
   const { derivationPath, xPub: xpub, mfp } = qrData;
@@ -13,5 +13,5 @@ export const getJadeDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, xfp: mfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint: mfp, forMultiSig, forSingleSig };
 };

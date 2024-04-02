@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 export enum Network {
   /// Classic Bitcoin
   Bitcoin = 'bitcoin',

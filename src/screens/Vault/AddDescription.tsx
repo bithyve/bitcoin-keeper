@@ -21,7 +21,7 @@ function AddDescription({ route }) {
         <Box width={wp(200)}>
           <KeeperHeader
             title="Add Description"
-            subtitle="Optionally you can add a short description to the Signing Device"
+            subtitle="Optionally you can add a short description to the signer"
           />
         </Box>
 

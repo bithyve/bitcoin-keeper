@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, useColorMode, Input } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -17,14 +17,14 @@ import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
-import { DerivationPurpose } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { DerivationPurpose } from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import { WalletDerivationDetails } from 'src/core/wallets/interfaces/wallet';
-import { generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
+import { Wallet, WalletDerivationDetails } from 'src/services/wallets/interfaces/wallet';
+import { generateWalletSpecsFromMnemonic } from 'src/services/wallets/factories/WalletFactory';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
@@ -39,15 +39,16 @@ function UpdateWalletDetails({ route }) {
   const { wallet, isFromSeed, words } = route.params;
 
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation, seed, importWallet, common } = translations
+  const { wallet: walletTranslation, seed, importWallet, common } = translations;
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const purposeList = [
     { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
     { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
+    { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
   ];
-  const getPupose = (key) => {
+  const getPurpose = (key) => {
     switch (key) {
       case 'P2PKH':
         return 'P2PKH: legacy, single-sig';
@@ -55,6 +56,8 @@ function UpdateWalletDetails({ route }) {
         return 'P2SH-P2WPKH: wrapped segwit, single-sg';
       case 'P2WPKH':
         return 'P2WPKH: native segwit, single-sig';
+      case 'P2TR':
+        return 'P2TR: taproot, single-sig';
       default:
         return '';
     }
@@ -62,9 +65,9 @@ function UpdateWalletDetails({ route }) {
   const [purpose, setPurpose] = useState(
     purposeList.find((item) => item.label.split(':')[0] === wallet?.scriptType).value
   );
-  const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
-  const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
-  const [warringsVisible, setWarringsVisible] = useState(false)
+  const [purposeLbl, setPurposeLbl] = useState(getPurpose(wallet?.scriptType));
+  const [path, setPath] = useState(`${(wallet as Wallet)?.derivationDetails?.xDerivationPath}`);
+  const [warringsVisible, setWarringsVisible] = useState(false);
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -87,7 +90,7 @@ function UpdateWalletDetails({ route }) {
         ...wallet.derivationDetails,
         xDerivationPath: path,
       };
-      const specs = generateWalletSpecs(
+      const specs = generateWalletSpecsFromMnemonic(
         derivationDetails.mnemonic,
         WalletUtilities.getNetworkByType(wallet.networkType),
         derivationDetails.xDerivationPath
@@ -103,13 +106,13 @@ function UpdateWalletDetails({ route }) {
         scriptType,
       });
       if (isUpdated) {
-        setWarringsVisible(false)
-        updateAppImageWorker({ payload: { wallet } });
+        setWarringsVisible(false);
+        updateAppImageWorker({ payload: { wallets: [wallet] } });
         navigtaion.goBack();
         showToast(walletTranslation.walletDetailsUpdate, <TickIcon />);
       } else showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     } catch (error) {
-      setWarringsVisible(false)
+      setWarringsVisible(false);
       console.log(error);
       showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     }
@@ -132,18 +135,18 @@ function UpdateWalletDetails({ route }) {
             <Buttons
               secondaryText="Cancel"
               secondaryCallback={() => {
-                setWarringsVisible(false)
+                setWarringsVisible(false);
               }}
               primaryText="I understand, Proceed"
               primaryCallback={() => {
-                updateWallet()
+                updateWallet();
               }}
               primaryLoading={relayWalletUpdateLoading}
             />
           </Box>
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
@@ -155,11 +158,9 @@ function UpdateWalletDetails({ route }) {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={isFromSeed ? seed.recoveryPhrase : walletTranslation.WalletDetails}
+          title={isFromSeed ? seed.walletSeedWords : walletTranslation.WalletDetails}
           subtitle={
-            isFromSeed
-              ? walletTranslation.qrofRecoveryPhrase
-              : walletTranslation.updateWalletPath
+            isFromSeed ? walletTranslation.qrofRecoveryPhrase : walletTranslation.viewWalletPath
           }
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -177,7 +178,9 @@ function UpdateWalletDetails({ route }) {
                     }}
                     style={styles.flagWrapper1}
                   >
-                    <Text style={styles.purposeText}>{item.label}</Text>
+                    <Text style={styles.purposeText} color={`${colorMode}.GreyText`}>
+                      {item.label}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -189,29 +192,22 @@ function UpdateWalletDetails({ route }) {
               {common.path}
             </KeeperText>
             <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <Input
-                placeholder={importWallet.derivationPath}
-                // style={styles.textInput}
-                placeholderTextColor={`${colorMode}.White`} // TODO: change to colorMode and use native base component
-                value={path}
-                onChangeText={(value) => setPath(value)}
-                autoCorrect={false}
-                editable={!isFromSeed}
-                maxLength={20}
-                onFocus={() => {
-                  setShowPurpose(false);
-                  setArrow(false);
-                }}
-                w={'100%'}
-                h={10}
-                variant="unstyled"
-              />
+              <Text medium>{path}</Text>
+            </Box>
+            <KeeperText
+              style={[styles.autoTransferText, { marginTop: hp(25), marginBottom: 5 }]}
+              color={`${colorMode}.GreyText`}
+            >
+              {common.purpose}
+            </KeeperText>
+            <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <Text medium>{purposeLbl}</Text>
             </Box>
             {isFromSeed ? (
               <Box style={{ marginTop: wp(20) }}>
                 <ShowXPub
                   data={words.toString().replace(/,/g, ' ')}
-                  subText={seed.walletRecoveryPhrase}
+                  subText={seed.walletSeedWords}
                   noteSubText={seed.showXPubNoteSubText}
                   copyable={false}
                 />
@@ -219,30 +215,6 @@ function UpdateWalletDetails({ route }) {
             ) : null}
           </Box>
         </ScrollView>
-        {!isFromSeed && (
-          <Box style={styles.dotContainer}>
-            <Box style={styles.ctaBtnWrapper}>
-              <Box ml={windowWidth * -0.09}>
-                <Buttons
-                  secondaryText={common.cancel}
-                  secondaryCallback={() => {
-                    navigtaion.goBack();
-                  }}
-                  primaryText={common.save}
-                  primaryDisable={path === wallet?.derivationDetails.xDerivationPath && wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0}
-                  primaryCallback={() => {
-                    if (wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0) {
-                      setWarringsVisible(true)
-                    } else {
-                      showToast(walletTranslation.walletBalanceMsg, <ToastErrorIcon />)
-                    }
-                  }}
-                  primaryLoading={relayWalletUpdateLoading}
-                />
-              </Box>
-            </Box>
-          </Box>
-        )}
         <KeeperModal
           visible={warringsVisible}
           close={() => setWarringsVisible(false)}
@@ -287,7 +259,8 @@ const styles = StyleSheet.create({
   textInputWrapper: {
     flexDirection: 'row',
     width: '100%',
-    justifyContent: 'center',
+    height: hp(50),
+    paddingHorizontal: 10,
     alignItems: 'center',
     borderRadius: 10,
   },
@@ -323,14 +296,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: wp(10),
     letterSpacing: 0.6,
-    color: 'light.GreyText',
   },
   contentText: {
     fontSize: 13,
     paddingHorizontal: 1,
     paddingVertical: 5,
-    letterSpacing: 0.65
-  }
+    letterSpacing: 0.65,
+  },
 });
 
 export default UpdateWalletDetails;

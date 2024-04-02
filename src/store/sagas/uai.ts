@@ -2,53 +2,57 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
-import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { SUBSCRIPTION_SCHEME_MAP } from 'src/hooks/usePlan';
-import { setRefreshUai } from '../reducers/uai';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { isTestnet } from 'src/constants/Bitcoin';
+import { EntityKind } from 'src/services/wallets/enums';
+import { BackupHistory } from 'src/models/enums/BHR';
+import { createUaiMap, setRefreshUai, updateUaiActionMap } from '../reducers/uai';
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
   uaiActioned,
-  uaiActionedEntity,
   UAI_ACTIONED,
-  UAI_ACTIONED_ENTITY,
   UAI_CHECKS,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
-import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind, VaultType } from 'src/core/wallets/enums';
 
-const healthCheckRemider = (signer: VaultSigner) => {
+const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
+const HEALTH_CHECK_REMINDER_TESTNET = 1; // 3hours
+const healthCheckReminderThreshold = isTestnet()
+  ? HEALTH_CHECK_REMINDER_TESTNET
+  : HEALTH_CHECK_REMINDER_MAINNET;
+
+const healthCheckReminderDays = (lastHealthCheck: Date) => {
   const today = new Date();
-  const Difference_In_Time = today.getTime() - signer.lastHealthCheck.getTime();
-  const Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
-  return Difference_In_Days;
+  const differenceInTime = today.getTime() - lastHealthCheck.getTime();
+  const differenceInDays = Math.round(differenceInTime / (1000 * 3600 * 24));
+  return differenceInDays;
 };
 
-const healthCheckReminderHours = (signer: VaultSigner) => {
+const healthCheckReminderHours = (lastHealthCheck: Date) => {
   const today = new Date();
-  const differenceInTime = today.getTime() - signer.lastHealthCheck.getTime();
+  const differenceInTime = today.getTime() - lastHealthCheck.getTime();
   const differenceInHours = Math.round(differenceInTime / (1000 * 3600));
   return differenceInHours;
 };
 
+const healthCheckReminderMinutes = (lastHealthCheck: Date) => {
+  const today = new Date();
+  const differenceInTime = today.getTime() - lastHealthCheck.getTime();
+  const differenceInMinutes = Math.round(differenceInTime / (1000 * 60));
+  return differenceInMinutes;
+};
+
 function* addToUaiStackWorker({ payload }) {
-  const { title, isDisplay, displayText, prirority, entityId, uaiType } = payload;
+  const { entityId, uaiType, uaiDetails } = payload;
   const uai: UAI = {
     id: uuidv4(),
-    title,
-    isActioned: false,
-    isDisplay,
-    displayText,
-    displayCount: 0,
-    uaiType,
-    prirority,
     entityId,
-    timeStamp: new Date(),
+    uaiType,
+    uaiDetails,
   };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uai);
@@ -60,13 +64,52 @@ function* addToUaiStackWorker({ payload }) {
 
 function* uaiActionedWorker({ payload }) {
   try {
-    const { uaiId, action } = payload;
-    const uai: UAI = dbManager
-      .getCollection(RealmSchema.UAI)
-      .filter((uai: UAI) => uai.id === uaiId)[0];
-    yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, {
-      isActioned: action,
-    });
+    const { uaiId, action, entityId, uaiType } = payload;
+    // Handle action based on entityId
+    if (entityId) {
+      const uaiEntityId: UAI | any = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        entityId,
+        'entityId'
+      )[0];
+      if (uaiEntityId) {
+        if (action) {
+          yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiEntityId.id);
+        } else {
+          const updateData = { lastActioned: new Date() };
+          yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiEntityId.id, updateData);
+          yield put(updateUaiActionMap(uaiEntityId.id));
+        }
+      }
+    }
+    // Handle action based on uaiType
+    if (uaiType) {
+      const uaiTypeBased: UAI | any = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType,
+        'uaiType'
+      )[0];
+      if (uaiTypeBased) {
+        if (action) {
+          yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiTypeBased.id);
+        } else {
+          const updateData = { lastActioned: new Date() };
+          yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiTypeBased.id, updateData);
+          yield put(updateUaiActionMap(uaiTypeBased.id));
+        }
+      }
+    }
+    // Handle action based on uaiId
+    if (uaiId) {
+      if (action) {
+        yield call(dbManager.deleteObjectById, RealmSchema.UAI, uaiId);
+      } else {
+        const updateData = { lastActioned: new Date() };
+        yield call(dbManager.updateObjectById, RealmSchema.UAI, uaiId, updateData);
+        yield put(updateUaiActionMap(uaiId));
+      }
+    }
+
     yield put(setRefreshUai());
   } catch (err) {
     console.log(err);
@@ -75,158 +118,185 @@ function* uaiActionedWorker({ payload }) {
 
 function* uaiChecksWorker({ payload }) {
   const { checkForTypes } = payload;
-  const vault: Vault = dbManager
-    .getCollection(RealmSchema.Vault)
-    .filter((vault: Vault) => !vault.archived && vault.type !== VaultType.COLLABORATIVE)[0];
   try {
-    if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {
-      if (vault) {
-        for (const signer of vault.signers) {
-          const lastHealthCheckDays = healthCheckRemider(signer);
-          const lastHealthCheckHours = healthCheckReminderHours(signer);
-          const testnet = isTestnet();
-          if (testnet ? lastHealthCheckHours >= 3 : lastHealthCheckDays >= 180) {
-            const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
-            if (!uais.length) {
-              yield put(
-                addToUaiStack({
-                  title: `Health check for ${signer.signerName} is due`,
-                  isDisplay: false,
-                  uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-                  prirority: 100,
-                  entityId: signer.signerId,
-                })
-              );
-            } else {
-              const uai = uais[0];
-              let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); // Need to get a better way
-              updatedUai = { ...updatedUai, isActioned: false };
-              yield call(dbManager.updateObjectById, RealmSchema.UAI, updatedUai.id, updatedUai);
-            }
-            yield put(setRefreshUai());
-          }
-        }
-      }
-    }
-
     if (checkForTypes.includes(uaiType.SECURE_VAULT)) {
-      const secureVaultUai = dbManager.getObjectByField(
+      const vault: Vault = dbManager.getCollection(RealmSchema.Vault)[0];
+      const secureVaultUai: UAI = dbManager.getObjectByField(
         RealmSchema.UAI,
         uaiType.SECURE_VAULT,
         'uaiType'
       )[0];
 
-      if (!secureVaultUai) {
+      if (!vault && !secureVaultUai) {
         yield put(
           addToUaiStack({
-            title: 'Add a signing device to activate your Vault',
-            isDisplay: false,
             uaiType: uaiType.SECURE_VAULT,
-            prirority: 100,
           })
         );
       }
       if (vault && secureVaultUai) {
-        yield put(uaiActioned(secureVaultUai.id));
+        yield put(uaiActioned({ uaiId: secureVaultUai.id, action: true }));
       }
     }
-
     if (checkForTypes.includes(uaiType.VAULT_TRANSFER)) {
-      const wallets: Wallet[] = yield call(
-        dbManager.getObjectByIndex,
-        RealmSchema.Wallet,
-        null,
-        true
+      const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+      const uaiCollectionVaultTransfer: UAI[] = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.VAULT_TRANSFER,
+        'uaiType'
       );
-      if (vault) {
-        for (const wallet of wallets) {
-          const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
-          if (
-            wallet.entityKind === EntityKind.WALLET &&
-            wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
-          ) {
-            if (uai) {
-              if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
-                yield put(uaiActionedEntity(uai.entityId, false));
-              }
-            } else {
+      for (const wallet of wallets) {
+        const uai = uaiCollectionVaultTransfer.find((uai) => uai.entityId === wallet.id);
+        if (
+          wallet.entityKind === EntityKind.WALLET &&
+          wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
+        ) {
+          if (!uai) {
+            yield put(
+              addToUaiStack({
+                uaiType: uaiType.VAULT_TRANSFER,
+                entityId: wallet.id,
+                uaiDetails: {
+                  body: `Transfer fund to vault from ${wallet.presentationData.name}`,
+                },
+              })
+            );
+          }
+        } else {
+          if (uai) {
+            yield put(uaiActioned({ entityId: uai.entityId, action: true }));
+          }
+        }
+      }
+    }
+    if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {
+      // check for each signer if health check uai is needed
+      const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
+      if (signers.length > 0) {
+        for (const signer of signers) {
+          const lastHealthCheck = isTestnet()
+            ? healthCheckReminderHours(signer.lastHealthCheck)
+            : healthCheckReminderDays(signer.lastHealthCheck);
+
+          if (lastHealthCheck >= healthCheckReminderThreshold) {
+            const uaiCollection: UAI[] = dbManager.getObjectByField(
+              RealmSchema.UAI,
+              signer.masterFingerprint,
+              'entityId'
+            );
+            const uaiHCforSD = uaiCollection?.filter(
+              (uai) => uai.uaiType === uaiType.SIGNING_DEVICES_HEALTH_CHECK
+            );
+            if (!uaiHCforSD || uaiHCforSD.length === 0) {
               yield put(
                 addToUaiStack({
-                  title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
-                  isDisplay: false,
-                  uaiType: uaiType.VAULT_TRANSFER,
-                  prirority: 80,
-                  entityId: wallet.id,
+                  uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+                  entityId: signer.masterFingerprint,
+                  uaiDetails: {
+                    body: `Health check for ${signer.signerName} is due`,
+                  },
                 })
               );
             }
-          } else if (uai) {
-            yield put(uaiActionedEntity(uai.entityId, true));
+            yield put(setRefreshUai());
+          }
+        }
+      }
+
+      // check for exixsisting UAIs of type HC if the signer was recently actioned
+      const uaiCollectionHC: UAI[] = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+        'uaiType'
+      );
+      if (uaiCollectionHC.length > 0) {
+        for (const uai of uaiCollectionHC) {
+          const signer: Signer = dbManager.getObjectByPrimaryId(
+            RealmSchema.Signer,
+            'masterFingerprint',
+            uai.entityId
+          );
+
+          if (signer) {
+            const lastHealthCheck = isTestnet()
+              ? healthCheckReminderHours(signer.lastHealthCheck)
+              : healthCheckReminderDays(signer.lastHealthCheck);
+            if (lastHealthCheck < healthCheckReminderThreshold) {
+              yield put(uaiActioned({ uaiId: uai.id, action: true }));
+            }
           }
         }
       }
     }
+    if (checkForTypes.includes(uaiType.RECOVERY_PHRASE_HEALTH_CHECK)) {
+      const backupHistory: BackupHistory = dbManager.getCollection(RealmSchema.BackupHistory);
+      const confirmedBackups = backupHistory.filter((item) => item.confirmed);
 
-    if (checkForTypes.includes(uaiType.VAULT_MIGRATION)) {
-      if (vault) {
-        const currentScheme = vault.scheme;
-        const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-        const plan = app.subscription.name.toUpperCase();
-        const subscriptionScheme: VaultScheme = SUBSCRIPTION_SCHEME_MAP[plan];
+      let shouldAddToUaiStack = false;
+      if (confirmedBackups.length > 0) {
+        const lastConfirmBackup = confirmedBackups.sort((a, b) => b.date - a.date)[0];
+        const latestConfirmedBackupDate = new Date(lastConfirmBackup.date * 1000);
+        const lastHealthCheck = isTestnet()
+          ? healthCheckReminderHours(latestConfirmedBackupDate)
+          : healthCheckReminderDays(latestConfirmedBackupDate);
 
-        const migrationUai = dbManager.getObjectByField(
+        shouldAddToUaiStack = lastHealthCheck >= healthCheckReminderThreshold;
+        if (lastHealthCheck < healthCheckReminderThreshold) {
+          const uaiRecoveryPhraseHC: UAI[] = dbManager.getObjectByField(
+            RealmSchema.UAI,
+            uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+            'uaiType'
+          );
+          if (uaiRecoveryPhraseHC) {
+            yield put(uaiActioned({ uaiId: uaiRecoveryPhraseHC[0].id, action: true }));
+          }
+        }
+      } else {
+        shouldAddToUaiStack = true; // If no confirmed backups, we should add to UAI stack.
+      }
+
+      // Check to add to UAI stack only if needed.
+      if (shouldAddToUaiStack) {
+        const uaiCollection: UAI[] = dbManager.getObjectByField(
           RealmSchema.UAI,
-          uaiType.VAULT_MIGRATION,
+          uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
           'uaiType'
-        )[0];
+        );
 
-        if (currentScheme.m > subscriptionScheme.m || currentScheme.m < subscriptionScheme.m) {
-          if (!migrationUai) {
-            yield put(
-              addToUaiStack({
-                title: 'To use the Vault, reconfigure signing device',
-                isDisplay: false,
-                uaiType: uaiType.VAULT_MIGRATION,
-                prirority: 100,
-              })
-            );
-          } else {
-            yield put(uaiActioned(migrationUai.id, false));
-          }
-        } else if (migrationUai) {
-          yield put(uaiActioned(migrationUai.id));
+        if (!uaiCollection || uaiCollection.length === 0) {
+          yield put(
+            addToUaiStack({
+              uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+            })
+          );
         }
       }
-    }
 
+      yield put(setRefreshUai());
+    }
     if (checkForTypes.includes(uaiType.DEFAULT)) {
-      const defaultUai = dbManager.getObjectByField(RealmSchema.UAI, uaiType.DEFAULT, 'uaiType')[0];
-      if (!defaultUai) {
+      const defaultUAI: UAI = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.DEFAULT,
+        'uaiType'
+      )[0];
+
+      if (!defaultUAI) {
         yield put(
           addToUaiStack({
-            title: 'Make sure your signing devices are safe and accessible',
-            isDisplay: false,
             uaiType: uaiType.DEFAULT,
-            prirority: 10,
           })
         );
       }
     }
   } catch (err) {
-    console.log(err);
-  }
-}
-
-function* uaiActionedEntityWorker({ payload }) {
-  const { entityId, action } = payload;
-  const uai: UAI | any = dbManager.getObjectByField(RealmSchema.UAI, entityId, 'entityId')[0];
-  if (uai) {
-    yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, { isActioned: action });
-    yield put(setRefreshUai());
+    console.error(err);
+  } finally {
+    const UAIs: UAI = dbManager.getCollection(RealmSchema.UAI);
+    yield put(createUaiMap(UAIs));
   }
 }
 
 export const uaiChecksWatcher = createWatcher(uaiChecksWorker, UAI_CHECKS);
 export const addUaiStackWatcher = createWatcher(addToUaiStackWorker, ADD_TO_UAI_STACK);
 export const uaiActionedWatcher = createWatcher(uaiActionedWorker, UAI_ACTIONED);
-export const uaiActionedEntityWatcher = createWatcher(uaiActionedEntityWorker, UAI_ACTIONED_ENTITY);

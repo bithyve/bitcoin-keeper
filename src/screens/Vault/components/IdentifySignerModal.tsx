@@ -4,16 +4,19 @@ import { Box, useColorMode } from 'native-base';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import Text from 'src/components/KeeperText';
+import useVault from 'src/hooks/useVault';
 
-const IdentifySignerModal = ({ visible, close, signer, secondaryCallback }) => {
+function IdentifySignerModal({ visible, close, signer, secondaryCallback, vaultId }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+
+  const { activeVault } = useVault({ vaultId });
   const Content = useCallback(() => {
     return (
       <Box alignItems="center">
         <WarningIllustration />
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
             {
               'The signing process will be smoother if you identify your signer type correctly.\n\nYou can always chang it from the device settings > advance options > assign signer type.'
             }
@@ -29,8 +32,7 @@ const IdentifySignerModal = ({ visible, close, signer, secondaryCallback }) => {
       CommonActions.navigate({
         name: 'AssignSignerType',
         params: {
-          parentNavigation: navigation,
-          signer,
+          vault: activeVault,
         },
       })
     );
@@ -56,6 +58,6 @@ const IdentifySignerModal = ({ visible, close, signer, secondaryCallback }) => {
       buttonCallback={callback}
     />
   );
-};
+}
 
 export default IdentifySignerModal;

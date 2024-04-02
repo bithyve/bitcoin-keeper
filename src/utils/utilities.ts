@@ -1,5 +1,10 @@
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { Alert } from 'react-native';
+import moment from 'moment';
+import idx from 'idx';
+
+import { VaultType, WalletType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -119,3 +124,70 @@ export const crossInteractionHandler = (error): string => {
 
 export const getBackupDuration = () =>
   config.ENVIRONMENT === APP_STAGE.PRODUCTION ? 1.555e7 : 1800;
+
+export const emailCheck = (email) => {
+  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+  return reg.test(email);
+};
+
+export function numberToOrdinal(cardinal) {
+  const ordinals = [
+    'Zeroth',
+    'First',
+    'Second',
+    'Third',
+    'Fourth',
+    'Fifth',
+    'Sixth',
+    'Seventh',
+    'Eighth',
+    'Ninth',
+    'Tenth',
+    'Eleventh',
+    'Twelfth',
+    'Thirteenth',
+    'Fourteenth',
+    'Fifteenth',
+    'Sixteenth',
+    'Seventeenth',
+    'Eighteenth',
+    'Nineteenth',
+    'Twentieth',
+  ];
+
+  if (cardinal < 0 || cardinal >= ordinals.length) {
+    return '';
+  }
+
+  return ordinals[cardinal];
+}
+
+// Format number with comma
+// Example: 1000000 => 1,000,000
+export const formatNumber = (value: string) =>
+  value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+export const getTimeDifferenceInWords = (pastTime) => {
+  const timeDifference = moment(pastTime).fromNow();
+  if (timeDifference === 'Invalid date' || pastTime === undefined) {
+    return 'Never accessed';
+  } else {
+    return timeDifference.charAt(0).toUpperCase() + timeDifference.slice(1);
+  }
+};
+
+export const getWalletTags = (walletType) => {
+  if (walletType === VaultType.COLLABORATIVE) {
+    return [`${walletType === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`, `2 of 3`];
+  } else {
+    let walletKind;
+    if (walletType === WalletType.DEFAULT) walletKind = 'HOT WALLET';
+    else if (walletType === WalletType.IMPORTED) {
+      const isWatchOnly = !idx(walletType as Wallet, (_) => _.specs.xpriv);
+      if (isWatchOnly) walletKind = 'WATCH ONLY';
+      else walletKind = 'IMPORTED WALLET';
+    }
+
+    return ['SINGLE-KEY', walletKind];
+  }
+};

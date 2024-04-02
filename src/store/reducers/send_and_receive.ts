@@ -2,12 +2,12 @@ import {
   SerializedPSBTEnvelop,
   SigningPayload,
   TransactionPrerequisite,
-} from 'src/core/wallets/interfaces/';
+} from 'src/services/wallets/interfaces';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { Satoshis } from 'src/models/types/UnitAliases';
 import TransactionFeeSnapshot from 'src/models/types/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/enums';
+import { TxPriority } from 'src/services/wallets/enums';
 import idx from 'idx';
 
 export interface SendPhaseOneExecutedPayload {
@@ -46,7 +46,7 @@ export interface SendPhaseTwoExecutedPayload {
 export interface UpdatePSBTPayload {
   signedSerializedPSBT?: string;
   signingPayload?: SigningPayload[];
-  signerId: string;
+  xfp: string;
   txHex?: string;
 }
 
@@ -234,11 +234,11 @@ const sendAndReceiveSlice = createSlice({
     },
 
     updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
-      const { signerId, signingPayload, signedSerializedPSBT, txHex } = action.payload;
+      const { xfp, signingPayload, signedSerializedPSBT, txHex } = action.payload;
       state.sendPhaseTwo = {
         ...state.sendPhaseTwo,
         serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
-          if (envelop.signerId === signerId) {
+          if (envelop.xfp === xfp) {
             envelop.serializedPSBT = signedSerializedPSBT || envelop.serializedPSBT;
             envelop.isSigned =
               signedSerializedPSBT ||

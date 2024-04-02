@@ -1,6 +1,5 @@
-import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 import { HCESession, NFCTagType4NDEFContentType, NFCTagType4 } from 'react-native-hce';
-
+import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 import { Platform } from 'react-native';
 import { captureError } from '../sentry';
 

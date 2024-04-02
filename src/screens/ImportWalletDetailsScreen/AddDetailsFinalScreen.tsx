@@ -13,9 +13,9 @@ import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
+import config from 'src/utils/service-utilities/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
 import { parseInt } from 'lodash';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
@@ -23,6 +23,13 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { v4 as uuidv4 } from 'uuid';
+
+const derivationPurposeToLabel = {
+  [DerivationPurpose.BIP84]: 'P2WPKH: native segwit, single-sig',
+  [DerivationPurpose.BIP49]: 'P2SH-P2WPKH: wrapped segwit, single-sig',
+  [DerivationPurpose.BIP44]: 'P2PKH: legacy, single-sig',
+  [DerivationPurpose.BIP86]: 'P2TR: taproot, single-sig',
+};
 
 function AddDetailsFinalScreen({ route }) {
   const navigation = useNavigation();
@@ -32,24 +39,26 @@ function AddDetailsFinalScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { home, importWallet } = translations;
   const [arrow, setArrow] = useState(false);
-  const [showPurpose, setShowPurpose] = useState(false);
-  const [purposeList, setPurposeList] = useState([
-    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-    { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
-    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
-  ]);
-  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
-  const [purposeLbl, setPurposeLbl] = useState('P2WPKH: native segwit, single-sig');
-  const [path, setPath] = useState(
-    route.params?.path
-      ? route.params?.path
-      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
-  );
+
+  const { importedKey, importedKeyDetails } = route.params;
   const [walletType, setWalletType] = useState(route.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route.params?.seed);
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
   const [transferPolicy, setTransferPolicy] = useState(route.params?.policy);
+
+  const [showPurpose, setShowPurpose] = useState(false);
+  const [purposeList, setPurposeList] = useState([
+    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
+    { label: 'P2SH-P2WPKH: wrapped segwit, single-sig', value: DerivationPurpose.BIP49 },
+    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
+    { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
+  ]);
+  const [purpose, setPurpose] = useState(importedKeyDetails?.purpose || DerivationPurpose.BIP84);
+  const [purposeLbl, setPurposeLbl] = useState(derivationPurposeToLabel[purpose]);
+  const [path, setPath] = useState(
+    route.params?.path ||
+      WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+  );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
   );
@@ -61,38 +70,38 @@ function AddDetailsFinalScreen({ route }) {
       EntityKind.WALLET,
       config.NETWORK_TYPE,
       0,
-      Number(purpose)
+      purpose
     );
     setPath(path);
   }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
-    //TODO: remove this timeout once the crypto is optimised
-    setTimeout(() => {
-      const derivationConfig: DerivationConfig = {
-        path,
-        purpose: Number(purpose),
-      };
-
-      const newWallet: NewWalletInfo = {
-        walletType,
-        walletDetails: {
-          name: walletName,
-          description: walletDescription,
-          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-          transferPolicy: {
-            id: uuidv4(),
-            threshold: parseInt(transferPolicy),
-          },
+    const derivationConfig: DerivationConfig = {
+      path,
+      purpose,
+    };
+    const newWallet: NewWalletInfo = {
+      walletType,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
+        derivationConfig: {
+          path,
+          purpose,
         },
-        importDetails: {
-          derivationConfig,
-          mnemonic: importedSeed,
+        transferPolicy: {
+          id: uuidv4(),
+          threshold: parseInt(transferPolicy),
         },
-      };
-      dispatch(addNewWallets([newWallet]));
-    }, 200);
+      },
+      importDetails: {
+        importedKey,
+        importedKeyDetails,
+        derivationConfig,
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, transferPolicy, path]);
 
   useEffect(() => {
@@ -145,6 +154,7 @@ function AddDetailsFinalScreen({ route }) {
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
                 maxLength={20}
+                editable={false}
               />
             </Box>
             <TouchableOpacity onPress={onDropDownClick}>

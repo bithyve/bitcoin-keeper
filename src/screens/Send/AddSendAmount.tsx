@@ -1,13 +1,5 @@
 import Text from 'src/components/KeeperText';
-import {
-  Box,
-  // HStack,
-  Input,
-  KeyboardAvoidingView,
-  Pressable,
-  useColorMode,
-  // VStack,
-} from 'native-base';
+import { Box, HStack, Input, KeyboardAvoidingView, Pressable, useColorMode } from 'native-base';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -19,14 +11,14 @@ import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
@@ -34,16 +26,19 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { Satoshis } from 'src/models/types/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
-import { UTXO } from 'src/core/wallets/interfaces';
-import config from 'src/core/config';
-import { EntityKind, TxPriority } from 'src/core/wallets/enums';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+import { UTXO } from 'src/services/wallets/interfaces';
+import config from 'src/utils/service-utilities/config';
+import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import WalletSendInfo from './WalletSendInfo';
 // import LabelItem from '../UTXOManagement/components/LabelItem';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Fonts from 'src/constants/Fonts';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -84,7 +79,7 @@ function AddSendAmount({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const { getBalance, getCurrencyIcon } = useBalance();
+  const { getCurrencyIcon, getSatUnit } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
 
   function convertFiatToSats(fiatAmount: number) {
@@ -114,14 +109,17 @@ function AddSendAmount({ route }) {
     if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
     if (haveSelectedUTXOs) {
-      if (availableToSpend < Number(amountToSend))
+      if (availableToSpend < Number(amountToSend)) {
         setErrorMessage('Please select enough UTXOs to send');
-      else if (availableToSpend < Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired)))
+      } else if (
+        availableToSpend <
+        Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired))
+      ) {
         setErrorMessage('Please select enough UTXOs to accommodate fee');
-      else setErrorMessage('');
-    } else if (availableToSpend < Number(amountToSend))
+      } else setErrorMessage('');
+    } else if (availableToSpend < Number(amountToSend)) {
       setErrorMessage('Amount entered is more than available to spend');
-    else setErrorMessage('');
+    } else setErrorMessage('');
   }, [amountToSend, selectedUTXOs.length]);
 
   const onSendMax = (sendMaxFee, selectedUTXOs) => {
@@ -187,9 +185,9 @@ function AddSendAmount({ route }) {
     if (sendPhaseOneState.isSuccessful) {
       navigateToNext();
     } else if (sendPhaseOneState.hasFailed) {
-      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
-        showToast('You have insufficient balance at this time.', null, 1000);
-      else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
+        showToast('You have insufficient balance at this time.');
+      } else showToast(sendPhaseOneState.failedErrorMessage);
     }
   }, [sendPhaseOneState]);
   useEffect(
@@ -228,6 +226,13 @@ function AddSendAmount({ route }) {
   //   labelsToAdd.splice(index, 1);
   //   setLabelsToAdd([...labelsToAdd]);
   // };
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else {
+      return <WalletIcon />;
+    }
+  };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -236,32 +241,30 @@ function AddSendAmount({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
         style={styles.Container}
       >
-        <Box style={styles.HeaderContainer}>
-          <Box style={styles.headerWrapper}>
-            <KeeperHeader
-              title={
-                transferType === TransferType.WALLET_TO_WALLET
-                  ? `Sending to Wallet`
-                  : `Enter the Amount`
-              }
+        <KeeperHeader
+          title={
+            transferType === TransferType.WALLET_TO_WALLET
+              ? `Sending to Wallet`
+              : `Enter the Amount`
+          }
+          subtitle={`From ${sender.presentationData.name}`}
+          marginLeft={false}
+          rightComponent={<CurrencyTypeSwitch />}
+          icon={
+            <HexagonIcon
+              width={44}
+              height={38}
+              backgroundColor={Colors.pantoneGreen}
+              icon={<WalletIcon />}
             />
-          </Box>
-          <Box style={styles.currentTypeSwitchWrapper}>
-            <CurrencyTypeSwitch />
-          </Box>
-        </Box>
-        <Box
-          style={{
-            marginVertical: hp(5),
-          }}
-        >
-          <Box style={styles.sendingFromWrapper}>
-            <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>{walletTranslation.sendingFrom}</Text>
-          </Box>
+          }
+        />
+        <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
+            icon={getWalletIcon(sender)}
             availableAmt={sender?.specs.balances.confirmed}
-            walletName={sender?.presentationData.name}
+            walletName={recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
           />
@@ -279,7 +282,7 @@ function AddSendAmount({ route }) {
           >
             {errorMessage && (
               <Text
-                color="light.indicator"
+                color={`${colorMode}.indicator`}
                 style={{
                   fontSize: 10,
                   letterSpacing: 0.1,
@@ -313,7 +316,7 @@ function AddSendAmount({ route }) {
                   backgroundColor={`${colorMode}.seashellWhite`}
                   placeholder="Enter Amount"
                   placeholderTextColor={`${colorMode}.greenText`}
-                  width="90%"
+                  width="80%"
                   fontSize={14}
                   fontWeight={300}
                   opacity={amount ? 1 : 0.5}
@@ -334,37 +337,44 @@ function AddSendAmount({ route }) {
                   keyboardType="decimal-pad"
                 />
               </Box>
-              <Pressable
-                onPress={() => {
-                  const confirmBalance = sender.specs.balances.confirmed;
-                  if (confirmBalance) {
-                    if (sendMaxFee) {
-                      onSendMax(sendMaxFee, selectedUTXOs);
-                      return;
-                    }
-                    dispatch(
-                      calculateSendMaxFee({
-                        numberOfRecipients: recipientCount,
-                        wallet: sender,
-                        selectedUTXOs,
-                      })
-                    );
-                  }
-                }}
-                borderColor={`${colorMode}.learnMoreBorder`}
-                backgroundColor={`${colorMode}.accent`}
-                style={styles.sendMaxWrapper}
-              >
-                <Text
-                  testID="text_sendmax"
-                  color={`${colorMode}.sendMax`}
-                  style={styles.sendMaxText}
-                >
-                  Send Max
+              <HStack style={styles.inputInnerStyle}>
+                <Text semiBold color={`${colorMode}.divider`}>
+                  {getSatUnit() && `| ${getSatUnit()}`}
                 </Text>
-              </Pressable>
-            </Box>
 
+                <Pressable
+                  onPress={() => {
+                    const confirmBalance = sender.specs.balances.confirmed;
+                    if (confirmBalance) {
+                      if (sendMaxFee) {
+                        onSendMax(sendMaxFee, selectedUTXOs);
+                        return;
+                      }
+                      dispatch(
+                        calculateSendMaxFee({
+                          numberOfRecipients: recipientCount,
+                          wallet: sender,
+                          selectedUTXOs,
+                        })
+                      );
+                    }
+                  }}
+                  borderColor={`${colorMode}.BrownNeedHelp`}
+                  backgroundColor={`${colorMode}.BrownNeedHelp`}
+                  style={styles.sendMaxWrapper}
+                  testID="btn_sendMax"
+                >
+                  <Text
+                    testID="text_sendmax"
+                    color={`${colorMode}.seashellWhite`}
+                    style={styles.sendMaxText}
+                    medium
+                  >
+                    Send Max
+                  </Text>
+                </Pressable>
+              </HStack>
+            </Box>
             <Box
               backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
@@ -492,7 +502,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(10),
     paddingVertical: hp(3),
     borderRadius: 5,
-    borderWidth: 1
+    borderWidth: 1,
+  },
+  inputInnerStyle: {
+    gap: 2,
+    alignItems: 'center',
+    marginLeft: -20,
   },
   sendMaxText: {
     fontSize: 12,
@@ -539,25 +554,14 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     flexWrap: 'wrap',
   },
-  HeaderContainer: {
-    flexDirection: 'row',
-    width: '100%',
-  },
-  headerWrapper: {
-    width: '75%',
-  },
+
   currentTypeSwitchWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
     width: '25%',
   },
   sendingFromWrapper: {
-    marginLeft: wp(20)
+    marginLeft: wp(20),
   },
-  sendingFromText: {
-    fontSize: 12,
-    fontFamily: Fonts.FiraSansCondensedRegular,
-    letterSpacing: 0.80,
-  }
 });
 export default AddSendAmount;

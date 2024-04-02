@@ -2,9 +2,9 @@
 import { Alert } from 'react-native';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import { captureError } from 'src/services/sentry';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { ScriptTypes, XpubTypes } from 'src/core/wallets/enums';
-import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { ScriptTypes, XpubTypes } from 'src/services/wallets/enums';
+import { VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 
 const getScriptSpecificDetails = async (card, cvc, isMultisig) => {
   const xpubDetails: XpubDetailsType = {};
@@ -22,7 +22,7 @@ const getScriptSpecificDetails = async (card, cvc, isMultisig) => {
   const xfp = await card.get_xfp(cvc);
   const xpub = isMultisig ? multiSigXpub : singleSigXpub;
   const derivationPath = isMultisig ? multiSigPath : singleSigPath;
-  return { xpub, xfp: xfp.toString('hex'), derivationPath, xpubDetails };
+  return { xpub, masterFingerprint: xfp.toString('hex'), derivationPath, xpubDetails };
 };
 
 export const getTapsignerDetails = async (card: CKTapCard, cvc: string, isMultisig: boolean) => {
@@ -30,25 +30,22 @@ export const getTapsignerDetails = async (card: CKTapCard, cvc: string, isMultis
   const isLegit = await card.certificate_check();
   if (isLegit) {
     if (status.path) {
-      const { xpub, xfp, derivationPath, xpubDetails } = await getScriptSpecificDetails(
-        card,
-        cvc,
-        isMultisig
-      );
+      const { xpub, masterFingerprint, derivationPath, xpubDetails } =
+        await getScriptSpecificDetails(card, cvc, isMultisig);
       // reset to original path
       await card.set_derivation(status.path, cvc);
-      return { xpub, xfp, derivationPath, xpubDetails };
+      return { xpub, masterFingerprint, derivationPath, xpubDetails };
     }
     await card.setup(cvc);
     const newCard = await card.first_look();
-    const { xpub, xfp, derivationPath, xpubDetails } = await getScriptSpecificDetails(
+    const { xpub, masterFingerprint, derivationPath, xpubDetails } = await getScriptSpecificDetails(
       newCard,
       cvc,
       isMultisig
     );
     // reset to original path
     await card.set_derivation(status.path, cvc);
-    return { xpub, xfp, derivationPath, xpubDetails };
+    return { xpub, masterFingerprint, derivationPath, xpubDetails };
   }
 };
 
@@ -86,7 +83,6 @@ export const signWithTapsigner = async (
   const status = await card.first_look();
   try {
     if (status.path) {
-      // eslint-disable-next-line no-restricted-syntax
       for (const input of inputsToSign) {
         const digest = Buffer.from(input.digest, 'hex');
         const subpath = input.subPath;

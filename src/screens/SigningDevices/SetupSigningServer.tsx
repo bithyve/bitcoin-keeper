@@ -1,10 +1,10 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
@@ -21,12 +21,13 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
 import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
-import SigningServer from 'src/services/operations/SigningServer';
+import SigningServer from 'src/services/backend/SigningServer';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupSigningServer({ route }: { route }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -36,9 +37,9 @@ function SetupSigningServer({ route }: { route }) {
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
+  const { policy, addSignerFlow = false } = route.params;
 
   const registerSigningServer = async () => {
-    const { policy } = route.params;
     try {
       const { setupData } = await SigningServer.register(policy);
       setSetupData(setupData);
@@ -66,22 +67,27 @@ function SetupSigningServer({ route }: { route }) {
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
     const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
-    const signingServerKey = generateSignerFromMetaData({
+    const { signer: signingServerKey } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
-      signerId: id,
+      xfp: id,
       signerPolicy: policy,
     });
 
-    dispatch(addSigningDevice(signingServerKey));
-    navigation.dispatch(
-      CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+    dispatch(addSigningDevice([signingServerKey]));
+    const navigationState = addSignerFlow
+      ? { name: 'ManageSigners' }
+      : { name: 'AddSigningDevice', merge: true, params: {} };
+    navigation.dispatch(CommonActions.navigate(navigationState));
+    showToast(
+      `${signingServerKey.signerName} added successfully`,
+      <TickIcon />,
+      IToastCategory.SIGNING_DEVICE
     );
-    showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 
   useEffect(() => {
@@ -127,7 +133,7 @@ function SetupSigningServer({ route }: { route }) {
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color="light.greenText">
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -139,7 +145,7 @@ function SetupSigningServer({ route }: { route }) {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -147,10 +153,10 @@ function SetupSigningServer({ route }: { route }) {
   }, [otp]);
 
   return (
-    <View style={styles.Container} background="light.secondaryBackground">
+    <View style={styles.Container} background={`${colorMode}.secondaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box>
-        <KeeperHeader title="Set up 2FA for Signing Server" subtitle="Scan on any 2FA auth app" />
+        <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
         {validationKey === '' ? (
@@ -171,17 +177,17 @@ function SetupSigningServer({ route }: { route }) {
               logoBackgroundColor="transparent"
               size={hp(200)}
             />
-            <Box background="light.QrCode" height={6} width="100%" justifyContent="center">
+            <Box background={`${colorMode}.QrCode`} height={6} width="100%" justifyContent="center">
               <Text
                 textAlign="center"
-                color="light.recieverAddress"
+                color={`${colorMode}.recieverAddress`}
                 bold
                 fontSize={12}
                 letterSpacing={1.08}
                 width="100%"
                 numberOfLines={1}
               >
-                2FA Signing Server
+                2FA signer
               </Text>
             </Box>
             <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
@@ -190,7 +196,7 @@ function SetupSigningServer({ route }: { route }) {
                 width="90%"
                 alignItems="center"
                 justifyContent="space-between"
-                backgroundColor="light.textInputBackground"
+                backgroundColor={`${colorMode}.textInputBackground`}
                 borderBottomLeftRadius={10}
                 borderTopLeftRadius={10}
               >
@@ -205,7 +211,7 @@ function SetupSigningServer({ route }: { route }) {
                   }}
                 >
                   <Box
-                    backgroundColor="light.copyBackground"
+                    backgroundColor={`${colorMode}.copyBackground`}
                     padding={3}
                     borderTopRightRadius={10}
                     borderBottomRightRadius={10}
@@ -245,8 +251,8 @@ function SetupSigningServer({ route }: { route }) {
           showValidationModal(false);
         }}
         title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signing server"
-        textColor="light.primaryText"
+        subTitle="To complete setting up the signer"
+        textColor={`${colorMode}.primaryText`}
         Content={otpContent}
       />
     </View>
