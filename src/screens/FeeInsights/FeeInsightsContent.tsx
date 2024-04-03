@@ -4,7 +4,7 @@ import { windowWidth } from 'src/constants/responsive';
 import FeeGraph from './FeeGraph';
 import Text from 'src/components/KeeperText';
 import FeeDataStats from './FeeDataStats';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import { useColorMode } from 'native-base';
 import { calculateAverageBlockTime, generateFeeInsightStatement } from 'src/utils/feeInisghtUtil';
 import Fonts from 'src/constants/Fonts';

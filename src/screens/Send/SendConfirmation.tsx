@@ -55,6 +55,7 @@ import useOneDayInsight from 'src/hooks/useOneDayInsight';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import Fonts from 'src/constants/Fonts';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,

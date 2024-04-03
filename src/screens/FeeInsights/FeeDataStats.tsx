@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import Text from 'src/components/KeeperText';
 import { useColorMode } from 'native-base';
 import { useAppSelector } from 'src/store/hooks';

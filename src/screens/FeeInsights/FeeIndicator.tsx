@@ -17,8 +17,8 @@ const FeeIndicator = (props: Props) => {
   const segments = [
     {
       scale: 1,
-      filledColor: customTheme.colors[colorMode].GreenishGrey,
-      emptyColor: customTheme.colors[colorMode].GreenishGrey,
+      filledColor: customTheme.colors[colorMode].DarkSage,
+      emptyColor: customTheme.colors[colorMode].DarkSage,
       data: { label: 'LOW' },
     },
   ];
