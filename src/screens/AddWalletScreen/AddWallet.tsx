@@ -148,6 +148,10 @@ function AddWallet({ navigation }) {
         learnMore
         learnMoreTitle={common.needMoreHelp}
         // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+        buttonText={common.continue}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonCallback={() => setVisibleModal(false)}
       />
     </ScreenWrapper>
   );
