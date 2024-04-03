@@ -81,7 +81,6 @@ function AddWallet({ navigation }) {
     selectCard(id);
   };
 
-  // TODO: add learn more modal
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
