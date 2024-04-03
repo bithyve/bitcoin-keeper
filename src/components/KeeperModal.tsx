@@ -38,6 +38,7 @@ type ModalProps = {
   dismissible?: boolean;
   showButtons?: boolean;
   learnMore?: boolean;
+  learnMoreTitle?: string;
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
@@ -64,6 +65,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
+  learnMoreTitle: 'See FAQs',
   learnMoreCallback: () => {},
   closeOnOverlayClick: true,
   showCloseIcon: true,
@@ -92,6 +94,7 @@ function KeeperModal(props: ModalProps) {
     dismissible,
     showButtons,
     learnMore,
+    learnMoreTitle,
     learnMoreCallback,
     secButtonTextColor,
     closeOnOverlayClick,
@@ -162,7 +165,7 @@ function KeeperModal(props: ModalProps) {
                     >
                       <Pressable onPress={learnMoreCallback}>
                         <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
-                          See FAQs
+                          {learnMoreTitle}
                         </Text>
                       </Pressable>
                     </Box>
