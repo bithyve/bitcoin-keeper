@@ -98,7 +98,8 @@
     "showAsQR": "Show as QR",
     "addNow": "ADD NOW",
     "runHealthCheck": "Run Health Check",
-    "needMoreHelp": "Need more help?"
+    "needMoreHelp": "Need more help?",
+    "action": "Action"
   },
   "noInternet": {
     "no": "No Internet",
@@ -108,8 +109,7 @@
     "some": "Some of the features will not work as expected in your Hexa app, including:",
     "fetching": "fetching your balance and transactions",
     "sending": "sending sats",
-    "contact": "contact requests",
-    "action": "Action"
+    "contact": "contact requests"
   },
   "login": {
     "login": "Login",
