@@ -1,5 +1,5 @@
 import { Animated, Modal, Platform, StyleSheet } from 'react-native';
-import { Pressable, View } from 'native-base';
+import { Pressable, useColorMode, View } from 'native-base';
 
 import NFCSVG from 'src/assets/images/nfc.svg';
 import React from 'react';
@@ -8,6 +8,7 @@ import { windowWidth } from 'src/constants/responsive';
 import NFC from 'src/services/nfc';
 
 function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaText?: string }) {
+  const { colorMode } = useColorMode();
   const animation = React.useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'ios') {
@@ -59,13 +60,13 @@ function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaTe
       <View style={[styles.wrapper]}>
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
-          <View style={styles.center} backgroundColor="light.secondaryBackground">
+          <View style={styles.center} backgroundColor={`${colorMode}.secondaryBackground`}>
             <NFCSVG />
-            <Text color="light.greenText" style={{ textAlign: 'center' }}>
+            <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>
               Please hold until the scanning is complete...
             </Text>
             <Pressable style={styles.cancel} onPress={onCancel}>
-              <Text color="light.greenText" style={{ textAlign: 'center' }}>
+              <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>
                 {ctaText || 'Cancel'}
               </Text>
             </Pressable>

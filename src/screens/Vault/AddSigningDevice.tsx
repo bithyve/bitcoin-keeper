@@ -4,12 +4,11 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Signer,
-  Vault,
   VaultScheme,
   VaultSigner,
   signerXpubs,
-} from 'src/core/wallets/interfaces/vault';
-import { NetworkType, SignerType, XpubTypes } from 'src/core/wallets/enums';
+} from 'src/services/wallets/interfaces/vault';
+import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -22,8 +21,8 @@ import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config from 'src/utils/service-utilities/config';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -35,6 +34,9 @@ import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
 import { SDIcons } from './SigningDeviceIcons';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import * as Sentry from '@sentry/react-native';
+import idx from 'idx';
 
 const { width } = Dimensions.get('screen');
 
@@ -120,9 +122,10 @@ const onSignerSelect = (
 };
 
 const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
-  const amfXpub = signer.signerXpubs[XpubTypes.AMF][0];
-  const ssXpub = signer.signerXpubs[XpubTypes.P2WPKH][0];
-  const msXpub = signer.signerXpubs[XpubTypes.P2WSH][0];
+  const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
+  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+
   if (
     (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
     (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
@@ -162,7 +165,6 @@ const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigne
 const setInitialKeys = (
   activeVault,
   scheme,
-  allVaults,
   signerMap,
   setVaultKeys,
   setSelectedSigners,
@@ -216,7 +218,6 @@ function Footer({
   common,
   colorMode,
   setCreating,
-  navigation,
 }) {
   const renderNotes = () => {
     const notes = [];
@@ -282,7 +283,6 @@ function Signers({
   showToast,
   navigation,
   vaultId,
-  allVaults,
   signerMap,
 }) {
   const renderSigners = () => {
@@ -317,6 +317,7 @@ function Signers({
               showToast
             )
           }
+          colorMode={colorMode}
         />
       );
     });
@@ -383,7 +384,7 @@ function AddSigningDevice() {
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
-  const { activeVault, allVaults } = useVault({ vaultId });
+  const { activeVault } = useVault({ vaultId });
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
     vaultKeys,
@@ -408,7 +409,6 @@ function AddSigningDevice() {
     setInitialKeys(
       activeVault,
       scheme,
-      allVaults,
       signerMap,
       setVaultKeys,
       setSelectedSigners,
@@ -468,7 +468,6 @@ function AddSigningDevice() {
         showToast={showToast}
         navigation={navigation}
         vaultId={vaultId}
-        allVaults={allVaults}
         signerMap={signerMap}
       />
       <Footer
@@ -482,7 +481,6 @@ function AddSigningDevice() {
         common={common}
         colorMode={colorMode}
         setCreating={setCreating}
-        navigation={navigation}
       />
     </ScreenWrapper>
   );
@@ -557,4 +555,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddSigningDevice;
+export default Sentry.withErrorBoundary(AddSigningDevice, errorBourndaryOptions);

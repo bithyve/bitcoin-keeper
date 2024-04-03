@@ -16,7 +16,7 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
   const { colorMode } = useColorMode();
 
   return (
-    <TouchableOpacity onPress={() => openLink(link)}>
+    <TouchableOpacity testID={`btn_${heading}`} onPress={() => openLink(link)}>
       <Box style={styles.NavButtonContainer} backgroundColor={`${colorMode}.seashellWhite`}>
         <Box style={styles.headingWrapper}>
           {icon}

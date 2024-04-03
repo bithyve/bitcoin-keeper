@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import { useColorMode } from 'native-base';
 import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
@@ -16,7 +17,6 @@ import KeeperLogo from 'src/assets/images/logo.svg';
 import TeamBithyve from 'src/assets/images/fromBithyve.svg';
 import Tagline from 'src/assets/images/tagline.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
-import { StyleSheet } from 'react-native';
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode } = useAppSelector((state) => state.settings);

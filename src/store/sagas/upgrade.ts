@@ -3,21 +3,21 @@ import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { Platform } from 'react-native';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
-import { LabelRefType, SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { genrateOutputDescriptors } from 'src/core/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import SigningServer from 'src/services/operations/SigningServer';
-import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
-import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
-import { generateExtendedKeysForCosigner } from 'src/core/wallets/factories/WalletFactory';
+import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
+import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import SigningServer from 'src/services/backend/SigningServer';
+import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
+import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
@@ -28,12 +28,16 @@ import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { captureError } from 'src/services/sentry';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import { addNewWhirlpoolWallets } from '../sagaActions/wallets';
+import { addWhirlpoolWalletsWorker } from './wallets';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
 export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
 export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
+export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -58,6 +62,9 @@ export function* applyUpgradeSequence({
   }
   if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION)) {
     yield call(updateAppKeysToEnableSigning);
+  }
+  if (semver.lt(previousVersion, WHIRLPOOL_WALLETS_RECREATION)) {
+    yield call(whirlpoolWalletsCreation);
   }
 
   yield put(setAppVersion(newVersion));
@@ -342,4 +349,35 @@ function updateSignerXpubs(signer, xpriv) {
       },
     ],
   };
+}
+
+function* whirlpoolWalletsCreation() {
+  try {
+    const Wallets: Wallet[] = dbManager.getCollection(RealmSchema.Wallet);
+    let depositWalletId; //undefined
+    const garbageIDs = [
+      hash256(`${depositWalletId}${WalletType.PRE_MIX}`),
+      hash256(`${depositWalletId}${WalletType.POST_MIX}`),
+      hash256(`${depositWalletId}${WalletType.BAD_BANK}`),
+    ];
+    for (const wallet of Wallets) {
+      //create new whirlpool wallets for missing config
+      if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails ?? false) {
+        const whirlpoolWalletIds = wallet.whirlpoolConfig.whirlpoolWalletDetails.map(
+          (detail) => detail.walletId
+        );
+        const whirlpoolWallets = Wallets.filter((walletItem) =>
+          whirlpoolWalletIds.includes(walletItem.id)
+        );
+        if (whirlpoolWallets.length < 3) {
+          yield call(addWhirlpoolWalletsWorker, { payload: { depositWallet: wallet } });
+        }
+      }
+      if (garbageIDs.includes(wallet.id)) {
+        dbManager.deleteObjectById(RealmSchema.Wallet, wallet.id);
+      }
+    }
+  } catch (err) {
+    console.log('Error in whirlpoolWalletsCreation:', err);
+  }
 }

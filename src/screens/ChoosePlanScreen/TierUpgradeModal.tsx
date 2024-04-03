@@ -40,7 +40,7 @@ function TierUpgradeModal({
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
       buttonText=""
-      buttonTextColor="light.white"
+      buttonTextColor={`${colorMode}.white`}
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={onPress}
       DarkCloseIcon={colorMode === 'dark'}

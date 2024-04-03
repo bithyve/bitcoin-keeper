@@ -250,8 +250,14 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions"
   },
+  "DiscountCodes": {
+    "DiscountCodesTitle": "Buy new Hardware Signers",
+    "DiscountCodesDescp": "Discount codes on popular hardware signers"
+  },
   "inheritence": {
     "SetupInheritance": "Setup Inheritance",
+    "SecurityAndInheritance": "Inheritance Planning",
+    "SecurityAndInheritanceDescp": "Tools and tips to secure your bitcoin",
     "Handdownyourbitcoin": "Hand down your bitcoin",
     "Chooseyourbeneficiarycarefully": "Make sure your legacy would be alive and glorious. Choose your beneficiary carefully.",
     "AssignBenificiary": "Assign Benificiary",
@@ -336,7 +342,7 @@
     "ViewDetails": "View Details",
     "ViewWallets": "View Wallets",
     "approveTransVault": "Approve Transfer to vault",
-    "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction attransaction, at 100,000 sats that needs your approval",
+    "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction at 100,000 sats that needs your approval",
     "TransNow": "Transfer Now",
     "AddWalletCosigner": "Add Wallet as co-signer",
     "AddWalletCosignerSubTitle": "You are about to add this wallet as a co-signer for a Keeper app vault.",
@@ -367,6 +373,7 @@
     "showXPub": "Show xPub",
     "showXPubSubTitle": "Use to create an external, watch-only wallet",
     "changeDerivationPath": "Change Derivation path",
+    "viewDerivationPath": "View Derivation path",
     "walletDetailsNote": "These settings are for your selected wallet only and does not affect other wallets",
     "walletXPubSubTitle": "Scan or copy the xPub in another app for generating new addresses and fetching balances",
     "xPubCopyToastMsg": "Xpub Copied Successfully",
@@ -391,7 +398,8 @@
     "editTransPolicyInfo": "This will trigger a transfer request which you need to approve",
     "transPolicyCantZero": "Transfer Policy cannot be zero",
     "updateWalletPath": "Update Wallet Path",
-    "qrofRecoveryPhrase": "The QR below comprises of your 12 word Recovery Phrase",
+    "viewWalletPath": "View Wallet Path",
+    "qrofRecoveryPhrase": "The QR below comprises of your 12 Wallet Seed Words",
     "changePathOfDefaultWallet": "You are changing the derivation path of Default Wallet",
     "changePathOfDefaultWalletSubTitle": "Derivation path changes should only be done by advanced users.",
     "changePathOfDefaultWalletPara01": "Changing the derivation path will mean that you will be using a completely new wallet. All the addresses and transactions will be reset to the new configuration",
@@ -477,13 +485,14 @@
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Recovery Phrase",
     "backupPhrase": "Recovery Key",
+    "walletSeedWords": "Wallet Seed Words",
     "enterRecoveryPhrase": "Recover an existing Keeper App",
     "enterRecoveryPhraseSubTitle": "Enter existing 12-word recovery phrase below",
     "enterRecoveryPhraseNote": "Make sure to use the 12-word recovery phrase in private",
     "recoverYourKeeperApp": "Recovering your Keeper app",
     "recoverYourKeeperAppSubTitle": "Recovering your wallets and vault for the Keeper app",
     "walletRecoveryPhrase": "Wallet Recovery Phrase",
-    "showXPubNoteSubText": "Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully.",
+    "showXPubNoteSubText": "Losing your Wallet Seed Words may result in permanent loss of funds. Store them carefully.",
     "mobileKeyVerified": "Mobile Key verified successfully",
     "seedWordVerified": "Seed Words verified successfully"
   },
@@ -611,8 +620,8 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition",
     "nodeSettings": "Node Settings",
     "nodeSettingsSubtitle": "Configure your node settings",
-    "SecurityAndLogin": "Security & Login",
-    "SecurityAndLoginSubtitle": "App improvement and ease of access",
+    "SecurityAndLogin": "App Access",
+    "SecurityAndLoginSubtitle": "Security, passcode and biometrics",
     "AppLevelSettings": "App-level settings",
     "nodeSettingUsedSoFar": "Node settings used so far",
     "connectToMyNode": "Connect to my node",
@@ -662,7 +671,9 @@
     "shareAnalyticsDesc": "No personal or bitcoin data is shared",
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
-    "changePasscodeDescription": "Easy to remember; hard to guess"
+    "changePasscodeDescription": "Easy to remember; hard to guess",
+    "deleteKeys": "Show and delete keys",
+    "deleteKeysSubtitle": "for hidden keys"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -727,7 +738,7 @@
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
     "recoveryPhrase": "Recovery Phrase",
     "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
-    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access."
+    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key."
   },
   "importWallet": {
     "addDetails": "Add details",
@@ -756,6 +767,7 @@
     "addSigner": "Add Signer",
     "addSignerSubTitle": "to Valinor",
     "addSigners": "Add Signers",
-    "addKeys": "Add keys"
+    "addKeys": "Add keys",
+    "keyDetails": "Key Details"
   }
 }

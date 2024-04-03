@@ -1,7 +1,7 @@
 import { RealmSchema } from 'src/storage/realm/enum';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { VaultType } from 'src/core/wallets/enums';
+import { VaultType } from 'src/services/wallets/enums';
 import { useQuery } from '@realm/react';
 
 const useCollaborativeWallet = () => {

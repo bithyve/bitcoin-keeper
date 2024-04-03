@@ -21,7 +21,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 
 const { width } = Dimensions.get('window');
 
@@ -64,7 +64,7 @@ function OnBoardingSlides({ navigation }) {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
-    <Box style={styles.container} backgroundColor="light.pantoneGreen">
+    <Box style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
@@ -72,6 +72,7 @@ function OnBoardingSlides({ navigation }) {
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={styles.skipTextWrapper}
+                testID="btn_skip"
               >
                 <Text color={`${colorMode}.white`} bold style={styles.skipText}>
                   Skip&nbsp;&nbsp;
@@ -106,10 +107,13 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}>
+              <TouchableOpacity
+                testID="btn_FAQ"
+                onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}
+              >
                 <Box
-                  borderColor="light.lightAccent"
-                  backgroundColor="light.modalGreenLearnMore"
+                  borderColor={`${colorMode}.lightAccent`}
+                  backgroundColor={`${colorMode}.modalGreenLearnMore`}
                   style={styles.seeFAQWrapper}
                 >
                   <Text color={`${colorMode}.accent`} bold style={styles.seeFAQText}>
@@ -139,9 +143,10 @@ function OnBoardingSlides({ navigation }) {
                         navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
                       }
                     }}
+                    testID="btn_startApp"
                   >
-                    <Box style={styles.cta} backgroundColor="light.white">
-                      <Text bold color="light.greenText" style={styles.startAppText}>
+                    <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
+                      <Text bold color={`${colorMode}.greenText`} style={styles.startAppText}>
                         Start App
                       </Text>
                     </Box>

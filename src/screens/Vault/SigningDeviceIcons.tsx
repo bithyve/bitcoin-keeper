@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
 import COLDCARDICONLIGHT from 'src/assets/images/coldcard_light.svg';
@@ -45,6 +45,7 @@ import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
+import { useColorMode } from 'native-base';
 
 const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
   if (isLight) {
@@ -54,6 +55,7 @@ const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
 };
 
 export const SDIcons = (type: SignerType, light = false) => {
+  const { colorMode } = useColorMode();
   switch (type) {
     case SignerType.COLDCARD:
       return {
@@ -72,7 +74,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Mobile Key
           </Text>
         ),
@@ -93,7 +95,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Mobile Key
           </Text>
         ),
@@ -109,7 +111,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Signing Server
           </Text>
         ),
@@ -149,7 +151,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Other signer
           </Text>
         ),
@@ -160,7 +162,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Unknonw Signer
           </Text>
         ),
@@ -170,7 +172,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Seed Key
           </Text>
         ),
@@ -180,7 +182,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Inheritance Key
           </Text>
         ),
@@ -197,7 +199,7 @@ export const SDIcons = (type: SignerType, light = false) => {
 
 const styles = StyleSheet.create({
   text: {
-    letterSpacing: 1.5,
     fontSize: 14,
+    letterSpacing: 0.14,
   },
 });

@@ -16,9 +16,9 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { TxPriority } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { TxPriority } from 'src/services/wallets/enums';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
 import Checked from 'src/assets/images/check.svg';
@@ -40,16 +40,18 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
-import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
+import { whirlPoolWalletTypes } from 'src/services/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
-import { UTXO } from 'src/core/wallets/interfaces';
+import { UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -74,7 +76,7 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       minHeight={hp(70)}
     >
       <Box
-        // backgroundColor="light.accent"
+        // backgroundColor={`${colorMode}.accent`}
         // height={10}
         // width={10}
         // borderRadius={20}
@@ -244,25 +246,6 @@ function TextValue({ amt, getValueIcon, inverted = false }) {
   );
 }
 
-function DeductAmount({ isSelected = true }) {
-  return (
-    <Box
-      flexDirection={'row'}
-      backgroundColor={'rgba(253, 247, 240, 1)'}
-      height={50}
-      alignItems={'center'}
-      paddingLeft={5}
-      marginTop={50}
-      borderRadius={10}
-    >
-      <Box paddingRight={2}>
-        {isSelected ? <Checked style={{ alignSelf: 'flex-end' }} /> : <Box style={styles.circle} />}
-      </Box>
-      <Text>Deduct Fees from Amount</Text>
-    </Box>
-  );
-}
-
 function SendingPriority({
   txFeeInfo,
   transactionPriority,
@@ -272,6 +255,7 @@ function SendingPriority({
   getBalance,
   getSatUnit,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box>
       <Box flexDirection={'row'}>
@@ -305,6 +289,7 @@ function SendingPriority({
                       height: 135,
                       opacity: transactionPriority === priority ? 1 : 0.5,
                     }}
+                    colorMode={colorMode}
                   />
                 </Box>
               </TouchableOpacity>
@@ -317,8 +302,6 @@ function SendingPriority({
         name="Custom Priority"
         callback={setVisibleCustomPriorityModal}
       />
-      {/* -------------- TODO Pratyaksh---------- */}
-      <DeductAmount isSelected={true} />
     </Box>
   );
 }
@@ -328,19 +311,19 @@ function SendingPriority({
 //     <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
 //       <VStack>
 //         <Text
-//           color="light.primaryText"
+//           color={`${colorMode}.primaryText`}
 //           fontSize={14}
 //           letterSpacing={1.12}
 //           marginTop={windowHeight * 0.011}
 //         >
 //           Fees
 //         </Text>
-//         <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} light>
+//         <Text color={`${colorMode}.primaryText`} fontSize={12} letterSpacing={1.12} light>
 //           ~ 10 - 30 mins
 //         </Text>
 //       </VStack>
 //       <Text
-//         color="light.primaryText"
+//         color={`${colorMode}.primaryText`}
 //         fontSize={14}
 //         letterSpacing={1.12}
 //         marginTop={windowHeight * 0.011}
@@ -415,13 +398,14 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
 }
 
 function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) {
+  const { colorMode } = useColorMode();
   return (
     <>
       <View style={{ marginVertical: 25 }}>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
         </Text>
-        <Text color="light.greenText" fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
           You can change the policy that triggers auto-transfer to suit your needs
         </Text>
       </View>
@@ -473,7 +457,7 @@ function TransactionPriorityDetails({
               <Box style={styles.transSatsFeeWrapper}>
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
-                <Text color={`${colorMode}.GreenishGrey`} style={styles.transSatsFeeText}>
+                <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
                   {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
                 </Text>
               </Box>
@@ -530,7 +514,9 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
           <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
         </Box>
       </Box>
-      <Box width={'70%'}>If not urgent, you could consider waiting for the fees to reduce</Box>
+      <Box width={'70%'}>
+        <Text fontSize={13}>If not urgent, you could consider waiting for the fees to reduce</Text>
+      </Box>
     </>
   );
 }
@@ -782,7 +768,7 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
-  const addNumbers = (str1, str2) => {
+  const addNumbers = (str1, str2): number => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
 
@@ -796,10 +782,10 @@ function SendConfirmation({ route }) {
       } else {
         // Handle invalid input
         console.error('Invalid input. Please provide valid numeric strings.');
-        return null;
+        return 0;
       }
     } else {
-      const sum = str1 + str2;
+      const sum = Number(str1) || 0 + Number(str2) || 0;
       return sum;
     }
   };
@@ -838,7 +824,10 @@ function SendConfirmation({ route }) {
         />
         {/* Custom priority diabled for auto transfer  */}
         {transferType !== TransferType.WALLET_TO_VAULT ? (
-          <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+          <TouchableOpacity
+            testID="btn_transactionPriority"
+            onPress={() => setTransPriorityModalVisible(true)}
+          >
             <TransactionPriorityDetails
               transactionPriority={transactionPriority}
               txFeeInfo={txFeeInfo}
@@ -899,8 +888,11 @@ function SendConfirmation({ route }) {
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewWallets}
         buttonCallback={viewDetails}
-        textcolor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <SendSuccessfulContent
             transactionPriority={transactionPriority}
@@ -916,7 +908,7 @@ function SendConfirmation({ route }) {
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
-        textcolor={`${colorMode}.greenText`}
+        textColor={`${colorMode}.greenText`}
         Content={() => (
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
@@ -933,6 +925,7 @@ function SendConfirmation({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics
@@ -984,7 +977,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={`Network fee is higher than the amount you are sending`}
+        subTitle={'Network fee is higher than 10% of the amount being sent'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1011,7 +1004,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter sats to pay per vbyte"
+          subTitle="Enter amount in sats"
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
@@ -1025,7 +1018,7 @@ function SendConfirmation({ route }) {
     </ScreenWrapper>
   );
 }
-export default SendConfirmation;
+export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   priorityRowContainer: {
@@ -1165,11 +1158,9 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
-    maxWidth: 85,
   },
   cardSubtitle: {
     fontSize: 12,
     letterSpacing: 0.72,
-    maxWidth: wp(100),
   },
 });

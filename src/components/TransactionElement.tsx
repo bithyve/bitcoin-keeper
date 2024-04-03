@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
 import { hp, wp } from 'src/constants/responsive';
-import { Transaction } from 'src/core/wallets/interfaces';
+import { Transaction } from 'src/services/wallets/interfaces';
 
 import IconSent from 'src/assets/images/icon_sent_red.svg';
 import IconRecieve from 'src/assets/images/icon_recieved_red.svg';
@@ -16,7 +16,7 @@ import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 
 function TransactionElement({
   transaction,
-  onPress = () => {},
+  onPress = () => { },
   index,
 }: {
   transaction: Transaction;
@@ -27,10 +27,10 @@ function TransactionElement({
   const date = moment(transaction?.date)?.format('DD MMM YY  •  HH:mm A');
 
   return (
-    <TouchableOpacity onPress={onPress} testID={`btn_transaction_${index}`}>
+    <TouchableOpacity onPress={onPress} testID={`btn_transaction_${transaction?.txid}`}>
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
-          <Box backgroundColor={`${colorMode}.Eggshell`} style={styles.circle}>
+          <Box backgroundColor={`${colorMode}.TransactionIconBackColor`} style={styles.circle}>
             {transaction.confirmations === 0 && (
               <Box style={styles.transaction}>
                 <TransactionPendingIcon />
@@ -39,11 +39,11 @@ function TransactionElement({
             {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
           </Box>
           <Box style={styles.transactionContainer}>
-            <Text color={`${colorMode}.GreenishGrey`} medium style={styles.transactionIdText}>
+            <Text color={`${colorMode}.secondaryText`} medium style={styles.transactionIdText}>
               {date}
             </Text>
             <Text
-              color={`${colorMode}.GreenishGrey`}
+              color={`${colorMode}.secondaryText`}
               numberOfLines={1}
               style={styles.transactionDate}
             >

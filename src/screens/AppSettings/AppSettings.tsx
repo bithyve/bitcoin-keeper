@@ -1,7 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { useQuery } from '@realm/react';
+import { CommonActions } from '@react-navigation/native';
+
+import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
@@ -15,28 +18,33 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
-import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
+import config, {
+  APP_STAGE,
+  KEEPER_KNOWLEDGEBASE,
+  KEEPER_WEBSITE_BASE_URL,
+} from 'src/utils/service-utilities/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { CommonActions } from '@react-navigation/native';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import { useAppSelector } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { setThemeMode } from 'src/store/reducers/settings';
+import ThemeMode from 'src/models/enums/ThemeMode';
 import BackupModalContent from './BackupModal';
+import { initialize, showMessaging } from '@robbywh/react-native-zendesk-messaging';
 
 function AppSettings({ navigation, route }) {
-  // const { colorMode } = useColorMode();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
 
   const { colorMode, toggleColorMode } = useColorMode();
+  const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
   const data = useQuery(RealmSchema.BackupHistory);
@@ -45,9 +53,23 @@ function AppSettings({ navigation, route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
 
+  useEffect(() => {
+    if (colorMode === 'dark') {
+      dispatch(setThemeMode(ThemeMode.DARK));
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT));
+    }
+  }, [colorMode]);
+
+  useEffect(() => {
+    initialize(config.ZENDESK_CHANNEL_ID);
+  }, []);
+
   const changeThemeMode = () => {
     toggleColorMode();
   };
+
+  const initChat = () => showMessaging();
 
   const actionCardData = [
     {
@@ -69,7 +91,10 @@ function AppSettings({ navigation, route }) {
     {
       cardName: `Need\nHelp?`,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
+      callback: () =>
+        config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
+          ? initChat()
+          : openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
   ];
 

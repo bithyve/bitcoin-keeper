@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -28,7 +28,7 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
@@ -37,7 +37,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
-import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -48,6 +48,7 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -117,7 +118,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <MobileKeyIllustration />,
         description:
           '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
-        FAQ: 'https://help.bitcoinkeeper.app/hc/en-us',
+        FAQ: KEEPER_KNOWLEDGEBASE,
       };
     case SignerType.SEED_WORDS:
       return {
@@ -136,7 +137,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <KeeperSetupImage />,
         description:
           '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
-        FAQ: '',
+        FAQ: KEEPER_KNOWLEDGEBASE,
       };
     case SignerType.POLICY_SERVER:
       return {
@@ -198,6 +199,8 @@ const getSignerContent = (type: SignerType) => {
 };
 
 function SigningDeviceDetails({ route }) {
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslations } = translations;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -236,7 +239,7 @@ function SigningDeviceDetails({ route }) {
       <Box>
         <Center>{assert}</Center>
         <Text
-          color="light.white"
+          color={`${colorMode}.modalGreenContent`}
           style={{
             fontSize: 13,
             letterSpacing: 0.65,
@@ -270,7 +273,7 @@ function SigningDeviceDetails({ route }) {
         width="12"
         height="12"
         borderRadius={30}
-        backgroundColor={`${colorMode}.RussetBrown`}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
         justifyContent="center"
         alignItems="center"
       >
@@ -293,6 +296,7 @@ function SigningDeviceDetails({ route }) {
               params: {
                 parentNavigation: navigation,
                 vault: activeVault,
+                signer,
               },
             })
           );
@@ -333,9 +337,10 @@ function SigningDeviceDetails({ route }) {
         learnMore
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
-        title={getSignerNameFromType(signer.type, signer.isMock, false)}
+        title={signerTranslations.keyDetails}
         subtitle={
-          signer.signerDescription || `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+          `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
+          `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
         icon={
           <CircleIconWrapper
@@ -379,14 +384,14 @@ function SigningDeviceDetails({ route }) {
         subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
         buttonText="Do Later"
         secondaryButtonText="Confirm Access"
-        buttonTextColor="light.white"
+        buttonTextColor={`${colorMode}.white`}
         buttonCallback={() => setSkipHealthCheckModalVisible(false)}
         secondaryCallback={() => {
           dispatch(healthCheckSigner([signer]));
           showToast('Device verified manually!');
           setSkipHealthCheckModalVisible(false);
         }}
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={HealthCheckSkipContent}
       />
       <KeeperModal

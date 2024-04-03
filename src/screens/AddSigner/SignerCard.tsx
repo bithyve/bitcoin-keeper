@@ -20,6 +20,7 @@ type SignerCardProps = {
   numberOfLines?: number;
   StaticIcon?: any;
   titleComp?: any;
+  colorMode: string;
 };
 
 function SignerCard({
@@ -37,10 +38,10 @@ function SignerCard({
   StaticIcon = null,
   numberOfLines = 1,
   customStyle,
+  colorMode,
 }: SignerCardProps) {
-  const { colorMode } = useColorMode();
   const backgroundColor =
-    colorVarient === 'brown' ? `${colorMode}.RussetBrown` : `${colorMode}.pantoneGreen`;
+    colorVarient === 'brown' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.pantoneGreen`;
 
   return (
     <Pressable
@@ -50,6 +51,7 @@ function SignerCard({
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
       }}
+      testID={`btn_${name}`}
     >
       <Box style={styles.selectionIcon}>
         {showSelection &&

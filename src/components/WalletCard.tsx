@@ -5,12 +5,13 @@ import Text from './KeeperText';
 type WalletCardProps = {
   id: number;
   walletName: string;
-  walletDescription: string;
+  walletDescription?: string;
   icon: Element;
   selectedIcon: Element;
   selectedCard: number;
   onCardSelect: (cardName: number) => void;
   arrowStyles: ViewStyle;
+  numberOfLines?: number;
 };
 
 function WalletCard({
@@ -22,20 +23,23 @@ function WalletCard({
   selectedCard,
   onCardSelect,
   arrowStyles,
+  numberOfLines = 1,
 }: WalletCardProps) {
   const { colorMode } = useColorMode();
   const isSelected = selectedCard === id;
 
   return (
-    <Pressable onPress={() => onCardSelect(id)}>
+    <Pressable testID={`btn_${walletName}`} onPress={() => onCardSelect(id)}>
       <Box
-        borderColor={`${colorMode}.Eggshell`}
+        borderColor={`${colorMode}.TransactionIconBackColor`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
         style={[styles.walletContainer, !isSelected && { opacity: 0.5 }]}
       >
         <Box style={styles.detailContainer}>
           <Box
-            backgroundColor={isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.RussetBrown`}
+            backgroundColor={
+              isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.BrownNeedHelp`
+            }
             style={styles.circle}
           >
             {isSelected ? selectedIcon : icon}
@@ -43,7 +47,7 @@ function WalletCard({
           <Box>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              numberOfLines={1}
+              numberOfLines={numberOfLines}
               style={styles.walletName}
               medium={isSelected}
             >

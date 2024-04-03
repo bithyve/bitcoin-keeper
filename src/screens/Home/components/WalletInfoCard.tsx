@@ -37,7 +37,8 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.PaleTurquoise`}
+              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`}
+              cardStyle={index % 2 !== 0 && styles.secondCard}
             />
           );
         })}
@@ -84,6 +85,9 @@ const styles = StyleSheet.create({
     gap: 15,
     marginBottom: 20,
     marginLeft: 10,
+  },
+  secondCard: {
+    maxWidth: wp(80),
   },
 });
 

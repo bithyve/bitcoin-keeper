@@ -12,16 +12,16 @@ import PageIndicator from 'src/components/PageIndicator';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/constants/Bitcoin';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets, incrementAddressIndex } from 'src/store/sagaActions/wallets';
-import { LabelRefType, WalletType } from 'src/core/wallets/enums';
+import { LabelRefType, WalletType } from 'src/services/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useWallets from 'src/hooks/useWallets';
-import { BIP329Label, InputUTXOs } from 'src/core/wallets/interfaces';
+import { BIP329Label, InputUTXOs } from 'src/services/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WhirlpoolClient from 'src/services/whirlpool/client';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
@@ -33,7 +33,7 @@ import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { CommonActions } from '@react-navigation/native';
 import SwiperModal from './components/SwiperModal';
 import UtxoSummary from './UtxoSummary';
@@ -163,8 +163,7 @@ export default function BroadcastPremix({ route, navigation }) {
           }
           showToast(
             'Your Tx0 was broadcasted successfully, you should find the new UTXOs in the Premix account',
-            <TickIcon />,
-            3000
+            <TickIcon />
           );
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           const outputs = PSBT.txOutputs;
@@ -207,11 +206,11 @@ export default function BroadcastPremix({ route, navigation }) {
           setLoading(false);
         } else {
           setLoading(false);
-          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
+          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />);
         }
       } else {
         setLoading(false);
-        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />, 3000);
+        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />);
       }
     } catch (error) {
       const problem = error?.message || '';
@@ -230,7 +229,7 @@ export default function BroadcastPremix({ route, navigation }) {
         default:
       }
 
-      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />, 3000);
+      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />);
       setLoading(false);
       captureError(error);
     }
@@ -281,14 +280,14 @@ export default function BroadcastPremix({ route, navigation }) {
             Whirlpool Fee
           </Text>
           <Box style={styles.textDirection}>
-            <Text color="light.secondaryText">
+            <Text color={`${colorMode}.secondaryText`}>
               {valueByPreferredUnit(
                 tx0Preview.coordinatorFee?.coordinator
                   ? tx0Preview.coordinatorFee.coordinator[0]
                   : 0
               )}
             </Text>
-            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
           </Box>

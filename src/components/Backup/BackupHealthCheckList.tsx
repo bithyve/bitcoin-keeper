@@ -65,7 +65,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
         width="12"
         height="12"
         borderRadius={30}
-        backgroundColor={`${colorMode}.RussetBrown`}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
         justifyContent="center"
         alignItems="center"
       >
@@ -106,7 +106,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
             <Box
               padding={1}
               marginLeft={2}
-              borderLeftColor={`${colorMode}.RussetBrownLight`}
+              borderLeftColor={`${colorMode}.RecoveryBorderColor`}
               borderLeftWidth={1}
               width="100%"
               position="relative"
@@ -116,13 +116,13 @@ function BackupHealthCheckList({ isUaiFlow }) {
                 zIndex={999}
                 position="absolute"
                 left={-8}
-                backgroundColor={`${colorMode}.RussetBrownLight`}
+                backgroundColor={`${colorMode}.RecoveryBorderColor`}
                 padding={1}
                 borderRadius={15}
               >
-                <DotView height={2} width={2} color={`${colorMode}.RussetBrown`} />
+                <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
               </Box>
-              <Text color={`${colorMode}.GreenishGrey`} fontSize={12} bold ml={5} opacity={0.7}>
+              <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
                 {replaceText(item?.title)}
               </Text>
               <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>

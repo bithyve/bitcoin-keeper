@@ -4,12 +4,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import idx from 'idx';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import WalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/whirlpool.svg';
+import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -18,7 +19,7 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CardPill from 'src/components/CardPill';
@@ -29,6 +30,11 @@ import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { formatNumber } from 'src/utils/utilities';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -80,6 +86,10 @@ function WalletDetails({ route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
 
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
+
   useEffect(() => {
     if (!syncing) {
       // temporarily disabled due to huge performance lag (never call dispatch in useEffect)
@@ -116,7 +126,10 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
-            <CardPill heading="SINGLE SIG" backgroundColor={`${colorMode}.PaleTurquoise`} />
+            <CardPill
+              heading="SINGLE SIG"
+              backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
+            />
             <CardPill heading={wallet.type} />
           </Box>
           <Box style={styles.availableBalanceView}>
@@ -132,6 +145,17 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
+          cardName={'Buy Bitcoin'}
+          description="into this wallet"
+          callback={() =>
+            navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
+          }
+          icon={<BTC />}
+          cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+            currencyCodeExchangeRate.buy.toFixed(0)
+          )}`}
+        />
+        <ActionCard
           cardName="View All Coins"
           description="Manage Whirlpool and UTXOs"
           callback={() =>
@@ -142,7 +166,6 @@ function WalletDetails({ route }: ScreenProps) {
             })
           }
           icon={<CoinsIcon />}
-          customStyle={{ paddingTop: 0 }}
         />
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
@@ -271,4 +294,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.16,
   },
 });
-export default WalletDetails;
+export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);

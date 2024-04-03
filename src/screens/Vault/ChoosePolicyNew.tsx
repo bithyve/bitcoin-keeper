@@ -7,7 +7,7 @@ import {
   SignerPolicy,
   SignerRestriction,
   VerificationType,
-} from 'src/services/interfaces';
+} from 'src/models/interfaces/AssistedKeys';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 
@@ -150,7 +150,7 @@ function ChoosePolicyNew({ navigation, route }) {
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text style={styles.cvvInputInfoText} color="light.greenText">
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -162,7 +162,7 @@ function ChoosePolicyNew({ navigation, route }) {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -173,7 +173,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box style={styles.fieldWrapper}>
         <Box width="60%">
           <Text style={styles.titleText}>{title}</Text>
-          <Text color="light.GreyText" style={styles.subTitleText}>
+          <Text color={`${colorMode}.GreyText`} style={styles.subTitleText}>
             {subTitle}
           </Text>
         </Box>
@@ -227,7 +227,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => {}}
+          clear={() => { }}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
@@ -240,7 +240,7 @@ function ChoosePolicyNew({ navigation, route }) {
         }}
         title="Confirm OTP to change policy"
         subTitle="To complete setting up the signer"
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={otpContent}
       />
     </ScreenWrapper>

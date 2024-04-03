@@ -25,31 +25,32 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { EntityKind, PaymentInfoKind, VaultType, VisibilityType } from 'src/core/wallets/enums';
+import { EntityKind, PaymentInfoKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import WalletOperations from 'src/core/wallets/operations';
+import WalletOperations from 'src/services/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
-import { UTXO } from 'src/core/wallets/interfaces';
+import { UTXO } from 'src/services/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
 import HexagonIcon from 'src/components/HexagonIcon';
 import idx from 'idx';
 import EmptyWalletIcon from 'src/assets/images/empty_wallet_illustration.svg';
 import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
-
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -277,7 +278,7 @@ function SendScreen({ route }) {
             <UploadImage onPress={handleChooseImage} />
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
-                testID="input_address"
+                testID="input_receive_address"
                 placeholder="or enter address manually"
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}
@@ -421,4 +422,4 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
 });
-export default SendScreen;
+export default Sentry.withErrorBoundary(SendScreen, errorBourndaryOptions);

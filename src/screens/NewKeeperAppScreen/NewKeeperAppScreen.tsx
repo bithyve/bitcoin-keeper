@@ -18,7 +18,7 @@ import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
 import openLink from 'src/utils/OpenLink';
-import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -60,6 +60,27 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
     </Pressable>
   );
 }
+function StartNewModalContent() {
+  const { colorMode } = useColorMode();
+  return (
+    <Box style={{ width: windowWidth * 0.8 }}>
+      <Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Create new single-key wallets: </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>You can use these wallets to store small amounts of bitcoin for day to day transactions.</Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Create new multi-key wallets: </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>Setup multi-key wallets as per your needs and convenience for long term hodling. You would be able to choose your desired configuration of keys. Note that we call multi-key wallets as vault within Keeper.</Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>Recover an existing app: </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>Have an inaccessible Keeper app with various wallets and vaults in it? You have nothing to worry if you have that wallet’s 12-word Recovery Key. Just insert those words to recover that Keeper app and all your wallets would be restored as expected.</Text>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
@@ -69,6 +90,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [introModalVisible, setIntroModalVisible] = useState(false);
   const appCreationError = useAppSelector((state) => state.login.appCreationError);
 
   useEffect(() => {
@@ -159,21 +181,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
     );
   }
 
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      {
-        //Todo Learn more
-      }
-      {/* <Pressable
-        backgroundColor={`${colorMode}.brownColor`}
-        borderColor={`${colorMode}.brownColor`}
+      <Pressable
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
+        borderColor={`${colorMode}.BrownNeedHelp`}
         style={styles.learnMoreContainer}
-        // learn more modal
+        onPress={() => setIntroModalVisible(true)}
       >
-        <Text style={styles.learnMoreText} medium color={`${colorMode}.primaryBackground`}>
+        <Text style={styles.learnMoreText} medium color={`${colorMode}.white`}>
           Need Help?
         </Text>
-      </Pressable> */}
+      </Pressable>
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
@@ -247,7 +267,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -262,7 +282,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -272,7 +292,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setModalVisible(false);
           setTimeout(() => {
             navigation.replace('App', { screen: 'Home' });
-          }, 500)
+          }, 500);
         }}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(300)}
@@ -280,7 +300,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -289,9 +309,23 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
+      />
+      <KeeperModal
+        close={() => { setIntroModalVisible(false) }}
+        visible={introModalVisible}
+        title={'Start New:'}
+        Content={StartNewModalContent}
+        buttonText={'Continue'}
+        buttonCallback={() => {
+          setIntroModalVisible(false);
+        }}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        subTitleWidth={wp(300)}
       />
     </ScreenWrapper>
   );
@@ -329,6 +363,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.13,
     paddingTop: 20,
+  },
+  startNewModalMessageText: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+    paddingTop: 5,
   },
   contentText: {
     fontSize: 13,

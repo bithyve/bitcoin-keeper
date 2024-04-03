@@ -1,7 +1,7 @@
 import { useQuery } from '@realm/react';
 import { useEffect, useState } from 'react';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { VaultScheme } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme } from 'src/services/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 
 interface FeatureMap {
