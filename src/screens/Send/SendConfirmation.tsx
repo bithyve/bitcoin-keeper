@@ -52,6 +52,7 @@ import CustomPriorityModal from './CustomPriorityModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -360,14 +361,14 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Box width={'50%'} marginRight={2}>
           <Text>Sent To</Text>
           <Card
-            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            isVault={recipient.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={recipient?.presentationData?.name}
           />
         </Box>
         <Box width={'50%'}>
           <Text>Sent From</Text>
           <Card
-            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            isVault={sender.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
             subTitle={`${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
