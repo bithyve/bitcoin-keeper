@@ -2,12 +2,12 @@ import {
   SerializedPSBTEnvelop,
   SigningPayload,
   TransactionPrerequisite,
-} from 'src/core/wallets/interfaces/';
+} from 'src/services/wallets/interfaces';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { Satoshis } from 'src/models/types/UnitAliases';
 import TransactionFeeSnapshot from 'src/models/types/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/enums';
+import { TxPriority } from 'src/services/wallets/enums';
 import idx from 'idx';
 
 export interface SendPhaseOneExecutedPayload {

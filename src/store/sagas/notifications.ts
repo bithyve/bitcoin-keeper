@@ -1,5 +1,5 @@
 import { call, put, select } from 'redux-saga/effects';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';

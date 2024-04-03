@@ -4,28 +4,29 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { VisibilityType } from 'src/core/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions } from '@react-navigation/native';
-import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import InheritanceIcon from 'src/assets/images/inheri.svg';
+import FaqIcon from 'src/assets/images/faq.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
 import InititalAppController from './InititalAppController';
-import { formatNumber } from 'src/utils/utilities';
+import openLink from 'src/utils/OpenLink';
+import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -77,45 +78,42 @@ function NewHomeScreen({ navigation }) {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currencyCodeExchangeRate = exchangeRates[currencyCode];
-
   const cardsData = [
-    {
-      name: 'Buy\nBitcoin',
-      icon: <BTC />,
-      callback: () => navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin' })),
-      cardPillText: `1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-        currencyCodeExchangeRate.buy.toFixed(0)
-      )}`,
-    },
     {
       name: 'Manage\nKeys',
       icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance & Security',
+      name: 'Inheritance Planning',
       icon: <InheritanceIcon />,
       callback: () => {
-        const eligible = plan === SubscriptionTier.L3.toUpperCase();
-        if (!eligible) {
-          showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
-          navigation.navigate('ChoosePlan', { planPosition: 2 });
-        } else if (!activeVault) {
-          showToast('Please create a vault to setup inheritance');
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'AddSigningDevice',
-              merge: true,
-              params: { scheme: { m: 3, n: 5 } },
-            })
-          );
-        } else {
-          navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
-        }
+        //-----FOR Futhure use------
+        // const eligible = plan === SubscriptionTier.L3.toUpperCase();
+        // if (!eligible) {
+        //   showToast(`Please upgrade to ${SubscriptionTier.L3} to use Inheritance Tools`);
+        //   navigation.navigate('ChoosePlan', { planPosition: 2 });
+        // } else if (!activeVault) {
+        //   showToast('Please create a vault to setup inheritance');
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'InheritanceToolsAndTips',
+        //     })
+        //   );
+        // } else {
+        // navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'InheritanceToolsAndTips',
+          })
+        );
+        // }
       },
+    },
+    {
+      name: `Need\nHelp?`,
+      icon: <FaqIcon />,
+      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
   ];
 
@@ -143,7 +141,7 @@ function NewHomeScreen({ navigation }) {
   );
 }
 
-export default NewHomeScreen;
+export default Sentry.withErrorBoundary(NewHomeScreen, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
   container: {

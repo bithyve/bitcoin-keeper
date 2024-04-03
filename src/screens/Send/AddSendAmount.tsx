@@ -1,13 +1,5 @@
 import Text from 'src/components/KeeperText';
-import {
-  Box,
-  // HStack,
-  Input,
-  KeyboardAvoidingView,
-  Pressable,
-  useColorMode,
-  // VStack,
-} from 'native-base';
+import { Box, HStack, Input, KeyboardAvoidingView, Pressable, useColorMode } from 'native-base';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -19,14 +11,14 @@ import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
@@ -37,9 +29,9 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import { UTXO } from 'src/core/wallets/interfaces';
-import config from 'src/core/config';
-import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
+import { UTXO } from 'src/services/wallets/interfaces';
+import config from 'src/utils/service-utilities/config';
+import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
@@ -87,7 +79,7 @@ function AddSendAmount({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const { getBalance, getCurrencyIcon } = useBalance();
+  const { getCurrencyIcon, getSatUnit } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
 
   function convertFiatToSats(fiatAmount: number) {
@@ -194,8 +186,8 @@ function AddSendAmount({ route }) {
       navigateToNext();
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-        showToast('You have insufficient balance at this time.', null, 1000);
-      } else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
+        showToast('You have insufficient balance at this time.');
+      } else showToast(sendPhaseOneState.failedErrorMessage);
     }
   }, [sendPhaseOneState]);
   useEffect(
@@ -290,7 +282,7 @@ function AddSendAmount({ route }) {
           >
             {errorMessage && (
               <Text
-                color="light.indicator"
+                color={`${colorMode}.indicator`}
                 style={{
                   fontSize: 10,
                   letterSpacing: 0.1,
@@ -324,7 +316,7 @@ function AddSendAmount({ route }) {
                   backgroundColor={`${colorMode}.seashellWhite`}
                   placeholder="Enter Amount"
                   placeholderTextColor={`${colorMode}.greenText`}
-                  width="90%"
+                  width="80%"
                   fontSize={14}
                   fontWeight={300}
                   opacity={amount ? 1 : 0.5}
@@ -345,38 +337,44 @@ function AddSendAmount({ route }) {
                   keyboardType="decimal-pad"
                 />
               </Box>
-              <Pressable
-                onPress={() => {
-                  const confirmBalance = sender.specs.balances.confirmed;
-                  if (confirmBalance) {
-                    if (sendMaxFee) {
-                      onSendMax(sendMaxFee, selectedUTXOs);
-                      return;
-                    }
-                    dispatch(
-                      calculateSendMaxFee({
-                        numberOfRecipients: recipientCount,
-                        wallet: sender,
-                        selectedUTXOs,
-                      })
-                    );
-                  }
-                }}
-                borderColor={`${colorMode}.RussetBrown`}
-                backgroundColor={`${colorMode}.RussetBrown`}
-                style={styles.sendMaxWrapper}
-              >
-                <Text
-                  testID="text_sendmax"
-                  color={`${colorMode}.seashellWhite`}
-                  style={styles.sendMaxText}
-                  medium
-                >
-                  Send Max
+              <HStack style={styles.inputInnerStyle}>
+                <Text semiBold color={`${colorMode}.divider`}>
+                  {getSatUnit() && `| ${getSatUnit()}`}
                 </Text>
-              </Pressable>
-            </Box>
 
+                <Pressable
+                  onPress={() => {
+                    const confirmBalance = sender.specs.balances.confirmed;
+                    if (confirmBalance) {
+                      if (sendMaxFee) {
+                        onSendMax(sendMaxFee, selectedUTXOs);
+                        return;
+                      }
+                      dispatch(
+                        calculateSendMaxFee({
+                          numberOfRecipients: recipientCount,
+                          wallet: sender,
+                          selectedUTXOs,
+                        })
+                      );
+                    }
+                  }}
+                  borderColor={`${colorMode}.BrownNeedHelp`}
+                  backgroundColor={`${colorMode}.BrownNeedHelp`}
+                  style={styles.sendMaxWrapper}
+                  testID="btn_sendMax"
+                >
+                  <Text
+                    testID="text_sendmax"
+                    color={`${colorMode}.seashellWhite`}
+                    style={styles.sendMaxText}
+                    medium
+                  >
+                    Send Max
+                  </Text>
+                </Pressable>
+              </HStack>
+            </Box>
             <Box
               backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
@@ -505,6 +503,11 @@ const styles = StyleSheet.create({
     paddingVertical: hp(3),
     borderRadius: 5,
     borderWidth: 1,
+  },
+  inputInnerStyle: {
+    gap: 2,
+    alignItems: 'center',
+    marginLeft: -20,
   },
   sendMaxText: {
     fontSize: 12,

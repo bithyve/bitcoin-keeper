@@ -3,6 +3,7 @@ import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
   addSigningDeviceWatcher,
+  deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
   addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
@@ -20,6 +21,7 @@ import {
   addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
   updateVaultDetailsWatcher,
+  deleteVaultyWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -32,6 +34,7 @@ import {
 } from './login';
 import {
   backupWarningWatcher,
+  deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
   recoverBackupWatcher,
@@ -94,11 +97,13 @@ const rootSaga = function* () {
     // vaults
     addNewVaultWatcher,
     addSigningDeviceWatcher,
+    deleteSigningDeviceWatcher,
     migrateVaultWatcher,
     finaliseVaultMigrationWatcher,
     updateVaultDetailsWatcher,
     updateSignerDetails,
     updateKeyDetails,
+    deleteVaultyWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,
@@ -126,6 +131,7 @@ const rootSaga = function* () {
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,
+    deleteAppImageEntityWatcher,
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,

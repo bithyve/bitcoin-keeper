@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
@@ -22,7 +22,7 @@ import { useNavigation } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
 import { windowHeight, wp } from 'src/constants/responsive';
 import { TransferType } from 'src/models/enums/TransferType';
@@ -165,10 +165,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                   setShowModal(false);
                   activeVault
                     ? navigtaion.navigate('SendConfirmation', {
-                        uaiSetActionFalse,
-                        walletId: uai.entityId,
-                        transferType: TransferType.WALLET_TO_VAULT,
-                      })
+                      uaiSetActionFalse,
+                      walletId: uai.entityId,
+                      transferType: TransferType.WALLET_TO_VAULT,
+                    })
                     : showToast('No vaults found', <ToastErrorIcon />);
                   skipUaiHandler(uai);
                 },
@@ -343,7 +343,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       <Animated.View testID={`view_${uai.uaiType}`} style={[animations]}>
         {uai.uaiType === uaiType.DEFAULT ? (
           <UAIEmptyState />
-        ) : (
+        ) : uaiConfig ? (
           <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
             <UAIView
               title={uaiConfig.heading}
@@ -354,7 +354,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               secondaryCallback={uaiConfig.btnConfig.secondary.cta}
             />
           </Box>
-        )}
+        ) : null}
       </Animated.View>
       <KeeperModal
         visible={showModal}
@@ -368,8 +368,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         buttonCallback={uaiConfig?.modalDetails?.btnConfig.primary.cta}
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
-        buttonTextColor="light.white"
-        Content={() => <Text color="light.greenText">{uaiConfig?.modalDetails?.body}</Text>}
+        buttonTextColor={`${colorMode}.white`}
+        Content={() => <Text color={`${colorMode}.greenText`}>{uaiConfig?.modalDetails?.body}</Text>}
       />
      <KeeperModal
       visible={insightModal}
@@ -397,7 +397,8 @@ export default function NotificationStack() {
   const { colorMode } = useColorMode();
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
-  const removeCard = () => {};
+
+  const removeCard = () => { };
 
   const flingUp = Gesture.Fling()
     .direction(Directions.UP)

@@ -16,9 +16,9 @@ import PageIndicator from 'src/components/PageIndicator';
 import { useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolModal } from 'src/store/reducers/wallets';
 import { useDispatch } from 'react-redux';
-import config from 'src/core/config';
-import { TxPriority } from 'src/core/wallets/enums';
-import { AverageTxFees } from 'src/core/wallets/interfaces';
+import config from 'src/utils/service-utilities/config';
+import { TxPriority } from 'src/services/wallets/enums';
+import { AverageTxFees } from 'src/services/wallets/interfaces';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
@@ -177,7 +177,6 @@ export default function WhirlpoolConfiguration({ route }) {
 
   const onFeeSelectionCallback = (fee) => {
     setSelectedFee(fee);
-    console.log(fee);
     setShowFee(false);
   };
 

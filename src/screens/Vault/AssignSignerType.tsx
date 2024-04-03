@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
@@ -18,18 +18,20 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import UnknownSignerInfo from './components/UnknownSignerInfo';
 
 type IProps = {
   navigation: any;
   route: {
     params: {
       vault: Vault;
+      signer: Signer;
     };
   };
 };
 function AssignSignerType({ route }: IProps) {
   const { colorMode } = useColorMode();
-  const { vault } = route.params;
+  const { vault, signer } = route.params;
   const { signers: appSigners } = useSigners();
   const [visible, setVisible] = useState(false);
   const [signerType, setSignerType] = useState<SignerType>();
@@ -81,10 +83,11 @@ function AssignSignerType({ route }: IProps) {
         subtitle="for better communication and conectivity"
       />
       <ScrollView
-        contentContainerStyle={{ paddingVertical: '10%' }}
+        contentContainerStyle={{ paddingVertical: 20, gap: 20 }}
         style={{ height: hp(520) }}
         showsVerticalScrollIndicator={false}
       >
+        {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
         {!signersLoaded ? (
           <ActivityIndicator />
         ) : (
@@ -112,6 +115,7 @@ function AssignSignerType({ route }: IProps) {
                     assignSignerType(type);
                   }}
                   key={type}
+                  testID={`btn_identify_${type}`}
                 >
                   <Box
                     backgroundColor={`${colorMode}.seashellWhite`}

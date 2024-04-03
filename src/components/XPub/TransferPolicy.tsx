@@ -8,7 +8,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { wp } from 'src/constants/responsive';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';

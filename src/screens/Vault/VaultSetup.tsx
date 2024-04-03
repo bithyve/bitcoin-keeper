@@ -14,7 +14,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import config, { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import Note from 'src/components/Note/Note';
@@ -24,7 +24,7 @@ function NumberInput({ value, onDecrease, onIncrease }) {
 
   return (
     <HStack style={styles.inputContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-      <TouchableOpacity style={styles.button} onPress={onDecrease}>
+      <TouchableOpacity testID="btn_decreaseValue" style={styles.button} onPress={onDecrease}>
         <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
           -
         </Text>
@@ -34,7 +34,7 @@ function NumberInput({ value, onDecrease, onIncrease }) {
         {value}
       </Text>
       <Box style={{ height: 30, borderRightWidth: 0.2, paddingHorizontal: 5 }} />
-      <TouchableOpacity style={styles.button} onPress={onIncrease}>
+      <TouchableOpacity testID="increaseValue" style={styles.button} onPress={onIncrease}>
         <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
           +
         </Text>
@@ -118,7 +118,7 @@ function VaultSetup({ route }: ScreenProps) {
       <KeeperHeader
         title={preDefinedScheme ? vault.SetupyourVault : vault.AddCustomMultiSig}
         subtitle={vault.configureScheme}
-        // To-Do-Learn-More
+      // To-Do-Learn-More
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <VStack style={{ margin: 20, flex: 1 }}>
@@ -168,7 +168,7 @@ function VaultSetup({ route }: ScreenProps) {
             color={`${colorMode}.secondaryText`}
             testID="text_requireKeys_subTitle"
           >
-            Minimum number of keys to broadcast a transaction
+            Minimum number of keys to sign a transaction
           </Text>
           <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
         </VStack>

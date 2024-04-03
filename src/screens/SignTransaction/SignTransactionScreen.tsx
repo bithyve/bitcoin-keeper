@@ -1,8 +1,8 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { SignerType, TxPriority } from 'src/core/wallets/enums';
-import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType, TxPriority } from 'src/services/wallets/enums';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -25,7 +25,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
-import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -40,6 +40,8 @@ import {
 } from './signWithSD';
 import SignerList from './SignerList';
 import SignerModals from './SignerModals';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -341,7 +343,7 @@ function SignTransactionScreen() {
         break;
       case SignerType.TREZOR:
         if (defaultVault.isMultiSig) {
-          showToast('Signing with trezor for multisig transactions is coming soon!', null, 4000);
+          showToast('Signing with trezor for multisig transactions is coming soon!');
           return;
         }
         setTrezorModal(true);
@@ -489,4 +491,4 @@ function SignTransactionScreen() {
   );
 }
 
-export default SignTransactionScreen;
+export default Sentry.withErrorBoundary(SignTransactionScreen, errorBourndaryOptions);

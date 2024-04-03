@@ -10,7 +10,7 @@ import WalletFingerprint from '../WalletFingerPrint';
 
 function ShowXPub({
   data,
-  copy = () => {},
+  copy = () => { },
   subText,
   noteSubText,
   copyable = true,
@@ -32,7 +32,7 @@ function ShowXPub({
 
   return (
     <>
-      <Box justifyContent="center" alignItems="center">
+      <Box testID="view_xPub" justifyContent="center" alignItems="center">
         <Box>
           {details ? (
             <QRCode value={details} logoBackgroundColor="transparent" size={hp(200)} />
@@ -46,7 +46,7 @@ function ShowXPub({
             padding={1}
             width={hp(200)}
           >
-            <Text fontSize={12} bold color={`${colorMode}.RussetBrown`}>
+            <Text fontSize={12} bold color={`${colorMode}.BrownNeedHelp`}>
               {subText}
             </Text>
           </Box>

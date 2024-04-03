@@ -6,7 +6,7 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { getTapsignerDetails, getTapsignerErrorMessage } from 'src/hardware/tapsigner';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
@@ -21,14 +21,14 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateSignerFromMetaData, isSignerAMF } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
-import config from 'src/core/config';
-import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
+import config from 'src/utils/service-utilities/config';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
@@ -85,7 +85,7 @@ function SetupTapsigner({ route }) {
         if (isHealthcheck) verifyTapsginer();
         await start(addTapsigner);
       } else if (!DeviceInfo.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+        showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   };
@@ -141,7 +141,11 @@ function SetupTapsigner({ route }) {
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${tapsigner.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {
@@ -150,11 +154,11 @@ function SetupTapsigner({ route }) {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!', null);
       }
       closeNfc();
       card.endNfcSession();
@@ -173,7 +177,7 @@ function SetupTapsigner({ route }) {
       };
 
       const handleFailure = () => {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {
@@ -198,11 +202,11 @@ function SetupTapsigner({ route }) {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       }
       closeNfc();
       card.endNfcSession();
