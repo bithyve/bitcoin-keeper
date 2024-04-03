@@ -2,12 +2,12 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
-import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind } from 'src/core/wallets/enums';
+import { EntityKind } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
 import { createUaiMap, setRefreshUai, updateUaiActionMap } from '../reducers/uai';
 import {

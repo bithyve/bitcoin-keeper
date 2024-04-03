@@ -7,8 +7,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { EntityKind, VisibilityType, WalletType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { EntityKind, VisibilityType, WalletType } from 'src/services/wallets/enums';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import ShowIcon from 'src/assets/images/show.svg';
@@ -24,7 +24,7 @@ import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useVault from 'src/hooks/useVault';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
@@ -66,8 +66,8 @@ function ListItem({ title, subtitle, balance, onBtnPress, isHidden }) {
         </Box>
         <TouchableOpacity activeOpacity={0.6} onPress={onBtnPress} testID="btnHide">
           <Box
-            borderColor="light.RussetBrown"
-            backgroundColor="light.RussetBrown"
+            borderColor={`${colorMode}.BrownNeedHelp`}
+            backgroundColor={`${colorMode}.BrownNeedHelp`}
             style={styles.learnMoreContainer}
           >
             {isHidden ? <ShowIcon /> : <HideWalletIcon />}
@@ -87,21 +87,15 @@ function ManageWallets() {
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
 
-  const { wallets } = useWallets();
-
-  const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
-    `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
-  );
+  const { wallets } = useWallets({ getAll: true }); // contains all wallets(hidden/unhidden) except for whirlpool wallets
 
   const { allVaults } = useVault({ includeArchived: false });
-  const allWallets: (Wallet | Vault)[] = [...walletsWithoutWhirlpool, ...allVaults].filter(
-    (item) => item !== null
-  );
+  const allWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter((item) => item !== null);
 
-  const visibleWallets = walletsWithoutWhirlpool.filter(
+  const visibleWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
-  const hiddenWallets = walletsWithoutWhirlpool.filter(
+  const hiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);
@@ -176,7 +170,7 @@ function ManageWallets() {
             }}
             activeOpacity={0.5}
           >
-            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
               Continue to Hide
             </Text>
           </TouchableOpacity>
@@ -189,7 +183,7 @@ function ManageWallets() {
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
                   Move Funds
                 </Text>
               </Box>
@@ -220,9 +214,9 @@ function ManageWallets() {
             onBtnPress={
               item.presentationData.visibility === VisibilityType.HIDDEN
                 ? () => {
-                    setConfirmPassVisible(true);
-                    setSelectedWallet(item);
-                  }
+                  setConfirmPassVisible(true);
+                  setSelectedWallet(item);
+                }
                 : () => updateWalletVisibility(item, true)
             }
           />
@@ -234,7 +228,7 @@ function ManageWallets() {
       {/* TODO: showAll/hideAll wallet functionality
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
-        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.bottomIcon}>
+        <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.bottomIcon}>
           <ShowAllIcon />
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
@@ -251,7 +245,7 @@ function ManageWallets() {
         title="You have funds in your wallet"
         subTitle="You have sats in your wallet. Are you sure you want to hide it?"
         Content={BalanceAlertModalContent}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={false}
         showButtons

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import Success from 'src/assets/images/Success.svg';
 import Text from 'src/components/KeeperText';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import { useColorMode, Box } from 'native-base';
 
 function VaultCreatedModal({
@@ -23,7 +23,7 @@ function VaultCreatedModal({
     () => (
       <Box>
         <Success />
-        <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
+        <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
           For sending out of the vault you will need the signers. This means no one can steal your
           bitcoin in the vault unless they also have the signers
         </Text>

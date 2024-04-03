@@ -13,7 +13,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import SubScription from 'src/models/interfaces/Subscription';
-import Relay from 'src/services/operations/Relay';
+import Relay from 'src/services/backend/Relay';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -72,7 +72,7 @@ function DowngradeModalContent({ navigation, app }) {
         >
           <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
             <Box style={[styles.createBtn]} backgroundColor={`${colorMode}.greenButtonBackground`}>
-              <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+              <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
                 {common.continuePleb}
               </Text>
             </Box>
@@ -93,7 +93,7 @@ export function DowngradeModal({ navigation }) {
   return (
     <KeeperModal
       dismissible={false}
-      close={() => {}}
+      close={() => { }}
       visible={recepitVerificationFailed}
       title={choosePlan.validateSubscriptionTitle}
       subTitle={choosePlan.validateSubscriptionSubTitle}

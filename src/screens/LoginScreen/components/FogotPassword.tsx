@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { hash512 } from 'src/services/operations/encryption';
+import { hash512 } from 'src/utils/service-utilities/encryption';
 import Close from 'src/assets/images/modal_close.svg';
 
 function FogotPassword(props) {
@@ -62,7 +62,7 @@ function FogotPassword(props) {
     <Box backgroundColor={`${colorMode}.primaryBackground`} padding={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          backgroundColor="light.lightAccent"
+          backgroundColor={`${colorMode}.lightAccent`}
           borderRadius={32}
           h={8}
           width={8}
@@ -94,7 +94,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             pl={5}
             py={4}
             mt={6}
@@ -120,7 +120,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             pl={5}
             py={4}
             my={6}

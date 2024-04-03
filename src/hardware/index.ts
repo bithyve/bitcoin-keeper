@@ -5,7 +5,7 @@ import {
   VaultSigner,
   XpubDetailsType,
   signerXpubs,
-} from 'src/core/wallets/interfaces/vault';
+} from 'src/services/wallets/interfaces/vault';
 
 import {
   DerivationPurpose,
@@ -13,16 +13,14 @@ import {
   NetworkType,
   SignerStorage,
   SignerType,
-} from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config, { APP_STAGE } from 'src/core/config';
+} from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 
@@ -76,10 +74,6 @@ export const generateSignerFromMetaData = ({
     });
   }
 
-  const signerCount = dbManager
-    .getCollection(RealmSchema.Signer)
-    .filter((s) => s.type === signerType).length;
-
   const signer: Signer = {
     type: signerType,
     storageType,
@@ -92,8 +86,6 @@ export const generateSignerFromMetaData = ({
     inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
-    extraData: { instanceNumber: signerCount + 1 },
-    signerDescription: getSignerDescription(signerType, signerCount + 1),
   };
 
   const key: VaultSigner = {
@@ -371,38 +363,48 @@ const getInheritanceKeyStatus = (
 
 export const getSDMessage = ({ type }: { type: SignerType }) => {
   switch (type) {
-    case SignerType.COLDCARD:
-    case SignerType.LEDGER:
-    case SignerType.PASSPORT:
-    case SignerType.BITBOX02:
-    case SignerType.SPECTER:
+    case SignerType.COLDCARD: {
+      return 'Secure signers from Coinkite';
+    }
+    case SignerType.LEDGER: {
+      return 'Trusted signers from SatoshiLabs';
+    }
+    case SignerType.PASSPORT: {
+      return 'Passport signers from Foundation Devices';
+    }
+    case SignerType.BITBOX02: {
+      return 'Swiss Made signer from BitBox';
+    }
+    case SignerType.SPECTER: {
+      return 'A DIY signer from Spector Solutions';
+    }
     case SignerType.KEYSTONE: {
-      return 'Register for full verification';
+      return 'Open Source signer from keyst.one';
     }
     case SignerType.JADE: {
-      return 'Optional registration';
+      return 'Great signer from Blockstream';
     }
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER: {
       return 'Use Mobile Key as signer';
     }
     case SignerType.MOBILE_KEY: {
-      return 'Hot keys on this device';
+      return 'Hot key on this app';
     }
     case SignerType.POLICY_SERVER: {
       return 'Hot keys on the server';
     }
     case SignerType.SEEDSIGNER: {
-      return 'Register during txn signing';
+      return 'A DIY stateless signer';
     }
     case SignerType.SEED_WORDS: {
-      return 'Blind signer when sending';
+      return '12-words key phrase';
     }
     case SignerType.TAPSIGNER: {
-      return 'Blind signer, no verification';
+      return 'Easy-to-use signer from Coinkite';
     }
     case SignerType.TREZOR: {
-      return 'Manually verify addresses';
+      return 'Trusted signers from SatoshiLabs';
     }
     case SignerType.OTHER_SD: {
       return 'Varies with different signer';

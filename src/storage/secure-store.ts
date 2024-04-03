@@ -1,6 +1,6 @@
 import * as Keychain from 'react-native-keychain';
 import NodeRSA from 'node-rsa';
-import config from '../core/config';
+import config from '../utils/service-utilities/config';
 
 export const store = async (hash: string, enc_key: string) => {
   try {

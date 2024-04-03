@@ -1,9 +1,10 @@
 import { Box, useColorMode } from 'native-base';
-import BackBlackButton from 'src/assets/images/back.svg';
-import BackWhiteButton from 'src/assets/images/back_white.svg';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+
+import BackBlackButton from 'src/assets/images/back.svg';
+import BackWhiteButton from 'src/assets/images/back_white.svg';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
@@ -34,7 +35,7 @@ function KeeperHeader({
   enableBack = true,
   learnMore = false,
   learnMorePressed = () => {},
-  learnBackgroundColor = 'light.RussetBrown',
+  learnBackgroundColor = 'light.BrownNeedHelp',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
   contrastScreen = false,
@@ -141,7 +142,7 @@ const getStyles = (marginLeft: boolean) =>
     },
     learnMoreText: {
       fontSize: 12,
-      letterSpacing: 0.6,
+      letterSpacing: 0.24,
       alignSelf: 'center',
     },
     headerContainer: {
@@ -154,6 +155,7 @@ const getStyles = (marginLeft: boolean) =>
       paddingLeft: marginLeft ? '10%' : '5%',
       flexDirection: 'row',
       gap: 10,
+      alignItems: 'center',
     },
     smallWidth: {
       width: windowWidth * 0.45,

@@ -21,3 +21,10 @@ buildscript {
         classpath 'com.google.gms:google-services:4.3.14'
     }
 }
+allprojects {
+    repositories {
+        maven {
+            url "https://zendesk.jfrog.io/artifactory/repo"
+        }
+    }
+}

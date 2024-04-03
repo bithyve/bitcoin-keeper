@@ -1,9 +1,9 @@
-import { Vault, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Vault, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import { XpubTypes } from 'src/core/wallets/enums';
+import { XpubTypes } from 'src/services/wallets/enums';
 import { getWalletConfig } from '..';
 import HWError from '../HWErrorState';
 

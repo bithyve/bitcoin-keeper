@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
@@ -47,7 +47,7 @@ function ChangeLanguage() {
 
   function Menu({ label, value, onPress, arrow }) {
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity testID={`btn_${label}`} onPress={onPress}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.btn}>
           <Box style={styles.menuWrapper}>
             <Text color={`${colorMode}.primaryText`} bold style={styles.textCurrency}>
@@ -115,9 +115,10 @@ function ChangeLanguage() {
           value={currency.code}
         />
         {Visible && (
-          <ScrollView style={styles.scrollViewWrapper}>
+          <ScrollView style={styles.scrollViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             {currencyList.map((item) => (
               <TouchableOpacity
+                testID={`btn_currency_${item}`}
                 onPress={() => {
                   setCurrency(item);
                   setVisible(false);
@@ -128,14 +129,14 @@ function ChangeLanguage() {
                   height: wp('13%'),
                 }}
               >
-                <View style={styles.symbolWrapper}>
+                <Box style={styles.symbolWrapper}>
                   <Text style={styles.symbolText}>{item.symbol}</Text>
-                </View>
-                <View style={styles.codeTextWrapper}>
+                </Box>
+                <Box style={styles.codeTextWrapper}>
                   <Text style={styles.codeText} color={`${colorMode}.GreyText`}>
                     {item.code}
                   </Text>
-                </View>
+                </Box>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -160,9 +161,10 @@ function ChangeLanguage() {
           value={`${selectedLanguage.country_code.toUpperCase()}- ${selectedLanguage.displayTitle}`}
         />
         {showLanguages && (
-          <ScrollView style={styles.langScrollViewWrapper}>
+          <ScrollView style={styles.langScrollViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             {availableLanguages.map((item) => (
               <TouchableOpacity
+                testID={`btn_language_${item}`}
                 key={item.iso}
                 onPress={() => {
                   setAppLanguage(item.iso);
@@ -173,15 +175,15 @@ function ChangeLanguage() {
                 }}
                 style={styles.flagWrapper1}
               >
-                <View style={styles.flagWrapper2}>
+                <Box style={styles.flagWrapper2}>
                   <Text style={styles.flagStyle}>{item.flag}</Text>
-                </View>
-                <View style={styles.countryCodeWrapper1}>
-                  <Text style={styles.countryCodeWrapper2} color="light.GreyText">
+                </Box>
+                <Box style={styles.countryCodeWrapper1}>
+                  <Text style={styles.countryCodeWrapper2} color={`${colorMode}.GreyText`}>
                     <Text style={styles.countryCodeText}>{item.country_code}</Text>
                     <Text>{`- ${item.displayTitle}`}</Text>
                   </Text>
-                </View>
+                </Box>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -219,25 +221,25 @@ const styles = StyleSheet.create({
     color: '#00715B',
   },
   scrollViewWrapper: {
-    borderWidth: 1,
-    borderColor: Colors.Platinum,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.Platinum,
     borderRadius: 10,
     margin: 15,
+    paddingHorizontal: 5,
     position: 'absolute',
-    width: '90%',
+    width: '95%',
     height: '70%',
     zIndex: 10,
-    backgroundColor: '#FAF4ED',
     top: 40,
   },
   langScrollViewWrapper: {
     borderWidth: 1,
     borderColor: Colors.Platinum,
     borderRadius: 10,
+    paddingHorizontal: 5,
     margin: 15,
     width: '90%',
     zIndex: 10,
-    backgroundColor: '#FAF4ED',
   },
   menuWrapper: {
     height: wp('13%'),
@@ -270,7 +272,6 @@ const styles = StyleSheet.create({
     height: wp('13%'),
     width: wp('15%'),
     paddingLeft: wp('5%'),
-    backgroundColor: '#FAF4ED',
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
@@ -286,7 +287,7 @@ const styles = StyleSheet.create({
     height: wp('13%'),
     borderBottomWidth: 1,
     borderBottomColor: Colors.Platinum,
-    backgroundColor: '#FAF4ED',
+
   },
   codeText: {
     fontSize: 13,
@@ -300,8 +301,7 @@ const styles = StyleSheet.create({
   flagWrapper2: {
     height: wp('13%'),
     width: wp('15%'),
-    marginLeft: wp('8%'),
-    backgroundColor: '#FAF4ED',
+    // marginLeft: wp('8%'),
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,

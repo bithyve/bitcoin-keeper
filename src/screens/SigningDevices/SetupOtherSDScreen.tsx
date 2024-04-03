@@ -8,9 +8,9 @@ import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
@@ -57,22 +57,27 @@ function SetupOtherSDScreen({ route }) {
         );
       } else if (mode === InteracationMode.VAULT_ADDITION) {
         dispatch(addSigningDevice([signer]));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        const navigationState = addSignerFlow
+          ? { name: 'ManageSigners' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
+        showToast(
+          `${signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
         );
-        showToast(`${signer.signerName} added successfully`, <TickIcon />);
       } else if (mode === InteracationMode.HEALTH_CHECK) {
         if (key.xpub === hcSigner.xpub) {
           dispatch(healthCheckSigner([signer]));
           navigation.dispatch(CommonActions.goBack());
           showToast('Other SD verified successfully', <TickIcon />);
         } else {
-          showToast('Something went wrong!', <ToastErrorIcon />, 3000);
+          showToast('Something went wrong!', <ToastErrorIcon />);
         }
       }
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
+        showToast(error.message, <ToastErrorIcon />);
       } else {
         showToast(error.message, <ToastErrorIcon />);
       }
@@ -120,7 +125,7 @@ function SetupOtherSDScreen({ route }) {
               ? { name: 'ManageSigners' }
               : { name: 'AddSigningDevice', merge: true, params: {} };
             navigation.dispatch(CommonActions.navigate(navigationState));
-            showToast('signer added successfully', <TickIcon />);
+            showToast('signer added successfully', <TickIcon />, IToastCategory.SIGNING_DEVICE);
             resetQR();
           }
         } else {

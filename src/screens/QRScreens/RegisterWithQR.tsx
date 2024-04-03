@@ -3,14 +3,14 @@ import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Dimensions, StyleSheet } from 'react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getWalletConfig } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import useVault from 'src/hooks/useVault';
-import { SignerType } from 'src/core/wallets/enums';
-import { genrateOutputDescriptors } from 'src/core/utils';
+import { SignerType } from 'src/services/wallets/enums';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import QRCode from 'react-native-qrcode-svg';
 import DisplayQR from './DisplayQR';
@@ -27,8 +27,9 @@ function RegisterWithQR({ route, navigation }: any) {
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER
-      ? `${SPECTER_PREFIX}${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${activeVault.isMultiSig ? ' )' : ''
-      }`
+      ? `${SPECTER_PREFIX}${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${
+          activeVault.isMultiSig ? ' )' : ''
+        }`
       : getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
   const markAsRegistered = () => {

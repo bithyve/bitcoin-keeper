@@ -8,9 +8,9 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import config from 'src/core/config';
-import { DerivationPurpose, EntityKind } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/utils/service-utilities/config';
+import { DerivationPurpose, EntityKind } from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 function WalletPathScreen({ route }) {
   const { colorMode } = useColorMode();

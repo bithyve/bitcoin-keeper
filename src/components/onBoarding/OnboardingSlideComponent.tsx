@@ -1,6 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 import Skip from 'src/assets/images/skip.svg';
@@ -8,16 +8,17 @@ import { hp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
 function OnboardingSlideComponent(props) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
-        <Text fontSize={20} color="light.primaryBackground" textAlign="center" letterSpacing={0.2}>
+        <Text fontSize={20} color={`${colorMode}.primaryBackground`} textAlign="center" letterSpacing={0.2}>
           {props.title}
         </Text>
       </Box>
       <Box style={styles.illustartionWrapper}>{props.illustration}</Box>
       <Box style={styles.paragraphWrapper}>
-        <Text color="light.primaryBackground" style={styles.paragraphText}>
+        <Text color={`${colorMode}.primaryBackground`} style={styles.paragraphText}>
           {props.paragraph}
         </Text>
       </Box>
@@ -27,7 +28,7 @@ function OnboardingSlideComponent(props) {
             onPress={() => props.navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
             style={styles.buttonWrapper}
           >
-            <Text fontSize={14} color="light.primaryBackground" textAlign="center" bold>
+            <Text fontSize={14} color={`${colorMode}.primaryBackground`} textAlign="center" bold>
               Start App&nbsp;&nbsp;
             </Text>
             <Skip />

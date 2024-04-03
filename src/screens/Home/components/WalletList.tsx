@@ -1,13 +1,13 @@
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, HStack } from 'native-base';
 import AddCard from 'src/components/AddCard';
-import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
 import WalletInfoCard from './WalletInfoCard';
@@ -119,5 +119,10 @@ const styles = StyleSheet.create({
   },
   walletCardWrapper: {
     marginRight: 10,
+  },
+  emptyCardContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
   },
 });

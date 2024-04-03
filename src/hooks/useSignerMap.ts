@@ -1,6 +1,6 @@
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { Signer } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const useSignerMap = () => {

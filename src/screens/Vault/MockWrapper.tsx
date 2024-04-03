@@ -2,9 +2,9 @@ import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/
 import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { getMockSigner } from 'src/hardware';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { captureError } from 'src/services/sentry';
@@ -51,7 +51,11 @@ function MockWrapper({
           : { name: 'AddSigningDevice', merge: true, params: {} };
         nav.dispatch(CommonActions.navigate(navigationState));
 
-        showToast(`${signer.signerName} added successfully`, <TickIcon />);
+        showToast(
+          `${signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
       }
     } catch (error) {
       if (error.toString().includes("We don't support")) {
@@ -65,7 +69,6 @@ function MockWrapper({
   const verifyMockSigner = () => {
     try {
       const data = getMockSigner(signerType);
-      console.log(data.signer.masterFingerprint, mode);
       const handleSuccess = () => {
         dispatch(healthCheckSigner([data.signer]));
         nav.dispatch(CommonActions.goBack());
@@ -73,7 +76,7 @@ function MockWrapper({
       };
 
       const handleFailure = () => {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {

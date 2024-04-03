@@ -1,7 +1,7 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { TxPriority, VaultType } from 'src/core/wallets/enums';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { TxPriority, VaultType } from 'src/services/wallets/enums';
+import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { TransferType } from 'src/models/enums/TransferType';
@@ -10,14 +10,15 @@ import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
-import WalletOperations from 'src/core/wallets/operations';
+import WalletOperations from 'src/services/wallets/operations';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
+import { Alert } from 'react-native';
 
 function VaultMigrationController({
   vaultCreating,
@@ -103,7 +104,9 @@ function VaultMigrationController({
       navigation.dispatch(
         CommonActions.navigate('SendConfirmation', {
           sender: activeVault,
-          recipients,
+          recipient: temporaryVault,
+          address: recipients[0].address,
+          amount: parseInt(recipients[0].amount, 10),
           transferType: TransferType.VAULT_TO_VAULT,
         })
       );
@@ -162,10 +165,17 @@ function VaultMigrationController({
           description,
         },
       };
+      const allVaultIds = allVaults.map((vault) => vault.id);
       const generatedVaultId = generateVaultId(signers, scheme);
-      setGeneratedVaultId(generatedVaultId);
-      dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-      return vaultInfo;
+      if (allVaultIds.includes(generatedVaultId)) {
+        Alert.alert('Vault with this configuration already exisits');
+        navigation.goBack();
+      } else {
+        setGeneratedVaultId(generatedVaultId);
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+
+        return vaultInfo;
+      }
     } catch (err) {
       captureError(err);
       return false;
@@ -177,8 +187,7 @@ function VaultMigrationController({
       if (unconfirmed) {
         showToast(
           'You have unconfirmed balance, please try again in some time',
-          <ToastErrorIcon />,
-          4000
+          <ToastErrorIcon />
         );
         navigation.dispatch(
           CommonActions.reset({
