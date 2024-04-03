@@ -14,13 +14,68 @@ import { StyleSheet } from 'react-native';
 import Wallets from './Wallets';
 import AdvancedWallets from './AdvancedWallets';
 import ImportWallets from './ImportWallets';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
+import WatchOnlyIcon from 'src/assets/images/watchonly.svg';
+import SignersIcon from 'src/assets/images/signers.svg';
+import WalletfileIcon from 'src/assets/images/walletfile.svg';
+
+function AddWalletContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
+  return (
+    <Box>
+      <Box style={styles.addWalletContainer}>
+        <Box style={styles.addWalletIconWrapper}>
+          <WatchOnlyIcon />
+        </Box>
+        <Box style={styles.addWalletContentWrapper}>
+          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
+            {wallet.watchOnly}
+          </Text>
+          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
+            {wallet.watchOnlyDesc}
+          </Text>
+        </Box>
+      </Box>
+      <Box style={styles.addWalletContainer}>
+        <Box style={styles.addWalletIconWrapper}>
+          <WalletfileIcon />
+        </Box>
+        <Box style={styles.addWalletContentWrapper}>
+          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
+            {wallet.walletConfigurationFile}
+          </Text>
+          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
+            {wallet.walletConfigurationFileDesc}
+          </Text>
+        </Box>
+      </Box>
+      <Box style={styles.addWalletContainer}>
+        <Box style={styles.addWalletIconWrapper}>
+          <SignersIcon />
+        </Box>
+        <Box style={styles.addWalletContentWrapper}>
+          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
+            {wallet.useSignersVaultRegistration}
+          </Text>
+          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
+            {wallet.useSignersVaultRegistrationDesc}
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
 
 function AddWallet({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
+  const { wallet, common } = translations;
 
   const [selectedCard, selectCard] = useState(1);
+  const [visibleModal, setVisibleModal] = useState(false);
 
   const onCardSelect = (id: number) => {
     selectCard(id);
@@ -32,7 +87,11 @@ function AddWallet({ navigation }) {
       <KeeperHeader
         title={wallet.AddWallet}
         subtitle={wallet.chooseFromTemplate}
-        // To-Do-Learn-More
+        learnMore
+        learnMorePressed={() => {
+          setVisibleModal(true);
+        }}
+        learnTextColor={`${colorMode}.white`}
       />
       <Box style={styles.container}>
         <ScrollView
@@ -75,6 +134,21 @@ function AddWallet({ navigation }) {
         {selectedCard === 2 && <ImportWallets navigation={navigation} />}
         {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
       </Box>
+      <KeeperModal
+        visible={visibleModal}
+        close={() => {
+          setVisibleModal(false);
+        }}
+        title={wallet.AddWallet}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={AddWalletContent}
+        showCloseIcon={false}
+        learnMore
+        learnMoreTitle={common.needMoreHelp}
+        // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+      />
     </ScreenWrapper>
   );
 }
@@ -93,6 +167,28 @@ const styles = StyleSheet.create({
     bottom: 40,
     width: '90%',
     alignSelf: 'center',
+  },
+  addWalletContainer: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  addWalletIconWrapper: {
+    width: '15%',
+  },
+  addWalletContentWrapper: {
+    width: '85%',
+  },
+  addWalletDescText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    padding: 1,
+    marginBottom: 5,
+  },
+  addWalletTitleText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 0.65,
+    padding: 1,
   },
 });
 
