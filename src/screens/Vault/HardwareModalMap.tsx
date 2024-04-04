@@ -51,7 +51,7 @@ import {
   getSignerNameFromType,
 } from 'src/hardware';
 import { getJadeDetails } from 'src/hardware/jade';
-import { getKeystoneDetails } from 'src/hardware/keystone';
+import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { generateKey, hash512 } from 'src/utils/service-utilities/encryption';
@@ -98,6 +98,7 @@ import {
   setupSeedWordsBasedKey,
   setupSpecter,
 } from 'src/hardware/signerSetup';
+import { extractColdCardExport } from 'src/hardware/coldcard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -476,6 +477,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify Recovery Key' : 'Setting up Seed Key',
         subTitle: 'Enter the Recovery Key to do a health check ',
+        options: [],
       };
     default:
       return {
@@ -485,6 +487,7 @@ const getSignerContent = (
         title: tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
         unsupported: true,
+        options: [],
       };
   }
 };
@@ -841,6 +844,23 @@ function HardwareModalMap({
     );
   };
 
+  const navigateToFileBasedSigner = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'HandleFile',
+        params: {
+          title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
+          subTitle: 'Please upload or paste the file containing the xpub data',
+          mode,
+          signer,
+          addSignerFlow,
+          ctaText: 'Proceed',
+          onFileExtract: onFileExtract,
+        },
+      })
+    );
+  };
+
   const generateMyAppKey = async () => {
     try {
       setInProgress(true);
@@ -1110,7 +1130,6 @@ function HardwareModalMap({
         showToast('Health check Failed', <ToastErrorIcon />);
       }
     } catch (error) {
-      console.log('err');
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
         resetQR();
@@ -1123,6 +1142,95 @@ function HardwareModalMap({
         navigation.dispatch(CommonActions.goBack());
       }
     }
+  };
+
+  const onFileExtract = async (fileData) => {
+    if (!fileData || !fileData.trim) return;
+    let jsonData;
+    let hw;
+    let error;
+    try {
+      jsonData = JSON.parse(fileData);
+    } catch (error) {
+      showToast(`Please scan a valid file from ${getSignerNameFromType(type)}`, <ToastErrorIcon />);
+      return;
+    }
+    switch (type) {
+      case SignerType.PASSPORT:
+        try {
+          const passportDetails = isMultisig
+            ? getPassportDetails(jsonData)
+            : extractColdCardExport(jsonData, isMultisig);
+          const { xpub, derivationPath, masterFingerprint } = passportDetails;
+          const { signer } = generateSignerFromMetaData({
+            xpub,
+            derivationPath,
+            masterFingerprint,
+            signerType: SignerType.PASSPORT,
+            storageType: SignerStorage.COLD,
+            isMultisig,
+          });
+          hw = signer;
+          break;
+        } catch (err) {
+          error = err;
+        }
+      case SignerType.COLDCARD:
+        try {
+          const ccDetails = extractColdCardExport(jsonData, isMultisig);
+          const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
+          const { signer } = generateSignerFromMetaData({
+            xpub,
+            derivationPath,
+            masterFingerprint,
+            isMultisig,
+            signerType: SignerType.COLDCARD,
+            storageType: SignerStorage.COLD,
+            xpubDetails,
+          });
+          hw = signer;
+        } catch (err) {
+          error = err;
+        }
+        break;
+      case SignerType.KEYSTONE:
+        try {
+          const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+            getKeystoneDetailsFromFile(jsonData);
+          if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+            const { signer } = generateSignerFromMetaData({
+              xpub,
+              derivationPath,
+              masterFingerprint,
+              signerType: SignerType.KEYSTONE,
+              storageType: SignerStorage.COLD,
+              isMultisig,
+            });
+            hw = signer;
+          } else {
+            // TODO: handle sig type mismatch
+            showToast(
+              `Please scan a valid file from ${getSignerNameFromType(type)}`,
+              <ToastErrorIcon />
+            );
+          }
+        } catch (err) {
+          error = err;
+        }
+        break;
+      default:
+        break;
+    }
+    if (error) {
+      showToast(`Please scan a valid file from ${getSignerNameFromType(type)}`, <ToastErrorIcon />);
+      captureError(error);
+      return;
+    }
+    dispatch(addSigningDevice([hw]));
+    const navigationState = addSignerFlow
+      ? { name: 'ManageSigners' }
+      : { name: 'AddSigningDevice', merge: true, params: {} };
+    navigation.dispatch(CommonActions.navigate(navigationState));
   };
 
   const verifySigningServer = async (otp) => {
@@ -1350,7 +1458,6 @@ function HardwareModalMap({
       }
       setInProgress(false);
     } catch (err) {
-      console.log(err);
       setInProgress(false);
       close();
       showToast('Error in Health check', <ToastErrorIcon />);
@@ -1431,7 +1538,6 @@ function HardwareModalMap({
 
   //   close();
   // };
-  const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
 
   const requestInheritanceKeyRecovery = async () => {
@@ -1544,7 +1650,7 @@ function HardwareModalMap({
     type: signerType,
   } = getSignerContent(type, isMultisig, translations, isHealthcheck, colorMode);
 
-  const [keyGenerationMode, setKeyGenerationMode] = useState(options[0]?.name || '');
+  const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
 
   const onSelect = (option) => {
     switch (signerType) {
@@ -1582,6 +1688,9 @@ function HardwareModalMap({
       case SignerType.TAPSIGNER:
         return navigateToTapsignerSetup();
       case SignerType.COLDCARD:
+        if (keyGenerationMode === KeyGenerationMode.FILE) {
+          return navigateToFileBasedSigner();
+        }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
         if (mode === InteracationMode.HEALTH_CHECK)
@@ -1602,10 +1711,15 @@ function HardwareModalMap({
       case SignerType.LEDGER:
         return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
+      case SignerType.KEYSTONE:
+        if (keyGenerationMode === KeyGenerationMode.FILE) {
+          return navigateToFileBasedSigner();
+        }
+        return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
-      case SignerType.KEYSTONE:
       case SignerType.JADE:
+        return navigateToAddQrBasedSigner();
       case SignerType.KEEPER:
         if (mode === InteracationMode.HEALTH_CHECK) {
           return navigateToAddQrBasedSigner();

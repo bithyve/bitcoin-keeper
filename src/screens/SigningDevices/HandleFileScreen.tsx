@@ -9,18 +9,11 @@ import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { hp } from 'src/constants/responsive';
+import { hp, windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 
-const HandleFileScreen = ({
-  title,
-  subTitle,
-  onFileExtract,
-  ctaText,
-  signer,
-  addSignerFlow,
-  mode,
-}) => {
+const HandleFileScreen = ({ route, navigation }) => {
+  const { title, subTitle, onFileExtract, ctaText, signer, addSignerFlow, mode } = route.params;
   const [inputText, setInputText] = useState('');
 
   const { colorMode } = useColorMode();
@@ -62,7 +55,7 @@ const HandleFileScreen = ({
             <Input
               testID="input_container"
               placeholder="Enter the contents of the file"
-              placeholderTextColor={`${colorMode}.primaryText`} // TODO: change to colorMode and use native base component
+              placeholderTextColor={'grey'}
               style={styles.textInput}
               variant="unstyled"
               value={inputText}
@@ -72,12 +65,15 @@ const HandleFileScreen = ({
               multiline
             />
           </Box>
-          <Box style={styles.tileContainer}>
-            <Box style={styles.tileWrapper}>
-              <Tile title="Import a file" subTitle="From your phone" onPress={onFileImport} />
-            </Box>
+          <Box style={styles.tileWrapper}>
+            <Tile title="Import a file" subTitle="From your phone" onPress={onFileImport} />
+          </Box>
+          <Box style={styles.footerWrapper}>
             <Buttons
-              primaryCallback={() => onFileExtract(inputText)}
+              primaryCallback={() => {
+                navigation.goBack();
+                onFileExtract(inputText);
+              }}
               primaryText={ctaText}
               primaryDisable={!inputText}
             />
@@ -95,27 +91,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputWrapper: {
-    flexDirection: 'column',
-    marginVertical: hp(20),
-    marginHorizontal: hp(5),
-    width: '100%',
+    marginHorizontal: windowWidth * 0.1 - 20,
+    width: windowWidth * 0.8,
+    marginTop: hp(30),
     alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 10,
   },
   textInput: {
     width: '100%',
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
     padding: 20,
-    opacity: 0.5,
     height: 150,
-  },
-  tileContainer: {
-    position: 'absolute',
-    bottom: 10,
-    width: '100%',
   },
   tileWrapper: {
     marginBottom: 15,
+    marginHorizontal: windowWidth * 0.1 - 20,
+    width: windowWidth * 0.8,
+  },
+  footerWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
   },
 });
