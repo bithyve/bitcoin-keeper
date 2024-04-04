@@ -664,7 +664,8 @@
     "torViaOrbotSubTitle": "Use the Orbot app. Greater control, quicker connection and advanced options",
     "inAppTor": "In-app Tor",
     "inAppTorSubTitle": "Use direct Tor. No need to download a separate app. May be slow and unreliable",
-    "checkStatus": "Check Status",
+    "checkStatus": "CHECK STATUS",
+    "CurrentStatus": "CURRENT STATUS",
     "torSettingsNoteSubTitle": "Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings",
     "orbotConnection": "Orbot Connection",
     "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device.",
@@ -745,7 +746,8 @@
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
     "recoveryPhrase": "Recovery Phrase",
     "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
-    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key."
+    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key.",
+    "recoveryKeyNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access"
   },
   "importWallet": {
     "addDetails": "Add details",
