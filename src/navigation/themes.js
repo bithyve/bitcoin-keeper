@@ -140,7 +140,7 @@ export const customTheme = extendTheme({
       LightGreen: Colors.lightGreen,
       lightPurple: Colors.LightPurple,
       MintWhisper: Colors.MintWhisper,
-      // SlateGrey: Colors.SlateGrey,
+      SlateGrey: Colors.SlateGrey,
       // LightKhaki: Colors.LightKhaki,
       // SmokeGreen: Colors.SmokeGreen,
       // Warmbeige: Colors.Warmbeige,

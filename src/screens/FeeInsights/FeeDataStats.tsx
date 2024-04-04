@@ -76,8 +76,8 @@ const FeeDataStats = () => {
         <FeeInsightCard
           line1={'Market price'}
           line2={'change USD'}
-          suffix={'%'}
-          stats={feeInsight.btc_data.btc_price_change_percent.toFixed(2)}
+          suffix={''}
+          stats={feeInsight.btc_data.btc_price_change_percent.toFixed(2) + '%'}
         />
         {currencyKind === 'BITCOIN' && <FeeInsightCard
           line1={'Suggested'}

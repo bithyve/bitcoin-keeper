@@ -1187,7 +1187,7 @@ const styles = StyleSheet.create({
   },
   highFeeTitle: {
     fontSize: 14,
-    letterSpacing: 0.55,
+    marginBottom:5
   },
   statsTitle: {
     fontSize: 12,

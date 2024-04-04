@@ -26,14 +26,14 @@ const FeeInsightCard = (props: Props) => {
           </View>
         )}
         <Box>
-          <Text style={styles.lineOneStyle} color={`${colorMode}.GreenishGrey`}>{props.line1}</Text>
-          <Text style={styles.lineOneStyle} color={`${colorMode}.GreenishGrey`}>{props.line2}</Text>
+          <Text style={styles.lineOneStyle} color={`${colorMode}.GreyText`}>{props.line1}</Text>
+          <Text style={styles.lineOneStyle} color={`${colorMode}.GreyText`}>{props.line2}</Text>
         </Box>
       </View>
       <Box style={styles.statsWrapper}>
         <Text>
-          <Text style={styles.statsWrapper} color={`${colorMode}.GreenishGrey`}>{props.stats}</Text>
-          <Text style={styles.statStyle} color={`${colorMode}.GreenishGrey`}>{props.suffix}</Text>
+          <Text style={styles.statsWrapper} color={`${colorMode}.GreyText`}>{props.stats}</Text>
+          <Text style={styles.statStyle} color={`${colorMode}.GreyText`}>{props.suffix}</Text>
         </Text>
       </Box>
     </Box>

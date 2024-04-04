@@ -50,8 +50,8 @@ const FeeGraph = (props: Props) => {
         yAxisColor={ customTheme.colors[colorMode].lightSeashell}
         xAxisColor={ customTheme.colors[colorMode].lightSeashell}
         yAxisLabelWidth={18}
-        color={ customTheme.colors[colorMode].pantoneGreen}
-        yAxisTextStyle={{ color:  customTheme.colors[colorMode].pantoneGreen, fontSize: 10, fontFamily: Fonts.FiraSansSemiBold }}
+        color={ customTheme.colors[colorMode].Border}
+        yAxisTextStyle={{ color:  customTheme.colors[colorMode].DarkSage, fontSize: 12, fontFamily: Fonts.FiraSansSemiBold }}
         areaGradientId="ag"
         areaGradientComponent={() => {
           return (

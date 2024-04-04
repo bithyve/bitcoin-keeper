@@ -7,7 +7,7 @@ import Text from 'src/components/KeeperText';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import BTC_DOWN from 'src/assets/images/btc_down.svg';
 import BTC_UP from 'src/assets/images/btc_up.svg';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 interface Props {
   showFeesInsightModal: () => void;
@@ -18,6 +18,8 @@ const FeerateStatement = (props: Props) => {
   const [shortFeeStatement, setShortFeeStatement] = useState('');
   const [arrowPointer, setArrowPointer] = useState('higher');
   const [percentageDifference, setPercentageDifference] = useState(0);
+  const { colorMode } = useColorMode();
+
   const { showFeesInsightModal, feeInsightData } = props;
   useEffect(() => {
     if (feeInsightData.length > 0) {
@@ -67,21 +69,25 @@ const FeerateStatement = (props: Props) => {
       </Box>
       <View style={styles.divider}></View>
       <Box style={styles.statementWrapper}>
-        <Text style={styles.highAlertSatsFee}>Fees are</Text>
+        <Text style={styles.highAlertSatsFee} color={`${colorMode}.SlateGrey`}>
+          Fees are
+        </Text>
         <Box>
           <Box style={styles.textWrapper}>
             <Box style={styles.arrowWrapper}>
-             {arrowPointer==='lower'? <BTC_DOWN />:<BTC_UP/>}
+              {arrowPointer === 'lower' ? <BTC_DOWN /> : <BTC_UP />}
             </Box>
-            <Text style={styles.percentageStatement}>
+            <Text style={styles.percentageStatement} color={`${colorMode}.Feldgrau`}>
               {Math.abs(Number(percentageDifference.toFixed(2)))}%
             </Text>
           </Box>
-          <Text style={styles.highAlertSatsFee}>{arrowPointer} than usual</Text>
+          <Text style={styles.highAlertSatsFee} color={`${colorMode}.SlateGrey`}>
+            {arrowPointer} than usual
+          </Text>
         </Box>
       </Box>
       <View style={styles.ctaContainer}>
-        <RightArrowIcon />
+        <RightArrowIcon color={`${colorMode}.SlateGrey`} />
       </View>
     </TouchableOpacity>
   );
@@ -119,9 +125,9 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.FiraSansCondensedRegular,
   },
   percentageStatement: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: Fonts.FiraSansCondensedBold,
-    fontWeight:'700',
+    fontWeight: '700',
   },
   ctaContainer: {
     justifyContent: 'center',
@@ -131,7 +137,7 @@ const styles = StyleSheet.create({
   arrowWrapper: {
     width: 15,
     height: 20,
-    paddingTop:5
+    paddingTop: 5,
   },
   textWrapper: {
     flexDirection: 'row',

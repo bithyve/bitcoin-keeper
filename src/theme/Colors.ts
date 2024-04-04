@@ -63,7 +63,7 @@ const Colors = {
   SlateGreen: 'rgba(165, 180, 174, 1)',
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',
-  // SlateGrey: 'rgba(36,49,46,1)',
+  SlateGrey: 'rgba(36,49,46,1)',
   // LightKhaki: 'rgba(217,209,169,1)',
   Eggshell: 'rgba(238,227,216,1)',
   Teal: 'rgba(46,103,89,1)',
