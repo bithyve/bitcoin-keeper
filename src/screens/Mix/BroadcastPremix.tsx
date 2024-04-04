@@ -256,6 +256,7 @@ export default function BroadcastPremix({ route, navigation }) {
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore
+        learnTextColor={`${colorMode}.white`}
         learnMorePressed={() => {
           dispatch(setWhirlpoolSwiperModal(true));
         }}

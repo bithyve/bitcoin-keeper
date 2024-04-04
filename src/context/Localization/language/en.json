@@ -98,6 +98,7 @@
     "showAsQR": "Show as QR",
     "addNow": "ADD NOW",
     "runHealthCheck": "Run Health Check",
+    "needMoreHelp": "Need more help?",
     "action": "Action"
   },
   "noInternet": {
@@ -427,7 +428,13 @@
     "sendingFromUtxo": "Sending from selected UTXOs of",
     "AvailableToSpend": "Available to spend",
     "advanced": "Advanced",
-    "chooseFromTemplate": "Choose from a template"
+    "chooseFromTemplate": "Choose from a template",
+    "watchOnly": "Watch only",
+    "watchOnlyDesc": "You can keep an eye on an external wallet using this option.Note that you would be able to see various transactions and wallet balance but not send/receive sats.",
+    "walletConfigurationFile": "Wallet Configuration file",
+    "walletConfigurationFileDesc": "Have a specific multisig wallet that you’d like to recover? Have a specific multisig wallet that you’d like to recover? Use this option to recreate an existing multisig wallet. Note that if your Output Descriptor File ( aka the BSMS file) are from another Keeper app, only the specific vault that it belongs to, would be recreaeted. Not the whole app with all of its wallets.",
+    "useSignersVaultRegistration": "Use signers with vault registration",
+    "useSignersVaultRegistrationDesc": " Wish to import a multisig that is registered with a hardware signer. You can use this option for the purpose. Note that this option would help you 1 multisig wallet at a time."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
