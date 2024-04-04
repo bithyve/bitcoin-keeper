@@ -796,6 +796,26 @@
     "secureUsageTips": "Secure Usage Tips",
     "secureUsageTipsDesp": "Recommendations while transacting",
     "safeKeepingTips": "Safekeeping Tips",
-    "safeKeepingTipsDesp": "Key storage best practices"
+    "safeKeepingTipsDesp": "Key storage best practices",
+    "thoroughVeirifcationTitle": "Thorough Verification of Transaction Details",
+    "thoroughParagraph1": "Carefully review all transaction details, particularly the recipient’s address, within your multi-key setup. This careful attention is essential to avoid errors and secure your transactions, ensuring the safety of your bitcoin.",
+    "thoroughParagraph2": "It is recommended to use atleast one hardware device with a screen. This allows to register your multi-key quorum on the device and thoroughly check transactions.",
+    "preliminaryTitle": "Preliminary Test Transactions",
+    "preliminaryParagraph1": "Before making significant transfers, conduct a small test transaction. This step verifies the transaction’s accuracy and confirms the smooth functioning of your multi-key setup, adding a protective layer to your bitcoin transactions.",
+    "preliminaryParagraph2": "This will not just ensure that the system is working as intended but will also be a practice for you before you actually need it.",
+    "secureCoordinationTitle": "Secure Coordination Among Key Holders",
+    "secureCoordinationParagraph1": "Use encrypted communication for coordinating transaction approvals with other key holders. This ensures everyone is on the same page regarding the transaction details, protecting the integrity of your bitcoin transactions.",
+    "secureCoordinationParagraph2": "Please screen your key holders for trustworthiness in terms of handling the key and having your best interest in mind.",
+    "crossDeviceTitle": "Cross-Device Verification",
+    "crossDeviceParagraph1": "To further enhance security, verify transaction details on multiple devices involved in your multi-key setup. This approach can help identify any discrepancies or fraudulent attempts, securing your bitcoin transactions effectively.",
+    "crossDeviceParagraph2": "You are encouraged to recreate the multi-key setup on another co-ordinator app to have complete independence from Keeper.",
+    "masterKeyTitle": "Master Recovery Key",
+    "masterKeyDescp": "Backup 12-word seed phrase",
+    "personalCloudTitle": "Personal Cloud Backup",
+    "personalCloudDescp": "Use your iCloud or Google Drive",
+    "walletConfigFilesTitle": "Wallet Configuration Files",
+    "wallerConfigFilesDescp": "Manual download (advanced)",
+    "backupRecoveryTips": "Backup and Recovery Tips",
+    "backupRecoveryDescp": "Suggestions for secure backup"
   }
 }
