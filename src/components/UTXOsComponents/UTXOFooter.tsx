@@ -27,10 +27,14 @@ function UTXOFooter({
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
 
-  let isTaproot = false;
-  const derivationPath = idx(wallet as Wallet, (_) => _.derivationDetails.xDerivationPath);
-  if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86)
-    isTaproot = true;
+  const isVault = wallet?.entityKind === EntityKind.VAULT;
+  let isTaprootWallet = false;
+  if (!isVault) {
+    // case: single-sig hot wallet
+    const derivationPath = idx(wallet as Wallet, (_) => _.derivationDetails.xDerivationPath);
+    if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86)
+      isTaprootWallet = true;
+  }
 
   const footerItems = [
     {
@@ -41,10 +45,7 @@ function UTXOFooter({
         setInitiateWhirlpool(true);
       },
       disabled: !utxos.length,
-      hideItem:
-        !allowedMixTypes.includes(wallet?.type) ||
-        wallet?.entityKind === EntityKind.VAULT ||
-        isTaproot,
+      hideItem: !allowedMixTypes.includes(wallet?.type) || isVault || isTaprootWallet,
     },
     {
       text:
