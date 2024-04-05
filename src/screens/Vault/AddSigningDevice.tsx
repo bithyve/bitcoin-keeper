@@ -121,18 +121,7 @@ const onSignerSelect = (
   }
 };
 
-const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
-  const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
-  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
-  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
-
-  if (
-    (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
-    (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
-  ) {
-    return false;
-  }
-
+const isAssistedKeyValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
     // scheme based restrictions for assisted keys
     if (signer.type === SignerType.POLICY_SERVER) {
@@ -160,6 +149,23 @@ const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigne
     if (!cannotFormQuorum || !notRequiredForQuorum) return false;
   }
   return true;
+};
+
+const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
+  const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
+  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+
+  if (
+    (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
+    (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
+  ) {
+    return false;
+  }
+
+  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+  } else return true;
 };
 
 const setInitialKeys = (
