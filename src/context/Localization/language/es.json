@@ -31,6 +31,7 @@
     "walletID": "Wallet ID",
     "allow": "Allow",
     "deny": "Deny",
+    "accept": "Accept",
     "ignore": "Ignore",
     "openSetting": "Open Setting",
     "back": "Back",
@@ -227,7 +228,9 @@
     "Thiswillbesecured": "This will be secured once it crosses 0.1 btc",
     "SecureNow": "Secure Now",
     "ScanQR": "Scan a QR",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "createTribeWalletTitle": "Create Tribe Wallet with Keeper",
+    "createTribeWalletSubTitle": "Tribe wallet has requested Create with Keeper. You would be sharing a Key/Seed with Bitcoin Tribe."
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
