@@ -331,17 +331,18 @@ function Signers({
         <TickIcon />,
         IToastCategory.SIGNING_DEVICE
       );
+      navigation.goBack();
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
     }
   };
 
-  const renderMockAssistedKeys = () => {
+  const renderAssistedKeysShell = () => {
     // tier-based, display only, till an actual assisted keys is setup
-    const mockAssistedKeys = [];
+    const shellAssistedKeys = [];
 
-    const generateMockAssistedKey = (signerType: SignerType): Signer => {
+    const generateShellAssistedKey = (signerType: SignerType): Signer => {
       return {
         type: signerType,
         storageType: SignerStorage.WARM,
@@ -354,37 +355,38 @@ function Signers({
       };
     };
 
-    let hasSigningServer = false;
-    let hasInheritanceKey = false;
+    let hasSigningServer = false; // actual signing server present?
+    let hasInheritanceKey = false; // actual inheritance key present?
     for (let signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
       else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
     }
 
     if (!hasSigningServer && level >= AppSubscriptionLevel.L2)
-      mockAssistedKeys.push(generateMockAssistedKey(SignerType.POLICY_SERVER));
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
 
     if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3)
-      mockAssistedKeys.push(generateMockAssistedKey(SignerType.INHERITANCEKEY));
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
 
-    return mockAssistedKeys.map((mockSigner) => {
-      const disabled = !isAssistedKeyValidForScheme(mockSigner, scheme, signerMap, selectedSigners);
+    return shellAssistedKeys.map((shellSigner) => {
+      const disabled = !isAssistedKeyValidForScheme(
+        shellSigner,
+        scheme,
+        signerMap,
+        selectedSigners
+      );
       const isAMF = false;
       return (
         <SignerCard
           disabled={disabled}
-          key={mockSigner.masterFingerprint}
-          name={getSignerNameFromType(mockSigner.type, mockSigner.isMock, isAMF)}
-          description={getSignerDescription(mockSigner.type, 0)}
-          icon={SDIcons(mockSigner.type, colorMode !== 'dark').Icon}
-          isSelected={!!selectedSigners.get(mockSigner.masterFingerprint)} // false
+          key={shellSigner.masterFingerprint}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          description={'To setup'}
+          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
           onCardSelect={() => {
-            console.log({ type: mockSigner.type, level });
-            if (mockSigner.type === SignerType.POLICY_SERVER) {
-              navigateToSigningServerSetup();
-            } else if (mockSigner.type === SignerType.INHERITANCEKEY) {
-              setupInheritanceKey();
-            }
+            if (shellSigner.type === SignerType.POLICY_SERVER) navigateToSigningServerSetup();
+            else if (shellSigner.type === SignerType.INHERITANCEKEY) setupInheritanceKey();
           }}
           colorMode={colorMode}
         />
@@ -429,8 +431,8 @@ function Signers({
       );
     });
 
-    const mockAssistedKeyCards = renderMockAssistedKeys();
-    return [...signerCards, ...mockAssistedKeyCards];
+    const shellAssistedKeyCards = renderAssistedKeysShell();
+    return [...signerCards, ...shellAssistedKeyCards];
   };
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
