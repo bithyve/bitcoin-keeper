@@ -29,7 +29,11 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
-import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
+import {
+  generateSignerFromMetaData,
+  getSignerDescription,
+  getSignerNameFromType,
+} from 'src/hardware';
 import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -37,6 +41,9 @@ import { SDIcons } from './SigningDeviceIcons';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
+import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
+import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 
 const { width } = Dimensions.get('screen');
 
@@ -291,9 +298,67 @@ function Signers({
   vaultId,
   signerMap,
 }) {
+  const { level } = useSubscriptionLevel();
+  const dispatch = useDispatch();
+
+  const renderMockAssistedKeys = () => {
+    // tier-based, display only, till an actual assisted keys is setup
+    const mockAssistedKeys = [];
+
+    const generateMockAssistedKey = (signerType: SignerType): Signer => {
+      return {
+        type: signerType,
+        storageType: SignerStorage.WARM,
+        signerName: getSignerNameFromType(signerType, false, false),
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+        masterFingerprint: '',
+        signerXpubs: {},
+        hidden: false,
+      };
+    };
+
+    let hasSigningServer = false;
+    let hasInheritanceKey = false;
+    for (let signer of signers) {
+      if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
+      else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
+    }
+
+    if (!hasSigningServer && level >= AppSubscriptionLevel.L2)
+      mockAssistedKeys.push(generateMockAssistedKey(SignerType.POLICY_SERVER));
+
+    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3)
+      mockAssistedKeys.push(generateMockAssistedKey(SignerType.INHERITANCEKEY));
+
+    return mockAssistedKeys.map((mockSigner) => {
+      const disabled = !isAssistedKeyValidForScheme(mockSigner, scheme, signerMap, selectedSigners);
+      const isAMF = false;
+      return (
+        <SignerCard
+          disabled={disabled}
+          key={mockSigner.masterFingerprint}
+          name={getSignerNameFromType(mockSigner.type, mockSigner.isMock, isAMF)}
+          description={getSignerDescription(mockSigner.type, 0)}
+          icon={SDIcons(mockSigner.type, colorMode !== 'dark').Icon}
+          isSelected={!!selectedSigners.get(mockSigner.masterFingerprint)} // false
+          onCardSelect={() => {
+            console.log({ type: mockSigner.type, level });
+            if (mockSigner.type === SignerType.POLICY_SERVER) {
+              navigateToSigningServerSetup();
+            } else if (mockSigner.type === SignerType.INHERITANCEKEY) {
+              setupInheritanceKey();
+            }
+          }}
+          colorMode={colorMode}
+        />
+      );
+    });
+  };
+
   const renderSigners = () => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
-    return signers.map((signer) => {
+    const signerCards = signers.map((signer) => {
       const disabled =
         !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
         (signer.type === SignerType.MY_KEEPER &&
@@ -327,6 +392,9 @@ function Signers({
         />
       );
     });
+
+    const mockAssistedKeyCards = renderMockAssistedKeys();
+    return [...signerCards, ...mockAssistedKeyCards];
   };
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
