@@ -8,7 +8,7 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
-import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { NetworkType, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -19,7 +19,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -44,6 +44,8 @@ import idx from 'idx';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import TickIcon from 'src/assets/images/tick_icon.svg';
 
 const { width } = Dimensions.get('screen');
 
@@ -300,6 +302,40 @@ function Signers({
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
+
+  const navigateToSigningServerSetup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChoosePolicyNew',
+        params: { signer: undefined, addSignerFlow: false, vaultId: '' },
+      })
+    );
+  };
+
+  const setupInheritanceKey = async () => {
+    try {
+      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
+      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { signer: inheritanceKey } = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        masterFingerprint,
+        signerType: SignerType.INHERITANCEKEY,
+        storageType: SignerStorage.WARM,
+        xfp: id,
+        isMultisig: true,
+      });
+      dispatch(addSigningDevice([inheritanceKey]));
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
+    } catch (err) {
+      console.log({ err });
+      showToast('Failed to add inheritance key', <TickIcon />);
+    }
+  };
 
   const renderMockAssistedKeys = () => {
     // tier-based, display only, till an actual assisted keys is setup
