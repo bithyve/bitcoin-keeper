@@ -473,6 +473,8 @@ function TransactionPriorityDetails({
 }
 
 function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) {
+  const { getCurrencyIcon } = useBalance();
+
   return (
     <Box justifyContent={'space-between'} style={[styles.amountDetailsWrapper]}>
       <Box style={styles.amtDetailsTitleWrapper}>
@@ -481,13 +483,19 @@ function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) 
         </Text>
       </Box>
       <Box style={styles.amtFiatSatsTitleWrapper}>
-        <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
-          {fiatAmount}
-        </Text>
+        <Box>
+          <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
+            {fiatAmount}
+          </Text>
+        </Box>
       </Box>
       {satsAmount && (
         <Box style={styles.amtFiatSatsTitleWrapper}>
-          <Text style={styles.amtDetailsText}>{satsAmount}</Text>
+          <Box style={styles.currencyIcon}>
+            {getCurrencyIcon(BTC, 'dark')}
+            &nbsp;
+            <Text style={styles.amtDetailsText}>{satsAmount}</Text>
+          </Box>
         </Box>
       )}
     </Box>
@@ -1115,7 +1123,8 @@ const styles = StyleSheet.create({
   },
   amtFiatSatsTitleWrapper: {
     width: '35%',
-    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
   },
   amtDetailsText: {
     fontSize: 12,
@@ -1162,5 +1171,9 @@ const styles = StyleSheet.create({
   cardSubtitle: {
     fontSize: 12,
     letterSpacing: 0.72,
+  },
+  currencyIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
