@@ -13,7 +13,7 @@ import { hp, windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 
 const HandleFileScreen = ({ route, navigation }) => {
-  const { title, subTitle, onFileExtract, ctaText, signer, addSignerFlow, mode } = route.params;
+  const { title, subTitle, onFileExtract, ctaText } = route.params;
   const [inputText, setInputText] = useState('');
 
   const { colorMode } = useColorMode();

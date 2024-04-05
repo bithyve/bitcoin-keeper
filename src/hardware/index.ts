@@ -418,6 +418,10 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
 };
 
 export const extractKeyFromDescriptor = (data) => {
+  if (data.startsWith('BSMS')) {
+    data = data.slice(data.indexOf('['));
+    data = data.slice(0, data.indexOf('\n'));
+  }
   const xpub = data.slice(data.indexOf(']') + 1);
   const masterFingerprint = data.slice(1, 9);
   const derivationPath = data
