@@ -98,6 +98,7 @@
     "showAsQR": "Show as QR",
     "addNow": "ADD NOW",
     "runHealthCheck": "Run Health Check",
+    "needMoreHelp": "Need more help?",
     "action": "Action"
   },
   "noInternet": {
@@ -407,7 +408,7 @@
     "walletDetailsUpdate": "Wallet details updated",
     "failToUpdate": "Failed to update",
     "walletBalanceMsg": "Wallet has balance: changes not allowed",
-    "transactionBroadcasted": "The transaction has been successfully broadcasted",
+    "transactionBroadcasted": "The transaction has been broadcasted successfully.",
     "sendTransSuccessMsg": " You can view the confirmation status of the transaction on any block explorer or when the vault transaction list is refreshed",
     "PRIORITY": "PRIORITY",
     "ARRIVALTIME": "ARRIVAL TIME",
@@ -427,7 +428,13 @@
     "sendingFromUtxo": "Sending from selected UTXOs of",
     "AvailableToSpend": "Available to spend",
     "advanced": "Advanced",
-    "chooseFromTemplate": "Choose from a template"
+    "chooseFromTemplate": "Choose from a template",
+    "watchOnly": "Watch only",
+    "watchOnlyDesc": "You can keep an eye on an external wallet using this option.Note that you would be able to see various transactions and wallet balance but not send/receive sats.",
+    "walletConfigurationFile": "Wallet Configuration file",
+    "walletConfigurationFileDesc": "Have a specific multisig wallet that you’d like to recover? Have a specific multisig wallet that you’d like to recover? Use this option to recreate an existing multisig wallet. Note that if your Output Descriptor File ( aka the BSMS file) are from another Keeper app, only the specific vault that it belongs to, would be recreaeted. Not the whole app with all of its wallets.",
+    "useSignersVaultRegistration": "Use signers with vault registration",
+    "useSignersVaultRegistrationDesc": " Wish to import a multisig that is registered with a hardware signer. You can use this option for the purpose. Note that this option would help you 1 multisig wallet at a time."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -657,7 +664,8 @@
     "torViaOrbotSubTitle": "Use the Orbot app. Greater control, quicker connection and advanced options",
     "inAppTor": "In-app Tor",
     "inAppTorSubTitle": "Use direct Tor. No need to download a separate app. May be slow and unreliable",
-    "checkStatus": "Check Status",
+    "checkStatus": "CHECK STATUS",
+    "CurrentStatus": "CURRENT STATUS",
     "torSettingsNoteSubTitle": "Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings",
     "orbotConnection": "Orbot Connection",
     "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device.",
@@ -738,7 +746,8 @@
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
     "recoveryPhrase": "Recovery Phrase",
     "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
-    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key."
+    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key.",
+    "recoveryKeyNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access"
   },
   "importWallet": {
     "addDetails": "Add details",
