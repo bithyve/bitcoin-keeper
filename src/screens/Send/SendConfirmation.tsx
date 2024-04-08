@@ -21,7 +21,6 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
-import Checked from 'src/assets/images/check.svg';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
@@ -52,13 +51,7 @@ import CustomPriorityModal from './CustomPriorityModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-
-const customFeeOptionTransfers = [
-  TransferType.VAULT_TO_ADDRESS,
-  TransferType.VAULT_TO_WALLET,
-  TransferType.WALLET_TO_WALLET,
-  TransferType.WALLET_TO_ADDRESS,
-];
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -75,22 +68,11 @@ function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
       alignItems={'center'}
       minHeight={hp(70)}
     >
-      <Box
-        // backgroundColor={`${colorMode}.accent`}
-        // height={10}
-        // width={10}
-        // borderRadius={20}
-        justifyContent="center"
-        alignItems="center"
-      >
+      <Box justifyContent="center" alignItems="center">
         {isVault ? <VaultIcon /> : <WalletIcon />}
       </Box>
       <Box marginLeft={3}>
-        <Text
-          // color={`${colorMode}.greenText2`}
-          numberOfLines={showFullAddress ? 2 : 1}
-          style={styles.cardTitle}
-        >
+        <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle}>
           {title}
         </Text>
         {!showFullAddress && (
@@ -207,12 +189,7 @@ function SendingCard({
   };
   return (
     <Box marginY={windowHeight > 570 ? windowHeight * 0.01 : 0}>
-      <Text
-        color={`${colorMode}.primaryText`}
-        fontSize={14}
-        letterSpacing={1.12}
-        marginY={windowHeight > 570 ? windowHeight * 0.011 : 1}
-      >
+      <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>
         {isSend ? 'Sending From' : 'Sending To'}
       </Text>
       {getCardDetails()}
@@ -512,15 +489,25 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
     <>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-        <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>{getBalance(selectedFee)}&nbsp;&nbsp;</Text>
-        </Box>
+        <CurrencyInfo
+          amount={selectedFee}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode !== 'light' ? Colors.White : Colors.RichBlack}
+          variation={colorMode !== 'light' ? 'light' : 'dark'}
+        />
       </Box>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-        <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
-        </Box>
+        <CurrencyInfo
+          amount={amountToSend}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode !== 'light' ? Colors.White : Colors.RichBlack}
+          variation={colorMode !== 'light' ? 'light' : 'dark'}
+        />
       </Box>
       <Box width={'70%'}>
         <Text fontSize={13}>If not urgent, you could consider waiting for the fees to reduce</Text>
@@ -1175,5 +1162,10 @@ const styles = StyleSheet.create({
   currencyIcon: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  sendingFromText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+    marginY: windowHeight > 570 ? windowHeight * 0.011 : 1,
   },
 });
