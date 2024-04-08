@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -11,33 +11,29 @@ import { useNavigation } from '@react-navigation/native';
 import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import RecoveryPhraseIcon from 'src/assets/images/recovery-phrase-icon.svg';
 import DownArrow from 'src/assets/images/down_arrow.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function RecoveryPhraseTemplate({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>Recovery Phrase Template</Text>
-        <Text style={styles.description}>12, 18 or 24 words</Text>
-        <Text style={styles.commonTextStyle}>
-          This is a simple template that can be printed out on a small piece of paper (ideally
-          acid-free).
-        </Text>
-
+        <Text style={styles.heading}>{inheritancePlanning.recoveryPhraseTitleTemplate}</Text>
+        <Text style={styles.description}>{inheritancePlanning.recoveryPhraseDescpMain}</Text>
+        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryPhraseP1}</Text>
         <Box style={styles.circleStyle}>
           <RecoveryPhraseIcon />
         </Box>
-        <Text style={styles.commonTextStyle}>
-          12, 18 or 24 words recovery phrase can then be written down on them with an archival type
-          pen and the sheet laminated at home.
-        </Text>
+        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryPhraseP2}</Text>
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="To be filled privately"
+            description={inheritancePlanning.recoveryPhraseCtaDescp}
             callback={() => {
               GenerateRecoveryPhraseTemplate().then((res) => {
                 if (res) {
@@ -45,7 +41,7 @@ function RecoveryPhraseTemplate({}) {
                 }
               });
             }}
-            name="View Recovery Phrase Template"
+            name={inheritancePlanning.recoveryPhraseTemplateCtaTitle}
           />
         </Box>
 
@@ -53,10 +49,7 @@ function RecoveryPhraseTemplate({}) {
           <Text bold color={`${colorMode}.white`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            Please ensure to never reveal the filled up document to anyone other than your intended
-            heir.{' '}
-          </Text>
+          <Text color={`${colorMode}.white`}>{inheritancePlanning.recoveryPhraseNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

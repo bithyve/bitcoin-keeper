@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -11,25 +11,22 @@ import { useNavigation } from '@react-navigation/native';
 import RecoveryPhraseIcon from 'src/assets/images/printable-templates.svg';
 import GenerateRecoveryInstrcutionsPDF from 'src/utils/GenerateRecoveryInstrcutionsPDF';
 import DownArrow from 'src/assets/images/down_arrow.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function RecoveryInstruction({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>Recovery Instructions</Text>
-        <Text style={styles.description}>For the heir or beneficiary</Text>
-        <Text style={styles.commonTextStyle}>
-          Recovery Instructions is a document containing information and steps to be used by the
-          heir to recover the funds.
-        </Text>
-        <Text style={styles.commonTextStyle}>
-          The document contains no sensitive information. It can be kept along with all the keys or
-          separately.
-        </Text>
+        <Text style={styles.heading}>{inheritancePlanning.recoveryInstructionsTitle}</Text>
+        <Text style={styles.description}>{inheritancePlanning.recoveryInstructionsDescp}</Text>
+        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryInstructionsP1}</Text>
+        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryInstructionsP2}</Text>
         <Box style={styles.circleStyle}>
           <RecoveryPhraseIcon />
         </Box>
@@ -37,7 +34,7 @@ function RecoveryInstruction({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="For the heir or beneficiary"
+            description={inheritancePlanning.recoveryInstructionsCtaDescp}
             callback={() => {
               GenerateRecoveryInstrcutionsPDF().then((res) => {
                 if (res) {
@@ -45,7 +42,7 @@ function RecoveryInstruction({}) {
                 }
               });
             }}
-            name="View Recovery Instructions "
+            name={inheritancePlanning.recoveryInstructionsCtaTitle}
           />
         </Box>
 
@@ -53,9 +50,7 @@ function RecoveryInstruction({}) {
           <Text bold color={`${colorMode}.white`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            Test the recovery using the instructions provided to ensure everything is in place.
-          </Text>
+          <Text color={`${colorMode}.white`}>{inheritancePlanning.recoveryInstructionsNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
