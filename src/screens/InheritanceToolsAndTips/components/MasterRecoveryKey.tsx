@@ -12,7 +12,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { CommonActions } from '@react-navigation/native';
-import DownArrow from 'src/assets/images/down_arrow.svg';
+import MasterKey from 'src/assets/images/master_key.svg';
 
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
@@ -42,7 +42,7 @@ function MasterRecoveryKey({ navigation }) {
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
-            icon={<DownArrow />}
+            icon={<MasterKey />}
             description="Please view in a private location"
             callback={() => {
               navigation.dispatch(
