@@ -249,14 +249,7 @@ function SigningDeviceDetails({ route }) {
     return (
       <Box>
         <Center>{assert}</Center>
-        <Text
-          color={`${colorMode}.modalGreenContent`}
-          style={{
-            fontSize: 13,
-            letterSpacing: 0.65,
-            marginTop: hp(25),
-          }}
-        >
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.contentDescription}>
           {description}
         </Text>
       </Box>
@@ -279,15 +272,7 @@ function SigningDeviceDetails({ route }) {
 
   function FooterIcon({ Icon }) {
     return (
-      <Box
-        margin="1"
-        width="12"
-        height="12"
-        borderRadius={30}
-        backgroundColor={`${colorMode}.BrownNeedHelp`}
-        justifyContent="center"
-        alignItems="center"
-      >
+      <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circleIcon}>
         <Icon />
       </Box>
     );
@@ -364,8 +349,8 @@ function SigningDeviceDetails({ route }) {
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>
       </Box>
-      <ScrollView contentContainerStyle={{ flex: 1 }}>
-        <Box mx={5}>
+      <ScrollView contentContainerStyle={styles.flex1}>
+        <Box style={styles.healthCheckContainer}>
           {healthCheckArray.map((_, index) => (
             <SigningDeviceChecklist item={signer} key={index.toString()} />
           ))}
@@ -463,7 +448,28 @@ const styles = StyleSheet.create({
   walletNameText: {
     fontSize: 20,
   },
-  recentHistoryText: { fontSize: 16, padding: '7%' },
+  recentHistoryText: {
+    fontSize: 16,
+    padding: '7%',
+  },
+  contentDescription: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    marginTop: hp(25),
+  },
+  circleIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flex1: {
+    flex: 1,
+  },
+  healthCheckContainer: {
+    marginHorizontal: wp(15),
+  },
 });
 
 export default SigningDeviceDetails;

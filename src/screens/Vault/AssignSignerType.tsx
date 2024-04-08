@@ -83,11 +83,7 @@ function AssignSignerType({ route }: IProps) {
         title="Identify your signer"
         subtitle="for better communication and conectivity"
       />
-      <ScrollView
-        contentContainerStyle={{ paddingVertical: 20, gap: 20 }}
-        style={{ height: hp(520) }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
         {!signersLoaded ? (
           <ActivityIndicator />
@@ -167,6 +163,10 @@ function AssignSignerType({ route }: IProps) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingVertical: 20,
+    gap: 20,
+  },
   walletMapContainer: {
     alignItems: 'center',
     height: windowHeight * 0.08,

@@ -56,7 +56,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         icon={<WalletVault />}
         callback={() => {}}
       />
-      <Box style={{ paddingVertical: 20 }}>
+      <Box style={styles.pv20}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
           Either hide the vault or remove the key from the vault to perform this operation.
         </Text>
@@ -237,7 +237,7 @@ function SignerAdvanceSettings({ route }: any) {
   function WarningContent() {
     return (
       <>
-        <Box alignSelf={'center'} mb={10} mr={10}>
+        <Box style={styles.warningIllustration}>
           <WarningIllustration />
         </Box>
         <Box>
@@ -443,11 +443,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         }
       />
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: hp(10),
-        }}
-      >
+      <ScrollView contentContainerStyle={styles.contentContainerStyle}>
         <OptionCard
           title="Edit Description"
           description="Short description to help you remember"
@@ -540,7 +536,7 @@ function SignerAdvanceSettings({ route }: any) {
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
-        <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
+        <ScrollView horizontal contentContainerStyle={styles.signerVaults}>
           {signerVaults.map((vault) => (
             <ActionCard
               key={vault.id}
@@ -820,5 +816,19 @@ const styles = StyleSheet.create({
     height: hp(65),
     padding: 15,
     justifyContent: 'center',
+  },
+  pv20: {
+    paddingVertical: 20,
+  },
+  warningIllustration: {
+    alignSelf: 'center',
+    marginBottom: hp(20),
+    marginRight: wp(40),
+  },
+  contentContainerStyle: {
+    paddingTop: hp(10),
+  },
+  signerVaults: {
+    gap: 5,
   },
 });
