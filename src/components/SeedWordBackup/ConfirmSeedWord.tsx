@@ -4,6 +4,8 @@ import React, { useContext, useState } from 'react';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Buttons from 'src/components/Buttons';
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
+import { StyleSheet } from 'react-native';
+import { hp, wp } from 'src/constants/responsive';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
@@ -17,7 +19,7 @@ function ConfirmSeedWord(props) {
   const [index] = useState(Math.floor(cryptoRandom() * words.length));
   const [invalid, setInvalid] = useState(false);
 
-  const getSeedNumber = (seedNumber) => {
+  const getSeedNumber = (seedNumber: number) => {
     switch (seedNumber + 1) {
       case 1:
         return 'first (01)';
@@ -43,10 +45,12 @@ function ConfirmSeedWord(props) {
         return 'eleventh (11)';
       case 12:
         return 'twelfth (12)';
+      default:
+        return '';
     }
   };
 
-  const getHint = (seedNumber) => {
+  const getHint = (seedNumber: number) => {
     switch (seedNumber + 1) {
       case 1:
         return 'first';
@@ -72,6 +76,8 @@ function ConfirmSeedWord(props) {
         return 'eleventh';
       case 12:
         return 'twelfth';
+      default:
+        return '';
     }
   };
 
@@ -82,19 +88,17 @@ function ConfirmSeedWord(props) {
   };
 
   return (
-    <Box backgroundColor={`${colorMode}.primaryBackground`} padding={10} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
       <Box>
         <Text fontSize={19} color={`${colorMode}.primaryText`}>
           {BackupWallet.confirmSeedWord}
         </Text>
-        <Text fontSize={13} color={`${colorMode}.secondaryText`} mb={10}>
+        <Text fontSize={13} color={`${colorMode}.secondaryText`}>
           Type exactly as they were displayed
         </Text>
       </Box>
-      <Box>
-        <Text fontSize={13} ml={1}>
-          {`Enter the ${getSeedNumber(index)} word`}
-        </Text>
+      <Box style={styles.contentContainer}>
+        <Text style={styles.noOfWord}>{`Enter the ${getSeedNumber(index)} word`}</Text>
         <Input
           placeholder={`Enter ${getHint(index)} word`}
           placeholderTextColor={`${colorMode}.secondaryText`}
@@ -109,10 +113,7 @@ function ConfirmSeedWord(props) {
             setInvalid(false);
           }}
           fontWeight={seedWord ? 500 : 200}
-          style={{
-            fontSize: 13,
-            letterSpacing: 0.96,
-          }}
+          style={styles.inputField}
           borderRadius={10}
           marginY={2}
           height={10}
@@ -120,14 +121,11 @@ function ConfirmSeedWord(props) {
         />
       </Box>
       {invalid && (
-        <Text color="red.400" fontSize={13} ml={1}>
+        <Text color={`${colorMode}.error`} style={styles.noOfWord}>
           {getErrorMsg()}
         </Text>
       )}
-
-      <Box my={5}>
-        <Text fontSize={13}>{BackupWallet.seedWordNote}</Text>
-      </Box>
+      <Text style={styles.seedWordNote}>{BackupWallet.seedWordNote}</Text>
       <Buttons
         secondaryText={BackupWallet.startOver}
         secondaryCallback={() => {
@@ -145,4 +143,27 @@ function ConfirmSeedWord(props) {
     </Box>
   );
 }
+
 export default ConfirmSeedWord;
+
+const styles = StyleSheet.create({
+  container: {
+    padding: wp(30),
+    borderRadius: 10,
+  },
+  contentContainer: {
+    marginTop: hp(20),
+  },
+  noOfWord: {
+    fontSize: 13,
+    marginLeft: 5,
+  },
+  inputField: {
+    fontSize: 13,
+    letterSpacing: 0.96,
+  },
+  seedWordNote: {
+    fontSize: 13,
+    marginVertical: 20,
+  },
+});
