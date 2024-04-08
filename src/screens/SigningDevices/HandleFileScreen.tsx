@@ -3,43 +3,34 @@ import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, Input, useColorMode } from 'native-base';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
-import DocumentPicker from 'react-native-document-picker';
-import RNFS from 'react-native-fs';
-import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
+import { exportFile, importFile } from 'src/services/fs';
 
 const HandleFileScreen = ({ route, navigation }) => {
-  const { title, subTitle, onFileExtract, ctaText } = route.params;
+  const { title, subTitle, onFileExtract, ctaText, fileData = '' } = route.params;
   const [inputText, setInputText] = useState('');
 
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
-  const onFileImport = async () => {
-    try {
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
-      try {
-        const filePath = result[0].uri.split('%20').join(' ');
-        const fileExtract = await RNFS.readFile(filePath);
-        setInputText(fileExtract);
-      } catch (err) {
-        captureError(err);
+  const exportCallback = () =>
+    exportFile(fileData, `keeper-${Date.now()}.psbt`, (error) =>
+      showToast(error.message, <ToastErrorIcon />)
+    );
+
+  const importCallback = () => {
+    importFile(
+      (data) => {
+        setInputText(data);
+      },
+      (_) => {
         showToast('Please pick a valid file', <ToastErrorIcon />);
       }
-    } catch (err) {
-      if (err.toString().includes('user canceled')) {
-        // user cancelled
-        return;
-      }
-      captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
-    }
+    );
   };
 
   return (
@@ -66,10 +57,12 @@ const HandleFileScreen = ({ route, navigation }) => {
             />
           </Box>
           <Box style={styles.tileWrapper}>
-            <Tile title="Import a file" subTitle="From your phone" onPress={onFileImport} />
+            <Tile title="Import a file" subTitle="From your phone" onPress={importCallback} />
           </Box>
           <Box style={styles.footerWrapper}>
             <Buttons
+              secondaryText={fileData ? 'Export File' : ''}
+              secondaryCallback={exportCallback}
               primaryCallback={() => {
                 navigation.goBack();
                 onFileExtract(inputText);
