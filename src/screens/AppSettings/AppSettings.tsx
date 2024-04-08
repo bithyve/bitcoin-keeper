@@ -102,7 +102,7 @@ function AppSettings({ navigation, route }) {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
+        contentContainerStyle={styles.appSettingsContainer}
       >
         <HStack style={styles.actionContainer}>
           {actionCardData.map((card) => (
@@ -111,7 +111,7 @@ function AppSettings({ navigation, route }) {
               icon={card.icon}
               callback={card.callback}
               key={card.cardName}
-              customStyle={{ justifyContent: 'flex-end', width: wp(110) }}
+              customStyle={styles.customeStyle}
             />
           ))}
         </HStack>
@@ -331,6 +331,14 @@ const styles = StyleSheet.create({
     gap: 10,
     justifyContent: 'space-around',
     marginBottom: 10,
+  },
+  customeStyle: {
+    justifyContent: 'flex-end',
+    width: wp(110),
+  },
+  appSettingsContainer: {
+    alignItems: 'center',
+    paddingTop: 20,
   },
 });
 export default AppSettings;
