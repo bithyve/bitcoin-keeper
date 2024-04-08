@@ -99,6 +99,7 @@ import {
   setupSpecter,
 } from 'src/hardware/signerSetup';
 import { extractColdCardExport } from 'src/hardware/coldcard';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -179,37 +180,33 @@ const getSignerContent = (
         type: SignerType.KEEPER,
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a Mobile Key from your Keeper app (create) or from another Keeper app (import)',
+          'Choose a Mobile Key from another Keeper app',
           'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
         title: isHealthcheck ? `Verify  ${getSignerNameFromType(type)}` : 'Keep your Device Ready',
-        subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
-        options: isHealthcheck
-          ? null
+        subTitle: `Importing ${getSignerNameFromType(type)}`,
+        options: [],
+      };
+    case SignerType.MY_KEEPER:
+      return {
+        type: SignerType.MY_KEEPER,
+        Illustration: isHealthcheck ? <SeedWordsIllustration /> : <KeeperSetupImage />,
+        Instructions: isHealthcheck
+          ? [
+              'Make sure you secure the 12-word phrase in a safe place.',
+              'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
+            ]
           : [
-              {
-                title: `Import a ${getSignerNameFromType(type)}`,
-                icon: (
-                  <CircleIconWrapper
-                    icon={<Import />}
-                    backgroundColor={`${colorMode}.BrownNeedHelp`}
-                    width={35}
-                  />
-                ),
-                name: KeyGenerationMode.IMPORT,
-              },
-              {
-                title: `Add a New ${getSignerNameFromType(type)}`,
-                icon: (
-                  <CircleIconWrapper
-                    icon={<Add />}
-                    backgroundColor={`${colorMode}.BrownNeedHelp`}
-                    width={35}
-                  />
-                ),
-                name: KeyGenerationMode.NEW,
-              },
+              'Choose a Mobile Key from your Keeper app',
+              'A child key from the parent bip-85 seed will be generated',
             ],
+        title: isHealthcheck
+          ? 'Verify Recovery Key'
+          : `Setting up ${getSignerNameFromType(type)} (Hot)`,
+        subTitle: isHealthcheck
+          ? 'Enter the Recovery Key to do a health check'
+          : `Generating internal ${getSignerNameFromType(type)}`,
+        options: [],
       };
     case SignerType.MOBILE_KEY:
       return {
@@ -467,18 +464,7 @@ const getSignerContent = (
               },
             ],
       };
-    case SignerType.MY_KEEPER:
-      return {
-        type: SignerType.MY_KEEPER,
-        Illustration: <SeedWordsIllustration />,
-        Instructions: [
-          'Make sure you secure the 12-word phrase in a safe place.',
-          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
-        ],
-        title: isHealthcheck ? 'Verify Recovery Key' : 'Setting up Seed Key',
-        subTitle: 'Enter the Recovery Key to do a health check ',
-        options: [],
-      };
+
     default:
       return {
         type,
@@ -1651,6 +1637,7 @@ function HardwareModalMap({
   } = getSignerContent(type, isMultisig, translations, isHealthcheck, colorMode);
 
   const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const onSelect = (option) => {
     switch (signerType) {
@@ -1705,7 +1692,10 @@ function HardwareModalMap({
           return navigateToSeedWordSetup();
         }
       case SignerType.MY_KEEPER:
-        return navigateToSeedWordSetup();
+        if (mode === InteracationMode.HEALTH_CHECK) {
+          return navigateToSeedWordSetup();
+        }
+        return setConfirmPassVisible(true);
       case SignerType.BITBOX02:
       case SignerType.TREZOR:
       case SignerType.LEDGER:
@@ -1721,15 +1711,7 @@ function HardwareModalMap({
       case SignerType.JADE:
         return navigateToAddQrBasedSigner();
       case SignerType.KEEPER:
-        if (mode === InteracationMode.HEALTH_CHECK) {
-          return navigateToAddQrBasedSigner();
-        } else {
-          if (keyGenerationMode === KeyGenerationMode.IMPORT) {
-            return navigateToAddQrBasedSigner();
-          } else {
-            return generateMyAppKey();
-          }
-        }
+        return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
       case SignerType.INHERITANCEKEY:
@@ -1765,6 +1747,25 @@ function HardwareModalMap({
             : null
         }
         loading={inProgress}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Enter Passcode"
+        subTitleWidth={wp(240)}
+        subTitle={'Confirm passcode to delete key'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={generateMyAppKey}
+          />
+        )}
       />
       <KeeperModal
         visible={passwordModal && mode === InteracationMode.VAULT_ADDITION}

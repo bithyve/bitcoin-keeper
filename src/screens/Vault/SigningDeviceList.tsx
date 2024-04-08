@@ -103,6 +103,7 @@ function SigningDeviceList() {
     SignerType.SPECTER,
     SignerType.BITBOX02,
     SignerType.KEEPER,
+    SignerType.MY_KEEPER,
     SignerType.SEED_WORDS,
     SignerType.KEYSTONE,
     // SignerType.MOBILE_KEY,
