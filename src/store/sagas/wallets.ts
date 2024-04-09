@@ -722,6 +722,7 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
             signer.masterFingerprint
           );
         }
+        yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
       } else {
         yield put(relaySignersUpdateFail(response.error));
       }
