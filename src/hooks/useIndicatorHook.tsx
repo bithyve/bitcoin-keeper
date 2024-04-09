@@ -39,7 +39,7 @@ export const useIndicatorHook = ({ types, entityId }: Props) => {
   const createEntityBasedMap = () => {
     const entityBasedMap: { [key: string]: { [key in uaiType]?: boolean } } = {};
     uaiStack.forEach((uai) => {
-      if (uai.entityId === entityId) {
+      if (uai?.entityId === entityId) {
         if (!entityBasedMap[entityId]) {
           entityBasedMap[entityId] = {};
         }
