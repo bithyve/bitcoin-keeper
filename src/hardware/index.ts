@@ -136,7 +136,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = `Mobile Key`;
       break;
     case SignerType.KEEPER:
-      name = 'Mobile Key';
+      name = 'External Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -384,9 +384,11 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.JADE: {
       return 'Great signer from Blockstream';
     }
-    case SignerType.MY_KEEPER:
-    case SignerType.KEEPER: {
+    case SignerType.MY_KEEPER: {
       return 'Use Mobile Key as signer';
+    }
+    case SignerType.KEEPER: {
+      return 'Another Keeper App';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot key on this app';
@@ -418,6 +420,10 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
 };
 
 export const extractKeyFromDescriptor = (data) => {
+  if (data.startsWith('BSMS')) {
+    data = data.slice(data.indexOf('['));
+    data = data.slice(0, data.indexOf('\n'));
+  }
   const xpub = data.slice(data.indexOf(']') + 1);
   const masterFingerprint = data.slice(1, 9);
   const derivationPath = data

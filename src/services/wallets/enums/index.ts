@@ -185,3 +185,9 @@ export enum KeyGenerationMode {
   FILE = 'FILE',
   QR = 'QR',
 }
+
+export enum SigningMode {
+  NFC = 'NFC',
+  FILE = 'FILE',
+  QR = 'QR',
+}
