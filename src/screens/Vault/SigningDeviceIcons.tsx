@@ -70,12 +70,20 @@ export const SDIcons = (type: SignerType, light = false) => {
         type: SignerStorage.COLD,
       };
     case SignerType.MY_KEEPER:
+      return {
+        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
+        Logo: (
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+            Mobile Key
+          </Text>
+        ),
+      };
     case SignerType.KEEPER:
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
-            Mobile Key
+            External Key
           </Text>
         ),
       };
