@@ -15,7 +15,10 @@ export const useIndicatorHook = ({ types, entityId }: Props) => {
   const { uaiStack } = useUaiStack();
   const { id }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
-  const [indicatorMap, setIndicatorMap] = useState({});
+  const [indicatorMap, setIndicatorMap] = useState({
+    typeBasedMap: {},
+    entityBasedMap: {},
+  });
 
   const createTypeBasedMap = () => {
     const typeBasedMap: { [key in uaiType]?: { [key: string]: boolean } } = {};
