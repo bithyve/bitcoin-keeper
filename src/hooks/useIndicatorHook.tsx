@@ -16,8 +16,8 @@ export const useIndicatorHook = ({ types, entityId }: Props) => {
   const { id }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [indicatorMap, setIndicatorMap] = useState({
-    typeBasedMap: {},
-    entityBasedMap: {},
+    typeBasedIndicator: {},
+    entityBasedIndicator: {},
   });
 
   const createTypeBasedMap = () => {
