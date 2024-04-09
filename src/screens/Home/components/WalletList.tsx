@@ -48,6 +48,7 @@ export function WalletsList({
               walletDescription={wallet.presentationData.description}
               icon={getWalletIcon(wallet)}
               amount={calculateWalletBalance(wallet)}
+              showDot={true}
             />
           </TouchableOpacity>
         )}

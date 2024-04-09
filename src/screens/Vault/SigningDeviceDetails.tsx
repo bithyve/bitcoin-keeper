@@ -266,7 +266,7 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
-  function FooterIcon({ Icon }) {
+  function FooterIcon({ Icon, showDot = false }) {
     return (
       <Box
         margin="1"
@@ -276,8 +276,10 @@ function SigningDeviceDetails({ route }) {
         backgroundColor={`${colorMode}.BrownNeedHelp`}
         justifyContent="center"
         alignItems="center"
+        position={'relative'}
       >
         <Icon />
+        {showDot && <Box style={styles.redDot} />}
       </Box>
     );
   }
@@ -287,7 +289,7 @@ function SigningDeviceDetails({ route }) {
   const footerItems = [
     {
       text: 'Health Check',
-      Icon: () => <FooterIcon Icon={HealthCheck} />,
+      Icon: () => <FooterIcon Icon={HealthCheck} showDot />,
       onPress: () => {
         if (signer.type === SignerType.UNKOWN_SIGNER) {
           navigation.dispatch(
@@ -452,7 +454,21 @@ const styles = StyleSheet.create({
   walletNameText: {
     fontSize: 20,
   },
-  recentHistoryText: { fontSize: 16, padding: '7%' },
+  recentHistoryText: {
+    fontSize: 16,
+    padding: '7%',
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
+  },
 });
 
 export default SigningDeviceDetails;

@@ -13,6 +13,7 @@ type ActionCardProps = {
   customStyle?: ViewStyle;
   dottedBorder?: boolean;
   cardPillText?: string;
+  showDot?: boolean;
 };
 
 function ActionCard({
@@ -23,6 +24,7 @@ function ActionCard({
   callback,
   dottedBorder = false,
   cardPillText = '',
+  showDot = false,
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
@@ -46,6 +48,7 @@ function ActionCard({
             <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
           {icon && icon}
+          {showDot && <Box style={styles.redDot} />}
         </Box>
         <Text numberOfLines={2} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
@@ -94,6 +97,17 @@ const styles = StyleSheet.create({
   cardPillContainer: {
     maxWidth: wp(100),
     alignSelf: 'flex-end',
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
 

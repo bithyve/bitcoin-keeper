@@ -127,6 +127,7 @@ function AppSettings({ navigation, route }) {
                 callback={card.callback}
                 key={card.cardName}
                 customStyle={{ justifyContent: 'flex-end' }}
+                showDot
               />
             ))}
           </Box>
