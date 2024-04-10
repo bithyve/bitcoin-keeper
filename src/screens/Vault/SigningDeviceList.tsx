@@ -78,7 +78,7 @@ function SigningDeviceList() {
   function VaultSetupContent() {
     return (
       <View>
-        <Box alignSelf="center">
+        <Box style={styles.alignCenter}>
           <SigningDevicesIllustration />
         </Box>
         <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
@@ -129,7 +129,7 @@ function SigningDeviceList() {
             backgroundColor={`${colorMode}.seashellWhite`}
             borderTopRadius={first ? 10 : 0}
             borderBottomRadius={last ? 10 : 0}
-            alignItems={'center'}
+            style={styles.container}
           >
             {type === SignerType.TREZOR && (
               <Box style={styles.cardPillContainer}>
@@ -308,7 +308,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 40,
     top: 15,
-    width: 65,
+  },
+  alignCenter: {
+    alignSelf: 'center',
+  },
+  container: {
+    alignItems: 'center',
   },
 });
 export default SigningDeviceList;

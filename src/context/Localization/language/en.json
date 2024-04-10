@@ -724,7 +724,7 @@
     "startOver": "Start Over",
     "backupSuccessTitle": "Backup Successful",
     "backupSuccessSubTitle": "",
-    "backupSuccessParagraph": "You will again be reminded in 180 days.",
+    "backupSuccessParagraph": "You will be reminded again in 180 days.",
     "home": "Home",
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",

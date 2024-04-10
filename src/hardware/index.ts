@@ -294,7 +294,7 @@ export const getDeviceStatus = (
         : { message: '', disabled: false };
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
-        ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
+        ? { disabled: true, message: 'Multi-key with Trezor is coming soon!' }
         : { message: '', disabled: false };
     case SignerType.POLICY_SERVER:
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);

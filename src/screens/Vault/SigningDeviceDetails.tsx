@@ -27,6 +27,7 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -95,10 +96,10 @@ const getSignerContent = (type: SignerType) => {
       return {
         title: 'Keystone',
         subTitle:
-          'It offers a convenient cold storage solution with open-source firmware, a 4-inch touchscreen, and PSBT Bitcoin multi-sig support. Protect your cryptocurrency with the perfect balance between a secure and convenient hardware wallet with mobile phone support.',
+          'It offers a convenient cold storage solution with open source firmware, a 4-inch touchscreen, and multi-key support. Protect your bitcoin with the right balance between a secure and convenient hardware wallet with mobile phone support.',
         assert: <Keystone />,
         description:
-          '\u2022All hardware wallets need some means of connecting to the network to sign transactions; how “air-gapped” your hardware wallet depends on how it limits the attack surface when transmitting data to an internet-enabled device.\n\u2022 With QR codes, you can verify each and every data transmission to ensure that information coming into the Keystone Hardware Wallet contains no trojans or viruses and information going out doesn’t leak private keys or any other sensitive information.\n\u2022 Keystone Hardware Wallet uses a bank-grade Secure Element to generate true random numbers, derive private and public keys, sign transactions, and [protect private keys from being leaked if an attacker has physical access to the device.',
+          "\u2022 With QR codes, you can verify all data transmission to ensure that information coming into Keystone contains no trojans or viruses, while information going out doesn't leak private keys or any other sensitive information.",
         FAQ: 'https://support.keyst.one/miscellaneous/faq',
       };
     case SignerType.PASSPORT:
@@ -187,6 +188,16 @@ const getSignerContent = (type: SignerType) => {
           '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
         FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
       };
+    case SignerType.SPECTER:
+      return {
+        title: 'Specter DIY',
+        subTitle:
+          'An open-source hardware wallet for users to take full control over their Bitcoin security.',
+        assert: <SpecterSetupImage />,
+        description:
+          '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
+        FAQ: `https://docs.specter.solutions/diy/faq/`,
+      };
     default:
       return {
         title: '',
@@ -238,14 +249,7 @@ function SigningDeviceDetails({ route }) {
     return (
       <Box>
         <Center>{assert}</Center>
-        <Text
-          color={`${colorMode}.modalGreenContent`}
-          style={{
-            fontSize: 13,
-            letterSpacing: 0.65,
-            marginTop: hp(25),
-          }}
-        >
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.contentDescription}>
           {description}
         </Text>
       </Box>
@@ -268,15 +272,7 @@ function SigningDeviceDetails({ route }) {
 
   function FooterIcon({ Icon }) {
     return (
-      <Box
-        margin="1"
-        width="12"
-        height="12"
-        borderRadius={30}
-        backgroundColor={`${colorMode}.BrownNeedHelp`}
-        justifyContent="center"
-        alignItems="center"
-      >
+      <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circleIcon}>
         <Icon />
       </Box>
     );
@@ -334,7 +330,7 @@ function SigningDeviceDetails({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        learnMore
+        learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
         learnMorePressed={() => setDetailModal(true)}
         learnTextColor={`${colorMode}.white`}
         title={signerTranslations.keyDetails}
@@ -353,8 +349,8 @@ function SigningDeviceDetails({ route }) {
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>
       </Box>
-      <ScrollView contentContainerStyle={{ flex: 1 }}>
-        <Box mx={5}>
+      <ScrollView contentContainerStyle={styles.flex1}>
+        <Box style={styles.healthCheckContainer}>
           {healthCheckArray.map((_, index) => (
             <SigningDeviceChecklist item={signer} key={index.toString()} />
           ))}
@@ -452,7 +448,28 @@ const styles = StyleSheet.create({
   walletNameText: {
     fontSize: 20,
   },
-  recentHistoryText: { fontSize: 16, padding: '7%' },
+  recentHistoryText: {
+    fontSize: 16,
+    padding: '7%',
+  },
+  contentDescription: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    marginTop: hp(25),
+  },
+  circleIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flex1: {
+    flex: 1,
+  },
+  healthCheckContainer: {
+    marginHorizontal: wp(15),
+  },
 });
 
 export default SigningDeviceDetails;
