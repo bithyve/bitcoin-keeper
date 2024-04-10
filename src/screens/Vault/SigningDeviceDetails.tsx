@@ -49,6 +49,8 @@ import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -219,6 +221,7 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
 
+  const { entityBasedIndicator } = useIndicatorHook({ entityId: signerId });
   const [healthCheckArray, setHealthCheckArray] = useState([]);
 
   useEffect(() => {
@@ -289,7 +292,12 @@ function SigningDeviceDetails({ route }) {
   const footerItems = [
     {
       text: 'Health Check',
-      Icon: () => <FooterIcon Icon={HealthCheck} showDot />,
+      Icon: () => (
+        <FooterIcon
+          Icon={HealthCheck}
+          showDot={entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]}
+        />
+      ),
       onPress: () => {
         if (signer.type === SignerType.UNKOWN_SIGNER) {
           navigation.dispatch(
