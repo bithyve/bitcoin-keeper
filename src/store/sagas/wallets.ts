@@ -686,6 +686,8 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       } else {
         yield put(relaySignersUpdateFail(response.error));
       }
+    } else if (signers.length === 1) {
+      yield put(relaySignersUpdateFail('The signer already exists.'));
     }
   } catch (error) {
     captureError(error);
