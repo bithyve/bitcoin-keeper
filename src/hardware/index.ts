@@ -318,7 +318,12 @@ const getPolicyServerStatus = (
       disabled: true,
     };
   } else if (isOnL1) {
-    return { disabled: true, message: 'Upgrade tier to use as key' };
+    return {
+      disabled: true,
+      message: `Please upgrade to atleast ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
+        type
+      )}`,
+    };
   } else if (existingSigners.find((s) => s.type === SignerType.POLICY_SERVER)) {
     return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
   } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {

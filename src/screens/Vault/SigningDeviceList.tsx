@@ -23,7 +23,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useSigners from 'src/hooks/useSigners';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
@@ -51,6 +51,7 @@ function SigningDeviceList() {
     vaultId: string;
     vaultSigners?: VaultSigner[];
   } = route.params as any;
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
@@ -116,15 +117,27 @@ function SigningDeviceList() {
     const [visible, setVisible] = useState(false);
 
     const onPress = () => {
+      if (shouldUpgrade) {
+        navigateToUpgrade();
+        return;
+      }
       open();
     };
 
     const open = () => setVisible(true);
     const close = () => setVisible(false);
+    const shouldUpgrade = message.includes('upgrade');
 
+    const navigateToUpgrade = () => {
+      navigation.navigate('ChoosePlan');
+    };
     return (
       <React.Fragment key={type}>
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={disabled}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={onPress}
+          disabled={disabled && !shouldUpgrade}
+        >
           <Box
             backgroundColor={`${colorMode}.seashellWhite`}
             borderTopRadius={first ? 10 : 0}
