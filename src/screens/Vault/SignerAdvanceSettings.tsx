@@ -2,13 +2,19 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, SignerType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  NetworkType,
+  SignerType,
+  VaultType,
+  VisibilityType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -44,6 +50,14 @@ import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import DescriptionModal from './components/EditDescriptionModal';
 import { SDIcons } from './SigningDeviceIcons';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { NewVaultInfo } from 'src/store/sagas/wallets';
+import { addNewVault } from 'src/store/sagaActions/vaults';
+import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import useCanaryVault from 'src/hooks/useCanaryWallets';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { useAppSelector } from 'src/store/hooks';
 
 const { width } = Dimensions.get('screen');
 
@@ -74,6 +88,7 @@ function SignerAdvanceSettings({ route }: any) {
   }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
+
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
@@ -81,6 +96,11 @@ function SignerAdvanceSettings({ route }: any) {
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
+  const [canaryWalletId, setCanaryWalletId] = useState<string>();
+  const { allCanaryVaults } = useCanaryVault({ getAll: true });
+
+  const CANARY_SCHEME = { m: 1, n: 1 };
 
   const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
 
@@ -115,6 +135,47 @@ function SignerAdvanceSettings({ route }: any) {
   const registerColdCard = async () => {
     await withNfcModal(() => registerToColcard({ vault: activeVault }));
   };
+
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
+
+  useEffect(() => {
+    if (relayVaultUpdate) {
+      dispatch(resetRealyVaultState());
+    } else if (relayVaultUpdate) {
+      navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
+      dispatch(resetRealyVaultState());
+      setCanaryVaultLoading(false);
+    }
+    if (relayVaultError) {
+      showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
+      dispatch(resetRealyVaultState());
+      setCanaryVaultLoading(false);
+    }
+  }, [relayVaultUpdate, relayVaultError]);
+
+  const createCreateCanaryWallet = useCallback(
+    (ssVaultKey) => {
+      try {
+        const vaultInfo: NewVaultInfo = {
+          vaultType: VaultType.CANARY,
+          vaultScheme: CANARY_SCHEME,
+          vaultSigners: [ssVaultKey],
+          vaultDetails: {
+            name: `Canary Wallet for ${signer.signerName}`,
+            description: 'Canary Vault',
+          },
+        };
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+        return vaultInfo;
+      } catch (err) {
+        captureError(err);
+        return false;
+      }
+    },
+    [signer]
+  );
 
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
@@ -423,6 +484,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
+  const isCanaryWalletAllowed = true;
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
@@ -433,6 +495,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
       <KeeperHeader
         title="Settings"
         subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
@@ -531,6 +594,14 @@ function SignerAdvanceSettings({ route }: any) {
               }
               setConfirmPassVisible(true);
             }}
+          />
+        )}
+
+        {isCanaryWalletAllowed && (
+          <OptionCard
+            title="Canary Wallet"
+            description="Your on-chain key alert"
+            callback={handleCanaryWallet}
           />
         )}
         <Box style={styles.signerText}>
