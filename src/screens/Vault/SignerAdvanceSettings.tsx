@@ -150,12 +150,9 @@ function SignerAdvanceSettings({ route }: any) {
 
   useEffect(() => {
     if (relayVaultUpdate) {
-      console.log('here canary wallet', canaryWalletId);
-      dispatch(resetRealyVaultState());
-    } else if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
-      dispatch(resetRealyVaultState());
       setCanaryVaultLoading(false);
+      dispatch(resetRealyVaultState());
     }
     if (relayVaultError) {
       showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
@@ -491,11 +488,9 @@ function SignerAdvanceSettings({ route }: any) {
       const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
 
       if (canaryVault) {
-        console.log('exsisted', canaryVault.entityKind);
         navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
         setCanaryVaultLoading(false);
       } else {
-        console.log('creating');
         createCreateCanaryWallet(ssVaultKey);
       }
     } catch (err) {
@@ -525,7 +520,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
-  const isCanaryWalletAllowed = isOnL2 || isOnL3;
+  const isCanaryWalletAllowed = isOnL2 || isOnL3 || true;
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
