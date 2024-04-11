@@ -58,6 +58,8 @@ import useCanaryVault from 'src/hooks/useCanaryWallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import usePlan from 'src/hooks/usePlan';
 
 const { width } = Dimensions.get('screen');
 
@@ -78,6 +80,8 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
     </Box>
   );
 }
+
+//add key check for cancary wallet based on ss config
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
@@ -101,6 +105,10 @@ function SignerAdvanceSettings({ route }: any) {
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
 
   const CANARY_SCHEME = { m: 1, n: 1 };
+
+  const { plan } = usePlan();
+  const isOnL2 = plan === SubscriptionTier.L3.toUpperCase();
+  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
 
   const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
 
@@ -142,6 +150,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   useEffect(() => {
     if (relayVaultUpdate) {
+      console.log('here canary wallet', canaryWalletId);
       dispatch(resetRealyVaultState());
     } else if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
@@ -163,8 +172,8 @@ function SignerAdvanceSettings({ route }: any) {
           vaultScheme: CANARY_SCHEME,
           vaultSigners: [ssVaultKey],
           vaultDetails: {
-            name: `Canary Wallet for ${signer.signerName}`,
-            description: 'Canary Vault',
+            name: `Canary Wallet`,
+            description: `Canary Wallet for ${signer.signerName}`,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -464,9 +473,11 @@ function SignerAdvanceSettings({ route }: any) {
 
   const handleCanaryWallet = () => {
     try {
-      setCanaryVaultLoading(false);
-      console.log(signer);
+      setCanaryVaultLoading(true);
       const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+      if (!singleSigSigner) {
+        showToast('No single Sig found');
+      }
       const ssVaultKey: VaultSigner = {
         ...singleSigSigner,
         masterFingerprint: signer.masterFingerprint,
@@ -475,12 +486,13 @@ function SignerAdvanceSettings({ route }: any) {
           WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
         ),
       };
-      const id = generateVaultId([ssVaultKey], CANARY_SCHEME);
-      setCanaryWalletId(id);
-      const canaryVault = allCanaryVaults.find((vault) => vault.id === id);
+      const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
+      setCanaryWalletId(canaryVaultId);
+      const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
 
       if (canaryVault) {
         console.log('exsisted', canaryVault.entityKind);
+        navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
         setCanaryVaultLoading(false);
       } else {
         console.log('creating');
@@ -513,7 +525,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
-  const isCanaryWalletAllowed = true;
+  const isCanaryWalletAllowed = isOnL2 || isOnL3;
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
