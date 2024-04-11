@@ -76,6 +76,17 @@ function LoginScreen({ navigation, route }) {
     settorStatus(status);
   };
 
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
   useEffect(() => {
     RestClient.subToTorStatus(onChangeTorStatus);
     if (loggingIn) {
@@ -106,6 +117,12 @@ function LoginScreen({ navigation, route }) {
   useEffect(() => {
     biometricAuth();
   }, [canLogin]);
+
+
+  useEffect(()=>{
+    requestUserPermission()
+  },[])
+
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -180,7 +197,7 @@ function LoginScreen({ navigation, route }) {
     }
   }, [isAuthenticated]);
 
-  const loginModalAction = () => {
+  const loginModalAction = async () => {
     if (isAuthenticated) {
       setLoginModal(false);
       if (relogin) {
