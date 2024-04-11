@@ -13,6 +13,7 @@ import {
   NetworkType,
   SignerStorage,
   SignerType,
+  XpubTypes,
 } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
@@ -223,20 +224,44 @@ export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
 export const getMockSigner = (signerType: SignerType) => {
   if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
     const networkType = config.NETWORK_TYPE;
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      signerType,
-      networkType
-    );
+    // fetched multi-sig key
+    const {
+      xpub: multiSigXpub,
+      xpriv: multiSigXpriv,
+      derivationPath: multiSigPath,
+      masterFingerprint,
+    } = generateMockExtendedKeyForSigner(EntityKind.VAULT, signerType, networkType);
+    // fetched single-sig key
+    const {
+      xpub: singleSigXpub,
+      xpriv: singleSigXpriv,
+      derivationPath: singleSigPath,
+    } = generateMockExtendedKeyForSigner(EntityKind.WALLET, signerType, networkType);
+
+    const xpubDetails: XpubDetailsType = {};
+
+    xpubDetails[XpubTypes.P2WPKH] = {
+      xpub: singleSigXpub,
+      xpriv: singleSigXpriv,
+      derivationPath: singleSigPath,
+    };
+
+    xpubDetails[XpubTypes.P2WSH] = {
+      xpub: multiSigXpub,
+      xpriv: multiSigXpriv,
+      derivationPath: multiSigPath,
+    };
+
     const { signer, key } = generateSignerFromMetaData({
-      xpub,
-      xpriv,
-      derivationPath,
+      xpub: multiSigXpub,
+      xpriv: multiSigXpriv,
+      derivationPath: multiSigPath,
       masterFingerprint,
       signerType,
       storageType: SignerStorage.COLD,
       isMock: true,
       isMultisig: true,
+      xpubDetails,
     });
     return { signer, key };
   }
@@ -318,7 +343,12 @@ const getPolicyServerStatus = (
       disabled: true,
     };
   } else if (isOnL1) {
-    return { disabled: true, message: 'Upgrade tier to use as key' };
+    return {
+      disabled: true,
+      message: `Please upgrade to atleast ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
+        type
+      )}`,
+    };
   } else if (existingSigners.find((s) => s.type === SignerType.POLICY_SERVER)) {
     return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
   } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
