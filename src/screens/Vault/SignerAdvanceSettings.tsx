@@ -462,6 +462,35 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const handleCanaryWallet = () => {
+    try {
+      setCanaryVaultLoading(false);
+      console.log(signer);
+      const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+      const ssVaultKey: VaultSigner = {
+        ...singleSigSigner,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: WalletUtilities.getFingerprintFromExtendedKey(
+          singleSigSigner.xpub,
+          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+      const id = generateVaultId([ssVaultKey], CANARY_SCHEME);
+      setCanaryWalletId(id);
+      const canaryVault = allCanaryVaults.find((vault) => vault.id === id);
+
+      if (canaryVault) {
+        console.log('exsisted', canaryVault.entityKind);
+        setCanaryVaultLoading(false);
+      } else {
+        console.log('creating');
+        createCreateCanaryWallet(ssVaultKey);
+      }
+    } catch (err) {
+      console.log('Something Went Wrong', err);
+    }
+  };
+
   const navigateToCosignerDetails = () => {
     navigation.dispatch(
       CommonActions.navigate({
