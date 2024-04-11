@@ -74,7 +74,7 @@ function VaultSetup({ route }: ScreenProps) {
     }
   };
   const onDecreaseN = () => {
-    if (scheme.n > 1 && scheme.n > scheme.m) {
+    if (scheme.n > 2 && scheme.n > scheme.m) {
       setScheme({ ...scheme, n: scheme.n - 1 });
     }
   };
