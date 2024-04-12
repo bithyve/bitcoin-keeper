@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
@@ -19,7 +19,7 @@ function RecoveryPhraseTemplate({}) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading}>Recovery Phrase Template</Text>
         <Text style={styles.description}>12, 18 or 24 words</Text>
         <Text style={styles.commonTextStyle}>
@@ -67,6 +67,9 @@ const styles = StyleSheet.create({
   container: {
     gap: 25,
     marginTop: 20,
+  },
+  marginLeft: {
+    marginLeft: wp(10),
   },
   walletType: {
     justifyContent: 'space-between',

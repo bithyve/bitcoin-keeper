@@ -210,6 +210,50 @@ export function* updateVaultImageWorker({
   }
 }
 
+export function* deleteAppImageEntityWorker({
+  payload,
+}: {
+  payload: {
+    signerIds?: string[];
+    walletIds?: string[];
+  };
+}) {
+  try {
+    const { signerIds, walletIds } = payload;
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const response = yield call(Relay.deleteAppImageEntity, {
+      appId: id,
+      signers: signerIds,
+      walletIds: walletIds,
+    });
+    return response;
+  } catch (err) {
+    captureError(err);
+    return;
+  }
+}
+
+export function* deleteVaultImageWorker({
+  payload,
+}: {
+  payload: {
+    vaultIds: string[];
+  };
+}) {
+  try {
+    const { vaultIds } = payload;
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const response = yield call(Relay.deleteVaultImage, {
+      appId: id,
+      vaults: vaultIds,
+    });
+    return response;
+  } catch (err) {
+    captureError(err);
+    return;
+  }
+}
+
 function* seedBackeupConfirmedWorked({
   payload,
 }: {
@@ -703,5 +747,10 @@ export const seedBackeupConfirmedWatcher = createWatcher(
 export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
 export const healthCheckSignerWatcher = createWatcher(
   healthCheckSignerWorker,
+  UPADTE_HEALTH_CHECK_SIGNER
+);
+
+export const deleteAppImageEntityWatcher = createWatcher(
+  deleteAppImageEntityWorker,
   UPADTE_HEALTH_CHECK_SIGNER
 );

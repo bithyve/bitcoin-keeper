@@ -49,6 +49,7 @@ function ActionCard({
             <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
           {icon && icon}
+          {showDot && <Box style={styles.redDot} />}
         </Box>
         <Text numberOfLines={2} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
@@ -103,6 +104,17 @@ const styles = StyleSheet.create({
     width: 7,
     borderRadius: 10,
     backgroundColor: 'tomato',
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
 

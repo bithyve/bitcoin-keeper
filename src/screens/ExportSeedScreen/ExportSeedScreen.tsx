@@ -114,11 +114,13 @@ function ExportSeedScreen({ route, navigation }) {
   const renderSeedCard = ({ item, index }: { item; index }) => (
     <SeedCard item={item} index={index} />
   );
-
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <KeeperHeader title={seedText.backupPhrase} subtitle={seedText.SeedDesc} />
+      <KeeperHeader
+        title={next ? 'Recovery Key' : seedText.walletSeedWords}
+        subtitle={seedText.SeedDesc}
+      />
 
       <Box style={{ flex: 1 }}>
         <FlatList
@@ -132,7 +134,7 @@ function ExportSeedScreen({ route, navigation }) {
       <Box m={2}>
         <Note
           title={common.note}
-          subtitle={BackupWallet.recoveryPhraseNote}
+          subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
           subtitleColor="GreyText"
         />
       </Box>
@@ -211,7 +213,7 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         title={BackupWallet.backupSuccessTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}

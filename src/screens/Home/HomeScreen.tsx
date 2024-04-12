@@ -27,6 +27,8 @@ import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -69,6 +71,8 @@ function NewHomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();
 
+  const { typeBasedIndicator } = useIndicatorHook({ types: [uaiType.VAULT_TRANSFER] });
+
   useEffect(() => {
     if (relayWalletError) {
       showToast(
@@ -86,7 +90,7 @@ function NewHomeScreen({ navigation }) {
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance Planning',
+      name: 'Inheritance\nPlanning',
       icon: <InheritanceIcon />,
       callback: () => {
         //-----FOR Futhure use------
@@ -132,6 +136,7 @@ function NewHomeScreen({ navigation }) {
         totalBalance={netBalanceWallets + netBalanceAllVaults}
         isShowAmount={isShowAmount}
         setIsShowAmount={() => setIsShowAmount(!isShowAmount)}
+        typeBasedIndicator={typeBasedIndicator}
       />
       <HomeModals
         electrumErrorVisible={electrumErrorVisible}

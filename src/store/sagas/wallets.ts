@@ -96,11 +96,18 @@ import {
 import {
   ADD_NEW_VAULT,
   ADD_SIGINING_DEVICE,
+  DELETE_SIGINING_DEVICE,
+  DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
-import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
+import {
+  deleteAppImageEntityWorker,
+  deleteVaultImageWorker,
+  updateAppImageWorker,
+  updateVaultImageWorker,
+} from './bhr';
 import {
   relaySignersUpdateFail,
   relaySignersUpdateSuccess,
@@ -301,9 +308,12 @@ export function* addWhirlpoolWalletsWorker({
       ],
     };
 
+    //update whirlpool config in parent walletId
     yield call(updateWalletsPropertyWorker, {
       payload: { walletId: depositWallet.id, key: 'whirlpoolConfig', value: whirlpoolConfig },
     });
+
+    //create premix,postmix,badbank wallets
     const newWalletsInfo: NewWalletInfo[] = [
       preMixWalletInfo,
       postMixWalletInfo,
@@ -597,19 +607,26 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
     );
     const signersToUpdate = [];
 
-    // update signers with signer count
-    signers = signers.map((signer) => {
-      if (signer.type === SignerType.MY_KEEPER || signer.type === SignerType.KEEPER) {
-        const signerCount = existingSigners.filter(
-          (existingSigner) => existingSigner.type === signer.type
-        ).length;
-        signer.extraData = { instanceNumber: signerCount + 1 };
-        signer.signerDescription = getSignerDescription(signer.type, signerCount + 1);
-        return signer;
-      } else {
-        return signer;
-      }
-    });
+    try {
+      // update signers with signer count
+      let incrementForCurrentSigners = 0;
+      signers = signers.map((signer) => {
+        if (signer.type === SignerType.MY_KEEPER) {
+          const myAppKeys = existingSigners.filter((s) => s.type === SignerType.MY_KEEPER);
+          const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+          const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
+          signer.extraData = { instanceNumber: instanceNumberToSet + 1 };
+          signer.signerDescription = getSignerDescription(signer.type, instanceNumberToSet + 1);
+          incrementForCurrentSigners += 1;
+          return signer;
+        } else {
+          return signer;
+        }
+      });
+    } catch (e) {
+      captureError(e);
+      return;
+    }
 
     const keysMatch = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&
@@ -627,16 +644,24 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
         signersToUpdate.push(newSigner);
         continue;
       }
+      const newSsKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const existingSsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const newMsKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const existingMsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const missingMsKey = existingSsKey && !existingMsKey;
+      const missingSsKey = !existingSsKey && existingMsKey;
 
       const singleSigMatch = keysMatch(XpubTypes.P2WPKH, newSigner, existingSigner);
       const multiSigMatch = keysMatch(XpubTypes.P2WSH, newSigner, existingSigner);
+      const signerMergeCondition = // if the new signer has one of the keys missing or has the same xpubs as the existing signer, then update the type and xpubs
+        (missingMsKey && newMsKey) || (missingSsKey && newSsKey) || singleSigMatch || multiSigMatch;
 
-      // if the new signer has the same xpubs as the existing signer, then update the type and xpubs
-      if (singleSigMatch || multiSigMatch) {
+      if (signerMergeCondition) {
         signersToUpdate.push({
           ...existingSigner,
-          type:
-            existingSigner.type === SignerType.UNKOWN_SIGNER ? newSigner.type : existingSigner.type,
+          type: [SignerType.UNKOWN_SIGNER, SignerType.OTHER_SD].includes(existingSigner.type)
+            ? newSigner.type
+            : existingSigner.type,
           signerXpubs: _.merge(existingSigner.signerXpubs, newSigner.signerXpubs),
         });
         continue;
@@ -663,6 +688,8 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       } else {
         yield put(relaySignersUpdateFail(response.error));
       }
+    } else if (signers.length === 1) {
+      yield put(relaySignersUpdateFail('The signer already exists.'));
     }
   } catch (error) {
     captureError(error);
@@ -671,6 +698,57 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
+
+function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
+  try {
+    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const signerMap = Object.fromEntries(
+      existingSigners.map((signer) => [signer.masterFingerprint, signer])
+    );
+    const signersToDelete = [];
+
+    for (const signer of signers) {
+      const existingSigner = signerMap[signer.masterFingerprint];
+      if (!existingSigner) {
+        continue;
+      }
+      signersToDelete.push(signer);
+    }
+
+    let signersToDeleteIds = [];
+    for (const signer of signersToDelete) {
+      signersToDeleteIds.push(signer.masterFingerprint);
+    }
+
+    if (signersToDelete.length) {
+      yield put(setRelaySignersUpdateLoading(true));
+      const response = yield call(deleteAppImageEntityWorker, {
+        payload: { signerIds: signersToDeleteIds },
+      });
+      if (response.updated) {
+        for (const signer of signersToDelete) {
+          yield call(
+            dbManager.deleteObjectByPrimaryKey,
+            RealmSchema.Signer,
+            'masterFingerprint',
+            signer.masterFingerprint
+          );
+        }
+        yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
+      } else {
+        yield put(relaySignersUpdateFail(response.error));
+      }
+    }
+  } catch (error) {
+    captureError(error);
+    yield put(relaySignersUpdateFail('An error occurred while deleting signers.'));
+  }
+}
+
+export const deleteSigningDeviceWatcher = createWatcher(
+  deleteSigningDeviceWorker,
+  DELETE_SIGINING_DEVICE
+);
 
 function* migrateVaultWorker({
   payload,
@@ -1385,3 +1463,21 @@ export const updateWalletsPropertyWatcher = createWatcher(
   updateWalletsPropertyWorker,
   UPDATE_WALLET_PROPERTY
 );
+
+function* deleteVaultWorker({ payload }) {
+  const { vaultId } = payload;
+  try {
+    yield put(setRelayVaultUpdateLoading(true));
+    const response = yield call(deleteVaultImageWorker, { payload: { vaultIds: [vaultId] } });
+    if (response.updated) {
+      yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
+      yield put(relayVaultUpdateSuccess());
+    } else {
+      yield put(relayVaultUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
+  }
+}
+
+export const deleteVaultyWatcher = createWatcher(deleteVaultWorker, DELETE_VAULT);

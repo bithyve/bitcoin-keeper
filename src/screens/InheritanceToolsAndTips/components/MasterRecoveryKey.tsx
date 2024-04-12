@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import MasterRecoveryKeyIcon from 'src/assets/images/master-recovery-key.svg';
@@ -12,7 +12,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { CommonActions } from '@react-navigation/native';
-import DownArrow from 'src/assets/images/down_arrow.svg';
+import MasterKey from 'src/assets/images/master_key.svg';
 
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
@@ -21,7 +21,7 @@ function MasterRecoveryKey({ navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading}>Master Recovery Key</Text>
         <Text style={styles.description}>Backup 12-word seed phrase</Text>
         <Text style={styles.commonTextStyle}>
@@ -42,7 +42,7 @@ function MasterRecoveryKey({ navigation }) {
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
-            icon={<DownArrow />}
+            icon={<MasterKey />}
             description="Please view in a private location"
             callback={() => {
               navigation.dispatch(
@@ -74,6 +74,9 @@ const styles = StyleSheet.create({
   container: {
     gap: 25,
     marginTop: 20,
+  },
+  marginLeft: {
+    marginLeft: wp(10),
   },
   walletType: {
     justifyContent: 'space-between',

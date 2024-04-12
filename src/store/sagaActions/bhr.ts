@@ -11,12 +11,21 @@ export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
 export const BACKUP_BSMS_ON_CLOUD = 'BACKUP_BSMS_ON_CLOUD';
 export const BSMS_CLOUD_HEALTH_CHECK = 'BSMS_CLOUD_HEALTH_CHECK';
+export const DELETE_APP_IMAGE_ENTITY = 'DELETE_APP_IMAGE_ENTITY';
 
 export const updateAppImage = ({ wallets, signers }) => ({
   type: UPDATE_APP_IMAGE,
   payload: {
     wallets,
     signers,
+  },
+});
+
+export const deleteAppImageEntity = ({ walletIds, signerIds }) => ({
+  type: UPDATE_APP_IMAGE,
+  payload: {
+    walletIds,
+    signerIds,
   },
 });
 

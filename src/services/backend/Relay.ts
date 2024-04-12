@@ -316,7 +316,6 @@ export default class Relay {
       throw new Error('Failed to fetch App Image');
     }
   };
-
   public static updateAppImage = async (
     appImage
   ): Promise<{
@@ -332,6 +331,42 @@ export default class Relay {
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
+    }
+  };
+
+  public static deleteAppImageEntity = async (
+    entityList
+  ): Promise<{
+    status: string;
+    updated: boolean;
+    err?: string;
+    message?: string;
+  }> => {
+    try {
+      const res = await RestClient.post(`${RELAY}deleteAppImageEntity`, entityList);
+      const data = res.data || res.json;
+      return data;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed to update App Image');
+    }
+  };
+
+  public static deleteVaultImage = async (
+    entityList
+  ): Promise<{
+    status: string;
+    updated: boolean;
+    err?: string;
+    message?: string;
+  }> => {
+    try {
+      const res = await RestClient.post(`${RELAY}deleteVaults`, entityList);
+      const data = res.data || res.json;
+      return data;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed to update Vault Image');
     }
   };
 

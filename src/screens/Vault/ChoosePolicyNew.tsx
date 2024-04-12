@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input, useColorMode } from 'native-base';
-import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, Pressable, useColorMode } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useState } from 'react';
 import {
   SignerException,
@@ -10,14 +10,13 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
-
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
 import Clipboard from '@react-native-community/clipboard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
-
+import BTC from 'src/assets/images/btc.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { numberWithCommas } from 'src/utils/utilities';
@@ -29,6 +28,7 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import useVault from 'src/hooks/useVault';
+import Colors from 'src/theme/Colors';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -168,30 +168,45 @@ function ChoosePolicyNew({ navigation, route }) {
       </Box>
     );
   }, [otp]);
+
   function Field({ title, subTitle, value, onPress }) {
     return (
       <Box style={styles.fieldWrapper}>
-        <Box width="60%">
-          <Text style={styles.titleText}>{title}</Text>
-          <Text color={`${colorMode}.GreyText`} style={styles.subTitleText}>
-            {subTitle}
-          </Text>
-        </Box>
-
-        <Box width="40%" ml={3}>
-          <Input
-            backgroundColor={`${colorMode}.seashellWhite`}
-            onPressIn={onPress}
-            style={styles.textInput}
-            value={value}
-            showSoftInputOnFocus={false}
-            onFocus={() => Keyboard.dismiss()}
-            selection={{
-              start: 0,
-              end: 0,
-            }}
-          />
-        </Box>
+        <Text style={styles.titleText}>{title}</Text>
+        <Text color={`${colorMode}.policySubtitle`} style={styles.subTitleText}>
+          {subTitle}
+        </Text>
+        <Pressable
+          backgroundColor={`${colorMode}.seashellWhite`}
+          onPressIn={onPress}
+          style={styles.textInput}
+        >
+          <Box style={styles.alignCenter}>
+            <BTC style={{ color: Colors.SlateGreen }} />
+            <Box
+              style={styles.horizontalSeparator}
+              backgroundColor={`${colorMode}.dropdownSeparator`}
+            />
+          </Box>
+          <Box style={styles.w70}>
+            <Text
+              bold
+              fontSize={13}
+              color={value ? `${colorMode}.black` : `${colorMode}.SlateGreen`}
+            >
+              {value}
+            </Text>
+          </Box>
+          <Box style={styles.alignCenter}>
+            <Box
+              style={styles.horizontalSeparator}
+              backgroundColor={`${colorMode}.dropdownSeparator`}
+            />
+            <Text color={`${colorMode}.SlateGreen`} bold fontSize={13}>
+              sats
+            </Text>
+          </Box>
+        </Pressable>
       </Box>
     );
   }
@@ -202,12 +217,7 @@ function ChoosePolicyNew({ navigation, route }) {
         title={signingServer.choosePolicy}
         subtitle={signingServer.choosePolicySubTitle}
       />
-      <Box
-        style={{
-          paddingHorizontal: wp(15),
-          flex: 1,
-        }}
-      >
+      <Box style={styles.fieldContainer}>
         <Field
           title={signingServer.maxNoCheckAmt}
           subTitle={signingServer.maxNoCheckAmtSubTitle}
@@ -227,7 +237,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => { }}
+          clear={() => {}}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
@@ -248,37 +258,51 @@ function ChoosePolicyNew({ navigation, route }) {
 }
 const styles = StyleSheet.create({
   textInput: {
+    height: hp(50),
+    marginTop: hp(10),
     borderRadius: 10,
-    // padding: 15,
-    fontSize: 18,
-    letterSpacing: 0.23,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
   },
   fieldWrapper: {
-    flexDirection: 'row',
     width: '100%',
-    alignItems: 'center',
     marginTop: windowHeight > 600 ? hp(25) : hp(40),
   },
   titleText: {
-    fontSize: 13,
-    letterSpacing: 0.96,
+    fontSize: 14,
+    letterSpacing: 0.14,
   },
   subTitleText: {
-    fontSize: 10,
-    letterSpacing: 0.5,
+    fontSize: 12,
+    letterSpacing: 0.12,
   },
   btnWrapper: {
     marginVertical: hp(windowHeight > 700 ? 25 : 0),
-  },
-  keypadWrapper: {
-    position: 'absolute',
-    bottom: 0,
   },
   cvvInputInfoText: {
     fontSize: 13,
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  alignCenter: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+  },
+  horizontalSeparator: {
+    width: 2,
+    height: hp(20),
+    borderRadius: 10,
+  },
+  w70: {
+    width: '70%',
+  },
+  fieldContainer: {
+    paddingHorizontal: wp(15),
+    flex: 1,
   },
 });
 export default ChoosePolicyNew;

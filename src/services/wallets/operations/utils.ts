@@ -7,7 +7,6 @@ import bitcoinMessage from 'bitcoinjs-message';
 import { CryptoAccount, CryptoHDKey } from 'src/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 
-import RestClient from 'src/services/rest/RestClient';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
@@ -15,7 +14,7 @@ import idx from 'idx';
 import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
-import { Vault } from '../interfaces/vault';
+import { Signer, Vault } from '../interfaces/vault';
 import {
   BIP48ScriptTypes,
   DerivationPurpose,
@@ -991,5 +990,22 @@ export default class WalletUtilities {
       default:
         return null;
     }
+  };
+
+  static getInstanceNumberForSigners = (signers: Signer[]) => {
+    const instanceNumbers = signers
+      .map((signer) => signer.extraData?.instanceNumber)
+      .filter(Number.isInteger);
+
+    instanceNumbers.sort((a, b) => a - b);
+    let instanceNumber = 0;
+    for (const num of instanceNumbers) {
+      if (num === instanceNumber + 1) {
+        instanceNumber++;
+      } else {
+        break;
+      }
+    }
+    return instanceNumber;
   };
 }

@@ -18,7 +18,7 @@ import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateSignerFromMetaData, isSignerAMF } from 'src/hardware';
+import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
@@ -28,7 +28,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import config from 'src/utils/service-utilities/config';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
@@ -98,21 +98,58 @@ function SetupTapsigner({ route }) {
       let tapsigner: Signer;
       let vaultKey: VaultSigner;
       if (isAMF) {
-        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+        // fetched multi-sig key
+        const {
+          xpub: multiSigXpub,
+          xpriv: multiSigXpriv,
+          derivationPath: multiSigPath,
+          masterFingerprint,
+        } = generateMockExtendedKeyForSigner(
           EntityKind.VAULT,
           SignerType.TAPSIGNER,
           config.NETWORK_TYPE
         );
+        // fetched single-sig key
+        const {
+          xpub: singleSigXpub,
+          xpriv: singleSigXpriv,
+          derivationPath: singleSigPath,
+        } = generateMockExtendedKeyForSigner(
+          EntityKind.WALLET,
+          SignerType.TAPSIGNER,
+          config.NETWORK_TYPE
+        );
+
+        const xpubDetails: XpubDetailsType = {};
+
+        xpubDetails[XpubTypes.P2WPKH] = {
+          xpub: singleSigXpub,
+          xpriv: singleSigXpriv,
+          derivationPath: singleSigPath,
+        };
+
+        xpubDetails[XpubTypes.P2WSH] = {
+          xpub: multiSigXpub,
+          xpriv: multiSigXpriv,
+          derivationPath: multiSigPath,
+        };
+
+        xpubDetails[XpubTypes.AMF] = {
+          xpub: multiSigXpub,
+          xpriv: multiSigXpriv,
+          derivationPath: multiSigPath,
+        };
+
         const { signer, key } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
+          xpub: multiSigXpub,
+          derivationPath: multiSigPath,
           masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
           isMultisig,
-          xpriv,
+          xpriv: multiSigXpriv,
           isMock: false,
-          xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
+          xpubDetails,
         });
         tapsigner = signer;
         vaultKey = key;

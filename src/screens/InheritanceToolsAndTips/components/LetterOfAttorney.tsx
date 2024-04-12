@@ -6,7 +6,9 @@ import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
+import useToastMessage from 'src/hooks/useToastMessage';
+
 import InheritanceHeader from '../InheritanceHeader';
 import LetterOfattorneyIcon from 'src/assets/images/letterOfAttorney.svg';
 import DashedButton from 'src/components/DashedButton';
@@ -22,11 +24,12 @@ function LetterOfAttorney() {
   const fingerPrints = allVaults[0]?.signers.map((signer) => signer.masterFingerprint);
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.marginLeft}>
         <Text style={styles.heading}>Letter to the Attorney</Text>
         <Text style={styles.description}>A pre-filled letter template</Text>
         <Text style={styles.commonTextStyle}>
@@ -45,11 +48,15 @@ function LetterOfAttorney() {
             icon={<DownArrow />}
             description="Pre-filled template for estate planner"
             callback={() => {
-              GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
-                if (res) {
-                  navigation.navigate('PreviewPDF', { source: res });
-                }
-              });
+              if (fingerPrints) {
+                GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
+                  if (res) {
+                    navigation.navigate('PreviewPDF', { source: res });
+                  }
+                });
+              } else {
+                showToast('No vaults found');
+              }
             }}
             name="View Letter to the Attorney"
           />
@@ -72,6 +79,9 @@ const styles = StyleSheet.create({
   container: {
     gap: 25,
     marginTop: 20,
+  },
+  marginLeft: {
+    marginLeft: wp(10),
   },
   walletType: {
     justifyContent: 'space-between',

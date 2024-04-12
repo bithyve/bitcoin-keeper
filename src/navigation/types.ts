@@ -104,7 +104,6 @@ export type AppStackParams = {
   AssignSignerType: undefined;
   NFCScanner: undefined;
   AddWallet: undefined;
-  AddSigner: undefined;
   CanaryWallets: undefined;
   AssistedKeys: undefined;
   SafeKeepingTips: undefined;
@@ -126,6 +125,10 @@ export type AppStackParams = {
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
+  SignerSettings: undefined;
+  EnterWalletPath: undefined;
+  DeleteKeys: undefined;
+  HandleFile: undefined;
 };
 
 // Usage:
