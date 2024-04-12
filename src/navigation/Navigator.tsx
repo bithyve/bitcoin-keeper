@@ -102,6 +102,7 @@ import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/Inherit
 import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 import { AppStackParams } from './types';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
+import CloudBackupScreen from 'src/screens/CloudBackup/CloudBackupScreen';
 import SignerSettings from 'src/screens/SigningDevices/SignerSettings';
 import DeleteKeys from 'src/screens/SigningDevices/DeleteKeys';
 
@@ -286,6 +287,7 @@ function AppStack() {
         <Stack.Screen name="AddWallet" component={AddWallet} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
+        <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />

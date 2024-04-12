@@ -10,6 +10,7 @@ import AppBackupIcon from 'src/assets/images/app_backup.svg';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
 import FaqIcon from 'src/assets/images/faq.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import CloudIcon from 'src/assets/images/cloud-white.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -44,6 +45,7 @@ function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+  const { isCloudBsmsBackupRequired } = useAppSelector((state) => state.bhr);
 
   const { colorMode, toggleColorMode } = useColorMode();
   const dispatch = useAppDispatch();
@@ -94,6 +96,12 @@ function AppSettings({ navigation, route }) {
       cardName: settings.ManageWallets,
       icon: <WalletIcon />,
       callback: () => navigation.navigate('ManageWallets'),
+    },
+    {
+      cardName: settings.personalCloudBackup,
+      icon: <CloudIcon />,
+      callback: () => navigation.navigate('CloudBackup'),
+      showDot: isCloudBsmsBackupRequired,
     },
     {
       cardName: `Need\nHelp?`,
