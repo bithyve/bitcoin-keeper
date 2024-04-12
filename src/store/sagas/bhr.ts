@@ -612,13 +612,16 @@ function* isBackedUP({
   yield put(setBackupWarning(false));
 }
 
-function* backupBsmsOnCloudWorker() {
+function* backupBsmsOnCloudWorker({
+  payload,
+}: {
+  payload: {
+    password: string;
+  };
+}) {
+  const { password } = payload;
   try {
     const bsmsToBackup = [];
-    const { primaryMnemonic }: KeeperApp = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.KeeperApp
-    );
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
     vaults.forEach((vault) => {
       const bsms = genrateOutputDescriptors(vault);
@@ -634,7 +637,6 @@ function* backupBsmsOnCloudWorker() {
       if (setup) {
         const login = yield call(CloudBackupModule.login);
         if (login.status) {
-          const password = primaryMnemonic.split(' ').slice(0, 3).join(' ');
           const response = yield call(
             CloudBackupModule.backupBsms,
             JSON.stringify(bsmsToBackup),

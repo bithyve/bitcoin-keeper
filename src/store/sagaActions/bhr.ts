@@ -80,8 +80,11 @@ export const healthCheckSigner = (signers: Signer[]) => ({
   },
 });
 
-export const backupBsmsOnCloud = () => ({
+export const backupBsmsOnCloud = (password: string) => ({
   type: BACKUP_BSMS_ON_CLOUD,
+  payload: {
+    password,
+  },
 });
 
 export const bsmsCloudHealthCheck = () => ({

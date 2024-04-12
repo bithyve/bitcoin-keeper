@@ -41,7 +41,6 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { initialize, showMessaging } from '../../nativemodules/Zendesk';
 import usePlan from 'src/hooks/usePlan';
-import dbManager from 'src/storage/realm/dbManager';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import DeviceInfo from 'react-native-device-info';
 
@@ -116,20 +115,22 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: settings.personalCloudBackup,
-      icon: <CloudIcon />,
-      callback: () => navigation.navigate('CloudBackup'),
-      showDot: isCloudBsmsBackupRequired,
-    },
-    {
-      cardName: `Need\nHelp?`,
+      cardName: `Keeper\nConcierge`,
       icon: <FaqIcon />,
       callback: () =>
         config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
           ? initChat()
           : openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
-  ];
+    Platform.OS === 'android'
+      ? {
+          cardName: settings.personalCloudBackup,
+          icon: <CloudIcon />,
+          callback: () => navigation.navigate('CloudBackup'),
+          showDot: isCloudBsmsBackupRequired,
+        }
+      : null,
+  ].filter(Boolean);
 
   // TODO: add learn more modal
   return (

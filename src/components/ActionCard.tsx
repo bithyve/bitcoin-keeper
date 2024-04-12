@@ -38,7 +38,6 @@ function ActionCard({
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
-        {showDot && <Box style={styles.dot} />}
         {cardPillText && (
           <Box style={styles.cardPillContainer}>
             <CardPill heading={cardPillText} backgroundColor={`${colorMode}.btcLabelBack`} />

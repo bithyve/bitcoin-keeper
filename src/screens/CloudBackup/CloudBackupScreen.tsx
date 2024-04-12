@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useEffect } from 'react';
+import React, { useContext, useMemo, useEffect, useState } from 'react';
 import { StyleSheet, Platform, FlatList } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
@@ -19,6 +19,7 @@ import { backupBsmsOnCloud, bsmsCloudHealthCheck } from 'src/store/sagaActions/b
 import { setBackupLoading } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import EnterPasswordModal from './EnterPasswordModal';
 
 const CloudBackupScreen = () => {
   const { colorMode } = useColorMode();
@@ -29,6 +30,7 @@ const CloudBackupScreen = () => {
   const history = useMemo(() => data.sorted('date', true), [data]);
   const { showToast } = useToastMessage();
   const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     if (loading) {
@@ -48,6 +50,14 @@ const CloudBackupScreen = () => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <EnterPasswordModal
+        visible={showPasswordModal}
+        close={() => setShowPasswordModal(false)}
+        callback={(value: any) => {
+          dispatch(backupBsmsOnCloud(value));
+        }}
+      />
+
       <KeeperHeader
         title={strings.cloudBackup}
         subtitle={`On your ${cloudName}`}
@@ -103,7 +113,7 @@ const CloudBackupScreen = () => {
 
       <Buttons
         primaryText={strings.backupNow}
-        primaryCallback={() => dispatch(backupBsmsOnCloud())}
+        primaryCallback={() => setShowPasswordModal(true)}
         primaryLoading={loading}
         secondaryText={strings.healthCheck}
         secondaryDisable={lastBsmsBackup < 0}
