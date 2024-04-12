@@ -4461,11 +4461,6 @@
     redux-thunk "^2.4.1"
     reselect "^4.1.5"
 
-"@robbywh/react-native-zendesk-messaging@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@robbywh/react-native-zendesk-messaging/-/react-native-zendesk-messaging-1.1.1.tgz#9fcc1fafb27331f4e6da744e0cd6948a0258b463"
-  integrity sha512-JAJo3T1n7m9uIwc5x2PK/nRmALua/tWBrXUvUSucgDKm9Ersxk+GlLrsKhISC9sXjpwPGL2SfVw752p4I0ft6Q==
-
 "@scure/base@^1.1.1":
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.5.tgz#1d85d17269fe97694b9c592552dd9e5e33552157"
@@ -11960,6 +11955,11 @@ react-native-tor@0.1.8:
   dependencies:
     "@types/async" "^3.2.6"
     async "^3.2.0"
+
+react-native-zendesk-messaging@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-zendesk-messaging/-/react-native-zendesk-messaging-0.2.1.tgz#5edf91313b5f05936df22132da56d0cc80bcf87c"
+  integrity sha512-hDb2bG+ven/v2hAtnIrq+abjBjgfzoYSYtlhpfJ9GVgfFogaOcI4FjcX6XO/1IStVLKPcQit5CBTycVPT5CSCA==
 
 react-native@0.72.4, react-native@>=0.68:
   version "0.72.4"
