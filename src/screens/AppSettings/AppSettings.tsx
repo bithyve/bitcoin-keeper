@@ -39,10 +39,10 @@ import ThemeMode from 'src/models/enums/ThemeMode';
 import BackupModalContent from './BackupModal';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
-import { initialize, showMessaging } from '../../nativemodules/Zendesk';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import DeviceInfo from 'react-native-device-info';
+import * as Zendesk from 'react-native-zendesk-messaging';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -73,7 +73,9 @@ function AppSettings({ navigation, route }) {
   }, [colorMode]);
 
   useEffect(() => {
-    initialize(config.ZENDESK_CHANNEL_ID);
+    Zendesk.initialize({ channelKey: config.ZENDESK_CHANNEL_ID })
+      .then(() => console.log('init success'))
+      .catch((error) => console.log('init error ', error));
   }, []);
 
   const changeThemeMode = () => {
@@ -81,15 +83,21 @@ function AppSettings({ navigation, route }) {
   };
 
   const initChat = async () => {
-    showMessaging(
-      publicId,
-      plan,
-      `app_settings, ${
-        Platform.OS
-      }-${DeviceInfo.getSystemVersion()}, tor_disbled, ${DeviceInfo.getVersion()}, ${DeviceInfo.getBrand()}-${DeviceInfo.getModel()}`,
+    Zendesk.clearConversationFields();
+    Zendesk.clearConversationTags();
+    Zendesk.setConversationTags([
+      'app_settings',
+      `${Platform.OS}-${DeviceInfo.getSystemVersion()}`,
       DeviceInfo.getVersion(),
-      versionHistory.toString()
-    );
+      `${DeviceInfo.getBrand()}-${DeviceInfo.getModel()}`,
+    ]);
+    Zendesk.setConversationFields({
+      '18084979872925': publicId,
+      '18087575177885': plan,
+      '18087673246237': DeviceInfo.getVersion(),
+      '18088921954333': JSON.stringify(versionHistory),
+    });
+    Zendesk.openMessagingView();
   };
 
   const { typeBasedIndicator } = useIndicatorHook({

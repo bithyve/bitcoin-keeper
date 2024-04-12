@@ -14,7 +14,6 @@ import com.hexa_keeper.KeepScreenAwakePackage;
 import com.hexa_keeper.WhirlpoolPackage;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
-import com.hexa_keeper.ZendeskPackage;
 
 import java.util.List;
 
@@ -34,7 +33,6 @@ public class MainApplication extends Application implements ReactApplication {
             packages.add(new WhirlpoolPackage());
             packages.add(new KeepScreenAwakePackage());
             packages.add(new CloudBackupPackage());
-            packages.add(new ZendeskPackage());
             return packages;
         }
 
