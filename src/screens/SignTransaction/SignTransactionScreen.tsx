@@ -274,6 +274,13 @@ function SignTransactionScreen() {
     [activeXfp, serializedPSBTEnvelops]
   );
 
+  const onFileSign = (signedSerializedPSBT: string) => {
+    const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeXfp)[0];
+    const signer = signerMap[currentKey.masterFingerprint];
+    dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: activeXfp }));
+    dispatch(healthCheckSigner([signer]));
+  };
+
   const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
     setActiveXfp(vaultKey.xfp);
     if (areSignaturesSufficient()) {
@@ -474,6 +481,7 @@ function SignTransactionScreen() {
         textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
+        onFileSign={onFileSign}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal

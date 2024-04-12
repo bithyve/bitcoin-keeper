@@ -36,7 +36,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>324</string>
+	<string>327</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
@@ -81,6 +81,7 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
+		<string>nfc</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
@@ -92,6 +93,7 @@
 	<array>
 		<string>D2760000850100</string>
 		<string>D2760000850101</string>
+		<string>f0436f696e6b697465434152447631</string>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

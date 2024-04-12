@@ -49,7 +49,7 @@ import TickIcon from 'src/assets/images/tick_icon.svg';
 
 const { width } = Dimensions.get('screen');
 
-const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) => {
+const getKeyForScheme = (isMultisig, signer, msXpub, ssXpub, amfXpub) => {
   if (amfXpub) {
     return {
       ...amfXpub,
@@ -60,7 +60,7 @@ const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) =>
       ),
     };
   }
-  if (isMock || isMultisig) {
+  if (isMultisig) {
     return {
       ...msXpub,
       masterFingerprint: signer.masterFingerprint,
@@ -122,7 +122,7 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
-    const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub, amfXpub);
+    const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
     const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
@@ -199,14 +199,7 @@ const setInitialKeys = (
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
           const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
-          const scriptKey = getKeyForScheme(
-            signer.isMock,
-            isMultisig,
-            signer,
-            msXpub,
-            ssXpub,
-            amfXpub
-          );
+          const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
           if (scriptKey) {
             modifiedVaultKeysForScriptType.push(scriptKey);
           }

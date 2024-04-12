@@ -11,6 +11,7 @@ interface ICurrencyInfo {
   hideAmounts: boolean;
   amount: number;
   fontSize: number;
+  bold?: boolean;
   color?: string;
   variation?: 'light' | 'green' | 'dark' | 'grey';
 }
@@ -18,6 +19,7 @@ function CurrencyInfo({
   hideAmounts,
   amount,
   fontSize,
+  bold,
   color = Colors.White,
   variation = 'grey',
 }: ICurrencyInfo) {
@@ -30,6 +32,7 @@ function CurrencyInfo({
           <Text
             color={color}
             style={{ fontSize, lineHeight: fontSize }}
+            bold={bold}
             numberOfLines={1}
             testID="text_balance"
           >

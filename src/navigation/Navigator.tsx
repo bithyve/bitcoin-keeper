@@ -113,7 +113,6 @@ import MasterRecoveryKey from 'src/screens/InheritanceToolsAndTips/components/Ma
 import PersonalCloudBackup from 'src/screens/InheritanceToolsAndTips/components/PersonalCloudBackup';
 import WalletConfigurationFiles from 'src/screens/InheritanceToolsAndTips/components/WalletConfigurationFiles';
 import BackupAndRecoveryTips from 'src/screens/InheritanceToolsAndTips/components/BackupAndRecoveryTips';
-import InheritanceKey from 'src/screens/InheritanceToolsAndTips/components/InheritanceKey';
 import LetterOfAttorney from 'src/screens/InheritanceToolsAndTips/components/LetterOfAttorney';
 import RecoveryInstruction from 'src/screens/InheritanceToolsAndTips/components/RecoveryInstruction';
 import PrintableTemplates from 'src/screens/InheritanceToolsAndTips/components/PrintableTemplates';
@@ -121,6 +120,7 @@ import InheritanceTips from 'src/screens/InheritanceToolsAndTips/components/Inhe
 import RecoveryPhraseTemplate from 'src/screens/InheritanceToolsAndTips/components/RecoveryPhraseTemplate';
 import TrustedContactTemplates from 'src/screens/InheritanceToolsAndTips/components/TrustedContactsTemplate';
 import AdditionalSignerDetailsTemplate from 'src/screens/InheritanceToolsAndTips/components/AdditionalSignerDetailsTemplate';
+import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -288,6 +288,7 @@ function AppStack() {
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
+        <Stack.Screen name="HandleFile" component={HandleFileScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
