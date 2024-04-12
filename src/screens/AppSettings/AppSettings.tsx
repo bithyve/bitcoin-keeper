@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useQuery } from '@realm/react';
 import { CommonActions } from '@react-navigation/native';
@@ -36,13 +36,19 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import BackupModalContent from './BackupModal';
-import { initialize, showMessaging } from '@robbywh/react-native-zendesk-messaging';
+import { initialize, showMessaging } from '../../nativemodules/Zendesk';
+import usePlan from 'src/hooks/usePlan';
+import dbManager from 'src/storage/realm/dbManager';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import DeviceInfo from 'react-native-device-info';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
-
+  const { plan } = usePlan();
+  const { publicId }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const versionHistory = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
   const { colorMode, toggleColorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -69,7 +75,17 @@ function AppSettings({ navigation, route }) {
     toggleColorMode();
   };
 
-  const initChat = () => showMessaging();
+  const initChat = async () => {
+    showMessaging(
+      publicId,
+      plan,
+      `app_settings, ${
+        Platform.OS
+      }-${DeviceInfo.getSystemVersion()}, tor_disbled, ${DeviceInfo.getVersion()}, ${DeviceInfo.getBrand()}-${DeviceInfo.getModel()}`,
+      DeviceInfo.getVersion(),
+      versionHistory.toString()
+    );
+  };
 
   const actionCardData = [
     {
