@@ -47,14 +47,12 @@ function KeySecurity({ navigation }) {
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       />
       <OptionCard
-        disabled
         //---for future use---
         // preTitle={`${
         //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
         //     ? 'Never accessed'
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
         // }`}
-        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={<Bird />}
