@@ -37,6 +37,8 @@ import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import BackupModalContent from './BackupModal';
 import { initialize, showMessaging } from '@robbywh/react-native-zendesk-messaging';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -48,7 +50,7 @@ function AppSettings({ navigation, route }) {
   const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
   const data = useQuery(RealmSchema.BackupHistory);
-  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const { primaryMnemonic, id } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
@@ -71,6 +73,10 @@ function AppSettings({ navigation, route }) {
 
   const initChat = () => showMessaging();
 
+  const { typeBasedIndicator } = useIndicatorHook({
+    types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
+  });
+
   const actionCardData = [
     {
       cardName: settings.appBackup,
@@ -82,6 +88,7 @@ function AppSettings({ navigation, route }) {
           navigation.navigate('WalletBackHistory');
         }
       },
+      showDot: typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[id],
     },
     {
       cardName: settings.ManageWallets,
@@ -127,6 +134,7 @@ function AppSettings({ navigation, route }) {
                 callback={card.callback}
                 key={card.cardName}
                 customStyle={{ justifyContent: 'flex-end' }}
+                showDot={card.showDot}
               />
             ))}
           </Box>

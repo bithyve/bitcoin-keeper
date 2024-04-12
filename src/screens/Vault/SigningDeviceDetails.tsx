@@ -50,6 +50,8 @@ import IdentifySignerModal from './components/IdentifySignerModal';
 import { SDIcons } from './SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -230,6 +232,7 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
 
+  const { entityBasedIndicator } = useIndicatorHook({ entityId: signerId });
   const [healthCheckArray, setHealthCheckArray] = useState([]);
 
   useEffect(() => {
@@ -270,10 +273,20 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
-  function FooterIcon({ Icon }) {
+  function FooterIcon({ Icon, showDot = false }) {
     return (
-      <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circleIcon}>
+      <Box
+        margin="1"
+        width="12"
+        height="12"
+        borderRadius={30}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
+        justifyContent="center"
+        alignItems="center"
+        position={'relative'}
+      >
         <Icon />
+        {showDot && <Box style={styles.redDot} />}
       </Box>
     );
   }
@@ -283,7 +296,12 @@ function SigningDeviceDetails({ route }) {
   const footerItems = [
     {
       text: 'Health Check',
-      Icon: () => <FooterIcon Icon={HealthCheck} />,
+      Icon: () => (
+        <FooterIcon
+          Icon={HealthCheck}
+          showDot={entityBasedIndicator?.[signerId]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]}
+        />
+      ),
       onPress: () => {
         if (signer.type === SignerType.UNKOWN_SIGNER) {
           navigation.dispatch(
@@ -451,6 +469,17 @@ const styles = StyleSheet.create({
   recentHistoryText: {
     fontSize: 16,
     padding: '7%',
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
   },
   contentDescription: {
     fontSize: 13,
