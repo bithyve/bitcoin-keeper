@@ -47,7 +47,7 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
   useEffect(() => {
-    if (backupMethod !== null && next) {
+    if (backupMethod !== null && next && !isHealthCheck) {
       setBackupSuccessModal(true);
     }
   }, [backupMethod]);
@@ -202,6 +202,11 @@ function ExportSeedScreen({ route, navigation }) {
                   dispatch(healthCheckSigner([signer]));
                   navigation.dispatch(CommonActions.goBack());
                   showToast(seedTranslation.seedWordVerified, <TickIcon />);
+                }
+                if (signer.type === SignerType.MY_KEEPER) {
+                  dispatch(healthCheckSigner([signer]));
+                  navigation.dispatch(CommonActions.goBack());
+                  showToast('Keeper Verified Successfully', <TickIcon />);
                 }
               } else {
                 dispatch(seedBackedUp());
