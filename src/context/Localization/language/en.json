@@ -691,7 +691,7 @@
     "privacy": "privacy",
     "slide01Paragraph": "Create single or multi-key wallets using popular signing devices. Perform air-gapped signing. Do regular health checks for keys.",
     "slide02Title": "Security should not\ncome at the cost of",
-    "slide02Paragraph": "No account creation is needed. Run your own node. Connect via. Tor. Manage UTXOs and perform Whirlpool.",
+    "slide02Paragraph": "No account creation is needed. Run your own node. Connect via Tor. Manage UTXOs and whirlpool sats.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",

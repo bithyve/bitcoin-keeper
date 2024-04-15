@@ -50,8 +50,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   container: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEE7E0',
+    borderTopWidth: 2,
+    paddingTop: hp(10),
+    borderTopColor: '#EEE7E0',
     height: hp(30),
   },
 });

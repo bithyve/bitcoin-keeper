@@ -48,17 +48,13 @@ function Wallets({ navigation }) {
         callback={() => navigateToVaultSetup({ m: 2, n: 3 })}
       />
 
-      {!isDiamondHand && <UpgradeSubscription type={'DIAMOND HANDS'} />}
-
       <OptionCard
-        disabled={!isDiamondHand}
         title="3-of-5 Vault"
         description="Deep cold storage"
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigateToVaultSetup({ m: 3, n: 5 })}
       />
       <OptionCard
-        disabled={!isDiamondHand}
         title="Collaborative"
         description="With contacts/devices"
         LeftIcon={<CollaborativeIcon />}

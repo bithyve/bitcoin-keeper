@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, HStack, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -19,6 +19,8 @@ import KeeperModal from 'src/components/KeeperModal';
 import WatchOnlyIcon from 'src/assets/images/watchonly.svg';
 import SignersIcon from 'src/assets/images/signers.svg';
 import WalletfileIcon from 'src/assets/images/walletfile.svg';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import { hp } from 'src/constants/responsive';
 
 function AddWalletContent() {
   const { colorMode } = useColorMode();
@@ -73,6 +75,7 @@ function AddWallet({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
+  const isSmallDevice = useIsSmallDevices();
 
   const [selectedCard, selectCard] = useState(1);
   const [visibleModal, setVisibleModal] = useState(false);
@@ -80,6 +83,13 @@ function AddWallet({ navigation }) {
   const onCardSelect = (id: number) => {
     selectCard(id);
   };
+
+  let setPadding;
+  if (selectedCard === 3) {
+    setPadding = hp(40);
+  } else {
+    setPadding = isSmallDevice ? 50 : 0;
+  }
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -92,47 +102,49 @@ function AddWallet({ navigation }) {
         }}
         learnTextColor={`${colorMode}.white`}
       />
-      <Box style={styles.container}>
+      <HStack style={[styles.container, { paddingBottom: setPadding }]}>
+        {/* <Box style={styles.container}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.walletType}
-        >
-          <WalletCard
-            id={1}
-            walletName="Create New"
-            walletDescription="Single or multi-key"
-            icon={<WalletActiveIcon />}
-            selectedIcon={<WalletGreenIcon />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-            arrowStyles={{ alignSelf: 'flex-end', marginRight: 10 }}
-          />
-          <WalletCard
-            id={2}
-            walletName="Import"
-            walletDescription="Recover or recreate"
-            icon={<ImportIcon />}
-            selectedIcon={<ImportGreenIcon />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-            arrowStyles={{ alignSelf: 'center' }}
-          />
-          <WalletCard
-            id={3}
-            walletName="Advanced"
-            walletDescription="For professionals"
-            icon={<AdvancedIcon />}
-            selectedIcon={<AdvancedGreenIcon />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-            arrowStyles={{ marginLeft: 10 }}
-          />
-        </ScrollView>
-        {selectedCard === 1 && <Wallets navigation={navigation} />}
-        {selectedCard === 2 && <ImportWallets navigation={navigation} />}
-        {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
-      </Box>
+        > */}
+        <WalletCard
+          id={1}
+          walletName="Create New"
+          walletDescription="Single or multi-key"
+          icon={<WalletActiveIcon />}
+          selectedIcon={<WalletGreenIcon />}
+          selectedCard={selectedCard}
+          onCardSelect={onCardSelect}
+          arrowStyles={{ alignSelf: 'flex-end', marginRight: 10 }}
+        />
+        <WalletCard
+          id={2}
+          walletName="Import"
+          walletDescription="Recover or recreate"
+          icon={<ImportIcon />}
+          selectedIcon={<ImportGreenIcon />}
+          selectedCard={selectedCard}
+          onCardSelect={onCardSelect}
+          arrowStyles={{ alignSelf: 'center' }}
+        />
+        <WalletCard
+          id={3}
+          walletName="Advanced"
+          walletDescription="For professionals"
+          icon={<AdvancedIcon />}
+          selectedIcon={<AdvancedGreenIcon />}
+          selectedCard={selectedCard}
+          onCardSelect={onCardSelect}
+          arrowStyles={{ marginLeft: 10 }}
+        />
+        {/* </ScrollView> */}
+      </HStack>
+      {selectedCard === 1 && <Wallets navigation={navigation} />}
+      {selectedCard === 2 && <ImportWallets navigation={navigation} />}
+      {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
+      {/* </Box> */}
       <KeeperModal
         visible={visibleModal}
         close={() => {
@@ -158,8 +170,8 @@ function AddWallet({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 25,
-    marginTop: 20,
+    gap: 4,
+    marginTop: hp(10),
   },
   walletType: {
     justifyContent: 'space-between',
