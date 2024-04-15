@@ -72,7 +72,7 @@ function KeySecurity({ navigation }) {
         LeftIcon={<Bird />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'HODLER'} />}
+      {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'Holder'} />}
 
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
