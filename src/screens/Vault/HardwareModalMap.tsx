@@ -969,16 +969,11 @@ function HardwareModalMap({
       );
     } else if (mode === InteracationMode.HEALTH_CHECK || mode === InteracationMode.IDENTIFICATION) {
       navigation.dispatch(
-        CommonActions.navigate({
-          name: 'EnterSeedScreen',
-          params: {
-            mode,
-            isHealthCheck: false,
-            signer,
-            isMultisig,
-            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
-            addSignerFlow,
-          },
+        CommonActions.navigate('ExportSeed', {
+          seed: primaryMnemonic,
+          next: true,
+          isHealthCheck: true,
+          signer,
         })
       );
     } else if (isImport) {
@@ -1360,14 +1355,11 @@ function HardwareModalMap({
       await biometricAuth(isMultiSig);
     } else if (mode === InteracationMode.HEALTH_CHECK) {
       navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ExportSeed',
-          params: {
-            seed: primaryMnemonic,
-            signer,
-            isHealthCheck: true,
-            next: true,
-          },
+        CommonActions.navigate('ExportSeed', {
+          seed: primaryMnemonic,
+          next: true,
+          isHealthCheck: true,
+          signer,
         })
       );
     } else if (mode === InteracationMode.IDENTIFICATION) {
