@@ -670,7 +670,7 @@ function SignerModals({
         const currentSigner = vaultKey.xfp === activeXfp;
         const { supportedSigningOptions } = getSupportedSigningOptions(signer.type, colorMode);
         const [signingMode, setSigningMode] = useState<SigningMode>(
-          supportedSigningOptions[0].name
+          supportedSigningOptions[0]?.name || null
         );
         if (signer.type === SignerType.TAPSIGNER) {
           const navigateToSignWithTapsigner = () => {
