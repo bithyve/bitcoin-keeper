@@ -52,6 +52,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -280,14 +281,14 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Box style={styles.sentToContainer}>
           <Text>Sent To</Text>
           <Card
-            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            isVault={recipient.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={recipient?.presentationData?.name}
           />
         </Box>
         <Box style={styles.sentFromContainer}>
           <Text>Sent From</Text>
           <Card
-            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            isVault={sender.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
             subTitle={`${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed

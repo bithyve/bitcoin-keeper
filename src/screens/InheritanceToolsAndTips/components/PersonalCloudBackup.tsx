@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -9,25 +9,20 @@ import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import PersonalCloudBackupIcon from 'src/assets/images/personal-cloud-backup.svg';
 import Cloud from 'src/assets/images/cloud.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function PersonalCloudBackup({}) {
   const { colorMode } = useColorMode();
-
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading}>Personal Cloud Backup</Text>
-        <Text style={styles.description}>Use your iCloud</Text>
-        <Text style={styles.commonTextStyle}>
-          Wallet configuration files for vaults can alternatively be stored on the users personal
-          cloud. This ensures that the user has access to them even if they do not have the Keeper
-          app.
-        </Text>
-        <Text style={styles.commonTextStyle}>
-          These files are also encrypted with the Mater Recovery Key which needs to be backed up
-          properly.
-        </Text>
+        <Text style={styles.heading}>{inheritancePlanning.personalCloudTitle}</Text>
+        <Text style={styles.description}>{inheritancePlanning.personalCloudDescpMain}</Text>
+        <Text style={styles.commonTextStyle}>{inheritancePlanning.personalCloudParagph1}</Text>
+        <Text style={styles.commonTextStyle}>{inheritancePlanning.personalCloudParagph2}</Text>
         <Box style={styles.circleStyle}>
           <PersonalCloudBackupIcon />
         </Box>
@@ -44,9 +39,7 @@ function PersonalCloudBackup({}) {
           <Text bold color={`${colorMode}.white`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            This action needs to be performed regularly as configuration details change
-          </Text>
+          <Text color={`${colorMode}.white`}>{inheritancePlanning.personalCloudNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

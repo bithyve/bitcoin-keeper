@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import InheritanceHeader from '../InheritanceHeader';
@@ -9,39 +9,38 @@ import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
 import AssistedKeysSlider from '../AssistedKeysSlider';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function InheritanceTips({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
   const tips = [
     {
-      title: 'Signing Server',
-      description: 'Use 2FA code to sign a transaction',
+      title: inheritancePlanning.signingServerHeading,
+      description: inheritancePlanning.signingServerHeading,
       icon: <AssistedKeysIcon />,
-      paragraph2:
-        'Please setup the 2FA on a different phone. You would only require the 2FA for a specified amount that would be within a range set by you. Below the minimum amount the 2FA won’t be needed, while you’ll be prompted to use a different key beyond the maximum amount.',
-      paragraph:
-        'Allows an automated script to sign the transaction when correct 2FA code is provided. The Key allows you to easily sign a transaction via a simple 2FA code instead of using a hardware signer.',
+      paragraph2: inheritancePlanning.signingServerParagraph2,
+      paragraph: inheritancePlanning.signingServerParagraph1,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
       buttonIcon: <Chip />,
-      buttonTitle: 'View Signing Server',
-      buttonDescription: 'Added on Hodler Tier',
-      note: 'Signing Server is a hot key. Please decide the amount you’d like to use Signing Server for, carefully.',
+      buttonTitle: inheritancePlanning.signingServerCtaTitle,
+      buttonDescription: inheritancePlanning.signingServerCtaDescp,
+      note: inheritancePlanning.signingServerNotes,
     },
     {
-      title: 'Inheritance Key',
-      description: 'To be considered while inheritance planning',
+      title: inheritancePlanning.inheritanceKey,
+      description: inheritancePlanning.inheritanceKeyDescp,
       icon: <AssistedKeysIcon />,
-      paragraph2:
-        'When a request is made to use this key for signing or recovery, there is a 30 day delay. This gives time to the user to decline the request if they don’t identify it. The request alerts are sent on the app and can also be sent on email or via sms.',
-      paragraph:
-        'Inheritance Key is an additional key available to increase the security of the vault without having to buy a hardware signer. It is available to all Diamond Hands subscribers.',
+      paragraph2: inheritancePlanning.inheritanceKeyParagraph2,
+      paragraph: inheritancePlanning.inheritanceKeyParagraph1,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
 
       buttonIcon: <Add />,
-      buttonTitle: 'View Inheritance Key',
-      buttonDescription: 'Add to the vault you want to bequeath',
-      note: 'Please provide detailed explanations and support to your heir via the inheritance document templates',
+      buttonTitle: inheritancePlanning.inheritanceKeyCtaTitle,
+      buttonDescription: inheritancePlanning.inheritanceKeyCtaDescp,
+      note: inheritancePlanning.inheritanceKeyCtaNotes,
     },
   ];
 

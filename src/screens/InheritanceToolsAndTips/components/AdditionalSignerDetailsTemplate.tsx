@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -12,22 +12,21 @@ import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemp
 import AdditionalSignerIcon from 'src/assets/images/additional-signer-icon.svg';
 import GenerateAdditionalKeyDetailsTemplate from 'src/utils/GenerateAdditionalKeyDetailsTemplate';
 import DownArrow from 'src/assets/images/down_arrow.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function AdditionalSignerDetailsTemplate({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>Additional Key Details</Text>
-        <Text style={styles.description}>Particulars about each key in the vault</Text>
-        <Text style={styles.commonTextStyle}>
-          This template provides a format where you may store the details of the signers or keys.
-          This may be sensitive in nature and so the use of this document should be carefully
-          considered.
-        </Text>
+        <Text style={styles.heading}>{inheritancePlanning.additionalKeysTitle}</Text>
+        <Text style={styles.description}>{inheritancePlanning.additionalKeysMainDescp}</Text>
+        <Text style={styles.commonTextStyle}>{inheritancePlanning.additionalKeysMainP1}</Text>
 
         <Box style={styles.circleStyle}>
           <AdditionalSignerIcon />
@@ -36,7 +35,7 @@ function AdditionalSignerDetailsTemplate({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="Particulars about each key"
+            description={inheritancePlanning.additionalKeysCtaDescp}
             callback={() => {
               GenerateAdditionalKeyDetailsTemplate().then((res) => {
                 if (res) {
@@ -44,7 +43,7 @@ function AdditionalSignerDetailsTemplate({}) {
                 }
               });
             }}
-            name="View Key Details Template"
+            name={inheritancePlanning.additionalKeysCtaTitle}
           />
         </Box>
 
@@ -52,9 +51,7 @@ function AdditionalSignerDetailsTemplate({}) {
           <Text bold color={`${colorMode}.white`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            Please ensure to keep this document up to date to avoid hassles for the heir.
-          </Text>
+          <Text color={`${colorMode}.white`}>{inheritancePlanning.additionalKeysCtaNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
