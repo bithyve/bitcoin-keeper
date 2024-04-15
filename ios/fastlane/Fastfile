@@ -29,6 +29,7 @@ platform :ios do
     increment_build_number(xcodeproj: "hexa_keeper.xcodeproj")
 
     get_certificates( # Create or get certificate, and install it
+      development: true,
       output_path: "./builds" # Download certificate in the build folder (you don't need to create the folder)
     )
 

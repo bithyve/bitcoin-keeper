@@ -51,7 +51,7 @@ import {
   getSignerNameFromType,
 } from 'src/hardware';
 import { getJadeDetails } from 'src/hardware/jade';
-import { getKeystoneDetails } from 'src/hardware/keystone';
+import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { generateKey, hash512 } from 'src/utils/service-utilities/encryption';
@@ -80,6 +80,8 @@ import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
 import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
 import Import from 'src/assets/images/import.svg';
+import NfcComms from 'src/assets/images/nfc_comms.svg';
+import QRComms from 'src/assets/images/qr_comms.svg';
 import Add from 'src/assets/images/add_white.svg';
 import useSigners from 'src/hooks/useSigners';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
@@ -96,6 +98,8 @@ import {
   setupSeedWordsBasedKey,
   setupSpecter,
 } from 'src/hardware/signerSetup';
+import { extractColdCardExport } from 'src/hardware/coldcard';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -129,7 +133,30 @@ const getSignerContent = (
         subTitle: `${coldcard.SetupDescription}`,
         sepInstruction:
           'Make sure you remember the account you had chosen (This is important for vault recovery)',
-        options: [],
+        options: [
+          {
+            title: 'NFC',
+            icon: (
+              <CircleIconWrapper
+                icon={<NfcComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.NFC,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+        ],
       };
     case SignerType.JADE:
       const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
@@ -153,35 +180,33 @@ const getSignerContent = (
         type: SignerType.KEEPER,
         Illustration: <KeeperSetupImage />,
         Instructions: [
-          'Choose a Mobile Key from your Keeper app (create) or from another Keeper app (import)',
+          'Choose a Mobile Key from another Keeper app',
           'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
-        title: 'Keep your Device Ready',
-        subTitle: `Keep your ${getSignerNameFromType(type)} ready before proceeding`,
-        options: [
-          {
-            title: `Import a ${getSignerNameFromType(type)}`,
-            icon: (
-              <CircleIconWrapper
-                icon={<Import />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
-                width={35}
-              />
-            ),
-            name: KeyGenerationMode.IMPORT,
-          },
-          {
-            title: `Add a New ${getSignerNameFromType(type)}`,
-            icon: (
-              <CircleIconWrapper
-                icon={<Add />}
-                backgroundColor={`${colorMode}.BrownNeedHelp`}
-                width={35}
-              />
-            ),
-            name: KeyGenerationMode.NEW,
-          },
-        ],
+        title: isHealthcheck ? `Verify  ${getSignerNameFromType(type)}` : 'Keep your Device Ready',
+        subTitle: `Importing ${getSignerNameFromType(type)}`,
+        options: [],
+      };
+    case SignerType.MY_KEEPER:
+      return {
+        type: SignerType.MY_KEEPER,
+        Illustration: isHealthcheck ? <SeedWordsIllustration /> : <KeeperSetupImage />,
+        Instructions: isHealthcheck
+          ? [
+              'Make sure you secure the 12-word phrase in a safe place.',
+              'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
+            ]
+          : [
+              'Choose a Mobile Key from your Keeper app',
+              'A child key from the parent bip-85 seed will be generated',
+            ],
+        title: isHealthcheck
+          ? 'Verify Recovery Key'
+          : `Setting up ${getSignerNameFromType(type)} (Hot)`,
+        subTitle: isHealthcheck
+          ? 'Enter the Recovery Key to do a health check'
+          : `Generating internal ${getSignerNameFromType(type)}`,
+        options: [],
       };
     case SignerType.MOBILE_KEY:
       return {
@@ -209,7 +234,30 @@ const getSignerContent = (
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
-        options: [],
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+        ],
       };
     case SignerType.PASSPORT:
       const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
@@ -226,7 +274,30 @@ const getSignerContent = (
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
-        options: [],
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+        ],
       };
     case SignerType.POLICY_SERVER:
       return {
@@ -393,17 +464,7 @@ const getSignerContent = (
               },
             ],
       };
-    case SignerType.MY_KEEPER:
-      return {
-        type: SignerType.MY_KEEPER,
-        Illustration: <SeedWordsIllustration />,
-        Instructions: [
-          'Make sure you secure the 12-word phrase in a safe place.',
-          'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
-        ],
-        title: isHealthcheck ? 'Verify Recovery Key' : 'Setting up Seed Key',
-        subTitle: 'Enter the Recovery Key to do a health check ',
-      };
+
     default:
       return {
         type,
@@ -412,6 +473,7 @@ const getSignerContent = (
         title: tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
         unsupported: true,
+        options: [],
       };
   }
 };
@@ -474,10 +536,10 @@ function SignerContent({
         }}
       >
         {options &&
-          options.map((option, index) => (
+          options.map((option) => (
             <SignerCard
               key={option.name}
-              isSelected={index === keyGenerationMode}
+              isSelected={keyGenerationMode === option.name}
               isFullText={true}
               name={option.title}
               icon={option.icon}
@@ -768,6 +830,23 @@ function HardwareModalMap({
     );
   };
 
+  const navigateToFileBasedSigner = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'HandleFile',
+        params: {
+          title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
+          subTitle: 'Please upload or paste the file containing the xpub data',
+          mode,
+          signer,
+          addSignerFlow,
+          ctaText: 'Proceed',
+          onFileExtract: onFileExtract,
+        },
+      })
+    );
+  };
+
   const generateMyAppKey = async () => {
     try {
       setInProgress(true);
@@ -1037,7 +1116,6 @@ function HardwareModalMap({
         showToast('Health check Failed', <ToastErrorIcon />);
       }
     } catch (error) {
-      console.log('err');
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);
         resetQR();
@@ -1050,6 +1128,95 @@ function HardwareModalMap({
         navigation.dispatch(CommonActions.goBack());
       }
     }
+  };
+
+  const onFileExtract = async (fileData) => {
+    if (!fileData || !fileData.trim) return;
+    let jsonData;
+    let hw;
+    let error;
+    try {
+      jsonData = JSON.parse(fileData);
+    } catch (error) {
+      showToast(`Please scan a valid file from ${getSignerNameFromType(type)}`, <ToastErrorIcon />);
+      return;
+    }
+    switch (type) {
+      case SignerType.PASSPORT:
+        try {
+          const passportDetails = isMultisig
+            ? getPassportDetails(jsonData)
+            : extractColdCardExport(jsonData, isMultisig);
+          const { xpub, derivationPath, masterFingerprint } = passportDetails;
+          const { signer } = generateSignerFromMetaData({
+            xpub,
+            derivationPath,
+            masterFingerprint,
+            signerType: SignerType.PASSPORT,
+            storageType: SignerStorage.COLD,
+            isMultisig,
+          });
+          hw = signer;
+          break;
+        } catch (err) {
+          error = err;
+        }
+      case SignerType.COLDCARD:
+        try {
+          const ccDetails = extractColdCardExport(jsonData, isMultisig);
+          const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
+          const { signer } = generateSignerFromMetaData({
+            xpub,
+            derivationPath,
+            masterFingerprint,
+            isMultisig,
+            signerType: SignerType.COLDCARD,
+            storageType: SignerStorage.COLD,
+            xpubDetails,
+          });
+          hw = signer;
+        } catch (err) {
+          error = err;
+        }
+        break;
+      case SignerType.KEYSTONE:
+        try {
+          const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+            getKeystoneDetailsFromFile(jsonData);
+          if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+            const { signer } = generateSignerFromMetaData({
+              xpub,
+              derivationPath,
+              masterFingerprint,
+              signerType: SignerType.KEYSTONE,
+              storageType: SignerStorage.COLD,
+              isMultisig,
+            });
+            hw = signer;
+          } else {
+            // TODO: handle sig type mismatch
+            showToast(
+              `Please scan a valid file from ${getSignerNameFromType(type)}`,
+              <ToastErrorIcon />
+            );
+          }
+        } catch (err) {
+          error = err;
+        }
+        break;
+      default:
+        break;
+    }
+    if (error) {
+      showToast(`Please scan a valid file from ${getSignerNameFromType(type)}`, <ToastErrorIcon />);
+      captureError(error);
+      return;
+    }
+    dispatch(addSigningDevice([hw]));
+    const navigationState = addSignerFlow
+      ? { name: 'ManageSigners' }
+      : { name: 'AddSigningDevice', merge: true, params: {} };
+    navigation.dispatch(CommonActions.navigate(navigationState));
   };
 
   const verifySigningServer = async (otp) => {
@@ -1277,7 +1444,6 @@ function HardwareModalMap({
       }
       setInProgress(false);
     } catch (err) {
-      console.log(err);
       setInProgress(false);
       close();
       showToast('Error in Health check', <ToastErrorIcon />);
@@ -1288,7 +1454,7 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       checkIKSHealth();
     } else {
-      if (keyGenerationMode === 1) {
+      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
         requestInheritanceKeyRecovery();
       } else {
         setupInheritanceKey();
@@ -1358,7 +1524,6 @@ function HardwareModalMap({
 
   //   close();
   // };
-  const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
 
   const requestInheritanceKeyRecovery = async () => {
@@ -1471,30 +1636,18 @@ function HardwareModalMap({
     type: signerType,
   } = getSignerContent(type, isMultisig, translations, isHealthcheck, colorMode);
 
-  const [keyGenerationMode, setKeyGenerationMode] = useState(0);
+  const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const onSelect = (option) => {
     switch (signerType) {
       case SignerType.INHERITANCEKEY:
-        if (option.name === KeyGenerationMode.NEW) {
-          setKeyGenerationMode(0);
-        } else {
-          setKeyGenerationMode(1);
-        }
-        break;
       case SignerType.KEEPER:
-        if (option.name === KeyGenerationMode.IMPORT) {
-          setKeyGenerationMode(0);
-        } else {
-          setKeyGenerationMode(1);
-        }
       case SignerType.SEED_WORDS:
-        if (option.name === KeyGenerationMode.IMPORT) {
-          setKeyGenerationMode(0);
-        } else {
-          setKeyGenerationMode(1);
-        }
-
+      case SignerType.COLDCARD:
+      case SignerType.PASSPORT:
+      case SignerType.KEYSTONE:
+        setKeyGenerationMode(option.name);
         break;
       default:
         break;
@@ -1522,6 +1675,9 @@ function HardwareModalMap({
       case SignerType.TAPSIGNER:
         return navigateToTapsignerSetup();
       case SignerType.COLDCARD:
+        if (keyGenerationMode === KeyGenerationMode.FILE) {
+          return navigateToFileBasedSigner();
+        }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
         if (mode === InteracationMode.HEALTH_CHECK)
@@ -1530,29 +1686,32 @@ function HardwareModalMap({
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
-        if (keyGenerationMode === 0) {
+        if (keyGenerationMode === KeyGenerationMode.IMPORT) {
           return navigateToSeedWordSetup(true);
         } else {
           return navigateToSeedWordSetup();
         }
-
       case SignerType.MY_KEEPER:
-        return navigateToSeedWordSetup();
+        if (mode === InteracationMode.HEALTH_CHECK) {
+          return navigateToSeedWordSetup();
+        }
+        return setConfirmPassVisible(true);
       case SignerType.BITBOX02:
       case SignerType.TREZOR:
       case SignerType.LEDGER:
         return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
+      case SignerType.KEYSTONE:
+        if (keyGenerationMode === KeyGenerationMode.FILE) {
+          return navigateToFileBasedSigner();
+        }
+        return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
-      case SignerType.KEYSTONE:
       case SignerType.JADE:
+        return navigateToAddQrBasedSigner();
       case SignerType.KEEPER:
-        if (keyGenerationMode === 0) {
-          return navigateToAddQrBasedSigner();
-        } else {
-          return generateMyAppKey();
-        }
+        return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
       case SignerType.INHERITANCEKEY:
@@ -1588,6 +1747,25 @@ function HardwareModalMap({
             : null
         }
         loading={inProgress}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Enter Passcode"
+        subTitleWidth={wp(240)}
+        subTitle={'Confirm passcode to delete key'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={generateMyAppKey}
+          />
+        )}
       />
       <KeeperModal
         visible={passwordModal && mode === InteracationMode.VAULT_ADDITION}

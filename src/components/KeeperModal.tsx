@@ -38,6 +38,7 @@ type ModalProps = {
   dismissible?: boolean;
   showButtons?: boolean;
   learnMore?: boolean;
+  learnMoreTitle?: string;
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
@@ -64,6 +65,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
+  learnMoreTitle: 'See FAQs',
   learnMoreCallback: () => {},
   closeOnOverlayClick: true,
   showCloseIcon: true,
@@ -92,6 +94,7 @@ function KeeperModal(props: ModalProps) {
     dismissible,
     showButtons,
     learnMore,
+    learnMoreTitle,
     learnMoreCallback,
     secButtonTextColor,
     closeOnOverlayClick,
@@ -108,7 +111,6 @@ function KeeperModal(props: ModalProps) {
   if (!visible) {
     return null;
   }
-
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
   return (
@@ -124,7 +126,7 @@ function KeeperModal(props: ModalProps) {
       <Modal.Content
         borderRadius={10}
         marginBottom={Math.max(5, bottomMargin)}
-        maxHeight={windowHeight * 0.9}
+        maxHeight={windowHeight < 680 ? '94%' : '90%'}
         width="95%"
       >
         <GestureHandlerRootView>
@@ -146,7 +148,10 @@ function KeeperModal(props: ModalProps) {
                 ) : null}
               </Modal.Header>
             ) : null}
-            <ScrollView style={{ maxHeight: windowHeight * 0.8 }}>
+            <ScrollView
+              style={{ maxHeight: windowHeight * 0.8 }}
+              showsVerticalScrollIndicator={false}
+            >
               <Modal.Body>
                 <Content />
               </Modal.Body>
@@ -160,7 +165,7 @@ function KeeperModal(props: ModalProps) {
                     >
                       <Pressable onPress={learnMoreCallback}>
                         <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
-                          See FAQs
+                          {learnMoreTitle}
                         </Text>
                       </Pressable>
                     </Box>

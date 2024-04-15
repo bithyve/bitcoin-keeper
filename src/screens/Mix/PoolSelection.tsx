@@ -188,6 +188,7 @@ export default function PoolSelection({ route, navigation }) {
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
         learnMore
+        learnTextColor={`${colorMode}.white`}
         learnMorePressed={() => setLearnModalVisible(true)}
       />
 
@@ -255,7 +256,9 @@ export default function PoolSelection({ route, navigation }) {
       {feeDiscountPercent !== 0 && (
         <Box style={styles.textArea}>
           <Text color="#017963">Fee Discount</Text>
-          <Text color={`${colorMode}.secondaryText`}>{selectedPool ? `${feeDiscountPercent}%` : ''}</Text>
+          <Text color={`${colorMode}.secondaryText`}>
+            {selectedPool ? `${feeDiscountPercent}%` : ''}
+          </Text>
         </Box>
       )}
 

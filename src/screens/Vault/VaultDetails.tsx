@@ -48,13 +48,9 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 function Footer({
   vault,
   isCollaborativeWallet,
-  identifySigner,
-  setIdentifySignerModal,
 }: {
   vault: Vault;
   isCollaborativeWallet: boolean;
-  identifySigner: Signer;
-  setIdentifySignerModal: any;
 }) {
   const navigation = useNavigation();
   const footerItems = [
@@ -62,11 +58,7 @@ function Footer({
       Icon: SendIcon,
       text: 'Send',
       onPress: () => {
-        if (identifySigner) {
-          setIdentifySignerModal(true);
-        } else {
-          navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-        }
+        navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
       },
     },
     {
@@ -110,6 +102,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         <CardPill
           heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
         />
+        {vault.type === VaultType.CANARY && <CardPill heading={'CANARY'} />}
         {vault.archived ? <CardPill heading={`ARCHIVED`} backgroundColor="grey" /> : null}
       </HStack>
       <CurrencyInfo
@@ -188,13 +181,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [identifySignerModal, setIdentifySignerModal] = useState(true);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const { vaultSigners: keys } = useSigners(vault.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
   const transactions = vault?.specs?.transactions || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
-
+  const isCanaryWallet = vault.type === VaultType.CANARY;
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
@@ -277,8 +269,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
-  const identifySigner = keys.find((signer) => signer.type === SignerType.OTHER_SD);
-
   return (
     <Box
       style={styles.container}
@@ -313,19 +303,21 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         </VStack>
       </VStack>
       <HStack style={styles.actionCardContainer}>
-        <ActionCard
-          cardName={'Buy Bitcoin'}
-          description="into this wallet"
-          callback={() =>
-            navigation.dispatch(
-              CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
-            )
-          }
-          icon={<BTC />}
-          cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-            currencyCodeExchangeRate.buy.toFixed(0)
-          )}`}
-        />
+        {!isCanaryWallet && (
+          <ActionCard
+            cardName={'Buy Bitcoin'}
+            description="into this wallet"
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
+              )
+            }
+            icon={<BTC />}
+            cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+              currencyCodeExchangeRate.buy.toFixed(0)
+            )}`}
+          />
+        )}
         <ActionCard
           cardName="View All Coins"
           description="Manage UTXO"
@@ -338,19 +330,21 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           }
           icon={<CoinIcon />}
         />
-        <ActionCard
-          cardName="Manage Keys"
-          description="For this vault"
-          callback={() =>
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ManageSigners',
-                params: { vaultId, vaultKeys: vault.signers },
-              })
-            )
-          }
-          icon={<SignerIcon />}
-        />
+        {!isCanaryWallet && (
+          <ActionCard
+            cardName="Manage Keys"
+            description="For this vault"
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ManageSigners',
+                  params: { vaultId, vaultKeys: vault.signers },
+                })
+              )
+            }
+            icon={<SignerIcon />}
+          />
+        )}
       </HStack>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <TransactionList
@@ -360,12 +354,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
         />
-        <Footer
-          vault={vault}
-          isCollaborativeWallet={isCollaborativeWallet}
-          identifySigner={identifySigner}
-          setIdentifySignerModal={setIdentifySignerModal}
-        />
+        <Footer vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
       </VStack>
       <KeeperModal
         visible={vaultCreated}

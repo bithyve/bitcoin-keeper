@@ -20,7 +20,7 @@ import {
 import { createWatcher } from '../utilities';
 
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
-const HEALTH_CHECK_REMINDER_TESTNET = 1; // 3hours
+const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
 const healthCheckReminderThreshold = isTestnet()
   ? HEALTH_CHECK_REMINDER_TESTNET
   : HEALTH_CHECK_REMINDER_MAINNET;
@@ -209,6 +209,7 @@ function* uaiChecksWorker({ payload }) {
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
         'uaiType'
       );
+
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
           const signer: Signer = dbManager.getObjectByPrimaryId(
@@ -224,6 +225,9 @@ function* uaiChecksWorker({ payload }) {
             if (lastHealthCheck < healthCheckReminderThreshold) {
               yield put(uaiActioned({ uaiId: uai.id, action: true }));
             }
+          } //no signer for the UAI that alreay exisists
+          else {
+            yield put(uaiActioned({ uaiId: uai.id, action: true }));
           }
         }
       }
