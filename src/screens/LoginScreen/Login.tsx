@@ -391,7 +391,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
           </Box>
 
-          <HStack justifyContent="space-between" mr={10} paddingTop="1">
+          {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
             <Text color={`${colorMode}.white`} px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
@@ -402,7 +402,7 @@ function LoginScreen({ navigation, route }) {
               onChange={toggleTor}
               defaultIsChecked={torEnbled}
             />
-          </HStack>
+          </HStack> */}
           {/* {attempts >= 1 ? (
               <TouchableOpacity
                 style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}
