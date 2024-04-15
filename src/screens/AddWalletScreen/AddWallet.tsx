@@ -103,12 +103,6 @@ function AddWallet({ navigation }) {
         learnTextColor={`${colorMode}.white`}
       />
       <HStack style={[styles.container, { paddingBottom: setPadding }]}>
-        {/* <Box style={styles.container}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.walletType}
-        > */}
         <WalletCard
           id={1}
           walletName="Create New"
@@ -139,12 +133,10 @@ function AddWallet({ navigation }) {
           onCardSelect={onCardSelect}
           arrowStyles={{ marginLeft: 10 }}
         />
-        {/* </ScrollView> */}
       </HStack>
       {selectedCard === 1 && <Wallets navigation={navigation} />}
       {selectedCard === 2 && <ImportWallets navigation={navigation} />}
       {selectedCard === 3 && <AdvancedWallets navigation={navigation} />}
-      {/* </Box> */}
       <KeeperModal
         visible={visibleModal}
         close={() => {
