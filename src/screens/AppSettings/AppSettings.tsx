@@ -158,7 +158,7 @@ function AppSettings({ navigation, route }) {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
+        contentContainerStyle={styles.appSettingsContainer}
       >
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <Box style={styles.actionContainer}>
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 3,
     marginBottom: 20,
   },
   bottomNav: {
@@ -390,6 +390,14 @@ const styles = StyleSheet.create({
     gap: 10,
     justifyContent: 'space-around',
     marginBottom: 10,
+  },
+  customeStyle: {
+    justifyContent: 'flex-end',
+    width: wp(110),
+  },
+  appSettingsContainer: {
+    alignItems: 'center',
+    paddingTop: 20,
   },
 });
 export default AppSettings;
