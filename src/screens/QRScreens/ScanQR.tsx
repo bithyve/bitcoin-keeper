@@ -113,6 +113,22 @@ function ScanQR() {
     });
   };
 
+  const getPercentageStep = (percentage) => {
+    if (percentage === 100) {
+      return 100;
+    }
+    if (percentage > 75) {
+      return 75;
+    }
+    if (percentage > 50) {
+      return 50;
+    }
+    if (percentage > 25) {
+      return 25;
+    }
+    return 0;
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -141,7 +157,7 @@ function ScanQR() {
           <UploadImage onPress={handleChooseImage} />
           <HStack>
             {qrPercent !== 100 && <ActivityIndicator />}
-            <Text>{`Scanned ${qrPercent}%`}</Text>
+            <Text>{`Scanned ${getPercentageStep(qrPercent)}%`}</Text>
           </HStack>
         </VStack>
 

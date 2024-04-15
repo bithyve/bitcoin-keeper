@@ -680,6 +680,7 @@
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
     "changePasscodeDescription": "Easy to remember; hard to guess",
+    "personalCloudBackup": "Personal Cloud Backup",
     "deleteKeys": "Show and delete keys",
     "deleteKeysSubtitle": "for hidden keys"
   },
@@ -724,7 +725,7 @@
     "startOver": "Start Over",
     "backupSuccessTitle": "Backup Successful",
     "backupSuccessSubTitle": "",
-    "backupSuccessParagraph": "You will again be reminded in 180 days.",
+    "backupSuccessParagraph": "You will be reminded again in 180 days.",
     "home": "Home",
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
@@ -908,5 +909,16 @@
     "regularUpdatesTitle": "Regularly Update Estate Plans and Instructions",
     "regularUpdatesP2": "Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions.",
     "regularUpdatesP1": "Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs."
+  },
+  "cloudBackup": {
+    "cloudBackup": "Cloud Backup",
+    "recentHistory": "Recent History",
+    "noBackup": "No backup history found.",
+    "backupNow": "Backup Now",
+    "healthCheck": "Health Check",
+    "CLOUD_BACKUP_CREATED": "Cloud backup created",
+    "CLOUD_BACKUP_FAILED": "Cloud backup failed",
+    "CLOUD_BACKUP_HEALTH": "Health check success",
+    "CLOUD_BACKUP_HEALTH_FAILED": "Health check failed"
   }
 }

@@ -55,7 +55,6 @@ function KeySecurity({ navigation }) {
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       />
       <OptionCard
-        disabled
         //---for future use---
         // preTitle={`${
         //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined

@@ -115,6 +115,7 @@ import {
   relayVaultUpdateSuccess,
   relayWalletUpdateFail,
   relayWalletUpdateSuccess,
+  setIsCloudBsmsBackupRequired,
   setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
@@ -577,6 +578,7 @@ export function* addNewVaultWorker({
 
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
+      yield put(setIsCloudBsmsBackupRequired(true));
       return true;
     }
     throw new Error('Relay updation failed');
@@ -642,16 +644,24 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
         signersToUpdate.push(newSigner);
         continue;
       }
+      const newSsKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const existingSsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const newMsKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const existingMsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const missingMsKey = existingSsKey && !existingMsKey;
+      const missingSsKey = !existingSsKey && existingMsKey;
 
       const singleSigMatch = keysMatch(XpubTypes.P2WPKH, newSigner, existingSigner);
       const multiSigMatch = keysMatch(XpubTypes.P2WSH, newSigner, existingSigner);
+      const signerMergeCondition = // if the new signer has one of the keys missing or has the same xpubs as the existing signer, then update the type and xpubs
+        (missingMsKey && newMsKey) || (missingSsKey && newSsKey) || singleSigMatch || multiSigMatch;
 
-      // if the new signer has the same xpubs as the existing signer, then update the type and xpubs
-      if (singleSigMatch || multiSigMatch) {
+      if (signerMergeCondition) {
         signersToUpdate.push({
           ...existingSigner,
-          type:
-            existingSigner.type === SignerType.UNKOWN_SIGNER ? newSigner.type : existingSigner.type,
+          type: [SignerType.UNKOWN_SIGNER, SignerType.OTHER_SD].includes(existingSigner.type)
+            ? newSigner.type
+            : existingSigner.type,
           signerXpubs: _.merge(existingSigner.signerXpubs, newSigner.signerXpubs),
         });
         continue;
@@ -678,6 +688,8 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       } else {
         yield put(relaySignersUpdateFail(response.error));
       }
+    } else if (signers.length === 1) {
+      yield put(relaySignersUpdateFail('The signer already exists.'));
     }
   } catch (error) {
     captureError(error);
@@ -722,6 +734,7 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
             signer.masterFingerprint
           );
         }
+        yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
       } else {
         yield put(relaySignersUpdateFail(response.error));
       }

@@ -13,6 +13,8 @@ import { hp, wp } from 'src/constants/responsive';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
 import WalletInfoEmptyState from './WalletInfoEmptyState';
+import uai from 'src/store/reducers/uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 export function WalletsList({
   allWallets,
@@ -20,6 +22,7 @@ export function WalletsList({
   totalBalance,
   isShowAmount,
   setIsShowAmount,
+  typeBasedIndicator,
 }) {
   return (
     <Box style={styles.valueWrapper}>
@@ -48,6 +51,7 @@ export function WalletsList({
               walletDescription={wallet.presentationData.description}
               icon={getWalletIcon(wallet)}
               amount={calculateWalletBalance(wallet)}
+              showDot={typeBasedIndicator?.[uaiType.VAULT_TRANSFER]?.[wallet.id]}
             />
           </TouchableOpacity>
         )}

@@ -50,13 +50,15 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
     setChannelCreated(true);
   };
   return !channelCreated ? (
-    <RNCamera
-      autoFocus="on"
-      style={styles.cameraView}
-      captureAudio={false}
-      onBarCodeRead={callback}
-      useNativeZoom
-    />
+    <Box style={styles.qrcontainer}>
+      <RNCamera
+        autoFocus="on"
+        style={styles.cameraView}
+        captureAudio={false}
+        onBarCodeRead={callback}
+        useNativeZoom
+      />
+    </Box>
   ) : (
     <VStack>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
@@ -300,6 +302,12 @@ export default ConnectChannel;
 
 const styles = StyleSheet.create({
   container: {
+    marginVertical: 25,
+    alignItems: 'center',
+  },
+  qrcontainer: {
+    borderRadius: 10,
+    overflow: 'hidden',
     marginVertical: 25,
     alignItems: 'center',
   },

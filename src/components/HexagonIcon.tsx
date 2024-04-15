@@ -10,9 +10,17 @@ type Props = {
   backgroundColor: string;
   icon: Element;
   showSelection?: boolean;
+  showDot?: boolean;
 };
 
-function HexagonIcon({ width, height, backgroundColor, icon, showSelection = false }: Props) {
+function HexagonIcon({
+  width,
+  height,
+  backgroundColor,
+  icon,
+  showSelection = false,
+  showDot = false,
+}: Props) {
   const showSelectionProps = { stroke: 'rgb(149, 175, 165)', strokeWidth: '2' };
   return (
     <Box style={styles.container}>
@@ -29,6 +37,7 @@ function HexagonIcon({ width, height, backgroundColor, icon, showSelection = fal
           <TickIcon />
         </Box>
       )}
+      {showDot && <Box style={styles.redDot} />}
     </Box>
   );
 }
@@ -46,6 +55,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 27,
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
 
