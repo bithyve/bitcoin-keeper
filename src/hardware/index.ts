@@ -173,7 +173,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'BitBox02';
       break;
     case SignerType.OTHER_SD:
-      name = 'Other signer';
+      name = 'Other Signer';
       break;
     case SignerType.UNKOWN_SIGNER:
       name = 'Unknown Signer';

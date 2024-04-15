@@ -58,7 +58,7 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
+function Card({ title, subTitle = '', isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
@@ -283,6 +283,7 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
           <Card
             isVault={recipient.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={recipient?.presentationData?.name}
+            showFullAddress={true}
           />
         </Box>
         <Box style={styles.sentFromContainer}>
@@ -311,9 +312,11 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
       {/* TODO For Lableling */}
       {/* <AddLabel /> */}
 
-      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2} marginTop={5}>
-        {walletTransactions.sendTransSuccessMsg}
-      </Text>
+      <Box style={styles.sendSuccessfullNote}>
+        <Text color={`${colorMode}.greenText`} fontSize={13}>
+          {walletTransactions.sendTransSuccessMsg}
+        </Text>
+      </Box>
     </View>
   );
 }
@@ -1030,6 +1033,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
+    width: wp(100),
   },
   cardSubtitle: {
     fontSize: 12,
@@ -1086,5 +1090,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginHorizontal: wp(25),
+  },
+  sendSuccessfullNote: {
+    marginTop: hp(25),
   },
 });

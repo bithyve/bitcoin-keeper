@@ -386,7 +386,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         subTitle={
           isCollaborativeWallet
             ? vaultTranslation.collaborativeWalletMultipleUsers
-            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`
+            : `Create multi-key vaults of various configurations. Subscribe to unlock advanced features.`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
