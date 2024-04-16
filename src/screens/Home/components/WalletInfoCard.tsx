@@ -39,7 +39,13 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`}
+              backgroundColor={
+                index === 0
+                  ? `${colorMode}.SignleSigCardPillBackColor`
+                  : index === 2
+                  ? `${colorMode}.taprootCardPill`
+                  : null
+              }
               cardStyle={index % 2 !== 0 && styles.secondCard}
             />
           );
@@ -87,6 +93,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
   },
   detailContainer: {
     alignItems: 'flex-start',
