@@ -42,6 +42,7 @@ import BITBOXICONLIGHT from 'src/assets/images/BitBoxLight.svg';
 import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
 import OTHERSDICON from 'src/assets/images/other.svg';
 import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
+import INHERITANCEKEYLIGHT from 'src/assets/images/inheritance_key_light.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -70,12 +71,20 @@ export const SDIcons = (type: SignerType, light = false) => {
         type: SignerStorage.COLD,
       };
     case SignerType.MY_KEEPER:
+      return {
+        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
+        Logo: (
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+            Mobile Key
+          </Text>
+        ),
+      };
     case SignerType.KEEPER:
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
-            Mobile Key
+            External Key
           </Text>
         ),
       };
@@ -180,7 +189,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.INHERITANCEKEY:
       return {
-        Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
+        Icon: getColouredIcon(<INHERITANCEKEYLIGHT />, <INHERITANCEKEYLIGHT />, light),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Inheritance Key

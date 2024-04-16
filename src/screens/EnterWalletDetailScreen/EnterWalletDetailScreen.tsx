@@ -157,7 +157,7 @@ function EnterWalletDetailScreen({ route }) {
                 }
                 setWalletName(value);
               }}
-              maxLength={20}
+              maxLength={18}
               testID="input_wallet_name"
             />
           </Box>
@@ -175,7 +175,7 @@ function EnterWalletDetailScreen({ route }) {
                 }
                 setWalletDescription(value);
               }}
-              maxLength={40}
+              maxLength={20}
               testID="input_wallet_description"
             />
           </Box>

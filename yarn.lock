@@ -4461,11 +4461,6 @@
     redux-thunk "^2.4.1"
     reselect "^4.1.5"
 
-"@robbywh/react-native-zendesk-messaging@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@robbywh/react-native-zendesk-messaging/-/react-native-zendesk-messaging-1.1.1.tgz#9fcc1fafb27331f4e6da744e0cd6948a0258b463"
-  integrity sha512-JAJo3T1n7m9uIwc5x2PK/nRmALua/tWBrXUvUSucgDKm9Ersxk+GlLrsKhISC9sXjpwPGL2SfVw752p4I0ft6Q==
-
 "@scure/base@^1.1.1":
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.5.tgz#1d85d17269fe97694b9c592552dd9e5e33552157"
@@ -4611,6 +4606,13 @@
     semver "^7.3.5"
     xcode "3.0.1"
     yargs "^16.2.0"
+
+"@shipt/segmented-arc-for-react-native@^1.0.1":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@shipt/segmented-arc-for-react-native/-/segmented-arc-for-react-native-1.1.0.tgz#f8dc065c7499a6b28ba2725844b9792dafae7c17"
+  integrity sha512-GBGP39cq1wzA40khc5oYCOYSQ7sBepXFwedB1HBveuNufMZL9qGFnFNB+bwPRemWUbFxfs/jJeO65nqf0QkbkQ==
+  dependencies:
+    prop-types "^15.8.1"
 
 "@sideway/address@^4.1.3":
   version "4.1.4"
@@ -8202,6 +8204,11 @@ getpass@^0.1.1:
   integrity sha512-0fzj9JxOLfJ+XGLhR8ze3unN0KZCgZwiSSDz168VERjK8Wl8kVSdcu2kspd4s4wtAa1y/qrVRiAA0WclVsu0ng==
   dependencies:
     assert-plus "^1.0.0"
+
+gifted-charts-core@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/gifted-charts-core/-/gifted-charts-core-0.1.4.tgz#252dd09588f4a34f820f267aeeb59daed7e54ee2"
+  integrity sha512-GDNPXipxLfd55C1DBfgQTw6EsZWCA9rGL9Q90hugTFfw4p2lONPmozZJVfdUShDbcQoVfOv8muI53+G/FUao6A==
 
 github-from-package@0.0.0:
   version "0.0.0"
@@ -11796,6 +11803,13 @@ react-native-get-random-values@1.8.0:
   dependencies:
     fast-base64-decode "^1.0.0"
 
+react-native-gifted-charts@^1.4.7:
+  version "1.4.10"
+  resolved "https://registry.yarnpkg.com/react-native-gifted-charts/-/react-native-gifted-charts-1.4.10.tgz#14bf600b7a4ffa566c2a5062f8f8bb08c9fd47f1"
+  integrity sha512-9zJbvn4Fp38wgVUF5QVtQJUMRqCVzYXp0knW4IuPJ25BsetganwaXC36F26J9XuhJqtu6KWvWQgKshvIj2N/JA==
+  dependencies:
+    gifted-charts-core "^0.1.4"
+
 react-native-hce@0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/react-native-hce/-/react-native-hce-0.2.0.tgz#3d72ced85ccddd3edd5ccdda2ca67f3139a76d10"
@@ -11825,6 +11839,11 @@ react-native-keychain@8.1.2:
   version "8.1.2"
   resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-8.1.2.tgz#34291ae472878e5124d081211af5ede7d810e64f"
   integrity sha512-bhHEui+yMp3Us41NMoRGtnWEJiBE0g8tw5VFpq4mpmXAx6XJYahuM6K3WN5CsUeUl83hYysSL9oFZNKSTPSvYw==
+
+react-native-linear-gradient@^2.8.3:
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.8.3.tgz#9a116649f86d74747304ee13db325e20b21e564f"
+  integrity sha512-KflAXZcEg54PXkLyflaSZQ3PJp4uC4whM7nT/Uot9m0e/qxFV3p6uor1983D1YOBJbJN7rrWdqIjq0T42jOJyA==
 
 react-native-localize@2.2.2:
   version "2.2.2"
@@ -11960,6 +11979,11 @@ react-native-tor@0.1.8:
   dependencies:
     "@types/async" "^3.2.6"
     async "^3.2.0"
+
+react-native-zendesk-messaging@0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-zendesk-messaging/-/react-native-zendesk-messaging-0.2.1.tgz#5edf91313b5f05936df22132da56d0cc80bcf87c"
+  integrity sha512-hDb2bG+ven/v2hAtnIrq+abjBjgfzoYSYtlhpfJ9GVgfFogaOcI4FjcX6XO/1IStVLKPcQit5CBTycVPT5CSCA==
 
 react-native@0.72.4, react-native@>=0.68:
   version "0.72.4"

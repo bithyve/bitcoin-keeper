@@ -21,7 +21,6 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
-import Checked from 'src/assets/images/check.svg';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
@@ -63,37 +62,20 @@ const customFeeOptionTransfers = [
   TransferType.WALLET_TO_WALLET,
   TransferType.WALLET_TO_ADDRESS,
 ];
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
-function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
+
+function Card({ title, subTitle = '', isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
-    <Box
-      borderRadius={10}
-      backgroundColor={`${colorMode}.seashellWhite`}
-      flexDirection="row"
-      paddingLeft={3}
-      alignItems={'center'}
-      minHeight={hp(70)}
-    >
-      <Box
-        // backgroundColor={`${colorMode}.accent`}
-        // height={10}
-        // width={10}
-        // borderRadius={20}
-        justifyContent="center"
-        alignItems="center"
-      >
-        {isVault ? <VaultIcon /> : <WalletIcon />}
-      </Box>
-      <Box marginLeft={3}>
-        <Text
-          // color={`${colorMode}.greenText2`}
-          numberOfLines={showFullAddress ? 2 : 1}
-          style={styles.cardTitle}
-        >
+    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
+      {isVault ? <VaultIcon /> : <WalletIcon />}
+      <Box style={styles.ml10}>
+        <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle}>
           {title}
         </Text>
         {!showFullAddress && (
@@ -209,30 +191,11 @@ function SendingCard({
     }
   };
   return (
-    <Box marginY={windowHeight > 570 ? windowHeight * 0.01 : 0}>
-      <Text
-        color={`${colorMode}.primaryText`}
-        fontSize={14}
-        letterSpacing={1.12}
-        marginY={windowHeight > 570 ? windowHeight * 0.011 : 1}
-      >
+    <Box style={styles.sendingCardContainer}>
+      <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>
         {isSend ? 'Sending From' : 'Sending To'}
       </Text>
       {getCardDetails()}
-    </Box>
-  );
-}
-
-function Transaction({ txFeeInfo, transactionPriority }) {
-  const { colorMode } = useColorMode();
-  return (
-    <Box flexDirection="row" justifyContent="space-between" marginY={windowHeight > 570 ? 3 : 1}>
-      <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
-        Transaction Priority
-      </Text>
-      <Text color={`${colorMode}.GreyText`} fontSize={14} letterSpacing={0.28}>
-        {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
-      </Text>
     </Box>
   );
 }
@@ -261,7 +224,7 @@ function SendingPriority({
   const { colorMode } = useColorMode();
   return (
     <Box>
-      <Box flexDirection={'row'}>
+      <Box style={styles.fdRow}>
         {availableTransactionPriorities?.map((priority) => {
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
             return (
@@ -271,75 +234,41 @@ function SendingPriority({
                   setTransactionPriority(priority);
                 }}
               >
-                <Box>
-                  <SignerCard
-                    titleComp={
-                      <TextValue
-                        amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
-                        getValueIcon={getSatUnit}
-                      />
-                    }
-                    isSelected={transactionPriority === priority}
-                    key={priority}
-                    name={String(priority)}
-                    description={`~${
-                      txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                    } mins`}
-                    numberOfLines={2}
-                    onCardSelect={() => setTransactionPriority(priority)}
-                    customStyle={{
-                      width: windowWidth / 3.4 - windowWidth * 0.05,
-                      height: 135,
-                      opacity: transactionPriority === priority ? 1 : 0.5,
-                    }}
-                    colorMode={colorMode}
-                  />
-                </Box>
+                <SignerCard
+                  titleComp={
+                    <TextValue
+                      amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
+                      getValueIcon={getSatUnit}
+                    />
+                  }
+                  isSelected={transactionPriority === priority}
+                  key={priority}
+                  name={String(priority)}
+                  description={`~${
+                    txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                  } mins`}
+                  numberOfLines={2}
+                  onCardSelect={() => setTransactionPriority(priority)}
+                  customStyle={{
+                    width: windowWidth / 3.4 - windowWidth * 0.05,
+                    height: 135,
+                    opacity: transactionPriority === priority ? 1 : 0.5,
+                  }}
+                  colorMode={colorMode}
+                />
               </TouchableOpacity>
             );
           }
         })}
       </Box>
       <AddCard
-        cardStyles={{ width: windowWidth / 3.4 - windowWidth * 0.05, marginTop: 5 }}
+        cardStyles={styles.customPriorityCard}
         name="Custom Priority"
         callback={setVisibleCustomPriorityModal}
       />
     </Box>
   );
 }
-
-// function FeeInfo({ txFeeInfo, transactionPriority, transferType, sendMaxFee }) {
-//   return (
-//     <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
-//       <VStack>
-//         <Text
-//           color={`${colorMode}.primaryText`}
-//           fontSize={14}
-//           letterSpacing={1.12}
-//           marginTop={windowHeight * 0.011}
-//         >
-//           Fees
-//         </Text>
-//         <Text color={`${colorMode}.primaryText`} fontSize={12} letterSpacing={1.12} light>
-//           ~ 10 - 30 mins
-//         </Text>
-//       </VStack>
-//       <Text
-//         color={`${colorMode}.primaryText`}
-//         fontSize={14}
-//         letterSpacing={1.12}
-//         marginTop={windowHeight * 0.011}
-//       >
-//         <BTC />
-//         &nbsp;
-//         {transferType === TransferType.WALLET_TO_VAULT
-//           ? sendMaxFee
-//           : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
-//       </Text>
-//     </HStack>
-//   );
-// }
 
 function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, getSatUnit }) {
   const { colorMode } = useColorMode();
@@ -359,18 +288,19 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
 
   return (
     <View>
-      <Box flexDirection={'row'}>
-        <Box width={'50%'} marginRight={2}>
+      <Box style={styles.fdRow}>
+        <Box style={styles.sentToContainer}>
           <Text>Sent To</Text>
           <Card
-            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            isVault={recipient.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={recipient?.presentationData?.name}
+            showFullAddress={true}
           />
         </Box>
-        <Box width={'50%'}>
+        <Box style={styles.sentFromContainer}>
           <Text>Sent From</Text>
           <Card
-            isVault={recipient.entityKind === 'WALLET' ? false : true}
+            isVault={sender.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
             subTitle={`${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
@@ -393,9 +323,11 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
       {/* TODO For Lableling */}
       {/* <AddLabel /> */}
 
-      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2} marginTop={5}>
-        {walletTransactions.sendTransSuccessMsg}
-      </Text>
+      <Box style={styles.sendSuccessfullNote}>
+        <Text color={`${colorMode}.greenText`} fontSize={13}>
+          {walletTransactions.sendTransSuccessMsg}
+        </Text>
+      </Box>
     </View>
   );
 }
@@ -404,11 +336,11 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
   const { colorMode } = useColorMode();
   return (
     <>
-      <View style={{ marginVertical: 25 }}>
-        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
+      <View style={styles.approveTransContainer}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} style={styles.pv10}>
           Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
         </Text>
-        <Text color={`${colorMode}.greenText`} fontSize={13} py={3}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} style={styles.pv10}>
           You can change the policy that triggers auto-transfer to suit your needs
         </Text>
       </View>
@@ -424,6 +356,7 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
     </>
   );
 }
+
 function TransactionPriorityDetails({
   transactionPriority,
   txFeeInfo,
@@ -468,7 +401,7 @@ function TransactionPriorityDetails({
           </Box>
         </HStack>
         <Box>
-          <Text style={{ fontSize: 20 }}>...</Text>
+          <Text style={styles.dots}>...</Text>
         </Box>
       </Box>
     </Box>
@@ -476,21 +409,29 @@ function TransactionPriorityDetails({
 }
 
 function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) {
+  const { getCurrencyIcon } = useBalance();
+
   return (
-    <Box justifyContent={'space-between'} style={[styles.amountDetailsWrapper]}>
+    <Box style={styles.amountDetailsWrapper}>
       <Box style={styles.amtDetailsTitleWrapper}>
         <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
           {title}
         </Text>
       </Box>
       <Box style={styles.amtFiatSatsTitleWrapper}>
-        <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
-          {fiatAmount}
-        </Text>
+        <Box>
+          <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
+            {fiatAmount}
+          </Text>
+        </Box>
       </Box>
       {satsAmount && (
         <Box style={styles.amtFiatSatsTitleWrapper}>
-          <Text style={styles.amtDetailsText}>{satsAmount}</Text>
+          <Box style={styles.currencyIcon}>
+            {getCurrencyIcon(BTC, 'dark')}
+            &nbsp;
+            <Text style={styles.amtDetailsText}>{satsAmount}</Text>
+          </Box>
         </Box>
       )}
     </Box>
@@ -833,7 +774,7 @@ function SendConfirmation({ route }) {
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
       />
-      <ScrollView marginX={7} flex={1} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <SendingCard
           isSend
           currentCurrency={currentCurrency}
@@ -1080,48 +1021,12 @@ function SendConfirmation({ route }) {
 export default Sentry.withErrorBoundary(SendConfirmation, errorBourndaryOptions);
 
 const styles = StyleSheet.create({
-  priorityRowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    marginVertical: windowHeight > 570 ? 3 : 1,
-  },
-  customPriorityRowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-  },
   priorityWrapper: {
     gap: 10,
-  },
-  priorityBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: hp(14),
-    flex: 1,
   },
   priorityTableText: {
     fontSize: 16,
     color: '#24312E',
-  },
-  gradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-  },
-  noteBox: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'flex-end',
-    marginBottom: hp(40),
-    marginTop: hp(20),
-  },
-  customPriority: {
-    fontStyle: 'italic',
   },
   transPriorityWrapper: {
     flexDirection: 'row',
@@ -1150,23 +1055,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
   },
-  addTransPriority: {
-    height: 60,
-    borderRadius: 10,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: hp(30),
-    borderWidth: 0.8,
-  },
-  addPriorityText: {
-    fontSize: 15,
-    fontWeight: '400',
-    letterSpacing: 0.6,
-  },
   amountDetailsWrapper: {
     flexDirection: 'row',
     marginTop: 20,
+    justifyContent: 'space-between',
   },
   amtDetailsTitleWrapper: {
     width: '30%',
@@ -1174,7 +1066,8 @@ const styles = StyleSheet.create({
   },
   amtFiatSatsTitleWrapper: {
     width: '35%',
-    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
   },
   amtDetailsText: {
     fontSize: 12,
@@ -1248,9 +1141,65 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
+    width: wp(100),
   },
   cardSubtitle: {
     fontSize: 12,
     letterSpacing: 0.72,
+  },
+  currencyIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sendingFromText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+    marginY: windowHeight > 570 ? windowHeight * 0.011 : 1,
+  },
+  cardContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingLeft: 10,
+    minHeight: hp(70),
+  },
+  ml10: {
+    marginLeft: 10,
+  },
+  sendingCardContainer: {
+    marginVertical: windowHeight > 570 ? windowHeight * 0.01 : 0,
+  },
+  fdRow: {
+    flexDirection: 'row',
+  },
+  customPriorityCard: {
+    width: windowWidth / 3.4 - windowWidth * 0.05,
+    marginTop: 5,
+  },
+  sentToContainer: {
+    width: '50%',
+    marginRight: 10,
+  },
+  sentFromContainer: {
+    width: '50%',
+  },
+  approveTransContainer: {
+    marginVertical: 25,
+  },
+  pv10: {
+    paddingVertical: 10,
+  },
+  dots: {
+    fontSize: 20,
+  },
+  w70P: {
+    width: '70%',
+  },
+  container: {
+    flex: 1,
+    marginHorizontal: wp(25),
+  },
+  sendSuccessfullNote: {
+    marginTop: hp(25),
   },
 });

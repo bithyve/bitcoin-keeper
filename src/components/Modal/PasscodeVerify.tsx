@@ -87,7 +87,7 @@ function PasscodeVerifyModal(props: Props) {
   const disableCTA = () => {
     setTimeout(() => {
       setBtnDisable(false);
-    }, 7000);
+    }, 2000);
   };
 
   useEffect(() => {

@@ -47,7 +47,7 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
   useEffect(() => {
-    if (backupMethod !== null && next) {
+    if (backupMethod !== null && next && !isHealthCheck) {
       setBackupSuccessModal(true);
     }
   }, [backupMethod]);
@@ -114,11 +114,13 @@ function ExportSeedScreen({ route, navigation }) {
   const renderSeedCard = ({ item, index }: { item; index }) => (
     <SeedCard item={item} index={index} />
   );
-
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <KeeperHeader title={seedText.walletSeedWords} subtitle={seedText.SeedDesc} />
+      <KeeperHeader
+        title={next ? 'Recovery Key' : seedText.walletSeedWords}
+        subtitle={seedText.SeedDesc}
+      />
 
       <Box style={{ flex: 1 }}>
         <FlatList
@@ -132,7 +134,7 @@ function ExportSeedScreen({ route, navigation }) {
       <Box m={2}>
         <Note
           title={common.note}
-          subtitle={BackupWallet.recoveryPhraseNote}
+          subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
           subtitleColor="GreyText"
         />
       </Box>
@@ -201,6 +203,11 @@ function ExportSeedScreen({ route, navigation }) {
                   navigation.dispatch(CommonActions.goBack());
                   showToast(seedTranslation.seedWordVerified, <TickIcon />);
                 }
+                if (signer.type === SignerType.MY_KEEPER) {
+                  dispatch(healthCheckSigner([signer]));
+                  navigation.dispatch(CommonActions.goBack());
+                  showToast('Keeper Verified Successfully', <TickIcon />);
+                }
               } else {
                 dispatch(seedBackedUp());
               }
@@ -211,7 +218,7 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         title={BackupWallet.backupSuccessTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}

@@ -34,6 +34,7 @@ import {
 import { KeeperAppSchema } from './app';
 import { UAIDetailsSchema, UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
+import { CloudBackupHistorySchema } from './cloudBackupHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
@@ -78,4 +79,5 @@ export default [
   NodeConnectSchema,
   WhirlpoolConfigSchema,
   WhirlpoolWalletDetailsSchema,
+  CloudBackupHistorySchema,
 ];

@@ -126,7 +126,7 @@ function VaultSettings({ route }) {
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <PasscodeVerifyModal
-            useBiometrics
+            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}

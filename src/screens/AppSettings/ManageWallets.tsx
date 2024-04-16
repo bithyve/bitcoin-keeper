@@ -160,7 +160,7 @@ function ManageWallets() {
         <Text
           color={`${colorMode}.secondaryText`}
           style={styles.unhideText}
-        >{`You can unhide this wallet anytime from App Settings > Manage Wallets`}</Text>
+        >{`You can unhide this wallet anytime from App Settings >Manage Wallets > Unhide Wallet`}</Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
@@ -214,9 +214,9 @@ function ManageWallets() {
             onBtnPress={
               item.presentationData.visibility === VisibilityType.HIDDEN
                 ? () => {
-                  setConfirmPassVisible(true);
-                  setSelectedWallet(item);
-                }
+                    setConfirmPassVisible(true);
+                    setSelectedWallet(item);
+                  }
                 : () => updateWalletVisibility(item, true)
             }
           />
