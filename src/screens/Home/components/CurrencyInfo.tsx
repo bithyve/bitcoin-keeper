@@ -31,7 +31,7 @@ function CurrencyInfo({
         <Box style={styles.rowCenter}>
           <Text
             color={color}
-            style={{ fontSize, lineHeight: fontSize }}
+            style={{ fontSize, paddingVertical:5 }}
             bold={bold}
             numberOfLines={1}
             testID="text_balance"
