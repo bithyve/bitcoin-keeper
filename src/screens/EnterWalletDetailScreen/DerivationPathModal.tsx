@@ -114,7 +114,7 @@ function DerivationPathModalContent({
                     >
                       {item.label}
                     </Text>
-                    <TickIcon />
+                    {purpose === item.value && <TickIcon />}
                   </Box>
                   {index !== purposeList.length - 1 && (
                     <Box
