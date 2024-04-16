@@ -2,11 +2,17 @@ import { ScrollView } from 'native-base';
 import React, { useContext } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
+import VaultGreyIcon from 'src/assets/images/vault-grey.svg'
 import File from 'src/assets/images/files.svg';
 import EditFile from 'src/assets/images/edit_file.svg';
+import EditFileGrey from 'src/assets/images/edit-file-grey.svg';
 import RecoveryIcon from 'src/assets/images/recovery_icon.svg';
+import RecoveryGreyIcon from 'src/assets/images/recovery-grey.svg';
 import ContactIcon from 'src/assets/images/contacts.svg';
+import ContactGreyIcon from 'src/assets/images/contacts-grey.svg';
 import AdditionalDetailIcon from 'src/assets/images/addtional_details.svg';
+import AdditionalDetailGreyIcon from 'src/assets/images/additional-detail-grey.svg';
+
 
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
@@ -26,6 +32,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function InheritanceTool({ navigation }) {
   const dispatch = useAppDispatch();
   const { plan } = usePlan();
+  const isHodlerAndDiamondHand = plan === 'DIAMOND HANDS' || plan === 'HODLER';
+  const isDiamondHand = plan === 'DIAMOND HANDS';
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
@@ -37,15 +45,15 @@ function InheritanceTool({ navigation }) {
 
   return (
     <ScrollView>
-      {plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'DIAMOND HANDS'} />}
+      {!isDiamondHand && <UpgradeSubscription type={'DIAMOND HANDS'} />}
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(
           inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE]
         )}`}
-        disabled={plan === 'DIAMOND HANDS' ? false : true}
+        disabled={!isDiamondHand}
         title={inheritancePlanning.recoveryPhraseTitle}
         description={inheritancePlanning.recoveryPhraseDescp}
-        LeftIcon={<RecoveryIcon />}
+        LeftIcon={!isHodlerAndDiamondHand? <RecoveryGreyIcon/> : <RecoveryIcon />}
         callback={() => navigate('RecoveryPhraseTemplate', RECOVERY_PHRASE_TEMPLATE)}
       />
 
@@ -53,10 +61,10 @@ function InheritanceTool({ navigation }) {
         preTitle={`${getTimeDifferenceInWords(
           inheritanceToolVisitedHistory[TRUSTED_CONTACTS_TEMPLATE]
         )}`}
-        disabled={plan === 'DIAMOND HANDS' ? false : true}
+        disabled={!isDiamondHand}
         title={inheritancePlanning.trustedContactsTitle}
         description={inheritancePlanning.trustedContactsDescp}
-        LeftIcon={<ContactIcon />}
+        LeftIcon={!isHodlerAndDiamondHand? <ContactGreyIcon/> : <ContactIcon />}
         callback={() => navigate('TrustedContactTemplates', TRUSTED_CONTACTS_TEMPLATE)}
       />
 
@@ -64,10 +72,10 @@ function InheritanceTool({ navigation }) {
         preTitle={`${getTimeDifferenceInWords(
           inheritanceToolVisitedHistory[ADDITIONAL_SIGNER_DETAILS]
         )}`}
-        disabled={plan === 'DIAMOND HANDS' ? false : true}
+        disabled={!isDiamondHand}
         title={inheritancePlanning.additionalKeysTitle}
         description={inheritancePlanning.additionalKeysDescp}
-        LeftIcon={<AdditionalDetailIcon />}
+        LeftIcon={!isHodlerAndDiamondHand? <AdditionalDetailGreyIcon/> : <AdditionalDetailIcon />}
         callback={() => navigate('AdditionalSignerDetailsTemplate', ADDITIONAL_SIGNER_DETAILS)}
       />
 
@@ -82,12 +90,12 @@ function InheritanceTool({ navigation }) {
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('PrintableTemplates', PRINTABLE_TEMPLATES)}
       /> */}
-      {plan !== 'HODLER' && plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'HODLER'} />}
+      {!isHodlerAndDiamondHand && <UpgradeSubscription type={'HODLER'} />}
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(
           inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS]
         )}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.recoveryInstructionsTitle}
         description={inheritancePlanning.recoveryInstructionsDescp}
         LeftIcon={<File />}
@@ -95,18 +103,18 @@ function InheritanceTool({ navigation }) {
       />
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY])}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.letterOfAttorneyTitle}
         description={inheritancePlanning.letterOfAttorneyDescp}
-        LeftIcon={<EditFile />}
+        LeftIcon={!isHodlerAndDiamondHand? <EditFileGrey/> : <EditFile />}
         callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
       />
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_TIPS])}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.inheritanceTipsTitle}
         description={inheritancePlanning.inheritanceTipsDescp}
-        LeftIcon={<VaultGreenIcon />}
+        LeftIcon={!isHodlerAndDiamondHand? <VaultGreyIcon/> : <VaultGreenIcon />}
         callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
       />
     </ScrollView>
