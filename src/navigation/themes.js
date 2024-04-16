@@ -158,6 +158,7 @@ export const customTheme = extendTheme({
       dullGreen: Colors.DullGreen,
       darkGrey: Colors.DarkGrey,
       lightSkin: Colors.LightSkin,
+      taprootCardPill: Colors.Ecru,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -269,6 +270,7 @@ export const customTheme = extendTheme({
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,
       signerCardPill: Colors.Purple,
+      taprootCardPill: Colors.Ecru,
     },
   },
   config: {
