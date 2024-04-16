@@ -35,9 +35,10 @@ function KeySecurity({ navigation }) {
   };
   return (
     <ScrollView>
+      {/* 
+       //---for future use---
       <OptionCard
         disabled
-        //---for future use---
         // preTitle={`${
         //   inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
         //     ? 'Never accessed'
@@ -53,26 +54,15 @@ function KeySecurity({ navigation }) {
         description={inheritancePlanning.BuyNewHardwareSignerDesp}
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
-      />
+      /> */}
       <OptionCard
-        //---for future use---
-        // preTitle={`${
-        //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
-        //     ? 'Never accessed'
-        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
-        // }`}
-        CardPill={
-          <CardPill
-            heading={inheritancePlanning.commingSoon}
-            backgroundColor={Colors.LightPurple}
-          />
-        }
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
         title={inheritancePlanning.canaryWallet}
         description={inheritancePlanning.canaryWalletDesp}
         LeftIcon={<Bird />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'HODLER'} />}
+      {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'Holder'} />}
 
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}

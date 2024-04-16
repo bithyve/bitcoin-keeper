@@ -37,7 +37,34 @@ function InheritanceTool({ navigation }) {
 
   return (
     <ScrollView>
-      {plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'DIAMOND HANDS'} />}
+      {plan !== 'HODLER' && plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'Holder'} />}
+      <OptionCard
+        preTitle={`${getTimeDifferenceInWords(
+          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS]
+        )}`}
+        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        title={inheritancePlanning.recoveryInstructionsTitle}
+        description={inheritancePlanning.recoveryInstructionsDescp}
+        LeftIcon={<File />}
+        callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
+      />
+      <OptionCard
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY])}`}
+        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        title={inheritancePlanning.letterOfAttorneyTitle}
+        description={inheritancePlanning.letterOfAttorneyDescp}
+        LeftIcon={<EditFile />}
+        callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
+      />
+      <OptionCard
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_TIPS])}`}
+        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        title={inheritancePlanning.inheritanceTipsTitle}
+        description={inheritancePlanning.inheritanceTipsDescp}
+        LeftIcon={<VaultGreenIcon />}
+        callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
+      />
+      {plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'Diamond Hands'} />}
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(
           inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE]
@@ -82,33 +109,6 @@ function InheritanceTool({ navigation }) {
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('PrintableTemplates', PRINTABLE_TEMPLATES)}
       /> */}
-      {plan !== 'HODLER' && plan !== 'DIAMOND HANDS' && <UpgradeSubscription type={'HODLER'} />}
-      <OptionCard
-        preTitle={`${getTimeDifferenceInWords(
-          inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS]
-        )}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
-        title={inheritancePlanning.recoveryInstructionsTitle}
-        description={inheritancePlanning.recoveryInstructionsDescp}
-        LeftIcon={<File />}
-        callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
-      />
-      <OptionCard
-        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[LETTER_OF_ATTORNEY])}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
-        title={inheritancePlanning.letterOfAttorneyTitle}
-        description={inheritancePlanning.letterOfAttorneyDescp}
-        LeftIcon={<EditFile />}
-        callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
-      />
-      <OptionCard
-        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory[INHERITANCE_TIPS])}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
-        title={inheritancePlanning.inheritanceTipsTitle}
-        description={inheritancePlanning.inheritanceTipsDescp}
-        LeftIcon={<VaultGreenIcon />}
-        callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
-      />
     </ScrollView>
   );
 }

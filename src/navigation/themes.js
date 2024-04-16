@@ -157,6 +157,7 @@ export const customTheme = extendTheme({
       signerCardPill: Colors.Purple,
       dullGreen: Colors.DullGreen,
       darkGrey: Colors.DarkGrey,
+      lightSkin: Colors.LightSkin,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -249,6 +250,7 @@ export const customTheme = extendTheme({
       dropdownSeparator: Colors.Taupe,
       LightGreen: Colors.lightGreen,
       MintWhisper: Colors.MintWhisper,
+      lightSkin: Colors.LightSkin,
       // SlateGrey: Colors.SlateGrey,
       // LightKhaki: Colors.LightKhaki,
       // SmokeGreen: Colors.SmokeGreen,
