@@ -419,32 +419,6 @@ export default class WalletOperations {
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
   };
 
-  static mockFeeRatesForTestnet = () => {
-    // high fee: 10 minutes
-    const highFeeBlockEstimate = 1;
-    const high = {
-      feePerByte: 3,
-      estimatedBlocks: highFeeBlockEstimate,
-    };
-
-    // medium fee: 30 mins
-    const mediumFeeBlockEstimate = 3;
-    const medium = {
-      feePerByte: 2,
-      estimatedBlocks: mediumFeeBlockEstimate,
-    };
-
-    // low fee: 60 mins
-    const lowFeeBlockEstimate = 6;
-    const low = {
-      feePerByte: 1,
-      estimatedBlocks: lowFeeBlockEstimate,
-    };
-    const feeRatesByPriority = { high, medium, low };
-
-    return feeRatesByPriority;
-  };
-
   static estimateFeeRatesViaElectrum = async () => {
     try {
       // high fee: 10 minutes
@@ -478,18 +452,18 @@ export default class WalletOperations {
 
   static fetchFeeRatesByPriority = async () => {
     // main: mempool.space, fallback: fulcrum target block based fee estimator
-
-    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      return WalletOperations.mockFeeRatesForTestnet();
-    }
-
     try {
-      const endpoint =
-        RestClient.getTorStatus() === TorStatus.CONNECTED
-          ? 'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/api/v1/fees/recommended'
-          : 'https://mempool.space/api/v1/fees/recommended';
-      const res = await RestClient.get(endpoint);
+      let endpoint;
+      if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+        endpoint = 'https://mempool.space/testnet/api/v1/fees/recommended';
+      } else {
+        endpoint =
+          RestClient.getTorStatus() === TorStatus.CONNECTED
+            ? 'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/api/v1/fees/recommended'
+            : 'https://mempool.space/api/v1/fees/recommended';
+      }
 
+      const res = await RestClient.get(endpoint);
       const mempoolFee: {
         economyFee: number;
         fastestFee: number;
