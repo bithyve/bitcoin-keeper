@@ -4,6 +4,8 @@ import OptionCard from 'src/components/OptionCard';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import VaultGreyIcon from 'src/assets/images/vault-grey.svg'
 import File from 'src/assets/images/files.svg';
+import FileDisable from 'src/assets/images/files-disable.svg';
+
 import EditFile from 'src/assets/images/edit_file.svg';
 import EditFileGrey from 'src/assets/images/edit-file-grey.svg';
 import RecoveryIcon from 'src/assets/images/recovery_icon.svg';
@@ -53,7 +55,7 @@ function InheritanceTool({ navigation }) {
         disabled={!isDiamondHand}
         title={inheritancePlanning.recoveryPhraseTitle}
         description={inheritancePlanning.recoveryPhraseDescp}
-        LeftIcon={!isHodlerAndDiamondHand? <RecoveryGreyIcon/> : <RecoveryIcon />}
+        LeftIcon={!isHodlerAndDiamondHand ? <RecoveryGreyIcon /> : <RecoveryIcon />}
         callback={() => navigate('RecoveryPhraseTemplate', RECOVERY_PHRASE_TEMPLATE)}
       />
 
@@ -64,7 +66,7 @@ function InheritanceTool({ navigation }) {
         disabled={!isDiamondHand}
         title={inheritancePlanning.trustedContactsTitle}
         description={inheritancePlanning.trustedContactsDescp}
-        LeftIcon={!isHodlerAndDiamondHand? <ContactGreyIcon/> : <ContactIcon />}
+        LeftIcon={!isHodlerAndDiamondHand ? <ContactGreyIcon /> : <ContactIcon />}
         callback={() => navigate('TrustedContactTemplates', TRUSTED_CONTACTS_TEMPLATE)}
       />
 
@@ -75,7 +77,7 @@ function InheritanceTool({ navigation }) {
         disabled={!isDiamondHand}
         title={inheritancePlanning.additionalKeysTitle}
         description={inheritancePlanning.additionalKeysDescp}
-        LeftIcon={!isHodlerAndDiamondHand? <AdditionalDetailGreyIcon/> : <AdditionalDetailIcon />}
+        LeftIcon={!isHodlerAndDiamondHand ? <AdditionalDetailGreyIcon /> : <AdditionalDetailIcon />}
         callback={() => navigate('AdditionalSignerDetailsTemplate', ADDITIONAL_SIGNER_DETAILS)}
       />
 
@@ -98,7 +100,7 @@ function InheritanceTool({ navigation }) {
         disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.recoveryInstructionsTitle}
         description={inheritancePlanning.recoveryInstructionsDescp}
-        LeftIcon={<File />}
+        LeftIcon={!isHodlerAndDiamondHand ? <FileDisable /> : <File />}
         callback={() => navigate('RecoveryInstruction', RECOVERY_INSTRUCTIONS)}
       />
       <OptionCard
@@ -106,7 +108,7 @@ function InheritanceTool({ navigation }) {
         disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.letterOfAttorneyTitle}
         description={inheritancePlanning.letterOfAttorneyDescp}
-        LeftIcon={!isHodlerAndDiamondHand? <EditFileGrey/> : <EditFile />}
+        LeftIcon={!isHodlerAndDiamondHand ? <EditFileGrey /> : <EditFile />}
         callback={() => navigate('LetterOfAttorney', LETTER_OF_ATTORNEY)}
       />
       <OptionCard
@@ -114,7 +116,7 @@ function InheritanceTool({ navigation }) {
         disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.inheritanceTipsTitle}
         description={inheritancePlanning.inheritanceTipsDescp}
-        LeftIcon={!isHodlerAndDiamondHand? <VaultGreyIcon/> : <VaultGreenIcon />}
+        LeftIcon={!isHodlerAndDiamondHand ? <VaultGreyIcon /> : <VaultGreenIcon />}
         callback={() => navigate('InheritanceTips', INHERITANCE_TIPS)}
       />
     </ScrollView>
