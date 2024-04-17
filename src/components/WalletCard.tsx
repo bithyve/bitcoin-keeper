@@ -2,6 +2,7 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import React, { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import { hp } from 'src/constants/responsive';
 
 type WalletCardProps = {
   id: number;
@@ -30,7 +31,7 @@ function WalletCard({
   const isSelected = selectedCard === id;
   const isSmallDevice = useIsSmallDevices();
 
-  let setWidth = isSmallDevice ? 107 : 114;
+  let setWidth = isSmallDevice ? hp(129) : hp(107);
 
   return (
     <Pressable testID={`btn_${walletName}`} onPress={() => onCardSelect(id)}>
@@ -77,7 +78,6 @@ function WalletCard({
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: 114,
     height: 125,
     padding: 10,
     borderRadius: 10,
