@@ -255,14 +255,14 @@ function AddSendAmount({ route }) {
               width={44}
               height={38}
               backgroundColor={Colors.pantoneGreen}
-              icon={<WalletIcon />}
+              icon={getWalletIcon(sender)}
             />
           }
         />
         <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
-            icon={getWalletIcon(sender)}
+            icon={getWalletIcon(recipient)}
             availableAmt={sender?.specs.balances.confirmed}
             walletName={recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
