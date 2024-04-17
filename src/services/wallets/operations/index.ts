@@ -1278,12 +1278,14 @@ export default class WalletOperations {
         if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
-              PSBT.addSignedDigest(
-                inputIndex,
-                Buffer.from(publicKey, 'hex'),
-                Buffer.from(signature, 'hex'),
-                sighashType
-              );
+              if (signature) {
+                PSBT.addSignedDigest(
+                  inputIndex,
+                  Buffer.from(publicKey, 'hex'),
+                  Buffer.from(signature, 'hex'),
+                  sighashType
+                );
+              }
             }
           }
         }
