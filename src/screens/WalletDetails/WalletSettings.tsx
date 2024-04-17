@@ -85,6 +85,7 @@ function WalletSettings({ route }) {
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
+        showCurrencyTypeSwitch={true}
         Content={() => (
           <TransferPolicy
             wallet={wallet}
