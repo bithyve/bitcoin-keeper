@@ -255,6 +255,7 @@ const getStyles = (subTitleWidth) =>
       position: 'absolute',
       right: 20,
       top: 33,
+      zIndex: 999,
     },
     seeFAQs: {
       fontSize: 13,
