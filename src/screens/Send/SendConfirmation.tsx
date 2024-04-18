@@ -62,8 +62,9 @@ const customFeeOptionTransfers = [
   TransferType.WALLET_TO_WALLET,
   TransferType.WALLET_TO_ADDRESS,
 ];
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { RealmSchema } from 'src/storage/realm/enum';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -73,7 +74,18 @@ function Card({ title, subTitle = '', isVault = false, showFullAddress = false }
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
-      {isVault ? <VaultIcon /> : <WalletIcon />}
+      {isVault ? (
+        <VaultIcon />
+      ) : showFullAddress ? (
+        <WalletIcon />
+      ) : (
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.pantoneGreen}
+          icon={<WalletsIcon />}
+        />
+      )}
       <Box style={styles.ml10}>
         <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle}>
           {title}
@@ -146,6 +158,7 @@ function SendingCard({
           <Card
             title={address}
             subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            showFullAddress={true}
           />
         );
       case TransferType.WALLET_TO_WALLET:
@@ -478,7 +491,9 @@ function HighFeeAlert({
         </Box>
       )}
       <Box width={'70%'}>
-        <Text style={styles.highFeeNote}>If not urgent, you could consider waiting for the fees to reduce</Text>
+        <Text style={styles.highFeeNote}>
+          If not urgent, you could consider waiting for the fees to reduce
+        </Text>
       </Box>
     </>
   );
@@ -1080,7 +1095,7 @@ const styles = StyleSheet.create({
   },
   highFeeTitle: {
     fontSize: 14,
-    marginBottom:5
+    marginBottom: 5,
   },
   statsTitle: {
     fontSize: 12,
