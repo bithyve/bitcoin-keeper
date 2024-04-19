@@ -39,13 +39,7 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              backgroundColor={
-                index === 0
-                  ? `${colorMode}.SignleSigCardPillBackColor`
-                  : index === 2
-                  ? `${colorMode}.taprootCardPill`
-                  : null
-              }
+              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`}
               cardStyle={index % 2 !== 0 && styles.secondCard}
             />
           );

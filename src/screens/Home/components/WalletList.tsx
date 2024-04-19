@@ -94,7 +94,7 @@ const getWalletTags = (wallet) => {
     const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
     if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86)
       isTaprootWallet = true;
-    if (isTaprootWallet) return ['SINGLE-KEY', walletKind, 'TAPROOT'];
+    if (isTaprootWallet) return ['TAPROOT', walletKind];
     else return ['SINGLE-KEY', walletKind];
   }
 };
