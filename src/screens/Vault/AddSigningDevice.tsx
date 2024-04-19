@@ -1,7 +1,7 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Signer,
   VaultScheme,
@@ -331,7 +331,7 @@ function Signers({
     }
   };
 
-  const renderAssistedKeysShell = () => {
+  const renderAssistedKeysShell = useCallback(() => {
     // tier-based, display only, till an actual assisted keys is setup
     const shellAssistedKeys = [];
 
@@ -361,7 +361,7 @@ function Signers({
     if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3)
       shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
 
-    return shellAssistedKeys.map((shellSigner) => {
+    return shellAssistedKeys.map((shellSigner, index) => {
       const disabled = !isAssistedKeyValidForScheme(
         shellSigner,
         scheme,
@@ -372,7 +372,7 @@ function Signers({
       return (
         <SignerCard
           disabled={disabled}
-          key={shellSigner.masterFingerprint}
+          key={`${shellSigner.masterFingerprint}_${index}`}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description={'To setup'}
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
@@ -385,9 +385,9 @@ function Signers({
         />
       );
     });
-  };
+  }, []);
 
-  const renderSigners = () => {
+  const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const signerCards = signers.map((signer) => {
       const disabled =
@@ -423,10 +423,9 @@ function Signers({
         />
       );
     });
+    return signerCards;
+  }, [signers]);
 
-    const shellAssistedKeyCards = renderAssistedKeysShell();
-    return [...signerCards, ...shellAssistedKeyCards];
-  };
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
@@ -435,7 +434,12 @@ function Signers({
             <Text color={`${colorMode}.headerText`} bold style={styles.title}>
               Choose from already added keys
             </Text>
-            <Box style={styles.addedSigners}>{renderSigners()}</Box>
+            <Box style={styles.addedSigners}>
+              <>
+                {renderSigners()}
+                {renderAssistedKeysShell()}
+              </>
+            </Box>
           </Box>
         ) : null}
         <Box style={styles.gap10}>
