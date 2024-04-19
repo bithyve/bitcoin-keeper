@@ -184,14 +184,14 @@ function SendScreen({ route }) {
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         const type =
-          sender.entityKind === 'VAULT'
+          sender?.entityKind === 'VAULT'
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
         navigateToNext(address, type, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
         const transferType =
-          sender.entityKind === 'VAULT'
+          sender?.entityKind === 'VAULT'
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
         navigateToNext(address, transferType, amount ? amount.toString() : null, null);

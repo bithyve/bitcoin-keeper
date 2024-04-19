@@ -200,7 +200,7 @@ function AddSendAmount({ route }) {
     const initialLabels = [];
     if (recipient && recipient.presentationData) {
       const name =
-        recipient.entityKind === EntityKind.VAULT
+        recipient?.entityKind === EntityKind.VAULT
           ? sender.presentationData.name
           : recipient.presentationData.name;
       const isSystem = true;
@@ -227,7 +227,7 @@ function AddSendAmount({ route }) {
   //   setLabelsToAdd([...labelsToAdd]);
   // };
   const getWalletIcon = (wallet) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
+    if (wallet?.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
     } else {
       return <WalletIcon />;
@@ -241,6 +241,9 @@ function AddSendAmount({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
         style={styles.Container}
       >
+        {/* For REFERENCE */}
+        {console.log('Address Check', address)}
+
         <KeeperHeader
           title={
             transferType === TransferType.WALLET_TO_WALLET

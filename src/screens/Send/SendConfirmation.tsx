@@ -305,7 +305,7 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Box style={styles.sentToContainer}>
           <Text>Sent To</Text>
           <Card
-            isVault={recipient.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
+            isVault={recipient?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={recipient?.presentationData?.name}
             showFullAddress={true}
           />
@@ -313,7 +313,7 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Box style={styles.sentFromContainer}>
           <Text>Sent From</Text>
           <Card
-            isVault={sender.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
+            isVault={sender?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
             subTitle={`${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
