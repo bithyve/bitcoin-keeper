@@ -51,6 +51,7 @@ import {
   corssTransferWatcher,
   fetchExchangeRatesWatcher,
   fetchFeeRatesWatcher,
+  fetchOneDayInsightWatcher,
   sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
@@ -75,6 +76,7 @@ const rootSaga = function* () {
 
     // network
     connectToNodeWatcher,
+    fetchOneDayInsightWatcher,
 
     // notification
     updateFCMTokensWatcher,

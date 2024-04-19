@@ -48,9 +48,20 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
+import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
+import FeerateStatement from 'src/screens/FeeInsights/FeerateStatement';
+import useOneDayInsight from 'src/hooks/useOneDayInsight';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import Fonts from 'src/constants/Fonts';
+
+const customFeeOptionTransfers = [
+  TransferType.VAULT_TO_ADDRESS,
+  TransferType.VAULT_TO_WALLET,
+  TransferType.WALLET_TO_WALLET,
+  TransferType.WALLET_TO_ADDRESS,
+];
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { RealmSchema } from 'src/storage/realm/enum';
 
@@ -427,7 +438,14 @@ function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) 
   );
 }
 
-function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance }) {
+function HighFeeAlert({
+  transactionPriority,
+  txFeeInfo,
+  amountToSend,
+  getBalance,
+  showFeesInsightModal,
+  OneDayHistoricalFee,
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -435,30 +453,44 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
   const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
   return (
     <>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-        <CurrencyInfo
-          amount={selectedFee}
-          hideAmounts={false}
-          fontSize={16}
-          bold
-          color={colorMode !== 'light' ? Colors.White : Colors.RichBlack}
-          variation={colorMode !== 'light' ? 'light' : 'dark'}
-        />
-      </Box>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-        <CurrencyInfo
-          amount={amountToSend}
-          hideAmounts={false}
-          fontSize={16}
-          bold
-          color={colorMode !== 'light' ? Colors.White : Colors.RichBlack}
-          variation={colorMode !== 'light' ? 'light' : 'dark'}
-        />
-      </Box>
-      <Box style={styles.w70P}>
-        <Text fontSize={13}>If not urgent, you could consider waiting for the fees to reduce</Text>
+      <View style={styles.boxWrapper}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+          <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+          <CurrencyInfo
+            amount={selectedFee}
+            hideAmounts={false}
+            fontSize={16}
+            bold
+            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
+          />
+        </Box>
+        <View style={styles.divider} />
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+          <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+          <CurrencyInfo
+            amount={amountToSend}
+            hideAmounts={false}
+            fontSize={16}
+            bold
+            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
+          />
+        </Box>
+      </View>
+      <Text style={styles.statsTitle}>Fee Stats</Text>
+      {OneDayHistoricalFee.length > 0 && (
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
+          <FeerateStatement
+            showFeesInsightModal={showFeesInsightModal}
+            feeInsightData={OneDayHistoricalFee}
+          />
+        </Box>
+      )}
+      <Box width={'70%'}>
+        <Text style={styles.highFeeNote}>
+          If not urgent, you could consider waiting for the fees to reduce
+        </Text>
       </Box>
     </>
   );
@@ -551,8 +583,10 @@ function SendConfirmation({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
+  const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
+  const OneDayHistoricalFee = useOneDayInsight();
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -711,7 +745,19 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
-  const addNumbers = (str1, str2): number => {
+  const toogleFeesInsightModal = () => {
+    if (highFeeAlertVisible) {
+      setHighFeeAlertVisible(false);
+      // To give smooth transcation of modal,
+      // After closing highfee modal.
+      setTimeout(() => {
+        setFeeInsightVisible(true);
+      }, 300);
+    } else {
+      setFeeInsightVisible(!feeInsightVisible);
+    }
+  };
+  const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
 
@@ -779,6 +825,14 @@ function SendConfirmation({ route }) {
             />
           </TouchableOpacity>
         ) : null}
+        {OneDayHistoricalFee.length > 0 && (
+          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
+            <FeerateStatement
+              showFeesInsightModal={toogleFeesInsightModal}
+              feeInsightData={OneDayHistoricalFee}
+            />
+          </Box>
+        )}
         <AmountDetails
           title={walletTransactions.totalAmount}
           satsAmount={
@@ -937,8 +991,23 @@ function SendConfirmation({ route }) {
             txFeeInfo={txFeeInfo}
             amountToSend={amount}
             getBalance={getBalance}
+            showFeesInsightModal={toogleFeesInsightModal}
+            OneDayHistoricalFee={OneDayHistoricalFee}
           />
         )}
+      />
+      {/*Fee insight Modal */}
+      <KeeperModal
+        visible={feeInsightVisible}
+        close={toogleFeesInsightModal}
+        showCloseIcon={false}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonText={common.proceed}
+        buttonCallback={toogleFeesInsightModal}
+        Content={() => <FeeInsights />}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
@@ -1023,12 +1092,55 @@ const styles = StyleSheet.create({
   },
   highFeeTitle: {
     fontSize: 14,
+    marginBottom: 5,
+  },
+  statsTitle: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 0.55,
+    marginLeft: 5,
+  },
+  boxWrapper: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    width: '100%',
+  },
+  divider: {
+    width: 5,
+    height: '100%',
   },
   highFeeDetailsContainer: {
+    padding: 10,
+    flex: 1,
+    borderRadius: 10,
+  },
+  feeStatementContainer: {
     width: windowWidth * 0.8,
     padding: 10,
+    marginVertical: 5,
+    borderRadius: 10,
+  },
+  feeStatementWrapper: {
+    width: '100%',
+    padding: 10,
     marginVertical: 10,
+    borderRadius: 10,
+  },
+  highFeeNote: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderRadius: 20 / 2,
+    alignSelf: 'flex-end',
+    borderWidth: 1,
+  },
+  currentTypeSwitchWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '25%',
   },
   cardTitle: {
     fontSize: 14,

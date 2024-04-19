@@ -66,7 +66,6 @@ function NewHomeScreen({ navigation }) {
   );
   const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
   const netBalanceAllVaults = calculateBalancesForVaults(allVaults);
-
   const { showToast } = useToastMessage();
   const { top } = useSafeAreaInsets();
   const { plan } = usePlan();

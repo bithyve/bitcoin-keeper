@@ -148,6 +148,13 @@ function SignerAdvanceSettings({ route }: any) {
     (state) => state.bhr
   );
 
+  const [isSSKeySigner, setIsSSKeySigner] = useState(false);
+
+  useEffect(() => {
+    const signleSigSigner = !!signer?.signerXpubs[XpubTypes.P2WPKH]?.[0];
+    setIsSSKeySigner(signleSigSigner);
+  }, [signer]);
+
   useEffect(() => {
     if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
@@ -474,6 +481,7 @@ function SignerAdvanceSettings({ route }: any) {
       const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
       if (!singleSigSigner) {
         showToast('No single Sig found');
+        setCanaryVaultLoading(false);
       }
       const ssVaultKey: VaultSigner = {
         ...singleSigSigner,
@@ -520,7 +528,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
-  const isCanaryWalletAllowed = isOnL2 || isOnL3 || true;
+  const isCanaryWalletAllowed = isOnL2 || isOnL3;
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
@@ -633,7 +641,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
 
-        {isCanaryWalletAllowed && (
+        {isCanaryWalletAllowed && isSSKeySigner && (
           <OptionCard
             title="Canary Wallet"
             description="Your on-chain key alert"

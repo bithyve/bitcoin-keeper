@@ -35,9 +35,10 @@ function KeySecurity({ navigation }) {
   };
   return (
     <ScrollView>
+      {/* 
+       //---for future use---
       <OptionCard
         disabled
-        //---for future use---
         // preTitle={`${
         //   inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER] === undefined
         //     ? 'Never accessed'
@@ -48,7 +49,7 @@ function KeySecurity({ navigation }) {
         description="Overview and discount codes"
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
-      />
+      /> */}
       <OptionCard
         disabled
         //---for future use---
@@ -70,7 +71,7 @@ function KeySecurity({ navigation }) {
         disabled={!isHodlerAndDiamondHand}
         title="Assisted Keys"
         description="Server hosted signers"
-        LeftIcon={!isHodlerAndDiamondHand? <ServerGreyIcon /> : <ServerIcon/>}
+        LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
       <Box paddingTop={4}>
@@ -80,7 +81,7 @@ function KeySecurity({ navigation }) {
           )}`}
           title="Secure Usage Tips"
           description="Recommendations while transacting"
-          LeftIcon={<VaultGreenIcon/>}
+          LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeGuardingTips', SECURE_USAGE_TIPS)}
         />
         <OptionCard
@@ -89,7 +90,7 @@ function KeySecurity({ navigation }) {
           )}`}
           title="Safekeeping Tips"
           description="Key storage best practices"
-          LeftIcon={<VaultGreenIcon/>}
+          LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeKeepingTips', SAFE_KEEPING_TIPS)}
         />
       </Box>
