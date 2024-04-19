@@ -324,7 +324,6 @@ function Signers({
         <TickIcon />,
         IToastCategory.SIGNING_DEVICE
       );
-      navigation.goBack();
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
