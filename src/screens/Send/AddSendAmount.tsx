@@ -29,6 +29,8 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+// import AddressIcon from 'src/assets/images/wallet_hexa.svg'
+import AddressIcon from 'src/components/AddressIcon';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
@@ -81,6 +83,8 @@ function AddSendAmount({ route }) {
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
   const { getCurrencyIcon, getSatUnit } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
+  const isAddress = transferType === TransferType.VAULT_TO_ADDRESS || transferType === TransferType.WALLET_TO_ADDRESS;
+
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -233,6 +237,7 @@ function AddSendAmount({ route }) {
       return <WalletIcon />;
     }
   };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -241,9 +246,6 @@ function AddSendAmount({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
         style={styles.Container}
       >
-        {/* For REFERENCE */}
-        {console.log('Address Check', address)}
-
         <KeeperHeader
           title={
             transferType === TransferType.WALLET_TO_WALLET
@@ -265,11 +267,13 @@ function AddSendAmount({ route }) {
         <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
-            icon={getWalletIcon(recipient)}
+            icon={isAddress ? <AddressIcon /> : getWalletIcon(recipient)}
             availableAmt={sender?.specs.balances.confirmed}
-            walletName={recipient?.presentationData.name}
+            // walletName={recipient?.presentationData.name}
+            walletName={isAddress ? address : recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
+            isAddress={isAddress}
           />
         </Box>
 

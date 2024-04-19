@@ -87,7 +87,7 @@ function Card({ title, subTitle = '', isVault = false, showFullAddress = false }
         />
       )}
       <Box style={styles.ml10}>
-        <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle}>
+        <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle} ellipsizeMode="middle">
           {title}
         </Text>
         {!showFullAddress && (
@@ -257,9 +257,8 @@ function SendingPriority({
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  description={`~${
-                    txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                  } mins`}
+                  description={`~${txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                    } mins`}
                   numberOfLines={2}
                   onCardSelect={() => setTransactionPriority(priority)}
                   customStyle={{
@@ -283,7 +282,7 @@ function SendingPriority({
   );
 }
 
-function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, getSatUnit }) {
+function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, getSatUnit, isAddress }) {
   const { colorMode } = useColorMode();
   const { getBalance } = useBalance();
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -291,6 +290,7 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
   const { wallet: walletTransactions } = translations;
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const currencyCode = useCurrencyCode();
+
 
   const getCurrencyIcon = () => {
     if (currentCurrency === CurrencyKind.BITCOIN) {
@@ -306,6 +306,7 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
           <Text>Sent To</Text>
           <Card
             isVault={recipient?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
+            // title={recipient?.presentationData?.name}
             title={recipient?.presentationData?.name}
             showFullAddress={true}
           />
@@ -559,6 +560,7 @@ function SendConfirmation({ route }) {
     }[];
     selectedUTXOs: UTXO[];
   } = route.params;
+  const isAddress = transferType === TransferType.VAULT_TO_ADDRESS || transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -858,12 +860,12 @@ function SendConfirmation({ route }) {
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
-                  satsEnabled ? 2 : 8
-                )
+                satsEnabled ? 2 : 8
+              )
               : addNumbers(
-                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-                  getBalance(amount)
-                ).toFixed(satsEnabled ? 2 : 8)
+                getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                getBalance(amount)
+              ).toFixed(satsEnabled ? 2 : 8)
           }
           fontSize={17}
           fontWeight="400"
@@ -900,6 +902,7 @@ function SendConfirmation({ route }) {
             sender={sender || sourceWallet}
             recipient={recipient || defaultVault}
             getSatUnit={getSatUnit}
+            isAddress={isAddress}
           />
         )}
       />
