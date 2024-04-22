@@ -470,16 +470,26 @@ function HighFeeAlert({
       <View style={styles.boxWrapper}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
           <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-          <Box style={styles.highFeeDetailsWrapper}>
-            <Text style={styles.highAlertFiatFee}>{getBalance(selectedFee)}&nbsp;&nbsp;</Text>
-          </Box>
+          <CurrencyInfo
+            amount={selectedFee}
+            hideAmounts={false}
+            fontSize={16}
+            bold
+            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
+          />
         </Box>
         <View style={styles.divider} />
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
           <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-          <Box style={styles.highFeeDetailsWrapper}>
-            <Text style={styles.highAlertFiatFee}>{getBalance(amountToSend)}&nbsp;&nbsp;</Text>
-          </Box>
+          <CurrencyInfo
+            amount={amountToSend}
+            hideAmounts={false}
+            fontSize={16}
+            bold
+            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
+          />
         </Box>
       </View>
       <Text style={styles.statsTitle}>Fee Stats</Text>
@@ -1106,10 +1116,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.55,
     marginLeft: 5,
   },
-  highFeeDetailsWrapper: {
-    flexDirection: 'row',
-    width: '100%',
-  },
   boxWrapper: {
     flexDirection: 'row',
     marginBottom: 10,
@@ -1135,10 +1141,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 10,
     borderRadius: 10,
-  },
-  highAlertFiatFee: {
-    fontSize: 16,
-    fontWeight: '700',
   },
   highFeeNote: {
     fontSize: 13,
