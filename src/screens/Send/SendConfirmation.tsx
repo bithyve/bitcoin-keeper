@@ -21,6 +21,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
+import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
@@ -65,19 +66,25 @@ const customFeeOptionTransfers = [
 import { RealmSchema } from 'src/storage/realm/enum';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle = '', isVault = false, showFullAddress = false }) {
+function Card({ title, subTitle = '', isVault = false, showFullAddress = false, isAddress = false }) {
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
       {isVault ? (
         <VaultIcon />
-      ) : showFullAddress ? (
-        <WalletIcon />
+      ) : isAddress ? (
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.pantoneGreen}
+          icon={<AddressIcon />}
+        />
       ) : (
         <HexagonIcon
           width={44}
@@ -111,6 +118,7 @@ function SendingCard({
   transferType,
   getBalance,
   getSatUnit,
+  isAddress,
 }) {
   const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
@@ -159,6 +167,7 @@ function SendingCard({
             title={address}
             subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
             showFullAddress={true}
+            isAddress={isAddress}
           />
         );
       case TransferType.WALLET_TO_WALLET:
@@ -199,6 +208,7 @@ function SendingCard({
             title={address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
             showFullAddress={true}
+            isAddress={isAddress}
           />
         );
     }
@@ -308,6 +318,7 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
             isVault={recipient?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             // title={recipient?.presentationData?.name}
             title={recipient?.presentationData?.name}
+            isAddress={isAddress}
             showFullAddress={true}
           />
         </Box>
@@ -825,6 +836,7 @@ function SendConfirmation({ route }) {
           transferType={transferType}
           getBalance={getBalance}
           getSatUnit={getSatUnit}
+          isAddress={isAddress}
         />
         {/* Custom priority diabled for auto transfer  */}
         {transferType !== TransferType.WALLET_TO_VAULT ? (
@@ -894,6 +906,7 @@ function SendConfirmation({ route }) {
         primaryLoading={inProgress}
       />
       <KeeperModal
+        // visible={true}
         visible={visibleModal}
         close={viewDetails}
         title={walletTransactions.SendSuccess}
