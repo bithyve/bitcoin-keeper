@@ -27,6 +27,7 @@ import {
   RECOVERY_PHRASE_TEMPLATE,
   TRUSTED_CONTACTS_TEMPLATE,
 } from 'src/services/channel/constants';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -34,8 +35,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function InheritanceTool({ navigation }) {
   const dispatch = useAppDispatch();
   const { plan } = usePlan();
-  const isHodlerAndDiamondHand = plan === 'DIAMOND HANDS' || plan === 'HODLER';
-  const isDiamondHand = plan === 'DIAMOND HANDS';
+  const isHodlerAndDiamondHand = plan === SubscriptionTier.L3 || plan === SubscriptionTier.L2;
+  const isDiamondHand = plan === SubscriptionTier.L3;
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
@@ -47,7 +48,7 @@ function InheritanceTool({ navigation }) {
 
   return (
     <ScrollView>
-      {!isDiamondHand && <UpgradeSubscription type={'DIAMOND HANDS'} />}
+      {!isDiamondHand && <UpgradeSubscription type={SubscriptionTier.L3} />}
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(
           inheritanceToolVisitedHistory[RECOVERY_PHRASE_TEMPLATE]
@@ -92,7 +93,7 @@ function InheritanceTool({ navigation }) {
         LeftIcon={<VaultGreenIcon />}
         callback={() => navigate('PrintableTemplates', PRINTABLE_TEMPLATES)}
       /> */}
-      {!isHodlerAndDiamondHand && <UpgradeSubscription type={'HODLER'} />}
+      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(
           inheritanceToolVisitedHistory[RECOVERY_INSTRUCTIONS]

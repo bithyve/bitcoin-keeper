@@ -16,6 +16,7 @@ import {
   SAFE_KEEPING_TIPS,
   SECURE_USAGE_TIPS,
 } from 'src/services/channel/constants';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
@@ -26,7 +27,7 @@ function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
   const colorMode = useColorMode();
   const { plan } = usePlan();
-  const isHodlerAndDiamondHand = plan === 'DIAMOND HANDS' || plan === 'HODLER';
+  const isHodlerAndDiamondHand = plan === SubscriptionTier.L3 || plan === SubscriptionTier.L2;
 
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
@@ -64,7 +65,7 @@ function KeySecurity({ navigation }) {
         LeftIcon={<BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {!isHodlerAndDiamondHand && <UpgradeSubscription type={'HODLER'} />}
+      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
 
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
