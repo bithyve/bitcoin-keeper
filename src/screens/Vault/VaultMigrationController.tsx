@@ -140,7 +140,7 @@ function VaultMigrationController({
       const allVaultIds = allVaults.map((vault) => vault.id);
       const generatedVaultId = generateVaultId(signers, scheme);
       if (allVaultIds.includes(generatedVaultId)) {
-        Alert.alert('Vault with this configuration already exisits');
+        Alert.alert('Vault with this configuration already exists');
         navigation.goBack();
       } else {
         setGeneratedVaultId(generatedVaultId);
