@@ -541,7 +541,7 @@
     "choosePolicy": "Choose Policy",
     "choosePolicySubTitle": "For the signer",
     "maxNoCheckAmt": "Max no-check amount",
-    "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even w/o a 2FA verification code",
+    "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even without a 2FA verification code",
     "maxAllowedAmt": "Max allowed amount",
     "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it"
   },

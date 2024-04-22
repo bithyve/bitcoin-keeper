@@ -173,14 +173,6 @@ function VaultSetup({ route }: ScreenProps) {
           <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
         </VStack>
       </ScrollView>
-      {!preDefinedScheme && (
-        <Box style={styles.mt20}>
-          <Note
-            title="Note"
-            subtitle="Please ensure you have a specific reason to create a non-standard multisig setup"
-          />
-        </Box>
-      )}
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );
