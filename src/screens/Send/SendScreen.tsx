@@ -206,7 +206,7 @@ function SendScreen({ route }) {
       if (sender.entityKind === EntityKind.VAULT) {
         navigateToNext(
           WalletOperations.getNextFreeAddress(selectedItem),
-          TransferType.VAULT_TO_WALLET,
+          selectedItem.entityKind === EntityKind.VAULT ? TransferType.VAULT_TO_VAULT : TransferType.VAULT_TO_WALLET,
           null,
           selectedItem
         );
