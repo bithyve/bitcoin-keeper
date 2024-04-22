@@ -181,7 +181,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const { vaultSigners: keys } = useSigners(vault.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
   const transactions = vault?.specs?.transactions || [];
@@ -221,53 +220,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     ),
     [isCollaborativeWallet]
   );
-
-  const NewVaultContent = useCallback(
-    (m: number, n: number) => (
-      <Box>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          {`Your ${m}-of-${n} vault has been setup successfully. You can start receiving/transfering bitcoin`}
-        </Text>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          For sending bitcoin out of the vault you will need the signers{' '}
-        </Text>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          You should ensure you have a copy of the wallet configuration file for this vault{' '}
-        </Text>
-        <Box style={styles.alignItems}>
-          {' '}
-          <Success />
-        </Box>
-        {inheritanceSigner && (
-          <Pressable
-            padding={5}
-            backgroundColor={`${colorMode}.pantoneGreenLight`}
-            borderColor={`${colorMode}.pantoneGreen`}
-            style={[styles.addPhoneEmailWrapper]}
-            onPress={() => {
-              navigation.navigate('IKSAddEmailPhone', { vaultId });
-              setVaultCreated(false);
-            }}
-          >
-            <Box style={styles.iconWrapper}>
-              <AddPhoneEmailIcon />
-            </Box>
-            <Box style={styles.titleWrapper}>
-              <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.pantoneGreen`}>
-                {vaultTranslation.addEmailPhone}
-              </Text>
-              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
-                {vaultTranslation.addEmailVaultDetail}
-              </Text>
-            </Box>
-          </Pressable>
-        )}
-      </Box>
-    ),
-    []
-  );
-
-  const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
   return (
     <Box
@@ -356,23 +308,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         />
         <Footer vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
       </VStack>
-      <KeeperModal
-        visible={vaultCreated}
-        title={vaultTranslation.newVaultCreated}
-        subTitle={subtitle}
-        buttonText="Confirm"
-        DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        buttonCallback={() => {
-          setVaultCreated(false);
-        }}
-        secondaryButtonText="Cancel"
-        secondaryCallback={() => setVaultCreated(false)}
-        close={() => setVaultCreated(false)}
-        Content={() => NewVaultContent(vault.scheme.m, vault.scheme.n)}
-      />
       <KeeperModal
         visible={introModal}
         close={() => {
