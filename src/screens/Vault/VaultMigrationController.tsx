@@ -19,6 +19,7 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
+import { useColorMode } from 'native-base';
 
 function VaultMigrationController({
   vaultCreating,
@@ -28,6 +29,8 @@ function VaultMigrationController({
   name,
   description,
   vaultId,
+  generatedVaultId,
+  setGeneratedVaultId,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -42,12 +45,10 @@ function VaultMigrationController({
     unconfirmed: 0,
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
 
   const [recipients, setRecepients] = useState<any[]>();
-  const [generatedVaultId, setGeneratedVaultId] = useState('');
+
+  const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
 
   useEffect(() => {
     if (temporaryVault && temporaryVault.id) {
@@ -60,35 +61,6 @@ function VaultMigrationController({
       initiateNewVault();
     }
   }, [vaultCreating]);
-
-  useEffect(() => {
-    const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
-    if (relayVaultUpdate && newVault) {
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          {
-            name: 'VaultDetails',
-            params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
-          },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    } else if (relayVaultUpdate) {
-      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
-
-    if (relayVaultError) {
-      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
-  }, [relayVaultUpdate, relayVaultError]);
 
   useEffect(() => {
     if (temporaryVault) {
