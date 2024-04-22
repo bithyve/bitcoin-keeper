@@ -332,7 +332,7 @@ function SigningDeviceDetails({ route }) {
 
   if (vaultKey) {
     footerItems.push({
-      text: 'Change Signer',
+      text: 'Change Key',
       Icon: () => <FooterIcon Icon={Change} />,
       onPress: () =>
         navigation.dispatch(
