@@ -11,7 +11,6 @@ import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/services/wallets/operations';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -19,17 +18,14 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
-import { useColorMode } from 'native-base';
 
 function VaultMigrationController({
   vaultCreating,
   vaultKeys,
   scheme,
-  setCreating,
   name,
   description,
   vaultId,
-  generatedVaultId,
   setGeneratedVaultId,
 }) {
   const navigation = useNavigation();
@@ -47,8 +43,6 @@ function VaultMigrationController({
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
   const [recipients, setRecepients] = useState<any[]>();
-
-  const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
 
   useEffect(() => {
     if (temporaryVault && temporaryVault.id) {
