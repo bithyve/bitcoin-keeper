@@ -79,7 +79,7 @@ function AddSendAmount({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const { getCurrencyIcon, getSatUnit } = useBalance();
+  const { getCurrencyIcon, getSatUnit, getConvertedBalance } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
 
   function convertFiatToSats(fiatAmount: number) {
@@ -101,6 +101,13 @@ function AddSendAmount({ route }) {
       else setAmountToSend(BtcToSats(parseFloat(amount)).toString());
     } else setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
   }, [currentCurrency, satsEnabled, amount]);
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(amount))) {
+      const amountToSend = getConvertedBalance(parseFloat(amount));
+      setAmount(amountToSend.toString());
+    }
+  }, [currentCurrency]);
 
   useEffect(() => {
     // error handler

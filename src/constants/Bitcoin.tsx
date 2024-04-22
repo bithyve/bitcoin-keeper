@@ -58,6 +58,28 @@ export const getAmt = (
   return numberWithCommas(amountInSats);
 };
 
+export const getConvertedAmt = (
+  amount: number,
+  exchangeRates,
+  currencyCode,
+  currentCurrency,
+  satsEnabled = false
+) => {
+  if (currentCurrency === CurrencyKind.BITCOIN) {
+    if (satsEnabled) {
+      return ((SATOSHIS_IN_BTC / exchangeRates[currencyCode].last) * amount).toFixed(2);
+    }
+    return (amount / exchangeRates[currencyCode].last).toFixed(5);
+  }
+  if (exchangeRates && exchangeRates[currencyCode]) {
+    if (satsEnabled) {
+      return ((amount / SATOSHIS_IN_BTC) * exchangeRates[currencyCode].last).toFixed(2);
+    }
+    return (exchangeRates[currencyCode].last * amount).toFixed(2);
+  }
+  return numberWithCommas(amount);
+};
+
 export const NetworkAmount = (
   amountInSats: number,
   exchangeRates,
