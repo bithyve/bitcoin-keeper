@@ -55,7 +55,6 @@ export const generateSignerFromMetaData = ({
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   if (
     networkType !== config.NETWORK_TYPE &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
     signerType !== SignerType.KEYSTONE &&
     signerType !== SignerType.JADE
   ) {
