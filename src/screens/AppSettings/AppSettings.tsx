@@ -130,15 +130,13 @@ function AppSettings({ navigation, route }) {
           ? initChat()
           : openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
-    Platform.OS === 'android'
-      ? {
-          cardName: settings.personalCloudBackup,
-          icon: <CloudIcon />,
-          callback: () => navigation.navigate('CloudBackup'),
-          showDot: isCloudBsmsBackupRequired,
-        }
-      : null,
-  ].filter(Boolean);
+    {
+      cardName: settings.personalCloudBackup,
+      icon: <CloudIcon />,
+      callback: () => navigation.navigate('CloudBackup'),
+      showDot: isCloudBsmsBackupRequired,
+    },
+  ];
 
   // TODO: add learn more modal
   return (
