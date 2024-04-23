@@ -339,7 +339,7 @@ function SigningDeviceDetails({ route }) {
           CommonActions.navigate({
             name: 'AddSigningDevice',
             merge: true,
-            params: { vaultId, scheme: activeVault.scheme },
+            params: { vaultId, scheme: activeVault.scheme, keyToRotate: vaultKey },
           })
         ),
     });

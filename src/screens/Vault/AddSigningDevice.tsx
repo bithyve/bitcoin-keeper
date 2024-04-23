@@ -188,11 +188,14 @@ const setInitialKeys = (
   signerMap,
   setVaultKeys,
   setSelectedSigners,
-  selectedSigners
+  selectedSigners,
+  keyToRotate
 ) => {
   if (activeVault) {
     // setting initital keys (update if scheme has changed)
-    const vaultKeys = activeVault.signers;
+    const vaultKeys = activeVault.signers.filter(
+      (key) => keyToRotate && key.masterFingerprint !== keyToRotate?.masterFingerprint
+    );
     const isMultisig = scheme.n > 1;
     const modifiedVaultKeysForScriptType = [];
     const updatedSignerMap = new Map();
@@ -297,6 +300,9 @@ function Signers({
   navigation,
   vaultId,
   signerMap,
+  showSelection,
+  keyToRotate,
+  setCreating,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -398,20 +404,26 @@ function Signers({
         !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
         (signer.type === SignerType.MY_KEEPER &&
           myAppKeys.length >= 1 &&
-          myAppKeys[0].masterFingerprint !== signer.masterFingerprint);
+          myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+        // disabled selection during change key flow
+        (keyToRotate &&
+          (keyToRotate.masterFingerprint === signer.masterFingerprint ||
+            selectedSigners.get(signer.masterFingerprint)));
       const isAMF =
         signer.type === SignerType.TAPSIGNER &&
         config.NETWORK_TYPE === NetworkType.TESTNET &&
         !signer.isMock;
+
       return (
         <SignerCard
+          showSelection={showSelection}
           disabled={disabled}
           key={signer.masterFingerprint}
           name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
-          onCardSelect={(selected) =>
+          onCardSelect={(selected) => {
             onSignerSelect(
               selected,
               signer,
@@ -421,8 +433,12 @@ function Signers({
               selectedSigners,
               setSelectedSigners,
               showToast
-            )
-          }
+            );
+            if (keyToRotate && vaultKeys.length === scheme.n) {
+              showToast('Updating vault keys and archiving the old vault', <TickIcon />);
+              setCreating(true);
+            }
+          }}
           colorMode={colorMode}
         />
       );
@@ -430,13 +446,19 @@ function Signers({
     return signerCards;
   }, [signers]);
 
+  const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
         {signers.length ? (
           <Box style={styles.gap10}>
-            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
-              Choose from already added keys
+            <Text color={`${colorMode}.headerText`} bold style={styles.title} numberOfLines={2}>
+              {keyToRotate
+                ? `Choose the key to be rotated with ${getSignerNameFromType(signer.type)} (${
+                    keyToRotate.masterFingerprint
+                  })`
+                : 'Choose from already added keys'}
             </Text>
             <Box style={styles.addedSigners}>
               <>
@@ -480,6 +502,7 @@ function AddSigningDevice() {
       name: string;
       description: string;
       vaultId: string;
+      keyToRotate?: VaultSigner;
     };
   };
   const {
@@ -488,6 +511,7 @@ function AddSigningDevice() {
     isInheritance = false,
     vaultId = '',
     scheme,
+    keyToRotate,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
@@ -558,7 +582,8 @@ function AddSigningDevice() {
       signerMap,
       setVaultKeys,
       setSelectedSigners,
-      selectedSigners
+      selectedSigners,
+      keyToRotate
     );
   }, []);
 
@@ -684,16 +709,16 @@ function AddSigningDevice() {
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}
-        setCreating={setCreating}
         vaultKeys={vaultKeys}
         scheme={scheme}
         name={name}
         description={description}
         vaultId={vaultId}
-        generatedVaultId={generatedVaultId}
         setGeneratedVaultId={setGeneratedVaultId}
       />
       <Signers
+        keyToRotate={keyToRotate}
+        showSelection={!keyToRotate}
         signers={signers}
         selectedSigners={selectedSigners}
         setSelectedSigners={setSelectedSigners}
@@ -705,6 +730,7 @@ function AddSigningDevice() {
         navigation={navigation}
         vaultId={vaultId}
         signerMap={signerMap}
+        setCreating={setCreating}
       />
       <Footer
         amfSigners={amfSigners}
