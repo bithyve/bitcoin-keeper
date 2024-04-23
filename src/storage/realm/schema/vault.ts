@@ -197,6 +197,7 @@ export const VaultSchema: ObjectSchema = {
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
     archived: 'bool',
+    archivedId: 'string?',
     scriptType: 'string',
   },
   primaryKey: 'id',

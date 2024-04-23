@@ -99,6 +99,7 @@ export interface Vault {
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
   archived: boolean;
+  archivedId?: string;
   scriptType: ScriptTypes;
   receivingAddress?: string;
 }
