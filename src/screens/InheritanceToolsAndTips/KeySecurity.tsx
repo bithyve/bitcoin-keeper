@@ -1,11 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import OptionCard from 'src/components/OptionCard';
 import CouponIcon from 'src/assets/images/cupon.svg';
 import ServerIcon from 'src/assets/images/server-network.svg';
-
+import ServerGreyIcon from 'src/assets/images/server-network-grey.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
-import Bird from 'src/assets/images/bird.svg';
+import BirdIcon from 'src/assets/images/bird.svg';
+
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import {
@@ -15,19 +16,19 @@ import {
   SAFE_KEEPING_TIPS,
   SECURE_USAGE_TIPS,
 } from 'src/services/channel/constants';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
 import CardPill from 'src/components/CardPill';
 import Colors from 'src/theme/Colors';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
   const colorMode = useColorMode();
   const { plan } = usePlan();
-  const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const isHodlerAndDiamondHand = plan === SubscriptionTier.L3 || plan === SubscriptionTier.L2;
+
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
     navigation.navigate(path);
@@ -44,32 +45,34 @@ function KeySecurity({ navigation }) {
         //     ? 'Never accessed'
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
         // }`}
-        CardPill={
-          <CardPill
-            heading={inheritancePlanning.commingSoon}
-            backgroundColor={Colors.LightPurple}
-          />
-        }
-        title={inheritancePlanning.BuyNewHardwareSigner}
-        description={inheritancePlanning.BuyNewHardwareSignerDesp}
+        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
+        title="Buy new Hardware Signers"
+        description="Overview and discount codes"
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       /> */}
       <OptionCard
-        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
-        title={inheritancePlanning.canaryWallet}
-        description={inheritancePlanning.canaryWalletDesp}
-        LeftIcon={<Bird />}
+        disabled
+        //---for future use---
+        // preTitle={`${
+        //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
+        //     ? 'Never accessed'
+        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
+        // }`}
+        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
+        title="Canary Wallets"
+        description="Alert on key compromise"
+        LeftIcon={<BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'Holder'} />}
+      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
 
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
-        title={inheritancePlanning.assistedKeys}
-        description={inheritancePlanning.assistedKeysDesp}
-        LeftIcon={<ServerIcon />}
+        disabled={!isHodlerAndDiamondHand}
+        title="Assisted Keys"
+        description="Server hosted signers"
+        LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
       <Box paddingTop={4}>
@@ -77,8 +80,8 @@ function KeySecurity({ navigation }) {
           preTitle={`${getTimeDifferenceInWords(
             inheritanceToolVisitedHistory?.[SECURE_USAGE_TIPS]
           )}`}
-          title={inheritancePlanning.secureUsageTips}
-          description={inheritancePlanning.secureUsageTipsDesp}
+          title="Secure Usage Tips"
+          description="Recommendations while transacting"
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeGuardingTips', SECURE_USAGE_TIPS)}
         />
@@ -86,8 +89,8 @@ function KeySecurity({ navigation }) {
           preTitle={`${getTimeDifferenceInWords(
             inheritanceToolVisitedHistory?.[SAFE_KEEPING_TIPS]
           )}`}
-          title={inheritancePlanning.safeKeepingTips}
-          description={inheritancePlanning.safeKeepingTipsDesp}
+          title="Safekeeping Tips"
+          description="Key storage best practices"
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeKeepingTips', SAFE_KEEPING_TIPS)}
         />
