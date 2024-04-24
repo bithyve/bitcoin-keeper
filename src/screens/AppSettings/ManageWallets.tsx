@@ -29,6 +29,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc.svg';
+import usePlan from 'src/hooks/usePlan';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -109,6 +110,7 @@ function ManageWallets() {
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
+  const { isOnL2Above } = usePlan();
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -284,7 +286,7 @@ function ManageWallets() {
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <PasscodeVerifyModal
-            forcedMode
+            forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
             useBiometrics
             close={() => {
               setConfirmPassVisible(false);
