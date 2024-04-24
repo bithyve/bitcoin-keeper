@@ -22,10 +22,12 @@ interface Props {
   close?: Function;
   onSuccess?: Function;
   primaryText?: string;
+  forcedMode?: boolean;
 }
 
 const defaultProps: Props = {
   useBiometrics: false,
+  forcedMode: false,
 };
 
 function PasscodeVerifyModal(props: Props) {
@@ -99,11 +101,18 @@ function PasscodeVerifyModal(props: Props) {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
-      setLoginError(true);
-      setErrMessage('Incorrect Passcode! Try Again');
-      setPasscode('');
-      setAttempts(attempts + 1);
-      disableCTA();
+      console.log(props.forcedMode);
+      if (props.forcedMode) {
+        props.onSuccess(passcode);
+        props.close();
+        dispatch(credsAuthenticated(false));
+      } else {
+        setLoginError(true);
+        setErrMessage('Incorrect Passcode! Try Again');
+        setPasscode('');
+        setAttempts(attempts + 1);
+        disableCTA();
+      }
     } else {
       setLoginError(false);
       disableCTA();
