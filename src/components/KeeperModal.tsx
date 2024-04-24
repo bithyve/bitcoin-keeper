@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
 import { useKeyboard } from 'src/hooks/useKeyboard';
+import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 
 type ModalProps = {
   visible: boolean;
@@ -42,6 +43,7 @@ type ModalProps = {
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
+  showCurrencyTypeSwitch?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
   loading?: boolean;
 };
@@ -55,9 +57,9 @@ KeeperModal.defaultProps = {
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: 'light.headerText',
-  buttonCallback: () => {},
+  buttonCallback: () => { },
   secondaryButtonText: null,
-  secondaryCallback: () => {},
+  secondaryCallback: () => { },
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -66,9 +68,10 @@ KeeperModal.defaultProps = {
   showButtons: true,
   learnMore: false,
   learnMoreTitle: 'See FAQs',
-  learnMoreCallback: () => {},
+  learnMoreCallback: () => { },
   closeOnOverlayClick: true,
   showCloseIcon: true,
+  showCurrencyTypeSwitch: false,
   justifyContent: 'flex-end',
   loading: false,
 };
@@ -99,6 +102,7 @@ function KeeperModal(props: ModalProps) {
     secButtonTextColor,
     closeOnOverlayClick,
     showCloseIcon,
+    showCurrencyTypeSwitch,
     justifyContent,
     loading,
   } = props;
@@ -135,6 +139,11 @@ function KeeperModal(props: ModalProps) {
               <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                 {getCloseIcon()}
               </TouchableOpacity>
+            ) : null}
+            {showCurrencyTypeSwitch ? (
+              <Box style={styles.currencySwitch}>
+                <CurrencyTypeSwitch />
+              </Box>
             ) : null}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
@@ -241,6 +250,12 @@ const getStyles = (subTitleWidth) =>
       position: 'absolute',
       right: 20,
       top: 16,
+    },
+    currencySwitch: {
+      position: 'absolute',
+      right: 20,
+      top: 33,
+      zIndex: 999,
     },
     seeFAQs: {
       fontSize: 13,

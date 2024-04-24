@@ -332,14 +332,14 @@ function SigningDeviceDetails({ route }) {
 
   if (vaultKey) {
     footerItems.push({
-      text: 'Change Signer',
+      text: 'Change Key',
       Icon: () => <FooterIcon Icon={Change} />,
       onPress: () =>
         navigation.dispatch(
           CommonActions.navigate({
             name: 'AddSigningDevice',
             merge: true,
-            params: { vaultId, scheme: activeVault.scheme },
+            params: { vaultId, scheme: activeVault.scheme, keyToRotate: vaultKey },
           })
         ),
     });

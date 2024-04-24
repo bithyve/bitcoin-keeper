@@ -36,7 +36,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>333</string>
+	<string>337</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
@@ -58,6 +58,18 @@
 	<string>Allow Keeper requires FaceID access to allows you quick and secure access.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Please allow photo library access to campture screenshots and send app feedback</string>
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.io.hexawallet.hexakeeper</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>Keeper</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>One</string>
+		</dict>
+	</dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>FiraSans-Bold.ttf</string>
