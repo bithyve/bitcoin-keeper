@@ -72,7 +72,13 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle = '', isVault = false, showFullAddress = false, isAddress = false }) {
+function Card({
+  title,
+  subTitle = '',
+  isVault = false,
+  showFullAddress = false,
+  isAddress = false,
+}) {
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
@@ -94,7 +100,11 @@ function Card({ title, subTitle = '', isVault = false, showFullAddress = false, 
         />
       )}
       <Box style={styles.ml10}>
-        <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle} ellipsizeMode="middle">
+        <Text
+          numberOfLines={showFullAddress ? 2 : 1}
+          style={styles.cardTitle}
+          ellipsizeMode="middle"
+        >
           {title}
         </Text>
         {!showFullAddress && (
@@ -267,8 +277,9 @@ function SendingPriority({
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  description={`~${txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
-                    } mins`}
+                  description={`~${
+                    txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
+                  } mins`}
                   numberOfLines={2}
                   onCardSelect={() => setTransactionPriority(priority)}
                   customStyle={{
@@ -292,7 +303,15 @@ function SendingPriority({
   );
 }
 
-function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, getSatUnit, isAddress }) {
+function SendSuccessfulContent({
+  transactionPriority,
+  amount,
+  sender,
+  recipient,
+  getSatUnit,
+  address,
+  isAddress,
+}) {
   const { colorMode } = useColorMode();
   const { getBalance } = useBalance();
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -300,7 +319,6 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
   const { wallet: walletTransactions } = translations;
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const currencyCode = useCurrencyCode();
-
 
   const getCurrencyIcon = () => {
     if (currentCurrency === CurrencyKind.BITCOIN) {
@@ -315,9 +333,15 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Box style={styles.sentToContainer}>
           <Text>Sent To</Text>
           <Card
-            isVault={recipient?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
+            isVault={
+              recipient?.entityKind === RealmSchema.Wallet.toUpperCase()
+                ? false
+                : isAddress
+                ? false
+                : true
+            }
             // title={recipient?.presentationData?.name}
-            title={recipient?.presentationData?.name}
+            title={isAddress ? address : recipient?.presentationData?.name}
             isAddress={isAddress}
             showFullAddress={true}
           />
@@ -581,7 +605,9 @@ function SendConfirmation({ route }) {
     }[];
     selectedUTXOs: UTXO[];
   } = route.params;
-  const isAddress = transferType === TransferType.VAULT_TO_ADDRESS || transferType === TransferType.WALLET_TO_ADDRESS;
+  const isAddress =
+    transferType === TransferType.VAULT_TO_ADDRESS ||
+    transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -882,12 +908,12 @@ function SendConfirmation({ route }) {
           satsAmount={
             transferType === TransferType.WALLET_TO_VAULT
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
-                satsEnabled ? 2 : 8
-              )
+                  satsEnabled ? 2 : 8
+                )
               : addNumbers(
-                getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
-                getBalance(amount)
-              ).toFixed(satsEnabled ? 2 : 8)
+                  getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
+                  getBalance(amount)
+                ).toFixed(satsEnabled ? 2 : 8)
           }
           fontSize={17}
           fontWeight="400"
@@ -906,7 +932,6 @@ function SendConfirmation({ route }) {
         primaryLoading={inProgress}
       />
       <KeeperModal
-        // visible={true}
         visible={visibleModal}
         close={viewDetails}
         title={walletTransactions.SendSuccess}
@@ -926,6 +951,7 @@ function SendConfirmation({ route }) {
             recipient={recipient || defaultVault}
             getSatUnit={getSatUnit}
             isAddress={isAddress}
+            address={address}
           />
         )}
       />
@@ -1174,7 +1200,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
-    width: wp(100),
+    width: wp(90),
   },
   cardSubtitle: {
     fontSize: 12,

@@ -206,14 +206,18 @@ function SendScreen({ route }) {
       if (sender.entityKind === EntityKind.VAULT) {
         navigateToNext(
           WalletOperations.getNextFreeAddress(selectedItem),
-          selectedItem.entityKind === EntityKind.VAULT ? TransferType.VAULT_TO_VAULT : TransferType.VAULT_TO_WALLET,
+          selectedItem.entityKind === EntityKind.VAULT
+            ? TransferType.VAULT_TO_VAULT
+            : TransferType.VAULT_TO_WALLET,
           null,
           selectedItem
         );
       } else {
         navigateToNext(
           WalletOperations.getNextFreeAddress(selectedItem),
-          TransferType.WALLET_TO_WALLET,
+          selectedItem.entityKind === EntityKind.VAULT
+            ? TransferType.WALLET_TO_VAULT
+            : TransferType.WALLET_TO_WALLET,
           null,
           selectedItem
         );

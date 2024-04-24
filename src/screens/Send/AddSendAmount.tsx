@@ -83,8 +83,9 @@ function AddSendAmount({ route }) {
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
   const { getCurrencyIcon, getSatUnit } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
-  const isAddress = transferType === TransferType.VAULT_TO_ADDRESS || transferType === TransferType.WALLET_TO_ADDRESS;
-
+  const isAddress =
+    transferType === TransferType.VAULT_TO_ADDRESS ||
+    transferType === TransferType.WALLET_TO_ADDRESS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
