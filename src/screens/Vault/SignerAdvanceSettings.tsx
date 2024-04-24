@@ -437,20 +437,23 @@ function SignerAdvanceSettings({ route }: any) {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
         signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
       } catch (e) {
+        showToast(e.message);
         captureError(e);
       }
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
+      if (signedSerialisedPSBT) {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowQR',
+            params: {
+              data: signedSerialisedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER,
+            },
+          })
+        );
+      }
     } catch (e) {
       resetQR();
       showToast('Please scan a valid PSBT');

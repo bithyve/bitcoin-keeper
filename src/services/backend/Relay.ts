@@ -452,14 +452,12 @@ export default class Relay {
     txid: any;
     funded: any;
   }> => {
-    if (network === NetworkType.MAINNET) {
+    if (network === NetworkType.MAINNET)
       throw new Error('Invalid network: failed to fund via testnet');
-    }
-    const amount = 5000 / SATOSHIS_IN_BTC;
+
     try {
       const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
         recipientAddress,
-        amount,
       });
       const { txid, funded } = res.data;
       return {
@@ -580,9 +578,9 @@ export default class Relay {
     try {
       const response = await RestClient.get(`${RELAY}onedayGraphData`);
       const data = (response as AxiosResponse).data || (response as any).json;
-      if(data && data.graph_data.data){
+      if (data && data.graph_data.data) {
         return data.graph_data.data;
-      }else{
+      } else {
         return [];
       }
     } catch (error) {
@@ -595,9 +593,9 @@ export default class Relay {
     try {
       const response = await RestClient.get(`${RELAY}oneweekGraphData`);
       const data = (response as AxiosResponse).data || (response as any).json;
-      if(data && data.graph_data.data){
+      if (data && data.graph_data.data) {
         return data.graph_data.data;
-      }else{
+      } else {
         return [];
       }
     } catch (error) {
@@ -610,9 +608,9 @@ export default class Relay {
     try {
       const response = await RestClient.get(`${RELAY}feeInsighData`);
       const data = (response as AxiosResponse).data || (response as any).json;
-      if(data && data.insightData){
+      if (data && data.insightData) {
         return data.insightData;
-      }else{
+      } else {
         return {};
       }
     } catch (error) {
