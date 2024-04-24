@@ -20,6 +20,7 @@ import { setBackupLoading } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import EnterPasswordModal from './EnterPasswordModal';
+import useVault from 'src/hooks/useVault';
 
 const CloudBackupScreen = () => {
   const { colorMode } = useColorMode();
@@ -31,6 +32,7 @@ const CloudBackupScreen = () => {
   const { showToast } = useToastMessage();
   const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const { allVaults } = useVault({});
 
   useEffect(() => {
     if (loading) {
@@ -113,7 +115,13 @@ const CloudBackupScreen = () => {
 
       <Buttons
         primaryText={strings.backupNow}
-        primaryCallback={() => setShowPasswordModal(true)}
+        primaryCallback={() => {
+          if (allVaults.length === 0) {
+            showToast('No vaults found.', <ToastErrorIcon />);
+          } else {
+            setShowPasswordModal(true);
+          }
+        }}
         primaryLoading={loading}
         secondaryText={strings.healthCheck}
         secondaryDisable={lastBsmsBackup < 0}

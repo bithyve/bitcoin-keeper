@@ -3,7 +3,7 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import { StyleSheet, ViewStyle } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import Checked from 'src/assets/images/check.svg';
+import Checked from 'src/assets/images/check';
 
 type SignerCardProps = {
   name: string;
