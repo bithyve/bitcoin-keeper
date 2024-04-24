@@ -236,7 +236,7 @@ function SigningDeviceList() {
               title="Note"
               subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
               subtitleColor="GreyText"
-              width={wp(340)}
+              width={wp(330)}
             />
           </>
         )}
