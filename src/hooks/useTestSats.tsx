@@ -24,7 +24,7 @@ const useTestSats = ({ wallet }) => {
   useEffect(() => {
     setAppLoading(false);
     if (testCoinsReceived) {
-      showToast('5000 Sats Received', <TickIcon />);
+      showToast('50000 Sats Received', <TickIcon />);
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
         navigation.goBack();
