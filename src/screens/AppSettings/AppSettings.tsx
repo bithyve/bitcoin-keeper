@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useQuery } from '@realm/react';
 import { CommonActions } from '@react-navigation/native';
@@ -41,8 +41,7 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import DeviceInfo from 'react-native-device-info';
-import * as Zendesk from 'react-native-zendesk-messaging';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -72,32 +71,12 @@ function AppSettings({ navigation, route }) {
     }
   }, [colorMode]);
 
-  useEffect(() => {
-    Zendesk.initialize({ channelKey: config.ZENDESK_CHANNEL_ID })
-      .then(() => console.log('init success'))
-      .catch((error) => console.log('init error ', error));
-  }, []);
-
   const changeThemeMode = () => {
     toggleColorMode();
   };
 
   const initChat = async () => {
-    Zendesk.clearConversationFields();
-    Zendesk.clearConversationTags();
-    Zendesk.setConversationTags([
-      'app_settings',
-      `${Platform.OS}-${DeviceInfo.getSystemVersion()}`,
-      DeviceInfo.getVersion(),
-      `${DeviceInfo.getBrand()}-${DeviceInfo.getModel()}`,
-    ]);
-    Zendesk.setConversationFields({
-      '18084979872925': publicId,
-      '18087575177885': plan,
-      '18087673246237': DeviceInfo.getVersion(),
-      '18088921954333': JSON.stringify(versionHistory),
-    });
-    Zendesk.openMessagingView();
+    dispatch(goToConcierge([], 'app-settings'));
   };
 
   const { typeBasedIndicator } = useIndicatorHook({
