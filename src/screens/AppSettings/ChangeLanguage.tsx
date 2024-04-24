@@ -6,7 +6,6 @@ import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard
 import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
-import CountryCode from 'src/constants/CountryCode';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -17,9 +16,11 @@ import FiatCurrencies from 'src/constants/FiatCurrencies';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import Switch from 'src/components/Switch/Switch';
 import OptionCard from 'src/components/OptionCard';
+import KeeperModal from 'src/components/KeeperModal';
+import TickIcon from 'src/assets/images/icon_check.svg';
+import { hp } from 'src/constants/responsive';
 
 function ChangeLanguage() {
-  const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
   const { currencyCode, language } = useAppSelector((state) => state.settings);
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
@@ -27,16 +28,13 @@ function ChangeLanguage() {
   const dispatch = useAppDispatch();
 
   const [currencyList] = useState(FiatCurrencies);
-  const [countryList] = useState(CountryCode);
   const { colorMode } = useColorMode();
-  const [isVisible, setIsVisible] = useState(false);
-  const [Visible, setVisible] = useState(false);
+  const [showCurrency, setShowCurrency] = useState(false);
   const [showLanguages, setShowLanguages] = useState(false);
   const [currency, setCurrency] = useState(FiatCurrencies.find((cur) => cur.code === currencyCode));
   const [selectedLanguage, setSelectedLanguage] = useState(
-    availableLanguages.find((lang) => lang.iso === language)
+    availableLanguages.find((lang) => lang.country_code === language)
   );
-  const [isDisabled, setIsDisabled] = useState(true);
 
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
@@ -44,6 +42,103 @@ function ChangeLanguage() {
   const changeSatsMode = () => {
     dispatch(setSatsEnabled(!satsEnabled));
   };
+
+  function CurrencyModalContent() {
+    const { colorMode } = useColorMode();
+    const reorderedCurrency = [currency, ...currencyList.filter(cur => cur.code !== currency.code)];
+
+    return (
+      <ScrollView style={styles.currencyModal}>
+        {reorderedCurrency.map((item) => (
+          <TouchableOpacity
+            testID={`btn_currency_${item}`}
+            onPress={() => {
+              setCurrency(item);
+              setShowCurrency(false);
+              dispatch(setCurrencyCode(item.code));
+            }}
+            style={{
+              flexDirection: 'row',
+              height: wp('13%'),
+            }}
+          >
+            <Box style={styles.symbolWrapper}>
+              <Text
+                style={styles.symbolText}
+                semiBold={currency.code === item.code}
+                color={
+                  currency.code === item.code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                }
+              >
+                {item.symbol}
+              </Text>
+            </Box>
+            <Box style={styles.codeTextWrapper}>
+              <Text
+                style={styles.codeText}
+                semiBold={currency.code === item.code}
+                color={
+                  currency.code === item.code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                }
+              >
+                {item.code}
+              </Text>
+              {currency.code === item.code && <TickIcon />}
+            </Box>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    );
+  }
+
+  function LanguageModalContent() {
+    const { colorMode } = useColorMode();
+    const reorderedLanguage = [selectedLanguage, ...availableLanguages.filter(lang => lang.country_code !== selectedLanguage.country_code)];
+
+    return (
+      <ScrollView style={styles.currencyModal}>
+        {reorderedLanguage.map((item) => (
+          <TouchableOpacity
+            testID={`btn_currency_${item}`}
+            onPress={() => {
+              setSelectedLanguage(item);
+              setShowLanguages(false);
+              dispatch(setLanguage(item.country_code));
+            }}
+            style={{
+              flexDirection: 'row',
+              height: wp('13%'),
+            }}
+          >
+            <Box style={styles.symbolWrapper}>
+              <Text
+                style={styles.symbolText}
+                semiBold={selectedLanguage.country_code === item.country_code}
+                color={
+                  selectedLanguage.country_code === item.country_code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                }
+              >
+                {item.flag}
+              </Text>
+            </Box>
+            <Box style={styles.codeTextWrapper}>
+              <Text
+                style={styles.codeText}
+                semiBold={selectedLanguage.country_code === item.country_code}
+                color={
+                  selectedLanguage.country_code === item.country_code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                }
+              >
+                {`${item.country_code.toUpperCase()}- ${item.displayTitle}`}
+              </Text>
+              {selectedLanguage.country_code === item.country_code && <TickIcon />}
+            </Box>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    );
+  }
+
 
   function Menu({ label, value, onPress, arrow }) {
     return (
@@ -106,41 +201,24 @@ function ChangeLanguage() {
         />
         <Menu
           onPress={() => {
-            setVisible(!Visible);
-            setIsDisabled(false);
-            setShowLanguages(false);
+            setShowCurrency(true)
           }}
-          arrow={Visible}
+          arrow={false}
           label={currency.symbol}
           value={currency.code}
         />
-        {Visible && (
-          <ScrollView style={styles.scrollViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-            {currencyList.map((item) => (
-              <TouchableOpacity
-                testID={`btn_currency_${item}`}
-                onPress={() => {
-                  setCurrency(item);
-                  setVisible(false);
-                  dispatch(setCurrencyCode(item.code));
-                }}
-                style={{
-                  flexDirection: 'row',
-                  height: wp('13%'),
-                }}
-              >
-                <Box style={styles.symbolWrapper}>
-                  <Text style={styles.symbolText}>{item.symbol}</Text>
-                </Box>
-                <Box style={styles.codeTextWrapper}>
-                  <Text style={styles.codeText} color={`${colorMode}.GreyText`}>
-                    {item.code}
-                  </Text>
-                </Box>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
+        <KeeperModal
+          visible={showCurrency}
+          closeOnOverlayClick={true}
+          close={() => { setShowCurrency(false) }}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
+          showCloseIcon={false}
+          buttonText={null}
+          buttonCallback={() => { }}
+          Content={CurrencyModalContent}
+        />
         <CountrySwitchCard
           title={settings.LanguageSettings}
           description={settings.Chooseyourlanguage}
@@ -152,42 +230,24 @@ function ChangeLanguage() {
         <Menu
           onPress={() => {
             // Do not remove this
-            setShowLanguages(!showLanguages);
-            setIsDisabled(false);
-            setVisible(false);
+            setShowLanguages(true);
           }}
-          arrow={showLanguages}
+          arrow={false}
           label={selectedLanguage.flag}
           value={`${selectedLanguage.country_code.toUpperCase()}- ${selectedLanguage.displayTitle}`}
         />
-        {showLanguages && (
-          <ScrollView style={styles.langScrollViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-            {availableLanguages.map((item) => (
-              <TouchableOpacity
-                testID={`btn_language_${item}`}
-                key={item.iso}
-                onPress={() => {
-                  setAppLanguage(item.iso);
-                  setShowLanguages(false);
-                  setIsVisible(false);
-                  dispatch(setLanguage(item.iso));
-                  setSelectedLanguage(availableLanguages.find((lang) => lang.iso === item.iso));
-                }}
-                style={styles.flagWrapper1}
-              >
-                <Box style={styles.flagWrapper2}>
-                  <Text style={styles.flagStyle}>{item.flag}</Text>
-                </Box>
-                <Box style={styles.countryCodeWrapper1}>
-                  <Text style={styles.countryCodeWrapper2} color={`${colorMode}.GreyText`}>
-                    <Text style={styles.countryCodeText}>{item.country_code}</Text>
-                    <Text>{`- ${item.displayTitle}`}</Text>
-                  </Text>
-                </Box>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
+        <KeeperModal
+          visible={showLanguages}
+          closeOnOverlayClick={true}
+          close={() => { setShowLanguages(false) }}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
+          showCloseIcon={false}
+          buttonText={null}
+          buttonCallback={() => { }}
+          Content={LanguageModalContent}
+        />
       </Box>
     </ScreenWrapper>
   );
@@ -283,11 +343,13 @@ const styles = StyleSheet.create({
   },
   codeTextWrapper: {
     flex: 1,
-    justifyContent: 'center',
     height: wp('13%'),
     borderBottomWidth: 1,
     borderBottomColor: Colors.Platinum,
-
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingRight: 10,
   },
   codeText: {
     fontSize: 13,
@@ -301,7 +363,6 @@ const styles = StyleSheet.create({
   flagWrapper2: {
     height: wp('13%'),
     width: wp('15%'),
-    // marginLeft: wp('8%'),
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
@@ -311,6 +372,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
+  },
+  currencyModal: {
+    height: hp(400),
   },
   countryCodeWrapper1: {
     flex: 1,
