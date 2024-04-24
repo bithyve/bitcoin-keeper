@@ -184,14 +184,14 @@ function SendScreen({ route }) {
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         const type =
-          sender?.entityKind === 'VAULT'
+          sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
         navigateToNext(address, type, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
         const transferType =
-          sender?.entityKind === 'VAULT'
+          sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
         navigateToNext(address, transferType, amount ? amount.toString() : null, null);
@@ -330,9 +330,9 @@ function SendScreen({ route }) {
       {showNote && (
         <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Note
-            title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
+            title={sender.entityKind === EntityKind.VAULT ? 'Security Tip' : common.note}
             subtitle={
-              sender.entityKind === 'VAULT'
+              sender.entityKind === EntityKind.VAULT
                 ? 'Check the send-to address on a signer you are going to use to sign the transaction.'
                 : 'Make sure the address or QR is the one where you want to send the funds to'
             }

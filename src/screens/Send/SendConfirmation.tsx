@@ -19,7 +19,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { TxPriority } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
 import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
@@ -340,7 +339,6 @@ function SendSuccessfulContent({
                 ? false
                 : true
             }
-            // title={recipient?.presentationData?.name}
             title={isAddress ? address : recipient?.presentationData?.name}
             isAddress={isAddress}
             showFullAddress={true}
