@@ -24,7 +24,7 @@ const useTestSats = ({ wallet }) => {
   useEffect(() => {
     setAppLoading(false);
     if (testCoinsReceived) {
-      showToast('Test Sats Received', <TickIcon />);
+      showToast('Testnet Sats Received', <TickIcon />);
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
         navigation.goBack();
