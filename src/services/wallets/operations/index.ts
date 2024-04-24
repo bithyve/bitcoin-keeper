@@ -419,6 +419,33 @@ export default class WalletOperations {
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
   };
 
+  static mockFeeRates = () => {
+    // final safety net, enables send flow and consequently the usability of custom fee during fee-info failure scenarios
+
+    // high fee: 10 minutes
+    const highFeeBlockEstimate = 1;
+    const high = {
+      feePerByte: 3,
+      estimatedBlocks: highFeeBlockEstimate,
+    };
+
+    // medium fee: 30 mins
+    const mediumFeeBlockEstimate = 3;
+    const medium = {
+      feePerByte: 2,
+      estimatedBlocks: mediumFeeBlockEstimate,
+    };
+
+    // low fee: 60 mins
+    const lowFeeBlockEstimate = 6;
+    const low = {
+      feePerByte: 1,
+      estimatedBlocks: lowFeeBlockEstimate,
+    };
+    const feeRatesByPriority = { high, medium, low };
+    return feeRatesByPriority;
+  };
+
   static estimateFeeRatesViaElectrum = async () => {
     try {
       // high fee: 10 minutes
@@ -446,7 +473,7 @@ export default class WalletOperations {
       return feeRatesByPriority;
     } catch (err) {
       console.log('Failed to fetch fee via Fulcrum', { err });
-      throw new Error('Failed to fetch fee');
+      throw new Error('Failed to fetch fee via Fulcrum');
     }
   };
 
@@ -497,7 +524,12 @@ export default class WalletOperations {
       return feeRatesByPriority;
     } catch (err) {
       console.log('Failed to fetch fee via mempool.space', { err });
-      return WalletOperations.estimateFeeRatesViaElectrum();
+      try {
+        return WalletOperations.estimateFeeRatesViaElectrum();
+      } catch (err) {
+        console.log({ err });
+        return WalletOperations.mockFeeRates();
+      }
     }
   };
 
