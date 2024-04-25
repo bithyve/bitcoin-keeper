@@ -44,6 +44,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { formatNumber } from 'src/utils/utilities';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import ImportIcon from 'src/assets/images/import.svg';
 
 function Footer({
   vault,
@@ -53,34 +54,42 @@ function Footer({
   isCollaborativeWallet: boolean;
 }) {
   const navigation = useNavigation();
-  const footerItems = [
-    {
-      Icon: SendIcon,
-      text: 'Send',
-      onPress: () => {
-        navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-      },
-    },
-    {
-      Icon: RecieveIcon,
-      text: 'Receive',
-      onPress: () => {
-        navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
-      },
-    },
-    {
-      Icon: SettingIcon,
-      text: 'Settings',
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate(
-            isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-            { vaultId: vault.id }
-          )
-        );
-      },
-    },
-  ];
+  const footerItems = vault.archived
+    ? [
+        {
+          Icon: ImportIcon,
+          text: 'Reinstate',
+          onPress: () => {},
+        },
+      ]
+    : [
+        {
+          Icon: SendIcon,
+          text: 'Send',
+          onPress: () => {
+            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+          },
+        },
+        {
+          Icon: RecieveIcon,
+          text: 'Receive',
+          onPress: () => {
+            navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+          },
+        },
+        {
+          Icon: SettingIcon,
+          text: 'Settings',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.navigate(
+                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+                { vaultId: vault.id }
+              )
+            );
+          },
+        },
+      ];
   return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
 
@@ -254,50 +263,52 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           <VaultInfo vault={vault} />
         </VStack>
       </VStack>
-      <HStack style={styles.actionCardContainer}>
-        {!isCanaryWallet && (
+      {!vault.archived && (
+        <HStack style={styles.actionCardContainer}>
+          {!isCanaryWallet && (
+            <ActionCard
+              cardName={'Buy Bitcoin'}
+              description="into this wallet"
+              callback={() =>
+                navigation.dispatch(
+                  CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
+                )
+              }
+              icon={<BTC />}
+              cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+                currencyCodeExchangeRate.buy.toFixed(0)
+              )}`}
+            />
+          )}
           <ActionCard
-            cardName={'Buy Bitcoin'}
-            description="into this wallet"
+            cardName="View All Coins"
+            description="Manage UTXO"
             callback={() =>
-              navigation.dispatch(
-                CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
-              )
+              navigation.navigate('UTXOManagement', {
+                data: vault,
+                routeName: 'Vault',
+                vaultId,
+              })
             }
-            icon={<BTC />}
-            cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-              currencyCodeExchangeRate.buy.toFixed(0)
-            )}`}
+            icon={<CoinIcon />}
           />
-        )}
-        <ActionCard
-          cardName="View All Coins"
-          description="Manage UTXO"
-          callback={() =>
-            navigation.navigate('UTXOManagement', {
-              data: vault,
-              routeName: 'Vault',
-              vaultId,
-            })
-          }
-          icon={<CoinIcon />}
-        />
-        {!isCanaryWallet && (
-          <ActionCard
-            cardName="Manage Keys"
-            description="For this vault"
-            callback={() =>
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ManageSigners',
-                  params: { vaultId, vaultKeys: vault.signers },
-                })
-              )
-            }
-            icon={<SignerIcon />}
-          />
-        )}
-      </HStack>
+          {!isCanaryWallet && (
+            <ActionCard
+              cardName="Manage Keys"
+              description="For this vault"
+              callback={() =>
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'ManageSigners',
+                    params: { vaultId, vaultKeys: vault.signers },
+                  })
+                )
+              }
+              icon={<SignerIcon />}
+            />
+          )}
+        </HStack>
+      )}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <TransactionList
           transactions={transactions}
