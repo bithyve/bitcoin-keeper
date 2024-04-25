@@ -19,8 +19,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { TxPriority } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
+import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
@@ -62,20 +62,48 @@ const customFeeOptionTransfers = [
   TransferType.WALLET_TO_WALLET,
   TransferType.WALLET_TO_ADDRESS,
 ];
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { RealmSchema } from 'src/storage/realm/enum';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletsIcon from 'src/assets/images/daily_wallet.svg';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle = '', isVault = false, showFullAddress = false }) {
+function Card({
+  title,
+  subTitle = '',
+  isVault = false,
+  showFullAddress = false,
+  isAddress = false,
+}) {
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
-      {isVault ? <VaultIcon /> : <WalletIcon />}
+      {isVault ? (
+        <VaultIcon />
+      ) : isAddress ? (
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.pantoneGreen}
+          icon={<AddressIcon />}
+        />
+      ) : (
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.pantoneGreen}
+          icon={<WalletsIcon />}
+        />
+      )}
       <Box style={styles.ml10}>
-        <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle}>
+        <Text
+          numberOfLines={showFullAddress ? 2 : 1}
+          style={styles.cardTitle}
+          ellipsizeMode="middle"
+        >
           {title}
         </Text>
         {!showFullAddress && (
@@ -99,6 +127,7 @@ function SendingCard({
   transferType,
   getBalance,
   getSatUnit,
+  isAddress,
 }) {
   const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
@@ -146,6 +175,8 @@ function SendingCard({
           <Card
             title={address}
             subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            showFullAddress={true}
+            isAddress={isAddress}
           />
         );
       case TransferType.WALLET_TO_WALLET:
@@ -186,6 +217,7 @@ function SendingCard({
             title={address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
             showFullAddress={true}
+            isAddress={isAddress}
           />
         );
     }
@@ -270,7 +302,15 @@ function SendingPriority({
   );
 }
 
-function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, getSatUnit }) {
+function SendSuccessfulContent({
+  transactionPriority,
+  amount,
+  sender,
+  recipient,
+  getSatUnit,
+  address,
+  isAddress,
+}) {
   const { colorMode } = useColorMode();
   const { getBalance } = useBalance();
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -292,15 +332,22 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Box style={styles.sentToContainer}>
           <Text>Sent To</Text>
           <Card
-            isVault={recipient.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
-            title={recipient?.presentationData?.name}
+            isVault={
+              recipient?.entityKind === RealmSchema.Wallet.toUpperCase()
+                ? false
+                : isAddress
+                ? false
+                : true
+            }
+            title={isAddress ? address : recipient?.presentationData?.name}
+            isAddress={isAddress}
             showFullAddress={true}
           />
         </Box>
         <Box style={styles.sentFromContainer}>
           <Text>Sent From</Text>
           <Card
-            isVault={sender.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
+            isVault={sender?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
             subTitle={`${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
@@ -556,6 +603,9 @@ function SendConfirmation({ route }) {
     }[];
     selectedUTXOs: UTXO[];
   } = route.params;
+  const isAddress =
+    transferType === TransferType.VAULT_TO_ADDRESS ||
+    transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -810,6 +860,7 @@ function SendConfirmation({ route }) {
           transferType={transferType}
           getBalance={getBalance}
           getSatUnit={getSatUnit}
+          isAddress={isAddress}
         />
         {/* Custom priority diabled for auto transfer  */}
         {transferType !== TransferType.WALLET_TO_VAULT ? (
@@ -897,6 +948,8 @@ function SendConfirmation({ route }) {
             sender={sender || sourceWallet}
             recipient={recipient || defaultVault}
             getSatUnit={getSatUnit}
+            isAddress={isAddress}
+            address={address}
           />
         )}
       />
@@ -1145,7 +1198,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
-    width: wp(100),
+    width: wp(90),
   },
   cardSubtitle: {
     fontSize: 12,

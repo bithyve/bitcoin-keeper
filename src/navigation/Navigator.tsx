@@ -97,10 +97,8 @@ import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
-import Login from '../screens/LoginScreen/Login';
 import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/InheritanceToolsAndTips';
 import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
-import { AppStackParams } from './types';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
 import CloudBackupScreen from 'src/screens/CloudBackup/CloudBackupScreen';
 import SignerSettings from 'src/screens/SigningDevices/SignerSettings';
@@ -122,6 +120,10 @@ import RecoveryPhraseTemplate from 'src/screens/InheritanceToolsAndTips/componen
 import TrustedContactTemplates from 'src/screens/InheritanceToolsAndTips/components/TrustedContactsTemplate';
 import AdditionalSignerDetailsTemplate from 'src/screens/InheritanceToolsAndTips/components/AdditionalSignerDetailsTemplate';
 import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
+import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
+import { useAppSelector } from 'src/store/hooks';
+import { AppStackParams } from './types';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -304,8 +306,13 @@ function Navigator() {
   const onReady = () => {
     routingInstrumentation.registerNavigationContainer(navigation);
   };
+
+  const { onboardingModal } = useAppSelector((state) => state.concierge);
+
   return (
     <NavigationContainer theme={defaultTheme} ref={navigation} onReady={onReady}>
+      <ZendeskOnboardingModal visible={onboardingModal} />
+
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />

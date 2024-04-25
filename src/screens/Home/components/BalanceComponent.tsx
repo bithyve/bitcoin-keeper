@@ -38,6 +38,7 @@ export default BalanceComponent;
 const styles = StyleSheet.create({
   walletWrapper: {
     justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 20,
   },
   noOfWallet: {

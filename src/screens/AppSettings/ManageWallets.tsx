@@ -306,7 +306,7 @@ function ManageWallets() {
         Content={() => (
           <PasscodeVerifyModal
             forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
-            useBiometrics
+            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
