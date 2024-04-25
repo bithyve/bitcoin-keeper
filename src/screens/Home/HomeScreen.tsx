@@ -115,7 +115,7 @@ function NewHomeScreen({ navigation }) {
       },
     },
     {
-      name: `Need\nHelp?`,
+      name: `Keeper\nConcierge`,
       icon: <FaqIcon />,
       callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
