@@ -614,17 +614,18 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
 
   try {
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const filteredSigners = existingSigners.filter((s) => !s.archived);
     const signerMap = Object.fromEntries(
-      existingSigners.map((signer) => [signer.masterFingerprint, signer])
+      filteredSigners.map((signer) => [signer.masterFingerprint, signer])
     );
-    const signersToUpdate = [];
+    let signersToUpdate = [];
 
     try {
       // update signers with signer count
       let incrementForCurrentSigners = 0;
       signers = signers.map((signer) => {
         if (signer.type === SignerType.MY_KEEPER) {
-          const myAppKeys = existingSigners.filter((s) => s.type === SignerType.MY_KEEPER);
+          const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
           const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
           const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
           signer.extraData = { instanceNumber: instanceNumberToSet + 1 };
@@ -693,6 +694,13 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       }
     }
     if (signersToUpdate.length) {
+      const signerMap = Object.fromEntries(
+        existingSigners.map((signer) => [signer.masterFingerprint, signer])
+      );
+      signersToUpdate = signersToUpdate.map((s) => {
+        const isSignerArchived = signerMap[s.masterFingerprint].archived;
+        return isSignerArchived ? { ...s, archived: false, hidden: false } : s;
+      });
       yield put(setRelaySignersUpdateLoading(true));
       const response = yield call(updateAppImageWorker, { payload: { signers: signersToUpdate } });
       if (response.updated) {
