@@ -44,26 +44,6 @@ Before getting started, make sure you have a proper [React Native development en
 
 ## Build and Run
 
-### Whirlpool prerequisites
-
-To use the Whirlpool, you'll need to have the following platform-specific binaries and place them in the specified directories:
-
-#### Android
-
-- Extract [jniLibs](https://github.com/bithyve/bitcoin-keeper/releases/download/v1.0.8/jniLibs.zip) to the following directory if not present already:
-
-```bash
-android/app/src/main/
-```
-
-#### iOS
-
-- Copy the [libwhirlpool.a](https://github.com/bithyve/bitcoin-keeper/releases/download/v1.0.8/libwhirlpool.a) to the following directory:
-
-```bash
-ios/libwhirlpool.a
-```
-
 ### Varients
 
 The project has testnet and mainnet variants. The development variant is configured to use testnet and the production variant to use mainnet.
