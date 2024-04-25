@@ -65,6 +65,7 @@ export interface Signer {
   inheritanceKeyInfo?: InheritanceKeyInfo; // IKS config and policy
   hidden: boolean;
   extraData?: SignerExtraData;
+  archived?: boolean;
 }
 
 export type RegisteredVaultInfo = {
