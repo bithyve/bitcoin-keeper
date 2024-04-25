@@ -1487,7 +1487,7 @@ function* deleteVaultWorker({ payload }) {
     const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
     const updatedParams = {
       archived: true,
-      archivedId: vault.archivedId ? vault.archivedId : vault.id,
+      archivedId: null,
     };
     const response = yield call(updateVaultImageWorker, {
       payload: {
