@@ -562,18 +562,29 @@ export function* addNewVaultWorker({
     }
 
     yield put(setRelayVaultUpdateLoading(true));
-    const response = isMigrated
-      ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : yield call(updateVaultImageWorker, { payload: { vault } });
+    const newVaultResponse = yield call(updateVaultImageWorker, { payload: { vault } });
 
-    if (response.updated) {
+    if (newVaultResponse.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
       yield put(uaiChecks([uaiType.SECURE_VAULT]));
 
       if (isMigrated) {
-        yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, {
+        let oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+        const updatedParams = {
           archived: true,
+          archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
+        };
+        const archivedVaultresponse = yield call(updateVaultImageWorker, {
+          payload: {
+            vault: {
+              ...oldVault,
+              ...updatedParams,
+            },
+          },
         });
+        if (archivedVaultresponse.updated) {
+          yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, updatedParams);
+        }
       }
 
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
@@ -803,7 +814,12 @@ export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAU
 function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
   try {
     const { vaultId } = payload;
-    const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    const oldVault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON() as Vault;
+    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    migratedVault = {
+      ...migratedVault,
+      archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
+    };
     const migrated = yield call(addNewVaultWorker, {
       payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
     });
@@ -1468,9 +1484,22 @@ function* deleteVaultWorker({ payload }) {
   const { vaultId } = payload;
   try {
     yield put(setRelayVaultUpdateLoading(true));
-    const response = yield call(deleteVaultImageWorker, { payload: { vaultIds: [vaultId] } });
+    const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
+    const updatedParams = {
+      archived: true,
+      archivedId: vault.archivedId ? vault.archivedId : vault.id,
+    };
+    const response = yield call(updateVaultImageWorker, {
+      payload: {
+        vault: {
+          ...vault,
+          ...updatedParams,
+        },
+        isUpdate: true,
+      },
+    });
     if (response.updated) {
-      yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
       yield put(relayVaultUpdateSuccess());
     } else {
       yield put(relayVaultUpdateFail(response.error));

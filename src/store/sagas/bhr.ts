@@ -157,7 +157,7 @@ export function* updateVaultImageWorker({
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
-    const response = Relay.updateVaultImage({
+    const response = yield call(Relay.updateVaultImage, {
       isUpdate,
       vaultId: vault.id,
       vault: vaultEncrypted,
