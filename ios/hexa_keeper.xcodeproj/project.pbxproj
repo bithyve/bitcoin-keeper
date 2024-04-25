@@ -833,7 +833,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 337;
+				CURRENT_PROJECT_VERSION = 340;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -941,7 +941,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -965,7 +965,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Bithyve UK Ltd (Y5TCB759QL)";
-				CURRENT_PROJECT_VERSION = 337;
+				CURRENT_PROJECT_VERSION = 340;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1073,7 +1073,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1228,7 +1228,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 337;
+				CURRENT_PROJECT_VERSION = 340;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -1337,7 +1337,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1363,7 +1363,7 @@
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CURRENT_PROJECT_VERSION = 337;
+				CURRENT_PROJECT_VERSION = 340;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
@@ -1472,7 +1472,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
