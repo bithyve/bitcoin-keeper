@@ -227,7 +227,11 @@
     "Thiswillbesecured": "This will be secured once it crosses 0.1 btc",
     "SecureNow": "Secure Now",
     "ScanQR": "Scan a QR",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "ManageKeys": "Manage\nKeys",
+    "InheritancePlanning": "Inheritance\nPlanning",
+    "NeedHelp": "Need\nHelp?",
+    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed"
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
