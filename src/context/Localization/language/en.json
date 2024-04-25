@@ -782,7 +782,10 @@
     "addSignerSubTitle": "to Valinor",
     "addSigners": "Add Signers",
     "addKeys": "Add keys",
-    "keyDetails": "Key Details"
+    "addKey": "Add key",
+    "keyDetails": "Key Details",
+    "ManageKeys": "Manage Keys",
+    "ViewAndChangeKeyDetails": "View and change key details"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
