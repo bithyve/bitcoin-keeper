@@ -23,6 +23,7 @@ interface Props {
   onSuccess?: Function;
   primaryText?: string;
   forcedMode?: boolean;
+  onForceSuccess?: Function;
 }
 
 const defaultProps: Props = {
@@ -101,9 +102,8 @@ function PasscodeVerifyModal(props: Props) {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
-      console.log(props.forcedMode);
       if (props.forcedMode) {
-        props.onSuccess(passcode);
+        props.onForceSuccess();
         props.close();
         dispatch(credsAuthenticated(false));
       } else {
