@@ -1,6 +1,6 @@
 # Bitcoin Keeper - Secure today, plan for tomorrow
 
-Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, Whirlpool, and Hardware Wallet support. Built with React Native
+Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, and Hardware Wallet support. Built with React Native
 
 <img width="1412" alt="Screenshot 2024-03-12 at 5 23 03 PM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/03dc7d17-a946-4cc7-9d13-bbc5d74b771b">
 
@@ -15,7 +15,7 @@ Bitcoin Keeper is an open source, bitcoin-only app designed for seasoned bitcoin
 - Supports most of the trusted hardware wallets
 - Several softkey options including Assisted Keys
 - Ready to use Mobile Key when you setup a vault
-- Manage UTXOs and whirlpool them in the hot wallet
+- Manage UTXOs
 - Plan bitcoin inheritance
 - In-app chat and Concierge services coming soon
 
