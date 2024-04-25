@@ -20,6 +20,7 @@ function WalletSendInfo({
   isSats = false,
   currencyIcon = BTCIcon,
   selectedUTXOs = [],
+  isAddress = false,
   icon,
 }) {
   const { colorMode } = useColorMode();
@@ -49,7 +50,7 @@ function WalletSendInfo({
             </Text>
           ) : (
             <Box>
-              <Text fontSize={14} numberOfLines={1}>
+              <Text fontSize={14} numberOfLines={1} ellipsizeMode={isAddress ? "middle" : "tail"}>
                 {walletName}
               </Text>
               <CurrencyInfo

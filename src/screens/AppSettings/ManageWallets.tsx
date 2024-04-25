@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode, HStack } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
@@ -33,6 +33,14 @@ import DeleteIcon from 'src/assets/images/delete_bin.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { deleteVault } from 'src/store/sagaActions/vaults';
+import ShowAllIcon from 'src/assets/images/show_wallet.svg';
+import HideAllIcon from 'src/assets/images/hide_wallet.svg';
+import usePlan from 'src/hooks/usePlan';
+
+enum PasswordMode {
+  DEFAULT = 'DEFAULT',
+  SHOWALL = 'SHOWALL',
+}
 
 function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, entityKind }) {
   const { colorMode } = useColorMode();
@@ -93,23 +101,28 @@ function ManageWallets() {
 
   const { allVaults } = useVault({ includeArchived: false });
   const allWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter((item) => item !== null);
+  const [showAll, setshowAll] = useState(false);
+  const [showAllForced, setShowAllForced] = useState(false);
+  const [passwordMode, setPasswordMode] = useState(PasswordMode.DEFAULT);
 
-  const visibleWallets = wallets.filter(
+  const visibleWallets = allWallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
   );
-  const hiddenWallets = wallets.filter(
+
+  const hiddenWallets = allWallets.filter(
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [confirmPasscodeVisible, setConfirmPasscodeVisible] = useState(false);
 
+  const { isOnL2Above } = usePlan();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
   const [selectedWallet, setSelectedWallet] = useState(null);
-
+  const { showToast } = useToastMessage();
   useEffect(() => {
     calculateBalanceAfterVisblityChange();
   }, [wallets]);
@@ -127,7 +140,21 @@ function ManageWallets() {
   };
 
   const onProceed = () => {
-    updateWalletVisibility(selectedWallet, false);
+    if (passwordMode === PasswordMode.DEFAULT) {
+      updateWalletVisibility(selectedWallet, false);
+      showToast('Wallet is now unhidden', <TickIcon />);
+    }
+    if (passwordMode === PasswordMode.SHOWALL) {
+      setshowAll(true);
+      showToast('Showing all wallets', <TickIcon />);
+    }
+  };
+
+  const onForceProceed = () => {
+    if (passwordMode === PasswordMode.SHOWALL) {
+      setShowAllForced(true);
+      showToast('Showing hidden wallets', <TickIcon />);
+    }
   };
 
   const deleteSelectedVault = () => {
@@ -213,7 +240,7 @@ function ManageWallets() {
         rightComponent={<CurrencyTypeSwitch />}
       />
       <FlatList
-        data={allWallets}
+        data={showAll ? [...visibleWallets, ...hiddenWallets] : [...visibleWallets]}
         extraData={[visibleWallets, hiddenWallets]}
         contentContainerStyle={styles.walletsContainer}
         renderItem={({ item }) => (
@@ -226,6 +253,7 @@ function ManageWallets() {
             visibilityToggle={() => {
               setSelectedWallet(item);
               if (item.presentationData.visibility === VisibilityType.HIDDEN) {
+                setPasswordMode(PasswordMode.DEFAULT);
                 setConfirmPassVisible(true);
               } else {
                 updateWalletVisibility(item, true);
@@ -241,17 +269,28 @@ function ManageWallets() {
         keyExtractor={(item) => item.id}
       />
 
-      {/* TODO: showAll/hideAll wallet functionality
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
-      <Pressable onPress={() => setShowAll(true)} style={styles.footer}>
+      <Pressable
+        onPress={() => {
+          if (showAll) {
+            setshowAll(!showAll);
+            setShowAllForced(false);
+          } else if (showAllForced) {
+            setShowAllForced(!showAllForced);
+          } else {
+            setPasswordMode(PasswordMode.SHOWALL);
+            setConfirmPassVisible(true);
+          }
+        }}
+        style={styles.footer}
+      >
         <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.bottomIcon}>
-          <ShowAllIcon />
+          {showAll || showAllForced ? <HideAllIcon /> : <ShowAllIcon />}
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
-          Show all
+          {showAll || showAllForced ? `Hide hidden wallets` : `Show hidden wallets`}
         </Text>
-      </Pressable> */}
-
+      </Pressable>
       <KeeperModal
         dismissible
         close={() => {
@@ -267,7 +306,6 @@ function ManageWallets() {
         showButtons
         showCloseIcon={false}
       />
-
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
@@ -281,11 +319,13 @@ function ManageWallets() {
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <PasscodeVerifyModal
-            useBiometrics
+            forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
+            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
             onSuccess={onProceed}
+            onForceSuccess={onForceProceed}
           />
         )}
       />
