@@ -32,6 +32,7 @@ const initialState: {
   inheritanceRequestId: string;
   recoveryAppCreated: boolean;
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
+  dontShowConceirgeOnboarding: boolean;
 } = {
   appId: '',
   resetCred: {
@@ -62,6 +63,7 @@ const initialState: {
     TRUSTED_CONTACTS_TEMPLATE: null,
     ADDITIONAL_SIGNER_DETAILS: null,
   },
+  dontShowConceirgeOnboarding: false,
 };
 
 const storageSlice = createSlice({
@@ -109,6 +111,9 @@ const storageSlice = createSlice({
     setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
       state.recoveryAppCreated = action.payload;
     },
+    setDontShowConceirgeOnboarding: (state) => {
+      state.dontShowConceirgeOnboarding = true;
+    },
   },
 });
 
@@ -122,6 +127,7 @@ export const {
   setInheritanceRequestId,
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
+  setDontShowConceirgeOnboarding,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

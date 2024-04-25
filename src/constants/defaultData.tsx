@@ -1,4 +1,3 @@
-import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import React from 'react';
 import LoadingAnimation from 'src/components/Loader';
 import InheritanceToolsIllustartion from 'src/components/SVGComponents/InheritanceToolsIllustartion';
@@ -34,7 +33,7 @@ export const securityTips = [
     message: 'Consult your estate planner for incorporating documents from this app in your will.',
   },
   {
-    title: 'Keep your signers safe',
+    title: 'Keep your Signers safe',
     subTitle: 'Signers are what control your funds.',
     assert: <LoadingAnimation />,
     message:

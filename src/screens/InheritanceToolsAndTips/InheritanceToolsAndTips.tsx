@@ -27,9 +27,9 @@ function InheritanceToolsAndTips({ navigation }) {
 
   let setPadding;
   if (selectedCard === 3) {
-    setPadding = hp(40);
+    setPadding = hp(20);
   } else {
-    setPadding = isSmallDevice ? 50 : 0;
+    setPadding = isSmallDevice && selectedCard === 3 ? hp(30) : 0;
   }
 
   const onCardSelect = (id: number) => {
@@ -42,7 +42,7 @@ function InheritanceToolsAndTips({ navigation }) {
       <KeeperHeader
         title={inheritence.SecurityAndInheritance}
         subtitle={inheritence.SecurityAndInheritanceDescp}
-        // To-Do-Learn-More
+      // To-Do-Learn-More
       />
       <HStack style={[styles.container, { paddingBottom: setPadding }]}>
         <WalletCard

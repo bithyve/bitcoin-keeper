@@ -62,6 +62,7 @@ import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './sto
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
+import { openConceirgeWatcher, goToConceirgeWatcher } from './concierge';
 
 const rootSaga = function* () {
   const sagas = [
@@ -144,6 +145,9 @@ const rootSaga = function* () {
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
     bulkUpdateUTXOLabelWatcher,
+    // concierge
+    openConceirgeWatcher,
+    goToConceirgeWatcher,
   ];
 
   yield all(

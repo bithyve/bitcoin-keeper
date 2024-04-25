@@ -22,7 +22,7 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CardPill from 'src/components/CardPill';
@@ -36,6 +36,7 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
@@ -90,6 +91,12 @@ function WalletDetails({ route }: ScreenProps) {
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
+
+  let isTaprootWallet = false;
+  const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
+  if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
+    isTaprootWallet = true;
+  }
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -151,7 +158,7 @@ function WalletDetails({ route }: ScreenProps) {
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
             <CardPill
-              heading="SINGLE SIG"
+              heading={isTaprootWallet ? 'TAPROOT' : 'SINGLE SIG'}
               backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
             />
             <CardPill heading={wallet.type} />

@@ -25,7 +25,8 @@ def common_pods
     use_frameworks! :linkage => linkage.to_sym
   end
   config = use_native_modules!
-
+  pod 'PDFGenerator'
+  pod 'QRCoder'
   # Flags change depending on the env values.
   flags = get_default_flags()
 

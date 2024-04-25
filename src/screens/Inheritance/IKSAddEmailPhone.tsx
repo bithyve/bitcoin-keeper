@@ -88,7 +88,6 @@ function IKSAddEmailPhone({ route }) {
       <KeeperHeader title="Add Email" subtitle="To receive periodic notifications" />
       <Box style={styles.inputWrapper}>
         <Input
-          placeholderTextColor="grey"
           backgroundColor={`${colorMode}.primaryBackground`}
           placeholder="Add email Id"
           placeholderTextColor={`${colorMode}.SlateGreen`}
