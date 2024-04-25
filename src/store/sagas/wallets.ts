@@ -100,6 +100,7 @@ import {
   DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
+  REINSTATE_VAULT,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
 import {
@@ -732,23 +733,16 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
     }
 
     if (signersToDelete.length) {
-      yield put(setRelaySignersUpdateLoading(true));
-      const response = yield call(deleteAppImageEntityWorker, {
-        payload: { signerIds: signersToDeleteIds },
-      });
-      if (response.updated) {
-        for (const signer of signersToDelete) {
-          yield call(
-            dbManager.deleteObjectByPrimaryKey,
-            RealmSchema.Signer,
-            'masterFingerprint',
-            signer.masterFingerprint
-          );
-        }
-        yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
-      } else {
-        yield put(relaySignersUpdateFail(response.error));
+      for (let i = 0; i < signersToDelete.length; i++) {
+        yield call(updateSignerDetailsWorker, {
+          payload: {
+            signer: signersToDelete[i],
+            key: 'archived',
+            value: true,
+          },
+        });
       }
+      yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
     }
   } catch (error) {
     captureError(error);
@@ -1510,3 +1504,38 @@ function* deleteVaultWorker({ payload }) {
 }
 
 export const deleteVaultyWatcher = createWatcher(deleteVaultWorker, DELETE_VAULT);
+
+function* reinstateVaultWorker({ payload }) {
+  const { vaultId } = payload;
+  try {
+    yield put(setRelayVaultUpdateLoading(true));
+    const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
+    const updatedParams = {
+      archived: false,
+      archivedId: null,
+      presentationData: {
+        ...vault.presentationData,
+        visibility: VisibilityType.DEFAULT,
+      },
+    };
+    const response = yield call(updateVaultImageWorker, {
+      payload: {
+        vault: {
+          ...vault,
+          ...updatedParams,
+        },
+        isUpdate: true,
+      },
+    });
+    if (response.updated) {
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
+      yield put(relayVaultUpdateSuccess());
+    } else {
+      yield put(relayVaultUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
+  }
+}
+
+export const reinstateVaultWatcher = createWatcher(reinstateVaultWorker, REINSTATE_VAULT);

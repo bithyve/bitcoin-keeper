@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -10,9 +10,8 @@ import KeeperModal from 'src/components/KeeperModal';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
 import SettingIcon from 'src/assets/images/settings_footer.svg';
-import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { SignerType, VaultType } from 'src/services/wallets/enums';
@@ -21,8 +20,6 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
 import openLink from 'src/utils/OpenLink';
@@ -45,6 +42,9 @@ import { formatNumber } from 'src/utils/utilities';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import ImportIcon from 'src/assets/images/import.svg';
+import { reinstateVault } from 'src/store/sagaActions/vaults';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function Footer({
   vault,
@@ -54,12 +54,17 @@ function Footer({
   isCollaborativeWallet: boolean;
 }) {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const footerItems = vault.archived
     ? [
         {
           Icon: ImportIcon,
           text: 'Reinstate',
-          onPress: () => {},
+          onPress: () => {
+            dispatch(reinstateVault(vault.id));
+            showToast('Vault reinstated successfully', <TickIcon />);
+          },
         },
       ]
     : [
