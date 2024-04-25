@@ -2,7 +2,7 @@
 
 Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, and Hardware Wallet support. Built with React Native
 
-<img width="1412" alt="Screenshot 2024-03-12 at 5 23 03 PM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/03dc7d17-a946-4cc7-9d13-bbc5d74b771b">
+<img width="1396" alt="Screenshot 2024-04-25 at 11 08 39 AM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/1e08c786-f376-4e04-8bee-0917718cf870">
 
 [![Playstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/gpbtn.png)](https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper)
 [![Appstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/applebtn.png)](https://apps.apple.com/us/app/bitcoin-keeper/id1545535925)
