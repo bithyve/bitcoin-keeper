@@ -26,6 +26,8 @@ import SignerCard from '../AddSigner/SignerCard';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import SettingIcon from 'src/assets/images/settings.svg';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -40,6 +42,10 @@ function ManageSigners({ route }: ScreenProps) {
   const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
+
+  const { typeBasedIndicator } = useIndicatorHook({
+    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
+  });
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
@@ -107,6 +113,7 @@ function ManageSigners({ route }: ScreenProps) {
           handleCardSelect={handleCardSelect}
           handleAddSigner={handleAddSigner}
           vault={activeVault}
+          typeBasedIndicator={typeBasedIndicator}
         />
       </Box>
     </Box>
@@ -121,6 +128,7 @@ function SignersList({
   handleCardSelect,
   handleAddSigner,
   vault,
+  typeBasedIndicator,
 }: {
   colorMode: string;
   vaultKeys: VaultSigner[];
@@ -129,6 +137,7 @@ function SignersList({
   handleCardSelect: any;
   handleAddSigner: any;
   vault: Vault;
+  typeBasedIndicator: any;
 }) {
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
 
@@ -147,11 +156,12 @@ function SignersList({
               : false;
 
             const showDot =
-              vaultKeys.length &&
-              !UNVERIFYING_SIGNERS.includes(signer.type) &&
-              !isRegistered &&
-              !signer.isMock &&
-              vault.isMultiSig;
+              (vaultKeys.length &&
+                !UNVERIFYING_SIGNERS.includes(signer.type) &&
+                !isRegistered &&
+                !signer.isMock &&
+                vault.isMultiSig) ||
+              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
 
             const isAMF =
               signer.type === SignerType.TAPSIGNER &&

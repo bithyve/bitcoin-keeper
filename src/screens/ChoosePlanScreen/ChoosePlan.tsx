@@ -444,7 +444,7 @@ function ChoosePlan() {
                 )}
               </Box>
             </Box>
-            {items?.[currentPosition]?.name !== 'Pleb' && (
+            {items?.[currentPosition]?.comingSoon && (
               <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
                 * COMING SOON
               </Text>

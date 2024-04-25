@@ -210,6 +210,7 @@ export default function WhirlpoolConfiguration({ route }) {
           title="Configure Whirlpool"
           subtitle="Prepare to start a mix"
           learnMore
+          learnTextColor={`${colorMode}.white`}
           learnMorePressed={() => setScodeModalVisible(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} keyboardShouldPersistTaps="always">

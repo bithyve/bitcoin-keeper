@@ -23,6 +23,7 @@ export function TopSection({ colorMode, top, cardsData }) {
             icon={data.icon}
             dottedBorder
             cardPillText={data?.cardPillText}
+            customStyle={styles.actionCard}
           />
         ))}
       </Box>
@@ -48,4 +49,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: hp(230),
   },
+  actionCard: { justifyContent: 'flex-end' },
 });

@@ -8,7 +8,7 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
-import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { NetworkType, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -19,7 +19,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -29,7 +29,11 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
-import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
+import {
+  generateSignerFromMetaData,
+  getSignerDescription,
+  getSignerNameFromType,
+} from 'src/hardware';
 import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -37,10 +41,15 @@ import { SDIcons } from './SigningDeviceIcons';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
+import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
+import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import TickIcon from 'src/assets/images/tick_icon.svg';
 
 const { width } = Dimensions.get('screen');
 
-const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) => {
+const getKeyForScheme = (isMultisig, signer, msXpub, ssXpub, amfXpub) => {
   if (amfXpub) {
     return {
       ...amfXpub,
@@ -51,7 +60,7 @@ const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) =>
       ),
     };
   }
-  if (isMock || isMultisig) {
+  if (isMultisig) {
     return {
       ...msXpub,
       masterFingerprint: signer.masterFingerprint,
@@ -113,7 +122,7 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
-    const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub, amfXpub);
+    const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
     const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
@@ -121,18 +130,7 @@ const onSignerSelect = (
   }
 };
 
-const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
-  const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
-  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
-  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
-
-  if (
-    (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
-    (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
-  ) {
-    return false;
-  }
-
+const isAssistedKeyValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
     // scheme based restrictions for assisted keys
     if (signer.type === SignerType.POLICY_SERVER) {
@@ -162,6 +160,23 @@ const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigne
   return true;
 };
 
+const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
+  const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
+  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+
+  if (
+    (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
+    (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
+  ) {
+    return false;
+  }
+
+  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+  } else return true;
+};
+
 const setInitialKeys = (
   activeVault,
   scheme,
@@ -184,14 +199,7 @@ const setInitialKeys = (
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
           const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
-          const scriptKey = getKeyForScheme(
-            signer.isMock,
-            isMultisig,
-            signer,
-            msXpub,
-            ssXpub,
-            amfXpub
-          );
+          const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
           if (scriptKey) {
             modifiedVaultKeysForScriptType.push(scriptKey);
           }
@@ -285,9 +293,103 @@ function Signers({
   vaultId,
   signerMap,
 }) {
+  const { level } = useSubscriptionLevel();
+  const dispatch = useDispatch();
+
+  const navigateToSigningServerSetup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChoosePolicyNew',
+        params: { signer: undefined, addSignerFlow: false, vaultId: '' },
+      })
+    );
+  };
+
+  const setupInheritanceKey = async () => {
+    try {
+      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
+      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { signer: inheritanceKey } = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        masterFingerprint,
+        signerType: SignerType.INHERITANCEKEY,
+        storageType: SignerStorage.WARM,
+        xfp: id,
+        isMultisig: true,
+      });
+      dispatch(addSigningDevice([inheritanceKey]));
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
+      navigation.goBack();
+    } catch (err) {
+      console.log({ err });
+      showToast('Failed to add inheritance key', <TickIcon />);
+    }
+  };
+
+  const renderAssistedKeysShell = () => {
+    // tier-based, display only, till an actual assisted keys is setup
+    const shellAssistedKeys = [];
+
+    const generateShellAssistedKey = (signerType: SignerType): Signer => {
+      return {
+        type: signerType,
+        storageType: SignerStorage.WARM,
+        signerName: getSignerNameFromType(signerType, false, false),
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+        masterFingerprint: '',
+        signerXpubs: {},
+        hidden: false,
+      };
+    };
+
+    let hasSigningServer = false; // actual signing server present?
+    let hasInheritanceKey = false; // actual inheritance key present?
+    for (let signer of signers) {
+      if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
+      else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
+    }
+
+    if (!hasSigningServer && level >= AppSubscriptionLevel.L2)
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
+
+    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3)
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
+
+    return shellAssistedKeys.map((shellSigner) => {
+      const disabled = !isAssistedKeyValidForScheme(
+        shellSigner,
+        scheme,
+        signerMap,
+        selectedSigners
+      );
+      const isAMF = false;
+      return (
+        <SignerCard
+          disabled={disabled}
+          key={shellSigner.masterFingerprint}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          description={'To setup'}
+          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
+          onCardSelect={() => {
+            if (shellSigner.type === SignerType.POLICY_SERVER) navigateToSigningServerSetup();
+            else if (shellSigner.type === SignerType.INHERITANCEKEY) setupInheritanceKey();
+          }}
+          colorMode={colorMode}
+        />
+      );
+    });
+  };
+
   const renderSigners = () => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
-    return signers.map((signer) => {
+    const signerCards = signers.map((signer) => {
       const disabled =
         !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
         (signer.type === SignerType.MY_KEEPER &&
@@ -321,6 +423,9 @@ function Signers({
         />
       );
     });
+
+    const shellAssistedKeyCards = renderAssistedKeysShell();
+    return [...signerCards, ...shellAssistedKeyCards];
   };
   return (
     <ScrollView showsVerticalScrollIndicator={false}>

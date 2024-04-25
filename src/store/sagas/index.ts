@@ -42,6 +42,8 @@ import {
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
   updateVaultImageWatcher,
+  backupBsmsOnCloudWatcher,
+  bsmsCloudHealthCheckWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -49,6 +51,7 @@ import {
   corssTransferWatcher,
   fetchExchangeRatesWatcher,
   fetchFeeRatesWatcher,
+  fetchOneDayInsightWatcher,
   sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
@@ -73,6 +76,7 @@ const rootSaga = function* () {
 
     // network
     connectToNodeWatcher,
+    fetchOneDayInsightWatcher,
 
     // notification
     updateFCMTokensWatcher,
@@ -129,6 +133,8 @@ const rootSaga = function* () {
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,
+    backupBsmsOnCloudWatcher,
+    bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,
     // upgrade
     updateVersionHistoryWatcher,

@@ -74,7 +74,7 @@ function VaultSetup({ route }: ScreenProps) {
     }
   };
   const onDecreaseN = () => {
-    if (scheme.n > 1 && scheme.n > scheme.m) {
+    if (scheme.n > 2 && scheme.n > scheme.m) {
       setScheme({ ...scheme, n: scheme.n - 1 });
     }
   };
@@ -118,7 +118,7 @@ function VaultSetup({ route }: ScreenProps) {
       <KeeperHeader
         title={preDefinedScheme ? vault.SetupyourVault : vault.AddCustomMultiSig}
         subtitle={vault.configureScheme}
-      // To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <VStack style={{ margin: 20, flex: 1 }}>
@@ -133,7 +133,7 @@ function VaultSetup({ route }: ScreenProps) {
               }
             }}
             testID="vault_name"
-            maxLength={20}
+            maxLength={18}
           />
           <Box style={{ height: 20 }} />
           <KeeperTextInput
@@ -141,7 +141,7 @@ function VaultSetup({ route }: ScreenProps) {
             value={vaultDescription}
             onChangeText={setVaultDescription}
             testID="vault_description"
-            maxLength={40}
+            maxLength={20}
             height={20}
           />
           <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />

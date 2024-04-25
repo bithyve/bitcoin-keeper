@@ -2,7 +2,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
-import { VisibilityType } from 'src/services/wallets/enums';
+import { VaultType, VisibilityType } from 'src/services/wallets/enums';
 
 type Params =
   | {
@@ -30,7 +30,9 @@ const useVault = ({
     : allVaults.filtered('archived != true').map(getJSONFromRealmObject);
 
   const allNonHiddenNonArchivedVaults = allVaults.filter(
-    (vault) => vault.presentationData.visibility === VisibilityType.DEFAULT
+    (vault) =>
+      vault.presentationData.visibility === VisibilityType.DEFAULT &&
+      vault.type !== VaultType.CANARY
   );
   if (!vaultId) {
     if (getHiddenWallets) {

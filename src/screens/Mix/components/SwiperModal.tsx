@@ -28,8 +28,8 @@ function SwiperModalContent({ contentTitle, contentSubTitle }) {
   );
 }
 
-const renderItem = ({ item }) => (
-  <Box style={styles.contentContaner}>
+const RenderItem = ({ item, currentPosition }) => (
+  <Box style={{ width: windowHeight < 650 ? wp(286) : currentPosition == 0 ? wp(310) : wp(300) }}>
     <SwiperModalContent
       contentTitle={item.firstContentHeading.contentTitle}
       contentSubTitle={item.firstContentHeading.contentSubTitle}
@@ -86,7 +86,7 @@ function List() {
       <FlatList
         ref={listRef}
         data={swiperData}
-        renderItem={renderItem}
+        renderItem={({ item }) => <RenderItem item={item} currentPosition={currentPosition} />}
         keyExtractor={(item) => item.id}
         nestedScrollEnabled
         horizontal

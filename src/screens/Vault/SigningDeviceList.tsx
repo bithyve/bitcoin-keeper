@@ -23,7 +23,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useSigners from 'src/hooks/useSigners';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
@@ -51,6 +51,7 @@ function SigningDeviceList() {
     vaultId: string;
     vaultSigners?: VaultSigner[];
   } = route.params as any;
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
@@ -78,7 +79,7 @@ function SigningDeviceList() {
   function VaultSetupContent() {
     return (
       <View>
-        <Box alignSelf="center">
+        <Box style={styles.alignCenter}>
           <SigningDevicesIllustration />
         </Box>
         <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
@@ -103,6 +104,7 @@ function SigningDeviceList() {
     SignerType.SPECTER,
     SignerType.BITBOX02,
     SignerType.KEEPER,
+    SignerType.MY_KEEPER,
     SignerType.SEED_WORDS,
     SignerType.KEYSTONE,
     // SignerType.MOBILE_KEY,
@@ -115,20 +117,32 @@ function SigningDeviceList() {
     const [visible, setVisible] = useState(false);
 
     const onPress = () => {
+      if (shouldUpgrade) {
+        navigateToUpgrade();
+        return;
+      }
       open();
     };
 
     const open = () => setVisible(true);
     const close = () => setVisible(false);
+    const shouldUpgrade = message.includes('upgrade');
 
+    const navigateToUpgrade = () => {
+      navigation.navigate('ChoosePlan');
+    };
     return (
       <React.Fragment key={type}>
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={disabled}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={onPress}
+          disabled={disabled && !shouldUpgrade}
+        >
           <Box
             backgroundColor={`${colorMode}.seashellWhite`}
             borderTopRadius={first ? 10 : 0}
             borderBottomRadius={last ? 10 : 0}
-            alignItems={'center'}
+            style={styles.container}
           >
             {type === SignerType.TREZOR && (
               <Box style={styles.cardPillContainer}>
@@ -186,71 +200,69 @@ function SigningDeviceList() {
           dispatch(setSdIntroModal(true));
         }}
       />
-      <Box style={styles.scrollViewContainer}>
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          {!signersLoaded ? (
-            <ActivityIndicator />
-          ) : (
-            <>
-              <Box paddingY="4">
-                {sortedSigners?.map((type: SignerType, index: number) => {
-                  const { disabled, message: connectivityStatus } = getDeviceStatus(
-                    type,
-                    isNfcSupported,
-                    isOnL1,
-                    isOnL2,
-                    scheme,
-                    signers,
-                    addSignerFlow
-                  );
-                  let message = connectivityStatus;
-                  if (!connectivityStatus) {
-                    message = getSDMessage({ type });
-                  }
-                  return (
-                    <HardWareWallet
-                      key={type}
-                      type={type}
-                      first={index === 0}
-                      last={index === sortedSigners.length - 1}
-                      disabled={disabled}
-                      message={message}
-                    />
-                  );
-                })}
-              </Box>
-              <Note
-                title="Note"
-                subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
-                subtitleColor="GreyText"
-                width={wp(340)}
-              />
-            </>
-          )}
-        </ScrollView>
-        <KeeperModal
-          visible={sdModal}
-          close={() => {
-            dispatch(setSdIntroModal(false));
-          }}
-          title="Signers"
-          subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
-          modalBackground={`${colorMode}.modalGreenBackground`}
-          buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-          buttonBackground={`${colorMode}.modalWhiteButton`}
-          buttonText="Add Now"
-          buttonCallback={() => {
-            dispatch(setSdIntroModal(false));
-          }}
-          textColor={`${colorMode}.modalGreenContent`}
-          Content={VaultSetupContent}
-          DarkCloseIcon
-          learnMore
-          learnMoreCallback={() =>
-            openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
-          }
-        />
-      </Box>
+      <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+        {!signersLoaded ? (
+          <ActivityIndicator />
+        ) : (
+          <>
+            <Box paddingY="4">
+              {sortedSigners?.map((type: SignerType, index: number) => {
+                const { disabled, message: connectivityStatus } = getDeviceStatus(
+                  type,
+                  isNfcSupported,
+                  isOnL1,
+                  isOnL2,
+                  scheme,
+                  signers,
+                  addSignerFlow
+                );
+                let message = connectivityStatus;
+                if (!connectivityStatus) {
+                  message = getSDMessage({ type });
+                }
+                return (
+                  <HardWareWallet
+                    key={type}
+                    type={type}
+                    first={index === 0}
+                    last={index === sortedSigners.length - 1}
+                    disabled={disabled}
+                    message={message}
+                  />
+                );
+              })}
+            </Box>
+            <Note
+              title="Note"
+              subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
+              subtitleColor="GreyText"
+              width={wp(340)}
+            />
+          </>
+        )}
+      </ScrollView>
+      <KeeperModal
+        visible={sdModal}
+        close={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+        title="Signers"
+        subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonText="Add Now"
+        buttonCallback={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={VaultSetupContent}
+        DarkCloseIcon
+        learnMore
+        learnMoreCallback={() =>
+          openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
+        }
+      />
     </ScreenWrapper>
   );
 }
@@ -261,11 +273,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 5,
     padding: 1,
-  },
-  scrollViewContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
   },
   scrollViewWrapper: {
     height: windowHeight > 800 ? '76%' : '74%',
@@ -314,7 +321,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 40,
     top: 15,
-    width: 65,
+  },
+  alignCenter: {
+    alignSelf: 'center',
+  },
+  container: {
+    alignItems: 'center',
   },
 });
 export default SigningDeviceList;

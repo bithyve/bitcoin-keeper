@@ -9,7 +9,7 @@ import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 import { Alert, StyleSheet } from 'react-native';
@@ -138,7 +138,6 @@ type ScreenProps = NativeStackScreenProps<AppStackParams, 'UTXOManagement'>;
 function UTXOManagement({ route, navigation }: ScreenProps) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
-  const styles = getStyles();
   const { data, routeName, accountType, vaultId = '' } = route.params || {};
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
@@ -258,66 +257,59 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <KeeperHeader
-        learnMore
+        // learnMore
         learnMorePressed={() => setLearnModalVisible(true)}
         learnTextColor={`${colorMode}.white`}
+        title={wallet?.presentationData?.name}
+        subtitle={wallet?.presentationData?.description}
+        icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
       />
-      {isWhirlpoolWallet ? (
-        <AccountSelectionTab
-          selectedAccount={selectedAccount}
-          setSelectedAccount={setSelectedAccount}
-          updateSelectedWallet={updateSelectedWallet}
-          setEnableSelection={setEnableSelection}
-        />
-      ) : (
-        <HStack marginBottom={10}>
-          <Box paddingX={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
-          <VStack>
-            <Text color={`${colorMode}.greenText`} style={[styles.vaultInfoText, { fontSize: 16 }]}>
-              {wallet?.presentationData?.name}
-            </Text>
-            <Text color={`${colorMode}.black`} style={[styles.vaultInfoText, { fontSize: 12 }]}>
-              {wallet?.presentationData?.description}
-            </Text>
-          </VStack>
-        </HStack>
-      )}
-      {enableSelection ? (
-        <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
-      ) : null}
-      <UTXOList
-        utxoState={utxos}
-        enableSelection={enableSelection}
-        setSelectionTotal={setSelectionTotal}
-        selectedUTXOMap={selectedUTXOMap}
-        setSelectedUTXOMap={setSelectedUTXOMap}
-        currentWallet={selectedWallet}
-        emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
-        selectedAccount={selectedAccount}
-        initateWhirlpoolMix={initateWhirlpoolMix}
-      />
-      {utxos?.length ? (
-        <Footer
-          utxos={utxos}
-          setInitiateWhirlpool={setInitiateWhirlpool}
-          setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-          depositWallet={depositWallet}
-          wallet={selectedWallet}
-          setEnableSelection={setEnableSelection}
-          initiateWhirlpool={initiateWhirlpool}
-          initateWhirlpoolMix={initateWhirlpoolMix}
-          setIsRemix={setIsRemix}
-          isRemix={isRemix}
+      <Box style={styles.contentContainer}>
+        {/* {isWhirlpoolWallet && (
+          <AccountSelectionTab
+            selectedAccount={selectedAccount}
+            setSelectedAccount={setSelectedAccount}
+            updateSelectedWallet={updateSelectedWallet}
+            setEnableSelection={setEnableSelection}
+          />
+        )} */}
+        {enableSelection ? (
+          <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
+        ) : null}
+        <UTXOList
+          utxoState={utxos}
           enableSelection={enableSelection}
-          selectedUTXOs={selectedUTXOs}
-          setShowBatteryWarningModal={setShowBatteryWarningModal}
-          setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
+          setSelectionTotal={setSelectionTotal}
+          selectedUTXOMap={selectedUTXOMap}
+          setSelectedUTXOMap={setSelectedUTXOMap}
+          currentWallet={selectedWallet}
+          emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
           selectedAccount={selectedAccount}
-          setRemixingToVault={setRemixingToVault}
-          remixingToVault={remixingToVault}
-          vaultId={vaultId}
+          initateWhirlpoolMix={initateWhirlpoolMix}
         />
-      ) : null}
+        {utxos?.length ? (
+          <Footer
+            utxos={utxos}
+            setInitiateWhirlpool={setInitiateWhirlpool}
+            setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+            depositWallet={depositWallet}
+            wallet={selectedWallet}
+            setEnableSelection={setEnableSelection}
+            initiateWhirlpool={initiateWhirlpool}
+            initateWhirlpoolMix={initateWhirlpoolMix}
+            setIsRemix={setIsRemix}
+            isRemix={isRemix}
+            enableSelection={enableSelection}
+            selectedUTXOs={selectedUTXOs}
+            setShowBatteryWarningModal={setShowBatteryWarningModal}
+            setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
+            selectedAccount={selectedAccount}
+            setRemixingToVault={setRemixingToVault}
+            remixingToVault={remixingToVault}
+            vaultId={vaultId}
+          />
+        ) : null}
+      </Box>
       <KeeperModal
         justifyContent="flex-end"
         visible={showBatteryWarningModal}
@@ -384,10 +376,10 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         }}
       />
 
-      <InitiateWhirlpoolModal
+      {/* <InitiateWhirlpoolModal
         visible={whirlpoolIntroModal}
         closeModal={() => dispatch(setWhirlpoolIntro(false))}
-      />
+      /> */}
       <ErrorCreateTxoModal
         visible={txoErrorModalVisible}
         closeModal={() => setTxoErrorModalVisible(false)}
@@ -395,34 +387,38 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
     </ScreenWrapper>
   );
 }
-const getStyles = () =>
-  StyleSheet.create({
-    vaultInfoText: {
-      marginLeft: wp(3),
-      letterSpacing: 1.28,
-    },
-    mixSuccesModalFooter: {
-      marginTop: 20,
-      flexDirection: 'row',
-      alignContent: 'flex-end',
-      justifyContent: 'flex-end',
-      width: '100%',
-    },
-    batteryModalContent: {
-      marginTop: 20,
-      alignContent: 'center',
-      justifyContent: 'center',
-      width: '100%',
-    },
-    batteryImage: {
-      alignSelf: 'center',
-    },
-    batteryModalTextArea: {
-      marginTop: 40,
-    },
-    batteryModalText: {
-      marginTop: 10,
-      letterSpacing: 1.28,
-    },
-  });
+const styles = StyleSheet.create({
+  vaultInfoText: {
+    marginLeft: wp(3),
+    letterSpacing: 1.28,
+  },
+  mixSuccesModalFooter: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignContent: 'flex-end',
+    justifyContent: 'flex-end',
+    width: '100%',
+  },
+  batteryModalContent: {
+    marginTop: 20,
+    alignContent: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  batteryImage: {
+    alignSelf: 'center',
+  },
+  batteryModalTextArea: {
+    marginTop: 40,
+  },
+  batteryModalText: {
+    marginTop: 10,
+    letterSpacing: 1.28,
+  },
+  contentContainer: {
+    flex: 1,
+    marginTop: hp(30),
+  },
+});
+
 export default UTXOManagement;
