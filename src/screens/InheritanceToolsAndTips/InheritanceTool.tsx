@@ -2,7 +2,7 @@ import { ScrollView } from 'native-base';
 import React, { useContext } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
-import VaultGreyIcon from 'src/assets/images/vault-grey.svg'
+import VaultGreyIcon from 'src/assets/images/vault-grey.svg';
 import File from 'src/assets/images/files.svg';
 import FileDisable from 'src/assets/images/files-disable.svg';
 
@@ -14,7 +14,6 @@ import ContactIcon from 'src/assets/images/contacts.svg';
 import ContactGreyIcon from 'src/assets/images/contacts-grey.svg';
 import AdditionalDetailIcon from 'src/assets/images/addtional_details.svg';
 import AdditionalDetailGreyIcon from 'src/assets/images/additional-detail-grey.svg';
-
 
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
@@ -35,8 +34,9 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function InheritanceTool({ navigation }) {
   const dispatch = useAppDispatch();
   const { plan } = usePlan();
-  const isHodlerAndDiamondHand = plan === SubscriptionTier.L3 || plan === SubscriptionTier.L2;
-  const isDiamondHand = plan === SubscriptionTier.L3;
+  const isHodlerAndDiamondHand =
+    plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L2.toUpperCase();
+  const isDiamondHand = plan === SubscriptionTier.L3.toUpperCase();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);

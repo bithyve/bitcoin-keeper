@@ -1,7 +1,6 @@
 import React from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import OptionCard from 'src/components/OptionCard';
-import CouponIcon from 'src/assets/images/cupon.svg';
 import ServerIcon from 'src/assets/images/server-network.svg';
 import ServerGreyIcon from 'src/assets/images/server-network-grey.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
@@ -11,7 +10,6 @@ import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import {
   ASSISTED_KEYS,
-  BUY_NEW_HARDWARE_SIGNER,
   CANARY_WALLETS,
   SAFE_KEEPING_TIPS,
   SECURE_USAGE_TIPS,
@@ -25,9 +23,9 @@ import Colors from 'src/theme/Colors';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
-  const colorMode = useColorMode();
   const { plan } = usePlan();
-  const isHodlerAndDiamondHand = plan === SubscriptionTier.L3 || plan === SubscriptionTier.L2;
+  const isHodlerAndDiamondHand =
+    plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L2.toUpperCase();
 
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {

@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
@@ -35,6 +35,30 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BitcoinIllustration from '../../assets/images/btc-illustration.svg';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
+
+function AddCoSignerContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
+  return (
+    <Box style={{ gap: 20 }}>
+      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+        {wallet.addCoSignerDesc}
+      </Text>
+      <Box style={styles.bitcoinIllustration}>
+        <BitcoinIllustration />
+      </Box>
+      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+        {wallet.addCoSignerDescTwo}
+      </Text>
+    </Box>
+  );
+}
 
 function SignerItem({
   vaultKey,
@@ -120,6 +144,9 @@ function SetupCollaborativeWallet() {
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
+  const [visibleModal, setVisibleModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const pushSigner = (
     xpub,
@@ -282,7 +309,15 @@ function SetupCollaborativeWallet() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Add Signers" subtitle="A 2 of 3 collaborative wallet will be created" />
+      <KeeperHeader
+        title="Add Signers"
+        subtitle="A 2 of 3 collaborative wallet will be created"
+        learnMore
+        learnMorePressed={() => {
+          setVisibleModal(true);
+        }}
+        learnTextColor={`${colorMode}.white`}
+      />
       <FlatList
         horizontal
         keyboardShouldPersistTaps="always"
@@ -315,6 +350,22 @@ function SetupCollaborativeWallet() {
         walletType={walletType}
         walletName={walletName}
         walletDescription={walletDescription}
+      />
+      <KeeperModal
+        visible={visibleModal}
+        close={() => {
+          setVisibleModal(false);
+        }}
+        title={'Add a co-signer'}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={AddCoSignerContent}
+        learnMore
+        learnMoreTitle={common.needMoreHelp}
+        // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+        buttonCallback={() => setVisibleModal(false)}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
       />
     </ScreenWrapper>
   );
@@ -366,6 +417,14 @@ const styles = StyleSheet.create({
     height: 125,
     width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
+  },
+  bitcoinIllustration: {
+    alignSelf: 'center',
+  },
+  addCoSigner: {
+    letterSpacing: 0.13,
+    lineHeight: 18,
+    width: wp(295),
   },
 });
 
