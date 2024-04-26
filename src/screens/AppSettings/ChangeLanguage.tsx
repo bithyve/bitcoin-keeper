@@ -33,7 +33,7 @@ function ChangeLanguage() {
   const [showLanguages, setShowLanguages] = useState(false);
   const [currency, setCurrency] = useState(FiatCurrencies.find((cur) => cur.code === currencyCode));
   const [selectedLanguage, setSelectedLanguage] = useState(
-    availableLanguages.find((lang) => lang.country_code === language)
+    availableLanguages.find((lang) => lang.iso === language)
   );
 
   const { translations } = useContext(LocalizationContext);
@@ -45,7 +45,10 @@ function ChangeLanguage() {
 
   function CurrencyModalContent() {
     const { colorMode } = useColorMode();
-    const reorderedCurrency = [currency, ...currencyList.filter(cur => cur.code !== currency.code)];
+    const reorderedCurrency = [
+      currency,
+      ...currencyList.filter((cur) => cur.code !== currency.code),
+    ];
 
     return (
       <ScrollView style={styles.currencyModal}>
@@ -93,7 +96,10 @@ function ChangeLanguage() {
 
   function LanguageModalContent() {
     const { colorMode } = useColorMode();
-    const reorderedLanguage = [selectedLanguage, ...availableLanguages.filter(lang => lang.country_code !== selectedLanguage.country_code)];
+    const reorderedLanguage = [
+      selectedLanguage,
+      ...availableLanguages.filter((lang) => lang.country_code !== selectedLanguage.country_code),
+    ];
 
     return (
       <ScrollView style={styles.currencyModal}>
@@ -103,7 +109,7 @@ function ChangeLanguage() {
             onPress={() => {
               setSelectedLanguage(item);
               setShowLanguages(false);
-              dispatch(setLanguage(item.country_code));
+              dispatch(setLanguage(item.iso));
             }}
             style={{
               flexDirection: 'row',
@@ -115,7 +121,9 @@ function ChangeLanguage() {
                 style={styles.symbolText}
                 semiBold={selectedLanguage.country_code === item.country_code}
                 color={
-                  selectedLanguage.country_code === item.country_code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                  selectedLanguage.country_code === item.country_code
+                    ? `${colorMode}.headerText`
+                    : `${colorMode}.GreyText`
                 }
               >
                 {item.flag}
@@ -126,7 +134,9 @@ function ChangeLanguage() {
                 style={styles.codeText}
                 semiBold={selectedLanguage.country_code === item.country_code}
                 color={
-                  selectedLanguage.country_code === item.country_code ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                  selectedLanguage.country_code === item.country_code
+                    ? `${colorMode}.headerText`
+                    : `${colorMode}.GreyText`
                 }
               >
                 {`${item.country_code.toUpperCase()}- ${item.displayTitle}`}
@@ -138,7 +148,6 @@ function ChangeLanguage() {
       </ScrollView>
     );
   }
-
 
   function Menu({ label, value, onPress, arrow }) {
     return (
@@ -201,7 +210,7 @@ function ChangeLanguage() {
         />
         <Menu
           onPress={() => {
-            setShowCurrency(true)
+            setShowCurrency(true);
           }}
           arrow={false}
           label={currency.symbol}
@@ -210,13 +219,15 @@ function ChangeLanguage() {
         <KeeperModal
           visible={showCurrency}
           closeOnOverlayClick={true}
-          close={() => { setShowCurrency(false) }}
+          close={() => {
+            setShowCurrency(false);
+          }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
           DarkCloseIcon={colorMode === 'dark'}
           showCloseIcon={false}
           buttonText={null}
-          buttonCallback={() => { }}
+          buttonCallback={() => {}}
           Content={CurrencyModalContent}
         />
         <CountrySwitchCard
@@ -239,13 +250,15 @@ function ChangeLanguage() {
         <KeeperModal
           visible={showLanguages}
           closeOnOverlayClick={true}
-          close={() => { setShowLanguages(false) }}
+          close={() => {
+            setShowLanguages(false);
+          }}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.primaryText`}
           DarkCloseIcon={colorMode === 'dark'}
           showCloseIcon={false}
           buttonText={null}
-          buttonCallback={() => { }}
+          buttonCallback={() => {}}
           Content={LanguageModalContent}
         />
       </Box>
