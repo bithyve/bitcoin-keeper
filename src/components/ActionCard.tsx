@@ -34,8 +34,8 @@ function ActionCard({
         style={[
           styles.cardContainer,
           { ...customStyle },
-          { minHeight: isSmallDevice && hp(145) },
-          { minWidth: isSmallDevice && wp(110) },
+          // { minHeight: isSmallDevice && hp(145) },
+          // { minWidth: isSmallDevice && wp(110) },
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
@@ -66,8 +66,8 @@ function ActionCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: wp(104),
-    height: hp(114),
+    width: wp(115),
+    height: hp(155),
     paddingVertical: hp(10),
     paddingLeft: 10,
     paddingRight: 6,
