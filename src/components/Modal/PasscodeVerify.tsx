@@ -22,13 +22,16 @@ interface Props {
   close?: Function;
   onSuccess?: Function;
   primaryText?: string;
+  forcedMode?: boolean;
+  onForceSuccess?: Function;
 }
 
 const defaultProps: Props = {
   useBiometrics: false,
+  forcedMode: false,
 };
 
-function PasscodeVerifyModal(props: Props) {
+function PasscodeVerifyModal({ useBiometrics, close, onSuccess, primaryText }: Props) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -43,8 +46,8 @@ function PasscodeVerifyModal(props: Props) {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
-    if (props.useBiometrics) biometricAuth();
-  }, [props.useBiometrics]);
+    if (useBiometrics) biometricAuth();
+  }, [useBiometrics]);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -99,11 +102,17 @@ function PasscodeVerifyModal(props: Props) {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
-      setLoginError(true);
-      setErrMessage('Incorrect Passcode! Try Again');
-      setPasscode('');
-      setAttempts(attempts + 1);
-      disableCTA();
+      if (props.forcedMode) {
+        props.onForceSuccess();
+        props.close();
+        dispatch(credsAuthenticated(false));
+      } else {
+        setLoginError(true);
+        setErrMessage('Incorrect Passcode! Try Again');
+        setPasscode('');
+        setAttempts(attempts + 1);
+        disableCTA();
+      }
     } else {
       setLoginError(false);
       disableCTA();
@@ -112,8 +121,8 @@ function PasscodeVerifyModal(props: Props) {
 
   useEffect(() => {
     if (isAuthenticated) {
-      props.onSuccess(passcode);
-      props.close();
+      onSuccess(passcode);
+      close();
       dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
@@ -145,7 +154,7 @@ function PasscodeVerifyModal(props: Props) {
               setLoginError(false);
               attemptLogin(passcode);
             }}
-            primaryText={props.primaryText ? props.primaryText : common.proceed}
+            primaryText={primaryText ? primaryText : common.proceed}
             activeOpacity={0.5}
             primaryDisable={btnDisable}
           />
