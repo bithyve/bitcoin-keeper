@@ -33,13 +33,12 @@ function ConciergeOnboardingModal({ visible }) {
     if (pageNo === 1) {
       return (
         <View style={styles.contentContainer}>
-          <Box alignSelf="center">
+          {/* <Box alignSelf="center">
             <VaultSetupIcon />
-          </Box>
+          </Box> */}
           <Text style={styles.contentText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            Get all your queries answered with Keeper Concierge. Upgrade to Hodler to chat with a
+            support executive and Diamond Hands to schedule calls.
           </Text>
           <Box marginTop={4} alignSelf="flex-end">
             <CustomButton value="Next" disabled={false} onPress={() => setPageNo(2)} />
@@ -49,13 +48,8 @@ function ConciergeOnboardingModal({ visible }) {
     } else if (pageNo === 2) {
       return (
         <View style={styles.contentContainer}>
-          <Box alignSelf="center">
-            <VaultSetupIcon />
-          </Box>
           <Text style={styles.contentText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            {`Test your multi-key setups and backups atleast once every few months.\n\nRegularly update your signing devices’ firmwares/softwares.\n\nPlease ensure that your backups are updated if you change one or more of the signers.`}
           </Text>
           <Box marginTop={4} alignSelf="flex-end">
             <CustomButton value="Next" disabled={false} onPress={() => setPageNo(3)} />
@@ -131,7 +125,7 @@ function ConciergeOnboardingModal({ visible }) {
       }}
       title={
         pageNo === 1
-          ? 'Introduction to \nKeeper Concierge'
+          ? 'Welcome to \nKeeper Concierge'
           : pageNo === 2
           ? 'Cautions and Encouragements'
           : 'Share data for analytics:'
