@@ -605,10 +605,7 @@ function SendConfirmation({ route }) {
     }[];
     selectedUTXOs: UTXO[];
   } = route.params;
-  enum PasswordMode {
-    DEFAULT = 'DEFAULT',
-    SHOWALL = 'SHOWALL',
-  }
+
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
@@ -643,9 +640,6 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
-  const [showAllForced, setShowAllForced] = useState(false);
-  const { isOnL2Above } = usePlan();
-  const [passwordMode, setPasswordMode] = useState(PasswordMode.DEFAULT);
 
   console.log('checking sender in send confirmation', sender);
 
@@ -840,13 +834,6 @@ function SendConfirmation({ route }) {
     }
   };
 
-  const onForceProceed = () => {
-    if (passwordMode === PasswordMode.SHOWALL) {
-      setShowAllForced(true);
-      showToast('Showing hidden wallets', <TickIcon />);
-    }
-  };
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -996,8 +983,6 @@ function SendConfirmation({ route }) {
         DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
-            onForceSuccess={onForceProceed}
-            forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
             useBiometrics
             close={() => {
               setConfirmPassVisible(false);
