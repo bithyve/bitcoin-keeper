@@ -55,6 +55,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
+import TickIcon from 'src/assets/images/tick_icon.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -66,6 +67,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import usePlan from 'src/hooks/usePlan';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -603,6 +605,10 @@ function SendConfirmation({ route }) {
     }[];
     selectedUTXOs: UTXO[];
   } = route.params;
+  enum PasswordMode {
+    DEFAULT = 'DEFAULT',
+    SHOWALL = 'SHOWALL',
+  }
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
@@ -637,6 +643,11 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const [showAllForced, setShowAllForced] = useState(false);
+  const { isOnL2Above } = usePlan();
+  const [passwordMode, setPasswordMode] = useState(PasswordMode.DEFAULT);
+
+  console.log('checking sender in send confirmation', sender);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -829,6 +840,13 @@ function SendConfirmation({ route }) {
     }
   };
 
+  const onForceProceed = () => {
+    if (passwordMode === PasswordMode.SHOWALL) {
+      setShowAllForced(true);
+      showToast('Showing hidden wallets', <TickIcon />);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -978,6 +996,8 @@ function SendConfirmation({ route }) {
         DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
+            onForceSuccess={onForceProceed}
+            forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
             useBiometrics
             close={() => {
               setConfirmPassVisible(false);
