@@ -29,6 +29,7 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -117,7 +118,7 @@ function NewHomeScreen({ navigation }) {
     {
       name: `Keeper\nConcierge`,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
+      callback: () => dispatch(goToConcierge([], 'home-screen')),
     },
   ];
 
