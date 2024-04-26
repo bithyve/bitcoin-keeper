@@ -116,7 +116,7 @@ function NewHomeScreen({ navigation }) {
       },
     },
     {
-      name: homeTranslation.NeedHelp,
+      name: homeTranslation.KeeperConcierge,
       icon: <FaqIcon />,
       callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },

@@ -25,9 +25,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
   const { plan } = usePlan();
-  const isHodlerAndDiamondHand = plan === SubscriptionTier.L3 || plan === SubscriptionTier.L2;
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const isHodlerAndDiamondHand =
+    plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L2.toUpperCase();
+
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
     navigation.navigate(path);
