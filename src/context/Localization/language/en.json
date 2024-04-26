@@ -99,7 +99,8 @@
     "addNow": "ADD NOW",
     "runHealthCheck": "Run Health Check",
     "needMoreHelp": "Need more help?",
-    "action": "Action"
+    "action": "Action",
+    "commingSoon": "COMING SOON"
   },
   "noInternet": {
     "no": "No Internet",
@@ -719,6 +720,7 @@
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",
     "choosePlanSubTitle": "You are currently on the basic plan",
+    "choosePlanSubtitle": "Upgrade or downgrade",
     "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise",
     "confirming": "Confirming your subscription",
     "pleaseStay": "Please stay on this screen as it may take a little while...",
@@ -726,7 +728,10 @@
     "restorePurchases": "Restore Purchases",
     "validateSubscriptionTitle": "Failed to validate your subscription",
     "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?",
-    "viewSubscription": "View Subsciption"
+    "viewSubscription": "View Subsciption",
+    "noAvailablePurchaseMessage": "No purchases found",
+    "currentSubscriptionMessage": "Already subscribed to ",
+    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup Phrase",
