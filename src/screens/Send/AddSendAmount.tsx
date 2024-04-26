@@ -29,6 +29,7 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import AddressIcon from 'src/components/AddressIcon';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
@@ -79,8 +80,11 @@ function AddSendAmount({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const { getCurrencyIcon, getSatUnit } = useBalance();
+  const { getCurrencyIcon, getSatUnit, getConvertedBalance } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
+  const isAddress =
+    transferType === TransferType.VAULT_TO_ADDRESS ||
+    transferType === TransferType.WALLET_TO_ADDRESS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -101,6 +105,13 @@ function AddSendAmount({ route }) {
       else setAmountToSend(BtcToSats(parseFloat(amount)).toString());
     } else setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
   }, [currentCurrency, satsEnabled, amount]);
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(amount))) {
+      const amountToSend = getConvertedBalance(parseFloat(amount));
+      setAmount(amountToSend.toString());
+    }
+  }, [currentCurrency]);
 
   useEffect(() => {
     // error handler
@@ -186,7 +197,7 @@ function AddSendAmount({ route }) {
       navigateToNext();
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-        showToast('You have insufficient balance at this time.');
+        showToast('Insufficient balance for the amount to be sent + fees');
       } else showToast(sendPhaseOneState.failedErrorMessage);
     }
   }, [sendPhaseOneState]);
@@ -200,7 +211,7 @@ function AddSendAmount({ route }) {
     const initialLabels = [];
     if (recipient && recipient.presentationData) {
       const name =
-        recipient.entityKind === EntityKind.VAULT
+        recipient?.entityKind === EntityKind.VAULT
           ? sender.presentationData.name
           : recipient.presentationData.name;
       const isSystem = true;
@@ -227,12 +238,13 @@ function AddSendAmount({ route }) {
   //   setLabelsToAdd([...labelsToAdd]);
   // };
   const getWalletIcon = (wallet) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
+    if (wallet?.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
     } else {
       return <WalletIcon />;
     }
   };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -255,18 +267,20 @@ function AddSendAmount({ route }) {
               width={44}
               height={38}
               backgroundColor={Colors.pantoneGreen}
-              icon={<WalletIcon />}
+              icon={getWalletIcon(sender)}
             />
           }
         />
         <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
-            icon={getWalletIcon(sender)}
+            icon={isAddress ? <AddressIcon /> : getWalletIcon(recipient)}
             availableAmt={sender?.specs.balances.confirmed}
-            walletName={recipient?.presentationData.name}
+            // walletName={recipient?.presentationData.name}
+            walletName={isAddress ? address : recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
+            isAddress={isAddress}
           />
         </Box>
 
