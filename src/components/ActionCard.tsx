@@ -14,6 +14,8 @@ type ActionCardProps = {
   dottedBorder?: boolean;
   cardPillText?: string;
   showDot?: boolean;
+  smallDeviceHeight?: number;
+  smallDeviceWidth?: number;
 };
 
 function ActionCard({
@@ -25,6 +27,8 @@ function ActionCard({
   dottedBorder = false,
   cardPillText = '',
   showDot = false,
+  smallDeviceHeight = hp(140),
+  smallDeviceWidth = wp(110),
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
@@ -34,8 +38,8 @@ function ActionCard({
         style={[
           styles.cardContainer,
           { ...customStyle },
-          // { minHeight: isSmallDevice && hp(145) },
-          // { minWidth: isSmallDevice && wp(110) },
+          { minHeight: isSmallDevice ? smallDeviceHeight : hp(114) },
+          { minWidth: isSmallDevice ? smallDeviceWidth : wp(104) },
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
@@ -66,8 +70,8 @@ function ActionCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: wp(115),
-    height: hp(155),
+    width: wp(104),
+    height: hp(114),
     paddingVertical: hp(10),
     paddingLeft: 10,
     paddingRight: 6,
