@@ -15,7 +15,7 @@ function UAIView({
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiMessageText} color={`${colorMode}.RussetBrown`} bold>
+        <Text style={styles.uaiMessageText} color={`${colorMode}.BrownNeedHelp`} bold>
           {title}
         </Text>
         <Text
@@ -83,13 +83,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   addNowWrapper: {
-    width: '24%',
+    width: '26%',
   },
   addNowCTAWrapper: {
-    padding: 5,
+    paddingVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
+    paddingHorizontal:3
   },
   addNowCTAText: {
     fontSize: 10,

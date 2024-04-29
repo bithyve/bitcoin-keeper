@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, StatusBar, useColorMode } from 'native-base';
+import { Box, HStack, StatusBar, Switch, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -29,7 +29,6 @@ import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { Shadow } from 'react-native-shadow-2';
 import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -38,6 +37,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 
 const TIMEOUT = 60;
@@ -76,6 +76,17 @@ function LoginScreen({ navigation, route }) {
     settorStatus(status);
   };
 
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
   useEffect(() => {
     RestClient.subToTorStatus(onChangeTorStatus);
     if (loggingIn) {
@@ -85,6 +96,10 @@ function LoginScreen({ navigation, route }) {
       RestClient.unsubscribe(onChangeTorStatus);
     };
   }, [loggingIn]);
+
+  useEffect(() => {
+    dispatch(fetchOneDayInsight());
+  }, []);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -106,6 +121,10 @@ function LoginScreen({ navigation, route }) {
   useEffect(() => {
     biometricAuth();
   }, [canLogin]);
+
+  useEffect(() => {
+    requestUserPermission();
+  }, []);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -191,7 +210,7 @@ function LoginScreen({ navigation, route }) {
         });
       } else if (appId !== '') {
         updateFCM();
-        navigation.replace('App',{ animation: 'none'});
+        navigation.replace('App', { animation: 'none' });
       } else {
         navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
       }
@@ -316,7 +335,7 @@ function LoginScreen({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 style={[styles.modalMessageText, { paddingTop: hp(20) }]}
               >
-                This step will take a few seconds. You would be able to proceed soon
+                {login.Wait}
               </Text>
             </Box>
             <Box style={{ width: '20%' }}>
@@ -368,7 +387,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Text
               ml={5}
-              color="light.primaryBackground"
+              color={`${colorMode}.choosePlanHome`}
               fontSize={22}
               style={{
                 marginTop: hp(65),
@@ -377,7 +396,7 @@ function LoginScreen({ navigation, route }) {
               {relogin ? title : login.welcomeback}
             </Text>
             <Box>
-              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.primaryBackground">
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color={`${colorMode}.choosePlanHome`}>
                 {login.enter_your}
                 {login.passcode}
               </Text>
@@ -401,13 +420,13 @@ function LoginScreen({ navigation, route }) {
           </Box>
 
           {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
-            <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
+            <Text color={`${colorMode}.white`} px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
             <Switch
               value={torEnbled}
               trackColor={{ true: '#FFFA' }}
-              thumbColor="#358475"
+              thumbColor={torEnbled ? `${colorMode}.dullGreen` : `${colorMode}.darkGrey`}
               onChange={toggleTor}
               defaultIsChecked={torEnbled}
             />
@@ -419,7 +438,7 @@ function LoginScreen({ navigation, route }) {
                   setForgotVisible(true);
                 }}
               >
-                <Text color="light.primaryBackground" bold fontSize={14}>
+                <Text color={`${colorMode}.primaryBackground`} bold fontSize={14}>
                   {login.ForgotPasscode}
                 </Text>
               </TouchableOpacity>

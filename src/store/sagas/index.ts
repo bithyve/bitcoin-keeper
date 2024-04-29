@@ -3,6 +3,7 @@ import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
   addSigningDeviceWatcher,
+  deleteSigningDeviceWatcher,
   autoWalletsSyncWatcher,
   addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
@@ -20,6 +21,7 @@ import {
   addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
   updateVaultDetailsWatcher,
+  deleteVaultyWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -32,6 +34,7 @@ import {
 } from './login';
 import {
   backupWarningWatcher,
+  deleteAppImageEntityWatcher,
   getAppImageWatcher,
   healthCheckSignerWatcher,
   recoverBackupWatcher,
@@ -39,6 +42,8 @@ import {
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
   updateVaultImageWatcher,
+  backupBsmsOnCloudWatcher,
+  bsmsCloudHealthCheckWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -46,6 +51,7 @@ import {
   corssTransferWatcher,
   fetchExchangeRatesWatcher,
   fetchFeeRatesWatcher,
+  fetchOneDayInsightWatcher,
   sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
@@ -56,6 +62,7 @@ import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './sto
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
+import { openConceirgeWatcher, goToConceirgeWatcher } from './concierge';
 
 const rootSaga = function* () {
   const sagas = [
@@ -70,6 +77,7 @@ const rootSaga = function* () {
 
     // network
     connectToNodeWatcher,
+    fetchOneDayInsightWatcher,
 
     // notification
     updateFCMTokensWatcher,
@@ -92,11 +100,13 @@ const rootSaga = function* () {
     // vaults
     addNewVaultWatcher,
     addSigningDeviceWatcher,
+    deleteSigningDeviceWatcher,
     migrateVaultWatcher,
     finaliseVaultMigrationWatcher,
     updateVaultDetailsWatcher,
     updateSignerDetails,
     updateKeyDetails,
+    deleteVaultyWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,
@@ -124,6 +134,9 @@ const rootSaga = function* () {
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,
+    backupBsmsOnCloudWatcher,
+    bsmsCloudHealthCheckWatcher,
+    deleteAppImageEntityWatcher,
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,
@@ -132,6 +145,9 @@ const rootSaga = function* () {
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
     bulkUpdateUTXOLabelWatcher,
+    // concierge
+    openConceirgeWatcher,
+    goToConceirgeWatcher,
   ];
 
   yield all(

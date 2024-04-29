@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable } from 'native-base';
 import { StyleSheet, ViewStyle } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import Checked from 'src/assets/images/check.svg';
+import Checked from 'src/assets/images/tick_icon.svg';
 
 type SignerCardProps = {
   name: string;
@@ -20,6 +20,7 @@ type SignerCardProps = {
   numberOfLines?: number;
   StaticIcon?: any;
   titleComp?: any;
+  colorMode: string;
 };
 
 function SignerCard({
@@ -37,10 +38,10 @@ function SignerCard({
   StaticIcon = null,
   numberOfLines = 1,
   customStyle,
+  colorMode,
 }: SignerCardProps) {
-  const { colorMode } = useColorMode();
   const backgroundColor =
-    colorVarient === 'brown' ? `${colorMode}.RussetBrown` : `${colorMode}.pantoneGreen`;
+    colorVarient === 'brown' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.pantoneGreen`;
 
   return (
     <Pressable

@@ -444,8 +444,8 @@ function ChoosePlan() {
                 )}
               </Box>
             </Box>
-            {items?.[currentPosition]?.name !== 'Pleb' && (
-              <Text style={styles.comingSoonText} color={`${colorMode}.GreenishGrey`}>
+            {items?.[currentPosition]?.comingSoon && (
+              <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
                 * COMING SOON
               </Text>
             )}
@@ -466,7 +466,7 @@ function ChoosePlan() {
           onPress={restorePurchases}
           testID="btn_restorePurchases"
           borderColor={`${colorMode}.learnMoreBorder`}
-          backgroundColor={`${colorMode}.RussetBrown`}
+          backgroundColor={`${colorMode}.BrownNeedHelp`}
           style={styles.restorePurchaseWrapper}
         >
           <Text

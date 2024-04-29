@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
@@ -33,6 +33,32 @@ import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
+import useVault from 'src/hooks/useVault';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BitcoinIllustration from '../../assets/images/btc-illustration.svg';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
+
+function AddCoSignerContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
+  return (
+    <Box style={{ gap: 20 }}>
+      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+        {wallet.addCoSignerDesc}
+      </Text>
+      <Box style={styles.bitcoinIllustration}>
+        <BitcoinIllustration />
+      </Box>
+      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+        {wallet.addCoSignerDescTwo}
+      </Text>
+    </Box>
+  );
+}
 
 function SignerItem({
   vaultKey,
@@ -92,6 +118,7 @@ function SignerItem({
       showSelection={index === 0}
       colorVarient="green"
       isFullText
+      colorMode={colorMode}
     />
   );
 }
@@ -100,17 +127,26 @@ function SetupCollaborativeWallet() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { allVaults } = useVault({ includeArchived: false });
   const { hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, error } = useAppSelector(
     (state) => state.vault
   );
+
   const COLLABORATIVE_SCHEME = { m: 2, n: 3 };
   const [coSigners, setCoSigners] = useState<VaultSigner[]>(
     new Array(COLLABORATIVE_SCHEME.n).fill(null)
   );
   const [isCreating, setIsCreating] = useState(false);
+  const [walletCreatedModal, setWalletCreatedModal] = useState(false);
+  const [walletType, setWalletType] = useState('');
+  const [walletName, setWalletName] = useState('');
+  const [walletDescription, setWalletDescription] = useState('');
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
+  const [visibleModal, setVisibleModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const pushSigner = (
     xpub,
@@ -158,7 +194,7 @@ function SetupCollaborativeWallet() {
     } catch (err) {
       console.log(err);
       const message = crossInteractionHandler(err);
-      showToast(message, <ToastErrorIcon />, 4000);
+      showToast(message, <ToastErrorIcon />);
     }
   };
 
@@ -196,6 +232,21 @@ function SetupCollaborativeWallet() {
   useEffect(() => {
     if (
       hasNewVaultGenerationSucceeded &&
+      coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n &&
+      coSigners.filter((item) => item)?.length > 2
+    ) {
+      const generatedVaultId = generateVaultId(coSigners, COLLABORATIVE_SCHEME);
+      const collabWallet = allVaults.find((vault) => vault.id === generatedVaultId);
+      setWalletType(collabWallet && collabWallet.type);
+      setWalletName(collabWallet && collabWallet.presentationData.name);
+      setWalletDescription(collabWallet && collabWallet.presentationData.description);
+      setWalletCreatedModal(true);
+    }
+  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, coSigners]);
+
+  const navigateToNextScreen = () => {
+    if (
+      hasNewVaultGenerationSucceeded &&
       coSigners.filter((item) => !!item).length === COLLABORATIVE_SCHEME.n
     ) {
       setIsCreating(false);
@@ -203,25 +254,26 @@ function SetupCollaborativeWallet() {
       const navigationState = generatedVaultId
         ? {
             index: 1,
-            routes: [{ name: 'Home' }],
-          }
-        : {
-            index: 1,
             routes: [
               { name: 'Home' },
               { name: 'VaultDetails', params: { vaultId: generatedVaultId } },
             ],
+          }
+        : {
+            index: 1,
+            routes: [{ name: 'Home' }],
           };
       navigation.dispatch(CommonActions.reset(navigationState));
+      setWalletCreatedModal(false);
       dispatch(resetVaultFlags());
       dispatch(resetRealyVaultState());
     }
     if (hasNewVaultGenerationFailed) {
       setIsCreating(false);
-      showToast('Error creating collaborative wallet', <ToastErrorIcon />, 4000);
+      showToast('Error creating collaborative wallet', <ToastErrorIcon />);
       captureError(error);
     }
-  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, coSigners]);
+  };
 
   const renderSigner = ({ item, index }) => (
     <SignerItem
@@ -257,7 +309,15 @@ function SetupCollaborativeWallet() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Add Signers" subtitle="A 2 of 3 collaborative wallet will be created" />
+      <KeeperHeader
+        title="Add Signers"
+        subtitle="A 2 of 3 collaborative wallet will be created"
+        learnMore
+        learnMorePressed={() => {
+          setVisibleModal(true);
+        }}
+        learnTextColor={`${colorMode}.white`}
+      />
       <FlatList
         horizontal
         keyboardShouldPersistTaps="always"
@@ -275,6 +335,37 @@ function SetupCollaborativeWallet() {
         secondaryText="Cancel"
         primaryLoading={isCreating}
         primaryDisable={coSigners.filter((item) => item)?.length < 2}
+      />
+      <WalletVaultCreationModal
+        visible={walletCreatedModal}
+        title={'Wallet Created Successfully!'}
+        subTitle={'A collaborative with three App Keys on three separate devices.'}
+        buttonText={'View Wallet'}
+        descriptionMessage={
+          'You should ensure you have a copy of the wallet configuration file for this vault'
+        }
+        buttonCallback={() => {
+          navigateToNextScreen();
+        }}
+        walletType={walletType}
+        walletName={walletName}
+        walletDescription={walletDescription}
+      />
+      <KeeperModal
+        visible={visibleModal}
+        close={() => {
+          setVisibleModal(false);
+        }}
+        title={'Add a co-signer'}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={AddCoSignerContent}
+        learnMore
+        learnMoreTitle={common.needMoreHelp}
+        // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+        buttonCallback={() => setVisibleModal(false)}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
       />
     </ScreenWrapper>
   );
@@ -326,6 +417,14 @@ const styles = StyleSheet.create({
     height: 125,
     width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
+  },
+  bitcoinIllustration: {
+    alignSelf: 'center',
+  },
+  addCoSigner: {
+    letterSpacing: 0.13,
+    lineHeight: 18,
+    width: wp(295),
   },
 });
 

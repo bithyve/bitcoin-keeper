@@ -16,6 +16,7 @@ type WalletInfoCardProps = {
   tags: string[];
   isShowAmount: boolean;
   setIsShowAmount: () => void;
+  showDot?: boolean;
 };
 
 function WalletInfoCard({
@@ -26,6 +27,7 @@ function WalletInfoCard({
   tags,
   isShowAmount = false,
   setIsShowAmount,
+  showDot = false,
 }: WalletInfoCardProps) {
   const { colorMode } = useColorMode();
 
@@ -37,13 +39,20 @@ function WalletInfoCard({
             <CardPill
               key={tag}
               heading={tag}
-              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.PaleTurquoise`}
+              backgroundColor={index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`}
+              cardStyle={index % 2 !== 0 && styles.secondCard}
             />
           );
         })}
       </Box>
       <Box style={styles.detailContainer}>
-        <HexagonIcon width={44} height={38} backgroundColor={Colors.DarkGreen} icon={icon} />
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.DarkGreen}
+          icon={icon}
+          showDot={showDot}
+        />
         <Box>
           <Text fontSize={12} color={`${colorMode}.white`} numberOfLines={1}>
             {walletDescription}
@@ -78,12 +87,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
   },
   detailContainer: {
     alignItems: 'flex-start',
     gap: 15,
     marginBottom: 20,
     marginLeft: 10,
+  },
+  secondCard: {
+    maxWidth: wp(80),
   },
 });
 

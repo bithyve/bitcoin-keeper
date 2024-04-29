@@ -22,7 +22,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
+import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -37,12 +37,17 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
+  setBackupLoading,
   setBackupType,
   setBackupWarning,
   setInvalidPassword,
+  setIsCloudBsmsBackupRequired,
+  setLastBsmsBackup,
   setSeedConfirmed,
 } from '../reducers/bhr';
 import {
+  BACKUP_BSMS_ON_CLOUD,
+  BSMS_CLOUD_HEALTH_CHECK,
   GET_APP_IMAGE,
   RECOVER_BACKUP,
   SEED_BACKEDUP,
@@ -57,6 +62,9 @@ import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
+import { Platform } from 'react-native';
+import CloudBackupModule from 'src/nativemodules/CloudBackup';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 
 export function* updateAppImageWorker({
   payload,
@@ -199,6 +207,50 @@ export function* updateVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
+  }
+}
+
+export function* deleteAppImageEntityWorker({
+  payload,
+}: {
+  payload: {
+    signerIds?: string[];
+    walletIds?: string[];
+  };
+}) {
+  try {
+    const { signerIds, walletIds } = payload;
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const response = yield call(Relay.deleteAppImageEntity, {
+      appId: id,
+      signers: signerIds,
+      walletIds: walletIds,
+    });
+    return response;
+  } catch (err) {
+    captureError(err);
+    return;
+  }
+}
+
+export function* deleteVaultImageWorker({
+  payload,
+}: {
+  payload: {
+    vaultIds: string[];
+  };
+}) {
+  try {
+    const { vaultIds } = payload;
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const response = yield call(Relay.deleteVaultImage, {
+      appId: id,
+      vaults: vaultIds,
+    });
+    return response;
+  } catch (err) {
+    captureError(err);
+    return;
   }
 }
 
@@ -560,6 +612,162 @@ function* isBackedUP({
   yield put(setBackupWarning(false));
 }
 
+function* backupBsmsOnCloudWorker({
+  payload,
+}: {
+  payload: {
+    password: string;
+  };
+}) {
+  const { password } = payload;
+  try {
+    const bsmsToBackup = [];
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    if (vaults.length === 0) {
+      yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+        title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+        confirmed: false,
+        subtitle: 'No vaults found.',
+      });
+      return;
+    }
+    vaults.forEach((vault) => {
+      const bsms = genrateOutputDescriptors(vault);
+      bsmsToBackup.push({
+        bsms,
+        name: vault.presentationData.name,
+      });
+    });
+
+    if (Platform.OS === 'android') {
+      yield put(setBackupLoading(true));
+      const setup = yield call(CloudBackupModule.setup);
+      if (setup) {
+        const login = yield call(CloudBackupModule.login);
+        if (login.status) {
+          const response = yield call(
+            CloudBackupModule.backupBsms,
+            JSON.stringify(bsmsToBackup),
+            password
+          );
+          if (response.status) {
+            yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+              title: CloudBackupAction.CLOUD_BACKUP_CREATED,
+              confirmed: true,
+              subtitle: response.data,
+            });
+            yield put(setIsCloudBsmsBackupRequired(false));
+            yield put(setLastBsmsBackup(Date.now()));
+          } else {
+            yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+              title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+              confirmed: false,
+              subtitle: response.error,
+            });
+          }
+        } else {
+          yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+            title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+            confirmed: false,
+            subtitle: login.error,
+          });
+        }
+      } else {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+          confirmed: false,
+          subtitle: 'Unable to initialize Google Drive',
+        });
+      }
+    } else {
+      yield put(setBackupLoading(true));
+      const response = yield call(
+        CloudBackupModule.backupBsms,
+        JSON.stringify(bsmsToBackup),
+        password
+      );
+      console.log('response', response);
+      if (response.status) {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_CREATED,
+          confirmed: true,
+          subtitle: response.data,
+        });
+        yield put(setIsCloudBsmsBackupRequired(false));
+        yield put(setLastBsmsBackup(Date.now()));
+      } else {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+          confirmed: false,
+          subtitle: response.error,
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+      title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+      confirmed: false,
+      subtitle: `${error}`,
+    });
+  }
+}
+
+function* bsmsCloudHealthCheckWorker() {
+  if (Platform.OS === 'android') {
+    yield put(setBackupLoading(true));
+    const setup = yield call(CloudBackupModule.setup);
+    if (setup) {
+      const login = yield call(CloudBackupModule.login);
+      if (login.status) {
+        const response = yield call(CloudBackupModule.bsmsHealthCheck);
+        if (response.status) {
+          yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+            title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
+            confirmed: true,
+            subtitle: response.data,
+          });
+          yield put(setIsCloudBsmsBackupRequired(false));
+        } else {
+          yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+            title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
+            confirmed: false,
+            subtitle: response.error,
+          });
+        }
+      } else {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
+          confirmed: false,
+          subtitle: login.error,
+        });
+      }
+    } else {
+      yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+        title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
+        confirmed: false,
+        subtitle: 'Unable to initialize Google Drive',
+      });
+    }
+  } else {
+    yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+      title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
+      confirmed: true,
+      subtitle: '',
+    });
+    yield put(setIsCloudBsmsBackupRequired(false));
+  }
+}
+
+export const backupBsmsOnCloudWatcher = createWatcher(
+  backupBsmsOnCloudWorker,
+  BACKUP_BSMS_ON_CLOUD
+);
+export const bsmsCloudHealthCheckWatcher = createWatcher(
+  bsmsCloudHealthCheckWorker,
+  BSMS_CLOUD_HEALTH_CHECK
+);
+
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPDATE_VAULT_IMAGE);
 
@@ -576,5 +784,10 @@ export const seedBackeupConfirmedWatcher = createWatcher(
 export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
 export const healthCheckSignerWatcher = createWatcher(
   healthCheckSignerWorker,
+  UPADTE_HEALTH_CHECK_SIGNER
+);
+
+export const deleteAppImageEntityWatcher = createWatcher(
+  deleteAppImageEntityWorker,
   UPADTE_HEALTH_CHECK_SIGNER
 );

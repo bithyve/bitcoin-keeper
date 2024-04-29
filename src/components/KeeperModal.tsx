@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
 import { useKeyboard } from 'src/hooks/useKeyboard';
+import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 
 type ModalProps = {
   visible: boolean;
@@ -38,9 +39,11 @@ type ModalProps = {
   dismissible?: boolean;
   showButtons?: boolean;
   learnMore?: boolean;
+  learnMoreTitle?: string;
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
+  showCurrencyTypeSwitch?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
   loading?: boolean;
 };
@@ -54,9 +57,9 @@ KeeperModal.defaultProps = {
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: 'light.headerText',
-  buttonCallback: () => {},
+  buttonCallback: () => { },
   secondaryButtonText: null,
-  secondaryCallback: () => {},
+  secondaryCallback: () => { },
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -64,9 +67,11 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => {},
+  learnMoreTitle: 'See FAQs',
+  learnMoreCallback: () => { },
   closeOnOverlayClick: true,
   showCloseIcon: true,
+  showCurrencyTypeSwitch: false,
   justifyContent: 'flex-end',
   loading: false,
 };
@@ -92,10 +97,12 @@ function KeeperModal(props: ModalProps) {
     dismissible,
     showButtons,
     learnMore,
+    learnMoreTitle,
     learnMoreCallback,
     secButtonTextColor,
     closeOnOverlayClick,
     showCloseIcon,
+    showCurrencyTypeSwitch,
     justifyContent,
     loading,
   } = props;
@@ -108,7 +115,6 @@ function KeeperModal(props: ModalProps) {
   if (!visible) {
     return null;
   }
-
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
   return (
@@ -124,7 +130,7 @@ function KeeperModal(props: ModalProps) {
       <Modal.Content
         borderRadius={10}
         marginBottom={Math.max(5, bottomMargin)}
-        maxHeight={windowHeight * 0.9}
+        maxHeight={windowHeight < 680 ? '94%' : '90%'}
         width="95%"
       >
         <GestureHandlerRootView>
@@ -133,6 +139,11 @@ function KeeperModal(props: ModalProps) {
               <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                 {getCloseIcon()}
               </TouchableOpacity>
+            ) : null}
+            {showCurrencyTypeSwitch ? (
+              <Box style={styles.currencySwitch}>
+                <CurrencyTypeSwitch />
+              </Box>
             ) : null}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
@@ -146,7 +157,10 @@ function KeeperModal(props: ModalProps) {
                 ) : null}
               </Modal.Header>
             ) : null}
-            <ScrollView style={{ maxHeight: windowHeight * 0.8 }}>
+            <ScrollView
+              style={{ maxHeight: windowHeight * 0.8 }}
+              showsVerticalScrollIndicator={false}
+            >
               <Modal.Body>
                 <Content />
               </Modal.Body>
@@ -160,7 +174,7 @@ function KeeperModal(props: ModalProps) {
                     >
                       <Pressable onPress={learnMoreCallback}>
                         <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
-                          See FAQs
+                          {learnMoreTitle}
                         </Text>
                       </Pressable>
                     </Box>
@@ -236,6 +250,12 @@ const getStyles = (subTitleWidth) =>
       position: 'absolute',
       right: 20,
       top: 16,
+    },
+    currencySwitch: {
+      position: 'absolute',
+      right: 20,
+      top: 33,
+      zIndex: 999,
     },
     seeFAQs: {
       fontSize: 13,

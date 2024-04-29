@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
@@ -32,6 +32,7 @@ import Text from './KeeperText';
 import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import UAIEmptyState from './UAIEmptyState';
+import FeeInsightsContent from 'src/screens/FeeInsights/FeeInsightsContent';
 
 const { width } = Dimensions.get('window');
 
@@ -87,10 +88,9 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
   const { showToast } = useToastMessage();
-
   const [showModal, setShowModal] = useState(false);
   const [modalActionLoader, setmodalActionLoader] = useState(false);
-
+ const [insightModal, setInsightModal] = useState(false)
   const skipUaiHandler = (uai: UAI) => {
     dispatch(uaiActioned({ uaiId: uai.id, action: false }));
   };
@@ -165,10 +165,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                   setShowModal(false);
                   activeVault
                     ? navigtaion.navigate('SendConfirmation', {
-                        uaiSetActionFalse,
-                        walletId: uai.entityId,
-                        transferType: TransferType.WALLET_TO_VAULT,
-                      })
+                      uaiSetActionFalse,
+                      walletId: uai.entityId,
+                      transferType: TransferType.WALLET_TO_VAULT,
+                    })
                     : showToast('No vaults found', <ToastErrorIcon />);
                   skipUaiHandler(uai);
                 },
@@ -273,7 +273,36 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             secondary: skipBtnConfig(uai),
           },
         };
-      default:
+      case uaiType.FEE_INISGHT:
+        return {
+          heading: 'Fee Insight',
+          body: uai.uaiDetails?.body,
+          btnConfig: {
+            primary: {
+              text: 'View insights',
+              cta: () => {
+                setInsightModal(true)
+              },
+            },
+            secondary: skipBtnConfig(uai),
+          },
+          modalDetails: {
+            heading: 'Fee Insight',
+            subTitle: '',
+            body: '',
+            btnConfig: {
+              primary: {
+                text: 'Continue',
+                cta: () => {},
+              },
+              secondary: {
+                text: 'Skip',
+                cta: () => {},
+              },
+            },
+          },
+        };
+        default:
         return null;
     }
   };
@@ -339,9 +368,26 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         buttonCallback={uaiConfig?.modalDetails?.btnConfig.primary.cta}
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
-        buttonTextColor="light.white"
-        Content={() => <Text color="light.greenText">{uaiConfig?.modalDetails?.body}</Text>}
+        buttonTextColor={`${colorMode}.white`}
+        Content={() => <Text color={`${colorMode}.greenText`}>{uaiConfig?.modalDetails?.body}</Text>}
       />
+     <KeeperModal
+      visible={insightModal}
+      close={() => {
+        setInsightModal(false);
+        skipUaiHandler(uai);
+      }}      showCloseIcon={false}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
+      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.primaryText`}
+      buttonTextColor={`${colorMode}.white`}
+      buttonText={'Done'}
+      buttonCallback={() => {
+        setInsightModal(false);
+        skipUaiHandler(uai);
+      }}
+      Content={() => <FeeInsightsContent />}
+    />
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>
   );
@@ -352,7 +398,7 @@ export default function NotificationStack() {
   const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
 
-  const removeCard = () => {};
+  const removeCard = () => { };
 
   const flingUp = Gesture.Fling()
     .direction(Directions.UP)

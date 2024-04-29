@@ -93,14 +93,37 @@ import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 import VaultCreationOptions from 'src/screens/Vault/VaultCreationOptions';
 import VaultConfigurationCreation from 'src/screens/Vault/VaultConfigurationRecreation';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
-import AddSigner from 'src/screens/AddSigner/AddSigner';
 import HomeScreen from 'src/screens/Home/HomeScreen';
 import ManageSigners from 'src/screens/SigningDevices/ManageSigners';
 import AppBackupSettings from 'src/screens/AppSettings/AppBackupSettings';
 import WalletPathScreen from 'src/screens/EnterWalletDetailScreen/WalletPathScreen';
-import Login from '../screens/LoginScreen/Login';
-import { AppStackParams } from './types';
+import InheritanceToolsAndTips from 'src/screens/InheritanceToolsAndTips/InheritanceToolsAndTips';
+import DiscountCodes from 'src/screens/DiscountCodes/DiscountCodes';
 import BuyBitcoinScreen from 'src/screens/BuyBitcoin/BuyBitcoinScreen';
+import CloudBackupScreen from 'src/screens/CloudBackup/CloudBackupScreen';
+import SignerSettings from 'src/screens/SigningDevices/SignerSettings';
+import DeleteKeys from 'src/screens/SigningDevices/DeleteKeys';
+
+import CanaryWallets from 'src/screens/InheritanceToolsAndTips/components/Canary';
+import AssistedKeys from 'src/screens/InheritanceToolsAndTips/components/AssistedKeys';
+import SafeKeepingTips from 'src/screens/InheritanceToolsAndTips/components/SafeKeepingTips';
+import SafeGuardingTips from 'src/screens/InheritanceToolsAndTips/components/SafeGuardingTips';
+import MasterRecoveryKey from 'src/screens/InheritanceToolsAndTips/components/MasterRecoveryKey';
+import PersonalCloudBackup from 'src/screens/InheritanceToolsAndTips/components/PersonalCloudBackup';
+import WalletConfigurationFiles from 'src/screens/InheritanceToolsAndTips/components/WalletConfigurationFiles';
+import BackupAndRecoveryTips from 'src/screens/InheritanceToolsAndTips/components/BackupAndRecoveryTips';
+import LetterOfAttorney from 'src/screens/InheritanceToolsAndTips/components/LetterOfAttorney';
+import RecoveryInstruction from 'src/screens/InheritanceToolsAndTips/components/RecoveryInstruction';
+import PrintableTemplates from 'src/screens/InheritanceToolsAndTips/components/PrintableTemplates';
+import InheritanceTips from 'src/screens/InheritanceToolsAndTips/components/InheritanceTips';
+import RecoveryPhraseTemplate from 'src/screens/InheritanceToolsAndTips/components/RecoveryPhraseTemplate';
+import TrustedContactTemplates from 'src/screens/InheritanceToolsAndTips/components/TrustedContactsTemplate';
+import AdditionalSignerDetailsTemplate from 'src/screens/InheritanceToolsAndTips/components/AdditionalSignerDetailsTemplate';
+import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
+import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
+import { useAppSelector } from 'src/store/hooks';
+import { AppStackParams } from './types';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -196,6 +219,27 @@ function AppStack() {
         <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name="InheritanceToolsAndTips" component={InheritanceToolsAndTips} />
+        <Stack.Screen name="DiscountCodes" component={DiscountCodes} />
+        <Stack.Screen name="CanaryWallets" component={CanaryWallets} />
+        <Stack.Screen name="AssistedKeys" component={AssistedKeys} />
+        <Stack.Screen name="SafeKeepingTips" component={SafeKeepingTips} />
+        <Stack.Screen name="SafeGuardingTips" component={SafeGuardingTips} />
+        <Stack.Screen name="MasterRecoveryKey" component={MasterRecoveryKey} />
+        <Stack.Screen name="PersonalCloudBackup" component={PersonalCloudBackup} />
+        <Stack.Screen name="WalletConfigurationFiles" component={WalletConfigurationFiles} />
+        <Stack.Screen name="BackupAndRecoveryTips" component={BackupAndRecoveryTips} />
+        <Stack.Screen name="LetterOfAttorney" component={LetterOfAttorney} />
+        <Stack.Screen name="RecoveryInstruction" component={RecoveryInstruction} />
+        <Stack.Screen name="PrintableTemplates" component={PrintableTemplates} />
+        <Stack.Screen name="InheritanceTips" component={InheritanceTips} />
+        <Stack.Screen name="RecoveryPhraseTemplate" component={RecoveryPhraseTemplate} />
+        <Stack.Screen name="TrustedContactTemplates" component={TrustedContactTemplates} />
+        <Stack.Screen
+          name="AdditionalSignerDetailsTemplate"
+          component={AdditionalSignerDetailsTemplate}
+        />
+
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
@@ -243,9 +287,12 @@ function AppStack() {
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="NFCScanner" component={NFCScanner} />
         <Stack.Screen name="AddWallet" component={AddWallet} />
-        <Stack.Screen name="AddSigner" component={AddSigner} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
+        <Stack.Screen name="CloudBackup" component={CloudBackupScreen} />
+        <Stack.Screen name="SignerSettings" component={SignerSettings} />
+        <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
+        <Stack.Screen name="HandleFile" component={HandleFileScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -259,8 +306,13 @@ function Navigator() {
   const onReady = () => {
     routingInstrumentation.registerNavigationContainer(navigation);
   };
+
+  const { onboardingModal } = useAppSelector((state) => state.concierge);
+
   return (
     <NavigationContainer theme={defaultTheme} ref={navigation} onReady={onReady}>
+      <ZendeskOnboardingModal visible={onboardingModal} />
+
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />

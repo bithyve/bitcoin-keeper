@@ -2,6 +2,7 @@ apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 apply plugin: 'com.google.gms.google-services'
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+apply plugin: 'kotlin-android'
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -85,8 +86,8 @@ android {
         applicationId "io.hexawallet.keeper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 313
-        versionName "1.1.13"
+        versionCode 341
+        versionName "1.2.6"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'store', 'play'
         multiDexEnabled true
@@ -180,6 +181,21 @@ dependencies {
     }
     implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
     implementation "androidx.work:work-runtime:2.7.0"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation "com.google.android.gms:play-services-drive:17.0.0"
+    implementation('com.google.api-client:google-api-client-android:2.2.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude module: 'guava-jdk5'
+    }
+    implementation('com.google.apis:google-api-services-drive:v3-rev20230822-2.0.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude module: 'guava-jdk5'
+    }
+    implementation 'com.itextpdf:itextg:5.5.10'
+
+
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

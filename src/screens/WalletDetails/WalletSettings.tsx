@@ -83,7 +83,9 @@ function WalletSettings({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
+        showCurrencyTypeSwitch={true}
         Content={() => (
           <TransferPolicy
             wallet={wallet}
@@ -107,6 +109,7 @@ function WalletSettings({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <PasscodeVerifyModal
             useBiometrics

@@ -1,16 +1,19 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import React, { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import { hp } from 'src/constants/responsive';
 
 type WalletCardProps = {
   id: number;
   walletName: string;
-  walletDescription: string;
+  walletDescription?: string;
   icon: Element;
   selectedIcon: Element;
   selectedCard: number;
   onCardSelect: (cardName: number) => void;
   arrowStyles: ViewStyle;
+  numberOfLines?: number;
 };
 
 function WalletCard({
@@ -22,20 +25,26 @@ function WalletCard({
   selectedCard,
   onCardSelect,
   arrowStyles,
+  numberOfLines = 1,
 }: WalletCardProps) {
   const { colorMode } = useColorMode();
   const isSelected = selectedCard === id;
+  const isSmallDevice = useIsSmallDevices();
+
+  let setWidth = isSmallDevice ? hp(129) : hp(107);
 
   return (
     <Pressable testID={`btn_${walletName}`} onPress={() => onCardSelect(id)}>
       <Box
-        borderColor={`${colorMode}.Eggshell`}
+        borderColor={`${colorMode}.TransactionIconBackColor`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
-        style={[styles.walletContainer, !isSelected && { opacity: 0.5 }]}
+        style={[styles.walletContainer, !isSelected && { opacity: 0.5 }, { width: setWidth }]}
       >
         <Box style={styles.detailContainer}>
           <Box
-            backgroundColor={isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.RussetBrown`}
+            backgroundColor={
+              isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.BrownNeedHelp`
+            }
             style={styles.circle}
           >
             {isSelected ? selectedIcon : icon}
@@ -43,7 +52,7 @@ function WalletCard({
           <Box>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              numberOfLines={1}
+              numberOfLines={numberOfLines}
               style={styles.walletName}
               medium={isSelected}
             >
@@ -69,7 +78,6 @@ function WalletCard({
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: 114,
     height: 125,
     padding: 10,
     borderRadius: 10,

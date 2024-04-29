@@ -78,7 +78,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         onChangeText={setWalletName}
         placeholder=""
         testID="walletName"
-        maxLength={20}
+        maxLength={18}
         height={50}
       />
       <KeeperTextInput
@@ -86,7 +86,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         onChangeText={setWalletDescription}
         placeholder={walletText.WalletDescriptionPlaceholder}
         testID="walletDescription"
-        maxLength={40}
+        maxLength={20}
         height={50}
       />
       <View style={styles.buttonWrapper}>

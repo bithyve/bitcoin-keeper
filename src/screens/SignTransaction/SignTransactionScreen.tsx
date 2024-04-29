@@ -40,6 +40,9 @@ import {
 } from './signWithSD';
 import SignerList from './SignerList';
 import SignerModals from './SignerModals';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -79,6 +82,7 @@ function SignTransactionScreen() {
   const [otherSDModal, setOtherSDModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -139,13 +143,6 @@ function SignTransactionScreen() {
   }, [sendSuccessful, isMigratingNewVault]);
 
   useEffect(() => {
-    defaultVault.signers.forEach((vaultKey) => {
-      const isCoSignerMyself = signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER;
-      if (isCoSignerMyself) {
-        // self sign PSBT
-        signTransaction({ xfp: vaultKey.xfp });
-      }
-    });
     return () => {
       dispatch(sendPhaseThreeReset());
     };
@@ -157,6 +154,10 @@ function SignTransactionScreen() {
       showToast(sendFailedMessage);
     }
   }, [sendFailedMessage, broadcasting]);
+
+  const onSuccess = () => {
+    signTransaction({ xfp: activeXfp });
+  };
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -272,6 +273,13 @@ function SignTransactionScreen() {
     [activeXfp, serializedPSBTEnvelops]
   );
 
+  const onFileSign = (signedSerializedPSBT: string) => {
+    const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeXfp)[0];
+    const signer = signerMap[currentKey.masterFingerprint];
+    dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: activeXfp }));
+    dispatch(healthCheckSigner([signer]));
+  };
+
   const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
     setActiveXfp(vaultKey.xfp);
     if (areSignaturesSufficient()) {
@@ -333,15 +341,11 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER) {
-          signTransaction({ xfp: vaultKey.xfp });
-          return;
-        }
         setKeeperModal(true);
         break;
       case SignerType.TREZOR:
         if (defaultVault.isMultiSig) {
-          showToast('Signing with trezor for multisig transactions is coming soon!', null, 4000);
+          showToast('Signing with trezor for multisig transactions is coming soon!');
           return;
         }
         setTrezorModal(true);
@@ -351,6 +355,9 @@ function SignTransactionScreen() {
         break;
       case SignerType.OTHER_SD:
         setOtherSDModal(true);
+        break;
+      case SignerType.MY_KEEPER:
+        setConfirmPassVisible(true);
         break;
       case SignerType.INHERITANCEKEY:
         // if (inheritanceKeyInfo) {
@@ -472,6 +479,7 @@ function SignTransactionScreen() {
         textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
+        onFileSign={onFileSign}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
@@ -485,8 +493,27 @@ function SignTransactionScreen() {
         buttonTextColor={`${colorMode}.white`}
         Content={SendSuccessfulContent}
       />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Enter Passcode"
+        subTitle={'Confirm passcode to sign with mobile key'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics={false}
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onSuccess}
+          />
+        )}
+      />
     </ScreenWrapper>
   );
 }
 
-export default SignTransactionScreen;
+export default Sentry.withErrorBoundary(SignTransactionScreen, errorBourndaryOptions);

@@ -42,9 +42,12 @@ import BITBOXICONLIGHT from 'src/assets/images/BitBoxLight.svg';
 import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
 import OTHERSDICON from 'src/assets/images/other.svg';
 import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
+import INHERITANCEKEYLIGHT from 'src/assets/images/inheritance_key_light.svg';
+import INHERITANCEKEYDARK from 'src/assets/images/inheritance_key_dark.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
+import { useColorMode } from 'native-base';
 
 const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
   if (isLight) {
@@ -54,6 +57,7 @@ const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
 };
 
 export const SDIcons = (type: SignerType, light = false) => {
+  const { colorMode } = useColorMode();
   switch (type) {
     case SignerType.COLDCARD:
       return {
@@ -68,12 +72,20 @@ export const SDIcons = (type: SignerType, light = false) => {
         type: SignerStorage.COLD,
       };
     case SignerType.MY_KEEPER:
+      return {
+        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
+        Logo: (
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+            Mobile Key
+          </Text>
+        ),
+      };
     case SignerType.KEEPER:
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
-            Mobile Key
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
+            External Key
           </Text>
         ),
       };
@@ -93,7 +105,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Mobile Key
           </Text>
         ),
@@ -109,7 +121,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Signing Server
           </Text>
         ),
@@ -149,7 +161,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Other signer
           </Text>
         ),
@@ -160,7 +172,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Unknonw Signer
           </Text>
         ),
@@ -170,7 +182,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Seed Key
           </Text>
         ),
@@ -178,9 +190,9 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.INHERITANCEKEY:
       return {
-        Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
+        Icon: getColouredIcon(<INHERITANCEKEYLIGHT />, <INHERITANCEKEYDARK />, light),
         Logo: (
-          <Text style={styles.text} color="light.secondaryText">
+          <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Inheritance Key
           </Text>
         ),
@@ -197,7 +209,7 @@ export const SDIcons = (type: SignerType, light = false) => {
 
 const styles = StyleSheet.create({
   text: {
-    letterSpacing: 1.5,
     fontSize: 14,
+    letterSpacing: 0.14,
   },
 });

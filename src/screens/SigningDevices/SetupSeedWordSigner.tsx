@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 
@@ -9,11 +9,10 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { useNavigation } from '@react-navigation/native';
 import { windowHeight } from 'src/constants/responsive';
 
-function SetupSeedWordSigner({ route, navigation }) {
-  const navigtaion = useNavigation();
+function SetupSeedWordSigner({ route }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { seed } = route.params;
@@ -33,7 +32,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         }}
       >
         <Box
-          backgroundColor="light.primaryBackground"
+          backgroundColor={`${colorMode}.primaryBackground`}
           flexDirection="row"
           justifyContent="space-evenly"
           padding={4}
@@ -47,12 +46,12 @@ function SetupSeedWordSigner({ route, navigation }) {
             bold
             letterSpacing={1.64}
             // marginRight={3}
-            color="light.greenText2"
+            color={`${colorMode}.greenText2`}
           >
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text fontSize={20} backgroundColor="green.700" letterSpacing={1} color="light.GreyText">
+          <Text fontSize={20} backgroundColor="green.700" letterSpacing={1} color={`${colorMode}.GreyText`}>
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -65,7 +64,7 @@ function SetupSeedWordSigner({ route, navigation }) {
   );
 
   return (
-    <Box flex={1} padding={5} background="light.secondaryBackground">
+    <Box flex={1} padding={5} background={`${colorMode}.secondaryBackground`}>
       <StatusBarComponent padding={30} />
       <KeeperHeader title="Seed Key" subtitle={seedText.SeedDesc} />
 
@@ -91,7 +90,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         )}
       </Box>
       {!next && (
-        <Text style={styles.seedDescParagraph} color="light.GreyText">
+        <Text style={styles.seedDescParagraph} color={`${colorMode}.GreyText`}>
           {seedText.desc}
         </Text>
       )}

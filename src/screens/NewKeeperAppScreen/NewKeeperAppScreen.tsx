@@ -2,7 +2,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, BackHandler, Platform } from 'react-native';
 import Text from 'src/components/KeeperText';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import AppIcon from 'src/assets/images/app.svg';
@@ -18,10 +18,12 @@ import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
 import openLink from 'src/utils/OpenLink';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
+
   return (
     <Pressable
       onPress={onPress}
@@ -60,6 +62,41 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
     </Pressable>
   );
 }
+function StartNewModalContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { login } = translations;
+  return (
+    <Box style={{ width: windowWidth * 0.8 }}>
+      <Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>
+            {login.CreateSingleKeyWallet}{' '}
+          </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>
+            {login.StoreBicoin}
+          </Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>
+            {login.CreateMultiKeyWallet}{' '}
+          </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>
+            {login.CreateMultiKeyWalletDesc}
+          </Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.primaryText`} style={styles.startNewModalMessageText} bold>
+            {login.RecoverApp}{' '}
+          </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.startNewModalMessageText}>
+            {login.RecoverAppDesc}
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
@@ -69,7 +106,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [introModalVisible, setIntroModalVisible] = useState(false);
   const appCreationError = useAppSelector((state) => state.login.appCreationError);
+  const { translations } = useContext(LocalizationContext);
+  const { login } = translations;
 
   useEffect(() => {
     if (appCreated) {
@@ -159,7 +199,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           <Box style={styles.modalMessageWrapper}>
             <Box style={{ width: '80%' }}>
               <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
-                This step will take a few seconds. You would be able to proceed soon
+                {login.Wait}
               </Text>
             </Box>
             <Box style={{ width: '20%' }}>
@@ -173,27 +213,24 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      {
-        //Todo Learn more
-      }
-      {/* <Pressable
-        backgroundColor={`${colorMode}.brownColor`}
-        borderColor={`${colorMode}.brownColor`}
+      <Pressable
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
+        borderColor={`${colorMode}.BrownNeedHelp`}
         style={styles.learnMoreContainer}
-        // learn more modal
+        onPress={() => setIntroModalVisible(true)}
       >
-        <Text style={styles.learnMoreText} medium color={`${colorMode}.primaryBackground`}>
-          Need Help?
+        <Text style={styles.learnMoreText} medium color={`${colorMode}.white`}>
+          {login.HelpNeeded}
         </Text>
-      </Pressable> */}
+      </Pressable>
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
             <Text color={`${colorMode}.headerText`} fontSize={18}>
-              Welcome
+              {login.welcome}
             </Text>
             <Text fontSize={14} color={`${colorMode}.secondaryText`}>
-              Create a fresh app or recover an exisiting one
+              {login.CreateApp}
             </Text>
           </Box>
           <Pressable
@@ -208,7 +245,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <Box>
               <Text fontSize={13}>Start New</Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
-                New wallets and vaults
+                {login.newWalletsAndVaults}
               </Text>
             </Box>
           </Pressable>
@@ -224,17 +261,17 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <Box>
               <Text fontSize={13}>Recover an existing app</Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
-                Enter 12-word Recovery Key
+                {login.Enter12WordsRecovery}
               </Text>
             </Box>
           </Pressable>
         </Box>
         <Box style={styles.note}>
           <Text color={`${colorMode}.headerText`} medium fontSize={14}>
-            Note
+            {login.Note}
           </Text>
           <Text fontSize={12} color={`${colorMode}.GreenishGrey`}>
-            By proceeding you agree to our
+            {login.Agreement}
             <Text
               color={`${colorMode}.headerText`}
               italic
@@ -242,7 +279,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             >
               {' '}
-              Terms of Service{' '}
+              {login.TermsOfService}{' '}
             </Text>
             {'and our'}
             <Text
@@ -252,7 +289,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
             >
               {' '}
-              Privacy Policy
+              {login.PrivacyPolicy}
             </Text>
           </Text>
         </Box>
@@ -296,9 +333,25 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setInitiating(true);
         }}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
+      />
+      <KeeperModal
+        close={() => {
+          setIntroModalVisible(false);
+        }}
+        visible={introModalVisible}
+        title={'Start New:'}
+        Content={StartNewModalContent}
+        buttonText={'Continue'}
+        buttonCallback={() => {
+          setIntroModalVisible(false);
+        }}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        subTitleWidth={wp(300)}
       />
     </ScreenWrapper>
   );
@@ -336,6 +389,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.13,
     paddingTop: 20,
+  },
+  startNewModalMessageText: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+    paddingTop: 5,
   },
   contentText: {
     fontSize: 13,

@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, HStack, useColorMode } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, SigningMode } from 'src/services/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/utils/service-utilities/encryption';
@@ -34,10 +34,29 @@ import Buttons from 'src/components/Buttons';
 import useAsync from 'src/hooks/useAsync';
 import Instruction from 'src/components/Instruction';
 import { getSignerNameFromType } from 'src/hardware';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import QRComms from 'src/assets/images/qr_comms.svg';
+import NfcComms from 'src/assets/images/nfc_comms.svg';
+import Import from 'src/assets/images/import.svg';
+import SignerCard from '../AddSigner/SignerCard';
+import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function ColdCardContent({ register, isMultisig }: { register: boolean; isMultisig: boolean }) {
+function ColdCardContent({
+  register,
+  isMultisig,
+  supportedSigningOptions,
+  onSelect,
+  signingMode,
+}: {
+  register: boolean;
+  isMultisig: boolean;
+  supportedSigningOptions: any[];
+  onSelect: any;
+  signingMode: SigningMode;
+}) {
+  const { colorMode } = useColorMode();
   let message = '';
 
   if (register) {
@@ -52,50 +71,94 @@ function ColdCardContent({ register, isMultisig }: { register: boolean; isMultis
     <Box alignItems="center">
       <ColdCardSVG />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {message}
         </Text>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {register
             ? ''
             : "\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option."}
         </Text>
       </Box>
+      <HStack alignSelf={'flex-start'}>
+        {supportedSigningOptions &&
+          supportedSigningOptions.map((option) => (
+            <SignerCard
+              key={option.name}
+              isSelected={signingMode === option.name}
+              isFullText={true}
+              name={option.title}
+              icon={option.icon}
+              onCardSelect={() => {
+                onSelect(option.name);
+              }}
+              colorMode={colorMode}
+            />
+          ))}
+      </HStack>
     </Box>
   );
 }
 
-function PassportContent({ isMultisig }: { isMultisig: boolean }) {
+function PassportContent({
+  isMultisig,
+  supportedSigningOptions,
+  onSelect,
+  signingMode,
+}: {
+  isMultisig: boolean;
+  supportedSigningOptions: any[];
+  onSelect: any;
+  signingMode: SigningMode;
+}) {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <PassportSVG />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {`\u2022 Make sure ${
             isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
           }the right bitcoin network is set before signing the transaction`}
         </Text>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {"\u2022 On the Passport main menu, choose the 'Sign with QR Code' option."}
         </Text>
       </Box>
+      <HStack alignSelf={'flex-start'}>
+        {supportedSigningOptions &&
+          supportedSigningOptions.map((option) => (
+            <SignerCard
+              key={option.name}
+              isSelected={signingMode === option.name}
+              isFullText={true}
+              name={option.title}
+              icon={option.icon}
+              onCardSelect={() => {
+                onSelect(option.name);
+              }}
+              colorMode={colorMode}
+            />
+          ))}
+      </HStack>
     </Box>
   );
 }
 
 function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <SeedSignerSetup />
       <Box marginTop={2}>
         {isMultisig ? (
-          <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
             {
               '\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.'
             }
           </Text>
         ) : null}
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             "\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned."
           }
@@ -106,6 +169,7 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <SpecterSetupImage />
@@ -113,7 +177,7 @@ function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
         {`\u2022 Make sure ${
           isMultisig ? 'the multisig wallet is registered with the Specter and ' : ''
         }the right bitcoin network is set before signing the transaction`}
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             "\u2022 On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned."
           }
@@ -123,32 +187,60 @@ function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
   );
 }
 
-function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
+function KeystoneContent({
+  isMultisig,
+  supportedSigningOptions,
+  onSelect,
+  signingMode,
+}: {
+  isMultisig: boolean;
+  supportedSigningOptions: any[];
+  onSelect: any;
+  signingMode: SigningMode;
+}) {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <KeystoneSetup />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {`\u2022 Make sure ${
             isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
           }the right bitcoin network is set before signing the transaction`}
         </Text>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Keystone ${
             isMultisig ? 'multisig menu' : 'Generic Wallet section'
           }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
+      <HStack alignSelf={'flex-start'}>
+        {supportedSigningOptions &&
+          supportedSigningOptions.map((option) => (
+            <SignerCard
+              key={option.name}
+              isSelected={signingMode === option.name}
+              isFullText={true}
+              name={option.title}
+              icon={option.icon}
+              onCardSelect={() => {
+                onSelect(option.name);
+              }}
+              colorMode={colorMode}
+            />
+          ))}
+      </HStack>
     </Box>
   );
 }
 
 function JadeContent() {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <JadeSetup />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             "\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned."
           }
@@ -159,11 +251,12 @@ function JadeContent() {
 }
 
 function TrezorContent() {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <TrezorSetup />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             '\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signer.'
           }
@@ -174,11 +267,12 @@ function TrezorContent() {
 }
 
 function BitBox02Content() {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <BitoxImage />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             '\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signer.'
           }
@@ -189,11 +283,12 @@ function BitBox02Content() {
 }
 
 function LedgerContent() {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <LedgerImage />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
             '\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signer.'
           }
@@ -204,24 +299,26 @@ function LedgerContent() {
 }
 
 function OtherSDContent() {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <OtherSDImage />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {'\u2022 Either scan or use the export option to transfer the PSBT to the signer.'}
         </Text>
       </Box>
     </Box>
   );
 }
-export function KeeperContent() {
+export function KeeperContent(props) {
+  const { colorMode } = useColorMode();
   return (
     <Box alignItems="center">
       <KeeperSetup />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {'\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n'}
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
+          {`Open the other Keeper app > Go to Manage Keys > Access the Mobile Key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
         </Text>
       </Box>
     </Box>
@@ -239,12 +336,12 @@ function TapsignerContent() {
 }
 
 function PasswordEnter({ signTransaction, setPasswordModal }) {
+  const { colorMode } = useColorMode();
   const { pinHash } = useAppSelector((state) => state.storage);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
   const dispatch = useAppDispatch();
   const { inProgress, start } = useAsync();
-
   const [password, setPassword] = useState('');
 
   useEffect(() => {
@@ -316,7 +413,7 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
           fontSize={13}
           letterSpacing={0.65}
           width={wp(290)}
-          color="light.greenText"
+          color={`${colorMode}.greenText`}
           marginTop={2}
         />
         <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -330,7 +427,7 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="light.primaryText"
+        keyColor={`${colorMode}.primaryText`}
         ClearIcon={<DeleteIcon />}
       />
     </Box>
@@ -338,6 +435,7 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
 }
 
 function OtpContent({ signTransaction }) {
+  const { colorMode } = useColorMode();
   const [otp, setOtp] = useState('');
   const onPressNumber = (text) => {
     let tmpPasscode = otp;
@@ -363,7 +461,7 @@ function OtpContent({ signTransaction }) {
           fontSize={13}
           letterSpacing={0.65}
           width={wp(290)}
-          color="light.greenText"
+          color={`${colorMode}.greenText`}
           marginTop={2}
         >
           If you lose your authenticator app, use the other signers to reset the signer
@@ -382,12 +480,76 @@ function OtpContent({ signTransaction }) {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="light.primaryText"
+        keyColor={`${colorMode}.primaryText`}
         ClearIcon={<DeleteIcon />}
       />
     </Box>
   );
 }
+
+const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
+  switch (signerType) {
+    case SignerType.COLDCARD:
+      return {
+        supportedSigningOptions: [
+          {
+            title: 'NFC',
+            icon: (
+              <CircleIconWrapper
+                icon={<NfcComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.NFC,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.FILE,
+          },
+        ],
+      };
+    case SignerType.KEYSTONE:
+    case SignerType.PASSPORT:
+      return {
+        supportedSigningOptions: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.QR,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.BrownNeedHelp`}
+                width={35}
+              />
+            ),
+            name: SigningMode.FILE,
+          },
+        ],
+      };
+    default:
+      return {
+        supportedSigningOptions: [],
+      };
+  }
+};
 
 function SignerModals({
   vaultId,
@@ -425,6 +587,7 @@ function SignerModals({
   signerMap,
   specterModal,
   setSpecterModal,
+  onFileSign,
 }: {
   vaultId: string;
   activeXfp: string;
@@ -461,8 +624,16 @@ function SignerModals({
   signerMap: { [key: string]: Signer };
   specterModal: boolean;
   setSpecterModal: any;
+  onFileSign: any;
 }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+  const serializedPSBTEnvelop: SerializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+    (envelop) => envelop.xfp === activeXfp
+  )[0];
 
   const navigateToQrSigning = (vaultKey: VaultSigner) => {
     setPassportModal(false);
@@ -497,6 +668,10 @@ function SignerModals({
       {vaultKeys.map((vaultKey) => {
         const signer = signerMap[vaultKey.masterFingerprint];
         const currentSigner = vaultKey.xfp === activeXfp;
+        const { supportedSigningOptions } = getSupportedSigningOptions(signer.type, colorMode);
+        const [signingMode, setSigningMode] = useState<SigningMode>(
+          supportedSigningOptions[0]?.name || null
+        );
         if (signer.type === SignerType.TAPSIGNER) {
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
@@ -526,6 +701,21 @@ function SignerModals({
           const info = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId);
           const navigateToSignWithColdCard = () => {
             setColdCardModal(false);
+            if (signingMode === SigningMode.FILE) {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'HandleFile',
+                  params: {
+                    title: `Signing with ${getSignerNameFromType(signer.type)}`,
+                    subTitle: 'Please upload or paste the file containing the signed transaction',
+                    ctaText: 'Proceed',
+                    onFileExtract: onFileSign,
+                    fileData: serializedPSBTEnvelop.serializedPSBT,
+                  },
+                })
+              );
+              return;
+            }
             navigation.dispatch(
               CommonActions.navigate('SignWithColdCard', {
                 signTransaction,
@@ -543,7 +733,17 @@ function SignerModals({
               close={() => setColdCardModal(false)}
               title={shouldRegister ? 'Register Coldcard' : 'Keep your Mk4 ready'}
               subTitle="Keep your Mk4 ready before proceeding"
-              Content={() => <ColdCardContent register={shouldRegister} isMultisig={isMultisig} />}
+              Content={() => (
+                <ColdCardContent
+                  register={shouldRegister}
+                  isMultisig={isMultisig}
+                  supportedSigningOptions={supportedSigningOptions}
+                  onSelect={(mode) => {
+                    setSigningMode(mode);
+                  }}
+                  signingMode={signingMode}
+                />
+              )}
               buttonText={shouldRegister ? 'Register' : 'Proceed'}
               buttonCallback={navigateToSignWithColdCard}
             />
@@ -559,7 +759,7 @@ function SignerModals({
               }}
               title="Keep Nano X Ready"
               subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToChannelSigning(vaultKey)}
@@ -576,7 +776,7 @@ function SignerModals({
               }}
               title="Enter your password"
               subTitle=""
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => (
                 <PasswordEnter
                   signTransaction={signTransaction}
@@ -596,7 +796,7 @@ function SignerModals({
               }}
               title="Confirm OTP to sign transaction"
               subTitle="To sign using signer key"
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <OtpContent signTransaction={signTransaction} />}
             />
           );
@@ -611,10 +811,38 @@ function SignerModals({
               }}
               title="Keep Passport Ready"
               subTitle="Keep your Foundation Passport ready before proceeding"
-              textColor="light.primaryText"
-              Content={() => <PassportContent isMultisig={isMultisig} />}
+              textColor={`${colorMode}.primaryText`}
+              Content={() => (
+                <PassportContent
+                  isMultisig={isMultisig}
+                  supportedSigningOptions={supportedSigningOptions}
+                  onSelect={(mode) => {
+                    setSigningMode(mode);
+                  }}
+                  signingMode={signingMode}
+                />
+              )}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(vaultKey)}
+              buttonCallback={() => {
+                setPassportModal(false);
+                if (signingMode === SigningMode.FILE) {
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: 'HandleFile',
+                      params: {
+                        title: `Signing with ${getSignerNameFromType(signer.type)}`,
+                        subTitle:
+                          'Please upload or paste the file containing the signed transaction',
+                        ctaText: 'Proceed',
+                        onFileExtract: onFileSign,
+                        fileData: serializedPSBTEnvelop.serializedPSBT,
+                      },
+                    })
+                  );
+                  return;
+                }
+                navigateToQrSigning(vaultKey);
+              }}
             />
           );
         }
@@ -628,7 +856,7 @@ function SignerModals({
               }}
               title="Keep SeedSigner Ready"
               subTitle="Keep your SeedSigner ready before proceeding"
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <SeedSignerContent isMultisig={isMultisig} />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
@@ -645,7 +873,7 @@ function SignerModals({
               }}
               title="Keep Specter Ready"
               subTitle="Keep your Specter ready before proceeding"
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <SpecterContent isMultisig={isMultisig} />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
@@ -662,10 +890,38 @@ function SignerModals({
               }}
               title="Keep Keystone Ready"
               subTitle="Keep your Keystone ready before proceeding"
-              textColor="light.primaryText"
-              Content={() => <KeystoneContent isMultisig={isMultisig} />}
+              textColor={`${colorMode}.primaryText`}
+              Content={() => (
+                <KeystoneContent
+                  isMultisig={isMultisig}
+                  supportedSigningOptions={supportedSigningOptions}
+                  onSelect={(mode) => {
+                    setSigningMode(mode);
+                  }}
+                  signingMode={signingMode}
+                />
+              )}
               buttonText="Proceed"
-              buttonCallback={() => navigateToQrSigning(vaultKey)}
+              buttonCallback={() => {
+                setKeystoneModal(false);
+                if (signingMode === SigningMode.FILE) {
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: 'HandleFile',
+                      params: {
+                        title: `Signing with ${getSignerNameFromType(signer.type)}`,
+                        subTitle:
+                          'Please upload or paste the file containing the signed transaction',
+                        ctaText: 'Proceed',
+                        onFileExtract: onFileSign,
+                        fileData: serializedPSBTEnvelop.serializedPSBT,
+                      },
+                    })
+                  );
+                  return;
+                }
+                navigateToQrSigning(vaultKey);
+              }}
             />
           );
         }
@@ -679,7 +935,7 @@ function SignerModals({
               }}
               title="Keep Jade Ready"
               subTitle="Keep your Jade ready before proceeding"
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <JadeContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
@@ -696,7 +952,7 @@ function SignerModals({
               }}
               title="Keep Trezor Ready"
               subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <TrezorContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToChannelSigning(vaultKey)}
@@ -713,7 +969,7 @@ function SignerModals({
               }}
               title="Keep BitBox02 Ready"
               subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02.`}
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <BitBox02Content />}
               buttonText="Proceed"
               buttonCallback={() => navigateToChannelSigning(vaultKey)}
@@ -730,7 +986,7 @@ function SignerModals({
               }}
               title="Keep the Signer Ready"
               subTitle="Keep your Signer ready before proceeding"
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={() => <OtherSDContent />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
@@ -747,8 +1003,10 @@ function SignerModals({
               }}
               title="Keep your Device Ready"
               subTitle={`Keep your ${getSignerNameFromType(signer.type)} ready before proceeding`}
-              textColor="light.primaryText"
-              Content={() => <KeeperContent />}
+              textColor={`${colorMode}.primaryText`}
+              Content={() => (
+                <KeeperContent masterFingerPrint={signer && signer.masterFingerprint} />
+              )}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
             />

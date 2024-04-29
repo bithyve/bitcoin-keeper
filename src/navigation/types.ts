@@ -54,6 +54,8 @@ export type AppStackParams = {
         vaultId?: string;
       };
   WalletSettings: undefined;
+  InheritanceToolsAndTips: undefined;
+  DiscountCodes: undefined;
   BackupWallet: undefined;
   SigningDeviceDetails: undefined;
   WalletBackHistory: undefined;
@@ -102,13 +104,31 @@ export type AppStackParams = {
   AssignSignerType: undefined;
   NFCScanner: undefined;
   AddWallet: undefined;
-  AddSigner: undefined;
+  CanaryWallets: undefined;
+  AssistedKeys: undefined;
+  SafeKeepingTips: undefined;
+  SafeGuardingTips: undefined;
+  MasterRecoveryKey: undefined;
+  PersonalCloudBackup: undefined;
+  WalletConfigurationFiles: undefined;
+  BackupAndRecoveryTips: undefined;
+  RecoveryInstruction: undefined;
+  LetterOfAttorney: undefined;
+  PrintableTemplates: undefined;
+  InheritanceTips: undefined;
+  RecoveryPhraseTemplate: undefined;
+  TrustedContactTemplates: undefined;
+  AdditionalSignerDetailsTemplate: undefined;
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
+  SignerSettings: undefined;
+  EnterWalletPath: undefined;
+  DeleteKeys: undefined;
+  HandleFile: undefined;
 };
 
 // Usage:

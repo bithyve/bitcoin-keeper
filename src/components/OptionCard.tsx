@@ -7,6 +7,7 @@ import { StyleSheet } from 'react-native';
 
 type OptionProps = {
   title: string;
+  preTitle?: string;
   description: string;
   callback?: () => void;
   titleColor?: string;
@@ -19,6 +20,7 @@ type OptionProps = {
 
 export function OptionCard({
   title,
+  preTitle,
   description,
   Icon,
   callback = null,
@@ -33,17 +35,29 @@ export function OptionCard({
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack
         padding={3}
-        width={windowWidth * 0.9}
+        width={windowWidth * 0.85}
         justifyContent="space-between"
         alignItems="center"
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
-        <HStack style={styles.iconContainer}>
+        <HStack style={[styles.iconContainer, { opacity: disabled ? 0.8 : 1 }]}>
           {LeftIcon && LeftIcon}
           <VStack>
+            {preTitle && (
+              <Text
+                italic
+                color={`${colorMode}.LightGreenish`}
+                testID={`text_${title.replace(/ /g, '_')}`}
+                style={{ fontSize: 13, letterSpacing: 0.13 }}
+              >
+                {preTitle}
+              </Text>
+            )}
             <Text
-              color={titleColor || `${colorMode}.primaryText`}
+              color={
+                disabled ? `${colorMode}.LightGreenish` : titleColor || `${colorMode}.primaryText`
+              }
               testID={`text_${title.replace(/ /g, '_')}`}
               style={{ fontSize: 13, letterSpacing: 0.13 }}
             >

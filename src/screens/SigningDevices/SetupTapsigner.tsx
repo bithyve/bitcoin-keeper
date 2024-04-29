@@ -18,17 +18,17 @@ import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateSignerFromMetaData, isSignerAMF } from 'src/hardware';
+import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import config from 'src/utils/service-utilities/config';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
@@ -85,7 +85,7 @@ function SetupTapsigner({ route }) {
         if (isHealthcheck) verifyTapsginer();
         await start(addTapsigner);
       } else if (!DeviceInfo.isEmulator()) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+        showToast('NFC not supported on this device', <ToastErrorIcon />);
       }
     });
   };
@@ -98,21 +98,58 @@ function SetupTapsigner({ route }) {
       let tapsigner: Signer;
       let vaultKey: VaultSigner;
       if (isAMF) {
-        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+        // fetched multi-sig key
+        const {
+          xpub: multiSigXpub,
+          xpriv: multiSigXpriv,
+          derivationPath: multiSigPath,
+          masterFingerprint,
+        } = generateMockExtendedKeyForSigner(
           EntityKind.VAULT,
           SignerType.TAPSIGNER,
           config.NETWORK_TYPE
         );
+        // fetched single-sig key
+        const {
+          xpub: singleSigXpub,
+          xpriv: singleSigXpriv,
+          derivationPath: singleSigPath,
+        } = generateMockExtendedKeyForSigner(
+          EntityKind.WALLET,
+          SignerType.TAPSIGNER,
+          config.NETWORK_TYPE
+        );
+
+        const xpubDetails: XpubDetailsType = {};
+
+        xpubDetails[XpubTypes.P2WPKH] = {
+          xpub: singleSigXpub,
+          xpriv: singleSigXpriv,
+          derivationPath: singleSigPath,
+        };
+
+        xpubDetails[XpubTypes.P2WSH] = {
+          xpub: multiSigXpub,
+          xpriv: multiSigXpriv,
+          derivationPath: multiSigPath,
+        };
+
+        xpubDetails[XpubTypes.AMF] = {
+          xpub: multiSigXpub,
+          xpriv: multiSigXpriv,
+          derivationPath: multiSigPath,
+        };
+
         const { signer, key } = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
+          xpub: multiSigXpub,
+          derivationPath: multiSigPath,
           masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
           isMultisig,
-          xpriv,
+          xpriv: multiSigXpriv,
           isMock: false,
-          xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
+          xpubDetails,
         });
         tapsigner = signer;
         vaultKey = key;
@@ -141,7 +178,11 @@ function SetupTapsigner({ route }) {
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
+      showToast(
+        `${tapsigner.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {
@@ -150,11 +191,11 @@ function SetupTapsigner({ route }) {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!', null);
       }
       closeNfc();
       card.endNfcSession();
@@ -173,7 +214,7 @@ function SetupTapsigner({ route }) {
       };
 
       const handleFailure = () => {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {
@@ -198,11 +239,11 @@ function SetupTapsigner({ route }) {
       }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage, null, 2000, true);
+        showToast(errorMessage);
       } else if (error.toString() === 'Error') {
         // do nothing when nfc is dismissed by the user
       } else {
-        showToast('Something went wrong, please try again!', null, 2000, true);
+        showToast('Something went wrong, please try again!');
       }
       closeNfc();
       card.endNfcSession();

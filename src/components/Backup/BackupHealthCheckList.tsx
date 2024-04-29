@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, ScrollView, useColorMode } from 'native-base';
+import { FlatList, Box, useColorMode } from 'native-base';
 import moment from 'moment';
 import Text from 'src/components/KeeperText';
 
@@ -12,13 +12,11 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
-import { hp, wp } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import DotView from 'src/components/DotView';
-import Buttons from 'src/components/Buttons';
 import { useQuery } from '@realm/react';
-import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
 
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import AdvnaceOptions from 'src/assets/images/settings.svg';
@@ -29,7 +27,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const { BackupWallet } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;
@@ -65,7 +62,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
         width="12"
         height="12"
         borderRadius={30}
-        backgroundColor={`${colorMode}.RussetBrown`}
+        backgroundColor={`${colorMode}.BrownNeedHelp`}
         justifyContent="center"
         alignItems="center"
       >
@@ -91,11 +88,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
     },
   ];
 
-  const replaceText = (inputString) => {
-    var replacedString = inputString.replace(/SEED_BACKUP/gi, 'RECOVERY_KEY');
-    return replacedString;
-  };
-
   return (
     <Box>
       <Box height={hp(520)}>
@@ -106,7 +98,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
             <Box
               padding={1}
               marginLeft={2}
-              borderLeftColor={`${colorMode}.RussetBrownLight`}
+              borderLeftColor={`${colorMode}.RecoveryBorderColor`}
               borderLeftWidth={1}
               width="100%"
               position="relative"
@@ -116,14 +108,14 @@ function BackupHealthCheckList({ isUaiFlow }) {
                 zIndex={999}
                 position="absolute"
                 left={-8}
-                backgroundColor={`${colorMode}.RussetBrownLight`}
+                backgroundColor={`${colorMode}.RecoveryBorderColor`}
                 padding={1}
                 borderRadius={15}
               >
-                <DotView height={2} width={2} color={`${colorMode}.RussetBrown`} />
+                <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
               </Box>
-              <Text color={`${colorMode}.GreenishGrey`} fontSize={12} bold ml={5} opacity={0.7}>
-                {replaceText(item?.title)}
+              <Text color={`${colorMode}.secondaryText`} fontSize={12} bold ml={5} opacity={0.7}>
+                {strings[item?.title]}
               </Text>
               <Text color={`${colorMode}.GreyText`} fontSize={11} ml={5} opacity={0.7}>
                 {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}

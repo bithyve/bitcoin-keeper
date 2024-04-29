@@ -42,6 +42,15 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
         return { data: cryptOutput.toString(), percentage: scanPercentage };
       }
 
+      if (ur.type === 'bytes') {
+        const result = decoder.resultUR();
+        const decoded = result.decodeCBOR();
+        const decodedString = decoded.toString();
+        if (decodedString.includes('BSMS')) {
+          return { data: decodedString, percentage: scanPercentage };
+        }
+      }
+
       const decoded = ur.decodeCBOR();
       // get the original message, assuming it was a JSON object
       const data = JSON.parse(decoded.toString());

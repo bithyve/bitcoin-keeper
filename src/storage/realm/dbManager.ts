@@ -163,10 +163,26 @@ const deleteObjectById = (schema: RealmSchema, id: string) => {
   }
 };
 
+/**
+ * generic :: deletes an object corresponding to provided schema and the supplied primary key
+ * @param  {RealmSchema} schema
+ */
+const deleteObjectByPrimaryKey = (schema: RealmSchema, key: string, value: any) => {
+  try {
+    const object = getObjectByPrimaryId(schema, key, value);
+    realm.delete(object);
+    return true;
+  } catch (err) {
+    console.error({ err });
+    return false;
+  }
+};
+
 export default {
   initializeRealm,
   deleteRealm,
   deleteObjectById,
+  deleteObjectByPrimaryKey,
   createObjectBulk,
   createObject,
   getObjectByIndex,

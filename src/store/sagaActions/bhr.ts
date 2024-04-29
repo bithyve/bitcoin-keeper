@@ -9,12 +9,23 @@ export const RECOVER_BACKUP = 'RECOVER_BACKUP';
 export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
+export const BACKUP_BSMS_ON_CLOUD = 'BACKUP_BSMS_ON_CLOUD';
+export const BSMS_CLOUD_HEALTH_CHECK = 'BSMS_CLOUD_HEALTH_CHECK';
+export const DELETE_APP_IMAGE_ENTITY = 'DELETE_APP_IMAGE_ENTITY';
 
 export const updateAppImage = ({ wallets, signers }) => ({
   type: UPDATE_APP_IMAGE,
   payload: {
     wallets,
     signers,
+  },
+});
+
+export const deleteAppImageEntity = ({ walletIds, signerIds }) => ({
+  type: UPDATE_APP_IMAGE,
+  payload: {
+    walletIds,
+    signerIds,
   },
 });
 
@@ -67,4 +78,15 @@ export const healthCheckSigner = (signers: Signer[]) => ({
   payload: {
     signers,
   },
+});
+
+export const backupBsmsOnCloud = (password: string) => ({
+  type: BACKUP_BSMS_ON_CLOUD,
+  payload: {
+    password,
+  },
+});
+
+export const bsmsCloudHealthCheck = () => ({
+  type: BSMS_CLOUD_HEALTH_CHECK,
 });

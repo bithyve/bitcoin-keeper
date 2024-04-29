@@ -13,6 +13,7 @@ import {
   NetworkType,
   SignerStorage,
   SignerType,
+  XpubTypes,
 } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
@@ -21,8 +22,6 @@ import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import HWError from './HWErrorState';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 
@@ -56,7 +55,6 @@ export const generateSignerFromMetaData = ({
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   if (
     networkType !== config.NETWORK_TYPE &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
     signerType !== SignerType.KEYSTONE &&
     signerType !== SignerType.JADE
   ) {
@@ -76,10 +74,6 @@ export const generateSignerFromMetaData = ({
     });
   }
 
-  const signerCount = dbManager
-    .getCollection(RealmSchema.Signer)
-    .filter((s) => s.type === signerType).length;
-
   const signer: Signer = {
     type: signerType,
     storageType,
@@ -92,8 +86,6 @@ export const generateSignerFromMetaData = ({
     inheritanceKeyInfo,
     signerXpubs,
     hidden: false,
-    extraData: { instanceNumber: signerCount + 1 },
-    signerDescription: getSignerDescription(signerType, signerCount + 1),
   };
 
   const key: VaultSigner = {
@@ -144,7 +136,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = `Mobile Key`;
       break;
     case SignerType.KEEPER:
-      name = 'Mobile Key';
+      name = 'External Key';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -180,7 +172,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'BitBox02';
       break;
     case SignerType.OTHER_SD:
-      name = 'Other signer';
+      name = 'Other Signer';
       break;
     case SignerType.UNKOWN_SIGNER:
       name = 'Unknown Signer';
@@ -231,20 +223,44 @@ export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
 export const getMockSigner = (signerType: SignerType) => {
   if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
     const networkType = config.NETWORK_TYPE;
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      signerType,
-      networkType
-    );
+    // fetched multi-sig key
+    const {
+      xpub: multiSigXpub,
+      xpriv: multiSigXpriv,
+      derivationPath: multiSigPath,
+      masterFingerprint,
+    } = generateMockExtendedKeyForSigner(EntityKind.VAULT, signerType, networkType);
+    // fetched single-sig key
+    const {
+      xpub: singleSigXpub,
+      xpriv: singleSigXpriv,
+      derivationPath: singleSigPath,
+    } = generateMockExtendedKeyForSigner(EntityKind.WALLET, signerType, networkType);
+
+    const xpubDetails: XpubDetailsType = {};
+
+    xpubDetails[XpubTypes.P2WPKH] = {
+      xpub: singleSigXpub,
+      xpriv: singleSigXpriv,
+      derivationPath: singleSigPath,
+    };
+
+    xpubDetails[XpubTypes.P2WSH] = {
+      xpub: multiSigXpub,
+      xpriv: multiSigXpriv,
+      derivationPath: multiSigPath,
+    };
+
     const { signer, key } = generateSignerFromMetaData({
-      xpub,
-      xpriv,
-      derivationPath,
+      xpub: multiSigXpub,
+      xpriv: multiSigXpriv,
+      derivationPath: multiSigPath,
       masterFingerprint,
       signerType,
       storageType: SignerStorage.COLD,
       isMock: true,
       isMultisig: true,
+      xpubDetails,
     });
     return { signer, key };
   }
@@ -302,7 +318,7 @@ export const getDeviceStatus = (
         : { message: '', disabled: false };
     case SignerType.TREZOR:
       return addSignerFlow || scheme?.n > 1
-        ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
+        ? { disabled: true, message: 'Multi-key with Trezor is coming soon!' }
         : { message: '', disabled: false };
     case SignerType.POLICY_SERVER:
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
@@ -326,7 +342,12 @@ const getPolicyServerStatus = (
       disabled: true,
     };
   } else if (isOnL1) {
-    return { disabled: true, message: 'Upgrade tier to use as key' };
+    return {
+      disabled: true,
+      message: `Please upgrade to atleast ${SubscriptionTier.L2} to add an ${getSignerNameFromType(
+        type
+      )}`,
+    };
   } else if (existingSigners.find((s) => s.type === SignerType.POLICY_SERVER)) {
     return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
   } else if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
@@ -371,38 +392,50 @@ const getInheritanceKeyStatus = (
 
 export const getSDMessage = ({ type }: { type: SignerType }) => {
   switch (type) {
-    case SignerType.COLDCARD:
-    case SignerType.LEDGER:
-    case SignerType.PASSPORT:
-    case SignerType.BITBOX02:
-    case SignerType.SPECTER:
+    case SignerType.COLDCARD: {
+      return 'Secure signers from Coinkite';
+    }
+    case SignerType.LEDGER: {
+      return 'Popular signers like Nano S and Nano X';
+    }
+    case SignerType.PASSPORT: {
+      return 'Passport signers from Foundation Devices';
+    }
+    case SignerType.BITBOX02: {
+      return 'Swiss Made signer from BitBox';
+    }
+    case SignerType.SPECTER: {
+      return 'A DIY signer from Spector Solutions';
+    }
     case SignerType.KEYSTONE: {
-      return 'Register for full verification';
+      return 'Open Source signer from keyst.one';
     }
     case SignerType.JADE: {
-      return 'Optional registration';
+      return 'Great signer from Blockstream';
     }
-    case SignerType.MY_KEEPER:
-    case SignerType.KEEPER: {
+    case SignerType.MY_KEEPER: {
       return 'Use Mobile Key as signer';
     }
+    case SignerType.KEEPER: {
+      return 'Another Keeper App';
+    }
     case SignerType.MOBILE_KEY: {
-      return 'Hot keys on this device';
+      return 'Hot key on this app';
     }
     case SignerType.POLICY_SERVER: {
       return 'Hot keys on the server';
     }
     case SignerType.SEEDSIGNER: {
-      return 'Register during txn signing';
+      return 'A DIY stateless signer';
     }
     case SignerType.SEED_WORDS: {
-      return 'Blind signer when sending';
+      return '12-words key phrase';
     }
     case SignerType.TAPSIGNER: {
-      return 'Blind signer, no verification';
+      return 'Easy-to-use signer from Coinkite';
     }
     case SignerType.TREZOR: {
-      return 'Manually verify addresses';
+      return 'Trusted signers from SatoshiLabs';
     }
     case SignerType.OTHER_SD: {
       return 'Varies with different signer';
@@ -416,6 +449,10 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
 };
 
 export const extractKeyFromDescriptor = (data) => {
+  if (data.startsWith('BSMS')) {
+    data = data.slice(data.indexOf('['));
+    data = data.slice(0, data.indexOf('\n'));
+  }
   const xpub = data.slice(data.indexOf(']') + 1);
   const masterFingerprint = data.slice(1, 9);
   const derivationPath = data

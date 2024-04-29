@@ -74,7 +74,7 @@ function VaultSetup({ route }: ScreenProps) {
     }
   };
   const onDecreaseN = () => {
-    if (scheme.n > 1 && scheme.n > scheme.m) {
+    if (scheme.n > 2 && scheme.n > scheme.m) {
       setScheme({ ...scheme, n: scheme.n - 1 });
     }
   };
@@ -133,7 +133,7 @@ function VaultSetup({ route }: ScreenProps) {
               }
             }}
             testID="vault_name"
-            maxLength={20}
+            maxLength={18}
           />
           <Box style={{ height: 20 }} />
           <KeeperTextInput
@@ -141,7 +141,7 @@ function VaultSetup({ route }: ScreenProps) {
             value={vaultDescription}
             onChangeText={setVaultDescription}
             testID="vault_description"
-            maxLength={40}
+            maxLength={20}
             height={20}
           />
           <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
@@ -168,19 +168,11 @@ function VaultSetup({ route }: ScreenProps) {
             color={`${colorMode}.secondaryText`}
             testID="text_requireKeys_subTitle"
           >
-            Minimum number of keys to broadcast a transaction
+            Minimum number of keys to sign a transaction
           </Text>
           <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
         </VStack>
       </ScrollView>
-      {!preDefinedScheme && (
-        <Box style={styles.mt20}>
-          <Note
-            title="Note"
-            subtitle="Please ensure you have a specific reason to create a non-standard multisig setup"
-          />
-        </Box>
-      )}
       <Buttons primaryText="Proceed" primaryCallback={OnProceed} />
     </ScreenWrapper>
   );

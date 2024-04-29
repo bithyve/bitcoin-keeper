@@ -38,17 +38,19 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { formatNumber } from 'src/utils/utilities';
+import * as Sentry from '@sentry/react-native';
+import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 
 function Footer({
   vault,
   isCollaborativeWallet,
-  identifySigner,
-  setIdentifySignerModal,
 }: {
   vault: Vault;
   isCollaborativeWallet: boolean;
-  identifySigner: Signer;
-  setIdentifySignerModal: any;
 }) {
   const navigation = useNavigation();
   const footerItems = [
@@ -56,11 +58,7 @@ function Footer({
       Icon: SendIcon,
       text: 'Send',
       onPress: () => {
-        if (identifySigner) {
-          setIdentifySignerModal(true);
-        } else {
-          navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-        }
+        navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
       },
     },
     {
@@ -99,11 +97,13 @@ function VaultInfo({ vault }: { vault: Vault }) {
       <HStack style={styles.pillsContainer}>
         <CardPill
           heading={`${vault.scheme.m} of ${vault.scheme.n}`}
-          backgroundColor={`${colorMode}.PaleTurquoise`}
+          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
         />
         <CardPill
           heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
         />
+        {vault.type === VaultType.CANARY && <CardPill heading={'CANARY'} />}
+        {vault.archived ? <CardPill heading={`ARCHIVED`} backgroundColor="grey" /> : null}
       </HStack>
       <CurrencyInfo
         hideAmounts={false}
@@ -181,12 +181,14 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [identifySignerModal, setIdentifySignerModal] = useState(true);
-  const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const { vaultSigners: keys } = useSigners(vault.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
   const transactions = vault?.specs?.transactions || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
+  const isCanaryWallet = vault.type === VaultType.CANARY;
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currencyCodeExchangeRate = exchangeRates[currencyCode];
 
   useEffect(() => {
     if (autoRefresh) syncVault();
@@ -219,56 +221,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     [isCollaborativeWallet]
   );
 
-  const NewVaultContent = useCallback(
-    () => (
-      <Box>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          Your 3-of-6 vault has been setup successfully. You can start receiving/transfering bitcoin
-        </Text>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          For sending bitcoin out of the vault you will need the signers{' '}
-        </Text>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          This means no one can steal your sats from the vault unless they also have access to your
-          signers{' '}
-        </Text>
-        <Box style={styles.alignItems}>
-          {' '}
-          <Success />
-        </Box>
-        {inheritanceSigner && (
-          <Pressable
-            padding={5}
-            backgroundColor={`${colorMode}.pantoneGreenLight`}
-            borderColor={`${colorMode}.pantoneGreen`}
-            style={[styles.addPhoneEmailWrapper]}
-            onPress={() => {
-              navigation.navigate('IKSAddEmailPhone', { vaultId });
-              setVaultCreated(false);
-            }}
-          >
-            <Box style={styles.iconWrapper}>
-              <AddPhoneEmailIcon />
-            </Box>
-            <Box style={styles.titleWrapper}>
-              <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.pantoneGreen`}>
-                {vaultTranslation.addEmailPhone}
-              </Text>
-              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
-                {vaultTranslation.addEmailVaultDetail}
-              </Text>
-            </Box>
-          </Pressable>
-        )}
-      </Box>
-    ),
-    []
-  );
-
-  const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
-
-  const identifySigner = keys.find((signer) => signer.type === SignerType.OTHER_SD);
-
   return (
     <Box
       style={styles.container}
@@ -294,7 +246,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             }
             subtitle={vault.presentationData?.description}
             learnMore
-            learnTextColor="light.white"
+            learnTextColor={`${colorMode}.white`}
             learnBackgroundColor="rgba(0,0,0,.2)"
             learnMorePressed={() => dispatch(setIntroModal(true))}
             contrastScreen={true}
@@ -303,6 +255,21 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         </VStack>
       </VStack>
       <HStack style={styles.actionCardContainer}>
+        {!isCanaryWallet && (
+          <ActionCard
+            cardName={'Buy Bitcoin'}
+            description="into this wallet"
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
+              )
+            }
+            icon={<BTC />}
+            cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+              currencyCodeExchangeRate.buy.toFixed(0)
+            )}`}
+          />
+        )}
         <ActionCard
           cardName="View All Coins"
           description="Manage UTXO"
@@ -315,19 +282,21 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           }
           icon={<CoinIcon />}
         />
-        <ActionCard
-          cardName="Manage Keys"
-          description="For this vault"
-          callback={() =>
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ManageSigners',
-                params: { vaultId, vaultKeys: vault.signers },
-              })
-            )
-          }
-          icon={<SignerIcon />}
-        />
+        {!isCanaryWallet && (
+          <ActionCard
+            cardName="Manage Keys"
+            description="For this vault"
+            callback={() =>
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ManageSigners',
+                  params: { vaultId, vaultKeys: vault.signers },
+                })
+              )
+            }
+            icon={<SignerIcon />}
+          />
+        )}
       </HStack>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <TransactionList
@@ -337,30 +306,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
         />
-        <Footer
-          vault={vault}
-          isCollaborativeWallet={isCollaborativeWallet}
-          identifySigner={identifySigner}
-          setIdentifySignerModal={setIdentifySignerModal}
-        />
+        <Footer vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
       </VStack>
-      <KeeperModal
-        visible={vaultCreated}
-        title={vaultTranslation.newVaultCreated}
-        subTitle={subtitle}
-        buttonText="Confirm"
-        DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        buttonCallback={() => {
-          setVaultCreated(false);
-        }}
-        secondaryButtonText="Cancel"
-        secondaryCallback={() => setVaultCreated(false)}
-        close={() => setVaultCreated(false)}
-        Content={NewVaultContent}
-      />
       <KeeperModal
         visible={introModal}
         close={() => {
@@ -374,7 +321,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         subTitle={
           isCollaborativeWallet
             ? vaultTranslation.collaborativeWalletMultipleUsers
-            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`
+            : `Create multi-key vaults of various configurations. Subscribe to unlock advanced features.`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
@@ -573,4 +520,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-export default VaultDetails;
+
+export default Sentry.withErrorBoundary(VaultDetails, errorBourndaryOptions);
