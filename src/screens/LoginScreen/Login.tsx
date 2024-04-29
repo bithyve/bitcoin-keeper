@@ -81,7 +81,7 @@ function LoginScreen({ navigation, route }) {
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  
+
     if (enabled) {
       console.log('Authorization status:', authStatus);
     }
@@ -97,11 +97,9 @@ function LoginScreen({ navigation, route }) {
     };
   }, [loggingIn]);
 
-
   useEffect(() => {
-    dispatch(fetchOneDayInsight())
-  }, [])
-  
+    dispatch(fetchOneDayInsight());
+  }, []);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -124,11 +122,9 @@ function LoginScreen({ navigation, route }) {
     biometricAuth();
   }, [canLogin]);
 
-
-  useEffect(()=>{
-    requestUserPermission()
-  },[])
-
+  useEffect(() => {
+    requestUserPermission();
+  }, []);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -221,7 +217,6 @@ function LoginScreen({ navigation, route }) {
       dispatch(credsAuthenticated(false));
     }
   };
-
 
   const updateFCM = async () => {
     try {
@@ -333,7 +328,7 @@ function LoginScreen({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 style={[styles.modalMessageText, { paddingTop: hp(20) }]}
               >
-                This step will take a few seconds. You would be able to proceed soon
+                {login.Wait}
               </Text>
             </Box>
             <Box style={{ width: '20%' }}>
