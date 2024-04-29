@@ -756,7 +756,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              vaultId: defaultVault.id,
+              vaultId: isAutoTransferFlow ? defaultVault.id : recipient.id,
             },
           },
         ],
