@@ -1277,6 +1277,6 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(25),
   },
   sendSuccessfullNote: {
-    marginTop: hp(25),
+    marginTop: hp(5),
   },
 });
