@@ -589,6 +589,7 @@ function SendConfirmation({ route }) {
     note,
     label,
     selectedUTXOs,
+    isAutoTransfer,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -599,6 +600,7 @@ function SendConfirmation({ route }) {
     transferType: TransferType;
     uaiSetActionFalse: any;
     note: string;
+    isAutoTransfer: boolean;
     label: {
       name: string;
       isSystem: boolean;
@@ -629,6 +631,7 @@ function SendConfirmation({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
+  const isAutoTransferFlow = isAutoTransfer || false;
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
@@ -640,8 +643,6 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
-
-  console.log('checking sender in send confirmation', sender);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -655,7 +656,7 @@ function SendConfirmation({ route }) {
   }, []);
 
   useEffect(() => {
-    if (transferType === TransferType.WALLET_TO_VAULT) {
+    if (isAutoTransferFlow) {
       dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: sourceWallet }));
     }
   }, []);
@@ -702,11 +703,7 @@ function SendConfirmation({ route }) {
   }, [inProgress]);
 
   const onProceed = () => {
-    if (transferType === TransferType.WALLET_TO_VAULT) {
-      if (sourceWallet.specs.balances.confirmed < sourceWallet.transferPolicy.threshold) {
-        showToast('Not enough Balance', <ToastErrorIcon />);
-        return;
-      }
+    if (isAutoTransferFlow) {
       if (defaultVault) {
         setVisibleTransVaultModal(true);
       }
@@ -868,7 +865,7 @@ function SendConfirmation({ route }) {
           isAddress={isAddress}
         />
         {/* Custom priority diabled for auto transfer  */}
-        {transferType !== TransferType.WALLET_TO_VAULT ? (
+        {!isAutoTransferFlow ? (
           <TouchableOpacity
             testID="btn_transactionPriority"
             onPress={() => setTransPriorityModalVisible(true)}
@@ -891,16 +888,12 @@ function SendConfirmation({ route }) {
         )}
         <AmountDetails
           title={walletTransactions.totalAmount}
-          satsAmount={
-            transferType === TransferType.WALLET_TO_VAULT
-              ? getBalance(sourceWalletAmount)
-              : getBalance(amount)
-          }
+          satsAmount={isAutoTransferFlow ? getBalance(sourceWalletAmount) : getBalance(amount)}
         />
         <AmountDetails
           title={walletTransactions.totalFees}
           satsAmount={
-            transferType === TransferType.WALLET_TO_VAULT
+            isAutoTransferFlow
               ? getBalance(sendMaxFee)
               : getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)
           }
@@ -909,7 +902,7 @@ function SendConfirmation({ route }) {
         <AmountDetails
           title={walletTransactions.total}
           satsAmount={
-            transferType === TransferType.WALLET_TO_VAULT
+            isAutoTransferFlow
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
                   satsEnabled ? 2 : 8
                 )
