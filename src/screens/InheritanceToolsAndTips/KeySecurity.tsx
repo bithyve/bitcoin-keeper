@@ -49,18 +49,17 @@ function KeySecurity({ navigation }) {
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       /> */}
+      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
       <OptionCard
+        disabled={!isHodlerAndDiamondHand}
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
         title="Canary Wallets"
         description="Alert on key compromise"
         LeftIcon={<BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
-
       <OptionCard
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
-        disabled={!isHodlerAndDiamondHand}
         title="Assisted Keys"
         description="Server hosted signers"
         LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
