@@ -42,6 +42,7 @@ import SignerList from './SignerList';
 import SignerModals from './SignerModals';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function SignTransactionScreen() {
@@ -276,6 +277,18 @@ function SignTransactionScreen() {
   const onFileSign = (signedSerializedPSBT: string) => {
     const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeXfp)[0];
     const signer = signerMap[currentKey.masterFingerprint];
+    if (signer.type === SignerType.KEYSTONE) {
+      const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+        (envelop) => envelop.xfp === activeXfp
+      )[0];
+      const tx = getTxHexFromKeystonePSBT(
+        serializedPSBTEnvelop.serializedPSBT,
+        signedSerializedPSBT
+      );
+      dispatch(updatePSBTEnvelops({ xfp: activeXfp, txHex: tx.toHex() }));
+      dispatch(healthCheckSigner([signer]));
+      return;
+    }
     dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: activeXfp }));
     dispatch(healthCheckSigner([signer]));
   };
