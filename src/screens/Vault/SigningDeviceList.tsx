@@ -232,12 +232,6 @@ function SigningDeviceList() {
                 );
               })}
             </Box>
-            <Note
-              title="Note"
-              subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
-              subtitleColor="GreyText"
-              width={wp(330)}
-            />
           </>
         )}
       </ScrollView>
