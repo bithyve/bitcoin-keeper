@@ -15,6 +15,11 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useTestSats from 'src/hooks/useTestSats';
 import KeeperModal from 'src/components/KeeperModal';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { VisibilityType } from 'src/services/wallets/enums';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -24,6 +29,25 @@ function VaultSettings({ route }) {
   const descriptorString = genrateOutputDescriptors(vault);
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
+
+  const { showToast } = useToastMessage();
+
+  const updateWalletVisibility = () => {
+    try {
+      dbManager.updateObjectById(RealmSchema.Vault, vault.id, {
+        presentationData: {
+          name: vault.presentationData.name,
+          description: vault.presentationData.description,
+          visibility: VisibilityType.HIDDEN,
+          shell: vault.presentationData.shell,
+        },
+      });
+      showToast('Vault hidden successfully');
+      navigation.navigate('Home');
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -62,6 +86,11 @@ function VaultSettings({ route }) {
           callback={() => {
             navigation.dispatch(CommonActions.navigate('ArchivedVault', { vaultId }));
           }}
+        />
+        <OptionCard
+          title="Hide vault"
+          description="Hidden vaults can be managed from manage wallets"
+          callback={() => updateWalletVisibility()}
         />
         <OptionCard
           title="Update scheme"
