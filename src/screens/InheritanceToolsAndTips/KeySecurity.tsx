@@ -5,6 +5,7 @@ import ServerIcon from 'src/assets/images/server-network.svg';
 import ServerGreyIcon from 'src/assets/images/server-network-grey.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import BirdIcon from 'src/assets/images/bird.svg';
+import BirdDisabledIcon from 'src/assets/images/bird_disabled.svg';
 
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -55,7 +56,7 @@ function KeySecurity({ navigation }) {
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
         title="Canary Wallets"
         description="Alert on key compromise"
-        LeftIcon={<BirdIcon />}
+        LeftIcon={!isHodlerAndDiamondHand ? <BirdDisabledIcon /> : <BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
       <OptionCard
