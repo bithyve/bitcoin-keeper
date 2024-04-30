@@ -341,7 +341,7 @@ function Signers({
     }
   };
 
-  const renderAssistedKeysShell = useCallback(() => {
+  const renderAssistedKeysShell = () => {
     // tier-based, display only, till an actual assisted keys is setup
     const shellAssistedKeys = [];
 
@@ -395,7 +395,7 @@ function Signers({
         />
       );
     });
-  }, []);
+  };
 
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
