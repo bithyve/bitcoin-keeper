@@ -59,6 +59,7 @@ function KeySecurity({ navigation }) {
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
       <OptionCard
+        disabled={!isHodlerAndDiamondHand}
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
         title="Assisted Keys"
         description="Server hosted signers"
