@@ -698,7 +698,7 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
         existingSigners.map((signer) => [signer.masterFingerprint, signer])
       );
       signersToUpdate = signersToUpdate.map((s) => {
-        const isSignerArchived = signerMap[s.masterFingerprint].archived;
+        const isSignerArchived = signerMap[s.masterFingerprint]?.archived || false;
         return isSignerArchived ? { ...s, archived: false, hidden: false } : s;
       });
       yield put(setRelaySignersUpdateLoading(true));

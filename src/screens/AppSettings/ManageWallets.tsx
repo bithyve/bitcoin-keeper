@@ -119,8 +119,6 @@ function ManageWallets() {
   const { isOnL2Above } = usePlan();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
-
   const [selectedWallet, setSelectedWallet] = useState(null);
   const { showToast } = useToastMessage();
   useEffect(() => {
