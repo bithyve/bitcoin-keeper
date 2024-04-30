@@ -55,7 +55,6 @@ export const generateSignerFromMetaData = ({
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   if (
     networkType !== config.NETWORK_TYPE &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
     signerType !== SignerType.KEYSTONE &&
     signerType !== SignerType.JADE
   ) {
@@ -397,7 +396,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Secure signers from Coinkite';
     }
     case SignerType.LEDGER: {
-      return 'Trusted signers from SatoshiLabs';
+      return 'Popular signers like Nano S and Nano X';
     }
     case SignerType.PASSPORT: {
       return 'Passport signers from Foundation Devices';

@@ -2,7 +2,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { wp } from 'src/constants/responsive';
-import Colors from 'src/theme/Colors';
 import HexagonIcon from '../HexagonIcon';
 import KeeperModal from '../KeeperModal';
 import Text from '../KeeperText';
@@ -44,7 +43,7 @@ function WalletCreatedModalContent(props) {
             <HexagonIcon
               width={44}
               height={38}
-              backgroundColor={Colors.DarkGreen}
+              backgroundColor={'rgba(45, 103, 89, 1)'}
               icon={getWalletIcon(props.walletType)}
             />
           </Box>

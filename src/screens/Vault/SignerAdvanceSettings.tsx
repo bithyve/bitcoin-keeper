@@ -148,6 +148,13 @@ function SignerAdvanceSettings({ route }: any) {
     (state) => state.bhr
   );
 
+  const [isSSKeySigner, setIsSSKeySigner] = useState(false);
+
+  useEffect(() => {
+    const signleSigSigner = !!signer?.signerXpubs[XpubTypes.P2WPKH]?.[0];
+    setIsSSKeySigner(signleSigSigner);
+  }, [signer]);
+
   useEffect(() => {
     if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
@@ -430,20 +437,23 @@ function SignerAdvanceSettings({ route }: any) {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
         signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
       } catch (e) {
+        showToast(e.message);
         captureError(e);
       }
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
+      if (signedSerialisedPSBT) {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowQR',
+            params: {
+              data: signedSerialisedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER,
+            },
+          })
+        );
+      }
     } catch (e) {
       resetQR();
       showToast('Please scan a valid PSBT');
@@ -474,6 +484,7 @@ function SignerAdvanceSettings({ route }: any) {
       const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
       if (!singleSigSigner) {
         showToast('No single Sig found');
+        setCanaryVaultLoading(false);
       }
       const ssVaultKey: VaultSigner = {
         ...singleSigSigner,
@@ -520,7 +531,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
-  const isCanaryWalletAllowed = isOnL2 || isOnL3 || true;
+  const isCanaryWalletAllowed = isOnL2 || isOnL3;
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
@@ -633,7 +644,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
 
-        {isCanaryWalletAllowed && (
+        {isCanaryWalletAllowed && isSSKeySigner && (
           <OptionCard
             title="Canary Wallet"
             description="Your on-chain key alert"

@@ -157,7 +157,7 @@ export function* updateVaultImageWorker({
   const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
-    const response = Relay.updateVaultImage({
+    const response = yield call(Relay.updateVaultImage, {
       isUpdate,
       vaultId: vault.id,
       vault: vaultEncrypted,
@@ -623,6 +623,14 @@ function* backupBsmsOnCloudWorker({
   try {
     const bsmsToBackup = [];
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    if (vaults.length === 0) {
+      yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+        title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+        confirmed: false,
+        subtitle: 'No vaults found.',
+      });
+      return;
+    }
     vaults.forEach((vault) => {
       const bsms = genrateOutputDescriptors(vault);
       bsmsToBackup.push({
@@ -672,8 +680,28 @@ function* backupBsmsOnCloudWorker({
         });
       }
     } else {
-      // ios
-      yield put(setBackupLoading(false));
+      yield put(setBackupLoading(true));
+      const response = yield call(
+        CloudBackupModule.backupBsms,
+        JSON.stringify(bsmsToBackup),
+        password
+      );
+      console.log('response', response);
+      if (response.status) {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_CREATED,
+          confirmed: true,
+          subtitle: response.data,
+        });
+        yield put(setIsCloudBsmsBackupRequired(false));
+        yield put(setLastBsmsBackup(Date.now()));
+      } else {
+        yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+          title: CloudBackupAction.CLOUD_BACKUP_FAILED,
+          confirmed: false,
+          subtitle: response.error,
+        });
+      }
     }
   } catch (error) {
     console.log(error);
@@ -721,6 +749,13 @@ function* bsmsCloudHealthCheckWorker() {
         subtitle: 'Unable to initialize Google Drive',
       });
     }
+  } else {
+    yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
+      title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
+      confirmed: true,
+      subtitle: '',
+    });
+    yield put(setIsCloudBsmsBackupRequired(false));
   }
 }
 

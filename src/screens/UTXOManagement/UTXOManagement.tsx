@@ -257,7 +257,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <KeeperHeader
-        learnMore
+        // learnMore
         learnMorePressed={() => setLearnModalVisible(true)}
         learnTextColor={`${colorMode}.white`}
         title={wallet?.presentationData?.name}
@@ -265,14 +265,14 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
       />
       <Box style={styles.contentContainer}>
-        {isWhirlpoolWallet && (
+        {/* {isWhirlpoolWallet && (
           <AccountSelectionTab
             selectedAccount={selectedAccount}
             setSelectedAccount={setSelectedAccount}
             updateSelectedWallet={updateSelectedWallet}
             setEnableSelection={setEnableSelection}
           />
-        )}
+        )} */}
         {enableSelection ? (
           <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
         ) : null}
@@ -376,10 +376,10 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         }}
       />
 
-      <InitiateWhirlpoolModal
+      {/* <InitiateWhirlpoolModal
         visible={whirlpoolIntroModal}
         closeModal={() => dispatch(setWhirlpoolIntro(false))}
-      />
+      /> */}
       <ErrorCreateTxoModal
         visible={txoErrorModalVisible}
         closeModal={() => setTxoErrorModalVisible(false)}

@@ -22,17 +22,13 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Transactions from './components/Transactions';
-import TransactionFooter from './components/TransactionFooter';
-import LearnMoreModal from './components/LearnMoreModal';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { formatNumber } from 'src/utils/utilities';
@@ -40,6 +36,11 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import LearnMoreModal from './components/LearnMoreModal';
+import TransactionFooter from './components/TransactionFooter';
+import Transactions from './components/Transactions';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -90,6 +91,12 @@ function WalletDetails({ route }: ScreenProps) {
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
+
+  let isTaprootWallet = false;
+  const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
+  if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
+    isTaprootWallet = true;
+  }
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -151,7 +158,7 @@ function WalletDetails({ route }: ScreenProps) {
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
             <CardPill
-              heading="SINGLE SIG"
+              heading={isTaprootWallet ? 'TAPROOT' : 'SINGLE SIG'}
               backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
             />
             <CardPill heading={wallet.type} />
@@ -169,7 +176,7 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
-          cardName={'Buy Bitcoin'}
+          cardName="Buy Bitcoin"
           description="into this wallet"
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
@@ -181,7 +188,7 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <ActionCard
           cardName="View All Coins"
-          description="Manage Whirlpool and UTXOs"
+          description="Manage UTXOs"
           callback={() =>
             navigation.navigate('UTXOManagement', {
               data: wallet,

@@ -19,8 +19,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { TxPriority } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import WalletIcon from 'src/assets/images/wallet_hexa.svg';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
+import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
@@ -48,23 +48,64 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
 import CustomPriorityModal from './CustomPriorityModal';
+import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
+import FeerateStatement from 'src/screens/FeeInsights/FeerateStatement';
+import useOneDayInsight from 'src/hooks/useOneDayInsight';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
+import Fonts from 'src/constants/Fonts';
+import TickIcon from 'src/assets/images/tick_icon.svg';
+
+const customFeeOptionTransfers = [
+  TransferType.VAULT_TO_ADDRESS,
+  TransferType.VAULT_TO_WALLET,
+  TransferType.WALLET_TO_WALLET,
+  TransferType.WALLET_TO_ADDRESS,
+];
 import { RealmSchema } from 'src/storage/realm/enum';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletsIcon from 'src/assets/images/daily_wallet.svg';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import usePlan from 'src/hooks/usePlan';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle = '', isVault = false, showFullAddress = false }) {
+function Card({
+  title,
+  subTitle = '',
+  isVault = false,
+  showFullAddress = false,
+  isAddress = false,
+}) {
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
-      {isVault ? <VaultIcon /> : <WalletIcon />}
+      {isVault ? (
+        <VaultIcon />
+      ) : isAddress ? (
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.pantoneGreen}
+          icon={<AddressIcon />}
+        />
+      ) : (
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.pantoneGreen}
+          icon={<WalletsIcon />}
+        />
+      )}
       <Box style={styles.ml10}>
-        <Text numberOfLines={showFullAddress ? 2 : 1} style={styles.cardTitle}>
+        <Text
+          numberOfLines={showFullAddress ? 2 : 1}
+          style={styles.cardTitle}
+          ellipsizeMode="middle"
+        >
           {title}
         </Text>
         {!showFullAddress && (
@@ -88,6 +129,7 @@ function SendingCard({
   transferType,
   getBalance,
   getSatUnit,
+  isAddress,
 }) {
   const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
@@ -135,6 +177,8 @@ function SendingCard({
           <Card
             title={address}
             subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            showFullAddress={true}
+            isAddress={isAddress}
           />
         );
       case TransferType.WALLET_TO_WALLET:
@@ -175,6 +219,7 @@ function SendingCard({
             title={address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
             showFullAddress={true}
+            isAddress={isAddress}
           />
         );
     }
@@ -259,7 +304,15 @@ function SendingPriority({
   );
 }
 
-function SendSuccessfulContent({ transactionPriority, amount, sender, recipient, getSatUnit }) {
+function SendSuccessfulContent({
+  transactionPriority,
+  amount,
+  sender,
+  recipient,
+  getSatUnit,
+  address,
+  isAddress,
+}) {
   const { colorMode } = useColorMode();
   const { getBalance } = useBalance();
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -281,15 +334,22 @@ function SendSuccessfulContent({ transactionPriority, amount, sender, recipient,
         <Box style={styles.sentToContainer}>
           <Text>Sent To</Text>
           <Card
-            isVault={recipient.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
-            title={recipient?.presentationData?.name}
+            isVault={
+              recipient?.entityKind === RealmSchema.Wallet.toUpperCase()
+                ? false
+                : isAddress
+                ? false
+                : true
+            }
+            title={isAddress ? address : recipient?.presentationData?.name}
+            isAddress={isAddress}
             showFullAddress={true}
           />
         </Box>
         <Box style={styles.sentFromContainer}>
           <Text>Sent From</Text>
           <Card
-            isVault={sender.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
+            isVault={sender?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
             subTitle={`${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
@@ -427,7 +487,14 @@ function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) 
   );
 }
 
-function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance }) {
+function HighFeeAlert({
+  transactionPriority,
+  txFeeInfo,
+  amountToSend,
+  getBalance,
+  showFeesInsightModal,
+  OneDayHistoricalFee,
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -435,30 +502,44 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance
   const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
   return (
     <>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-        <CurrencyInfo
-          amount={selectedFee}
-          hideAmounts={false}
-          fontSize={16}
-          bold
-          color={colorMode !== 'light' ? Colors.White : Colors.RichBlack}
-          variation={colorMode !== 'light' ? 'light' : 'dark'}
-        />
-      </Box>
-      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-        <CurrencyInfo
-          amount={amountToSend}
-          hideAmounts={false}
-          fontSize={16}
-          bold
-          color={colorMode !== 'light' ? Colors.White : Colors.RichBlack}
-          variation={colorMode !== 'light' ? 'light' : 'dark'}
-        />
-      </Box>
-      <Box style={styles.w70P}>
-        <Text fontSize={13}>If not urgent, you could consider waiting for the fees to reduce</Text>
+      <View style={styles.boxWrapper}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+          <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+          <CurrencyInfo
+            amount={selectedFee}
+            hideAmounts={false}
+            fontSize={16}
+            bold
+            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
+          />
+        </Box>
+        <View style={styles.divider} />
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+          <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+          <CurrencyInfo
+            amount={amountToSend}
+            hideAmounts={false}
+            fontSize={16}
+            bold
+            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
+          />
+        </Box>
+      </View>
+      <Text style={styles.statsTitle}>Fee Stats</Text>
+      {OneDayHistoricalFee.length > 0 && (
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
+          <FeerateStatement
+            showFeesInsightModal={showFeesInsightModal}
+            feeInsightData={OneDayHistoricalFee}
+          />
+        </Box>
+      )}
+      <Box width={'70%'}>
+        <Text style={styles.highFeeNote}>
+          If not urgent, you could consider waiting for the fees to reduce
+        </Text>
       </Box>
     </>
   );
@@ -508,6 +589,7 @@ function SendConfirmation({ route }) {
     note,
     label,
     selectedUTXOs,
+    isAutoTransfer,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -518,12 +600,17 @@ function SendConfirmation({ route }) {
     transferType: TransferType;
     uaiSetActionFalse: any;
     note: string;
+    isAutoTransfer: boolean;
     label: {
       name: string;
       isSystem: boolean;
     }[];
     selectedUTXOs: UTXO[];
   } = route.params;
+
+  const isAddress =
+    transferType === TransferType.VAULT_TO_ADDRESS ||
+    transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -544,6 +631,7 @@ function SendConfirmation({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
+  const isAutoTransferFlow = isAutoTransfer || false;
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
@@ -551,8 +639,10 @@ function SendConfirmation({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
+  const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
+  const OneDayHistoricalFee = useOneDayInsight();
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -566,7 +656,7 @@ function SendConfirmation({ route }) {
   }, []);
 
   useEffect(() => {
-    if (transferType === TransferType.WALLET_TO_VAULT) {
+    if (isAutoTransferFlow) {
       dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: sourceWallet }));
     }
   }, []);
@@ -613,11 +703,7 @@ function SendConfirmation({ route }) {
   }, [inProgress]);
 
   const onProceed = () => {
-    if (transferType === TransferType.WALLET_TO_VAULT) {
-      if (sourceWallet.specs.balances.confirmed < sourceWallet.transferPolicy.threshold) {
-        showToast('Not enough Balance', <ToastErrorIcon />);
-        return;
-      }
+    if (isAutoTransferFlow) {
       if (defaultVault) {
         setVisibleTransVaultModal(true);
       }
@@ -670,7 +756,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              vaultId: defaultVault.id,
+              vaultId: isAutoTransferFlow ? defaultVault.id : recipient.id,
             },
           },
         ],
@@ -711,7 +797,19 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
-  const addNumbers = (str1, str2): number => {
+  const toogleFeesInsightModal = () => {
+    if (highFeeAlertVisible) {
+      setHighFeeAlertVisible(false);
+      // To give smooth transcation of modal,
+      // After closing highfee modal.
+      setTimeout(() => {
+        setFeeInsightVisible(true);
+      }, 300);
+    } else {
+      setFeeInsightVisible(!feeInsightVisible);
+    }
+  };
+  const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
 
@@ -764,9 +862,10 @@ function SendConfirmation({ route }) {
           transferType={transferType}
           getBalance={getBalance}
           getSatUnit={getSatUnit}
+          isAddress={isAddress}
         />
         {/* Custom priority diabled for auto transfer  */}
-        {transferType !== TransferType.WALLET_TO_VAULT ? (
+        {!isAutoTransferFlow ? (
           <TouchableOpacity
             testID="btn_transactionPriority"
             onPress={() => setTransPriorityModalVisible(true)}
@@ -779,18 +878,22 @@ function SendConfirmation({ route }) {
             />
           </TouchableOpacity>
         ) : null}
+        {OneDayHistoricalFee.length > 0 && (
+          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
+            <FeerateStatement
+              showFeesInsightModal={toogleFeesInsightModal}
+              feeInsightData={OneDayHistoricalFee}
+            />
+          </Box>
+        )}
         <AmountDetails
           title={walletTransactions.totalAmount}
-          satsAmount={
-            transferType === TransferType.WALLET_TO_VAULT
-              ? getBalance(sourceWalletAmount)
-              : getBalance(amount)
-          }
+          satsAmount={isAutoTransferFlow ? getBalance(sourceWalletAmount) : getBalance(amount)}
         />
         <AmountDetails
           title={walletTransactions.totalFees}
           satsAmount={
-            transferType === TransferType.WALLET_TO_VAULT
+            isAutoTransferFlow
               ? getBalance(sendMaxFee)
               : getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)
           }
@@ -799,7 +902,7 @@ function SendConfirmation({ route }) {
         <AmountDetails
           title={walletTransactions.total}
           satsAmount={
-            transferType === TransferType.WALLET_TO_VAULT
+            isAutoTransferFlow
               ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
                   satsEnabled ? 2 : 8
                 )
@@ -843,6 +946,8 @@ function SendConfirmation({ route }) {
             sender={sender || sourceWallet}
             recipient={recipient || defaultVault}
             getSatUnit={getSatUnit}
+            isAddress={isAddress}
+            address={address}
           />
         )}
       />
@@ -937,8 +1042,23 @@ function SendConfirmation({ route }) {
             txFeeInfo={txFeeInfo}
             amountToSend={amount}
             getBalance={getBalance}
+            showFeesInsightModal={toogleFeesInsightModal}
+            OneDayHistoricalFee={OneDayHistoricalFee}
           />
         )}
+      />
+      {/*Fee insight Modal */}
+      <KeeperModal
+        visible={feeInsightVisible}
+        close={toogleFeesInsightModal}
+        showCloseIcon={false}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonText={common.proceed}
+        buttonCallback={toogleFeesInsightModal}
+        Content={() => <FeeInsights />}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
@@ -1023,17 +1143,60 @@ const styles = StyleSheet.create({
   },
   highFeeTitle: {
     fontSize: 14,
+    marginBottom: 5,
+  },
+  statsTitle: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 0.55,
+    marginLeft: 5,
+  },
+  boxWrapper: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    width: '100%',
+  },
+  divider: {
+    width: 5,
+    height: '100%',
   },
   highFeeDetailsContainer: {
+    padding: 10,
+    flex: 1,
+    borderRadius: 10,
+  },
+  feeStatementContainer: {
     width: windowWidth * 0.8,
     padding: 10,
+    marginVertical: 5,
+    borderRadius: 10,
+  },
+  feeStatementWrapper: {
+    width: '100%',
+    padding: 10,
     marginVertical: 10,
+    borderRadius: 10,
+  },
+  highFeeNote: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderRadius: 20 / 2,
+    alignSelf: 'flex-end',
+    borderWidth: 1,
+  },
+  currentTypeSwitchWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '25%',
   },
   cardTitle: {
     fontSize: 14,
     letterSpacing: 0.14,
-    width: wp(100),
+    width: wp(90),
   },
   cardSubtitle: {
     fontSize: 12,

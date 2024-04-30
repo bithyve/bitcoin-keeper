@@ -1,5 +1,7 @@
 PODS:
   - boost (1.76.0)
+  - BVLinearGradient (2.8.3):
+    - React-Core
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.72.4)
@@ -132,9 +134,11 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - OpenSSL-Universal (1.1.1100)
+  - PDFGenerator (3.1.0)
   - PromisesObjC (2.3.1)
   - QrCode (1.0.0):
     - React
+  - QRCoder (1.1.0)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -663,6 +667,7 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
+  - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
@@ -690,7 +695,9 @@ DEPENDENCIES:
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
   - OpenSSL-Universal (= 1.1.1100)
+  - PDFGenerator
   - QrCode (from `../node_modules/react-native-qr-decode-image-camera`)
+  - QRCoder
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -784,7 +791,9 @@ SPEC REPOS:
     - MMKVCore
     - nanopb
     - OpenSSL-Universal
+    - PDFGenerator
     - PromisesObjC
+    - QRCoder
     - Sentry
     - SocketRocket
     - YogaKit
@@ -802,6 +811,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  BVLinearGradient:
+    :path: "../node_modules/react-native-linear-gradient"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   FBLazyVector:
@@ -950,6 +961,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 5d4a3b7f411219a45a6d952f77d2c0a6c9989da5
@@ -977,8 +989,10 @@ SPEC CHECKSUMS:
   MMKVCore: 9bb7440b170181ac5b81f542ac258103542e693d
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
+  PDFGenerator: 17d6bc525db0a3fcd156fbf00f9d1b8d5cc75d1e
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   QrCode: 703276888a8e1e5a77606392f82ce758d895a450
+  QRCoder: cbd2bee531cc86d286df7942334cfed94c803ae4
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: c0569ecc035894e4a68baecb30fe6a7ea6e399f9
   RCTTypeSafety: e90354072c21236e0bcf1699011e39acd25fea2f
@@ -1059,6 +1073,6 @@ SPEC CHECKSUMS:
   ZendeskSDKStorage: 00d6f78a39a42b71c3730b1c39cc0a5c12690685
   ZendeskSDKUIComponents: 59fab9ac52f3ac5ef3136188da8dc38b06d100f7
 
-PODFILE CHECKSUM: 02bd08bf392d848ea9b4eeef563c0e226f9c7594
+PODFILE CHECKSUM: e7037c1009bd93220e8e10aa8e3125f7c6d05c75
 
 COCOAPODS: 1.15.2

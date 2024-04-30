@@ -5,6 +5,7 @@ import Text from 'src/components/KeeperText';
 
 import { useNavigation } from '@react-navigation/native';
 import { hp } from 'src/constants/responsive';
+import Colors from 'src/theme/Colors';
 
 function UpgradeSubscription({ type }) {
   const navigation = useNavigation();
@@ -50,9 +51,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   container: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEE7E0',
-    height: hp(30),
+    borderTopWidth: 2,
+    paddingTop: hp(10),
+    borderTopColor: Colors.LightSkin,
+    height: hp(40),
   },
 });
 

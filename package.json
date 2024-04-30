@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "1.2.2",
+  "version": "1.2.6",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
@@ -34,9 +34,12 @@
     "@react-navigation/native": "6.0.8",
     "@react-navigation/native-stack": "6.5.0",
     "@realm/react": "0.5.2",
+    "react-native-gifted-charts": "^1.4.7",
     "@redux-devtools/extension": "3.2.2",
     "@reduxjs/toolkit": "1.8.2",
     "@sentry/react-native": "^4.2.4",
+    "@shipt/segmented-arc-for-react-native": "^1.0.1",
+    "react-native-linear-gradient": "^2.8.3",
     "@testing-library/react-native": "11.0.0",
     "@types/crypto-js": "4.1.1",
     "assert": "2.0.0",

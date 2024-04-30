@@ -43,6 +43,7 @@ import SignerModals from './SignerModals';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -82,6 +83,7 @@ function SignTransactionScreen() {
   const [otherSDModal, setOtherSDModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -142,13 +144,6 @@ function SignTransactionScreen() {
   }, [sendSuccessful, isMigratingNewVault]);
 
   useEffect(() => {
-    defaultVault.signers.forEach((vaultKey) => {
-      const isCoSignerMyself = signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER;
-      if (isCoSignerMyself) {
-        // self sign PSBT
-        signTransaction({ xfp: vaultKey.xfp });
-      }
-    });
     return () => {
       dispatch(sendPhaseThreeReset());
     };
@@ -160,6 +155,10 @@ function SignTransactionScreen() {
       showToast(sendFailedMessage);
     }
   }, [sendFailedMessage, broadcasting]);
+
+  const onSuccess = () => {
+    signTransaction({ xfp: activeXfp });
+  };
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -355,10 +354,6 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER) {
-          signTransaction({ xfp: vaultKey.xfp });
-          return;
-        }
         setKeeperModal(true);
         break;
       case SignerType.TREZOR:
@@ -373,6 +368,9 @@ function SignTransactionScreen() {
         break;
       case SignerType.OTHER_SD:
         setOtherSDModal(true);
+        break;
+      case SignerType.MY_KEEPER:
+        setConfirmPassVisible(true);
         break;
       case SignerType.INHERITANCEKEY:
         // if (inheritanceKeyInfo) {
@@ -507,6 +505,25 @@ function SignTransactionScreen() {
         textColor={`${colorMode}.greenText`}
         buttonTextColor={`${colorMode}.white`}
         Content={SendSuccessfulContent}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Enter Passcode"
+        subTitle={'Confirm passcode to sign with mobile key'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics={false}
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onSuccess}
+          />
+        )}
       />
     </ScreenWrapper>
   );

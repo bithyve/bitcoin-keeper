@@ -37,6 +37,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 import { PasswordTimeout } from 'src/utils/PasswordTimeout';
 
 const TIMEOUT = 60;
@@ -75,6 +76,17 @@ function LoginScreen({ navigation, route }) {
     settorStatus(status);
   };
 
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
   useEffect(() => {
     RestClient.subToTorStatus(onChangeTorStatus);
     if (loggingIn) {
@@ -84,6 +96,10 @@ function LoginScreen({ navigation, route }) {
       RestClient.unsubscribe(onChangeTorStatus);
     };
   }, [loggingIn]);
+
+  useEffect(() => {
+    dispatch(fetchOneDayInsight());
+  }, []);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -105,6 +121,10 @@ function LoginScreen({ navigation, route }) {
   useEffect(() => {
     biometricAuth();
   }, [canLogin]);
+
+  useEffect(() => {
+    requestUserPermission();
+  }, []);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -179,7 +199,7 @@ function LoginScreen({ navigation, route }) {
     }
   }, [isAuthenticated]);
 
-  const loginModalAction = () => {
+  const loginModalAction = async () => {
     if (isAuthenticated) {
       setLoginModal(false);
       if (relogin) {
@@ -197,6 +217,7 @@ function LoginScreen({ navigation, route }) {
       dispatch(credsAuthenticated(false));
     }
   };
+
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
@@ -307,7 +328,7 @@ function LoginScreen({ navigation, route }) {
                 color={`${colorMode}.primaryText`}
                 style={[styles.modalMessageText, { paddingTop: hp(20) }]}
               >
-                This step will take a few seconds. You would be able to proceed soon
+                {login.Wait}
               </Text>
             </Box>
             <Box style={{ width: '20%' }}>
@@ -391,7 +412,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
           </Box>
 
-          <HStack justifyContent="space-between" mr={10} paddingTop="1">
+          {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
             <Text color={`${colorMode}.white`} px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
@@ -402,7 +423,7 @@ function LoginScreen({ navigation, route }) {
               onChange={toggleTor}
               defaultIsChecked={torEnbled}
             />
-          </HStack>
+          </HStack> */}
           {/* {attempts >= 1 ? (
               <TouchableOpacity
                 style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}

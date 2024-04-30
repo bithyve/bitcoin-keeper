@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useQuery } from '@realm/react';
 import { CommonActions } from '@react-navigation/native';
@@ -8,7 +8,6 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
-import FaqIcon from 'src/assets/images/faq.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CloudIcon from 'src/assets/images/cloud-white.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
@@ -19,9 +18,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
-import config, {
-  APP_STAGE,
-  KEEPER_KNOWLEDGEBASE,
+import {
   KEEPER_WEBSITE_BASE_URL,
 } from 'src/utils/service-utilities/config';
 import ActionCard from 'src/components/ActionCard';
@@ -41,8 +38,6 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import DeviceInfo from 'react-native-device-info';
-import * as Zendesk from 'react-native-zendesk-messaging';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -72,32 +67,8 @@ function AppSettings({ navigation, route }) {
     }
   }, [colorMode]);
 
-  useEffect(() => {
-    Zendesk.initialize({ channelKey: config.ZENDESK_CHANNEL_ID })
-      .then(() => console.log('init success'))
-      .catch((error) => console.log('init error ', error));
-  }, []);
-
   const changeThemeMode = () => {
     toggleColorMode();
-  };
-
-  const initChat = async () => {
-    Zendesk.clearConversationFields();
-    Zendesk.clearConversationTags();
-    Zendesk.setConversationTags([
-      'app_settings',
-      `${Platform.OS}-${DeviceInfo.getSystemVersion()}`,
-      DeviceInfo.getVersion(),
-      `${DeviceInfo.getBrand()}-${DeviceInfo.getModel()}`,
-    ]);
-    Zendesk.setConversationFields({
-      '18084979872925': publicId,
-      '18087575177885': plan,
-      '18087673246237': DeviceInfo.getVersion(),
-      '18088921954333': JSON.stringify(versionHistory),
-    });
-    Zendesk.openMessagingView();
   };
 
   const { typeBasedIndicator } = useIndicatorHook({
@@ -123,22 +94,12 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: `Keeper\nConcierge`,
-      icon: <FaqIcon />,
-      callback: () =>
-        config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
-          ? initChat()
-          : openLink(`${KEEPER_KNOWLEDGEBASE}`),
+      cardName: settings.personalCloudBackup,
+      icon: <CloudIcon />,
+      callback: () => navigation.navigate('CloudBackup'),
+      showDot: isCloudBsmsBackupRequired,
     },
-    Platform.OS === 'android'
-      ? {
-          cardName: settings.personalCloudBackup,
-          icon: <CloudIcon />,
-          callback: () => navigation.navigate('CloudBackup'),
-          showDot: isCloudBsmsBackupRequired,
-        }
-      : null,
-  ].filter(Boolean);
+  ];
 
   // TODO: add learn more modal
   return (
