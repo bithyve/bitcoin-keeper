@@ -29,10 +29,6 @@ import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Transactions from './components/Transactions';
-import TransactionFooter from './components/TransactionFooter';
-import LearnMoreModal from './components/LearnMoreModal';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { formatNumber } from 'src/utils/utilities';
@@ -41,6 +37,10 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import LearnMoreModal from './components/LearnMoreModal';
+import TransactionFooter from './components/TransactionFooter';
+import Transactions from './components/Transactions';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -94,8 +94,9 @@ function WalletDetails({ route }: ScreenProps) {
 
   let isTaprootWallet = false;
   const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
-  if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86)
+  if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
     isTaprootWallet = true;
+  }
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -175,7 +176,7 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
-          cardName={'Buy Bitcoin'}
+          cardName="Buy Bitcoin"
           description="into this wallet"
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
@@ -187,7 +188,7 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <ActionCard
           cardName="View All Coins"
-          description="Manage Whirlpool and UTXOs"
+          description="Manage UTXOs"
           callback={() =>
             navigation.navigate('UTXOManagement', {
               data: wallet,

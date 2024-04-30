@@ -396,7 +396,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Secure signers from Coinkite';
     }
     case SignerType.LEDGER: {
-      return 'Trusted signers from SatoshiLabs';
+      return 'Popular signers like Nano S and Nano X';
     }
     case SignerType.PASSPORT: {
       return 'Passport signers from Foundation Devices';
