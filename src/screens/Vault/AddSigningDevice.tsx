@@ -335,6 +335,7 @@ function Signers({
         <TickIcon />,
         IToastCategory.SIGNING_DEVICE
       );
+      navigation.goBack();
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
@@ -399,6 +400,7 @@ function Signers({
 
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
+    console.log('signerssigners', signers);
     const signerCards = signers.map((signer) => {
       const disabled =
         !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
