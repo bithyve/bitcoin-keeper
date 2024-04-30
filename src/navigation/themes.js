@@ -250,7 +250,7 @@ export const customTheme = extendTheme({
       dropdownSeparator: Colors.Taupe,
       LightGreen: Colors.lightGreen,
       MintWhisper: Colors.MintWhisper,
-      lightSkin: Colors.LightSkin,
+      lightSkin: Colors.DarkSkin,
       // SlateGrey: Colors.SlateGrey,
       // LightKhaki: Colors.LightKhaki,
       // SmokeGreen: Colors.SmokeGreen,
