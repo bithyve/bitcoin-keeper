@@ -47,10 +47,12 @@ function RecoveryInstruction({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color="light.primaryBackground">
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.recoveryInstructionsNotes}</Text>
+          <Text color="light.primaryBackground">
+            {inheritancePlanning.recoveryInstructionsNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

@@ -5,7 +5,6 @@ import DeviceInfo from 'react-native-device-info';
 const useIsSmallDevices = () => {
   const [isSmallDevice, setIsSmallDevice] = useState(false);
   const screenHeight = Dimensions.get('window').height;
-  console.log('screenHeightscreenHeight', screenHeight);
   useEffect(() => {
     const checkDevice = async () => {
       const model = await DeviceInfo.getModel();

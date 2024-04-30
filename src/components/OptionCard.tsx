@@ -47,16 +47,26 @@ export function OptionCard({
             {preTitle && (
               <Text
                 italic
-                color={`${colorMode}.LightGreenish`}
+                color={
+                  colorMode === 'light' ? `${colorMode}.LightGreenish` : `${colorMode}.primaryText`
+                }
                 testID={`text_${title.replace(/ /g, '_')}`}
-                style={{ fontSize: 13, letterSpacing: 0.13 }}
+                style={{
+                  fontSize: 13,
+                  letterSpacing: 0.13,
+                  opacity: colorMode === 'light' ? 1 : 0.7,
+                }}
               >
                 {preTitle}
               </Text>
             )}
             <Text
               color={
-                disabled ? `${colorMode}.LightGreenish` : titleColor || `${colorMode}.primaryText`
+                disabled
+                  ? colorMode === 'light'
+                    ? `${colorMode}.LightGreenish`
+                    : titleColor || `${colorMode}.primaryText`
+                  : titleColor || `${colorMode}.primaryText`
               }
               testID={`text_${title.replace(/ /g, '_')}`}
               style={{ fontSize: 13, letterSpacing: 0.13 }}
@@ -66,7 +76,11 @@ export function OptionCard({
             {description && (
               <Text
                 color={descriptionColor || `${colorMode}.GreyText`}
-                style={{ fontSize: 12, letterSpacing: 0.12 }}
+                style={{
+                  fontSize: 12,
+                  letterSpacing: 0.12,
+                  opacity: colorMode === 'light' ? 1 : 0.8,
+                }}
               >
                 {description}
               </Text>
