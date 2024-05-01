@@ -14,6 +14,7 @@ export type SubScriptionPlan = {
   iconFocused: string;
   isActive: boolean;
   benifits: string[];
+  comingSoon: boolean;
   productType: string;
   subTitle: string;
   trailPeriod?: string;

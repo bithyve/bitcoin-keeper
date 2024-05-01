@@ -8,8 +8,8 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
-import FaqIcon from 'src/assets/images/faq.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import CloudIcon from 'src/assets/images/cloud-white.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -18,9 +18,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
-import config, {
-  APP_STAGE,
-  KEEPER_KNOWLEDGEBASE,
+import {
   KEEPER_WEBSITE_BASE_URL,
 } from 'src/utils/service-utilities/config';
 import ActionCard from 'src/components/ActionCard';
@@ -36,19 +34,27 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import BackupModalContent from './BackupModal';
-import { initialize, showMessaging } from '@robbywh/react-native-zendesk-messaging';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
+import usePlan from 'src/hooks/usePlan';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+  const { isCloudBsmsBackupRequired } = useAppSelector((state) => state.bhr);
 
+  const { plan } = usePlan();
+  const versionHistory = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
   const { colorMode, toggleColorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, settings } = translations;
   const data = useQuery(RealmSchema.BackupHistory);
-  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const { primaryMnemonic, id, publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
@@ -61,15 +67,13 @@ function AppSettings({ navigation, route }) {
     }
   }, [colorMode]);
 
-  useEffect(() => {
-    initialize(config.ZENDESK_CHANNEL_ID);
-  }, []);
-
   const changeThemeMode = () => {
     toggleColorMode();
   };
 
-  const initChat = () => showMessaging();
+  const { typeBasedIndicator } = useIndicatorHook({
+    types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
+  });
 
   const actionCardData = [
     {
@@ -82,6 +86,7 @@ function AppSettings({ navigation, route }) {
           navigation.navigate('WalletBackHistory');
         }
       },
+      showDot: typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[id],
     },
     {
       cardName: settings.ManageWallets,
@@ -89,12 +94,10 @@ function AppSettings({ navigation, route }) {
       callback: () => navigation.navigate('ManageWallets'),
     },
     {
-      cardName: `Need\nHelp?`,
-      icon: <FaqIcon />,
-      callback: () =>
-        config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
-          ? initChat()
-          : openLink(`${KEEPER_KNOWLEDGEBASE}`),
+      cardName: settings.personalCloudBackup,
+      icon: <CloudIcon />,
+      callback: () => navigation.navigate('CloudBackup'),
+      showDot: isCloudBsmsBackupRequired,
     },
   ];
 
@@ -116,7 +119,7 @@ function AppSettings({ navigation, route }) {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
+        contentContainerStyle={styles.appSettingsContainer}
       >
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <Box style={styles.actionContainer}>
@@ -127,6 +130,7 @@ function AppSettings({ navigation, route }) {
                 callback={card.callback}
                 key={card.cardName}
                 customStyle={{ justifyContent: 'flex-end' }}
+                showDot={card.showDot}
               />
             ))}
           </Box>
@@ -339,7 +343,7 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 3,
     marginBottom: 20,
   },
   bottomNav: {
@@ -347,6 +351,14 @@ const styles = StyleSheet.create({
     gap: 10,
     justifyContent: 'space-around',
     marginBottom: 10,
+  },
+  customeStyle: {
+    justifyContent: 'flex-end',
+    width: wp(110),
+  },
+  appSettingsContainer: {
+    alignItems: 'center',
+    paddingTop: 20,
   },
 });
 export default AppSettings;

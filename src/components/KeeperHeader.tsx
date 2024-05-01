@@ -79,7 +79,6 @@ function KeeperHeader({
           <Box>
             {title && (
               <Text
-                numberOfLines={1}
                 style={styles.addWalletText}
                 color={titleColor || `${colorMode}.headerText`}
                 testID="text_header_title"

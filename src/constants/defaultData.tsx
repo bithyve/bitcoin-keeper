@@ -1,18 +1,17 @@
-import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import React from 'react';
 import LoadingAnimation from 'src/components/Loader';
 import InheritanceToolsIllustartion from 'src/components/SVGComponents/InheritanceToolsIllustartion';
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
 
 export const securityTips = [
-  {
-    title: 'Introducing Whirlpool',
-    subTitle:
-      'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones.',
-    assert: <WhirlpoolLoader />,
-    message:
-      'For increased privacy and security, remix sats a few times, then transfer them to the vault.',
-  },
+  // {
+  //   title: 'Introducing Whirlpool',
+  //   subTitle:
+  //     'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones.',
+  //   assert: <WhirlpoolLoader />,
+  //   message:
+  //     'For increased privacy and security, remix sats a few times, then transfer them to the vault.',
+  // },
   {
     title: 'Connecting to a bitcoin node',
     subTitle: 'Interact with the bitcoin network more privately and securely.',
@@ -34,7 +33,7 @@ export const securityTips = [
     message: 'Consult your estate planner for incorporating documents from this app in your will.',
   },
   {
-    title: 'Keep your signers safe',
+    title: 'Keep your Signers safe',
     subTitle: 'Signers are what control your funds.',
     assert: <LoadingAnimation />,
     message:

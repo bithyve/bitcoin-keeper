@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import { wp } from 'src/constants/responsive';
@@ -10,6 +10,7 @@ const { width } = Dimensions.get('window');
 function TipsSlider({ items }) {
   const onboardingSlideRef = useRef(null);
   const [currentPosition, setCurrentPosition] = useState(0);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     const backAction = () => true;
@@ -22,7 +23,7 @@ function TipsSlider({ items }) {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
-    <Box style={styles.container} backgroundColor="light.pantoneGreen">
+    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box>
           <FlatList

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -11,51 +11,46 @@ import PracticeRecovery from 'src/assets/images/practice-recovery.svg';
 import KeepBackups from 'src/assets/images/keep-backups.svg';
 
 import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function BackupAndRecoveryTips({}) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
 
   const tips = [
     {
-      title: 'Implement Comprehensive Backup Strategies',
+      title: inheritancePlanning.backupRecoveryComprehensive,
       icon: <ComprehensiveStrategies />,
-      paragraph2:
-        'These backups should be stored in secure, discrete locations to ensure redundancy and resilience against loss or environmental damage.',
-      paragraph:
-        'Create durable backups of all critical components, like seed phrases and multi-key configurations, on both physical (metal tools for engraving) and digital (encrypted files) mediums.',
+      paragraph2: inheritancePlanning.backupRecoveryComprehensiveP2,
+      paragraph: inheritancePlanning.backupRecoveryComprehensiveP1,
     },
     {
-      title: 'Conduct Regular Backup Testing',
+      title: inheritancePlanning.backupRecoveryConduct,
       icon: <RegularTesting />,
-      paragraph2:
-        'Try all the methods for backup and recovery suggested by Keeper and see what suits you. Ensure you can perform this step during an emergency.',
-      paragraph:
-        'As a test, use the backup information to recover your multi-key setup periodically. The test ensures your backup’s reliability for restoring access to your bitcoin.',
+      paragraph2: inheritancePlanning.backupRecoveryConductP2,
+      paragraph: inheritancePlanning.backupRecoveryConductP1,
     },
     {
-      title: 'Practice Recovery by Deletion and Restoration',
+      title: inheritancePlanning.backupRecovertPractice,
 
       icon: <PracticeRecovery />,
-      paragraph2:
-        'This process tests the effectiveness of your backup strategy, ensuring that you can confidently rely on it for recovering access to your bitcoin.',
-      paragraph:
-        'After backing up your app and multi-key configuration, intentionally delete the setup from your primary device. Then, attempt to recover it on a fresh app installation or another coordinator app using your backup.',
+      paragraph2: inheritancePlanning.backupRecoveryP2,
+      paragraph: inheritancePlanning.backupRecoveryP1,
     },
     {
-      title: 'Keep Backups and Documentation Updated',
+      title: inheritancePlanning.backupKeepsBackup,
       icon: <KeepBackups />,
-      paragraph2:
-        'Maintaining up-to-date backups is essential for seamless access to your bitcoin, providing security and peace of mind.',
-      paragraph:
-        'Whenever changes are made to your multi-key setup, promptly update your backups and any associated documentation to reflect these adjustments. This includes revising recovery instructions and ensuring all backup mediums are current.',
+      paragraph2: inheritancePlanning.backupKeepsBackupP2,
+      paragraph: inheritancePlanning.backupKeepsBackupP1,
     },
   ];
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <Text style={styles.marginLeft} color={`${colorMode}.white`}>
-        Backup and Recovery Tips
+      <Text style={styles.marginLeft} color="light.primaryBackground">
+        {inheritancePlanning.backupRecoveryTips}
       </Text>
       <TipsSlider items={tips} />
     </ScreenWrapper>

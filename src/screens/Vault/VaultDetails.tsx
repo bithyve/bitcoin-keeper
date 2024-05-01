@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -10,9 +10,8 @@ import KeeperModal from 'src/components/KeeperModal';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
 import SettingIcon from 'src/assets/images/settings_footer.svg';
-import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { SignerType, VaultType } from 'src/services/wallets/enums';
@@ -21,8 +20,6 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
 import openLink from 'src/utils/OpenLink';
@@ -44,6 +41,10 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { formatNumber } from 'src/utils/utilities';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import ImportIcon from 'src/assets/images/import.svg';
+import { reinstateVault } from 'src/store/sagaActions/vaults';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function Footer({
   vault,
@@ -53,34 +54,47 @@ function Footer({
   isCollaborativeWallet: boolean;
 }) {
   const navigation = useNavigation();
-  const footerItems = [
-    {
-      Icon: SendIcon,
-      text: 'Send',
-      onPress: () => {
-        navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-      },
-    },
-    {
-      Icon: RecieveIcon,
-      text: 'Receive',
-      onPress: () => {
-        navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
-      },
-    },
-    {
-      Icon: SettingIcon,
-      text: 'Settings',
-      onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate(
-            isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-            { vaultId: vault.id }
-          )
-        );
-      },
-    },
-  ];
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+  const footerItems = vault.archived
+    ? [
+        {
+          Icon: ImportIcon,
+          text: 'Reinstate',
+          onPress: () => {
+            dispatch(reinstateVault(vault.id));
+            showToast('Vault reinstated successfully', <TickIcon />);
+          },
+        },
+      ]
+    : [
+        {
+          Icon: SendIcon,
+          text: 'Send',
+          onPress: () => {
+            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+          },
+        },
+        {
+          Icon: RecieveIcon,
+          text: 'Receive',
+          onPress: () => {
+            navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+          },
+        },
+        {
+          Icon: SettingIcon,
+          text: 'Settings',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.navigate(
+                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+                { vaultId: vault.id }
+              )
+            );
+          },
+        },
+      ];
   return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
 
@@ -102,6 +116,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         <CardPill
           heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
         />
+        {vault.type === VaultType.CANARY && <CardPill heading={'CANARY'} />}
         {vault.archived ? <CardPill heading={`ARCHIVED`} backgroundColor="grey" /> : null}
       </HStack>
       <CurrencyInfo
@@ -180,12 +195,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const { vaultSigners: keys } = useSigners(vault.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
   const transactions = vault?.specs?.transactions || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
-
+  const isCanaryWallet = vault.type === VaultType.CANARY;
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
@@ -221,53 +235,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     [isCollaborativeWallet]
   );
 
-  const NewVaultContent = useCallback(
-    (m: number, n: number) => (
-      <Box>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          {`Your ${m}-of-${n} vault has been setup successfully. You can start receiving/transfering bitcoin`}
-        </Text>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          For sending bitcoin out of the vault you will need the signers{' '}
-        </Text>
-        <Text style={[styles.descText, styles.mt3]} color={`${colorMode}.greenText`}>
-          You should ensure you have a copy of the wallet configuration file for this vault{' '}
-        </Text>
-        <Box style={styles.alignItems}>
-          {' '}
-          <Success />
-        </Box>
-        {inheritanceSigner && (
-          <Pressable
-            padding={5}
-            backgroundColor={`${colorMode}.pantoneGreenLight`}
-            borderColor={`${colorMode}.pantoneGreen`}
-            style={[styles.addPhoneEmailWrapper]}
-            onPress={() => {
-              navigation.navigate('IKSAddEmailPhone', { vaultId });
-              setVaultCreated(false);
-            }}
-          >
-            <Box style={styles.iconWrapper}>
-              <AddPhoneEmailIcon />
-            </Box>
-            <Box style={styles.titleWrapper}>
-              <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.pantoneGreen`}>
-                {vaultTranslation.addEmailPhone}
-              </Text>
-              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
-                {vaultTranslation.addEmailVaultDetail}
-              </Text>
-            </Box>
-          </Pressable>
-        )}
-      </Box>
-    ),
-    []
-  );
-
-  const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
-
   return (
     <Box
       style={styles.container}
@@ -301,46 +268,52 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           <VaultInfo vault={vault} />
         </VStack>
       </VStack>
-      <HStack style={styles.actionCardContainer}>
-        <ActionCard
-          cardName={'Buy Bitcoin'}
-          description="into this wallet"
-          callback={() =>
-            navigation.dispatch(
-              CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
-            )
-          }
-          icon={<BTC />}
-          cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
-            currencyCodeExchangeRate.buy.toFixed(0)
-          )}`}
-        />
-        <ActionCard
-          cardName="View All Coins"
-          description="Manage UTXO"
-          callback={() =>
-            navigation.navigate('UTXOManagement', {
-              data: vault,
-              routeName: 'Vault',
-              vaultId,
-            })
-          }
-          icon={<CoinIcon />}
-        />
-        <ActionCard
-          cardName="Manage Keys"
-          description="For this vault"
-          callback={() =>
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ManageSigners',
-                params: { vaultId, vaultKeys: vault.signers },
+      {!vault.archived && (
+        <HStack style={styles.actionCardContainer}>
+          {!isCanaryWallet && (
+            <ActionCard
+              cardName={'Buy Bitcoin'}
+              description="into this wallet"
+              callback={() =>
+                navigation.dispatch(
+                  CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
+                )
+              }
+              icon={<BTC />}
+              cardPillText={`1 BTC = ${currencyCodeExchangeRate.symbol} ${formatNumber(
+                currencyCodeExchangeRate.buy.toFixed(0)
+              )}`}
+            />
+          )}
+          <ActionCard
+            cardName="View All Coins"
+            description="Manage UTXO"
+            callback={() =>
+              navigation.navigate('UTXOManagement', {
+                data: vault,
+                routeName: 'Vault',
+                vaultId,
               })
-            )
-          }
-          icon={<SignerIcon />}
-        />
-      </HStack>
+            }
+            icon={<CoinIcon />}
+          />
+          {!isCanaryWallet && (
+            <ActionCard
+              cardName="Manage Keys"
+              description="For this vault"
+              callback={() =>
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'ManageSigners',
+                    params: { vaultId, vaultKeys: vault.signers },
+                  })
+                )
+              }
+              icon={<SignerIcon />}
+            />
+          )}
+        </HStack>
+      )}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <TransactionList
           transactions={transactions}
@@ -351,23 +324,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         />
         <Footer vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
       </VStack>
-      <KeeperModal
-        visible={vaultCreated}
-        title={vaultTranslation.newVaultCreated}
-        subTitle={subtitle}
-        buttonText="Confirm"
-        DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.primaryText`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        buttonCallback={() => {
-          setVaultCreated(false);
-        }}
-        secondaryButtonText="Cancel"
-        secondaryCallback={() => setVaultCreated(false)}
-        close={() => setVaultCreated(false)}
-        Content={() => NewVaultContent(vault.scheme.m, vault.scheme.n)}
-      />
       <KeeperModal
         visible={introModal}
         close={() => {
@@ -381,7 +337,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         subTitle={
           isCollaborativeWallet
             ? vaultTranslation.collaborativeWalletMultipleUsers
-            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signers to the vault`
+            : `Create multi-key vaults of various configurations. Subscribe to unlock advanced features.`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}

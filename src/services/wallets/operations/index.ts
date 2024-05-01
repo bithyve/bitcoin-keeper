@@ -419,7 +419,9 @@ export default class WalletOperations {
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
   };
 
-  static mockFeeRatesForTestnet = () => {
+  static mockFeeRates = () => {
+    // final safety net, enables send flow and consequently the usability of custom fee during fee-info failure scenarios
+
     // high fee: 10 minutes
     const highFeeBlockEstimate = 1;
     const high = {
@@ -441,7 +443,6 @@ export default class WalletOperations {
       estimatedBlocks: lowFeeBlockEstimate,
     };
     const feeRatesByPriority = { high, medium, low };
-
     return feeRatesByPriority;
   };
 
@@ -472,24 +473,24 @@ export default class WalletOperations {
       return feeRatesByPriority;
     } catch (err) {
       console.log('Failed to fetch fee via Fulcrum', { err });
-      throw new Error('Failed to fetch fee');
+      throw new Error('Failed to fetch fee via Fulcrum');
     }
   };
 
   static fetchFeeRatesByPriority = async () => {
     // main: mempool.space, fallback: fulcrum target block based fee estimator
-
-    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      return WalletOperations.mockFeeRatesForTestnet();
-    }
-
     try {
-      const endpoint =
-        RestClient.getTorStatus() === TorStatus.CONNECTED
-          ? 'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/api/v1/fees/recommended'
-          : 'https://mempool.space/api/v1/fees/recommended';
-      const res = await RestClient.get(endpoint);
+      let endpoint;
+      if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+        endpoint = 'https://mempool.space/testnet/api/v1/fees/recommended';
+      } else {
+        endpoint =
+          RestClient.getTorStatus() === TorStatus.CONNECTED
+            ? 'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/api/v1/fees/recommended'
+            : 'https://mempool.space/api/v1/fees/recommended';
+      }
 
+      const res = await RestClient.get(endpoint);
       const mempoolFee: {
         economyFee: number;
         fastestFee: number;
@@ -523,7 +524,12 @@ export default class WalletOperations {
       return feeRatesByPriority;
     } catch (err) {
       console.log('Failed to fetch fee via mempool.space', { err });
-      return WalletOperations.estimateFeeRatesViaElectrum();
+      try {
+        return WalletOperations.estimateFeeRatesViaElectrum();
+      } catch (err) {
+        console.log({ err });
+        return WalletOperations.mockFeeRates();
+      }
     }
   };
 
@@ -814,7 +820,7 @@ export default class WalletOperations {
         const path = `${signer.derivationPath}/${subPath.join('/')}`;
         bip32Derivation.push({
           masterFingerprint,
-          path,
+          path: path.replaceAll('h', "'"),
           pubkey: signerPubkeyMap.get(signer.xpub),
         });
       }
@@ -1304,12 +1310,14 @@ export default class WalletOperations {
         if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
-              PSBT.addSignedDigest(
-                inputIndex,
-                Buffer.from(publicKey, 'hex'),
-                Buffer.from(signature, 'hex'),
-                sighashType
-              );
+              if (signature) {
+                PSBT.addSignedDigest(
+                  inputIndex,
+                  Buffer.from(publicKey, 'hex'),
+                  Buffer.from(signature, 'hex'),
+                  sighashType
+                );
+              }
             }
           }
         }

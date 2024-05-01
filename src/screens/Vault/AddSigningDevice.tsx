@@ -1,14 +1,15 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Signer,
+  Vault,
   VaultScheme,
   VaultSigner,
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
-import { NetworkType, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { NetworkType, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -19,7 +20,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -28,8 +29,12 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
-import { resetSignersUpdateState } from 'src/store/reducers/bhr';
-import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
+import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
+import {
+  generateSignerFromMetaData,
+  getSignerDescription,
+  getSignerNameFromType,
+} from 'src/hardware';
 import Text from 'src/components/KeeperText';
 import SignerCard from '../AddSigner/SignerCard';
 import VaultMigrationController from './VaultMigrationController';
@@ -37,10 +42,19 @@ import { SDIcons } from './SigningDeviceIcons';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
+import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
+import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import TickIcon from 'src/assets/images/tick_icon.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import CardPill from 'src/components/CardPill';
+import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
 
 const { width } = Dimensions.get('screen');
 
-const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) => {
+const getKeyForScheme = (isMultisig, signer, msXpub, ssXpub, amfXpub) => {
   if (amfXpub) {
     return {
       ...amfXpub,
@@ -51,7 +65,7 @@ const getKeyForScheme = (isMock, isMultisig, signer, msXpub, ssXpub, amfXpub) =>
       ),
     };
   }
-  if (isMock || isMultisig) {
+  if (isMultisig) {
     return {
       ...msXpub,
       masterFingerprint: signer.masterFingerprint,
@@ -113,7 +127,7 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
-    const scriptKey = getKeyForScheme(isMock, isMultisig, signer, msXpub, ssXpub, amfXpub);
+    const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
     const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
@@ -121,18 +135,7 @@ const onSignerSelect = (
   }
 };
 
-const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
-  const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
-  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
-  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
-
-  if (
-    (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
-    (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
-  ) {
-    return false;
-  }
-
+const isAssistedKeyValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
     // scheme based restrictions for assisted keys
     if (signer.type === SignerType.POLICY_SERVER) {
@@ -162,17 +165,37 @@ const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigne
   return true;
 };
 
+const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
+  const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
+  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+
+  if (
+    (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
+    (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
+  ) {
+    return false;
+  }
+
+  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+    return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
+  } else return true;
+};
+
 const setInitialKeys = (
   activeVault,
   scheme,
   signerMap,
   setVaultKeys,
   setSelectedSigners,
-  selectedSigners
+  selectedSigners,
+  keyToRotate
 ) => {
   if (activeVault) {
     // setting initital keys (update if scheme has changed)
-    const vaultKeys = activeVault.signers;
+    const vaultKeys = activeVault.signers.filter(
+      (key) => keyToRotate && key.masterFingerprint !== keyToRotate?.masterFingerprint
+    );
     const isMultisig = scheme.n > 1;
     const modifiedVaultKeysForScriptType = [];
     const updatedSignerMap = new Map();
@@ -184,14 +207,7 @@ const setInitialKeys = (
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
           const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
-          const scriptKey = getKeyForScheme(
-            signer.isMock,
-            isMultisig,
-            signer,
-            msXpub,
-            ssXpub,
-            amfXpub
-          );
+          const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
           if (scriptKey) {
             modifiedVaultKeysForScriptType.push(scriptKey);
           }
@@ -284,28 +300,130 @@ function Signers({
   navigation,
   vaultId,
   signerMap,
+  showSelection,
+  keyToRotate,
+  setCreating,
 }) {
-  const renderSigners = () => {
+  const { level } = useSubscriptionLevel();
+  const dispatch = useDispatch();
+
+  const navigateToSigningServerSetup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChoosePolicyNew',
+        params: { signer: undefined, addSignerFlow: false, vaultId: '' },
+      })
+    );
+  };
+
+  const setupInheritanceKey = async () => {
+    try {
+      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
+      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { signer: inheritanceKey } = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        masterFingerprint,
+        signerType: SignerType.INHERITANCEKEY,
+        storageType: SignerStorage.WARM,
+        xfp: id,
+        isMultisig: true,
+      });
+      dispatch(addSigningDevice([inheritanceKey]));
+      showToast(
+        `${inheritanceKey.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
+    } catch (err) {
+      console.log({ err });
+      showToast('Failed to add inheritance key', <TickIcon />);
+    }
+  };
+
+  const renderAssistedKeysShell = () => {
+    // tier-based, display only, till an actual assisted keys is setup
+    const shellAssistedKeys = [];
+
+    const generateShellAssistedKey = (signerType: SignerType): Signer => {
+      return {
+        type: signerType,
+        storageType: SignerStorage.WARM,
+        signerName: getSignerNameFromType(signerType, false, false),
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+        masterFingerprint: '',
+        signerXpubs: {},
+        hidden: false,
+      };
+    };
+
+    let hasSigningServer = false; // actual signing server present?
+    let hasInheritanceKey = false; // actual inheritance key present?
+    for (let signer of signers) {
+      if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
+      else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
+    }
+
+    if (!hasSigningServer && level >= AppSubscriptionLevel.L2)
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
+
+    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3)
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
+
+    return shellAssistedKeys.map((shellSigner, index) => {
+      const disabled = !isAssistedKeyValidForScheme(
+        shellSigner,
+        scheme,
+        signerMap,
+        selectedSigners
+      );
+      const isAMF = false;
+      return (
+        <SignerCard
+          disabled={disabled}
+          key={`${shellSigner.masterFingerprint}_${index}`}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          description={'To setup'}
+          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
+          onCardSelect={() => {
+            if (shellSigner.type === SignerType.POLICY_SERVER) navigateToSigningServerSetup();
+            else if (shellSigner.type === SignerType.INHERITANCEKEY) setupInheritanceKey();
+          }}
+          colorMode={colorMode}
+        />
+      );
+    });
+  };
+
+  const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
-    return signers.map((signer) => {
+    const signerCards = signers.map((signer) => {
       const disabled =
         !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
         (signer.type === SignerType.MY_KEEPER &&
           myAppKeys.length >= 1 &&
-          myAppKeys[0].masterFingerprint !== signer.masterFingerprint);
+          myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+        // disabled selection during change key flow
+        (keyToRotate &&
+          (keyToRotate.masterFingerprint === signer.masterFingerprint ||
+            selectedSigners.get(signer.masterFingerprint)));
       const isAMF =
         signer.type === SignerType.TAPSIGNER &&
         config.NETWORK_TYPE === NetworkType.TESTNET &&
         !signer.isMock;
+
       return (
         <SignerCard
+          showSelection={showSelection}
           disabled={disabled}
           key={signer.masterFingerprint}
           name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
-          onCardSelect={(selected) =>
+          onCardSelect={(selected) => {
             onSignerSelect(
               selected,
               signer,
@@ -315,22 +433,39 @@ function Signers({
               selectedSigners,
               setSelectedSigners,
               showToast
-            )
-          }
+            );
+            if (keyToRotate && vaultKeys.length === scheme.n) {
+              showToast('Updating vault keys and archiving the old vault', <TickIcon />);
+              setCreating(true);
+            }
+          }}
           colorMode={colorMode}
         />
       );
     });
-  };
+    return signerCards;
+  }, [signers]);
+
+  const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
         {signers.length ? (
           <Box style={styles.gap10}>
-            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
-              Choose from already added keys
+            <Text color={`${colorMode}.headerText`} bold style={styles.title} numberOfLines={2}>
+              {keyToRotate
+                ? `Choose the key to be rotated with ${getSignerNameFromType(signer.type)} (${
+                    keyToRotate.masterFingerprint
+                  })`
+                : 'Choose from already added keys'}
             </Text>
-            <Box style={styles.addedSigners}>{renderSigners()}</Box>
+            <Box style={styles.addedSigners}>
+              <>
+                {renderSigners()}
+                {renderAssistedKeysShell()}
+              </>
+            </Box>
           </Box>
         ) : null}
         <Box style={styles.gap10}>
@@ -367,6 +502,7 @@ function AddSigningDevice() {
       name: string;
       description: string;
       vaultId: string;
+      keyToRotate?: VaultSigner;
     };
   };
   const {
@@ -375,16 +511,19 @@ function AddSigningDevice() {
     isInheritance = false,
     vaultId = '',
     scheme,
+    keyToRotate,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { common, signer } = translations;
+  const { vault: vaultTranslation, common, signer } = translations;
+
   const { signers } = useSigners();
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
-  const { activeVault } = useVault({ vaultId });
+  const { activeVault, allVaults } = useVault({ vaultId });
+
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
     vaultKeys,
@@ -392,8 +531,21 @@ function AddSigningDevice() {
     existingKeys: activeVault?.signers || [],
   });
 
-  const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
+  const {
+    relayVaultUpdate,
+    relayVaultError,
+    realyVaultErrorMessage,
+    realySignersUpdateErrorMessage,
+  } = useAppSelector((state) => state.bhr);
+
   const dispatch = useDispatch();
+
+  const [generatedVaultId, setGeneratedVaultId] = useState('');
+  const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
+  const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
+
+  const { vaultSigners: keys } = useSigners(newVault?.id);
+  const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
@@ -406,13 +558,32 @@ function AddSigningDevice() {
   }, [realySignersUpdateErrorMessage]);
 
   useEffect(() => {
+    if (relayVaultUpdate && newVault) {
+      dispatch(resetRealyVaultState());
+      setCreating(false);
+      setVaultCreatedModalVisible(true);
+    } else if (relayVaultUpdate) {
+      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
+      dispatch(resetRealyVaultState());
+      setCreating(false);
+    }
+
+    if (relayVaultError) {
+      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
+      dispatch(resetRealyVaultState());
+      setCreating(false);
+    }
+  }, [relayVaultUpdate, relayVaultError]);
+
+  useEffect(() => {
     setInitialKeys(
       activeVault,
       scheme,
       signerMap,
       setVaultKeys,
       setSelectedSigners,
-      selectedSigners
+      selectedSigners,
+      keyToRotate
     );
   }, []);
 
@@ -433,6 +604,94 @@ function AddSigningDevice() {
     }
   }
 
+  function VaultCreatedModalContent(vault: Vault) {
+    const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
+    return (
+      <Box>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+          <Box style={styles.pillsContainer}>
+            {tags?.map((tag, index) => {
+              return (
+                <CardPill
+                  key={tag}
+                  heading={tag}
+                  backgroundColor={
+                    index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`
+                  }
+                />
+              );
+            })}
+          </Box>
+          <Box style={styles.walletVaultInfoWrapper}>
+            <Box style={styles.iconWrapper}>
+              <HexagonIcon
+                width={44}
+                height={38}
+                backgroundColor={'rgba(45, 103, 89, 1)'}
+                icon={<VaultIcon />}
+              />
+            </Box>
+            <Box>
+              {vault.presentationData.description && (
+                <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+                  {vault.presentationData.description}
+                </Text>
+              )}
+              <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
+                {vault.presentationData.name}
+              </Text>
+            </Box>
+          </Box>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
+            You should ensure you have a copy of the wallet configuration file for this vault
+          </Text>
+        </Box>
+        {inheritanceSigner && (
+          <Pressable
+            backgroundColor={`${colorMode}.pantoneGreenLight`}
+            borderColor={`${colorMode}.pantoneGreen`}
+            style={styles.addPhoneEmailWrapper}
+            onPress={() => {
+              navigation.dispatch(
+                CommonActions.navigate('IKSAddEmailPhone', { vaultId: vault.id })
+              );
+              setVaultCreatedModalVisible(false);
+            }}
+          >
+            <Box style={styles.iconWrapper}>
+              <AddPhoneEmailIcon />
+            </Box>
+            <Box style={styles.titleWrapper}>
+              <Text style={styles.addPhoneEmailTitle} medium color={`${colorMode}.pantoneGreen`}>
+                {vaultTranslation.addEmailPhone}
+              </Text>
+              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
+                {vaultTranslation.addEmailVaultDetail}
+              </Text>
+            </Box>
+          </Pressable>
+        )}
+      </Box>
+    );
+  }
+
+  const viewVault = () => {
+    setVaultCreatedModalVisible(false);
+    const navigationState = {
+      index: 1,
+      routes: [
+        { name: 'Home' },
+        {
+          name: 'VaultDetails',
+          params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
+        },
+      ],
+    };
+    navigation.dispatch(CommonActions.reset(navigationState));
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -450,14 +709,16 @@ function AddSigningDevice() {
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}
-        setCreating={setCreating}
         vaultKeys={vaultKeys}
         scheme={scheme}
         name={name}
         description={description}
         vaultId={vaultId}
+        setGeneratedVaultId={setGeneratedVaultId}
       />
       <Signers
+        keyToRotate={keyToRotate}
+        showSelection={!keyToRotate}
         signers={signers}
         selectedSigners={selectedSigners}
         setSelectedSigners={setSelectedSigners}
@@ -469,6 +730,7 @@ function AddSigningDevice() {
         navigation={navigation}
         vaultId={vaultId}
         signerMap={signerMap}
+        setCreating={setCreating}
       />
       <Footer
         amfSigners={amfSigners}
@@ -481,6 +743,22 @@ function AddSigningDevice() {
         common={common}
         colorMode={colorMode}
         setCreating={setCreating}
+      />
+      <KeeperModal
+        dismissible
+        close={() => {}}
+        visible={vaultCreatedModalVisible}
+        title={'Vault Created Successfully!'}
+        subTitle={`Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`}
+        Content={() => VaultCreatedModalContent(newVault)}
+        buttonText={'View Vault'}
+        buttonCallback={viewVault}
+        showButtons
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(280)}
+        showCloseIcon={false}
       />
     </ScreenWrapper>
   );
@@ -552,6 +830,51 @@ const styles = StyleSheet.create({
   title: {
     marginLeft: 15,
     fontSize: 14,
+  },
+  walletVaultInfoContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 20,
+    marginVertical: 20,
+    borderRadius: 10,
+  },
+  pillsContainer: {
+    flexDirection: 'row',
+    gap: 5,
+    justifyContent: 'flex-end',
+    marginBottom: 10,
+  },
+  walletVaultInfoWrapper: {
+    flexDirection: 'row',
+  },
+  iconWrapper: {
+    marginRight: 10,
+  },
+  titleText: {
+    fontSize: 14,
+  },
+  descText: {
+    fontSize: 13,
+    width: wp(300),
+  },
+  addPhoneEmailWrapper: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: hp(20),
+    paddingVertical: hp(10),
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+  },
+  titleWrapper: {
+    width: '75%',
+  },
+  addPhoneEmailTitle: {
+    fontSize: 14,
+  },
+  addPhoneEmailSubTitle: {
+    fontSize: 12,
   },
 });
 

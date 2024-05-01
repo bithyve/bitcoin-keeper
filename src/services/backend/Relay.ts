@@ -10,6 +10,8 @@ import { captureError } from '../sentry';
 
 const { HEXA_ID, RELAY } = config;
 const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
+const MEMPOOL_ENDPOINT = 'https://mempool.space';
+
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -450,14 +452,12 @@ export default class Relay {
     txid: any;
     funded: any;
   }> => {
-    if (network === NetworkType.MAINNET) {
+    if (network === NetworkType.MAINNET)
       throw new Error('Invalid network: failed to fund via testnet');
-    }
-    const amount = 5000 / SATOSHIS_IN_BTC;
+
     try {
       const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
         recipientAddress,
-        amount,
       });
       const { txid, funded } = res.data;
       return {
@@ -568,6 +568,51 @@ export default class Relay {
       const response = await RestClient.get(TOR_ENDPOINT, { timeout: 20000 });
       const data = (response as AxiosResponse).data || (response as any).json;
       return data.IsTor;
+    } catch (error) {
+      captureError(error);
+      throw error;
+    }
+  };
+
+  public static fetchOneDayHistoricalFee = async (): Promise<any> => {
+    try {
+      const response = await RestClient.get(`${RELAY}onedayGraphData`);
+      const data = (response as AxiosResponse).data || (response as any).json;
+      if (data && data.graph_data.data) {
+        return data.graph_data.data;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      captureError(error);
+      throw error;
+    }
+  };
+
+  public static fetchOneWeekHistoricalFee = async (): Promise<any> => {
+    try {
+      const response = await RestClient.get(`${RELAY}oneweekGraphData`);
+      const data = (response as AxiosResponse).data || (response as any).json;
+      if (data && data.graph_data.data) {
+        return data.graph_data.data;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      captureError(error);
+      throw error;
+    }
+  };
+
+  public static fetchFeeInsightData = async (): Promise<any> => {
+    try {
+      const response = await RestClient.get(`${RELAY}feeInsighData`);
+      const data = (response as AxiosResponse).data || (response as any).json;
+      if (data && data.insightData) {
+        return data.insightData;
+      } else {
+        return {};
+      }
     } catch (error) {
       captureError(error);
       throw error;
