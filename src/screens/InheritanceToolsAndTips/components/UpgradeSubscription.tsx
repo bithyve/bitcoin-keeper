@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
   container: {
     borderTopWidth: 2,
     paddingTop: hp(10),
-    // borderTopColor: Colors.LightSkin,
     height: hp(40),
   },
 });

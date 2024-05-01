@@ -33,29 +33,21 @@ export function OptionCard({
   const { colorMode } = useColorMode();
   return (
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
-      <HStack
-        padding={3}
-        width={windowWidth * 0.85}
-        justifyContent="space-between"
-        alignItems="center"
-        borderRadius={10}
-        testID={`view_${title.replace(/ /g, '_')}`}
-      >
+      <HStack style={styles.container} testID={`view_${title.replace(/ /g, '_')}`}>
         <HStack style={[styles.iconContainer, { opacity: disabled ? 0.8 : 1 }]}>
           {LeftIcon && LeftIcon}
           <VStack>
             {preTitle && (
               <Text
                 italic
-                color={
-                  colorMode === 'light' ? `${colorMode}.LightGreenish` : `${colorMode}.primaryText`
-                }
+                color={`${colorMode}.PretitleColor`}
                 testID={`text_${title.replace(/ /g, '_')}`}
-                style={{
-                  fontSize: 13,
-                  letterSpacing: 0.13,
-                  opacity: colorMode === 'light' ? 1 : 0.7,
-                }}
+                style={[
+                  styles.preTitle,
+                  {
+                    opacity: colorMode === 'light' ? 1 : 0.7,
+                  },
+                ]}
               >
                 {preTitle}
               </Text>
@@ -69,18 +61,19 @@ export function OptionCard({
                   : titleColor || `${colorMode}.primaryText`
               }
               testID={`text_${title.replace(/ /g, '_')}`}
-              style={{ fontSize: 13, letterSpacing: 0.13 }}
+              style={styles.preTitle}
             >
               {title}
             </Text>
             {description && (
               <Text
                 color={descriptionColor || `${colorMode}.GreyText`}
-                style={{
-                  fontSize: 12,
-                  letterSpacing: 0.12,
-                  opacity: colorMode === 'light' ? 1 : 0.8,
-                }}
+                style={[
+                  styles.descpTitle,
+                  {
+                    opacity: colorMode === 'light' ? 1 : 0.8,
+                  },
+                ]}
               >
                 {description}
               </Text>
@@ -103,6 +96,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
     paddingRight: 20,
+  },
+  preTitle: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  descpTitle: {
+    fontSize: 12,
+    letterSpacing: 0.12,
+  },
+  container: {
+    padding: 3,
+    width: windowWidth * 0.85,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
   },
 });
 
