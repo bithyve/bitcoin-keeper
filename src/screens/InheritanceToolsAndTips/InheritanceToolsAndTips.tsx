@@ -38,7 +38,7 @@ function InheritanceToolsAndTips({ navigation }) {
 
   // TODO: add learn more modal
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={inheritanceTranslation.SecurityAndInheritance}
         subtitle={inheritanceTranslation.SecurityAndInheritanceDescp}

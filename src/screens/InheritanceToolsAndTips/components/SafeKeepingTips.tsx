@@ -52,7 +52,7 @@ function SafeGuardingTips({}) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
-      <Text style={styles.container} color={`${colorMode}.white`}>
+      <Text style={styles.container} color="light.primaryBackground">
         Key Safekeeping Tips
       </Text>
       <TipsSlider items={tips} />

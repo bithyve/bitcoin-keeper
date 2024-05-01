@@ -51,10 +51,10 @@ function MasterRecoveryKey({ navigation }) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color="light.primaryBackground">
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.masterKeyNote}</Text>
+          <Text color="light.primaryBackground">{inheritancePlanning.masterKeyNote}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
