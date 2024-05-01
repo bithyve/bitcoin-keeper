@@ -9,9 +9,10 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { exportFile, importFile } from 'src/services/fs';
+import { SignerType } from 'src/services/wallets/enums';
 
 const HandleFileScreen = ({ route, navigation }) => {
-  const { title, subTitle, onFileExtract, ctaText, fileData = '' } = route.params;
+  const { title, subTitle, onFileExtract, ctaText, fileData = '', signer } = route.params;
   const [inputText, setInputText] = useState('');
 
   const { colorMode } = useColorMode();
@@ -29,7 +30,8 @@ const HandleFileScreen = ({ route, navigation }) => {
       },
       (_) => {
         showToast('Please pick a valid file', <ToastErrorIcon />);
-      }
+      },
+      signer.type === SignerType.KEYSTONE ? 'base64' : 'utf8'
     );
   };
 

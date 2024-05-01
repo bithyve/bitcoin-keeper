@@ -28,6 +28,7 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -118,7 +119,7 @@ function NewHomeScreen({ navigation }) {
     {
       name: homeTranslation.KeeperConcierge,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
+      callback: () => dispatch(goToConcierge([], 'home-screen')),
     },
   ];
 

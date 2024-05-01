@@ -5,6 +5,7 @@ import ServerIcon from 'src/assets/images/server-network.svg';
 import ServerGreyIcon from 'src/assets/images/server-network-grey.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
 import BirdIcon from 'src/assets/images/bird.svg';
+import BirdDisabledIcon from 'src/assets/images/bird_disabled.svg';
 
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -52,29 +53,16 @@ function KeySecurity({ navigation }) {
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       /> */}
+      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
       <OptionCard
-        disabled
-        //---for future use---
-        // preTitle={`${
-        //   inheritanceToolVisitedHistory[CANARY_WALLETS] === undefined
-        //     ? 'Never accessed'
-        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[CANARY_WALLETS])}`
-        // }`}
-        CardPill={
-          <CardPill
-            heading={inheritancePlanning.commingSoon}
-            backgroundColor={Colors.LightPurple}
-          />
-        }
-        title={inheritancePlanning.canaryWallet}
-        description={inheritancePlanning.canaryWalletDesp}
-        LeftIcon={<BirdIcon />}
+        disabled={!isHodlerAndDiamondHand}
+        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
+        title="Canary Wallets"
+        description="Alert on key compromise"
+        LeftIcon={!isHodlerAndDiamondHand ? <BirdDisabledIcon /> : <BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
-
       <OptionCard
-        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
         disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.assistedKeys}
         description={inheritancePlanning.assistedKeysDesp}

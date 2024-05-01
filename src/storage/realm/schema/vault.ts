@@ -148,6 +148,7 @@ export const SignerSchema: ObjectSchema = {
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
     hidden: { type: 'bool', default: false },
     extraData: '{}?',
+    archived: { type: 'bool', default: false },
   },
 };
 
@@ -197,6 +198,7 @@ export const VaultSchema: ObjectSchema = {
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
     archived: 'bool',
+    archivedId: 'string?',
     scriptType: 'string',
   },
   primaryKey: 'id',

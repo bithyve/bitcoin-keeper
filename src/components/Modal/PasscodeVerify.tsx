@@ -31,7 +31,14 @@ const defaultProps: Props = {
   forcedMode: false,
 };
 
-function PasscodeVerifyModal({ useBiometrics, close, onSuccess, primaryText }: Props) {
+function PasscodeVerifyModal({
+  useBiometrics,
+  close,
+  onSuccess,
+  primaryText,
+  forcedMode,
+  onForceSuccess,
+}: Props) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -102,9 +109,9 @@ function PasscodeVerifyModal({ useBiometrics, close, onSuccess, primaryText }: P
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
-      if (props.forcedMode) {
-        props.onForceSuccess();
-        props.close();
+      if (forcedMode) {
+        onForceSuccess();
+        close();
         dispatch(credsAuthenticated(false));
       } else {
         setLoginError(true);

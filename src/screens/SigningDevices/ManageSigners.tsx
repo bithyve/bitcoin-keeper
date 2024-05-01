@@ -156,6 +156,9 @@ function SignersList({
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            if (signer.archived) {
+              return null;
+            }
             const isRegistered = vaultKeys.length
               ? item.registeredVaults.find((info) => info.vaultId === vault.id)
               : false;

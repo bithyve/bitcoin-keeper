@@ -8,7 +8,6 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
-import FaqIcon from 'src/assets/images/faq.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CloudIcon from 'src/assets/images/cloud-white.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
@@ -19,9 +18,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
-import config, {
-  APP_STAGE,
-  KEEPER_KNOWLEDGEBASE,
+import {
   KEEPER_WEBSITE_BASE_URL,
 } from 'src/utils/service-utilities/config';
 import ActionCard from 'src/components/ActionCard';
@@ -41,7 +38,6 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 
 function AppSettings({ navigation, route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -75,10 +71,6 @@ function AppSettings({ navigation, route }) {
     toggleColorMode();
   };
 
-  const initChat = async () => {
-    dispatch(goToConcierge([], 'app-settings'));
-  };
-
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
@@ -100,14 +92,6 @@ function AppSettings({ navigation, route }) {
       cardName: settings.ManageWallets,
       icon: <WalletIcon />,
       callback: () => navigation.navigate('ManageWallets'),
-    },
-    {
-      cardName: `Keeper\nConcierge`,
-      icon: <FaqIcon />,
-      callback: () =>
-        config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
-          ? initChat()
-          : openLink(`${KEEPER_KNOWLEDGEBASE}`),
     },
     {
       cardName: settings.personalCloudBackup,
