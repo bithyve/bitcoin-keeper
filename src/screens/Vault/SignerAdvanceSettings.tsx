@@ -106,9 +106,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
-  const { plan } = usePlan();
-  const isOnL2 = plan === SubscriptionTier.L3.toUpperCase();
-  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
+  const { isOnL2Above } = usePlan();
 
   const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
 
@@ -531,7 +529,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
-  const isCanaryWalletAllowed = isOnL2 || isOnL3;
+  const isCanaryWalletAllowed = isOnL2Above;
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
