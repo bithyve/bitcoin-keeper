@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView } from 'native-base';
 import OptionCard from 'src/components/OptionCard';
 import ServerIcon from 'src/assets/images/server-network.svg';
@@ -21,10 +21,13 @@ import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
 import CardPill from 'src/components/CardPill';
 import Colors from 'src/theme/Colors';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
   const { plan } = usePlan();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
   const isHodlerAndDiamondHand =
     plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L2.toUpperCase();
 
@@ -61,9 +64,8 @@ function KeySecurity({ navigation }) {
       />
       <OptionCard
         disabled={!isHodlerAndDiamondHand}
-        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
-        title="Assisted Keys"
-        description="Server hosted signers"
+        title={inheritancePlanning.assistedKeys}
+        description={inheritancePlanning.assistedKeysDesp}
         LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
@@ -72,8 +74,8 @@ function KeySecurity({ navigation }) {
           preTitle={`${getTimeDifferenceInWords(
             inheritanceToolVisitedHistory?.[SECURE_USAGE_TIPS]
           )}`}
-          title="Secure Usage Tips"
-          description="Recommendations while transacting"
+          title={inheritancePlanning.secureUsageTips}
+          description={inheritancePlanning.secureUsageTipsDesp}
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeGuardingTips', SECURE_USAGE_TIPS)}
         />
@@ -81,8 +83,8 @@ function KeySecurity({ navigation }) {
           preTitle={`${getTimeDifferenceInWords(
             inheritanceToolVisitedHistory?.[SAFE_KEEPING_TIPS]
           )}`}
-          title="Safekeeping Tips"
-          description="Key storage best practices"
+          title={inheritancePlanning.safeKeepingTips}
+          description={inheritancePlanning.safeKeepingTipsDesp}
           LeftIcon={<VaultGreenIcon />}
           callback={() => navigate('SafeKeepingTips', SAFE_KEEPING_TIPS)}
         />

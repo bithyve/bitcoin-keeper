@@ -22,7 +22,7 @@ function InheritanceToolsAndTips({ navigation }) {
   const isSmallDevice = useIsSmallDevices();
 
   const { translations } = useContext(LocalizationContext);
-  const { inheritence } = translations;
+  const { inheritence: inheritanceTranslation } = translations;
   const [selectedCard, selectCard] = useState(1);
 
   let setPadding;
@@ -40,15 +40,15 @@ function InheritanceToolsAndTips({ navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={inheritence.SecurityAndInheritance}
-        subtitle={inheritence.SecurityAndInheritanceDescp}
+        title={inheritanceTranslation.SecurityAndInheritance}
+        subtitle={inheritanceTranslation.SecurityAndInheritanceDescp}
         // To-Do-Learn-More
       />
       <HStack style={[styles.container, { paddingBottom: setPadding }]}>
         <WalletCard
           id={1}
           numberOfLines={2}
-          walletName={`Key\nSecurity`}
+          walletName={inheritanceTranslation.KeySecurity}
           icon={<WalletActiveIcon />}
           selectedIcon={<WalletGreenIcon />}
           selectedCard={selectedCard}
@@ -58,7 +58,7 @@ function InheritanceToolsAndTips({ navigation }) {
         <WalletCard
           id={2}
           numberOfLines={2}
-          walletName={`Backup and\nRecovery`}
+          walletName={inheritanceTranslation.BackupAndRecovery}
           icon={<ImportIcon />}
           selectedIcon={<ImportGreenIcon />}
           selectedCard={selectedCard}
@@ -68,7 +68,7 @@ function InheritanceToolsAndTips({ navigation }) {
         <WalletCard
           id={3}
           numberOfLines={2}
-          walletName={`Inheritance\nDocuments`}
+          walletName={inheritanceTranslation.InheritanceDocuments}
           icon={<AdvancedIcon />}
           selectedIcon={<AdvancedGreenIcon />}
           selectedCard={selectedCard}

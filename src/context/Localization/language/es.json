@@ -99,7 +99,8 @@
     "addNow": "ADD NOW",
     "runHealthCheck": "Run Health Check",
     "needMoreHelp": "Need more help?",
-    "action": "Action"
+    "action": "Action",
+    "commingSoon": "COMING SOON"
   },
   "noInternet": {
     "no": "No Internet",
@@ -243,7 +244,12 @@
     "Thiswillbesecured": "This will be secured once it crosses 0.1 btc",
     "SecureNow": "Secure Now",
     "ScanQR": "Scan a QR",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "ManageKeys": "Manage\nKeys",
+    "InheritancePlanning": "Inheritance\nPlanning",
+    "NeedHelp": "Need\nHelp?",
+    "KeeperConcierge": "Keeper\nConcierge",
+    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed"
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -298,7 +304,10 @@
     "inheritanceSupport": "Inheritance Support",
     "inheritanceSupportSubTitle": "Keeper provides you with the tips and tools you need to include the vault in your estate planning",
     "consultYourEstate": "Contact your estate planning attorney and advisors to ensure the documents provided here are suitable for your needs and are as per your jurisdiction",
-    "secureBequeathBitcoin": "Plan your bitcoin inheritance"
+    "secureBequeathBitcoin": "Plan your bitcoin inheritance",
+    "KeySecurity": "Key\nSecurity",
+    "BackupAndRecovery": "Backup and\nRecovery",
+    "InheritanceDocuments": "Inheritance\nDocuments"
   },
   "wallet": {
     "Createwallet": "Create a wallet",
@@ -723,6 +732,7 @@
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",
     "choosePlanSubTitle": "You are currently on the basic plan",
+    "choosePlanSubtitle": "Upgrade or downgrade",
     "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise",
     "confirming": "Confirming your subscription",
     "pleaseStay": "Please stay on this screen as it may take a little while...",
@@ -730,7 +740,10 @@
     "restorePurchases": "Restore Purchases",
     "validateSubscriptionTitle": "Failed to validate your subscription",
     "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?",
-    "viewSubscription": "View Subsciption"
+    "viewSubscription": "View Subsciption",
+    "noAvailablePurchaseMessage": "No purchases found",
+    "currentSubscriptionMessage": "Already subscribed to ",
+    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup Phrase",
@@ -792,7 +805,10 @@
     "addSignerSubTitle": "to Valinor",
     "addSigners": "Add Signers",
     "addKeys": "Add keys",
-    "keyDetails": "Key Details"
+    "addKey": "Add key",
+    "keyDetails": "Key Details",
+    "ManageKeys": "Manage Keys",
+    "ViewAndChangeKeyDetails": "View and change key details"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
