@@ -80,10 +80,10 @@ function WalletConfigurationFiles() {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color="light.primaryBackground">
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.walletConfigFilesNote}</Text>
+          <Text color="light.primaryBackground">{inheritancePlanning.walletConfigFilesNote}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

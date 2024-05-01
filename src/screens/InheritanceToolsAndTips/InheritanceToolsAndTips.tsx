@@ -38,11 +38,11 @@ function InheritanceToolsAndTips({ navigation }) {
 
   // TODO: add learn more modal
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Champagne`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={inheritence.SecurityAndInheritance}
         subtitle={inheritence.SecurityAndInheritanceDescp}
-      // To-Do-Learn-More
+        // To-Do-Learn-More
       />
       <HStack style={[styles.container, { paddingBottom: setPadding }]}>
         <WalletCard
