@@ -65,6 +65,7 @@ export interface Signer {
   inheritanceKeyInfo?: InheritanceKeyInfo; // IKS config and policy
   hidden: boolean;
   extraData?: SignerExtraData;
+  archived?: boolean;
 }
 
 export type RegisteredVaultInfo = {
@@ -99,6 +100,7 @@ export interface Vault {
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
   archived: boolean;
+  archivedId?: string;
   scriptType: ScriptTypes;
   receivingAddress?: string;
 }

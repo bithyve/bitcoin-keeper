@@ -47,10 +47,10 @@ function AssistedKeysContentSlider(props) {
           />
         </Box>
         <Box width={'90%'} mt={hp(15)}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color="light.primaryBackground">
             Note:{' '}
           </Text>
-          <Text color={`${colorMode}.white`}>{props.note}</Text>
+          <Text color="light.primaryBackground">{props.note}</Text>
         </Box>
       </Box>
     </ScrollView>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, wp } from 'src/constants/responsive';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
@@ -15,29 +15,38 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useTestSats from 'src/hooks/useTestSats';
 import KeeperModal from 'src/components/KeeperModal';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { useDispatch } from 'react-redux';
-import { deleteVault } from 'src/store/sagaActions/vaults';
+import { Vault } from 'src/services/wallets/interfaces/vault';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { vaultId } = route.params;
   const { activeVault: vault } = useVault({ vaultId });
-  const dispatch = useDispatch();
   const descriptorString = genrateOutputDescriptors(vault);
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+
   const { showToast } = useToastMessage();
 
-  const onSuccess = () => {
-    dispatch(deleteVault(vaultId));
-    const popAction = StackActions.pop(2);
-    navigation.dispatch(popAction);
-    showToast('Vault deleted successfully', <TickIcon />);
+  const updateWalletVisibility = () => {
+    try {
+      dbManager.updateObjectById(RealmSchema.Vault, vault.id, {
+        presentationData: {
+          name: vault.presentationData.name,
+          description: vault.presentationData.description,
+          visibility: VisibilityType.HIDDEN,
+          shell: vault.presentationData.shell,
+        },
+      });
+      showToast('Vault hidden successfully');
+      navigation.navigate('Home');
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -75,8 +84,13 @@ function VaultSettings({ route }) {
           title="Archived vault"
           description="View details of old vaults"
           callback={() => {
-            navigation.dispatch(CommonActions.navigate('ArchivedVault'));
+            navigation.dispatch(CommonActions.navigate('ArchivedVault', { vaultId }));
           }}
+        />
+        <OptionCard
+          title="Hide vault"
+          description="Hidden vaults can be managed from manage wallets"
+          callback={() => updateWalletVisibility()}
         />
         <OptionCard
           title="Update scheme"
@@ -85,13 +99,6 @@ function VaultSettings({ route }) {
             navigation.dispatch(
               CommonActions.navigate({ name: 'VaultSetup', params: { vaultId } })
             );
-          }}
-        />
-        <OptionCard
-          title="Delete vault"
-          description="This will delete the vault and it is irreversible"
-          callback={() => {
-            setConfirmPassVisible(true);
           }}
         />
         {TestSatsComponent}
@@ -112,26 +119,6 @@ function VaultSettings({ route }) {
         showCloseIcon={false}
         Content={() => (
           <EditWalletDetailsModal wallet={vault} close={() => setVaultDetailVisible(false)} />
-        )}
-      />
-      <KeeperModal
-        visible={confirmPassVisible}
-        closeOnOverlayClick={false}
-        close={() => setConfirmPassVisible(false)}
-        title="Enter Passcode"
-        subTitleWidth={wp(240)}
-        subTitle={'Confirm passcode to delete the vault'}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics={false}
-            close={() => {
-              setConfirmPassVisible(false);
-            }}
-            onSuccess={onSuccess}
-          />
         )}
       />
     </ScreenWrapper>

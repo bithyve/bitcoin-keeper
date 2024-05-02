@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -28,6 +28,7 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import SettingIcon from 'src/assets/images/settings.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -42,6 +43,9 @@ function ManageSigners({ route }: ScreenProps) {
   const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
+
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslation } = translations;
 
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
@@ -85,8 +89,8 @@ function ManageSigners({ route }: ScreenProps) {
     >
       <Box style={styles.topSection}>
         <KeeperHeader
-          title="Manage Keys"
-          subtitle="View and change key details"
+          title={signerTranslation.ManageKeys}
+          subtitle={signerTranslation.ViewAndChangeKeyDetails}
           mediumTitle
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
@@ -140,7 +144,8 @@ function SignersList({
   typeBasedIndicator: any;
 }) {
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
-
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslation } = translations;
   return (
     <SafeAreaView style={styles.topContainer}>
       <ScrollView
@@ -151,6 +156,9 @@ function SignersList({
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            if (signer.archived) {
+              return null;
+            }
             const isRegistered = vaultKeys.length
               ? item.registeredVaults.find((info) => info.vaultId === vault.id)
               : false;
@@ -190,7 +198,11 @@ function SignersList({
             );
           })}
           {!vaultKeys.length ? (
-            <AddCard name="Add Key" cardStyles={styles.addCard} callback={handleAddSigner} />
+            <AddCard
+              name={signerTranslation.addKey}
+              cardStyles={styles.addCard}
+              callback={handleAddSigner}
+            />
           ) : null}
         </Box>
       </ScrollView>

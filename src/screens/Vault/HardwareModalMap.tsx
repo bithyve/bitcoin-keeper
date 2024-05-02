@@ -769,7 +769,9 @@ function HardwareModalMap({
   const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { signers } = useSigners();
-  const myAppKeys = signers.filter((signer) => signer.type === SignerType.MY_KEEPER);
+  const myAppKeys = signers.filter(
+    (signer) => signer.type === SignerType.MY_KEEPER && !signer.archived
+  );
   const { signerMap } = useSignerMap() as { signerMap: { [key: string]: Signer } };
 
   const appId = useAppSelector((state) => state.storage.appId);

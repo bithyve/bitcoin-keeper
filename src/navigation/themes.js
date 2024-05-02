@@ -158,6 +158,7 @@ export const customTheme = extendTheme({
       dullGreen: Colors.DullGreen,
       darkGrey: Colors.DarkGrey,
       lightSkin: Colors.LightSkin,
+      PretitleColor: Colors.LightGreenish,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -250,7 +251,7 @@ export const customTheme = extendTheme({
       dropdownSeparator: Colors.Taupe,
       LightGreen: Colors.lightGreen,
       MintWhisper: Colors.MintWhisper,
-      lightSkin: Colors.LightSkin,
+      lightSkin: Colors.DarkSkin,
       // SlateGrey: Colors.SlateGrey,
       // LightKhaki: Colors.LightKhaki,
       // SmokeGreen: Colors.SmokeGreen,
@@ -269,6 +270,7 @@ export const customTheme = extendTheme({
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,
       signerCardPill: Colors.Purple,
+      PretitleColor: Colors.RichBlackDark,
     },
   },
   config: {

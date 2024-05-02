@@ -46,10 +46,10 @@ function RecoveryPhraseTemplate({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color="light.primaryBackground">
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.recoveryPhraseNotes}</Text>
+          <Text color="light.primaryBackground">{inheritancePlanning.recoveryPhraseNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

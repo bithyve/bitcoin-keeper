@@ -820,7 +820,7 @@ export default class WalletOperations {
         const path = `${signer.derivationPath}/${subPath.join('/')}`;
         bip32Derivation.push({
           masterFingerprint,
-          path,
+          path: path.replaceAll('h', "'"),
           pubkey: signerPubkeyMap.get(signer.xpub),
         });
       }

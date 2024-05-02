@@ -18,6 +18,7 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
+import useDeletedVault from 'src/hooks/useDeletedVaults';
 
 function VaultMigrationController({
   vaultCreating,
@@ -41,6 +42,7 @@ function VaultMigrationController({
     unconfirmed: 0,
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
+  const { deletedVaults } = useDeletedVault();
 
   const [recipients, setRecepients] = useState<any[]>();
 
@@ -133,13 +135,13 @@ function VaultMigrationController({
       };
       const allVaultIds = allVaults.map((vault) => vault.id);
       const generatedVaultId = generateVaultId(signers, scheme);
-      if (allVaultIds.includes(generatedVaultId)) {
+      const deletedVaultIds = deletedVaults.map((vault) => vault.id);
+      if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
         Alert.alert('Vault with this configuration already exists');
         navigation.goBack();
       } else {
         setGeneratedVaultId(generatedVaultId);
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-
         return vaultInfo;
       }
     } catch (err) {

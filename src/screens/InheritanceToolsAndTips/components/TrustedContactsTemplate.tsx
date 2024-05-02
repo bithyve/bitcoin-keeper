@@ -46,10 +46,10 @@ function TrustedContactTemplates({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color="light.primaryBackground">
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.trustedContactsNotes}</Text>
+          <Text color="light.primaryBackground">{inheritancePlanning.trustedContactsNotes}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

@@ -30,7 +30,7 @@ function CosignerDetails({ route }: ScreenProps) {
       if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
         const keyDescriptor = getKeyExpression(
           signer.masterFingerprint,
-          idx(signer, (_) => _.signerXpubs[type][0].derivationPath),
+          idx(signer, (_) => _.signerXpubs[type][0].derivationPath.replaceAll('h', "'")),
           idx(signer, (_) => _.signerXpubs[type][0].xpub),
           false
         );
