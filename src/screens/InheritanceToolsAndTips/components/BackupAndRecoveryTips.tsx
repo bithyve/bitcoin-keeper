@@ -47,9 +47,9 @@ function BackupAndRecoveryTips({}) {
   ];
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
-      <Text style={styles.marginLeft} color="light.primaryBackground">
+      <Text style={styles.marginLeft} color={`${colorMode}.modalGreenContent`}>
         {inheritancePlanning.backupRecoveryTips}
       </Text>
       <TipsSlider items={tips} />

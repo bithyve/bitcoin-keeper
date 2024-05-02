@@ -28,7 +28,10 @@ function DashedButton({
   const { colorMode } = useColorMode();
   return (
     <TouchableOpacity onPress={() => callback(name)}>
-      <Box style={[styles.AddCardContainer]}>
+      <Box
+        style={[styles.AddCardContainer]}
+        backgroundColor={`${colorMode}.dashedButtonBackground`}
+      >
         <HexagonIcon
           width={iconWidth}
           height={iconHeight}
@@ -36,8 +39,8 @@ function DashedButton({
           icon={icon}
         />
         <Box>
-          <Text color={`${colorMode}.choosePlanHome`}>{name}</Text>
-          <Text color={`${colorMode}.choosePlanHome`}>{description}</Text>
+          <Text color={`${colorMode}.dashedButtonContent`}>{name}</Text>
+          <Text color={`${colorMode}.dashedButtonContent`}>{description}</Text>
         </Box>
       </Box>
     </TouchableOpacity>
@@ -53,7 +56,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: Colors.White,
-    backgroundColor: Colors.lightGreen,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
