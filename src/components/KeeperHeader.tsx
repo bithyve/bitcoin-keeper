@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
-import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 type Props = {
@@ -163,7 +163,7 @@ const getStyles = (marginLeft: boolean) =>
       width: windowWidth * 0.45,
     },
     availableBalance: {
-      marginLeft: hp(68),
+      marginLeft: wp(68),
     },
   });
 export default KeeperHeader;
