@@ -254,12 +254,8 @@ function AddSendAmount({ route }) {
         style={styles.Container}
       >
         <KeeperHeader
-          title={
-            transferType === TransferType.WALLET_TO_WALLET
-              ? `Sending to Wallet`
-              : `Enter the Amount`
-          }
-          subtitle={`From ${sender.presentationData.name}`}
+          title="Sending from"
+          subtitle={sender.presentationData.name}
           marginLeft={false}
           rightComponent={<CurrencyTypeSwitch />}
           icon={
@@ -406,7 +402,7 @@ function AddSendAmount({ route }) {
               <Input
                 testID="input_note"
                 backgroundColor={`${colorMode}.seashellWhite`}
-                placeholder="Add a note"
+                placeholder="Add a note (optional)"
                 autoCapitalize="sentences"
                 placeholderTextColor={`${colorMode}.greenText`}
                 color={`${colorMode}.greenText`}
