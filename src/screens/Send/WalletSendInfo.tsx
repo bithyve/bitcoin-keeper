@@ -7,11 +7,9 @@ import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import BTCWhite from 'src/assets/images/btc_white.svg';
 
-import { SatsToBtc } from 'src/constants/Bitcoin';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 function WalletSendInfo({
   availableAmt,
@@ -21,6 +19,7 @@ function WalletSendInfo({
   currencyIcon = BTCIcon,
   selectedUTXOs = [],
   isAddress = false,
+  recipient = null,
   icon,
 }) {
   const { colorMode } = useColorMode();
@@ -37,29 +36,22 @@ function WalletSendInfo({
         </Box>
         <Box style={styles.walletSendInfoWrapper}>
           <Text color={`${colorMode}.primaryText`} numberOfLines={1} style={styles.walletNameText}>
-            Sending To
+            Sending to {isAddress ? 'address' : recipient.entityKind.toLowerCase()}
           </Text>
           {selectedUTXOs.length ? (
             <Text fontSize={12} numberOfLines={1} color={`${colorMode}.primaryText`}>
               {walletTranslation.sendingFromUtxo} &nbsp;
               {colorMode === 'light' ? <BTCIcon /> : <BTCWhite />}
               &nbsp;
-              <Text bold fontSize={14}>
+              {/* <Text bold fontSize={14}>
                 {SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0))} {isSats && 'sats'}
-              </Text>
+              </Text> */}
             </Text>
           ) : (
             <Box>
-              <Text fontSize={14} numberOfLines={1} ellipsizeMode={isAddress ? "middle" : "tail"}>
+              <Text fontSize={14} numberOfLines={1} ellipsizeMode={isAddress ? 'middle' : 'tail'}>
                 {walletName}
               </Text>
-              <CurrencyInfo
-                hideAmounts={false}
-                amount={availableAmt}
-                fontSize={14}
-                color={`${colorMode}.primaryText`}
-                variation={colorMode === 'light' ? 'dark' : 'light'}
-              />
             </Box>
           )}
         </Box>
@@ -117,7 +109,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     fontSize: 12,
     letterSpacing: 1.12,
-    width: wp(100),
+    width: wp(120),
     fontWeight: 500,
     marginBottom: -4,
   },

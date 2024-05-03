@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
-import { windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 type Props = {
@@ -21,6 +21,7 @@ type Props = {
   learnBackgroundColor?: string;
   learnTextColor?: string;
   rightComponent?: Element;
+  availableBalance?: Element;
   contrastScreen?: boolean;
   marginLeft?: boolean;
   icon?: Element;
@@ -38,6 +39,7 @@ function KeeperHeader({
   learnBackgroundColor = 'light.BrownNeedHelp',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
+  availableBalance = null,
   contrastScreen = false,
   marginLeft = true,
   icon = null,
@@ -100,6 +102,7 @@ function KeeperHeader({
         </Box>
         <Box>{rightComponent}</Box>
       </Box>
+      <Box style={styles.availableBalance}>{availableBalance}</Box>
     </Box>
   );
 }
@@ -158,6 +161,9 @@ const getStyles = (marginLeft: boolean) =>
     },
     smallWidth: {
       width: windowWidth * 0.45,
+    },
+    availableBalance: {
+      marginLeft: hp(68),
     },
   });
 export default KeeperHeader;
