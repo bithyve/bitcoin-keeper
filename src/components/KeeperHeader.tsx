@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 type Props = {
