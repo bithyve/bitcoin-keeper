@@ -64,7 +64,12 @@ import QRCoder
     qrCodeImage.frame = CGRect(x: 20, y: 200 , width: imageSize, height: imageSize)
     v1.addSubview(qrCodeImage)
     let page = PDFPage.view(v1);
-    let pdfFileName = name + ".pdf"
+    let currentDate = Date()
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .medium
+    let dateTime = formatter.string(from: currentDate)
+    let pdfFileName = name + "-" + dateTime + ".pdf"
     do {
       let pdfPath = NSTemporaryDirectory().appending(pdfFileName as String)
       try PDFGenerator.generate([page], to: pdfPath, password: PDFPassword(password))

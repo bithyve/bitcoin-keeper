@@ -19,17 +19,26 @@ function TrustedContactTemplates({}) {
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>{inheritancePlanning.trustedContactsTemplateTitle}</Text>
-        <Text style={styles.description}>{inheritancePlanning.trustedContactsTemplateDescp}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.trustedContactsP1}</Text>
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.trustedContactsTemplateTitle}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.trustedContactsTemplateDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.trustedContactsP1}
+        </Text>
 
         <Box style={styles.circleStyle}>
           <TrustedContactIcon />
         </Box>
-        <Text style={styles.commonTextStyle}> {inheritancePlanning.trustedContactsRef}</Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {' '}
+          {inheritancePlanning.trustedContactsRef}
+        </Text>
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
@@ -46,10 +55,12 @@ function TrustedContactTemplates({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color="light.primaryBackground">
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color="light.primaryBackground">{inheritancePlanning.trustedContactsNotes}</Text>
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.trustedContactsNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

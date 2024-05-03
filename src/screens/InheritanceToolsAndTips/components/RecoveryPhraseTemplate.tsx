@@ -20,16 +20,24 @@ function RecoveryPhraseTemplate({}) {
   const { inheritancePlanning } = translations;
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>{inheritancePlanning.recoveryPhraseTitleTemplate}</Text>
-        <Text style={styles.description}>{inheritancePlanning.recoveryPhraseDescpMain}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryPhraseP1}</Text>
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryPhraseTitleTemplate}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryPhraseDescpMain}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryPhraseP1}
+        </Text>
         <Box style={styles.circleStyle}>
           <RecoveryPhraseIcon />
         </Box>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryPhraseP2}</Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryPhraseP2}
+        </Text>
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
@@ -46,10 +54,12 @@ function RecoveryPhraseTemplate({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color="light.primaryBackground">
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color="light.primaryBackground">{inheritancePlanning.recoveryPhraseNotes}</Text>
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.recoveryPhraseNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>
