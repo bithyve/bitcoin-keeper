@@ -10,6 +10,7 @@ import BTCWhite from 'src/assets/images/btc_white.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Colors from 'src/theme/Colors';
 import HexagonIcon from 'src/components/HexagonIcon';
+import { SatsToBtc } from 'src/constants/Bitcoin';
 
 function WalletSendInfo({
   availableAmt,
@@ -43,9 +44,9 @@ function WalletSendInfo({
               {walletTranslation.sendingFromUtxo} &nbsp;
               {colorMode === 'light' ? <BTCIcon /> : <BTCWhite />}
               &nbsp;
-              {/* <Text bold fontSize={14}>
+              <Text bold fontSize={14}>
                 {SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0))} {isSats && 'sats'}
-              </Text> */}
+              </Text>
             </Text>
           ) : (
             <Box>
@@ -92,11 +93,9 @@ const styles = StyleSheet.create({
     marginLeft: wp(10),
   },
   container: {
-    // justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
     width: '97%',
-    // height: hp(70),
     borderRadius: 10,
   },
   wrapper: {

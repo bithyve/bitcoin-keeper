@@ -26,8 +26,6 @@ function AppBackupSettings() {
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
 
-  console.log();
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={settings.BackupSettings} subtitle={settings.BackupSettingSubTitle} />
