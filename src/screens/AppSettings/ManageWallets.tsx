@@ -203,7 +203,7 @@ function ManageWallets() {
         <Text
           color={`${colorMode}.secondaryText`}
           style={styles.unhideText}
-        >{`You can unhide this wallet anytime from App Settings >Manage Wallets > Unhide Wallet`}</Text>
+        >{`You can unhide this wallet anytime from App Settings >Manage Wallets > Unhide`}</Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
@@ -243,7 +243,7 @@ function ManageWallets() {
         <Text
           color={`${colorMode}.secondaryText`}
           style={styles.unhideText}
-        >{`You can unhide this vault anytime from App Settings >Manage Wallets > Unhide Vault`}</Text>
+        >{`You can unhide this vault anytime from App Settings >Manage Wallets > Unhide`}</Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
