@@ -253,10 +253,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
           heading: 'Backup Recovery Key',
-          body: 'Backup of Recovery Key is pending',
+          body: 'Creates backup of all vaults and wallets',
           btnConfig: {
             primary: {
-              text: 'Continue',
+              text: 'Backup',
               cta: () => {
                 if (backupHistory.length === 0) {
                   skipUaiHandler(uai);
