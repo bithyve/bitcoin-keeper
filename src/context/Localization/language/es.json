@@ -705,7 +705,9 @@
     "changePasscode": "Change Passcode",
     "changePasscodeDescription": "Easy to remember; hard to guess",
     "deleteKeys": "Show and delete keys",
-    "deleteKeysSubtitle": "for hidden keys"
+    "deleteKeysSubtitle": "for hidden keys",
+    "currencyErrorTitle": "Currency Not Available",
+    "currencyErrorSubTitle": "This currency currently does not exist."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
