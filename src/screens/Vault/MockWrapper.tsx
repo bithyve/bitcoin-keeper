@@ -2,7 +2,7 @@ import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/
 import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { getMockSigner } from 'src/hardware';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -12,6 +12,7 @@ import { View } from 'native-base';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from './HardwareModalMap';
+import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 
 MockWrapper.defaultProps = {
   enable: true,
@@ -103,6 +104,22 @@ function MockWrapper({
     }
   };
 
+  const { createCreateCanaryWallet } = useCanaryWalletSetup({});
+
+  const addCanarySingleSig = () => {
+    try {
+      const data = getMockSigner(signerType);
+      if (data?.signer && data?.key) {
+        const { signer } = data;
+        dispatch(addSigningDevice([signer]));
+        createCreateCanaryWallet(signer);
+      }
+    } catch (error) {
+      console.log('Something Went Wrong');
+      captureError(error);
+    }
+  };
+
   const handleMockTap = () => {
     if (mode === InteracationMode.VAULT_ADDITION || mode === InteracationMode.APP_ADDITION) {
       addMockSigner();
@@ -110,6 +127,8 @@ function MockWrapper({
       verifyMockSigner();
     } else if (mode === InteracationMode.IDENTIFICATION) {
       verifyMockSigner();
+    } else if (mode === InteracationMode.CANARY_ADDITION) {
+      addCanarySingleSig();
     } else {
       console.log('unhandled case');
     }
