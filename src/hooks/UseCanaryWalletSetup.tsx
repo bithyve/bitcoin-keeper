@@ -20,6 +20,25 @@ type Params = {
 
 const CANARY_SCHEME = { m: 1, n: 1 };
 
+const getSingleSigSignerKey = (signer) => {
+  const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+  const ssVaultKey: VaultSigner = {
+    ...singleSigSigner,
+    masterFingerprint: signer.masterFingerprint,
+    xfp: WalletUtilities.getFingerprintFromExtendedKey(
+      singleSigSigner.xpub,
+      WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+    ),
+  };
+
+  return ssVaultKey;
+};
+
+const getSingleSigSignerId = (ssVaultKey) => {
+  const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
+  return canaryVaultId;
+};
+
 const useCanaryWalletSetup = ({ setLoader }: Params) => {
   const dispatch = useDispatch();
   const navigation: any = useNavigation();
