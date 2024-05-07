@@ -796,7 +796,7 @@ function SignerAdvanceSettings({ route }: any) {
         type={signer.type}
         visible={canaryWalletSingleSigModal}
         close={() => setCanaryWalletSingleSigModal(false)}
-        mode={}
+        mode={InteracationMode.CANARY_ADDITION}
         isMultisig={true}
         addSignerFlow={false}
       />
