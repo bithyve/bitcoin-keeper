@@ -460,7 +460,16 @@
     "addCoSignerDescTwo": "With all 3 keys added, create the collaborative wallet.\n\n",
     "addCoSignerDesc": "To add the other 2 keys: \nSetup Keeper on 2 different phones. These could be the phones of people with whom you wish to create the collaborative wallet. \n \nIn each phone, please go to: Manage Keys > Mobile Key > Settings > Key Details. You will be shown a QR. Please scan the QRs from both phones to add each key.",
     "useSignersVaultRegistration": "Use signers with vault registration",
-    "useSignersVaultRegistrationDesc": " Wish to import a multisig that is registered with a hardware signer. You can use this option for the purpose. Note that this option would help you 1 multisig wallet at a time."
+    "useSignersVaultRegistrationDesc": " Wish to import a multisig that is registered with a hardware signer. You can use this option for the purpose. Note that this option would help you 1 multisig wallet at a time.",
+    "tapRootBenefits": "Benefits of Taproot",
+    "tapRootPrivacy": "Enhanced Privacy",
+    "tapRootEfficiency": "Increased Efficiency",
+    "tapRootScalable": "Improved Flexibility and Scalability",
+    "tapRootSecurity": "Enhanced Security",
+    "tapRootPrivacyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
+    "tapRootEfficiencyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
+    "tapRootScalableDesc": "Taproot introduces Merkleized Abstract Syntax Trees (MAST), allowing the creation of more complex spending conditions.",
+    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

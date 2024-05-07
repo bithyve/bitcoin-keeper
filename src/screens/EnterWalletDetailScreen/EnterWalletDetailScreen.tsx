@@ -10,6 +10,11 @@ import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitcoinInput from 'src/assets/images/btc_black.svg';
 import BitcoinWhite from 'src/assets/images/btc_white.svg';
+import PrivacyIcon from 'src/assets/images/privacy.svg';
+import EfficiencyIcon from 'src/assets/images/efficiency.svg';
+import SaclingIcon from 'src/assets/images/scaling.svg';
+import SecurityIcon from 'src/assets/images/security.svg';
+
 import KeeperText from 'src/components/KeeperText';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -56,7 +61,7 @@ function EnterWalletDetailScreen({ route }) {
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { hasNewWalletsGenerationFailed, err } = useAppSelector((state) => state.wallet);
-
+  const [visibleModal, setVisibleModal] = useState(false);
   const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
   const [path, setPath] = useState(
     route.params?.path
@@ -122,6 +127,68 @@ function EnterWalletDetailScreen({ route }) {
           secondaryText={common.cancel}
           paddingHorizontal={wp(30)}
         />
+      </Box>
+    );
+  }
+
+  function TapRootContent() {
+    const { colorMode } = useColorMode();
+    const { translations } = useContext(LocalizationContext);
+    const { wallet } = translations;
+    return (
+      <Box>
+        <Box style={styles.tapRootContainer}>
+          <Box style={styles.tapRootIconWrapper}>
+            <PrivacyIcon />
+          </Box>
+          <Box style={styles.tapRootContentWrapper}>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+              {wallet.tapRootPrivacy}
+            </Text>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+              {wallet.tapRootPrivacyDesc}
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.tapRootContainer}>
+          <Box style={styles.tapRootIconWrapper}>
+            <EfficiencyIcon />
+          </Box>
+          <Box style={styles.tapRootContentWrapper}>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+              {wallet.tapRootEfficiency}
+            </Text>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+              {wallet.tapRootEfficiencyDesc}
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.tapRootContainer}>
+          <Box style={styles.tapRootIconWrapper}>
+            <SaclingIcon />
+          </Box>
+          <Box style={styles.tapRootContentWrapper}>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+              {wallet.tapRootScalable}
+            </Text>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+              {wallet.tapRootScalableDesc}
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.tapRootContainer}>
+          <Box style={styles.tapRootIconWrapper}>
+            <SecurityIcon />
+          </Box>
+          <Box style={styles.tapRootContentWrapper}>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootTitleText}>
+              {wallet.tapRootSecurity}
+            </Text>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.tapRootDescText}>
+              {wallet.tapRootSecurityDesc}
+            </Text>
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -235,6 +302,11 @@ function EnterWalletDetailScreen({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
+        learnMoreButton={true}
+        learnButtonTextColor={`${colorMode}.white`}
+        learnMoreButtonPressed={() => {
+          setVisibleModal(true);
+        }}
         Content={() => (
           <DerivationPathModalContent
             initialPath={path}
@@ -286,6 +358,22 @@ function EnterWalletDetailScreen({ route }) {
         walletName={walletName}
         walletDescription={walletDescription}
       />
+      <KeeperModal
+        visible={visibleModal}
+        close={() => {
+          setVisibleModal(false);
+        }}
+        title={wallet.tapRootBenefits}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        learnButtonTextColor={`${colorMode}.white`}
+        Content={TapRootContent}
+        showCloseIcon={true}
+        DarkCloseIcon
+        learnMore
+        learnMoreTitle={common.needMoreHelp}
+      />
     </ScreenWrapper>
   );
 }
@@ -327,6 +415,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     alignItems: 'center',
+  },
+  tapRootContainer: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  tapRootIconWrapper: {
+    width: '15%',
+  },
+  tapRootContentWrapper: {
+    width: '85%',
+    marginBottom: hp(20),
+  },
+  tapRootDescText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    padding: 1,
+    marginBottom: 5,
+  },
+  tapRootTitleText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 0.65,
+    padding: 1,
   },
 });
 
