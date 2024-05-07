@@ -98,6 +98,7 @@ import {
 } from 'src/hardware/signerSetup';
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -786,7 +787,7 @@ function HardwareModalMap({
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-
+  const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
 
@@ -1083,6 +1084,9 @@ function HardwareModalMap({
       } else if (mode === InteracationMode.IDENTIFICATION) {
         const mapped = mapUnknownSigner({ masterFingerprint: hw.signer.masterFingerprint, type });
         mapped ? handleSuccess() : handleFailure();
+      } else if (mode === InteracationMode.CANARY_ADDITION) {
+        dispatch(setSigningDevices(hw.signer));
+        createCreateCanaryWallet(hw.signer);
       } else {
         dispatch(addSigningDevice([hw.signer]));
         const navigationState = addSignerFlow
