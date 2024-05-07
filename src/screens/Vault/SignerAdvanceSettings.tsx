@@ -62,6 +62,7 @@ import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -91,7 +92,11 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
-  }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
+  }: {
+    signer: Signer;
+    vaultKey: VaultSigner;
+    vaultId: string;
+  } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
 
@@ -503,6 +508,8 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const [canaryWalletSingleSigModal, setCanaryWalletSingleSigModal] = useState(false);
+
   const handleCanaryWallet = () => {
     try {
       setCanaryVaultLoading(true);
@@ -510,24 +517,25 @@ function SignerAdvanceSettings({ route }: any) {
       if (!singleSigSigner) {
         showToast('No single Sig found');
         setCanaryVaultLoading(false);
-      }
-      const ssVaultKey: VaultSigner = {
-        ...singleSigSigner,
-        masterFingerprint: signer.masterFingerprint,
-        xfp: WalletUtilities.getFingerprintFromExtendedKey(
-          singleSigSigner.xpub,
-          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-        ),
-      };
-      const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
-      setCanaryWalletId(canaryVaultId);
-      const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
-
-      if (canaryVault) {
-        navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
-        setCanaryVaultLoading(false);
       } else {
-        createCreateCanaryWallet(ssVaultKey);
+        const ssVaultKey: VaultSigner = {
+          ...singleSigSigner,
+          masterFingerprint: signer.masterFingerprint,
+          xfp: WalletUtilities.getFingerprintFromExtendedKey(
+            singleSigSigner.xpub,
+            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          ),
+        };
+        const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
+        setCanaryWalletId(canaryVaultId);
+        const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
+
+        if (canaryVault) {
+          navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
+          setCanaryVaultLoading(false);
+        } else {
+          createCreateCanaryWallet(ssVaultKey);
+        }
       }
     } catch (err) {
       console.log('Something Went Wrong', err);
@@ -783,6 +791,14 @@ function SignerAdvanceSettings({ route }: any) {
             onSuccess={onSuccess}
           />
         )}
+      />
+      <HardwareModalMap
+        type={signer.type}
+        visible={canaryWalletSingleSigModal}
+        close={() => setCanaryWalletSingleSigModal(false)}
+        mode={}
+        isMultisig={true}
+        addSignerFlow={false}
       />
     </ScreenWrapper>
   );
