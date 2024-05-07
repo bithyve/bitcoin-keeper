@@ -38,7 +38,7 @@ function ChangeLanguage() {
   );
 
   const { translations } = useContext(LocalizationContext);
-  const { settings } = translations;
+  const { common, settings } = translations;
 
   const changeSatsMode = () => {
     dispatch(setSatsEnabled(!satsEnabled));
@@ -63,8 +63,8 @@ function ChangeLanguage() {
                 setShowCurrency(false);
                 dispatch(setCurrencyCode(item.code));
               } else {
-                Alert.alert('Currency Not Available', 'This currency currently does not exist.', [
-                  { text: 'OK' },
+                Alert.alert(settings.currencyErrorTitle, settings.currencyErrorSubTitle, [
+                  { text: common.ok },
                 ]);
               }
             }}
