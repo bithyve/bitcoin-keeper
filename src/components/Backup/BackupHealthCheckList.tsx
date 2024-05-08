@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, ScrollView, useColorMode } from 'native-base';
+import { FlatList, Box, useColorMode } from 'native-base';
 import moment from 'moment';
 import Text from 'src/components/KeeperText';
 
@@ -12,13 +12,11 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
-import { hp, wp } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import DotView from 'src/components/DotView';
-import Buttons from 'src/components/Buttons';
 import { useQuery } from '@realm/react';
-import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
 
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import AdvnaceOptions from 'src/assets/images/settings.svg';
@@ -29,7 +27,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const { BackupWallet } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;

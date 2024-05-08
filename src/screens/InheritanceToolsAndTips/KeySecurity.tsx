@@ -1,20 +1,21 @@
 import React, { useContext } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import OptionCard from 'src/components/OptionCard';
-import CouponIcon from 'src/assets/images/cupon.svg';
 import ServerIcon from 'src/assets/images/server-network.svg';
-
+import ServerGreyIcon from 'src/assets/images/server-network-grey.svg';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';
-import Bird from 'src/assets/images/bird.svg';
+import BirdIcon from 'src/assets/images/bird.svg';
+import BirdDisabledIcon from 'src/assets/images/bird_disabled.svg';
+
 import { updateLastVisitedTimestamp } from 'src/store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import {
   ASSISTED_KEYS,
-  BUY_NEW_HARDWARE_SIGNER,
   CANARY_WALLETS,
   SAFE_KEEPING_TIPS,
   SECURE_USAGE_TIPS,
 } from 'src/services/channel/constants';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { getTimeDifferenceInWords } from 'src/utils/utilities';
 import usePlan from 'src/hooks/usePlan';
 import UpgradeSubscription from './components/UpgradeSubscription';
@@ -24,10 +25,12 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function KeySecurity({ navigation }) {
   const dispatch = useAppDispatch();
-  const colorMode = useColorMode();
   const { plan } = usePlan();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const isHodlerAndDiamondHand =
+    plan === SubscriptionTier.L3.toUpperCase() || plan === SubscriptionTier.L2.toUpperCase();
+
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
     navigation.navigate(path);
@@ -44,32 +47,26 @@ function KeySecurity({ navigation }) {
         //     ? 'Never accessed'
         //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[BUY_NEW_HARDWARE_SIGNER])}`
         // }`}
-        CardPill={
-          <CardPill
-            heading={inheritancePlanning.commingSoon}
-            backgroundColor={Colors.LightPurple}
-          />
-        }
-        title={inheritancePlanning.BuyNewHardwareSigner}
-        description={inheritancePlanning.BuyNewHardwareSignerDesp}
+        CardPill={<CardPill heading="COMING SOON" backgroundColor={Colors.LightPurple} />}
+        title="Buy new Hardware Signers"
+        description="Overview and discount codes"
         LeftIcon={<CouponIcon />}
         callback={() => navigate('DiscountCodes', BUY_NEW_HARDWARE_SIGNER)}
       /> */}
+      {!isHodlerAndDiamondHand && <UpgradeSubscription type={SubscriptionTier.L2} />}
       <OptionCard
+        disabled={!isHodlerAndDiamondHand}
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
-        title={inheritancePlanning.canaryWallet}
-        description={inheritancePlanning.canaryWalletDesp}
-        LeftIcon={<Bird />}
+        title="Canary Wallets"
+        description="Alert on key compromise"
+        LeftIcon={!isHodlerAndDiamondHand ? <BirdDisabledIcon /> : <BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
       />
-      {plan !== 'DIAMOND HANDS' && plan !== 'HODLER' && <UpgradeSubscription type={'Holder'} />}
-
       <OptionCard
-        preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[ASSISTED_KEYS])}`}
-        disabled={plan === 'DIAMOND HANDS' || plan === 'HODLER' ? false : true}
+        disabled={!isHodlerAndDiamondHand}
         title={inheritancePlanning.assistedKeys}
         description={inheritancePlanning.assistedKeysDesp}
-        LeftIcon={<ServerIcon />}
+        LeftIcon={!isHodlerAndDiamondHand ? <ServerGreyIcon /> : <ServerIcon />}
         callback={() => navigate('AssistedKeys', ASSISTED_KEYS)}
       />
       <Box paddingTop={4}>

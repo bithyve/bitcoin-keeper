@@ -55,7 +55,6 @@ export const generateSignerFromMetaData = ({
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   if (
     networkType !== config.NETWORK_TYPE &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
     signerType !== SignerType.KEYSTONE &&
     signerType !== SignerType.JADE
   ) {
@@ -66,12 +65,14 @@ export const generateSignerFromMetaData = ({
   const signerXpubs: signerXpubs = {};
   if (!xpubDetails) {
     const scriptType = WalletUtilities.getScriptTypeFromDerivationPath(derivationPath);
-    signerXpubs[scriptType] = [{ xpub, xpriv, derivationPath }];
+    signerXpubs[scriptType] = [
+      { xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") },
+    ];
   } else {
     Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
       const { xpub, xpriv, derivationPath } = xpubDetail;
       signerXpubs[key] = signerXpubs[key] || [];
-      signerXpubs[key].push({ xpub, xpriv, derivationPath });
+      signerXpubs[key].push({ xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") });
     });
   }
 
@@ -91,7 +92,7 @@ export const generateSignerFromMetaData = ({
 
   const key: VaultSigner = {
     xfp: xfp || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    derivationPath,
+    derivationPath: derivationPath.replaceAll('h', "'"),
     xpub,
     xpriv,
     masterFingerprint,
@@ -196,12 +197,12 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Multisig setup file (exported from Keeper)\n';
-  line += 'Name: Keeper vault\n';
+  line += `Name: Keeper-${vault.presentationData.name}\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
   line += 'Format: P2WSH\n';
   line += '\n';
   vault.signers.forEach((signer) => {
-    line += `Derivation: ${signer.derivationPath}\n`;
+    line += `Derivation: ${signer.derivationPath.replaceAll('h', "'")}\n`;
     line += `${signer.masterFingerprint}: ${signer.xpub}\n\n`;
   });
   return line;
@@ -397,7 +398,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Secure signers from Coinkite';
     }
     case SignerType.LEDGER: {
-      return 'Trusted signers from SatoshiLabs';
+      return 'Popular signers like Nano S and Nano X';
     }
     case SignerType.PASSPORT: {
       return 'Passport signers from Foundation Devices';

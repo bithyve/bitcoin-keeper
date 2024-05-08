@@ -25,14 +25,15 @@ const useVault = ({
   getHiddenWallets = true,
 }: Params) => {
   let allVaults: Vault[] = useQuery(RealmSchema.Vault);
+
   allVaults = includeArchived
     ? allVaults.map(getJSONFromRealmObject)
     : allVaults.filtered('archived != true').map(getJSONFromRealmObject);
-
+  //Filtering Canary Vaults from at all UI level where Vaults are consumed
+  const allVaultsIncludingCanary = allVaults;
+  allVaults = allVaults.filter((vault) => vault.type !== VaultType.CANARY);
   const allNonHiddenNonArchivedVaults = allVaults.filter(
-    (vault) =>
-      vault.presentationData.visibility === VisibilityType.DEFAULT &&
-      vault.type !== VaultType.CANARY
+    (vault) => vault.presentationData.visibility === VisibilityType.DEFAULT
   );
   if (!vaultId) {
     if (getHiddenWallets) {
@@ -46,8 +47,8 @@ const useVault = ({
   }
 
   const activeVault: Vault = vaultId
-    ? allVaults.filter((v) => v.id === vaultId)[0]
-    : allVaults.filter((v) => !v.archived)[0];
+    ? allVaultsIncludingCanary.filter((v) => v.id === vaultId)[0]
+    : allVaultsIncludingCanary.filter((v) => !v.archived)[0];
 
   if (!getHiddenWallets) {
     return { activeVault, allVaults: allNonHiddenNonArchivedVaults };

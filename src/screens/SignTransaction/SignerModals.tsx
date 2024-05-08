@@ -711,6 +711,7 @@ function SignerModals({
                     ctaText: 'Proceed',
                     onFileExtract: onFileSign,
                     fileData: serializedPSBTEnvelop.serializedPSBT,
+                    signer,
                   },
                 })
               );
@@ -836,6 +837,7 @@ function SignerModals({
                         ctaText: 'Proceed',
                         onFileExtract: onFileSign,
                         fileData: serializedPSBTEnvelop.serializedPSBT,
+                        signer,
                       },
                     })
                   );
@@ -915,6 +917,7 @@ function SignerModals({
                         ctaText: 'Proceed',
                         onFileExtract: onFileSign,
                         fileData: serializedPSBTEnvelop.serializedPSBT,
+                        signer,
                       },
                     })
                   );
@@ -993,7 +996,7 @@ function SignerModals({
             />
           );
         }
-        if ([SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type)) {
+        if (signer.type === SignerType.KEEPER) {
           return (
             <KeeperModal
               key={vaultKey.xfp}

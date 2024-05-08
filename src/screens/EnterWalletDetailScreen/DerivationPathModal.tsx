@@ -10,7 +10,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
 import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-
+import TickIcon from 'src/assets/images/icon_check.svg';
 const purposeList = [
   { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
   { label: 'P2TR: taproot, single-sig', value: DerivationPurpose.BIP86 },
@@ -104,16 +104,19 @@ function DerivationPathModalContent({
                   }}
                   style={styles.flagWrapper1}
                 >
-                  <Text
-                    style={styles.purposeText}
-                    semiBold={purpose === item.value}
-                    color={
-                      purpose === item.value ? `${colorMode}.headerText` : `${colorMode}.GreyText`
-                    }
-                  >
-                    {item.label}
-                  </Text>
-                  {index == purposeList.length - 1 && (
+                  <Box style={styles.labelContainer}>
+                    <Text
+                      style={styles.purposeText}
+                      semiBold={purpose === item.value}
+                      color={
+                        purpose === item.value ? `${colorMode}.headerText` : `${colorMode}.GreyText`
+                      }
+                    >
+                      {item.label}
+                    </Text>
+                    {purpose === item.value && <TickIcon />}
+                  </Box>
+                  {index !== purposeList.length - 1 && (
                     <Box
                       backgroundColor={`${colorMode}.LightGreenish`}
                       style={{ width: '100%', height: 2, opacity: 0.2 }}
@@ -167,6 +170,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     top: 65,
+    paddingVertical: 10,
   },
   flagWrapper1: {
     height: wp(50),
@@ -178,5 +182,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.39,
     marginLeft: wp(10),
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingRight: 10,
   },
 });

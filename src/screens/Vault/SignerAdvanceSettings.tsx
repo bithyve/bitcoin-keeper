@@ -1,6 +1,5 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -9,6 +8,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
+  EntityKind,
   NetworkType,
   SignerType,
   VaultType,
@@ -46,7 +46,7 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
-import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import DescriptionModal from './components/EditDescriptionModal';
 import { SDIcons } from './SigningDeviceIcons';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
@@ -58,8 +58,10 @@ import useCanaryVault from 'src/hooks/useCanaryWallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const { width } = Dimensions.get('screen');
 
@@ -103,12 +105,11 @@ function SignerAdvanceSettings({ route }: any) {
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
-  const { plan } = usePlan();
-  const isOnL2 = plan === SubscriptionTier.L3.toUpperCase();
-  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
+  const { isOnL2Above } = usePlan();
 
   const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
 
@@ -430,27 +431,54 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const signPSBT = (serializedPSBT, resetQR) => {
+  const signPSBT = async (serializedPSBT, resetQR) => {
     try {
       let signedSerialisedPSBT;
       try {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+        if (!key.xpriv) {
+          // generate xpriv that was missed during migrations
+          const { primaryMnemonic } = keeper;
+          const details = await getCosignerDetails(
+            primaryMnemonic,
+            signer.extraData.instanceNumber - 1
+          );
+          const xpub = idx(details, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
+          const signerXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+          if (xpub === signerXpub) {
+            const xpriv = details.xpubDetails[XpubTypes.P2WSH].xpriv;
+            signedSerialisedPSBT = signCosignerPSBT(xpriv, serializedPSBT);
+            dispatch(
+              updateKeyDetails(
+                signer.signerXpubs[XpubTypes.P2WSH][0] as VaultSigner,
+                'xpriv',
+                xpriv
+              )
+            );
+          } else {
+            showToast('There are some key detials missing, please add the key again and retry');
+          }
+        } else {
+          signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+        }
       } catch (e) {
+        showToast(e.message);
         captureError(e);
       }
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
+      if (signedSerialisedPSBT) {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowQR',
+            params: {
+              data: signedSerialisedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER,
+            },
+          })
+        );
+      }
     } catch (e) {
       resetQR();
       showToast('Please scan a valid PSBT');
@@ -528,7 +556,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
 
   const { wallet: walletTranslation } = translations;
-  const isCanaryWalletAllowed = isOnL2 || isOnL3;
+  const isCanaryWalletAllowed = isOnL2Above;
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&

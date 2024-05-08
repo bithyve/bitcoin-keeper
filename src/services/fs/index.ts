@@ -48,14 +48,14 @@ export const exportFile = async (fileData, fileName, onError) => {
   }
 };
 
-export const importFile = async (onFileRead, onError) => {
+export const importFile = async (onFileRead, onError, encoding = null) => {
   try {
     const result = await DocumentPicker.pick({
       type: [DocumentPicker.types.allFiles],
     });
     try {
       const filePath = result[0].uri.split('%20').join(' ');
-      const fileExtract = await RNFS.readFile(filePath);
+      const fileExtract = await RNFS.readFile(filePath, encoding);
       onFileRead(fileExtract);
     } catch (err) {
       captureError(err);

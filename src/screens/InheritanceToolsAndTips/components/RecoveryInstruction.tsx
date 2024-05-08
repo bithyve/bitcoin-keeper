@@ -20,13 +20,21 @@ function RecoveryInstruction({}) {
   const { inheritancePlanning } = translations;
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>{inheritancePlanning.recoveryInstructionsTitle}</Text>
-        <Text style={styles.description}>{inheritancePlanning.recoveryInstructionsDescp}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryInstructionsP1}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.recoveryInstructionsP2}</Text>
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryInstructionsTitle}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryInstructionsDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryInstructionsP1}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.recoveryInstructionsP2}
+        </Text>
         <Box style={styles.circleStyle}>
           <RecoveryPhraseIcon />
         </Box>
@@ -47,10 +55,12 @@ function RecoveryInstruction({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.recoveryInstructionsNotes}</Text>
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.recoveryInstructionsNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

@@ -55,58 +55,36 @@ function ExportSeedScreen({ route, navigation }) {
   function SeedCard({ item, index }: { item; index }) {
     return (
       <>
-        {viewRecoveryKeys ? (
-          <Box style={styles.seedCardContainer}>
-            <Box
-              backgroundColor={`${colorMode}.seashellWhite`}
-              opacity={showWordIndex === index ? 1 : 0.5}
-              style={styles.seedCardWrapper}
-            >
-              <Text style={styles.seedTextStyle} medium color={`${colorMode}.greenText2`}>
-                {index < 9 ? '0' : null}
-                {index + 1}
-              </Text>
-              <Text
-                testID={`text_seed_word_${index}`}
-                style={styles.seedTextStyle01}
-                color={`${colorMode}.GreyText`}
-              >
-                {item}
-              </Text>
-            </Box>
-          </Box>
-        ) : (
-          <TouchableOpacity
-            testID={`btn_seed_word_${index}`}
-            style={styles.seedCardContainer}
-            onPress={() => {
-              setShowWordIndex((prev) => {
-                if (prev === index) {
-                  return '';
-                }
-                return index;
-              });
-            }}
+        <TouchableOpacity
+          testID={`btn_seed_word_${index}`}
+          style={styles.seedCardContainer}
+          onPress={() => {
+            setShowWordIndex((prev) => {
+              if (prev === index) {
+                return '';
+              }
+              return index;
+            });
+          }}
+        >
+          <Box
+            backgroundColor={`${colorMode}.seashellWhite`}
+            opacity={showWordIndex === index ? 1 : 0.5}
+            style={styles.seedCardWrapper}
           >
-            <Box
-              backgroundColor={`${colorMode}.seashellWhite`}
-              opacity={showWordIndex === index ? 1 : 0.5}
-              style={styles.seedCardWrapper}
+            <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
+              {index < 9 ? '0' : null}
+              {index + 1}
+            </Text>
+            <Text
+              testID={`text_seed_word_${index}`}
+              style={styles.seedTextStyle01}
+              color={`${colorMode}.GreyText`}
             >
-              <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
-                {index < 9 ? '0' : null}
-                {index + 1}
-              </Text>
-              <Text
-                testID={`text_seed_word_${index}`}
-                style={styles.seedTextStyle01}
-                color={`${colorMode}.GreyText`}
-              >
-                {showWordIndex === index ? item : '******'}
-              </Text>
-            </Box>
-          </TouchableOpacity>
-        )}
+              {showWordIndex === index ? item : '******'}
+            </Text>
+          </Box>
+        </TouchableOpacity>
       </>
     );
   }

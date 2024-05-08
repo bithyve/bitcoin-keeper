@@ -99,7 +99,8 @@
     "addNow": "ADD NOW",
     "runHealthCheck": "Run Health Check",
     "needMoreHelp": "Need more help?",
-    "action": "Action"
+    "action": "Action",
+    "commingSoon": "COMING SOON"
   },
   "noInternet": {
     "no": "No Internet",
@@ -124,10 +125,19 @@
     "enter_your": "Enter your ",
     "ForgotPasscode": "Forgot Passcode?",
     "forgotPasscodeDesc": "Key in the word exactly like it was displayed",
+    "StoreBicoin": " You can use these wallets to store small amounts of bitcoin for day to day transactions.",
+    "CreateMultiKeyWallet": "Create new multi-key wallets:",
+    "CreateMultiKeyWalletDesc": "Setup multi-key wallets as per your needs and convenience for long term hodling. You would be able to choose your desired configuration of keys. Note that we call multi-key wallets as vault within Keeper.",
     "Invalidword": "Invalid word",
+    "RecoverApp": "Recover an existing app:",
+    "RecoverAppDesc": "Have an inaccessible Keeper app with various wallets and vaults in it? You have nothing to worry if you have that wallet’s 12-word Recovery Key. Just insert those words to recover that Keeper app and all your wallets would be restored as expected.",
+    "Wait": "This step will take a few seconds. You would be able to proceed soon",
+
     "ResetPasscode": "Reset Passcode",
     "Createpasscode": "Create a passcode",
     "Confirmyourpasscode": "Confirm your passcode",
+    "CreateApp": "Create a fresh app or recover an exisiting one",
+    "CreateSingleKeyWallet": "Create new single-key wallets:",
     "EncryptionKeyNotSet": "Encryption Key not set",
     "Youcanreset": "You can reset your Login Passcode if you have set up an Encryption Key (Strong Password, Own Passphrase or Security Answer). It seems you have not set up any",
     "existingPasscode": "existing passcode",
@@ -142,6 +152,14 @@
     "reEnter": "Re-enter the",
     "to": "to",
     "verifylogin": "verify and login",
+    "HelpNeeded": "Need Help?",
+    "newWalletsAndVaults": "New wallets and vaults",
+    "Enter12WordsRecovery": "Enter 12-word Recovery Key",
+    "Note": "Note",
+    "Agreement": " By proceeding you agree to our",
+    "TermsOfService": "Terms of Service",
+    "PrivacyPolicy": "Privacy Policy",
+
     "appcreates": "The app creates a new wallet for you with accounts you can start using right away",
     "previously": "If you previously had Hexa, you can recover it using the Recovery Keys with these options",
     "restoreNoteV1": "If you are trying to migrate from Hexa 1.0 to Hexa 2.0, please read how in the link below",
@@ -227,7 +245,12 @@
     "Thiswillbesecured": "This will be secured once it crosses 0.1 btc",
     "SecureNow": "Secure Now",
     "ScanQR": "Scan a QR",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "ManageKeys": "Manage\nKeys",
+    "InheritancePlanning": "Inheritance\nPlanning",
+    "NeedHelp": "Need\nHelp?",
+    "KeeperConcierge": "Keeper\nConcierge",
+    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed"
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -282,7 +305,10 @@
     "inheritanceSupport": "Inheritance Support",
     "inheritanceSupportSubTitle": "Keeper provides you with the tips and tools you need to include the vault in your estate planning",
     "consultYourEstate": "Contact your estate planning attorney and advisors to ensure the documents provided here are suitable for your needs and are as per your jurisdiction",
-    "secureBequeathBitcoin": "Plan your bitcoin inheritance"
+    "secureBequeathBitcoin": "Plan your bitcoin inheritance",
+    "KeySecurity": "Key\nSecurity",
+    "BackupAndRecovery": "Backup and\nRecovery",
+    "InheritanceDocuments": "Inheritance\nDocuments"
   },
   "wallet": {
     "Createwallet": "Create a wallet",
@@ -382,6 +408,7 @@
     "editTransPolicySubTitle": "Threshold amount at which transfer is triggered",
     "TransPolicyChange": "Transfer Policy Changed",
     "walletSeedWord": "Wallet Seed Words",
+    "RecoveryKeyReset": "Recovery Key",
     "walletSeedWordSubTitle": "Use to link external wallets to Keeper",
     "showCoSignerDetails": "Show Co-Signer Details",
     "showCoSignerDetailsSubTitle": "Use this wallet as a co-signer",
@@ -433,6 +460,8 @@
     "watchOnlyDesc": "You can keep an eye on an external wallet using this option.Note that you would be able to see various transactions and wallet balance but not send/receive sats.",
     "walletConfigurationFile": "Wallet Configuration file",
     "walletConfigurationFileDesc": "Have a specific multisig wallet that you’d like to recover? Have a specific multisig wallet that you’d like to recover? Use this option to recreate an existing multisig wallet. Note that if your Output Descriptor File ( aka the BSMS file) are from another Keeper app, only the specific vault that it belongs to, would be recreaeted. Not the whole app with all of its wallets.",
+    "addCoSignerDescTwo": "With all 3 keys added, create the collaborative wallet.\n\n",
+    "addCoSignerDesc": "To add the other 2 keys: \nSetup Keeper on 2 different phones. These could be the phones of people with whom you wish to create the collaborative wallet. \n \nIn each phone, please go to: Manage Keys > Mobile Key > Settings > Key Details. You will be shown a QR. Please scan the QRs from both phones to add each key.",
     "useSignersVaultRegistration": "Use signers with vault registration",
     "useSignersVaultRegistrationDesc": " Wish to import a multisig that is registered with a hardware signer. You can use this option for the purpose. Note that this option would help you 1 multisig wallet at a time."
   },
@@ -467,9 +496,9 @@
     "additionalOptionForSignDevice": "There are also some additional options if you do not have hardware signers",
     "sendVaultSignDevices": "For sending out of the vault you will need the signers. This means no one can steal your bitcoin in the vault unless they also have the signers",
     "addEmail": "Add Email",
-    "addEmailPhone": "Add Phone/Email",
+    "addEmailPhone": "Setup Inheritance Key Alert",
     "addEmailDetails": " Additionally you can provide an email which will be used to notify you when someone tries to access the Inheritance Key",
-    "addEmailVaultDetail": "Get notified of Key activation and have option to decline use",
+    "addEmailVaultDetail": "Optionally provide email and/ or phone for key usage alerts.",
     "walletSetupDetails": "This kind of wallet setup can be used for business partnerships, family funds, or any scenario where joint control of funds is necessary.",
     "keeperSupportSigningDevice": "Keeper supports all the popular bitcoin signers (Hardware Wallets) that a user can select",
     "newVaultCreated": "New vault Created",
@@ -492,7 +521,7 @@
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Recovery Phrase",
     "backupPhrase": "Recovery Key",
-    "walletSeedWords": "Wallet Seed Words",
+    "walletSeedWords": "Recovery Keys",
     "enterRecoveryPhrase": "Recover an existing Keeper App",
     "enterRecoveryPhraseSubTitle": "Enter existing 12-word recovery phrase below",
     "enterRecoveryPhraseNote": "Make sure to use the 12-word recovery phrase in private",
@@ -545,7 +574,7 @@
     "choosePolicy": "Choose Policy",
     "choosePolicySubTitle": "For the signer",
     "maxNoCheckAmt": "Max no-check amount",
-    "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even w/o a 2FA verification code",
+    "maxNoCheckAmtSubTitle": "The signer will sign a transaction of this amount or lower, even without a 2FA verification code",
     "maxAllowedAmt": "Max allowed amount",
     "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it"
   },
@@ -709,6 +738,7 @@
   "choosePlan": {
     "choosePlantitle": "Manage Subscription",
     "choosePlanSubTitle": "You are currently on the basic plan",
+    "choosePlanSubtitle": "Upgrade or downgrade",
     "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise",
     "confirming": "Confirming your subscription",
     "pleaseStay": "Please stay on this screen as it may take a little while...",
@@ -716,7 +746,10 @@
     "restorePurchases": "Restore Purchases",
     "validateSubscriptionTitle": "Failed to validate your subscription",
     "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?",
-    "viewSubscription": "View Subsciption"
+    "viewSubscription": "View Subsciption",
+    "noAvailablePurchaseMessage": "No purchases found",
+    "currentSubscriptionMessage": "Already subscribed to ",
+    "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup Phrase",
@@ -778,7 +811,10 @@
     "addSignerSubTitle": "to Valinor",
     "addSigners": "Add Signers",
     "addKeys": "Add keys",
-    "keyDetails": "Key Details"
+    "addKey": "Add key",
+    "keyDetails": "Key Details",
+    "ManageKeys": "Manage Keys",
+    "ViewAndChangeKeyDetails": "View and change key details"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

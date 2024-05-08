@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import AssistedKeysContentSlider from './components/AssistedKeysSliderContent';
 import { wp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
+const colorMode = useColorMode;
 
 function AssistedKeysSlider({ items }) {
   const onboardingSlideRef = useRef(null);
@@ -23,7 +24,7 @@ function AssistedKeysSlider({ items }) {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
-    <Box style={styles.container} backgroundColor="light.pantoneGreen">
+    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box style={styles.marginLeft}>
           <FlatList

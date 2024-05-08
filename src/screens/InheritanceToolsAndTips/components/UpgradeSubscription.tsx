@@ -12,7 +12,11 @@ function UpgradeSubscription({ type }) {
   const { colorMode } = useColorMode();
 
   return (
-    <HStack style={styles.container} justifyContent={'space-around'}>
+    <HStack
+      style={styles.container}
+      borderTopColor={`${colorMode}.lightSkin`}
+      justifyContent={'space-around'}
+    >
       <Text>Available to {type} users</Text>
       <TouchableOpacity
         activeOpacity={0.6}
@@ -53,8 +57,7 @@ const styles = StyleSheet.create({
   container: {
     borderTopWidth: 2,
     paddingTop: hp(10),
-    borderTopColor: Colors.LightSkin,
-    height: hp(30),
+    height: hp(40),
   },
 });
 

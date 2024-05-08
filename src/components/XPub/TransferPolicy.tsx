@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 
-import BtcInput from 'src/assets/images/btc_input.svg';
-import BtcWhiteInput from 'src/assets/images/btc_white.svg';
+import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { wp } from 'src/constants/responsive';
@@ -20,6 +19,12 @@ import { v4 as uuidv4 } from 'uuid';
 import Buttons from 'src/components/Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
+import { Satoshis } from 'src/models/types/UnitAliases';
+import useBalance from 'src/hooks/useBalance';
 
 function TransferPolicy({
   wallet,
@@ -36,8 +41,14 @@ function TransferPolicy({
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletTranslation, settings } = translations;
-  const [policyText, setPolicyText] = useState(wallet?.transferPolicy?.threshold?.toString());
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const [policyText, setPolicyText] = useState(null);
   const dispatch = useDispatch();
+  const { getCurrencyIcon } = useBalance();
+  const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
+  const storedPolicy = wallet?.transferPolicy?.threshold?.toString();
 
   const onPressNumber = (digit) => {
     let temp = policyText;
@@ -46,6 +57,25 @@ function TransferPolicy({
       setPolicyText(temp);
     }
   };
+
+  function convertFiatToSats(fiatAmount: number) {
+    return exchangeRates && exchangeRates[currencyCode]
+      ? (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
+      : 0;
+  }
+  function convertSatsToFiat(amount: Satoshis) {
+    return exchangeRates && exchangeRates[currencyCode]
+      ? (amount / SATOSHIS_IN_BTC) * exchangeRates[currencyCode].last
+      : 0;
+  }
+
+  useEffect(() => {
+    if (!policyText) {
+      !isBitcoin ? setPolicyText(convertSatsToFiat(parseFloat(storedPolicy)).toFixed(0).toString()) : setPolicyText(storedPolicy);
+    } else if (isBitcoin)
+      setPolicyText(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
+    else setPolicyText(convertSatsToFiat(parseFloat(policyText)).toFixed(0).toString());
+  }, [currentCurrency]);
 
   useEffect(() => {
     if (relayWalletError) {
@@ -66,17 +96,18 @@ function TransferPolicy({
   };
   const presshandler = () => {
     if (Number(policyText) > 0) {
-      wallet.transferPolicy.threshold = Number(policyText);
+      wallet.transferPolicy.threshold = isBitcoin ? Number(policyText) : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
       dispatch(
         updateWalletProperty({
           walletId: wallet.id,
           key: 'transferPolicy',
           value: {
             id: uuidv4(),
-            threshold: Number(policyText),
+            threshold: isBitcoin ? Number(policyText) : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString()),
           },
         })
       );
+
     } else {
       showToast(walletTranslation.transPolicyCantZero);
     }
@@ -95,7 +126,7 @@ function TransferPolicy({
           padding={3}
           height={50}
         >
-          <Box pl={5}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</Box>
+          <Box pl={5}>{getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}</Box>
           <Box ml={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
             bold
@@ -105,7 +136,7 @@ function TransferPolicy({
             width="100%"
             letterSpacing={3}
           >
-            {policyText && `${policyText} sats`}
+            {policyText ? `${policyText} ${isBitcoin ? 'sats' : currencyCode}` : "Enter Amount"}
           </Text>
         </Box>
       </Box>

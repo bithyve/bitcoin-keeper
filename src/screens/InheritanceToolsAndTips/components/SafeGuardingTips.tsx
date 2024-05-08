@@ -46,9 +46,9 @@ function SafeGuardingTips({}) {
   ];
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
-      <Text style={styles.container} color={`${colorMode}.white`}>
+      <Text style={styles.container} color={`${colorMode}.modalGreenContent`}>
         Tips for Doing Transactions Securely
       </Text>
       <TipsSlider items={tips} />

@@ -21,12 +21,18 @@ function AdditionalSignerDetailsTemplate({}) {
   const { inheritancePlanning } = translations;
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>{inheritancePlanning.additionalKeysTitle}</Text>
-        <Text style={styles.description}>{inheritancePlanning.additionalKeysMainDescp}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.additionalKeysMainP1}</Text>
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.additionalKeysTitle}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.additionalKeysMainDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.additionalKeysMainP1}
+        </Text>
 
         <Box style={styles.circleStyle}>
           <AdditionalSignerIcon />
@@ -48,10 +54,12 @@ function AdditionalSignerDetailsTemplate({}) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.additionalKeysCtaNotes}</Text>
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.additionalKeysCtaNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

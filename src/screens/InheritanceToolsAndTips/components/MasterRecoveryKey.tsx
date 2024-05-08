@@ -22,15 +22,25 @@ function MasterRecoveryKey({ navigation }) {
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>{inheritancePlanning.masterKeyTitle}</Text>
-        <Text style={styles.description}>{inheritancePlanning.masterKeyDescp}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.masterKeyParagraph1}</Text>
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyTitle}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyParagraph1}
+        </Text>
 
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.masterKeyParagraph2}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.masterKeyParagraph3}</Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyParagraph2}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyParagraph3}
+        </Text>
         <Box style={styles.circleStyle}>
           <MasterRecoveryKeyIcon />
         </Box>
@@ -51,10 +61,10 @@ function MasterRecoveryKey({ navigation }) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>{inheritancePlanning.masterKeyNote}</Text>
+          <Text color={`${colorMode}.modalGreenContent`}>{inheritancePlanning.masterKeyNote}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

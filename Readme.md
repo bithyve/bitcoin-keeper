@@ -1,8 +1,8 @@
 # Bitcoin Keeper - Secure today, plan for tomorrow
 
-Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, Whirlpool, and Hardware Wallet support. Built with React Native
+Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, and Hardware Wallet support. Built with React Native
 
-<img width="1412" alt="Screenshot 2024-03-12 at 5 23 03 PM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/03dc7d17-a946-4cc7-9d13-bbc5d74b771b">
+<img width="1396" alt="Screenshot 2024-04-25 at 11 08 39 AM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/1e08c786-f376-4e04-8bee-0917718cf870">
 
 [![Playstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/gpbtn.png)](https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper)
 [![Appstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/applebtn.png)](https://apps.apple.com/us/app/bitcoin-keeper/id1545535925)
@@ -15,7 +15,7 @@ Bitcoin Keeper is an open source, bitcoin-only app designed for seasoned bitcoin
 - Supports most of the trusted hardware wallets
 - Several softkey options including Assisted Keys
 - Ready to use Mobile Key when you setup a vault
-- Manage UTXOs and whirlpool them in the hot wallet
+- Manage UTXOs
 - Plan bitcoin inheritance
 - In-app chat and Concierge services coming soon
 
@@ -43,26 +43,6 @@ Before getting started, make sure you have a proper [React Native development en
    ```
 
 ## Build and Run
-
-### Whirlpool prerequisites
-
-To use the Whirlpool, you'll need to have the following platform-specific binaries and place them in the specified directories:
-
-#### Android
-
-- Extract [jniLibs](https://github.com/bithyve/bitcoin-keeper/releases/download/v1.0.8/jniLibs.zip) to the following directory if not present already:
-
-```bash
-android/app/src/main/
-```
-
-#### iOS
-
-- Copy the [libwhirlpool.a](https://github.com/bithyve/bitcoin-keeper/releases/download/v1.0.8/libwhirlpool.a) to the following directory:
-
-```bash
-ios/libwhirlpool.a
-```
 
 ### Varients
 
