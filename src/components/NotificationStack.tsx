@@ -303,6 +303,20 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             },
           },
         };
+      case uaiType.CANARAY_WALLET:
+        return {
+          heading: 'Canary Wallet Transaction',
+          body: uai.uaiDetails?.body || 'A transaction was detected in your canary wallet',
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                console.log('View the transaction');
+              },
+            },
+            secondary: skipBtnConfig(uai),
+          },
+        };
       default:
         return null;
     }
