@@ -320,6 +320,13 @@ function* uaiChecksWorker({ payload }) {
         );
       }
     }
+    if (checkForTypes.includes(uaiType.CANARAY_WALLET)) {
+      //TO-DO
+      //fetch all canary vaults
+      //fetch all canary UAI
+      //match with local cache
+      //create of update UAIs
+    }
   } catch (err) {
     console.error(err);
   } finally {
