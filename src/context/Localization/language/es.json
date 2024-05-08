@@ -249,7 +249,8 @@
     "InheritancePlanning": "Inheritance\nPlanning",
     "NeedHelp": "Need\nHelp?",
     "KeeperConcierge": "Keeper\nConcierge",
-    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed"
+    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed",
+    "Balance": "Balance"
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -939,5 +940,12 @@
     "regularUpdatesTitle": "Regularly Update Estate Plans and Instructions",
     "regularUpdatesP2": "Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions.",
     "regularUpdatesP1": "Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs."
+  },
+  "notification": {
+    "Balance": "Balance",
+    "availableToSpend": "Available to spend",
+    "vaultTransferHeading": "Sats ready to be auto-transferred\n",
+    "vaultTransferSubTitle": "Amount of sats in your wallet have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
+    "vaultTransferBody": "\nYou can always change the transfer threshold from Wallet Settings.\n"
   }
 }
