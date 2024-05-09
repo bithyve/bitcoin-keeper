@@ -308,7 +308,10 @@
     "secureBequeathBitcoin": "Plan your bitcoin inheritance",
     "KeySecurity": "Key\nSecurity",
     "BackupAndRecovery": "Backup and\nRecovery",
-    "InheritanceDocuments": "Inheritance\nDocuments"
+    "InheritanceDocuments": "Inheritance\nDocuments",
+    "learnMoreTitle": "Give away your bitcoin safely\n",
+    "learnMoreSubTitle": "Plan your bitcoin Inheritance using the tools and templates offered here. These tools are meant to act as guardrails. Protecting your interests while still allowing you to customize an inheritance plan that works best for you and your heir.",
+    "learnMoreDescription": "Use the templates to speak with your estate planner, friends and family to set up your inheritance. Optionally, use the inheritance key as an extra security measure to protect the vault you wish to bequeath to your heir."
   },
   "wallet": {
     "Createwallet": "Create a wallet",
@@ -750,7 +753,7 @@
     "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?",
     "viewSubscription": "View Subsciption",
     "noAvailablePurchaseMessage": "No purchases found",
-    "currentSubscriptionMessage": "Already subscribed to ",
+    "currentSubscriptionMessage": "Already subscribed to",
     "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
   },
   "BackupWallet": {
