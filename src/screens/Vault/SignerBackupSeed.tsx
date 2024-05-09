@@ -9,7 +9,6 @@ import {
   TouchableWithoutFeedback,
   FlatList,
   TextInput,
-  Alert,
   StyleSheet,
 } from 'react-native';
 
@@ -23,7 +22,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import { getPlaceholder } from 'src/utils/utilities';
-import { hp } from 'src/constants/responsive';
 
 function SignerBackupSeed() {
   const { colorMode } = useColorMode();
@@ -205,10 +203,14 @@ function SignerBackupSeed() {
                     onChangeText={(text) => {
                       const data = [...seedData];
                       data[index].name = text.trim();
+                      if (bip39.wordlists.english.includes(text.trim())) {
+                        data[index].invalid = false;
+                      }
                       setSeedData(data);
                     }}
                     onBlur={() => {
-                      if (!bip39.wordlists.english.includes(seedData[index].name)) {
+                      const inputValue = seedData[index].name.trim();
+                      if (inputValue && !bip39.wordlists.english.includes(inputValue)) {
                         const data = [...seedData];
                         data[index].invalid = true;
                         setSeedData(data);
