@@ -4,7 +4,12 @@ import { Box, Input, Pressable, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  ImportedKeyType,
+  WalletType,
+} from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -34,8 +39,8 @@ import { formatNumber } from 'src/utils/utilities';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import SettingsIcon from 'src/assets/images/settings_brown.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
-import DerivationPathModalContent from './DerivationPathModal';
 import useWallets from 'src/hooks/useWallets';
+import DerivationPathModalContent from './DerivationPathModal';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -83,6 +88,20 @@ function EnterWalletDetailScreen({ route }) {
         },
       },
     };
+    if (walletType === WalletType.IMPORTED) {
+      newWallet.importDetails = {
+        derivationConfig: {
+          path,
+          purpose,
+        },
+        importedKey: route.params?.seed.replace(/,/g, ' '),
+        importedKeyDetails: {
+          importedKeyType: ImportedKeyType.MNEMONIC,
+          purpose,
+          watchOnly: false,
+        },
+      };
+    }
     dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, path, purpose, transferPolicy]);
 
@@ -263,10 +282,10 @@ function EnterWalletDetailScreen({ route }) {
       />
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title={'Wallet Created Successfully!'}
-        subTitle={'Only have small amounts in this wallet'}
-        buttonText={'View Wallet'}
-        descriptionMessage={'Make sure you have secured the Recovery Key to backup your wallet'}
+        title="Wallet Created Successfully!"
+        subTitle="Only have small amounts in this wallet"
+        buttonText="View Wallet"
+        descriptionMessage="Make sure you have secured the Recovery Key to backup your wallet"
         buttonCallback={() => {
           setWalletCreatedModal(false);
           navigation.dispatch(
