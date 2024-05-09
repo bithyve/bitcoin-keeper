@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind } from 'src/services/wallets/enums';
+import { EntityKind, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
 import { createUaiMap, setRefreshUai, updateUaiActionMap } from '../reducers/uai';
 import {
@@ -323,9 +323,38 @@ function* uaiChecksWorker({ payload }) {
     if (checkForTypes.includes(uaiType.CANARAY_WALLET)) {
       //TO-DO
       //fetch all canary vaults
-      //fetch all canary UAI
-      //match with local cache
-      //create of update UAIs
+      const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+      const canaryWallets = vaults.filter((vault) => vault.type === VaultType.CANARY);
+
+      const uaiCollectionCanaryWallet: UAI[] = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.CANARAY_WALLET,
+        'uaiType'
+      );
+
+      //To-do: match with local cache
+      const localCacheMatchCondition = false;
+
+      for (const wallet of canaryWallets) {
+        const uai = uaiCollectionCanaryWallet.find((uai) => uai.entityId === wallet.id);
+        if (localCacheMatchCondition) {
+          if (!uai) {
+            yield put(
+              addToUaiStack({
+                uaiType: uaiType.CANARAY_WALLET,
+                entityId: wallet.id,
+                uaiDetails: {
+                  body: `Canary Vault  from ${wallet.presentationData.name}`,
+                },
+              })
+            );
+          }
+        } else {
+          if (uai) {
+            yield put(uaiActioned({ entityId: uai.entityId, action: true }));
+          }
+        }
+      }
     }
   } catch (err) {
     console.error(err);
