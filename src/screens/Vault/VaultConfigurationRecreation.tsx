@@ -38,6 +38,8 @@ function VaultConfigurationCreation() {
               onChangeText={(text) => {
                 setInputText(text);
               }}
+              textAlignVertical="top"
+              textAlign="left"
               multiline
             />
           </Box>
