@@ -120,9 +120,14 @@ function TransferPolicy({
     }
   };
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} style={styles.container}>
       <Box style={styles.subContainer}>
-        <Box style={styles.inputContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          padding={3}
+          height={50}
+          style={styles.inputContainer}
+        >
           <Box pl={10}>
             {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
           </Box>
@@ -203,8 +208,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-    padding: 3,
-    height: 50,
   },
   policyDesc: {
     fontSize: 13,
