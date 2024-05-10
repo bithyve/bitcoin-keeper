@@ -1571,6 +1571,7 @@ function HardwareModalMap({
             policy: setupInfo.policy,
           },
           xfp: setupInfo.id,
+          isBIP85: setupInfo.isBIP85,
         });
 
         // Recovery flow via BSMS is disabled for now. TODO: once backup via BSMS is enabled, we can enable recovery via BSMS as well
@@ -1598,7 +1599,7 @@ function HardwareModalMap({
       close();
       setInProgress(true);
       const { setupData } = await InheritanceKeyServer.initializeIKSetup();
-      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { id, isBIP85, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
       const { signer: inheritanceKey } = generateSignerFromMetaData({
         xpub,
         derivationPath,
@@ -1606,6 +1607,7 @@ function HardwareModalMap({
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
         xfp: id,
+        isBIP85,
         isMultisig: true,
       });
       setInProgress(false);
