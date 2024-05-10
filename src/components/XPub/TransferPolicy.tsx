@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, HStack, Input, useColorMode } from 'native-base';
 
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 
@@ -25,6 +25,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { Satoshis } from 'src/models/types/UnitAliases';
 import useBalance from 'src/hooks/useBalance';
+import { StyleSheet } from 'react-native';
 
 function TransferPolicy({
   wallet,
@@ -46,7 +47,8 @@ function TransferPolicy({
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const [policyText, setPolicyText] = useState(null);
   const dispatch = useDispatch();
-  const { getCurrencyIcon } = useBalance();
+  const { getCurrencyIcon, getSatUnit } = useBalance();
+
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   const storedPolicy = wallet?.transferPolicy?.threshold?.toString();
 
@@ -71,7 +73,9 @@ function TransferPolicy({
 
   useEffect(() => {
     if (!policyText) {
-      !isBitcoin ? setPolicyText(convertSatsToFiat(parseFloat(storedPolicy)).toFixed(0).toString()) : setPolicyText(storedPolicy);
+      !isBitcoin
+        ? setPolicyText(convertSatsToFiat(parseFloat(storedPolicy)).toFixed(0).toString())
+        : setPolicyText(storedPolicy);
     } else if (isBitcoin)
       setPolicyText(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
     else setPolicyText(convertSatsToFiat(parseFloat(policyText)).toFixed(0).toString());
@@ -96,25 +100,28 @@ function TransferPolicy({
   };
   const presshandler = () => {
     if (Number(policyText) > 0) {
-      wallet.transferPolicy.threshold = isBitcoin ? Number(policyText) : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
+      wallet.transferPolicy.threshold = isBitcoin
+        ? Number(policyText)
+        : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
       dispatch(
         updateWalletProperty({
           walletId: wallet.id,
           key: 'transferPolicy',
           value: {
             id: uuidv4(),
-            threshold: isBitcoin ? Number(policyText) : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString()),
+            threshold: isBitcoin
+              ? Number(policyText)
+              : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString()),
           },
         })
       );
-
     } else {
       showToast(walletTranslation.transPolicyCantZero);
     }
   };
   return (
     <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(300)}>
-      <Box justifyContent="center" alignItems="center">
+      <Box flexDirection="row" justifyContent="center" alignItems="center">
         <Box
           marginX="5%"
           flexDirection="row"
@@ -126,19 +133,38 @@ function TransferPolicy({
           padding={3}
           height={50}
         >
-          <Box pl={5}>{getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}</Box>
-          <Box ml={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
-          <Text
-            bold
+          <Box pl={10}>
+            {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
+          </Box>
+          <Box ml={4} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
+          <Input
+            value={policyText}
+            onChangeText={(value) => {
+              if (!isNaN(Number(value))) {
+                setPolicyText(
+                  value
+                    .split('.')
+                    .map((el, i) => (i ? el.split('').join('') : el))
+                    .join('.')
+                );
+              }
+            }}
             fontSize={15}
             color={`${colorMode}.greenText`}
-            marginLeft={3}
-            width="100%"
             letterSpacing={3}
-          >
-            {policyText ? `${policyText} ${isBitcoin ? 'sats' : currencyCode}` : "Enter Amount"}
-          </Text>
+            keyboardType="numeric"
+            placeholder="Enter Amount"
+            width={getSatUnit() ? '75%' : '94%'}
+            marginRight={getSatUnit() ? 20 : 25}
+            placeholderTextColor={`${colorMode}.SlateGreen`}
+            variant="unstyled"
+          />
         </Box>
+        <HStack style={styles.inputInnerStyle}>
+          <Text semiBold color={`${colorMode}.divider`}>
+            {getSatUnit() && `| ${getSatUnit()}`}
+          </Text>
+        </HStack>
       </Box>
       <Box py={25}>
         <Text fontSize={13} color={`${colorMode}.secondaryText`} letterSpacing={0.65}>
@@ -153,7 +179,6 @@ function TransferPolicy({
         paddingHorizontal={wp(15)}
         primaryDisable={relayWalletUpdateLoading || relayWalletUpdate}
       />
-      {/* keyboardview start */}
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
@@ -164,5 +189,15 @@ function TransferPolicy({
     </Box>
   );
 }
+
+const styles = StyleSheet.create({
+  inputInnerStyle: {
+    position: 'absolute',
+    right: wp(20),
+    gap: 2,
+    alignItems: 'center',
+    marginLeft: -20,
+  },
+});
 
 export default TransferPolicy;
