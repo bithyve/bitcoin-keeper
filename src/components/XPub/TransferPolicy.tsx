@@ -120,19 +120,9 @@ function TransferPolicy({
     }
   };
   return (
-    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(300)}>
-      <Box flexDirection="row" justifyContent="center" alignItems="center">
-        <Box
-          marginX="5%"
-          flexDirection="row"
-          width="100%"
-          justifyContent="center"
-          alignItems="center"
-          borderRadius={10}
-          backgroundColor={`${colorMode}.seashellWhite`}
-          padding={3}
-          height={50}
-        >
+    <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>
+      <Box style={styles.subContainer}>
+        <Box style={styles.inputContainer} backgroundColor={`${colorMode}.seashellWhite`}>
           <Box pl={10}>
             {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
           </Box>
@@ -167,7 +157,7 @@ function TransferPolicy({
         </HStack>
       </Box>
       <Box py={25}>
-        <Text fontSize={13} color={`${colorMode}.secondaryText`} letterSpacing={0.65}>
+        <Text style={styles.policyDesc} color={`${colorMode}.secondaryText`}>
           {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>
@@ -191,12 +181,34 @@ function TransferPolicy({
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: wp(300),
+  },
+  subContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   inputInnerStyle: {
     position: 'absolute',
     right: wp(20),
     gap: 2,
     alignItems: 'center',
     marginLeft: -20,
+  },
+  inputContainer: {
+    marginX: '5%',
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 3,
+    height: 50,
+  },
+  policyDesc: {
+    fontSize: 13,
+    letterSpacing: 0.65,
   },
 });
 
