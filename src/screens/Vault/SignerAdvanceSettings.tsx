@@ -652,8 +652,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isAssistedKey || vaultId ? null : (
           <OptionCard
-            title="Hide signer"
-            description="Hide this signer from the list"
+            title="Hide key"
+            description="Hide this key from the list"
             callback={() => {
               for (const vaultItem of allUnhiddenVaults) {
                 if (

@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import React from 'react';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 
 type OptionProps = {
@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 3,
+    paddingBottom: hp(22),
     width: windowWidth * 0.85,
     justifyContent: 'space-between',
     alignItems: 'center',
