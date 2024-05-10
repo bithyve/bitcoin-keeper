@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import React from 'react';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 
 type OptionProps = {
@@ -31,23 +31,31 @@ export function OptionCard({
   CardPill,
 }: OptionProps) {
   const { colorMode } = useColorMode();
+  const containerOpacity = disabled ? 0.8 : 1;
+  const preTitleOpacity = colorMode === 'light' ? 1 : 0.7;
+  const descriptionOpacity = colorMode === 'light' ? 1 : 0.8;
+
   return (
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
-      <HStack style={styles.container} testID={`view_${title.replace(/ /g, '_')}`}>
-        <HStack style={[styles.iconContainer, { opacity: disabled ? 0.8 : 1 }]}>
+      <HStack
+        padding={3}
+        width={windowWidth * 0.85}
+        justifyContent="space-between"
+        alignItems="center"
+        borderRadius={10}
+        testID={`view_${title.replace(/ /g, '_')}`}
+      >
+        <HStack style={[styles.iconContainer, { opacity: containerOpacity }]}>
           {LeftIcon && LeftIcon}
           <VStack>
             {preTitle && (
               <Text
                 italic
-                color={`${colorMode}.PretitleColor`}
+                color={
+                  colorMode === 'light' ? `${colorMode}.LightGreenish` : `${colorMode}.primaryText`
+                }
                 testID={`text_${title.replace(/ /g, '_')}`}
-                style={[
-                  styles.preTitle,
-                  {
-                    opacity: colorMode === 'light' ? 1 : 0.7,
-                  },
-                ]}
+                style={[styles.preTitle, { opacity: preTitleOpacity }]}
               >
                 {preTitle}
               </Text>
@@ -61,19 +69,14 @@ export function OptionCard({
                   : titleColor || `${colorMode}.primaryText`
               }
               testID={`text_${title.replace(/ /g, '_')}`}
-              style={styles.preTitle}
+              style={[styles.title, { opacity: 1 }]}
             >
               {title}
             </Text>
             {description && (
               <Text
                 color={descriptionColor || `${colorMode}.GreyText`}
-                style={[
-                  styles.descpTitle,
-                  {
-                    opacity: colorMode === 'light' ? 1 : 0.8,
-                  },
-                ]}
+                style={[styles.description, { opacity: descriptionOpacity }]}
               >
                 {description}
               </Text>
@@ -101,17 +104,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.13,
   },
-  descpTitle: {
+  title: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  description: {
     fontSize: 12,
     letterSpacing: 0.12,
-  },
-  container: {
-    padding: 3,
-    paddingBottom: hp(22),
-    width: windowWidth * 0.85,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderRadius: 10,
   },
 });
 
