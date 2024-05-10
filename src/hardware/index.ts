@@ -21,9 +21,9 @@ import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import HWError from './HWErrorState';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
+import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -47,6 +47,7 @@ export const generateSignerFromMetaData = ({
   isMock = false,
   xpubDetails = null as XpubDetailsType,
   xfp = null,
+  isBIP85 = false,
   signerPolicy = null,
   inheritanceKeyInfo = null,
   isAmf = false,
@@ -84,6 +85,7 @@ export const generateSignerFromMetaData = ({
     lastHealthCheck: new Date(),
     addedOn: new Date(),
     masterFingerprint,
+    isBIP85,
     signerPolicy,
     inheritanceKeyInfo,
     signerXpubs,
@@ -135,7 +137,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.MY_KEEPER:
-      name = `Mobile Key`;
+      name = 'Mobile Key';
       break;
     case SignerType.KEEPER:
       name = 'External Key';
