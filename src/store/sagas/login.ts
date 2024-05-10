@@ -54,6 +54,7 @@ import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { createUaiMap } from '../reducers/uai';
+import { refreshCanaryWallets } from '../sagaActions/vaults';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -89,6 +90,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     yield put(fetchExchangeRates());
+    yield put(refreshCanaryWallets());
     yield put(
       uaiChecks([
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
