@@ -121,6 +121,7 @@ import TrustedContactTemplates from 'src/screens/InheritanceToolsAndTips/compone
 import AdditionalSignerDetailsTemplate from 'src/screens/InheritanceToolsAndTips/components/AdditionalSignerDetailsTemplate';
 import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
 import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
+import SignerBackupSeed from 'src/screens/Vault/SignerBackupSeed';
 import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
@@ -254,6 +255,7 @@ function AppStack() {
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
+        <Stack.Screen name="SignerBackupSeed" component={SignerBackupSeed} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
         <Stack.Screen name="ShowQR" component={ShowQR} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />

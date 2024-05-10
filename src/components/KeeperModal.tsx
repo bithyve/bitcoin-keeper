@@ -57,9 +57,9 @@ KeeperModal.defaultProps = {
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: 'light.headerText',
-  buttonCallback: () => { },
+  buttonCallback: () => {},
   secondaryButtonText: null,
-  secondaryCallback: () => { },
+  secondaryCallback: () => {},
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -68,7 +68,7 @@ KeeperModal.defaultProps = {
   showButtons: true,
   learnMore: false,
   learnMoreTitle: 'See FAQs',
-  learnMoreCallback: () => { },
+  learnMoreCallback: () => {},
   closeOnOverlayClick: true,
   showCloseIcon: true,
   showCurrencyTypeSwitch: false,
@@ -221,6 +221,7 @@ const getStyles = (subTitleWidth) =>
     title: {
       fontSize: 19,
       letterSpacing: 0.19,
+      marginBottom: hp(5),
     },
     subTitle: {
       fontSize: 13,
