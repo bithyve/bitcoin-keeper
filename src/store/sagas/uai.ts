@@ -332,12 +332,14 @@ function* uaiChecksWorker({ payload }) {
         'uaiType'
       );
 
-      //To-do: match with local cache
-      const localCacheMatchCondition = false;
+      const canaryBalanceCache = yield select((state) => state.uai.canaryBalanceCache);
 
       for (const wallet of canaryWallets) {
         const uai = uaiCollectionCanaryWallet.find((uai) => uai.entityId === wallet.id);
-        if (localCacheMatchCondition) {
+        const currentTotalBalance =
+          wallet.specs.balances.unconfirmed + wallet.specs.balances.confirmed;
+        const cachedBalance = canaryBalanceCache[wallet.id];
+        if (currentTotalBalance < cachedBalance) {
           if (!uai) {
             yield put(
               addToUaiStack({
