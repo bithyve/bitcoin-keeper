@@ -27,9 +27,9 @@ export const generateKey = (length: number): string => {
 };
 
 export const generateRSAKeypair = () => {
-  const key = new NodeRSA();
-  const publicKey = key.exportKey('public');
-  const privateKey = key.exportKey('private');
+  const key = new NodeRSA({ b: 2048 });
+  const publicKey = key.exportKey('pkcs8-public-pem');
+  const privateKey = key.exportKey('pkcs8-private-pem');
   return {
     publicKey,
     privateKey,
