@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
@@ -133,8 +134,7 @@ export const generateVault = async ({
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 
   // update cosigners map(if one of the signers is an assisted key)
-  // TODO: uncomment this line when the tests are ready
-  // await updateCosignersMapForAssistedKeys(signers, signerMap);
+  await updateCosignersMapForAssistedKeys(signers, signerMap);
 
   return vault;
 };

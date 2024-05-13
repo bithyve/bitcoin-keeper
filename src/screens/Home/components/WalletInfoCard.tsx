@@ -61,7 +61,11 @@ function WalletInfoCard({
             {walletName}
           </Text>
         </Box>
-        <TouchableOpacity testID="btn_currencyinfo" onPress={setIsShowAmount}>
+        <TouchableOpacity
+          style={styles.balance}
+          testID="btn_currencyinfo"
+          onPress={setIsShowAmount}
+        >
           <CurrencyInfo
             amount={amount}
             hideAmounts={!isShowAmount}
@@ -97,6 +101,9 @@ const styles = StyleSheet.create({
   },
   secondCard: {
     maxWidth: wp(80),
+  },
+  balance: {
+    height: hp(30),
   },
 });
 

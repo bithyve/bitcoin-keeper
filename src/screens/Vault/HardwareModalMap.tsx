@@ -832,7 +832,7 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToFileBasedSigner = () => {
+  const navigateToFileBasedSigner = (type) => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'HandleFile',
@@ -840,7 +840,7 @@ function HardwareModalMap({
           title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
           subTitle: 'Please upload or paste the file containing the xpub data',
           mode,
-          signer,
+          signerType: type,
           addSignerFlow,
           ctaText: 'Proceed',
           onFileExtract: onFileExtract,
@@ -1670,7 +1670,7 @@ function HardwareModalMap({
         return navigateToTapsignerSetup();
       case SignerType.COLDCARD:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
-          return navigateToFileBasedSigner();
+          return navigateToFileBasedSigner(type);
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
@@ -1697,7 +1697,7 @@ function HardwareModalMap({
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
-          return navigateToFileBasedSigner();
+          return navigateToFileBasedSigner(type);
         }
         return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:

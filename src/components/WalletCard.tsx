@@ -60,7 +60,7 @@ function WalletCard({
             </Text>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              fontSize={isSelected ? 11 : 10}
+              fontSize={10}
               numberOfLines={2}
               style={styles.walletDesc}
             >
