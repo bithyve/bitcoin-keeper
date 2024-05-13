@@ -252,6 +252,7 @@ const getStyles = (subTitleWidth) =>
     title: {
       fontSize: 19,
       letterSpacing: 0.19,
+      marginBottom: hp(5),
     },
     subTitle: {
       fontSize: 13,

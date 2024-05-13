@@ -144,6 +144,7 @@ export const SignerSchema: ObjectSchema = {
     addedOn: 'date',
     isMock: 'bool?',
     storageType: 'string',
+    isBIP85: 'bool?',
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
     hidden: { type: 'bool', default: false },
