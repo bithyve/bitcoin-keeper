@@ -21,6 +21,7 @@ export default class SigningServer {
   ): Promise<{
     setupData: {
       id: string;
+      isBIP85: boolean;
       bhXpub: any;
       masterFingerprint: any;
       derivationPath: string;
@@ -77,6 +78,7 @@ export default class SigningServer {
   ): Promise<{
     valid: boolean;
     id?: string;
+    isBIP85?: boolean;
     xpub?: string;
     masterFingerprint?: string;
     derivationPath?: string;
@@ -97,11 +99,12 @@ export default class SigningServer {
     const { valid } = res.data;
     if (!valid) throw new Error('Signer validation failed');
 
-    const { xpub, masterFingerprint, derivationPath, policy } = res.data;
+    const { isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
 
     return {
       valid,
       id,
+      isBIP85,
       xpub,
       masterFingerprint,
       derivationPath,
@@ -115,6 +118,7 @@ export default class SigningServer {
   ): Promise<{
     valid: boolean;
     id?: string;
+    isBIP85?: boolean;
     xpub?: string;
     masterFingerprint?: string;
     derivationPath?: string;
@@ -135,11 +139,12 @@ export default class SigningServer {
     const { valid } = res.data;
     if (!valid) throw new Error('Signer validation failed');
 
-    const { id, xpub, masterFingerprint, derivationPath, policy } = res.data;
+    const { id, isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
 
     return {
       valid,
       id,
+      isBIP85,
       xpub,
       masterFingerprint,
       derivationPath,
@@ -153,6 +158,7 @@ export default class SigningServer {
   ): Promise<{
     valid: boolean;
     id?: string;
+    isBIP85?: boolean;
     xpub?: string;
     masterFingerprint?: string;
     derivationPath?: string;
@@ -173,11 +179,12 @@ export default class SigningServer {
     const { valid } = res.data;
     if (!valid) throw new Error('Signer validation failed');
 
-    const { id, xpub, masterFingerprint, derivationPath, policy } = res.data;
+    const { id, isBIP85, xpub, masterFingerprint, derivationPath, policy } = res.data;
 
     return {
       valid,
       id,
+      isBIP85,
       xpub,
       masterFingerprint,
       derivationPath,
@@ -310,6 +317,7 @@ export default class SigningServer {
     migrationSuccessful: boolean;
     setupData: {
       id: string;
+      isBIP85: boolean;
       bhXpub: string;
       masterFingerprint: string;
       derivationPath: string;

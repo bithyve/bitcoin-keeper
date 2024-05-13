@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/utils/service-utilities/config';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import {
   EncryptedInheritancePolicy,
   IKSCosignersMapUpdate,
@@ -89,6 +88,7 @@ export default class InheritanceKeyServer {
   static initializeIKSetup = async (): Promise<{
     setupData: {
       id: string;
+      isBIP85: boolean;
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
@@ -301,6 +301,7 @@ export default class InheritanceKeyServer {
     };
     setupInfo?: {
       id: string;
+      isBIP85: boolean;
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
@@ -409,6 +410,7 @@ export default class InheritanceKeyServer {
     migrationSuccessful: boolean;
     setupData: {
       id: string;
+      isBIP85: boolean;
       inheritanceXpub: any;
       masterFingerprint: any;
       derivationPath: string;
