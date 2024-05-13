@@ -15,8 +15,6 @@ import {
   PERSONAL_CLOUD_BACKUP,
   WALLET_CONFIG_FILES,
 } from 'src/services/channel/constants';
-import CardPill from 'src/components/CardPill';
-import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function BackupRecovery({ navigation }) {
@@ -39,19 +37,11 @@ function BackupRecovery({ navigation }) {
         callback={() => navigate('MasterRecoveryKey', MASTER_RECOVERY_KEY)}
       />
       <OptionCard
-        //-----For Futhure use----
-        // preTitle={`${
-        //   inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP] === undefined
-        //     ? 'Never accessed'
-        //     : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP])}`
-        // }`}
-        disabled
-        CardPill={
-          <CardPill
-            heading={inheritancePlanning.commingSoon}
-            backgroundColor={Colors.LightPurple}
-          />
-        }
+        preTitle={`${
+          inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP] === undefined
+            ? 'Never accessed'
+            : `${getTimeDifferenceInWords(inheritanceToolVisitedHistory[PERSONAL_CLOUD_BACKUP])}`
+        }`}
         title={inheritancePlanning.personalCloudTitle}
         description={inheritancePlanning.personalCloudDescp}
         LeftIcon={<CloudUser />}

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -12,11 +12,14 @@ import { wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import WalletFingerprint from 'src/components/WalletFingerPrint';
 
 function AppBackupSettings() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const { primaryMnemonic, publicId } = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
 
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
@@ -67,6 +70,9 @@ function AppBackupSettings() {
           />
         )}
       />
+      <Box style={styles.fingerprint}>
+        <WalletFingerprint title="Signer Fingerprint" fingerprint={publicId.toString()} />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -75,6 +81,9 @@ const styles = StyleSheet.create({
   optionsListContainer: {
     alignItems: 'center',
     marginTop: 20,
+  },
+  fingerprint: {
+    alignItems: 'center',
   },
 });
 export default AppBackupSettings;

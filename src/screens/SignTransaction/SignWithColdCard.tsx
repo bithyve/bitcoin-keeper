@@ -174,7 +174,7 @@ function SignWithColdCard({ route }: { route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14}>Manually Register Mk4</Text>
+                <Text fontSize={14}>Manually Register Coldcard</Text>
                 <Text fontSize={12}>Please resigister the vault if not already registered</Text>
               </VStack>
               <Arrow />
@@ -188,7 +188,7 @@ function SignWithColdCard({ route }: { route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14}>Learn more about Mk4</Text>
+                <Text fontSize={14}>Learn more about Coldcard</Text>
                 <Text fontSize={12}>
                   Here you will find all of our User Documentation for the COLDCARD.
                 </Text>

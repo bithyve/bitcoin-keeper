@@ -131,7 +131,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
   let name: string;
   switch (type) {
     case SignerType.COLDCARD:
-      name = 'Mk4';
+      name = 'COLDCARD';
       break;
     case SignerType.JADE:
       name = 'Jade';

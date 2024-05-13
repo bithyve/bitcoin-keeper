@@ -41,6 +41,10 @@ type ModalProps = {
   learnMore?: boolean;
   learnMoreTitle?: string;
   learnMoreCallback?: any;
+  learnMoreButton?: boolean;
+  learnMoreButtonPressed?: () => void;
+  learnButtonBackgroundColor?: string;
+  learnButtonTextColor?: string;
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
   showCurrencyTypeSwitch?: boolean;
@@ -69,6 +73,10 @@ KeeperModal.defaultProps = {
   learnMore: false,
   learnMoreTitle: 'See FAQs',
   learnMoreCallback: () => {},
+  learnMoreButton: false,
+  learnMoreButtonPressed: () => {},
+  learnButtonBackgroundColor: 'light.BrownNeedHelp',
+  learnButtonTextColor: 'light.learnMoreBorder',
   closeOnOverlayClick: true,
   showCloseIcon: true,
   showCurrencyTypeSwitch: false,
@@ -99,6 +107,10 @@ function KeeperModal(props: ModalProps) {
     learnMore,
     learnMoreTitle,
     learnMoreCallback,
+    learnMoreButton,
+    learnMoreButtonPressed,
+    learnButtonTextColor,
+    learnButtonBackgroundColor,
     secButtonTextColor,
     closeOnOverlayClick,
     showCloseIcon,
@@ -145,6 +157,25 @@ function KeeperModal(props: ModalProps) {
                 <CurrencyTypeSwitch />
               </Box>
             ) : null}
+            {learnMoreButton && (
+              <TouchableOpacity
+                style={styles.learnMoreButton}
+                onPress={learnMoreButtonPressed}
+                testID="btn_learnMore"
+              >
+                <Box
+                  borderColor={
+                    learnButtonTextColor === 'light.white' ? 'light.white' : 'light.learnMoreBorder'
+                  }
+                  backgroundColor={learnButtonBackgroundColor}
+                  style={styles.learnMoreButtonContainer}
+                >
+                  <Text color={learnButtonTextColor} style={styles.learnMoreText}>
+                    Need Help?
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            )}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
                 <Text testID="text_modal_title" style={styles.title} color={textColor}>
@@ -269,6 +300,25 @@ const getStyles = (subTitleWidth) =>
       height: hp(34),
       width: wp(110),
       marginLeft: wp(10),
+    },
+    learnMoreButton: {
+      zIndex: 10,
+    },
+    learnMoreButtonContainer: {
+      position: 'absolute',
+      top: hp(22),
+      left: wp(240),
+      borderWidth: 0.5,
+      borderRadius: 5,
+      paddingHorizontal: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: wp(80),
+    },
+    learnMoreText: {
+      fontSize: 12,
+      letterSpacing: 0.24,
+      alignSelf: 'center',
     },
     headerContainer: {
       alignSelf: 'flex-start',
