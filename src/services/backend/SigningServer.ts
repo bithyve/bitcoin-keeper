@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/utils/service-utilities/config';
+import { asymmetricDecrypt, generateRSAKeypair } from 'src/utils/service-utilities/encryption';
 import {
   CosignersMapUpdate,
   SignerException,
@@ -190,6 +191,34 @@ export default class SigningServer {
       derivationPath,
       policy,
     };
+  };
+
+  static fetchBackup = async (
+    id: string,
+    verificationToken: number
+  ): Promise<{
+    mnemonic: any;
+  }> => {
+    let res: AxiosResponse;
+    const { privateKey, publicKey } = generateRSAKeypair();
+
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchBackup`, {
+        HEXA_ID,
+        id,
+        verificationToken,
+        publicKey,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { encryptedBackup } = res.data;
+    const decryptedData = asymmetricDecrypt(encryptedBackup, privateKey);
+    const { mnemonic } = JSON.parse(decryptedData);
+
+    return { mnemonic };
   };
 
   static updatePolicy = async (
