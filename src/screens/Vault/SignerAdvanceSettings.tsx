@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Icon, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -49,8 +49,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
 import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
-import DescriptionModal from './components/EditDescriptionModal';
-import { SDIcons } from './SigningDeviceIcons';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault } from 'src/store/sagaActions/vaults';
@@ -69,6 +67,9 @@ import Colors from 'src/theme/Colors';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import SigningServer from 'src/services/backend/SigningServer';
+import { SDIcons } from './SigningDeviceIcons';
+import DescriptionModal from './components/EditDescriptionModal';
 
 const { width } = Dimensions.get('screen');
 
@@ -90,7 +91,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
   );
 }
 
-//add key check for cancary wallet based on ss config
+// add key check for cancary wallet based on ss config
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
@@ -189,7 +190,7 @@ function SignerAdvanceSettings({ route }: any) {
           vaultScheme: CANARY_SCHEME,
           vaultSigners: [ssVaultKey],
           vaultDetails: {
-            name: `Canary Wallet`,
+            name: 'Canary Wallet',
             description: `Canary Wallet for ${signer.signerName}`,
           },
         };
@@ -458,7 +459,7 @@ function SignerAdvanceSettings({ route }: any) {
           const xpub = idx(details, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
           const signerXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
           if (xpub === signerXpub) {
-            const xpriv = details.xpubDetails[XpubTypes.P2WSH].xpriv;
+            const { xpriv } = details.xpubDetails[XpubTypes.P2WSH];
             signedSerialisedPSBT = signCosignerPSBT(xpriv, serializedPSBT);
             dispatch(
               updateKeyDetails(
@@ -574,7 +575,7 @@ function SignerAdvanceSettings({ route }: any) {
   const backupModalContent = ({ title = '', subTitle = '', icon = null }) => {
     return (
       <Box>
-        <Card title={title} subTitle={subTitle} icon={icon}></Card>
+        <Card title={title} subTitle={subTitle} icon={icon} />
         <Text style={styles.textDesc}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
         </Text>
@@ -585,7 +586,7 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const SigningServerOTPModal = () => {
+  function SigningServerOTPModal() {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
       if (otp.length < 6) {
@@ -597,6 +598,19 @@ function SignerAdvanceSettings({ route }: any) {
       if (otp && text === 'x') {
         setOtp(otp.slice(0, -1));
       }
+    };
+
+    const onPressConfirm = async () => {
+      try {
+        const { mnemonic } = await SigningServer.fetchBackup(vaultKey.xfp, Number(otp));
+        navigation.navigate('ExportSeed', {
+          seed: mnemonic,
+          isFromAssistedKey: true,
+        });
+      } catch (err) {
+        showToast(`${err}`);
+      }
+      setShowOTPModal(false);
     };
 
     const onDeletePressed = () => {
@@ -623,13 +637,7 @@ function SignerAdvanceSettings({ route }: any) {
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
-              <CustomGreenButton
-                onPress={() => {
-                  navigation.navigate('SignerBackupSeed');
-                  setShowOTPModal(false);
-                }}
-                value={common.confirm}
-              />
+              <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
             </Box>
           </Box>
         </Box>
@@ -641,7 +649,7 @@ function SignerAdvanceSettings({ route }: any) {
         />
       </Box>
     );
-  };
+  }
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
@@ -659,6 +667,8 @@ function SignerAdvanceSettings({ route }: any) {
     signer.type === SignerType.TAPSIGNER &&
     config.NETWORK_TYPE === NetworkType.TESTNET &&
     !signer.isMock;
+
+  const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
 
   const onSuccess = () => hideKey();
 
@@ -687,15 +697,6 @@ function SignerAdvanceSettings({ route }: any) {
             description="View, change or delete"
             callback={() => {
               setEditEmailModal(true);
-            }}
-          />
-        )}
-        {isInheritanceKey && vaultId && (
-          <OptionCard
-            title={vaultTranslation.oneTimeBackupTitle}
-            description={vaultTranslation.oneTimeBackupDesc}
-            callback={() => {
-              setBackupModal(true);
             }}
           />
         )}
@@ -728,7 +729,7 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-        {isPolicyServer && vaultId && (
+        {showOneTimeBackup && (
           <OptionCard
             title={vaultTranslation.oneTimeBackupTitle}
             description={vaultTranslation.oneTimeBackupDesc}
@@ -899,7 +900,6 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
       />
-      {console.log(signer.extraData?.instanceNumber)}
       <KeeperModal
         visible={backupModal}
         closeOnOverlayClick={true}
@@ -931,7 +931,8 @@ function SignerAdvanceSettings({ route }: any) {
                 setBackupModal(false);
               }
             : () => {
-                navigation.navigate('SignerBackupSeed');
+                showToast('Coming soon');
+                // navigation.navigate('SignerBackupSeed');
                 setBackupModal(false);
               }
         }
