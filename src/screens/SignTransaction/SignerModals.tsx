@@ -61,10 +61,10 @@ function ColdCardContent({
 
   if (register) {
     message =
-      '\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.';
+      '\u2022 Since this is the first time you are signing with this device, the Coldcard requires for us to register the multisig wallet data before it can sign transactions.';
   } else if (isMultisig) {
     message =
-      '\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction';
+      '\u2022 Make sure the multisig wallet is registered with the Coldcard before signing the transaction';
   }
 
   return (
@@ -77,7 +77,7 @@ function ColdCardContent({
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {register
             ? ''
-            : "\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option."}
+            : "\u2022 On the Coldcard main menu, choose the 'Ready to sign' option and choose the nfc option."}
         </Text>
       </Box>
       <HStack alignSelf={'flex-start'}>
@@ -711,7 +711,7 @@ function SignerModals({
                     ctaText: 'Proceed',
                     onFileExtract: onFileSign,
                     fileData: serializedPSBTEnvelop.serializedPSBT,
-                    signer,
+                    signerType: signer.type,
                   },
                 })
               );
@@ -732,8 +732,8 @@ function SignerModals({
               key={vaultKey.xfp}
               visible={currentSigner && coldCardModal}
               close={() => setColdCardModal(false)}
-              title={shouldRegister ? 'Register Coldcard' : 'Keep your Mk4 ready'}
-              subTitle="Keep your Mk4 ready before proceeding"
+              title={shouldRegister ? 'Register Coldcard' : 'Keep your Coldcard ready'}
+              subTitle="Keep your Coldcard ready before proceeding"
               Content={() => (
                 <ColdCardContent
                   register={shouldRegister}
@@ -837,7 +837,7 @@ function SignerModals({
                         ctaText: 'Proceed',
                         onFileExtract: onFileSign,
                         fileData: serializedPSBTEnvelop.serializedPSBT,
-                        signer,
+                        signerType: signer.type,
                       },
                     })
                   );
@@ -917,7 +917,7 @@ function SignerModals({
                         ctaText: 'Proceed',
                         onFileExtract: onFileSign,
                         fileData: serializedPSBTEnvelop.serializedPSBT,
-                        signer,
+                        signerType: signer.type,
                       },
                     })
                   );

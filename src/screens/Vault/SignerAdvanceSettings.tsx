@@ -1,14 +1,13 @@
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, Icon, useColorMode } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
-  EntityKind,
   NetworkType,
   SignerType,
   VaultType,
@@ -16,6 +15,9 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import InheritanceKeyIcon from 'src/assets/images/icon_ik.svg';
+import SigningServerIcon from 'src/assets/images/server_light.svg';
+
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
@@ -63,6 +65,11 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 
 const { width } = Dimensions.get('screen');
 
@@ -108,8 +115,13 @@ function SignerAdvanceSettings({ route }: any) {
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
+  const [backupModal, setBackupModal] = useState(false);
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
+  const [otp, setOtp] = useState('');
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation, common } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const CANARY_SCHEME = { m: 1, n: 1 };
@@ -551,6 +563,94 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  function Card({ title = '', subTitle = '', icon = null }) {
+    const { colorMode } = useColorMode();
+
+    return (
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
+        <Box style={styles.iconContainer}>
+          <HexagonIcon width={44} height={38} backgroundColor={Colors.pantoneGreen} icon={icon} />
+        </Box>
+        <Box style={styles.titlesContainer}>
+          <Text style={styles.titleText}>{title}</Text>
+          <Text style={styles.subTitleText}>{subTitle}</Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  const backupModalContent = ({ title = '', subTitle = '', icon = null }) => {
+    return (
+      <Box>
+        <Card title={title} subTitle={subTitle} icon={icon}></Card>
+        <Text style={styles.textDesc}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        </Text>
+        <Text style={styles.textDesc}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        </Text>
+      </Box>
+    );
+  };
+
+  const SigningServerOTPModal = () => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(300)}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+              }
+            }}
+          >
+            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+          </TouchableOpacity>
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
+            {vaultTranslation.cvvSigningServerInfo}
+          </Text>
+          <Box mt={10} alignSelf="flex-end" mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  navigation.navigate('SignerBackupSeed');
+                  setShowOTPModal(false);
+                }}
+                value={common.confirm}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={`${colorMode}.primaryText`}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  };
+
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
   const isAppKey = signer.type === SignerType.KEEPER;
@@ -561,9 +661,6 @@ function SignerAdvanceSettings({ route }: any) {
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
-  const { translations } = useContext(LocalizationContext);
-
-  const { wallet: walletTranslation } = translations;
   const isCanaryWalletAllowed = isOnL2Above;
 
   const isAMF =
@@ -601,6 +698,15 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
+        {isInheritanceKey && vaultId && (
+          <OptionCard
+            title={vaultTranslation.oneTimeBackupTitle}
+            description={vaultTranslation.oneTimeBackupDesc}
+            callback={() => {
+              setBackupModal(true);
+            }}
+          />
+        )}
         {isAssistedKey || signersWithoutRegistration || !vaultId ? null : (
           <OptionCard
             title="Manual Registration"
@@ -627,6 +733,15 @@ function SignerAdvanceSettings({ route }: any) {
                 IToastCategory.DEFAULT,
                 7000
               );
+            }}
+          />
+        )}
+        {isPolicyServer && vaultId && (
+          <OptionCard
+            title={vaultTranslation.oneTimeBackupTitle}
+            description={vaultTranslation.oneTimeBackupDesc}
+            callback={() => {
+              setBackupModal(true);
             }}
           />
         )}
@@ -660,8 +775,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isAssistedKey || vaultId ? null : (
           <OptionCard
-            title="Hide signer"
-            description="Hide this signer from the list"
+            title="Hide key"
+            description="Hide this key from the list"
             callback={() => {
               for (const vaultItem of allUnhiddenVaults) {
                 if (
@@ -791,6 +906,53 @@ function SignerAdvanceSettings({ route }: any) {
             onSuccess={onSuccess}
           />
         )}
+      />
+      <KeeperModal
+        visible={backupModal}
+        closeOnOverlayClick={true}
+        close={() => setBackupModal(false)}
+        showCloseIcon={false}
+        title={vaultTranslation.backingUpMnemonicTitle}
+        subTitle={vaultTranslation.backingUpMnemonicSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() =>
+          isPolicyServer
+            ? backupModalContent({
+                title: vaultTranslation.signingServerTitle,
+                subTitle: 'Added a min ago',
+                icon: <SigningServerIcon />,
+              })
+            : backupModalContent({
+                title: vaultTranslation.inheritanceKeyTitle,
+                subTitle: 'Added a min ago',
+                icon: <InheritanceKeyIcon />,
+              })
+        }
+        buttonText={common.proceed}
+        buttonCallback={
+          isPolicyServer
+            ? () => {
+                setShowOTPModal(true);
+                setBackupModal(false);
+              }
+            : () => {
+                navigation.navigate('SignerBackupSeed');
+                setBackupModal(false);
+              }
+        }
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => setBackupModal(false)}
+      />
+      <KeeperModal
+        visible={showOTPModal}
+        close={() => setShowOTPModal(false)}
+        title={vaultTranslation.oneTimeBackupTitle}
+        subTitle={vaultTranslation.oneTimeBackupDesc}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={SigningServerOTPModal}
       />
       <HardwareModalMap
         type={signer.type}
@@ -989,5 +1151,40 @@ const styles = StyleSheet.create({
   },
   signerVaults: {
     gap: 5,
+  },
+  textDesc: {
+    fontSize: 13,
+    marginTop: hp(10),
+    marginBottom: hp(10),
+  },
+  cardContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    marginBottom: hp(20),
+    minHeight: hp(70),
+  },
+  iconContainer: {
+    width: wp(30),
+    marginLeft: wp(10),
+  },
+  titlesContainer: {
+    marginLeft: wp(15),
+  },
+  titleText: {
+    color: Colors.pantoneGreen,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  subTitleText: {
+    fontSize: 12,
+  },
+  cvvInputInfoText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: '100%',
+    marginTop: 2,
   },
 });

@@ -9,7 +9,6 @@ import {
   TouchableWithoutFeedback,
   FlatList,
   TextInput,
-  Alert,
   StyleSheet,
 } from 'react-native';
 
@@ -24,13 +23,13 @@ import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import { getPlaceholder } from 'src/utils/utilities';
 
-function InputSeedWordSigner({ route }: { route: any }) {
+function SignerBackupSeed() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
+  const { common, vault: vaultTranslation } = translations;
   const { seed } = translations;
-  const { common } = translations;
-  const { onSuccess, xfp } = route.params;
+
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -105,22 +104,6 @@ function InputSeedWordSigner({ route }: { route: any }) {
     setWalletRecoverySuccessModal(false);
   };
 
-  const getSeedWord = () => {
-    let seedWord = '';
-    for (let i = 0; i < 12; i++) {
-      seedWord += `${seedData[i].name} `;
-    }
-    return seedWord.trim();
-  };
-
-  const onPressNext = async () => {
-    const mnemonic = getSeedWord();
-    if (bip39.validateMnemonic(mnemonic)) {
-      onSuccess({ xfp, seedBasedSingerMnemonic: mnemonic });
-      navigation.goBack();
-    } else Alert.alert('Invalid Mnemonic');
-  };
-
   function RecoverWalletScreen() {
     return (
       <View>
@@ -165,8 +148,8 @@ function InputSeedWordSigner({ route }: { route: any }) {
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
-              title={seed.EnterSeed}
-              subtitle={seed.recoverWallet}
+              title={vaultTranslation.backingUpMnemonicTitle}
+              subtitle={vaultTranslation.oneTimeBackupTitle}
               onPressHandler={() => {
                 navigation.goBack();
               }}
@@ -239,7 +222,8 @@ function InputSeedWordSigner({ route }: { route: any }) {
             />
           </View>
           <Text color={`${colorMode}.GreyText`} marginX={10} marginY={10} fontSize={12}>
-            {seed.seedDescription}
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et dolore magna aliqua.
           </Text>
           <View
             style={{
@@ -252,22 +236,10 @@ function InputSeedWordSigner({ route }: { route: any }) {
               <View style={styles.dash} />
             </Box>
             <Box backgroundColor="transparent" flexDirection="row" marginRight={10}>
-              <TouchableOpacity>
-                <Text
-                  fontSize={13}
-                  bold
-                  letterSpacing={1}
-                  marginTop={2}
-                  //   color={buttonCancelColor}
-                  marginRight={5}
-                >
-                  {common.needHelp}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onPressNext} disabled={false}>
+              <TouchableOpacity disabled={false}>
                 <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text fontSize={13} bold letterSpacing={1} color="white">
-                    {common.next}
+                    {common.proceed}
                   </Text>
                 </Box>
               </TouchableOpacity>
@@ -347,4 +319,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InputSeedWordSigner;
+export default SignerBackupSeed;

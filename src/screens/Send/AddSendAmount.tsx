@@ -8,7 +8,6 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
-
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -40,6 +39,7 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -254,12 +254,8 @@ function AddSendAmount({ route }) {
         style={styles.Container}
       >
         <KeeperHeader
-          title={
-            transferType === TransferType.WALLET_TO_WALLET
-              ? `Sending to Wallet`
-              : `Enter the Amount`
-          }
-          subtitle={`From ${sender.presentationData.name}`}
+          title="Sending from"
+          subtitle={sender.presentationData.name}
           marginLeft={false}
           rightComponent={<CurrencyTypeSwitch />}
           icon={
@@ -270,17 +266,26 @@ function AddSendAmount({ route }) {
               icon={getWalletIcon(sender)}
             />
           }
+          availableBalance={
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={sender?.specs.balances.confirmed}
+              fontSize={14}
+              color={`${colorMode}.primaryText`}
+              variation={colorMode === 'light' ? 'dark' : 'light'}
+            />
+          }
         />
         <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
             icon={isAddress ? <AddressIcon /> : getWalletIcon(recipient)}
             availableAmt={sender?.specs.balances.confirmed}
-            // walletName={recipient?.presentationData.name}
             walletName={isAddress ? address : recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
             isAddress={isAddress}
+            recipient={recipient}
           />
         </Box>
 
@@ -397,7 +402,7 @@ function AddSendAmount({ route }) {
               <Input
                 testID="input_note"
                 backgroundColor={`${colorMode}.seashellWhite`}
-                placeholder="Add a note"
+                placeholder="Add a note (optional)"
                 autoCapitalize="sentences"
                 placeholderTextColor={`${colorMode}.greenText`}
                 color={`${colorMode}.greenText`}

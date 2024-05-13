@@ -85,7 +85,6 @@ import QRComms from 'src/assets/images/qr_comms.svg';
 import useSigners from 'src/hooks/useSigners';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
-import SignerCard from '../AddSigner/SignerCard';
 import {
   setupJade,
   setupKeeperSigner,
@@ -99,6 +98,7 @@ import {
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -860,7 +860,7 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToFileBasedSigner = () => {
+  const navigateToFileBasedSigner = (type) => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'HandleFile',
@@ -870,10 +870,10 @@ function HardwareModalMap({
           } ${getSignerNameFromType(type)}`,
           subTitle: 'Please upload or paste the file containing the xpub data',
           mode,
-          signer,
+          signerType: type,
           addSignerFlow,
           ctaText: 'Proceed',
-          onFileExtract: onFileExtract,
+          onFileExtract,
         },
       })
     );
@@ -1271,6 +1271,7 @@ function HardwareModalMap({
           storageType: SignerStorage.WARM,
           isMultisig: true,
           xfp: response.id,
+          isBIP85: response.isBIP85,
           signerPolicy: response.policy,
         });
         setInProgress(false);
@@ -1303,6 +1304,7 @@ function HardwareModalMap({
         const mapped = mapUnknownSigner({
           masterFingerprint: response.masterFingerprint,
           type: SignerType.POLICY_SERVER,
+          isBIP85: response.isBIP85,
           signerPolicy: response.policy,
         });
         if (mapped) {
@@ -1317,7 +1319,7 @@ function HardwareModalMap({
     }
   };
 
-  const SigningServerOTPModal = () => {
+  function SigningServerOTPModal() {
     const { translations } = useContext(LocalizationContext);
     const { vault: vaultTranslation, common } = translations;
 
@@ -1381,7 +1383,7 @@ function HardwareModalMap({
         />
       </Box>
     );
-  };
+  }
 
   const navigateToMobileKey = async (isMultiSig) => {
     if (mode === InteracationMode.RECOVERY) {
@@ -1604,6 +1606,7 @@ function HardwareModalMap({
             policy: setupInfo.policy,
           },
           xfp: setupInfo.id,
+          isBIP85: setupInfo.isBIP85,
         });
 
         // Recovery flow via BSMS is disabled for now. TODO: once backup via BSMS is enabled, we can enable recovery via BSMS as well
@@ -1631,7 +1634,7 @@ function HardwareModalMap({
       close();
       setInProgress(true);
       const { setupData } = await InheritanceKeyServer.initializeIKSetup();
-      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { id, isBIP85, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
       const { signer: inheritanceKey } = generateSignerFromMetaData({
         xpub,
         derivationPath,
@@ -1639,6 +1642,7 @@ function HardwareModalMap({
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
         xfp: id,
+        isBIP85,
         isMultisig: true,
       });
       setInProgress(false);
@@ -1705,13 +1709,13 @@ function HardwareModalMap({
         return navigateToTapsignerSetup();
       case SignerType.COLDCARD:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
-          return navigateToFileBasedSigner();
+          return navigateToFileBasedSigner(type);
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
-        if (mode === InteracationMode.HEALTH_CHECK)
+        if (mode === InteracationMode.HEALTH_CHECK) {
           return setSigningServerHealthCheckOTPModal(true);
-        else return navigateToSigningServerSetup();
+        } else return navigateToSigningServerSetup();
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
@@ -1732,7 +1736,7 @@ function HardwareModalMap({
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
-          return navigateToFileBasedSigner();
+          return navigateToFileBasedSigner(type);
         }
         return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:
@@ -1783,7 +1787,7 @@ function HardwareModalMap({
         close={() => setConfirmPassVisible(false)}
         title="Enter Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'Confirm passcode to delete key'}
+        subTitle="Confirm passcode to delete key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1830,8 +1834,9 @@ function HardwareModalMap({
             signingServerHealthCheckOTPModal)
         }
         close={() => {
-          if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK)
+          if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK) {
             setSigningServerHealthCheckOTPModal(false);
+          }
           close();
         }}
         title={
