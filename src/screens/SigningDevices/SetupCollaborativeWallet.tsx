@@ -40,6 +40,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitcoinIllustration from '../../assets/images/btc-illustration.svg';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
+import { setCosginerModal } from 'src/store/reducers/wallets';
 
 function AddCoSignerContent() {
   const { colorMode } = useColorMode();
@@ -88,6 +89,8 @@ function SignerItem({
           isHealthcheck: true,
           signer,
           disableMockFlow: true,
+          learnMore: true,
+          learnMoreContent: AddCoSignerContent,
         },
       })
     );
@@ -144,8 +147,8 @@ function SetupCollaborativeWallet() {
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
-  const [visibleModal, setVisibleModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
+  const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
   const { common } = translations;
 
   const pushSigner = (
@@ -313,9 +316,7 @@ function SetupCollaborativeWallet() {
         title="Add Signers"
         subtitle="A 2 of 3 collaborative wallet will be created"
         learnMore
-        learnMorePressed={() => {
-          setVisibleModal(true);
-        }}
+        learnMorePressed={() => dispatch(setCosginerModal(true))}
         learnTextColor={`${colorMode}.white`}
       />
       <FlatList
@@ -352,9 +353,9 @@ function SetupCollaborativeWallet() {
         walletDescription={walletDescription}
       />
       <KeeperModal
-        visible={visibleModal}
+        visible={cosignerModal}
         close={() => {
-          setVisibleModal(false);
+          dispatch(setCosginerModal(false));
         }}
         title={'Add a co-signer'}
         subTitle={''}
@@ -364,7 +365,9 @@ function SetupCollaborativeWallet() {
         learnMore
         learnMoreTitle={common.needMoreHelp}
         // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
-        buttonCallback={() => setVisibleModal(false)}
+        buttonCallback={() => {
+          dispatch(setCosginerModal(false));
+        }}
         buttonBackground={`${colorMode}.modalWhiteButton`}
       />
     </ScreenWrapper>
