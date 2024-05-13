@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Icon, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -605,6 +605,7 @@ function SignerAdvanceSettings({ route }: any) {
         const { mnemonic } = await SigningServer.fetchBackup(vaultKey.xfp, Number(otp));
         navigation.navigate('ExportSeed', {
           seed: mnemonic,
+          isFromAssistedKey: true,
         });
       } catch (err) {
         showToast(`${err}`);
