@@ -75,7 +75,6 @@ export type AppStackParams = {
   TransactionDetails: undefined;
   TimelockScreen: undefined;
   SignerAdvanceSettings: undefined;
-  SignerBackupSeed: undefined;
   ScanQR: undefined;
   ShowQR: undefined;
   RegisterWithQR: undefined;
