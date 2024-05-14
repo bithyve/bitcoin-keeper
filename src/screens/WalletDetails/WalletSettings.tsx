@@ -17,6 +17,7 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
+import { WalletType } from 'src/services/wallets/enums';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -35,6 +36,8 @@ function WalletSettings({ route }) {
   const walletTranslation = translations.wallet;
   const { settings } = translations;
   const TestSatsComponent = useTestSats({ wallet });
+
+  const isImported = wallet.type === WalletType.IMPORTED;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -59,13 +62,15 @@ function WalletSettings({ route }) {
             }}
           />
         )}
-        <OptionCard
-          title={walletTranslation.TransferPolicy}
-          description={walletTranslation.TransferPolicyDesc}
-          callback={() => {
-            setTransferPolicyVisible(true);
-          }}
-        />
+        {!isImported && (
+          <OptionCard
+            title={walletTranslation.TransferPolicy}
+            description={walletTranslation.TransferPolicyDesc}
+            callback={() => {
+              setTransferPolicyVisible(true);
+            }}
+          />
+        )}
         {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
