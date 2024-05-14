@@ -18,6 +18,16 @@ const migrations = {
   //       isSleek: 'yeah',
   //     },
   //   }),
+  2: (state) => ({
+    ...state,
+    settings: {
+      ...state.settings,
+      oneTimeBackupStatus: {
+        signingServer: false,
+        inheritanceKey: false,
+      },
+    },
+  }),
 };
 
 export default migrations;
