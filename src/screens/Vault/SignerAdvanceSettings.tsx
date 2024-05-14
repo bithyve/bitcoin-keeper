@@ -660,8 +660,14 @@ function SignerAdvanceSettings({ route }: any) {
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
-
-  const isCanaryWalletAllowed = isOnL2Above;
+  const CANARY_NON_SUPPORTED_DEVICES = [
+    SignerType.UNKOWN_SIGNER,
+    SignerType.INHERITANCEKEY,
+    SignerType.POLICY_SERVER,
+    SignerType.MOBILE_KEY,
+    SignerType.MY_KEEPER,
+  ];
+  const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
@@ -792,7 +798,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
 
-        {isCanaryWalletAllowed && isSSKeySigner && (
+        {isCanaryWalletAllowed && (
           <OptionCard
             title="Canary Wallet"
             description="Your on-chain key alert"
