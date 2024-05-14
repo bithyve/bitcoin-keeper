@@ -197,7 +197,8 @@ export default class SigningServer {
     id: string,
     verificationToken: number
   ): Promise<{
-    mnemonic: any;
+    mnemonic: string;
+    derivationPath: string;
   }> => {
     let res: AxiosResponse;
     const { privateKey, publicKey } = generateRSAKeypair();
@@ -216,9 +217,9 @@ export default class SigningServer {
 
     const { encryptedBackup } = res.data;
     const decryptedData = asymmetricDecrypt(encryptedBackup, privateKey);
-    const { mnemonic } = JSON.parse(decryptedData);
+    const { mnemonic, derivationPath } = JSON.parse(decryptedData);
 
-    return { mnemonic };
+    return { mnemonic, derivationPath };
   };
 
   static updatePolicy = async (

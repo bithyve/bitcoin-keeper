@@ -406,6 +406,39 @@ export default class InheritanceKeyServer {
     };
   };
 
+  static fetchBackup = async (
+    id: string,
+    inheritanceConfiguration: InheritanceConfiguration
+  ): Promise<{
+    mnemonic: string;
+    derivationPath: string;
+  }> => {
+    let res: AxiosResponse;
+    const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+      inheritanceConfiguration,
+      id
+    );
+    const { privateKey, publicKey } = generateRSAKeypair();
+
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchIKSBackup`, {
+        HEXA_ID,
+        id,
+        thresholdDescriptors,
+        publicKey,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { encryptedBackup } = res.data;
+    const decryptedData = asymmetricDecrypt(encryptedBackup, privateKey);
+    const { mnemonic, derivationPath } = JSON.parse(decryptedData);
+
+    return { mnemonic, derivationPath };
+  };
+
   static migrateSignersV2ToV3 = async (
     vaultId: string,
     cosignersMapIKSUpdates: IKSCosignersMapUpdate[]
