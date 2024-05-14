@@ -70,6 +70,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
+import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
 
 const { width } = Dimensions.get('screen');
 
@@ -161,6 +162,14 @@ function SignerAdvanceSettings({ route }: any) {
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+  const {
+    oneTimeBackupStatus,
+  }: {
+    oneTimeBackupStatus: {
+      signingServer: boolean;
+      inheritanceKey: boolean;
+    };
+  } = useAppSelector((state) => state.settings);
 
   const [isSSKeySigner, setIsSSKeySigner] = useState(false);
 
@@ -611,6 +620,7 @@ function SignerAdvanceSettings({ route }: any) {
           derivationPath,
           isFromAssistedKey: true,
         });
+        dispatch(setOTBStatusSS(true));
       } catch (err) {
         showToast(`${err}`);
       }
@@ -673,6 +683,11 @@ function SignerAdvanceSettings({ route }: any) {
     !signer.isMock;
 
   const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
+  let disableOneTimeBackup = false; // disables OTB once the user has backed it up
+  if (showOneTimeBackup) {
+    if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatus?.signingServer;
+    else if (isInheritanceKey) disableOneTimeBackup = oneTimeBackupStatus?.inheritanceKey;
+  }
 
   const onSuccess = () => hideKey();
   const initiateOneTimeBackup = async () => {
@@ -703,6 +718,7 @@ function SignerAdvanceSettings({ route }: any) {
           derivationPath,
           isFromAssistedKey: true,
         });
+        dispatch(setOTBStatusIKS(true));
       } catch (err) {
         showToast(`${err}`);
       }
@@ -772,6 +788,7 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {showOneTimeBackup && (
           <OptionCard
+            disabled={disableOneTimeBackup}
             title={vaultTranslation.oneTimeBackupTitle}
             description={vaultTranslation.oneTimeBackupDesc}
             callback={() => {
