@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
@@ -11,7 +11,7 @@ import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
 import SettingIcon from 'src/assets/images/settings_footer.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { SignerType, VaultType } from 'src/services/wallets/enums';
@@ -45,17 +45,24 @@ import ImportIcon from 'src/assets/images/import.svg';
 import { reinstateVault } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { UNVERIFYING_SIGNERS } from 'src/hardware';
 
 function Footer({
   vault,
   isCollaborativeWallet,
+  pendingHealthCheckCount,
 }: {
   vault: Vault;
   isCollaborativeWallet: boolean;
+  pendingHealthCheckCount: number;
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+
   const footerItems = vault.archived
     ? [
         {
@@ -79,7 +86,26 @@ function Footer({
           Icon: RecieveIcon,
           text: 'Receive',
           onPress: () => {
-            navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+            if (pendingHealthCheckCount >= vault.scheme.m) {
+              Alert.alert(
+                'Pending Keys Health Check',
+                `There are ${pendingHealthCheckCount} pending keys awaiting health check.`,
+                [
+                  {
+                    text: 'Cancel',
+                    onPress: () => {},
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'OK',
+                    onPress: () =>
+                      navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault })),
+                  },
+                ]
+              );
+            } else {
+              navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+            }
           },
         },
         {
@@ -204,6 +230,36 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
 
+  const { signerMap } = useSignerMap();
+  const { signers: vaultKeys } = vault;
+
+  const { typeBasedIndicator } = useIndicatorHook({
+    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
+  });
+
+  const transformedArray = vaultKeys.map((item) => {
+    const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+    const isRegistered = vaultKeys.length
+      ? item.registeredVaults.find((info) => info.vaultId === vault.id)
+      : false;
+    const isHealthCheckPending =
+      (vaultKeys.length &&
+        !UNVERIFYING_SIGNERS.includes(signer.type) &&
+        !isRegistered &&
+        !signer.isMock &&
+        vault.isMultiSig) ||
+      typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
+
+    return {
+      ...signer,
+      isHealthCheckPending: !!isHealthCheckPending,
+    };
+  });
+
+  const pendingHealthCheckCount = transformedArray.filter(
+    (item) => item.isHealthCheckPending
+  ).length;
+
   useEffect(() => {
     if (autoRefresh) syncVault();
   }, [autoRefresh]);
@@ -322,7 +378,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
         />
-        <Footer vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
+        <Footer
+          vault={vault}
+          isCollaborativeWallet={isCollaborativeWallet}
+          pendingHealthCheckCount={pendingHealthCheckCount}
+        />
       </VStack>
       <KeeperModal
         visible={introModal}
