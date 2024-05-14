@@ -37,12 +37,14 @@ function ExportSeedScreen({ route, navigation }) {
     isHealthCheck,
     signer,
     isFromAssistedKey = false,
+    derivationPath,
   }: {
     seed: string;
     wallet: Wallet;
     isHealthCheck: boolean;
     signer: VaultSigner;
     isFromAssistedKey: boolean;
+    derivationPath: string;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -120,6 +122,11 @@ function ExportSeedScreen({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
+      {isFromAssistedKey && derivationPath && (
+        <Box style={styles.derivationContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Text color={`${colorMode}.GreyText`}>{derivationPath}</Text>
+        </Box>
+      )}
       {isFromAssistedKey ? (
         <Box m={2}>
           <Note title="" subtitle={BackupWallet.skipHealthCheckPara01} subtitleColor="GreyText" />
@@ -317,6 +324,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  derivationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 10,
+    marginHorizontal: 8,
+    marginVertical: 10,
+    alignSelf: 'center',
+    width: wp(150),
   },
   backArrow: {
     width: '15%',
