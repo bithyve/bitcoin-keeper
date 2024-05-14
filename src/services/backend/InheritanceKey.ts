@@ -7,7 +7,12 @@ import {
   InheritancePolicy,
 } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
-import { asymmetricEncrypt, hash256 } from '../../utils/service-utilities/encryption';
+import {
+  asymmetricDecrypt,
+  asymmetricEncrypt,
+  generateRSAKeypair,
+  hash256,
+} from '../../utils/service-utilities/encryption';
 import { Vault } from '../wallets/interfaces/vault';
 
 const { HEXA_ID, SIGNING_SERVER, SIGNING_SERVER_RSA_PUBKEY } = config;
@@ -50,12 +55,12 @@ export default class InheritanceKeyServer {
     };
   };
 
-  static getEncryptedInheritanceConfiguration = async (
+  static getEncryptedInheritanceConfiguration = (
     inheritanceConfiguration: InheritanceConfiguration
-  ): Promise<InheritanceConfiguration> => {
+  ): InheritanceConfiguration => {
     const hashedDescriptor = inheritanceConfiguration.descriptors.map((desc) => hash256(desc));
     const encryptedBSMS = inheritanceConfiguration.bsms // TODO: encryption for BSMS is not working(to be fixed)
-      ? await asymmetricEncrypt(inheritanceConfiguration.bsms, SIGNING_SERVER_RSA_PUBKEY)
+      ? asymmetricEncrypt(inheritanceConfiguration.bsms, SIGNING_SERVER_RSA_PUBKEY)
       : null;
 
     return {
@@ -67,15 +72,15 @@ export default class InheritanceKeyServer {
     };
   };
 
-  static getEncryptedInheritancePolicy = async (
+  static getEncryptedInheritancePolicy = (
     policy: InheritancePolicy
-  ): Promise<EncryptedInheritancePolicy> => {
+  ): EncryptedInheritancePolicy => {
     let encryptedPolicy: EncryptedInheritancePolicy;
     if (policy) {
       encryptedPolicy = {
         ...policy,
         alert: policy.alert
-          ? await asymmetricEncrypt(JSON.stringify(policy.alert), SIGNING_SERVER_RSA_PUBKEY)
+          ? asymmetricEncrypt(JSON.stringify(policy.alert), SIGNING_SERVER_RSA_PUBKEY)
           : undefined,
       };
     }
@@ -125,8 +130,8 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
 
-    const encryptedConfiguration = await this.getEncryptedInheritanceConfiguration(configuration);
-    const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(policy);
+    const encryptedConfiguration = this.getEncryptedInheritanceConfiguration(configuration);
+    const updatedEncryptedPolicy = this.getEncryptedInheritancePolicy(policy);
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/finalizeIKSetup`, {
@@ -161,9 +166,7 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      const encryptedNewConfiguration = await this.getEncryptedInheritanceConfiguration(
-        newConfiguration
-      );
+      const encryptedNewConfiguration = this.getEncryptedInheritanceConfiguration(newConfiguration);
       const existingThresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
         existingConfiguration,
         id
@@ -201,7 +204,7 @@ export default class InheritanceKeyServer {
     updated: boolean;
   }> => {
     let res: AxiosResponse;
-    const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(updatedPolicy);
+    const updatedEncryptedPolicy = this.getEncryptedInheritancePolicy(updatedPolicy);
 
     const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
       inheritanceConfiguration,
@@ -401,6 +404,39 @@ export default class InheritanceKeyServer {
     return {
       setupInfo,
     };
+  };
+
+  static fetchBackup = async (
+    id: string,
+    inheritanceConfiguration: InheritanceConfiguration
+  ): Promise<{
+    mnemonic: string;
+    derivationPath: string;
+  }> => {
+    let res: AxiosResponse;
+    const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+      inheritanceConfiguration,
+      id
+    );
+    const { privateKey, publicKey } = generateRSAKeypair();
+
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchIKSBackup`, {
+        HEXA_ID,
+        id,
+        thresholdDescriptors,
+        publicKey,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { encryptedBackup } = res.data;
+    const decryptedData = asymmetricDecrypt(encryptedBackup, privateKey);
+    const { mnemonic, derivationPath } = JSON.parse(decryptedData);
+
+    return { mnemonic, derivationPath };
   };
 
   static migrateSignersV2ToV3 = async (

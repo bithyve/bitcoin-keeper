@@ -44,7 +44,8 @@ export const asymmetricEncrypt = (data: string, publicKey: string): string => {
 
 export const asymmetricDecrypt = (encryptedData: string, privateRSAKey: string) => {
   const key = new NodeRSA(privateRSAKey);
-  return key.decrypt(encryptedData, 'utf8');
+  const decrypted = key.decrypt(encryptedData, 'utf8');
+  return decrypted;
 };
 
 export const cryptoRandom = () => {

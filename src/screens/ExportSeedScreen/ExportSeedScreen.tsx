@@ -61,38 +61,36 @@ function ExportSeedScreen({ route, navigation }) {
 
   function SeedCard({ item, index }: { item; index }) {
     return (
-      <>
-        <TouchableOpacity
-          testID={`btn_seed_word_${index}`}
-          style={styles.seedCardContainer}
-          onPress={() => {
-            setShowWordIndex((prev) => {
-              if (prev === index) {
-                return '';
-              }
-              return index;
-            });
-          }}
+      <TouchableOpacity
+        testID={`btn_seed_word_${index}`}
+        style={styles.seedCardContainer}
+        onPress={() => {
+          setShowWordIndex((prev) => {
+            if (prev === index) {
+              return '';
+            }
+            return index;
+          });
+        }}
+      >
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          opacity={showWordIndex === index ? 1 : 0.5}
+          style={styles.seedCardWrapper}
         >
-          <Box
-            backgroundColor={`${colorMode}.seashellWhite`}
-            opacity={showWordIndex === index ? 1 : 0.5}
-            style={styles.seedCardWrapper}
+          <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
+            {index < 9 ? '0' : null}
+            {index + 1}
+          </Text>
+          <Text
+            testID={`text_seed_word_${index}`}
+            style={styles.seedTextStyle01}
+            color={`${colorMode}.GreyText`}
           >
-            <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
-              {index < 9 ? '0' : null}
-              {index + 1}
-            </Text>
-            <Text
-              testID={`text_seed_word_${index}`}
-              style={styles.seedTextStyle01}
-              color={`${colorMode}.GreyText`}
-            >
-              {showWordIndex === index ? item : '******'}
-            </Text>
-          </Box>
-        </TouchableOpacity>
-      </>
+            {showWordIndex === index ? item : '******'}
+          </Text>
+        </Box>
+      </TouchableOpacity>
     );
   }
 
@@ -124,7 +122,7 @@ function ExportSeedScreen({ route, navigation }) {
       </Box>
       {isFromAssistedKey ? (
         <Box m={2}>
-          <Note title={''} subtitle={BackupWallet.skipHealthCheckPara01} subtitleColor="GreyText" />
+          <Note title="" subtitle={BackupWallet.skipHealthCheckPara01} subtitleColor="GreyText" />
         </Box>
       ) : (
         <Box m={2}>
@@ -180,7 +178,12 @@ function ExportSeedScreen({ route, navigation }) {
       {isFromAssistedKey && (
         <Box style={styles.nextButtonWrapper}>
           <Box>
-            <CustomGreenButton onPress={() => {}} value={common.proceed} />
+            <CustomGreenButton
+              onPress={() => {
+                navigation.goBack();
+              }}
+              value={common.proceed}
+            />
           </Box>
         </Box>
       )}
