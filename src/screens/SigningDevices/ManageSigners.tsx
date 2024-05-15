@@ -182,7 +182,11 @@ function SignersList({
                 onCardSelect={() => {
                   handleCardSelect(signer, item);
                 }}
-                name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+                name={
+                  !signer.isBIP85
+                    ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
+                    : getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'
+                }
                 description={getSignerDescription(
                   signer.type,
                   signer.extraData?.instanceNumber,

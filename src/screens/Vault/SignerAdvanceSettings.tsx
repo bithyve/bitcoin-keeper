@@ -734,7 +734,11 @@ function SignerAdvanceSettings({ route }: any) {
       <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
       <KeeperHeader
         title="Settings"
-        subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
+        subtitle={
+          !signer.isBIP85
+            ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
+            : `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'}`
+        }
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}

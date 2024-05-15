@@ -386,7 +386,7 @@ function Signers({
         <SignerCard
           disabled={disabled}
           key={`${shellSigner.masterFingerprint}_${index}`}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF) + ' +'}
           description="To setup"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
@@ -422,7 +422,11 @@ function Signers({
           showSelection={showSelection}
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          name={
+            !signer.isBIP85
+              ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
+              : getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'
+          }
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
