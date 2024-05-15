@@ -342,7 +342,7 @@ const getPolicyServerStatus = (
 ) => {
   if (addSignerFlow) {
     return {
-      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+      message: `Please add ${getSignerNameFromType(type) + ' +'} from the vault creation flow`,
       disabled: true,
     };
   } else if (isOnL1) {
@@ -375,7 +375,7 @@ const getInheritanceKeyStatus = (
   if (addSignerFlow) {
     return {
       disabled: true,
-      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+      message: `Please add ${getSignerNameFromType(type) + ' +'} from the vault creation flow`,
     };
   } else if (isOnL1 || isOnL2) {
     return {
