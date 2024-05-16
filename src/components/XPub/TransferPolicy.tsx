@@ -152,7 +152,7 @@ function TransferPolicy({
         >
           <Box ml={25}>{getCurrencyIcon(BTC, 'slateGreen')}</Box>
           <Box ml={3} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
-          <Box style={styles.inputContainer}>
+          <Box width={getSatUnit() ? '90%' : '105%'}>
             <TouchableOpacity>
               <Input
                 bold
@@ -168,8 +168,9 @@ function TransferPolicy({
               </Input>
             </TouchableOpacity>
           </Box>
-          <Box></Box>
-          <Box width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} mr={2} />
+          {getSatUnit() && (
+            <Box width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} mr={2} />
+          )}
           <Text semiBold color={`${colorMode}.SlateGreen`}>
             {getSatUnit() && ` ${getSatUnit()}`}
           </Text>
@@ -199,11 +200,5 @@ function TransferPolicy({
     </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  inputContainer: {
-    width: '90%',
-  },
-});
 
 export default TransferPolicy;
