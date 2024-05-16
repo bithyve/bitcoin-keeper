@@ -3,7 +3,7 @@ import { Box, Input, useColorMode } from 'native-base';
 
 import BTC from 'src/assets/images/btc.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -27,6 +27,7 @@ import useBalance from 'src/hooks/useBalance';
 import { numberWithCommas } from 'src/utils/utilities';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Colors from 'src/theme/Colors';
+import { StyleSheet } from 'react-native';
 
 function TransferPolicy({
   wallet,
@@ -132,32 +133,19 @@ function TransferPolicy({
     elevation: isInputFocused ? 5 : 0,
   };
   return (
-    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(300)}>
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} style={styles.transferContainer}>
       <Box justifyContent="center" alignItems="center">
         <Box
-          marginX="5%"
-          flexDirection="row"
-          width="100%"
-          justifyContent="center"
-          alignItems="center"
-          borderRadius={10}
           backgroundColor={`${colorMode}.seashellWhite`}
-          padding={3}
-          height={50}
           onTouchStart={() => setIsInputFocused(true)}
-          style={inputContainerStyles}
-          pr={12}
-          pl={5}
+          style={[inputContainerStyles, styles.inputContainer]}
         >
           <Box ml={25}>{getCurrencyIcon(BTC, 'slateGreen')}</Box>
-          <Box ml={3} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
+          <Box ml={3} style={styles.separator} />
           <Box width={getSatUnit() ? '90%' : '105%'}>
             <TouchableOpacity>
               <Input
-                bold
-                fontSize={15}
-                marginLeft={0}
-                letterSpacing={3}
+                style={styles.inputField}
                 numberOfLines={null}
                 editable={false}
                 variant="unstyled"
@@ -167,16 +155,14 @@ function TransferPolicy({
               </Input>
             </TouchableOpacity>
           </Box>
-          {getSatUnit() && (
-            <Box width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} mr={2} />
-          )}
+          {getSatUnit() && <Box style={styles.separator} />}
           <Text semiBold color={`${colorMode}.SlateGreen`}>
             {getSatUnit() && ` ${getSatUnit()}`}
           </Text>
         </Box>
       </Box>
-      <Box py={25}>
-        <Text fontSize={13} color={`${colorMode}.secondaryText`} letterSpacing={0.65}>
+      <Box style={styles.descContainer}>
+        <Text style={styles.desc} color={`${colorMode}.secondaryText`}>
           {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>
@@ -199,5 +185,50 @@ function TransferPolicy({
     </Box>
   );
 }
+
+const styles = StyleSheet.create({
+  transferContainer: {
+    width: wp(300),
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 3,
+    fontSize: 15,
+    letterSpacing: 3,
+    height: hp(50),
+    borderRadius: 10,
+    marginHorizontal: '5%',
+    paddingLeft: 25,
+    paddingRight: 50,
+  },
+  inputField: {
+    fontSize: 15,
+    letterSpacing: 3,
+    marginLeft: 0,
+    fontWeight: 'bold',
+  },
+  limitText: {
+    marginRight: 10,
+    fontSize: 10,
+    alignSelf: 'flex-end',
+  },
+  descContainer: {
+    paddingVertical: 25,
+  },
+  desc: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+  },
+  separator: {
+    width: 2,
+    backgroundColor: '#BDB7B1',
+    opacity: 0.3,
+    height: 20,
+    marginRight: 2,
+  },
+});
 
 export default TransferPolicy;
