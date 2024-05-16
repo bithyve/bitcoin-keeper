@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, StatusBar, ScrollView } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Alert, FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { Alert, FlatList, RefreshControl, SafeAreaView, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
@@ -11,10 +11,10 @@ import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
 import SettingIcon from 'src/assets/images/settings_footer.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
-import { SignerType, VaultType } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
@@ -25,7 +25,7 @@ import useVault from 'src/hooks/useVault';
 import openLink from 'src/utils/OpenLink';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import KeeperFooter from 'src/components/KeeperFooter';
-import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
+import config, { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
@@ -48,81 +48,10 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
-import { UNVERIFYING_SIGNERS } from 'src/hardware';
-
-function Footer({
-  vault,
-  isCollaborativeWallet,
-  pendingHealthCheckCount,
-}: {
-  vault: Vault;
-  isCollaborativeWallet: boolean;
-  pendingHealthCheckCount: number;
-}) {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
-
-  const footerItems = vault.archived
-    ? [
-        {
-          Icon: ImportIcon,
-          text: 'Reinstate',
-          onPress: () => {
-            dispatch(reinstateVault(vault.id));
-            showToast('Vault reinstated successfully', <TickIcon />);
-          },
-        },
-      ]
-    : [
-        {
-          Icon: SendIcon,
-          text: 'Send',
-          onPress: () => {
-            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-          },
-        },
-        {
-          Icon: RecieveIcon,
-          text: 'Receive',
-          onPress: () => {
-            if (pendingHealthCheckCount >= vault.scheme.m) {
-              Alert.alert(
-                'Pending Keys Health Check',
-                `There are ${pendingHealthCheckCount} pending keys awaiting health check.`,
-                [
-                  {
-                    text: 'Cancel',
-                    onPress: () => {},
-                    style: 'cancel',
-                  },
-                  {
-                    text: 'OK',
-                    onPress: () =>
-                      navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault })),
-                  },
-                ]
-              );
-            } else {
-              navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
-            }
-          },
-        },
-        {
-          Icon: SettingIcon,
-          text: 'Settings',
-          onPress: () => {
-            navigation.dispatch(
-              CommonActions.navigate(
-                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-                { vaultId: vault.id }
-              )
-            );
-          },
-        },
-      ];
-  return <KeeperFooter items={footerItems} wrappedScreen={false} />;
-}
+import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
+import SignerCard from '../AddSigner/SignerCard';
+import { SDIcons } from './SigningDeviceIcons';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
@@ -214,9 +143,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
-
+  const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const { vaultTransferSuccessful = false, autoRefresh = false, vaultId = '' } = route.params || {};
-
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
@@ -229,9 +157,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
+  const isSmallDevice = useIsSmallDevices();
 
   const { signerMap } = useSignerMap();
-  const { signers: vaultKeys } = vault;
+  const { signers: vaultKeys } = vault || { signers: [] };
 
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
@@ -249,7 +178,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         !signer.isMock &&
         vault.isMultiSig) ||
       typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
-
     return {
       ...signer,
       isHealthCheckPending: !!isHealthCheckPending,
@@ -290,6 +218,120 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     ),
     [isCollaborativeWallet]
   );
+
+  function Footer({
+    vault,
+    isCollaborativeWallet,
+    pendingHealthCheckCount,
+  }: {
+    vault: Vault;
+    isCollaborativeWallet: boolean;
+    pendingHealthCheckCount: number;
+  }) {
+    const navigation = useNavigation();
+    const dispatch = useDispatch();
+    const { showToast } = useToastMessage();
+
+    const footerItems = vault.archived
+      ? [
+          {
+            Icon: ImportIcon,
+            text: 'Reinstate',
+            onPress: () => {
+              dispatch(reinstateVault(vault.id));
+              showToast('Vault reinstated successfully', <TickIcon />);
+            },
+          },
+        ]
+      : [
+          {
+            Icon: SendIcon,
+            text: 'Send',
+            onPress: () => {
+              navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+            },
+          },
+          {
+            Icon: RecieveIcon,
+            text: 'Receive',
+            onPress: () => {
+              if (pendingHealthCheckCount >= vault.scheme.m) {
+                setShowHealthCheckModal(true);
+              } else {
+                navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+              }
+            },
+          },
+          {
+            Icon: SettingIcon,
+            text: 'Settings',
+            onPress: () => {
+              navigation.dispatch(
+                CommonActions.navigate(
+                  isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+                  { vaultId: vault.id }
+                )
+              );
+            },
+          },
+        ];
+    return <KeeperFooter items={footerItems} wrappedScreen={false} />;
+  }
+
+  function SignersList({
+    colorMode,
+    vaultKeys,
+    signerMap,
+    vault,
+    typeBasedIndicator,
+  }: {
+    colorMode: string;
+    vaultKeys: VaultSigner[];
+    signerMap: any;
+    vault: Vault;
+    typeBasedIndicator: any;
+  }) {
+    const list = transformedArray.filter((item) => item.isHealthCheckPending);
+
+    return (
+      <Box style={styles.addedSignersContainer}>
+        {list.map((item) => {
+          const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+
+          const showDot =
+            (vaultKeys.length &&
+              !UNVERIFYING_SIGNERS.includes(signer.type) &&
+              !signer.isMock &&
+              vault.isMultiSig) ||
+            typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
+
+          const isAMF =
+            signer.type === SignerType.TAPSIGNER &&
+            config.NETWORK_TYPE === NetworkType.TESTNET &&
+            !signer.isMock;
+
+          return (
+            <SignerCard
+              key={signer.masterFingerprint}
+              name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+              description={getSignerDescription(
+                signer.type,
+                signer.extraData?.instanceNumber,
+                signer
+              )}
+              customStyle={styles.signerCard}
+              icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+              showSelection={false}
+              showDot={showDot}
+              isFullText
+              colorVarient="green"
+              colorMode={colorMode}
+            />
+          );
+        })}
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -417,6 +459,48 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               : `${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`
           )
         }
+      />
+      <KeeperModal
+        visible={showHealthCheckModal}
+        close={() => {
+          setShowHealthCheckModal(false);
+        }}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        title={'Pending keys Health Check'}
+        subTitle={`There are ${pendingHealthCheckCount} keys awaiting health check`}
+        buttonText={'Health Check'}
+        buttonCallback={() => {
+          setShowHealthCheckModal(false);
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ManageSigners',
+              params: { vaultId, vaultKeys: vault.signers },
+            })
+          );
+        }}
+        secondaryButtonText={'Skip'}
+        secondaryCallback={() => {
+          setShowHealthCheckModal(false);
+          navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+        }}
+        Content={() => (
+          <Box style={styles.signerListContainer}>
+            <SignersList
+              colorMode={colorMode}
+              vaultKeys={vaultKeys}
+              signerMap={signerMap}
+              vault={vault}
+              typeBasedIndicator={typeBasedIndicator}
+            />
+            <Text style={styles.desc}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do.
+            </Text>
+          </Box>
+        )}
+        buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
+        showCloseIcon={false}
       />
     </Box>
   );
@@ -594,6 +678,24 @@ const styles = StyleSheet.create({
   },
   alignItems: {
     alignItems: 'center',
+  },
+  signerListContainer: {
+    marginTop: hp(-16),
+  },
+  topContainer: {
+    flex: 1,
+  },
+  addedSignersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  desc: {
+    marginTop: hp(15),
+    fontSize: 13,
+  },
+  signerCard: {
+    width: wp(125),
+    marginBottom: hp(5),
   },
 });
 
