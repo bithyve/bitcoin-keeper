@@ -171,7 +171,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
     title: 'Setting up your app',
     subTitle:
       'Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets called vaults.',
-    message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
+    message: 'Stack sats, hodl long term, and plan your inheritance with Keeper.',
   });
 
   function SignUpModalContent() {

@@ -83,7 +83,7 @@ function SigningDeviceList() {
           <SigningDevicesIllustration />
         </Box>
         <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
-          {`In the ${SubscriptionTier.L1} tier, you can add one signer to activate your vault. This can be upgraded to three signers and five signers on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signer is not supported, it will be indicated.`}
+          {`You can add all hardware devices from the ${SubscriptionTier.L1} Tier. Signing Server is unlocked at the ${SubscriptionTier.L2} Tier and Inheritance Key at ${SubscriptionTier.L3}.\n\nIf a particular signer is not supported, it will be indicated.`}
         </Text>
       </View>
     );

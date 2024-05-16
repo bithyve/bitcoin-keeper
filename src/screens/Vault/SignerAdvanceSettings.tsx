@@ -70,6 +70,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
+import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
 
 const { width } = Dimensions.get('screen');
 
@@ -161,6 +162,14 @@ function SignerAdvanceSettings({ route }: any) {
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+  const {
+    oneTimeBackupStatus,
+  }: {
+    oneTimeBackupStatus: {
+      signingServer: boolean;
+      inheritanceKey: boolean;
+    };
+  } = useAppSelector((state) => state.settings);
 
   const [isSSKeySigner, setIsSSKeySigner] = useState(false);
 
@@ -602,11 +611,16 @@ function SignerAdvanceSettings({ route }: any) {
 
     const onPressConfirm = async () => {
       try {
-        const { mnemonic } = await SigningServer.fetchBackup(vaultKey.xfp, Number(otp));
+        const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
+          vaultKey.xfp,
+          Number(otp)
+        );
         navigation.navigate('ExportSeed', {
           seed: mnemonic,
+          derivationPath,
           isFromAssistedKey: true,
         });
+        dispatch(setOTBStatusSS(true));
       } catch (err) {
         showToast(`${err}`);
       }
@@ -669,8 +683,51 @@ function SignerAdvanceSettings({ route }: any) {
     !signer.isMock;
 
   const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
+  let disableOneTimeBackup = false; // disables OTB once the user has backed it up
+  if (showOneTimeBackup) {
+    if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatus?.signingServer;
+    else if (isInheritanceKey) disableOneTimeBackup = oneTimeBackupStatus?.inheritanceKey;
+  }
 
   const onSuccess = () => hideKey();
+  const initiateOneTimeBackup = async () => {
+    if (isPolicyServer) {
+      setShowOTPModal(true);
+      setBackupModal(false);
+    } else if (isInheritanceKey) {
+      try {
+        let configurationForVault: InheritanceConfiguration = null;
+        const iksConfigs = idx(signer, (_) => _.inheritanceKeyInfo.configurations) || [];
+        for (const config of iksConfigs) {
+          if (config.id === activeVault.id) {
+            configurationForVault = config;
+            break;
+          }
+        }
+        if (!configurationForVault) {
+          showToast('Unable to find IKS configuration');
+          return;
+        }
+
+        const { mnemonic, derivationPath } = await InheritanceKeyServer.fetchBackup(
+          vaultKey.xfp,
+          configurationForVault
+        );
+        navigation.navigate('ExportSeed', {
+          seed: mnemonic,
+          derivationPath,
+          isFromAssistedKey: true,
+        });
+        dispatch(setOTBStatusIKS(true));
+      } catch (err) {
+        showToast(`${err}`);
+      }
+      // navigation.navigate('SignerBackupSeed');
+      setBackupModal(false);
+    } else {
+      showToast('This signer does not support one-time backup');
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -731,6 +788,7 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {showOneTimeBackup && (
           <OptionCard
+            disabled={disableOneTimeBackup}
             title={vaultTranslation.oneTimeBackupTitle}
             description={vaultTranslation.oneTimeBackupDesc}
             callback={() => {
@@ -924,18 +982,7 @@ function SignerAdvanceSettings({ route }: any) {
               })
         }
         buttonText={common.proceed}
-        buttonCallback={
-          isPolicyServer
-            ? () => {
-                setShowOTPModal(true);
-                setBackupModal(false);
-              }
-            : () => {
-                showToast('Coming soon');
-                // navigation.navigate('SignerBackupSeed');
-                setBackupModal(false);
-              }
-        }
+        buttonCallback={initiateOneTimeBackup}
         secondaryButtonText="Cancel"
         secondaryCallback={() => setBackupModal(false)}
       />
