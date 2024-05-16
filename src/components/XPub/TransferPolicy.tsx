@@ -25,7 +25,6 @@ import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { Satoshis } from 'src/models/types/UnitAliases';
 import useBalance from 'src/hooks/useBalance';
 import { numberWithCommas } from 'src/utils/utilities';
-import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Colors from 'src/theme/Colors';
 
