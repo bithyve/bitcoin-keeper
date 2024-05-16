@@ -22,10 +22,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
-import openLink from 'src/utils/OpenLink';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import KeeperFooter from 'src/components/KeeperFooter';
-import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
@@ -45,6 +43,8 @@ import ImportIcon from 'src/assets/images/import.svg';
 import { reinstateVault } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function Footer({
   vault,
@@ -351,11 +351,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         DarkCloseIcon
         learnMore
         learnMoreCallback={() =>
-          openLink(
-            isCollaborativeWallet
-              ? `${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`
-              : `${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`
-          )
+          isCollaborativeWallet
+            ? dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'vault-details'))
+            : dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'))
         }
       />
     </Box>
