@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, StatusBar, ScrollView } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Alert, FlatList, RefreshControl, SafeAreaView, StyleSheet } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
@@ -51,7 +51,6 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from './SigningDeviceIcons';
-import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
@@ -157,8 +156,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
-  const isSmallDevice = useIsSmallDevices();
-
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
 
@@ -467,9 +464,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         }}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
-        title={'Pending keys Health Check'}
-        subTitle={`There are ${pendingHealthCheckCount} keys awaiting health check`}
-        buttonText={'Health Check'}
+        title={vaultTranslation.pendingHealthCheck}
+        subTitle={`${vaultTranslation.pendingHealthCheckSub1} ${pendingHealthCheckCount} ${vaultTranslation.pendingHealthCheckSub2}`}
+        buttonText={vaultTranslation.healthCheck}
         buttonCallback={() => {
           setShowHealthCheckModal(false);
           navigation.dispatch(
@@ -479,7 +476,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             })
           );
         }}
-        secondaryButtonText={'Skip'}
+        secondaryButtonText={common.skip}
         secondaryCallback={() => {
           setShowHealthCheckModal(false);
           navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
@@ -493,8 +490,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               vault={vault}
               typeBasedIndicator={typeBasedIndicator}
             />
-            <Text style={styles.desc}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do.
+            <Text style={styles.desc} color={`${colorMode}.modalWhiteContent`}>
+              {vaultTranslation.pendingHealthCheckDec}
             </Text>
           </Box>
         )}

@@ -526,7 +526,12 @@
     "confirmOTPTitle": "Confirm OTP for One Time Backup",
     "confirmOTPSubtitle": "To make one time backup",
     "oneTimeBackupTitle": "One Time Backup",
-    "oneTimeBackupDesc": "Backup"
+    "oneTimeBackupDesc": "Backup",
+    "pendingHealthCheck": "Pending keys Health Check",
+    "pendingHealthCheckSub1": "There are",
+    "pendingHealthCheckSub2": "keys awaiting health check",
+    "pendingHealthCheckDec": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+    "healthCheck": "Health Check"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
