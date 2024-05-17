@@ -508,6 +508,13 @@
     "additionalOptionForSignDevice": "There are also some additional options if you do not have hardware signers",
     "sendVaultSignDevices": "For sending out of the vault you will need the signers. This means no one can steal your bitcoin in the vault unless they also have the signers",
     "addEmail": "Add Email",
+    "addEmailPlaceHolder": "Add email id (optional)",
+    "addEmailSubTitle": "To receive key access alerts",
+    "addEmailNoteSubtitle": "You can delete or change this information from Inheritance Key settings",
+    "addEmailFailedToast": "Failed to add email",
+    "IKSconfMissToast": "Something went wrong, IKS configuration missing",
+    "IKSconfMissVaultToast": "Something went wrong, IKS configuration missing for vault",
+    "addEmailSuccessToast": "Email added successfully!",
     "addEmailPhone": "Setup Inheritance Key Alert",
     "addEmailDetails": "Additionally you can provide an email which will be used to notify you when someone tries to access the Inheritance Key",
     "addEmailVaultDetail": "Optionally provide email and/ or phone for key usage alerts.",
@@ -526,7 +533,12 @@
     "confirmOTPTitle": "Confirm OTP for One Time Backup",
     "confirmOTPSubtitle": "To make one time backup",
     "oneTimeBackupTitle": "One Time Backup",
-    "oneTimeBackupDesc": "Backup"
+    "oneTimeBackupDesc": "Backup",
+    "vaultCreatedSuccessTitle": "Vault Created Successfully!",
+    "VaultCreatedModalDesc": "You should ensure you have a copy of the wallet configuration file for this vault",
+    "Vault3_5CreatedModalDesc1": "For sending bitcoin out of the vault you will need the signers",
+    "Vault3_5CreatedModalDesc2": "This means no one can steal your sats from the vault unless they also have access to your signers",
+    "Vault3_5CreatedModalDesc3": "Additionally, Get notified of Key activation and have option to decline use"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

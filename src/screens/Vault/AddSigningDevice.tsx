@@ -1,5 +1,5 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
@@ -20,7 +20,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -37,12 +37,11 @@ import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
-
+import SuccessIllustration from 'src/assets/images/Success.svg';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import CardPill from 'src/components/CardPill';
-import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
 import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
 import SignerCard from '../AddSigner/SignerCard';
@@ -643,34 +642,33 @@ function AddSigningDevice() {
         </Box>
         <Box>
           <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
-            You should ensure you have a copy of the wallet configuration file for this vault
+            {vaultTranslation.VaultCreatedModalDesc}
           </Text>
         </Box>
-        {inheritanceSigner && (
-          <Pressable
-            backgroundColor={`${colorMode}.pantoneGreenLight`}
-            borderColor={`${colorMode}.pantoneGreen`}
-            style={styles.addPhoneEmailWrapper}
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate('IKSAddEmailPhone', { vaultId: vault.id })
-              );
-              setVaultCreatedModalVisible(false);
-            }}
-          >
-            <Box style={styles.iconWrapper}>
-              <AddPhoneEmailIcon />
-            </Box>
-            <Box style={styles.titleWrapper}>
-              <Text style={styles.addPhoneEmailTitle} medium color={`${colorMode}.pantoneGreen`}>
-                {vaultTranslation.addEmailPhone}
-              </Text>
-              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
-                {vaultTranslation.addEmailVaultDetail}
-              </Text>
-            </Box>
-          </Pressable>
-        )}
+      </Box>
+    );
+  }
+
+  function Vault3_5CreatedModalContent(vault: Vault) {
+    const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
+    return (
+      <Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.desc}>
+            {vaultTranslation.Vault3_5CreatedModalDesc1}
+          </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.desc}>
+            {vaultTranslation.Vault3_5CreatedModalDesc2}
+          </Text>
+        </Box>
+        <Box style={styles.illustrationContainer}>
+          <SuccessIllustration />
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
+            {vaultTranslation.Vault3_5CreatedModalDesc3}
+          </Text>
+        </Box>
       </Box>
     );
   }
@@ -688,6 +686,11 @@ function AddSigningDevice() {
       ],
     };
     navigation.dispatch(CommonActions.reset(navigationState));
+  };
+
+  const viewAddEmail = () => {
+    setVaultCreatedModalVisible(false);
+    navigation.dispatch(CommonActions.navigate('IKSAddEmailPhone', { vaultId: generatedVaultId }));
   };
 
   return (
@@ -746,11 +749,21 @@ function AddSigningDevice() {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title="Vault Created Successfully!"
-        subTitle={`Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`}
-        Content={() => VaultCreatedModalContent(newVault)}
-        buttonText="View Vault"
-        buttonCallback={viewVault}
+        title={vaultTranslation.vaultCreatedSuccessTitle}
+        subTitle={
+          inheritanceSigner
+            ? `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been setup successfully. You can start receiving/transferring bitcoin`
+            : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
+        }
+        Content={
+          inheritanceSigner
+            ? () => Vault3_5CreatedModalContent(newVault)
+            : () => VaultCreatedModalContent(newVault)
+        }
+        buttonText={inheritanceSigner ? vaultTranslation.addEmail : vaultTranslation.ViewVault}
+        buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
+        secondaryButtonText={inheritanceSigner && common.cancel}
+        secondaryCallback={viewVault}
         showButtons
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
@@ -853,6 +866,7 @@ const styles = StyleSheet.create({
   descText: {
     fontSize: 13,
     width: wp(300),
+    marginBottom: hp(18),
   },
   addPhoneEmailWrapper: {
     width: '100%',
@@ -873,6 +887,14 @@ const styles = StyleSheet.create({
   },
   addPhoneEmailSubTitle: {
     fontSize: 12,
+  },
+  illustrationContainer: {
+    alignSelf: 'center',
+    marginTop: hp(18),
+    marginBottom: hp(30),
+  },
+  desc: {
+    marginBottom: hp(18),
   },
 });
 
