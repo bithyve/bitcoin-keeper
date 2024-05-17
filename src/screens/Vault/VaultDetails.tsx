@@ -22,10 +22,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
-import openLink from 'src/utils/OpenLink';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import KeeperFooter from 'src/components/KeeperFooter';
-import config, { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
@@ -51,6 +49,7 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from './SigningDeviceIcons';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
@@ -421,6 +420,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
           pendingHealthCheckCount={pendingHealthCheckCount}
+          isCanaryWallet={vault.type === VaultType.CANARY}
         />
       </VStack>
       <KeeperModal
@@ -450,11 +450,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         DarkCloseIcon
         learnMore
         learnMoreCallback={() =>
-          openLink(
-            isCollaborativeWallet
-              ? `${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`
-              : `${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`
-          )
+          isCollaborativeWallet
+            ? dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'vault-details'))
+            : dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'))
         }
       />
       <KeeperModal

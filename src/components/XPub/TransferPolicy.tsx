@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, HStack, Input, useColorMode } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 
-import BitcoinInput from 'src/assets/images/btc_input.svg';
-
+import BTC from 'src/assets/images/btc.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -25,6 +24,9 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { Satoshis } from 'src/models/types/UnitAliases';
 import useBalance from 'src/hooks/useBalance';
+import { numberWithCommas } from 'src/utils/utilities';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Colors from 'src/theme/Colors';
 import { StyleSheet } from 'react-native';
 
 function TransferPolicy({
@@ -48,9 +50,9 @@ function TransferPolicy({
   const [policyText, setPolicyText] = useState(null);
   const dispatch = useDispatch();
   const { getCurrencyIcon, getSatUnit } = useBalance();
-
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   const storedPolicy = wallet?.transferPolicy?.threshold?.toString();
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const onPressNumber = (digit) => {
     let temp = policyText;
@@ -119,50 +121,48 @@ function TransferPolicy({
       showToast(walletTranslation.transPolicyCantZero);
     }
   };
+
+  const inputContainerStyles = {
+    shadowColor: colorMode === 'light' ? Colors.Black : Colors.White,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: isInputFocused ? 0.1 : 0,
+    shadowRadius: 3.84,
+    elevation: isInputFocused ? 5 : 0,
+  };
   return (
-    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} style={styles.container}>
-      <Box style={styles.subContainer}>
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} style={styles.transferContainer}>
+      <Box style={styles.transferSubContainer}>
         <Box
           backgroundColor={`${colorMode}.seashellWhite`}
-          padding={3}
-          height={50}
-          style={styles.inputContainer}
+          onTouchStart={() => setIsInputFocused(true)}
+          style={[inputContainerStyles, styles.inputContainer]}
         >
-          <Box pl={10}>
-            {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
+          <Box ml={25}>{getCurrencyIcon(BTC, 'slateGreen')}</Box>
+          <Box ml={3} style={styles.separator} />
+          <Box width={getSatUnit() ? '90%' : '105%'}>
+            <TouchableOpacity>
+              <Input
+                style={styles.inputField}
+                numberOfLines={null}
+                editable={false}
+                variant="unstyled"
+                color={policyText ? `${colorMode}.greenText` : `${colorMode}.SlateGreen`}
+              >
+                {policyText ? `${numberWithCommas(policyText)}` : 'Enter Amount'}
+              </Input>
+            </TouchableOpacity>
           </Box>
-          <Box ml={4} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
-          <Input
-            value={policyText}
-            onChangeText={(value) => {
-              if (!isNaN(Number(value))) {
-                setPolicyText(
-                  value
-                    .split('.')
-                    .map((el, i) => (i ? el.split('').join('') : el))
-                    .join('.')
-                );
-              }
-            }}
-            fontSize={15}
-            color={`${colorMode}.greenText`}
-            letterSpacing={3}
-            keyboardType="numeric"
-            placeholder="Enter Amount"
-            width={getSatUnit() ? '75%' : '94%'}
-            marginRight={getSatUnit() ? 20 : 25}
-            placeholderTextColor={`${colorMode}.SlateGreen`}
-            variant="unstyled"
-          />
-        </Box>
-        <HStack style={styles.inputInnerStyle}>
-          <Text semiBold color={`${colorMode}.divider`}>
-            {getSatUnit() && `| ${getSatUnit()}`}
+          {getSatUnit() && <Box style={styles.separator} />}
+          <Text semiBold color={`${colorMode}.SlateGreen`}>
+            {getSatUnit() && ` ${getSatUnit()}`}
           </Text>
-        </HStack>
+        </Box>
       </Box>
-      <Box py={25}>
-        <Text style={styles.policyDesc} color={`${colorMode}.secondaryText`}>
+      <Box style={styles.descContainer}>
+        <Text style={styles.desc} color={`${colorMode}.secondaryText`}>
           {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>
@@ -174,6 +174,7 @@ function TransferPolicy({
         paddingHorizontal={wp(15)}
         primaryDisable={relayWalletUpdateLoading || relayWalletUpdate}
       />
+      {/* keyboardview start */}
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
@@ -186,32 +187,51 @@ function TransferPolicy({
 }
 
 const styles = StyleSheet.create({
-  container: {
+  transferContainer: {
     width: wp(300),
   },
-  subContainer: {
-    flexDirection: 'row',
+  transferSubContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  inputInnerStyle: {
-    position: 'absolute',
-    right: wp(20),
-    gap: 2,
-    alignItems: 'center',
-    marginLeft: -20,
-  },
   inputContainer: {
-    marginX: '5%',
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 3,
+    fontSize: 15,
+    letterSpacing: 3,
+    height: hp(50),
     borderRadius: 10,
+    marginHorizontal: '5%',
+    paddingLeft: 25,
+    paddingRight: 50,
   },
-  policyDesc: {
+  inputField: {
+    fontSize: 15,
+    letterSpacing: 3,
+    marginLeft: 0,
+    fontWeight: 'bold',
+  },
+  limitText: {
+    marginRight: 10,
+    fontSize: 10,
+    alignSelf: 'flex-end',
+  },
+  descContainer: {
+    paddingVertical: 25,
+  },
+  desc: {
     fontSize: 13,
     letterSpacing: 0.65,
+  },
+  separator: {
+    width: 2,
+    backgroundColor: '#BDB7B1',
+    opacity: 0.3,
+    height: 20,
+    marginRight: 2,
   },
 });
 

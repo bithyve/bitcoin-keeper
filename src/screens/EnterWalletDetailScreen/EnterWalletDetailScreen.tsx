@@ -46,6 +46,8 @@ import SettingsIcon from 'src/assets/images/settings_brown.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
 import DerivationPathModalContent from './DerivationPathModal';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -74,7 +76,6 @@ function EnterWalletDetailScreen({ route }) {
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
   const [advancedSettingsVisible, setAdvancedSettingsVisible] = useState(false);
-
   const createNewWallet = useCallback(() => {
     // Note: only caters to new wallets(imported wallets currently have a different flow)
     setWalletLoading(true);
@@ -391,6 +392,9 @@ function EnterWalletDetailScreen({ route }) {
         showCloseIcon={true}
         DarkCloseIcon
         learnMore
+        learnMoreCallback={() =>
+          dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet-advanced-settings'))
+        }
         learnMoreTitle={common.needMoreHelp}
       />
     </ScreenWrapper>

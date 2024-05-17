@@ -1,5 +1,5 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
@@ -20,7 +20,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -30,27 +30,26 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
-import {
-  generateSignerFromMetaData,
-  getSignerDescription,
-  getSignerNameFromType,
-} from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import Text from 'src/components/KeeperText';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import SuccessIllustration from 'src/assets/images/Success.svg';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import CardPill from 'src/components/CardPill';
-import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useQuery } from '@realm/react';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
 import SignerCard from '../AddSigner/SignerCard';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -306,6 +305,12 @@ function Signers({
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
+  const [visible, setVisible] = useState(false);
+  const isMultisig = scheme.n !== 1;
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
+  const close = () => setVisible(false);
 
   const navigateToSigningServerSetup = () => {
     navigation.dispatch(
@@ -317,29 +322,7 @@ function Signers({
   };
 
   const setupInheritanceKey = async () => {
-    try {
-      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
-      const { id, isBIP85, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
-      const { signer: inheritanceKey } = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        masterFingerprint,
-        signerType: SignerType.INHERITANCEKEY,
-        storageType: SignerStorage.WARM,
-        xfp: id,
-        isBIP85,
-        isMultisig: true,
-      });
-      dispatch(addSigningDevice([inheritanceKey]));
-      showToast(
-        `${inheritanceKey.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
-    } catch (err) {
-      console.log({ err });
-      showToast('Failed to add inheritance key', <TickIcon />);
-    }
+    setVisible(true);
   };
 
   const renderAssistedKeysShell = () => {
@@ -386,8 +369,8 @@ function Signers({
         <SignerCard
           disabled={disabled}
           key={`${shellSigner.masterFingerprint}_${index}`}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
-          description="To setup"
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF) + ' +'}
+          description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
           onCardSelect={() => {
@@ -422,7 +405,11 @@ function Signers({
           showSelection={showSelection}
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          name={
+            !signer.isBIP85
+              ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
+              : getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'
+          }
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
@@ -489,6 +476,17 @@ function Signers({
             }
           />
         </Box>
+        <HardwareModalMap
+          visible={visible}
+          close={close}
+          type={SignerType.INHERITANCEKEY}
+          mode={InteracationMode.VAULT_ADDITION}
+          isMultisig={isMultisig}
+          primaryMnemonic={primaryMnemonic}
+          addSignerFlow={false}
+          vaultId={vaultId}
+          vaultSigners={vaultKeys}
+        />
       </Box>
     </ScrollView>
   );
@@ -648,34 +646,33 @@ function AddSigningDevice() {
         </Box>
         <Box>
           <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
-            You should ensure you have a copy of the wallet configuration file for this vault
+            {vaultTranslation.VaultCreatedModalDesc}
           </Text>
         </Box>
-        {inheritanceSigner && (
-          <Pressable
-            backgroundColor={`${colorMode}.pantoneGreenLight`}
-            borderColor={`${colorMode}.pantoneGreen`}
-            style={styles.addPhoneEmailWrapper}
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate('IKSAddEmailPhone', { vaultId: vault.id })
-              );
-              setVaultCreatedModalVisible(false);
-            }}
-          >
-            <Box style={styles.iconWrapper}>
-              <AddPhoneEmailIcon />
-            </Box>
-            <Box style={styles.titleWrapper}>
-              <Text style={styles.addPhoneEmailTitle} medium color={`${colorMode}.pantoneGreen`}>
-                {vaultTranslation.addEmailPhone}
-              </Text>
-              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.primaryText`}>
-                {vaultTranslation.addEmailVaultDetail}
-              </Text>
-            </Box>
-          </Pressable>
-        )}
+      </Box>
+    );
+  }
+
+  function Vault3_5CreatedModalContent(vault: Vault) {
+    const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
+    return (
+      <Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.desc}>
+            {vaultTranslation.Vault3_5CreatedModalDesc1}
+          </Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.desc}>
+            {vaultTranslation.Vault3_5CreatedModalDesc2}
+          </Text>
+        </Box>
+        <Box style={styles.illustrationContainer}>
+          <SuccessIllustration />
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
+            {vaultTranslation.Vault3_5CreatedModalDesc3}
+          </Text>
+        </Box>
       </Box>
     );
   }
@@ -693,6 +690,11 @@ function AddSigningDevice() {
       ],
     };
     navigation.dispatch(CommonActions.reset(navigationState));
+  };
+
+  const viewAddEmail = () => {
+    setVaultCreatedModalVisible(false);
+    navigation.dispatch(CommonActions.navigate('IKSAddEmailPhone', { vaultId: generatedVaultId }));
   };
 
   return (
@@ -751,14 +753,26 @@ function AddSigningDevice() {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title="Vault Created Successfully!"
-        subTitle={`Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`}
-        Content={() => VaultCreatedModalContent(newVault)}
-        buttonText="View Vault"
-        buttonCallback={viewVault}
+        title={vaultTranslation.vaultCreatedSuccessTitle}
+        subTitle={
+          inheritanceSigner
+            ? `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been setup successfully. You can start receiving/transferring bitcoin`
+            : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
+        }
+        Content={
+          inheritanceSigner
+            ? () => Vault3_5CreatedModalContent(newVault)
+            : () => VaultCreatedModalContent(newVault)
+        }
+        buttonText={inheritanceSigner ? vaultTranslation.addEmail : vaultTranslation.ViewVault}
+        buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
+        secondaryButtonText={inheritanceSigner && common.cancel}
+        secondaryCallback={viewVault}
         showButtons
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
@@ -858,6 +872,7 @@ const styles = StyleSheet.create({
   descText: {
     fontSize: 13,
     width: wp(300),
+    marginBottom: hp(18),
   },
   addPhoneEmailWrapper: {
     width: '100%',
@@ -878,6 +893,14 @@ const styles = StyleSheet.create({
   },
   addPhoneEmailSubTitle: {
     fontSize: 12,
+  },
+  illustrationContainer: {
+    alignSelf: 'center',
+    marginTop: hp(18),
+    marginBottom: hp(30),
+  },
+  desc: {
+    marginBottom: hp(18),
   },
 });
 
