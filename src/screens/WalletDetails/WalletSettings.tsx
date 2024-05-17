@@ -17,6 +17,9 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { VisibilityType } from 'src/services/wallets/enums';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -36,6 +39,22 @@ function WalletSettings({ route }) {
   const { settings } = translations;
   const TestSatsComponent = useTestSats({ wallet });
 
+  const updateWalletVisibility = () => {
+    try {
+      const updatedPresentationData = {
+        ...wallet.presentationData,
+        visibility: VisibilityType.HIDDEN,
+      };
+      dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
+        presentationData: updatedPresentationData,
+      });
+      showToast('Wallet hidden successfully');
+      navigation.navigate('Home');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={settings.walletSettings} subtitle={settings.walletSettingSubTitle} />
@@ -49,6 +68,11 @@ function WalletSettings({ route }) {
           callback={() => {
             navigation.navigate('WalletDetailsSettings', { wallet });
           }}
+        />
+        <OptionCard
+          title="Hide Wallet"
+          description="Hidden wallets can be managed from manage wallets"
+          callback={() => updateWalletVisibility()}
         />
         {walletMnemonic && (
           <OptionCard
