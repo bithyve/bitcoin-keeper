@@ -43,14 +43,14 @@ import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import CardPill from 'src/components/CardPill';
 import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
-import { SDIcons } from './SigningDeviceIcons';
-import VaultMigrationController from './VaultMigrationController';
-import SignerCard from '../AddSigner/SignerCard';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { SDIcons } from './SigningDeviceIcons';
+import VaultMigrationController from './VaultMigrationController';
+import SignerCard from '../AddSigner/SignerCard';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -371,7 +371,7 @@ function Signers({
           disabled={disabled}
           key={`${shellSigner.masterFingerprint}_${index}`}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
-          description="To setup"
+          description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
           onCardSelect={() => {
