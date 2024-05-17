@@ -42,14 +42,14 @@ import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import CardPill from 'src/components/CardPill';
-import { SDIcons } from './SigningDeviceIcons';
-import VaultMigrationController from './VaultMigrationController';
-import SignerCard from '../AddSigner/SignerCard';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { SDIcons } from './SigningDeviceIcons';
+import VaultMigrationController from './VaultMigrationController';
+import SignerCard from '../AddSigner/SignerCard';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -369,8 +369,8 @@ function Signers({
         <SignerCard
           disabled={disabled}
           key={`${shellSigner.masterFingerprint}_${index}`}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
-          description="To setup"
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF) + ' +'}
+          description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
           onCardSelect={() => {
@@ -405,7 +405,11 @@ function Signers({
           showSelection={showSelection}
           disabled={disabled}
           key={signer.masterFingerprint}
-          name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+          name={
+            !signer.isBIP85
+              ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
+              : getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'
+          }
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}

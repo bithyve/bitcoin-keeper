@@ -355,8 +355,11 @@ function SigningDeviceDetails({ route }) {
         learnTextColor={`${colorMode}.white`}
         title={signerTranslations.keyDetails}
         subtitle={
-          `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
-          `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+          !signer.isBIP85
+            ? `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
+              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+            : `For ${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}` ||
+              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
         icon={
           <CircleIconWrapper
@@ -413,7 +416,7 @@ function SigningDeviceDetails({ route }) {
       <KeeperModal
         visible={detailModal}
         close={() => setDetailModal(false)}
-        title={title}
+        title={!signer.isBIP85 ? title : title + ' +'}
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}

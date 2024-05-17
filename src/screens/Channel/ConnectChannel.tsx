@@ -40,6 +40,7 @@ import { createDecipheriv } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
+import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 
 function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
@@ -91,7 +92,7 @@ function ConnectChannel() {
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
-
+  const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
@@ -118,6 +119,9 @@ function ConnectChannel() {
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([bitbox02]));
+          createCreateCanaryWallet(bitbox02);
         } else {
           dispatch(addSigningDevice([bitbox02]));
           const navigationState = addSignerFlow
@@ -148,6 +152,9 @@ function ConnectChannel() {
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([trezor]));
+          createCreateCanaryWallet(trezor);
         } else {
           dispatch(addSigningDevice([trezor]));
           const navigationState = addSignerFlow
@@ -177,6 +184,9 @@ function ConnectChannel() {
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([ledger]));
+          createCreateCanaryWallet(ledger);
         } else {
           dispatch(addSigningDevice([ledger]));
           const navigationState = addSignerFlow
