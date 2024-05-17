@@ -35,12 +35,7 @@ function Buttons({
         style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
         backgroundColor={`${colorMode}.greenButtonBackground`}
       >
-        <Text
-          numberOfLines={1}
-          style={styles.btnText}
-          color={`${colorMode}.modalWhiteButtonText`}
-          bold
-        >
+        <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.buttonText`} bold>
           {primaryText}
         </Text>
       </Box>
