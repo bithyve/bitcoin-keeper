@@ -134,7 +134,7 @@ function TransferPolicy({
   };
   return (
     <Box backgroundColor={`${colorMode}.modalWhiteBackground`} style={styles.transferContainer}>
-      <Box justifyContent="center" alignItems="center">
+      <Box style={styles.transferSubContainer}>
         <Box
           backgroundColor={`${colorMode}.seashellWhite`}
           onTouchStart={() => setIsInputFocused(true)}
@@ -189,6 +189,10 @@ function TransferPolicy({
 const styles = StyleSheet.create({
   transferContainer: {
     width: wp(300),
+  },
+  transferSubContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
