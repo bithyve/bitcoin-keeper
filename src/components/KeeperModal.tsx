@@ -11,12 +11,13 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Close from 'src/assets/images/modal_close.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
 import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type ModalProps = {
   visible: boolean;
@@ -71,7 +72,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreTitle: 'See FAQs',
+  learnMoreTitle: 'Need more help?',
   learnMoreCallback: () => {},
   learnMoreButton: false,
   learnMoreButtonPressed: () => {},
@@ -123,6 +124,8 @@ function KeeperModal(props: ModalProps) {
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   const isKeyboardOpen = useKeyboard();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   if (!visible) {
     return null;
@@ -171,7 +174,7 @@ function KeeperModal(props: ModalProps) {
                   style={styles.learnMoreButtonContainer}
                 >
                   <Text color={learnButtonTextColor} style={styles.learnMoreText}>
-                    Need Help?
+                    {common.learnMore}
                   </Text>
                 </Box>
               </TouchableOpacity>

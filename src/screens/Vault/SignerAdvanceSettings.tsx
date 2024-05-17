@@ -62,6 +62,7 @@ import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -100,7 +101,11 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
-  }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
+  }: {
+    signer: Signer;
+    vaultKey: VaultSigner;
+    vaultId: string;
+  } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
 
@@ -525,6 +530,8 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const [canaryWalletSingleSigModal, setCanaryWalletSingleSigModal] = useState(false);
+
   const handleCanaryWallet = () => {
     try {
       setCanaryVaultLoading(true);
@@ -532,24 +539,25 @@ function SignerAdvanceSettings({ route }: any) {
       if (!singleSigSigner) {
         showToast('No single Sig found');
         setCanaryVaultLoading(false);
-      }
-      const ssVaultKey: VaultSigner = {
-        ...singleSigSigner,
-        masterFingerprint: signer.masterFingerprint,
-        xfp: WalletUtilities.getFingerprintFromExtendedKey(
-          singleSigSigner.xpub,
-          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-        ),
-      };
-      const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
-      setCanaryWalletId(canaryVaultId);
-      const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
-
-      if (canaryVault) {
-        navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
-        setCanaryVaultLoading(false);
       } else {
-        createCreateCanaryWallet(ssVaultKey);
+        const ssVaultKey: VaultSigner = {
+          ...singleSigSigner,
+          masterFingerprint: signer.masterFingerprint,
+          xfp: WalletUtilities.getFingerprintFromExtendedKey(
+            singleSigSigner.xpub,
+            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          ),
+        };
+        const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
+        setCanaryWalletId(canaryVaultId);
+        const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
+
+        if (canaryVault) {
+          navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
+          setCanaryVaultLoading(false);
+        } else {
+          createCreateCanaryWallet(ssVaultKey);
+        }
       }
     } catch (err) {
       console.log('Something Went Wrong', err);
@@ -674,8 +682,14 @@ function SignerAdvanceSettings({ route }: any) {
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
-
-  const isCanaryWalletAllowed = isOnL2Above;
+  const CANARY_NON_SUPPORTED_DEVICES = [
+    SignerType.UNKOWN_SIGNER,
+    SignerType.INHERITANCEKEY,
+    SignerType.POLICY_SERVER,
+    SignerType.MOBILE_KEY,
+    SignerType.MY_KEEPER,
+  ];
+  const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
@@ -847,7 +861,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
 
-        {isCanaryWalletAllowed && isSSKeySigner && (
+        {isCanaryWalletAllowed && (
           <OptionCard
             title="Canary Wallet"
             description="Your on-chain key alert"
@@ -998,6 +1012,14 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={SigningServerOTPModal}
+      />
+      <HardwareModalMap
+        type={signer.type}
+        visible={canaryWalletSingleSigModal}
+        close={() => setCanaryWalletSingleSigModal(false)}
+        mode={InteracationMode.CANARY_ADDITION}
+        isMultisig={true}
+        addSignerFlow={false}
       />
     </ScreenWrapper>
   );

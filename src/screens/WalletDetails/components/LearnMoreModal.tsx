@@ -5,9 +5,9 @@ import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
 import VaultSetupIcon from 'src/assets/images/pull-down-wallet.svg';
 import { hp } from 'src/constants/responsive';
-import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
-import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function LinkedWalletContent() {
   return (
@@ -40,7 +40,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       DarkCloseIcon
       learnMore
       showCloseIcon={false}
-      learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+      learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.WALLET], 'wallet-details'))}
       buttonText="Back to Wallet"
       buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}

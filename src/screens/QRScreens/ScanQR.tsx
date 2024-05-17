@@ -24,6 +24,9 @@ import MockWrapper from 'src/screens/Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import KeeperModal from 'src/components/KeeperModal';
+import { useDispatch } from 'react-redux';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 let decoder = new URRegistryDecoder();
 
@@ -50,6 +53,7 @@ function ScanQR() {
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const dispatch = useDispatch();
 
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   // eslint-disable-next-line no-promise-executor-return
@@ -203,6 +207,9 @@ function ScanQR() {
           textColor={`${colorMode}.modalGreenContent`}
           Content={learnMoreContent}
           learnMore
+          learnMoreCallback={() =>
+            dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'))
+          }
           learnMoreTitle={common.needMoreHelp}
           buttonCallback={() => setVisibleModal(false)}
           buttonBackground={`${colorMode}.modalWhiteButton`}

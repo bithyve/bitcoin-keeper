@@ -27,6 +27,7 @@ import { Signer } from 'src/services/wallets/interfaces/vault';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -60,6 +61,7 @@ function SetupColdCard({ route }) {
   const { mapUnknownSigner } = useUnkownSigners();
   const { start } = useAsync();
   const isConfigRecovery = mode === InteracationMode.CONFIG_RECOVERY;
+  const { createCreateCanaryWallet } = useCanaryWalletSetup({});
 
   useEffect(() => {
     NfcManager.isSupported().then((supported) => {
@@ -67,6 +69,7 @@ function SetupColdCard({ route }) {
         if (mode === InteracationMode.HEALTH_CHECK) verifyColdCardWithProgress();
         else if (mode === InteracationMode.CONFIG_RECOVERY) recoverConfigforCC();
         else if (mode === InteracationMode.IDENTIFICATION) verifyColdCardWithProgress();
+        else if (mode === InteracationMode.CANARY_ADDITION) addColdCardWithProgress();
         else {
           addColdCardWithProgress();
         }
@@ -116,6 +119,9 @@ function SetupColdCard({ route }) {
         navigation.dispatch(
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
+      } else if (mode === InteracationMode.CANARY_ADDITION) {
+        dispatch(setSigningDevices(coldcard));
+        createCreateCanaryWallet(coldcard);
       } else {
         dispatch(addSigningDevice([coldcard]));
         const navigationState = addSignerFlow

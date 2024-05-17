@@ -25,6 +25,9 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
+import { useDispatch } from 'react-redux';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function ImportWalletContent() {
   return (
@@ -33,10 +36,12 @@ function ImportWalletContent() {
         <VaultSetupIcon />
       </Box>
       <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-        Scan the wallet configuration file of the wallet you wish to import. You can import as many wallets as you like.
+        Scan the wallet configuration file of the wallet you wish to import. You can import as many
+        wallets as you like.
       </Text>
       <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-        Please ensure that nobody else has access to this configuration file QR to avoid them recreating your wallet.
+        Please ensure that nobody else has access to this configuration file QR to avoid them
+        recreating your wallet.
       </Text>
     </View>
   );
@@ -46,11 +51,11 @@ function ImportWalletScreen() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-
+  const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet, wallet } = translations;
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
-  const [introModal, setIntroModal] = useState(false)
+  const [introModal, setIntroModal] = useState(false);
 
   const handleChooseImage = () => {
     const options = {
@@ -154,7 +159,7 @@ function ImportWalletScreen() {
           <KeeperModal
             visible={introModal}
             close={() => {
-              setIntroModal(false)
+              setIntroModal(false);
             }}
             title="Import Wallets:"
             subTitle="Have other bitcoin wallets that you’d like to access from Keeper? Import them for a seamless experience."
@@ -163,7 +168,9 @@ function ImportWalletScreen() {
             Content={ImportWalletContent}
             DarkCloseIcon
             learnMore
-            // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+            learnMoreCallback={() =>
+              dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet'))
+            }
             buttonText="Continue"
             buttonTextColor={`${colorMode}.modalWhiteButtonText`}
             buttonBackground={`${colorMode}.modalWhiteButton`}

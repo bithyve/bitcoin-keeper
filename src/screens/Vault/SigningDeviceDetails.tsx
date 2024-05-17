@@ -52,6 +52,8 @@ import { getSignerNameFromType } from 'src/hardware';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -418,7 +420,9 @@ function SigningDeviceDetails({ route }) {
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        learnMoreCallback={() => openLink(FAQ)}
+        learnMoreCallback={() =>
+          dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'))
+        }
         Content={SignerContent}
         subTitleWidth={wp(280)}
         buttonText="Proceed"
