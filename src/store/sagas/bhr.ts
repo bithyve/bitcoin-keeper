@@ -227,6 +227,11 @@ export function* deleteAppImageEntityWorker({
       signers: signerIds,
       walletIds: walletIds,
     });
+    if (walletIds.length > 0) {
+      for (const walletId of walletIds) {
+        yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
+      }
+    }
     return response;
   } catch (err) {
     captureError(err);
