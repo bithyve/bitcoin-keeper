@@ -141,7 +141,7 @@
     "newWalletsAndVaults": "New wallets and vaults",
     "Enter12WordsRecovery": "Enter 12-word Recovery Key",
     "Note": "Note",
-    "Agreement": " By proceeding you agree to our",
+    "Agreement": "By proceeding you agree to our",
     "TermsOfService": "Terms of Service",
     "PrivacyPolicy": "Privacy Policy",
 
@@ -249,7 +249,8 @@
     "InheritancePlanning": "Inheritance\nPlanning",
     "NeedHelp": "Need\nHelp?",
     "KeeperConcierge": "Keeper\nConcierge",
-    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed"
+    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed",
+    "Balance": "Balance"
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -307,7 +308,12 @@
     "secureBequeathBitcoin": "Plan your bitcoin inheritance",
     "KeySecurity": "Key\nSecurity",
     "BackupAndRecovery": "Backup and\nRecovery",
-    "InheritanceDocuments": "Inheritance\nDocuments"
+    "InheritanceDocuments": "Inheritance\nDocuments",
+    "BackupAndRecovery": "Backup and\nRecovery",
+    "InheritanceDocuments": "Inheritance\nDocuments",
+    "learnMoreTitle": "Give away your bitcoin safely\n",
+    "learnMoreSubTitle": "Plan your bitcoin Inheritance using the tools and templates offered here. These tools are meant to act as guardrails. Protecting your interests while still allowing you to customize an inheritance plan that works best for you and your heir.",
+    "learnMoreDescription": "Use the templates to speak with your estate planner, friends and family to set up your inheritance. Optionally, use the inheritance key as an extra security measure to protect the vault you wish to bequeath to your heir."
   },
   "wallet": {
     "Createwallet": "Create a wallet",
@@ -460,7 +466,16 @@
     "addCoSignerDescTwo": "With all 3 keys added, create the collaborative wallet.\n\n",
     "addCoSignerDesc": "To add the other 2 keys: \nSetup Keeper on 2 different phones. These could be the phones of people with whom you wish to create the collaborative wallet. \n \nIn each phone, please go to: Manage Keys > Mobile Key > Settings > Key Details. You will be shown a QR. Please scan the QRs from both phones to add each key.",
     "useSignersVaultRegistration": "Use signers with vault registration",
-    "useSignersVaultRegistrationDesc": " Wish to import a multisig that is registered with a hardware signer. You can use this option for the purpose. Note that this option would help you 1 multisig wallet at a time."
+    "useSignersVaultRegistrationDesc": " Wish to import a multisig that is registered with a hardware signer. You can use this option for the purpose. Note that this option would help you 1 multisig wallet at a time.",
+    "tapRootBenefits": "Benefits of Taproot",
+    "tapRootPrivacy": "Enhanced Privacy",
+    "tapRootEfficiency": "Increased Efficiency",
+    "tapRootScalable": "Improved Flexibility and Scalability",
+    "tapRootSecurity": "Enhanced Security",
+    "tapRootPrivacyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
+    "tapRootEfficiencyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
+    "tapRootScalableDesc": "Taproot introduces Merkleized Abstract Syntax Trees (MAST), allowing the creation of more complex spending conditions.",
+    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -503,7 +518,15 @@
     "keeperVault": "Keeper vault",
     "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.",
     "signingOldVault": "Old Vaults with the previous signer configuration will be in the archived list of Vaults",
-    "cvvSigningServerInfo": "If you lose your authenticator app, use the other signers to reset the signer"
+    "cvvSigningServerInfo": "If you lose your authenticator app, use the other signers to reset the signer",
+    "backingUpMnemonicTitle": "Backing up Mnemonic",
+    "backingUpMnemonicSubtitle": "You are about to write down a few words that would backup your mnemonic. Please ensure to do it privately.",
+    "signingServerTitle": "Signing Server",
+    "inheritanceKeyTitle": "Inheritance Key",
+    "confirmOTPTitle": "Confirm OTP for One Time Backup",
+    "confirmOTPSubtitle": "To make one time backup",
+    "oneTimeBackupTitle": "One Time Backup",
+    "oneTimeBackupDesc": "Backup"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -705,7 +728,9 @@
     "changePasscode": "Change Passcode",
     "changePasscodeDescription": "Easy to remember; hard to guess",
     "deleteKeys": "Show and delete keys",
-    "deleteKeysSubtitle": "for hidden keys"
+    "deleteKeysSubtitle": "for hidden keys",
+    "currencyErrorTitle": "Currency Not Available",
+    "currencyErrorSubTitle": "This currency currently does not exist."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -742,7 +767,7 @@
     "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?",
     "viewSubscription": "View Subsciption",
     "noAvailablePurchaseMessage": "No purchases found",
-    "currentSubscriptionMessage": "Already subscribed to ",
+    "currentSubscriptionMessage": "Already subscribed to",
     "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
   },
   "BackupWallet": {
@@ -939,5 +964,12 @@
     "regularUpdatesTitle": "Regularly Update Estate Plans and Instructions",
     "regularUpdatesP2": "Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions.",
     "regularUpdatesP1": "Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs."
+  },
+  "notification": {
+    "Balance": "Balance",
+    "availableToSpend": "Available to spend",
+    "vaultTransferHeading": "Sats ready to be auto-transferred\n",
+    "vaultTransferSubTitle": "Amount of sats in your wallet have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
+    "vaultTransferBody": "\nYou can always change the transfer threshold from Wallet Settings.\n"
   }
 }

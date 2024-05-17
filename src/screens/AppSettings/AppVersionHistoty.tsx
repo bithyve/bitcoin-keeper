@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryList';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -9,6 +9,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hp, wp } from 'src/constants/responsive';
 
 function AppVersionHistory() {
   const { colorMode } = useColorMode();
@@ -22,9 +23,9 @@ function AppVersionHistory() {
         title={settings.versionHistoryTitle}
         subtitle={settings.versionHistorySubTitle}
       />
-      <Box margin={10} testID="view_VersionHistoryList">
+      <ScrollView style={styles.versionHistory} testID="view_VersionHistoryList">
         <VersionHistoryList />
-      </Box>
+      </ScrollView>
       <Text testID="text_appid" selectable style={styles.textAppId}>{`App ID: ${publicId}`}</Text>
     </ScreenWrapper>
   );
@@ -34,6 +35,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 10,
     color: 'gray',
+  },
+  versionHistory: {
+    marginHorizontal: wp(13),
+    marginTop: hp(25),
+    marginBottom: hp(5),
   },
 });
 export default AppVersionHistory;

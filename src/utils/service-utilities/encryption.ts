@@ -26,10 +26,26 @@ export const generateKey = (length: number): string => {
   return result;
 };
 
-export const asymmetricEncrypt = async (data: string, publicKey: string): Promise<string> => {
+export const generateRSAKeypair = () => {
+  const key = new NodeRSA({ b: 2048 });
+  const publicKey = key.exportKey('pkcs8-public-pem');
+  const privateKey = key.exportKey('pkcs8-private-pem');
+  return {
+    publicKey,
+    privateKey,
+  };
+};
+
+export const asymmetricEncrypt = (data: string, publicKey: string): string => {
   const key = new NodeRSA(publicKey);
   const encrypted = key.encrypt(data, 'base64');
   return encrypted;
+};
+
+export const asymmetricDecrypt = (encryptedData: string, privateRSAKey: string) => {
+  const key = new NodeRSA(privateRSAKey);
+  const decrypted = key.decrypt(encryptedData, 'utf8');
+  return decrypted;
 };
 
 export const cryptoRandom = () => {

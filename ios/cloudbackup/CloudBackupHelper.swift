@@ -115,7 +115,7 @@ import QRCoder
           print("File uploaded to iCloud successfully.")
         }
       } else {
-        let response = getJsonResponse(status: false, data: "", error: "")
+        let response = getJsonResponse(status: false, data: "", error: "iCloud is currently inaccessible. Please check authentication with your iCloud and try again.")
         callback(response)
       }
     } catch{

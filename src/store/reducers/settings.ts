@@ -16,6 +16,10 @@ const initialState: {
   keySecurityTips: string;
   letterToAttorny: string;
   recoveryInstruction: string;
+  oneTimeBackupStatus: {
+    signingServer: boolean;
+    inheritanceKey: boolean;
+  };
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -29,6 +33,10 @@ const initialState: {
   keySecurityTips: '',
   letterToAttorny: '',
   recoveryInstruction: '',
+  oneTimeBackupStatus: {
+    signingServer: false,
+    inheritanceKey: false,
+  },
 };
 
 const settingsSlice = createSlice({
@@ -71,6 +79,14 @@ const settingsSlice = createSlice({
     // setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
     //   state.recoveryInstruction = action.payload;
     // },
+    setOTBStatusSS: (state, action: PayloadAction<boolean>) => {
+      state.oneTimeBackupStatus.signingServer = action.payload;
+      console.log({ oneTimeBackupStatus: state.oneTimeBackupStatus });
+    },
+    setOTBStatusIKS: (state, action: PayloadAction<boolean>) => {
+      state.oneTimeBackupStatus.inheritanceKey = action.payload;
+      console.log({ oneTimeBackupStatus: state.oneTimeBackupStatus });
+    },
   },
 });
 
@@ -87,6 +103,8 @@ export const {
   setKeySecurityTipsPath,
   setLetterToAttornyPath,
   // setRecoveryInstructionPath,
+  setOTBStatusSS,
+  setOTBStatusIKS,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

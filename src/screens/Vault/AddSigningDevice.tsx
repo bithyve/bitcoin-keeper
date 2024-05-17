@@ -30,27 +30,27 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { resetRealyVaultState, resetSignersUpdateState } from 'src/store/reducers/bhr';
-import {
-  generateSignerFromMetaData,
-  getSignerDescription,
-  getSignerNameFromType,
-} from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import Text from 'src/components/KeeperText';
-import SignerCard from '../AddSigner/SignerCard';
-import VaultMigrationController from './VaultMigrationController';
-import { SDIcons } from './SigningDeviceIcons';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import * as Sentry from '@sentry/react-native';
 import idx from 'idx';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
-import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
+
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import CardPill from 'src/components/CardPill';
 import AddPhoneEmailIcon from 'src/assets/images/phoneemail.svg';
+import { SDIcons } from './SigningDeviceIcons';
+import VaultMigrationController from './VaultMigrationController';
+import SignerCard from '../AddSigner/SignerCard';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useQuery } from '@realm/react';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const { width } = Dimensions.get('screen');
 
@@ -306,6 +306,12 @@ function Signers({
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
+  const [visible, setVisible] = useState(false);
+  const isMultisig = scheme.n !== 1;
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
+  const close = () => setVisible(false);
 
   const navigateToSigningServerSetup = () => {
     navigation.dispatch(
@@ -317,28 +323,7 @@ function Signers({
   };
 
   const setupInheritanceKey = async () => {
-    try {
-      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
-      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
-      const { signer: inheritanceKey } = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        masterFingerprint,
-        signerType: SignerType.INHERITANCEKEY,
-        storageType: SignerStorage.WARM,
-        xfp: id,
-        isMultisig: true,
-      });
-      dispatch(addSigningDevice([inheritanceKey]));
-      showToast(
-        `${inheritanceKey.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
-    } catch (err) {
-      console.log({ err });
-      showToast('Failed to add inheritance key', <TickIcon />);
-    }
+    setVisible(true);
   };
 
   const renderAssistedKeysShell = () => {
@@ -360,16 +345,18 @@ function Signers({
 
     let hasSigningServer = false; // actual signing server present?
     let hasInheritanceKey = false; // actual inheritance key present?
-    for (let signer of signers) {
+    for (const signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
       else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
     }
 
-    if (!hasSigningServer && level >= AppSubscriptionLevel.L2)
+    if (!hasSigningServer && level >= AppSubscriptionLevel.L2) {
       shellAssistedKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
+    }
 
-    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3)
+    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3) {
       shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
+    }
 
     return shellAssistedKeys.map((shellSigner, index) => {
       const disabled = !isAssistedKeyValidForScheme(
@@ -384,7 +371,7 @@ function Signers({
           disabled={disabled}
           key={`${shellSigner.masterFingerprint}_${index}`}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
-          description={'To setup'}
+          description="To setup"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
           onCardSelect={() => {
@@ -486,6 +473,17 @@ function Signers({
             }
           />
         </Box>
+        <HardwareModalMap
+          visible={visible}
+          close={close}
+          type={SignerType.INHERITANCEKEY}
+          mode={InteracationMode.VAULT_ADDITION}
+          isMultisig={isMultisig}
+          primaryMnemonic={primaryMnemonic}
+          addSignerFlow={false}
+          vaultId={vaultId}
+          vaultSigners={vaultKeys}
+        />
       </Box>
     </ScrollView>
   );
@@ -627,7 +625,7 @@ function AddSigningDevice() {
               <HexagonIcon
                 width={44}
                 height={38}
-                backgroundColor={'rgba(45, 103, 89, 1)'}
+                backgroundColor="rgba(45, 103, 89, 1)"
                 icon={<VaultIcon />}
               />
             </Box>
@@ -748,10 +746,10 @@ function AddSigningDevice() {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'Vault Created Successfully!'}
+        title="Vault Created Successfully!"
         subTitle={`Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`}
         Content={() => VaultCreatedModalContent(newVault)}
-        buttonText={'View Vault'}
+        buttonText="View Vault"
         buttonCallback={viewVault}
         showButtons
         modalBackground={`${colorMode}.modalWhiteBackground`}

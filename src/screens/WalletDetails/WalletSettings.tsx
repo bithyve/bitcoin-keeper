@@ -20,6 +20,7 @@ import idx from 'idx';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType } from 'src/services/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -38,6 +39,7 @@ function WalletSettings({ route }) {
   const walletTranslation = translations.wallet;
   const { settings } = translations;
   const TestSatsComponent = useTestSats({ wallet });
+  const isImported = wallet.type === WalletType.IMPORTED;
 
   const updateWalletVisibility = () => {
     try {
@@ -83,13 +85,15 @@ function WalletSettings({ route }) {
             }}
           />
         )}
-        <OptionCard
-          title={walletTranslation.TransferPolicy}
-          description={walletTranslation.TransferPolicyDesc}
-          callback={() => {
-            setTransferPolicyVisible(true);
-          }}
-        />
+        {!isImported && (
+          <OptionCard
+            title={walletTranslation.TransferPolicy}
+            description={walletTranslation.TransferPolicyDesc}
+            callback={() => {
+              setTransferPolicyVisible(true);
+            }}
+          />
+        )}
         {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>

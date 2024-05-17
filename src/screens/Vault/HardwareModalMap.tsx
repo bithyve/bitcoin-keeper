@@ -82,12 +82,9 @@ import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
 import Import from 'src/assets/images/import.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
 import QRComms from 'src/assets/images/qr_comms.svg';
-import Add from 'src/assets/images/add_white.svg';
 import useSigners from 'src/hooks/useSigners';
-import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
-import SignerCard from '../AddSigner/SignerCard';
 import {
   setupJade,
   setupKeeperSigner,
@@ -100,6 +97,8 @@ import {
 } from 'src/hardware/signerSetup';
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import SignerCard from '../AddSigner/SignerCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -110,6 +109,7 @@ export const enum InteracationMode {
   CONFIG_RECOVERY = 'CONFIG_RECOVERY',
   IDENTIFICATION = 'IDENTIFICATION',
   APP_ADDITION = 'APP_ADDITION',
+  CANARY_ADDITION = 'CANARY_ADDITION',
 }
 
 const getSignerContent = (
@@ -117,6 +117,7 @@ const getSignerContent = (
   isMultisig: boolean,
   translations: any,
   isHealthcheck: boolean,
+  isCanaryAddition: boolean,
   colorMode: string
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
@@ -171,7 +172,11 @@ const getSignerContent = (
               'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
             ]
           : [jadeInstructions],
-        title: 'Setting up Blockstream Jade',
+        title: isHealthcheck
+          ? 'Verify Blockstream Jade'
+          : isCanaryAddition
+          ? 'Setting up for Canary'
+          : 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
         options: [],
       };
@@ -183,7 +188,11 @@ const getSignerContent = (
           'Choose a Mobile Key from another Keeper app',
           'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
-        title: isHealthcheck ? `Verify  ${getSignerNameFromType(type)}` : 'Keep your Device Ready',
+        title: isHealthcheck
+          ? `Verify  ${getSignerNameFromType(type)}`
+          : isCanaryAddition
+          ? 'Setting up for Canary'
+          : 'Keep your Device Ready',
         subTitle: `Importing ${getSignerNameFromType(type)}`,
         options: [],
       };
@@ -232,7 +241,11 @@ const getSignerContent = (
               'Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm',
             ]
           : [keystoneInstructions],
-        title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
+        title: isHealthcheck
+          ? 'Verify Keystone'
+          : isCanaryAddition
+          ? 'Setting up for Canary'
+          : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
         options: [
           {
@@ -272,7 +285,11 @@ const getSignerContent = (
               'Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.',
             ]
           : [passportInstructions],
-        title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
+        title: isHealthcheck
+          ? 'Verify Passport (Batch 2)'
+          : isCanaryAddition
+          ? 'Setting up for Canary'
+          : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
         options: [
           {
@@ -326,7 +343,11 @@ const getSignerContent = (
               'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
             ]
           : [seedSignerInstructions],
-        title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
+        title: isHealthcheck
+          ? 'Verify SeedSigner'
+          : isCanaryAddition
+          ? 'Setting up for Canary'
+          : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
         options: [],
       };
@@ -343,7 +364,11 @@ const getSignerContent = (
               'Make sure you enable Testnet mode on the Specter if you are running the app on Testnet by selecting Switch network (Testnet) on the home screen',
             ]
           : [specterInstructions],
-        title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter DIY',
+        title: isHealthcheck
+          ? 'Verify Specter'
+          : isCanaryAddition
+          ? 'Setting up for Canary'
+          : 'Setting up Specter DIY',
         subTitle: 'Keep your device ready and powered before proceeding',
         options: [],
       };
@@ -755,14 +780,14 @@ function HardwareModalMap({
   vaultShellId?: string;
   addSignerFlow: boolean;
   vaultSigners?: VaultSigner[];
-  vaultId: string;
+  vaultId?: string;
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-
+  const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
 
@@ -777,6 +802,7 @@ function HardwareModalMap({
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
+  const isCanaryAddition = mode === InteracationMode.CANARY_ADDITION;
   const [otp, setOtp] = useState('');
   const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
 
@@ -819,7 +845,9 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
+          title: `${
+            isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary ' : 'Setting up'
+          } ${getSignerNameFromType(type)}`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: isHealthcheck ? onQRScanHealthCheck : onQRScan,
           setup: true,
@@ -832,18 +860,20 @@ function HardwareModalMap({
     );
   };
 
-  const navigateToFileBasedSigner = () => {
+  const navigateToFileBasedSigner = (type) => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'HandleFile',
         params: {
-          title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
+          title: `${
+            isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
+          } ${getSignerNameFromType(type)}`,
           subTitle: 'Please upload or paste the file containing the xpub data',
           mode,
-          signer,
+          signerType: type,
           addSignerFlow,
           ctaText: 'Proceed',
-          onFileExtract: onFileExtract,
+          onFileExtract,
         },
       })
     );
@@ -912,7 +942,9 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ConnectChannel',
         params: {
-          title: `${isHealthcheck ? 'Verify' : 'Setting up'} ${getSignerNameFromType(type)}`,
+          title: `${
+            isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
+          } ${getSignerNameFromType(type)}`,
           subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
           type,
           signer,
@@ -1052,6 +1084,9 @@ function HardwareModalMap({
       } else if (mode === InteracationMode.IDENTIFICATION) {
         const mapped = mapUnknownSigner({ masterFingerprint: hw.signer.masterFingerprint, type });
         mapped ? handleSuccess() : handleFailure();
+      } else if (mode === InteracationMode.CANARY_ADDITION) {
+        dispatch(setSigningDevices(hw.signer));
+        createCreateCanaryWallet(hw.signer);
       } else {
         dispatch(addSigningDevice([hw.signer]));
         const navigationState = addSignerFlow
@@ -1209,11 +1244,16 @@ function HardwareModalMap({
       captureError(error);
       return;
     }
-    dispatch(addSigningDevice([hw]));
-    const navigationState = addSignerFlow
-      ? { name: 'ManageSigners' }
-      : { name: 'AddSigningDevice', merge: true, params: {} };
-    navigation.dispatch(CommonActions.navigate(navigationState));
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      dispatch(healthCheckSigner([signer]));
+      showToast('Health check successful!');
+    } else {
+      dispatch(addSigningDevice([hw]));
+      const navigationState = addSignerFlow
+        ? { name: 'ManageSigners' }
+        : { name: 'AddSigningDevice', merge: true, params: {} };
+      navigation.dispatch(CommonActions.navigate(navigationState));
+    }
   };
 
   const verifySigningServer = async (otp) => {
@@ -1236,6 +1276,7 @@ function HardwareModalMap({
           storageType: SignerStorage.WARM,
           isMultisig: true,
           xfp: response.id,
+          isBIP85: response.isBIP85,
           signerPolicy: response.policy,
         });
         setInProgress(false);
@@ -1268,6 +1309,7 @@ function HardwareModalMap({
         const mapped = mapUnknownSigner({
           masterFingerprint: response.masterFingerprint,
           type: SignerType.POLICY_SERVER,
+          isBIP85: response.isBIP85,
           signerPolicy: response.policy,
         });
         if (mapped) {
@@ -1282,7 +1324,7 @@ function HardwareModalMap({
     }
   };
 
-  const SigningServerOTPModal = () => {
+  function SigningServerOTPModal() {
     const { translations } = useContext(LocalizationContext);
     const { vault: vaultTranslation, common } = translations;
 
@@ -1346,7 +1388,7 @@ function HardwareModalMap({
         />
       </Box>
     );
-  };
+  }
 
   const navigateToMobileKey = async (isMultiSig) => {
     if (mode === InteracationMode.RECOVERY) {
@@ -1569,6 +1611,7 @@ function HardwareModalMap({
             policy: setupInfo.policy,
           },
           xfp: setupInfo.id,
+          isBIP85: setupInfo.isBIP85,
         });
 
         // Recovery flow via BSMS is disabled for now. TODO: once backup via BSMS is enabled, we can enable recovery via BSMS as well
@@ -1596,7 +1639,7 @@ function HardwareModalMap({
       close();
       setInProgress(true);
       const { setupData } = await InheritanceKeyServer.initializeIKSetup();
-      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { id, isBIP85, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
       const { signer: inheritanceKey } = generateSignerFromMetaData({
         xpub,
         derivationPath,
@@ -1604,6 +1647,7 @@ function HardwareModalMap({
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
         xfp: id,
+        isBIP85,
         isMultisig: true,
       });
       setInProgress(false);
@@ -1628,7 +1672,7 @@ function HardwareModalMap({
     options,
     sepInstruction = '',
     type: signerType,
-  } = getSignerContent(type, isMultisig, translations, isHealthcheck, colorMode);
+  } = getSignerContent(type, isMultisig, translations, isHealthcheck, isCanaryAddition, colorMode);
 
   const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -1670,13 +1714,13 @@ function HardwareModalMap({
         return navigateToTapsignerSetup();
       case SignerType.COLDCARD:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
-          return navigateToFileBasedSigner();
+          return navigateToFileBasedSigner(type);
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
-        if (mode === InteracationMode.HEALTH_CHECK)
+        if (mode === InteracationMode.HEALTH_CHECK) {
           return setSigningServerHealthCheckOTPModal(true);
-        else return navigateToSigningServerSetup();
+        } else return navigateToSigningServerSetup();
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
@@ -1697,7 +1741,7 @@ function HardwareModalMap({
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
-          return navigateToFileBasedSigner();
+          return navigateToFileBasedSigner(type);
         }
         return navigateToAddQrBasedSigner();
       case SignerType.SEEDSIGNER:
@@ -1748,7 +1792,7 @@ function HardwareModalMap({
         close={() => setConfirmPassVisible(false)}
         title="Enter Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'Confirm passcode to delete key'}
+        subTitle="Confirm passcode to delete key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1795,8 +1839,9 @@ function HardwareModalMap({
             signingServerHealthCheckOTPModal)
         }
         close={() => {
-          if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK)
+          if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK) {
             setSigningServerHealthCheckOTPModal(false);
+          }
           close();
         }}
         title={
