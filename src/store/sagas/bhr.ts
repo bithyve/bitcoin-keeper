@@ -48,6 +48,7 @@ import {
 import {
   BACKUP_BSMS_ON_CLOUD,
   BSMS_CLOUD_HEALTH_CHECK,
+  DELETE_APP_IMAGE_ENTITY,
   GET_APP_IMAGE,
   RECOVER_BACKUP,
   SEED_BACKEDUP,
@@ -226,6 +227,11 @@ export function* deleteAppImageEntityWorker({
       signers: signerIds,
       walletIds: walletIds,
     });
+    if (walletIds.length > 0) {
+      for (const walletId of walletIds) {
+        yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
+      }
+    }
     return response;
   } catch (err) {
     captureError(err);
@@ -789,5 +795,5 @@ export const healthCheckSignerWatcher = createWatcher(
 
 export const deleteAppImageEntityWatcher = createWatcher(
   deleteAppImageEntityWorker,
-  UPADTE_HEALTH_CHECK_SIGNER
+  DELETE_APP_IMAGE_ENTITY
 );

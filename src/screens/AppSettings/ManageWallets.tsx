@@ -36,6 +36,7 @@ import { deleteVault } from 'src/store/sagaActions/vaults';
 import ShowAllIcon from 'src/assets/images/show_wallet.svg';
 import HideAllIcon from 'src/assets/images/hide_wallet.svg';
 import usePlan from 'src/hooks/usePlan';
+import { deleteAppImageEntity } from 'src/store/sagaActions/bhr';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -77,9 +78,7 @@ function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDele
           </Text>
         </Box>
         <HStack>
-          {isHidden && entityKind === EntityKind.VAULT ? (
-            <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
-          ) : null}
+          {isHidden && <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />}
           <ActionChip
             text={isHidden ? 'Unhide' : 'Hide'}
             onPress={visibilityToggle}
@@ -157,9 +156,13 @@ function ManageWallets() {
     }
   };
 
-  const deleteSelectedVault = () => {
+  const deleteSelectedEntity = () => {
     if (selectedWallet && selectedWallet.entityKind === EntityKind.VAULT) {
       dispatch(deleteVault(selectedWallet.id));
+      showToast('Vault deleted successfully', <TickIcon />);
+    }
+    if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
+      dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
       showToast('Vault deleted successfully', <TickIcon />);
     }
   };
@@ -405,7 +408,7 @@ function ManageWallets() {
             close={() => {
               setConfirmPasscodeVisible(false);
             }}
-            onSuccess={deleteSelectedVault}
+            onSuccess={deleteSelectedEntity}
           />
         )}
       />
