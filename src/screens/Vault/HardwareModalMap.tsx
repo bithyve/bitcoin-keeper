@@ -1209,11 +1209,16 @@ function HardwareModalMap({
       captureError(error);
       return;
     }
-    dispatch(addSigningDevice([hw]));
-    const navigationState = addSignerFlow
-      ? { name: 'ManageSigners' }
-      : { name: 'AddSigningDevice', merge: true, params: {} };
-    navigation.dispatch(CommonActions.navigate(navigationState));
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      dispatch(healthCheckSigner([signer]));
+      showToast('Health check successful!');
+    } else {
+      dispatch(addSigningDevice([hw]));
+      const navigationState = addSignerFlow
+        ? { name: 'ManageSigners' }
+        : { name: 'AddSigningDevice', merge: true, params: {} };
+      navigation.dispatch(CommonActions.navigate(navigationState));
+    }
   };
 
   const verifySigningServer = async (otp) => {
