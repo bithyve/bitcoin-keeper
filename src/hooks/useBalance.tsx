@@ -23,8 +23,10 @@ const useBalance = () => {
 
   const getSatUnit = () => getUnit(currentCurrency, satsEnabled);
 
-  const getCurrencyIcon = (Icon: any, variation: 'light' | 'green' | 'dark' | 'grey') =>
-    getCurrencyImageByRegion(currencyCode, variation, currentCurrency, Icon);
+  const getCurrencyIcon = (
+    Icon: any,
+    variation: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen'
+  ) => getCurrencyImageByRegion(currencyCode, variation, currentCurrency, Icon);
 
   const getFiatCurrencyIcon = (variation: 'light' | 'green' | 'dark' | 'grey') =>
     getFiatIcon(currencyCode, variation);
