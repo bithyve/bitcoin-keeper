@@ -70,7 +70,7 @@ class Configuration {
   public WALLET_INSTANCE_SERIES = {
     [WalletType.DEFAULT]: {
       series: 0,
-      upperBound: 10,
+      upperBound: 100,
     },
 
     // exception: Read-only and Imported(non-bip85 wallets)
