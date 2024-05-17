@@ -18,11 +18,14 @@ import { hp, wp } from 'src/constants/responsive';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import KeeperModal from 'src/components/KeeperModal';
 import BTCModalIcon from 'src/assets/images/btc-illustration.svg';
+import { useDispatch } from 'react-redux';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function InheritanceToolsAndTips({ navigation }) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
-
+  const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common, inheritence: inheritanceTranslation } = translations;
   const [selectedCard, selectCard] = useState(1);
@@ -111,6 +114,9 @@ function InheritanceToolsAndTips({ navigation }) {
         DarkCloseIcon
         learnMore
         learnMoreTitle={common.needMoreHelp}
+        learnMoreCallback={() =>
+          dispatch(goToConcierge([ConciergeTag.INHERITANCE], 'inheritance-tools-and-tips'))
+        }
         buttonCallback={() => setInheritanceModal(false)}
       />
     </ScreenWrapper>

@@ -1,4 +1,4 @@
-import { Box, HStack, ScrollView, useColorMode } from 'native-base';
+import { Box, HStack, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -21,6 +21,9 @@ import SignersIcon from 'src/assets/images/signers.svg';
 import WalletfileIcon from 'src/assets/images/walletfile.svg';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import { hp } from 'src/constants/responsive';
+import { useDispatch } from 'react-redux';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function AddWalletContent() {
   const { colorMode } = useColorMode();
@@ -76,7 +79,7 @@ function AddWallet({ navigation }) {
   const { translations } = useContext(LocalizationContext);
   const { wallet, common } = translations;
   const isSmallDevice = useIsSmallDevices();
-
+  const dispatch = useDispatch();
   const [selectedCard, selectCard] = useState(1);
   const [visibleModal, setVisibleModal] = useState(false);
 
@@ -150,7 +153,7 @@ function AddWallet({ navigation }) {
         showCloseIcon={false}
         learnMore
         learnMoreTitle={common.needMoreHelp}
-        // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
+        learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet'))}
         buttonText={common.continue}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
