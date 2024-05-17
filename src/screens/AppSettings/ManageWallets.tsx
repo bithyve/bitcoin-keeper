@@ -408,7 +408,7 @@ function ManageWallets() {
             close={() => {
               setConfirmPasscodeVisible(false);
             }}
-            onSuccess={deleteSelectedVault}
+            onSuccess={deleteSelectedEntity}
           />
         )}
       />

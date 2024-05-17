@@ -21,6 +21,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType } from 'src/services/wallets/enums';
 import { WalletType } from 'src/services/wallets/enums';
+import { captureError } from 'src/services/sentry';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -53,7 +54,8 @@ function WalletSettings({ route }) {
       showToast('Wallet hidden successfully');
       navigation.navigate('Home');
     } catch (error) {
-      console.log(error);
+      captureError(error);
+      showToast('Something went wrong!');
     }
   };
 
