@@ -36,6 +36,7 @@ import { deleteVault } from 'src/store/sagaActions/vaults';
 import ShowAllIcon from 'src/assets/images/show_wallet.svg';
 import HideAllIcon from 'src/assets/images/hide_wallet.svg';
 import usePlan from 'src/hooks/usePlan';
+import { deleteAppImageEntity } from 'src/store/sagaActions/bhr';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -158,8 +159,8 @@ function ManageWallets() {
       dispatch(deleteVault(selectedWallet.id));
       showToast('Vault deleted successfully', <TickIcon />);
     }
-    if (selectedWallet && selectedWallet.entityKind === EntityKind.Wallet) {
-      dispatch(deleteVault(selectedWallet.id));
+    if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
+      dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
       showToast('Vault deleted successfully', <TickIcon />);
     }
   };
