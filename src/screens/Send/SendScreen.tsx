@@ -52,6 +52,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -82,6 +83,7 @@ function SendScreen({ route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+  const isSmallDevice = useIsSmallDevices();
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -288,7 +290,11 @@ function SendScreen({ route }) {
             />
           }
         />
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollViewWrapper}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={isSmallDevice && { paddingBottom: hp(40) }}
+        >
           <Box>
             <Box style={styles.qrcontainer}>
               <RNCamera

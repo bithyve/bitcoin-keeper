@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { useNavigation } from '@react-navigation/native';
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { StyleSheet, Text } from 'react-native';
-
-import { hp } from 'src/constants/responsive';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { hp, wp } from 'src/constants/responsive';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
@@ -19,9 +18,10 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { emailCheck } from 'src/utils/utilities';
+import Note from 'src/components/Note/Note';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function IKSAddEmailPhone({ route }) {
-  const navigtaion = useNavigation();
   const [email, setEmail] = useState('');
   const [emailStatusFail, setEmailStatusFail] = useState(false);
   const { vaultId } = route.params;
@@ -33,12 +33,15 @@ function IKSAddEmailPhone({ route }) {
     (vaultKey) => signerMap[vaultKey.masterFingerprint].type === SignerType.INHERITANCEKEY
   );
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common, vault: vaultTranslation } = translations;
 
   const updateIKSPolicy = async (email: string) => {
     try {
       const IKSigner = signerMap[ikVaultKey.masterFingerprint];
       if (IKSigner.inheritanceKeyInfo === undefined) {
-        showToast('Something went wrong, IKS configuration missing', <TickIcon />);
+        showToast(vaultTranslation.IKSconfMissToast, <TickIcon />);
       }
 
       const existingPolicy: InheritancePolicy = IKSigner.inheritanceKeyInfo.policy;
@@ -57,7 +60,7 @@ function IKSAddEmailPhone({ route }) {
         }
       }
       if (!configurationForVault) {
-        showToast(`Something went wrong, IKS configuration missing for vault ${vault.id}`);
+        showToast(`${vaultTranslation.IKSconfMissVaultToast} ${vault.id}`);
         return;
       }
 
@@ -74,75 +77,92 @@ function IKSAddEmailPhone({ route }) {
         };
 
         dispatch(updateSignerDetails(IKSigner, 'inheritanceKeyInfo', updateInheritanceKeyInfo));
-        showToast('Email added', <TickIcon />);
-        navigtaion.goBack();
-      } else showToast('Failed to add email');
+        showToast(vaultTranslation.addEmailSuccessToast, <TickIcon />);
+        viewVault();
+      } else showToast(vaultTranslation.addEmailFailedToast);
     } catch (err) {
       captureError(err);
-      showToast('Failed to add email');
+      showToast(vaultTranslation.addEmailFailedToast);
     }
+  };
+
+  const viewVault = () => {
+    const navigationState = {
+      index: 1,
+      routes: [
+        { name: 'Home' },
+        {
+          name: 'VaultDetails',
+          params: { vaultId: vaultId, vaultTransferSuccessful: true },
+        },
+      ],
+    };
+    navigation.dispatch(CommonActions.reset(navigationState));
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Add Email" subtitle="To receive periodic notifications" />
-      <Box style={styles.inputWrapper}>
-        <Input
-          backgroundColor={`${colorMode}.primaryBackground`}
-          placeholder="Add email Id"
-          placeholderTextColor={`${colorMode}.SlateGreen`}
-          style={styles.input}
-          borderWidth={0}
-          height={50}
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            emailStatusFail && setEmailStatusFail(false);
+      <KeeperHeader title={vaultTranslation.addEmail} subtitle="To receive key access alerts" />
+      <Box style={styles.mainContainer}>
+        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Input
+            placeholder={vaultTranslation.addEmailPlaceHolder}
+            placeholderTextColor={`${colorMode}.SlateGreen`}
+            style={styles.input}
+            borderWidth={0}
+            height={50}
+            variant={'unstyled'}
+            marginLeft={3}
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              emailStatusFail && setEmailStatusFail(false);
+            }}
+          />
+          {emailStatusFail && (
+            <Text style={[styles.errorStyle, { color: `${colorMode}.errorRed` }]}>
+              Email is not correct
+            </Text>
+          )}
+        </Box>
+        <Box style={styles.noteContainer}>
+          <Note title={common.note} subtitle={vaultTranslation.addEmailNoteSubtitle} />
+        </Box>
+        <Buttons
+          primaryText={common.confirm}
+          primaryCallback={() => {
+            if (!emailCheck(email)) {
+              setEmailStatusFail(true);
+            } else {
+              updateIKSPolicy(email);
+            }
           }}
+          secondaryText={common.skip}
+          secondaryCallback={viewVault}
         />
-        {emailStatusFail && (
-          <Text style={[styles.errorStyle, { color: `${colorMode}.errorRed` }]}>
-            Email is not correct
-          </Text>
-        )}
       </Box>
-      <Box>
-        <Text style={[styles.consentNotes, { color: `${colorMode}.pantoneGreen` }]}>
-          Consent Note:
-        </Text>
-        <Text style={styles.notesDescription}>
-          By providing your email address/phone number, you consent to us using this information to
-          send you alerts and notifications about Inheritance Key requests, notify you of account
-          activity, and contact you for customer support purposes if needed. You can withdraw your
-          consent at any time by disabling this from App settings or clicking the unsubscribe link
-          in our emails. We will protect your data as outlined in our privacy policy.{' '}
-        </Text>
-      </Box>
-      <Buttons
-        primaryText="Confirm"
-        primaryCallback={() => {
-          if (!emailCheck(email)) {
-            setEmailStatusFail(true);
-          } else {
-            updateIKSPolicy(email);
-          }
-        }}
-      />
     </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
+  mainContainer: {
+    paddingHorizontal: wp(18),
+  },
   inputWrapper: {
-    marginVertical: hp(60),
+    marginVertical: hp(40),
     marginHorizontal: 4,
+    borderRadius: 10,
   },
   input: {
     width: '90%',
     fontSize: 14,
     paddingLeft: 5,
   },
-  consentNotes: { fontWeight: '500' },
-  notesDescription: { marginVertical: 10, fontSize: 12, lineHeight: 20 },
-  errorStyle: { marginTop: 10 },
+  errorStyle: {
+    marginTop: 10,
+  },
+  noteContainer: {
+    marginBottom: 18,
+  },
 });
 export default IKSAddEmailPhone;
