@@ -77,9 +77,7 @@ function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDele
           </Text>
         </Box>
         <HStack>
-          {isHidden && entityKind === EntityKind.VAULT ? (
-            <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
-          ) : null}
+          {isHidden && <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />}
           <ActionChip
             text={isHidden ? 'Unhide' : 'Hide'}
             onPress={visibilityToggle}
@@ -155,8 +153,12 @@ function ManageWallets() {
     }
   };
 
-  const deleteSelectedVault = () => {
+  const deleteSelectedEntity = () => {
     if (selectedWallet && selectedWallet.entityKind === EntityKind.VAULT) {
+      dispatch(deleteVault(selectedWallet.id));
+      showToast('Vault deleted successfully', <TickIcon />);
+    }
+    if (selectedWallet && selectedWallet.entityKind === EntityKind.Wallet) {
       dispatch(deleteVault(selectedWallet.id));
       showToast('Vault deleted successfully', <TickIcon />);
     }
