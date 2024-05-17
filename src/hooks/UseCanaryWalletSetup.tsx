@@ -21,17 +21,22 @@ type Params = {
 const CANARY_SCHEME = { m: 1, n: 1 };
 
 const getSingleSigSignerKey = (signer) => {
-  const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
-  const ssVaultKey: VaultSigner = {
-    ...singleSigSigner,
-    masterFingerprint: signer.masterFingerprint,
-    xfp: WalletUtilities.getFingerprintFromExtendedKey(
-      singleSigSigner.xpub,
-      WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-    ),
-  };
+  try {
+    const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+    const ssVaultKey: VaultSigner = {
+      ...singleSigSigner,
+      masterFingerprint: signer.masterFingerprint,
+      xfp: WalletUtilities.getFingerprintFromExtendedKey(
+        singleSigSigner.xpub,
+        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+      ),
+    };
 
-  return ssVaultKey;
+    return ssVaultKey;
+  } catch (err) {
+    console.log('Something went wrong in getting ss config');
+    return null;
+  }
 };
 
 const getSingleSigSignerId = (ssVaultKey) => {
@@ -67,18 +72,22 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
       if (setLoader) setLoader(true);
       const ssVaultKey = getSingleSigSignerKey(signer);
       const ssKeyVaultId = getSingleSigSignerId(ssVaultKey);
-      setCanaryVaultId(ssKeyVaultId);
-      const vaultInfo: NewVaultInfo = {
-        vaultType: VaultType.CANARY,
-        vaultScheme: CANARY_SCHEME,
-        vaultSigners: [ssVaultKey],
-        vaultDetails: {
-          name: `Canary Wallet`,
-          description: `Canary Wallet for ${signer.signerName}`,
-        },
-      };
-      dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-      return vaultInfo;
+      if (ssVaultKey) {
+        setCanaryVaultId(ssKeyVaultId);
+        const vaultInfo: NewVaultInfo = {
+          vaultType: VaultType.CANARY,
+          vaultScheme: CANARY_SCHEME,
+          vaultSigners: [ssVaultKey],
+          vaultDetails: {
+            name: `Canary Wallet`,
+            description: `Canary Wallet for ${signer.signerName}`,
+          },
+        };
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+        return vaultInfo;
+      } else {
+        console.log('Something went wrong');
+      }
     } catch (err) {
       captureError(err);
       return false;
