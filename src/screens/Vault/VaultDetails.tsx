@@ -49,14 +49,16 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 function Footer({
   vault,
   isCollaborativeWallet,
+  isCanaryWallet,
 }: {
   vault: Vault;
   isCollaborativeWallet: boolean;
+  isCanaryWallet: boolean;
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const footerItems = vault.archived
+  let footerItems = vault.archived
     ? [
         {
           Icon: ImportIcon,
@@ -82,19 +84,22 @@ function Footer({
             navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
           },
         },
-        {
-          Icon: SettingIcon,
-          text: 'Settings',
-          onPress: () => {
-            navigation.dispatch(
-              CommonActions.navigate(
-                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-                { vaultId: vault.id }
-              )
-            );
-          },
-        },
       ];
+
+  if (!isCanaryWallet) {
+    footerItems.push({
+      Icon: SettingIcon,
+      text: 'Settings',
+      onPress: () => {
+        navigation.dispatch(
+          CommonActions.navigate(
+            isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+            { vaultId: vault.id }
+          )
+        );
+      },
+    });
+  }
   return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
 
@@ -322,7 +327,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
         />
-        <Footer vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
+        <Footer
+          vault={vault}
+          isCollaborativeWallet={isCollaborativeWallet}
+          isCanaryWallet={vault.type === VaultType.CANARY}
+        />
       </VStack>
       <KeeperModal
         visible={introModal}
