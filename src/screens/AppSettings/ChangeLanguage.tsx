@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
@@ -19,14 +19,15 @@ import OptionCard from 'src/components/OptionCard';
 import KeeperModal from 'src/components/KeeperModal';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import { hp } from 'src/constants/responsive';
+import useExchangeRates from 'src/hooks/useExchangeRates';
 
 function ChangeLanguage() {
   const { currencyCode, language } = useAppSelector((state) => state.settings);
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+  const exchangeRates = useExchangeRates();
   const dispatch = useAppDispatch();
-
   const [currencyList] = useState(FiatCurrencies);
   const { colorMode } = useColorMode();
   const [showCurrency, setShowCurrency] = useState(false);
@@ -37,7 +38,7 @@ function ChangeLanguage() {
   );
 
   const { translations } = useContext(LocalizationContext);
-  const { settings } = translations;
+  const { common, settings } = translations;
 
   const changeSatsMode = () => {
     dispatch(setSatsEnabled(!satsEnabled));
@@ -54,11 +55,18 @@ function ChangeLanguage() {
       <ScrollView style={styles.currencyModal}>
         {reorderedCurrency.map((item) => (
           <TouchableOpacity
+            key={item.code}
             testID={`btn_currency_${item}`}
             onPress={() => {
-              setCurrency(item);
-              setShowCurrency(false);
-              dispatch(setCurrencyCode(item.code));
+              if (exchangeRates[item.code]) {
+                setCurrency(item);
+                setShowCurrency(false);
+                dispatch(setCurrencyCode(item.code));
+              } else {
+                Alert.alert(settings.currencyErrorTitle, settings.currencyErrorSubTitle, [
+                  { text: common.ok },
+                ]);
+              }
             }}
             style={{
               flexDirection: 'row',

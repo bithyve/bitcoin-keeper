@@ -220,10 +220,14 @@ function InputSeedWordSigner({ route }: { route: any }) {
                     onChangeText={(text) => {
                       const data = [...seedData];
                       data[index].name = text.trim();
+                      if (bip39.wordlists.english.includes(text.trim())) {
+                        data[index].invalid = false;
+                      }
                       setSeedData(data);
                     }}
                     onBlur={() => {
-                      if (!bip39.wordlists.english.includes(seedData[index].name)) {
+                      const inputValue = seedData[index].name.trim();
+                      if (inputValue && !bip39.wordlists.english.includes(inputValue)) {
                         const data = [...seedData];
                         data[index].invalid = true;
                         setSeedData(data);

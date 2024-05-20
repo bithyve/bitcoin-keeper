@@ -122,7 +122,7 @@ export const SDIcons = (type: SignerType, light = false) => {
         Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
-            Signing Server
+            Signing Server +
           </Text>
         ),
         type: SignerStorage.HOT,
@@ -193,7 +193,7 @@ export const SDIcons = (type: SignerType, light = false) => {
         Icon: getColouredIcon(<INHERITANCEKEYLIGHT />, <INHERITANCEKEYDARK />, light),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
-            Inheritance Key
+            Inheritance Key +
           </Text>
         ),
         type: SignerStorage.WARM,

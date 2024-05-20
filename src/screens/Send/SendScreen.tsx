@@ -51,6 +51,8 @@ import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -81,6 +83,7 @@ function SendScreen({ route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+  const isSmallDevice = useIsSmallDevices();
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -265,8 +268,33 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={common.send} subtitle="Scan a bitcoin address" />
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+        <KeeperHeader
+          title="Sending from"
+          subtitle={sender.presentationData.name}
+          marginLeft={false}
+          icon={
+            <HexagonIcon
+              width={44}
+              height={38}
+              backgroundColor={Colors.pantoneGreen}
+              icon={getWalletIcon(sender)}
+            />
+          }
+          availableBalance={
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={sender?.specs.balances.confirmed}
+              fontSize={14}
+              color={`${colorMode}.primaryText`}
+              variation={colorMode === 'light' ? 'dark' : 'light'}
+            />
+          }
+        />
+        <ScrollView
+          style={styles.scrollViewWrapper}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={isSmallDevice && { paddingBottom: hp(40) }}
+        >
           <Box>
             <Box style={styles.qrcontainer}>
               <RNCamera

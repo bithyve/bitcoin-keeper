@@ -50,6 +50,7 @@ export const customTheme = extendTheme({
   },
   colors: {
     light: {
+      buttonText: Colors.White,
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
       primaryGreenBackground: Colors.pantoneGreen,
@@ -59,7 +60,7 @@ export const customTheme = extendTheme({
       modalGreenButton: Colors.pantoneGreen,
       modalGreenContent: Colors.White,
       modalWhiteBackground: Colors.LightWhite,
-      // modalWhiteButton: Colors.LightWhite,
+      modalWhiteContent: Colors.GraniteGray,
       modalGreenTitle: Colors.Black,
       modalAccentTitle: Colors.Black,
       modalWhiteButton: Colors.White,
@@ -126,6 +127,7 @@ export const customTheme = extendTheme({
       // Champagne: Colors.Champagne,
       BrownNeedHelp: Colors.RussetBrown,
       policySubtitle: Colors.GreenishGrey,
+      balanceText: Colors.GreenishGrey,
       // GreenishGrey: Colors.GreenishGrey,
       // Ivory: Colors.Ivory,
       RecoveryBorderColor: Colors.RussetBrownLight,
@@ -163,6 +165,7 @@ export const customTheme = extendTheme({
       PretitleColor: Colors.LightGreenish,
     },
     dark: {
+      buttonText: Colors.Black,
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
       primaryBackground: Colors.LightYellowDark,
@@ -173,6 +176,7 @@ export const customTheme = extendTheme({
       modalGreenButton: Colors.pantoneGreenDark,
       modalGreenContent: Colors.White,
       modalWhiteBackground: Colors.LightYellowDark,
+      modalWhiteContent: Colors.White,
       modalWhiteButton: Colors.pantoneGreenDark,
       modalWhiteButtonText: Colors.Black,
       modalGreenTitle: Colors.TropicalRainForestDark,
@@ -240,6 +244,7 @@ export const customTheme = extendTheme({
       lightSeashell: Colors.lightSeashell,
       BrownNeedHelp: Colors.RussetBrown,
       policySubtitle: Colors.GreenishGrey,
+      balanceText: Colors.White,
       // GreenishGrey: Colors.GreenishGrey,
       RecoveryBorderColor: Colors.RussetBrownLight,
       // brownColor: Colors.brownColor,

@@ -21,7 +21,6 @@ import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/services/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import HWError from './HWErrorState';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 import reverse from 'buffer-reverse';
@@ -29,6 +28,7 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import ElectrumClient from 'src/services/electrum/client';
 import { captureError } from 'src/services/sentry';
 const base58check = require('base58check');
+import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -52,6 +52,7 @@ export const generateSignerFromMetaData = ({
   isMock = false,
   xpubDetails = null as XpubDetailsType,
   xfp = null,
+  isBIP85 = false,
   signerPolicy = null,
   inheritanceKeyInfo = null,
   isAmf = false,
@@ -89,6 +90,7 @@ export const generateSignerFromMetaData = ({
     lastHealthCheck: new Date(),
     addedOn: new Date(),
     masterFingerprint,
+    isBIP85,
     signerPolicy,
     inheritanceKeyInfo,
     signerXpubs,
@@ -134,13 +136,13 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
   let name: string;
   switch (type) {
     case SignerType.COLDCARD:
-      name = 'Mk4';
+      name = 'COLDCARD';
       break;
     case SignerType.JADE:
       name = 'Jade';
       break;
     case SignerType.MY_KEEPER:
-      name = `Mobile Key`;
+      name = 'Mobile Key';
       break;
     case SignerType.KEEPER:
       name = 'External Key';
@@ -341,7 +343,9 @@ const getPolicyServerStatus = (
 ) => {
   if (addSignerFlow) {
     return {
-      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+      message: isOnL1
+        ? 'Upgrade to Hodler/Diamond Hands to use the key'
+        : 'The key is already added to your Manage Keys section',
       disabled: true,
     };
   } else if (isOnL1) {
@@ -374,7 +378,10 @@ const getInheritanceKeyStatus = (
   if (addSignerFlow) {
     return {
       disabled: true,
-      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+      message:
+        isOnL1 || isOnL2
+          ? 'Upgrade to Diamond Hands to use the key'
+          : 'The key is already added to your Manage Keys section',
     };
   } else if (isOnL1 || isOnL2) {
     return {

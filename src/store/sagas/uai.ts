@@ -175,6 +175,7 @@ function* uaiChecksWorker({ payload }) {
       const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
       if (signers.length > 0) {
         for (const signer of signers) {
+          console.log('Is BIP85:', signer.isBIP85);
           const lastHealthCheck = isTestnet()
             ? healthCheckReminderHours(signer.lastHealthCheck)
             : healthCheckReminderDays(signer.lastHealthCheck);
@@ -194,7 +195,10 @@ function* uaiChecksWorker({ payload }) {
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
                   entityId: signer.masterFingerprint,
                   uaiDetails: {
-                    body: `Health check for ${signer.signerName} is due`,
+                    // body: `Health check for ${signer.signerName} is due`,
+                    body: !signer.isBIP85
+                      ? `Health check for ${signer.signerName} is due`
+                      : `Health check for ${signer.signerName} + is due`,
                   },
                 })
               );

@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 
-import BitcoinInput from 'src/assets/images/btc_input.svg';
-
+import BTC from 'src/assets/images/btc.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -25,6 +24,10 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { Satoshis } from 'src/models/types/UnitAliases';
 import useBalance from 'src/hooks/useBalance';
+import { numberWithCommas } from 'src/utils/utilities';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Colors from 'src/theme/Colors';
+import { StyleSheet } from 'react-native';
 
 function TransferPolicy({
   wallet,
@@ -46,9 +49,10 @@ function TransferPolicy({
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const [policyText, setPolicyText] = useState(null);
   const dispatch = useDispatch();
-  const { getCurrencyIcon } = useBalance();
+  const { getCurrencyIcon, getSatUnit } = useBalance();
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   const storedPolicy = wallet?.transferPolicy?.threshold?.toString();
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const onPressNumber = (digit) => {
     let temp = policyText;
@@ -71,7 +75,9 @@ function TransferPolicy({
 
   useEffect(() => {
     if (!policyText) {
-      !isBitcoin ? setPolicyText(convertSatsToFiat(parseFloat(storedPolicy)).toFixed(0).toString()) : setPolicyText(storedPolicy);
+      !isBitcoin
+        ? setPolicyText(convertSatsToFiat(parseFloat(storedPolicy)).toFixed(0).toString())
+        : setPolicyText(storedPolicy);
     } else if (isBitcoin)
       setPolicyText(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
     else setPolicyText(convertSatsToFiat(parseFloat(policyText)).toFixed(0).toString());
@@ -96,52 +102,67 @@ function TransferPolicy({
   };
   const presshandler = () => {
     if (Number(policyText) > 0) {
-      wallet.transferPolicy.threshold = isBitcoin ? Number(policyText) : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
+      wallet.transferPolicy.threshold = isBitcoin
+        ? Number(policyText)
+        : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString());
       dispatch(
         updateWalletProperty({
           walletId: wallet.id,
           key: 'transferPolicy',
           value: {
             id: uuidv4(),
-            threshold: isBitcoin ? Number(policyText) : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString()),
+            threshold: isBitcoin
+              ? Number(policyText)
+              : Number(convertFiatToSats(parseFloat(policyText)).toFixed(0).toString()),
           },
         })
       );
-
     } else {
       showToast(walletTranslation.transPolicyCantZero);
     }
   };
+
+  const inputContainerStyles = {
+    shadowColor: colorMode === 'light' ? Colors.Black : Colors.White,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: isInputFocused ? 0.1 : 0,
+    shadowRadius: 3.84,
+    elevation: isInputFocused ? 5 : 0,
+  };
   return (
-    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(300)}>
-      <Box justifyContent="center" alignItems="center">
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} style={styles.transferContainer}>
+      <Box style={styles.transferSubContainer}>
         <Box
-          marginX="5%"
-          flexDirection="row"
-          width="100%"
-          justifyContent="center"
-          alignItems="center"
-          borderRadius={10}
           backgroundColor={`${colorMode}.seashellWhite`}
-          padding={3}
-          height={50}
+          onTouchStart={() => setIsInputFocused(true)}
+          style={[inputContainerStyles, styles.inputContainer]}
         >
-          <Box pl={5}>{getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}</Box>
-          <Box ml={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
-          <Text
-            bold
-            fontSize={15}
-            color={`${colorMode}.greenText`}
-            marginLeft={3}
-            width="100%"
-            letterSpacing={3}
-          >
-            {policyText ? `${policyText} ${isBitcoin ? 'sats' : currencyCode}` : "Enter Amount"}
+          <Box ml={25}>{getCurrencyIcon(BTC, 'slateGreen')}</Box>
+          <Box ml={3} style={styles.separator} />
+          <Box width={getSatUnit() ? '90%' : '105%'}>
+            <TouchableOpacity>
+              <Input
+                style={styles.inputField}
+                numberOfLines={null}
+                editable={false}
+                variant="unstyled"
+                color={policyText ? `${colorMode}.greenText` : `${colorMode}.SlateGreen`}
+              >
+                {policyText ? `${numberWithCommas(policyText)}` : 'Enter Amount'}
+              </Input>
+            </TouchableOpacity>
+          </Box>
+          {getSatUnit() && <Box style={styles.separator} />}
+          <Text semiBold color={`${colorMode}.SlateGreen`}>
+            {getSatUnit() && ` ${getSatUnit()}`}
           </Text>
         </Box>
       </Box>
-      <Box py={25}>
-        <Text fontSize={13} color={`${colorMode}.secondaryText`} letterSpacing={0.65}>
+      <Box style={styles.descContainer}>
+        <Text style={styles.desc} color={`${colorMode}.secondaryText`}>
           {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>
@@ -164,5 +185,54 @@ function TransferPolicy({
     </Box>
   );
 }
+
+const styles = StyleSheet.create({
+  transferContainer: {
+    width: wp(300),
+  },
+  transferSubContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 3,
+    fontSize: 15,
+    letterSpacing: 3,
+    height: hp(50),
+    borderRadius: 10,
+    marginHorizontal: '5%',
+    paddingLeft: 25,
+    paddingRight: 50,
+  },
+  inputField: {
+    fontSize: 15,
+    letterSpacing: 3,
+    marginLeft: 0,
+    fontWeight: 'bold',
+  },
+  limitText: {
+    marginRight: 10,
+    fontSize: 10,
+    alignSelf: 'flex-end',
+  },
+  descContainer: {
+    paddingVertical: 25,
+  },
+  desc: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+  },
+  separator: {
+    width: 2,
+    backgroundColor: '#BDB7B1',
+    opacity: 0.3,
+    height: 20,
+    marginRight: 2,
+  },
+});
 
 export default TransferPolicy;

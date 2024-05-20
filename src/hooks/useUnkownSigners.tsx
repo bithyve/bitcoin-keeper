@@ -16,11 +16,13 @@ const useUnkownSigners = () => {
   const mapUnknownSigner = ({
     masterFingerprint,
     type,
+    isBIP85,
     signerPolicy,
     inheritanceKeyInfo,
   }: {
     masterFingerprint: string;
     type: SignerType;
+    isBIP85?: boolean;
     signerPolicy?: SignerPolicy;
     inheritanceKeyInfo?: InheritanceKeyInfo;
   }): boolean | void => {
@@ -30,13 +32,12 @@ const useUnkownSigners = () => {
         dispatch(updateSignerDetails(signer, 'type', type));
         dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type)));
 
-        if (signerPolicy) {
-          dispatch(updateSignerDetails(signer, 'signerPolicy', signerPolicy));
-        }
-
+        if (isBIP85) dispatch(updateSignerDetails(signer, 'isBIP85', isBIP85));
+        if (signerPolicy) dispatch(updateSignerDetails(signer, 'signerPolicy', signerPolicy));
         if (inheritanceKeyInfo) {
           dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', inheritanceKeyInfo));
         }
+
         return true;
       } else {
         return false;
