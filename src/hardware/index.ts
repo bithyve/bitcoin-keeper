@@ -204,7 +204,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Multisig setup file (exported from Keeper)\n';
-  line += `Name: Keeper-${vault.presentationData.name}\n`;
+  line += `Name: ${vault.presentationData.name} ${Date.now()}\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
   line += 'Format: P2WSH\n';
   line += '\n';
@@ -511,6 +511,6 @@ export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
     return { serializedPSBT: psbt.toBase64() };
   } catch (_) {
     captureError(_);
-    return serializedPSBT;
+    return { serializedPSBT };
   }
 };
