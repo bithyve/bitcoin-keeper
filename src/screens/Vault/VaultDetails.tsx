@@ -44,12 +44,72 @@ import { reinstateVault } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { uaiType } from 'src/models/interfaces/Uai';
-import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from './SigningDeviceIcons';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import config from 'src/utils/service-utilities/config';
+
+function Footer({
+  vault,
+  isCollaborativeWallet,
+  pendingHealthCheckCount,
+  setShowHealthCheckModal,
+}: {
+  vault: Vault;
+  isCollaborativeWallet: boolean;
+  pendingHealthCheckCount: number;
+  setShowHealthCheckModal: any;
+}) {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+
+  const footerItems = vault.archived
+    ? [
+        {
+          Icon: ImportIcon,
+          text: 'Reinstate',
+          onPress: () => {
+            dispatch(reinstateVault(vault.id));
+            showToast('Vault reinstated successfully', <TickIcon />);
+          },
+        },
+      ]
+    : [
+        {
+          Icon: SendIcon,
+          text: 'Send',
+          onPress: () => {
+            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+          },
+        },
+        {
+          Icon: RecieveIcon,
+          text: 'Receive',
+          onPress: () => {
+            if (pendingHealthCheckCount >= vault.scheme.m) {
+              setShowHealthCheckModal(true);
+            } else {
+              navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+            }
+          },
+        },
+        {
+          Icon: SettingIcon,
+          text: 'Settings',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.navigate(
+                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+                { vaultId: vault.id }
+              )
+            );
+          },
+        },
+      ];
+  return <KeeperFooter items={footerItems} wrappedScreen={false} />;
+}
 
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
@@ -157,32 +217,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
-
-  const { typeBasedIndicator } = useIndicatorHook({
-    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
-  });
-
-  const transformedArray = vaultKeys.map((item) => {
-    const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
-    const isRegistered = vaultKeys.length
-      ? item.registeredVaults.find((info) => info.vaultId === vault.id)
-      : false;
-    const isHealthCheckPending =
-      (vaultKeys.length &&
-        !UNVERIFYING_SIGNERS.includes(signer.type) &&
-        !isRegistered &&
-        !signer.isMock &&
-        vault.isMultiSig) ||
-      typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
-    return {
-      ...signer,
-      isHealthCheckPending: !!isHealthCheckPending,
-    };
-  });
-
-  const pendingHealthCheckCount = transformedArray.filter(
-    (item) => item.isHealthCheckPending
-  ).length;
+  const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
 
   useEffect(() => {
     if (autoRefresh) syncVault();
@@ -215,92 +250,47 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     [isCollaborativeWallet]
   );
 
-  function Footer({
-    vault,
-    isCollaborativeWallet,
-    pendingHealthCheckCount,
-  }: {
-    vault: Vault;
-    isCollaborativeWallet: boolean;
-    pendingHealthCheckCount: number;
-  }) {
-    const navigation = useNavigation();
-    const dispatch = useDispatch();
-    const { showToast } = useToastMessage();
+  const isHealthCheckPending = (signer, vaultKeys, vault) => {
+    const now = new Date();
+    const lastHealthCheck = new Date(signer.lastHealthCheck);
+    const timeDifference = now.getTime() - lastHealthCheck.getTime();
 
-    const footerItems = vault.archived
-      ? [
-          {
-            Icon: ImportIcon,
-            text: 'Reinstate',
-            onPress: () => {
-              dispatch(reinstateVault(vault.id));
-              showToast('Vault reinstated successfully', <TickIcon />);
-            },
-          },
-        ]
-      : [
-          {
-            Icon: SendIcon,
-            text: 'Send',
-            onPress: () => {
-              navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-            },
-          },
-          {
-            Icon: RecieveIcon,
-            text: 'Receive',
-            onPress: () => {
-              if (pendingHealthCheckCount >= vault.scheme.m) {
-                setShowHealthCheckModal(true);
-              } else {
-                navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
-              }
-            },
-          },
-          {
-            Icon: SettingIcon,
-            text: 'Settings',
-            onPress: () => {
-              navigation.dispatch(
-                CommonActions.navigate(
-                  isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-                  { vaultId: vault.id }
-                )
-              );
-            },
-          },
-        ];
-    return <KeeperFooter items={footerItems} wrappedScreen={false} />;
-  }
+    return (
+      !UNVERIFYING_SIGNERS.includes(signer.type) &&
+      !signer.isMock &&
+      vault.isMultiSig &&
+      timeDifference > 90 * 24 * 60 * 60 * 1000
+    );
+    // return vaultKeys.length && vault.isMultiSig && timeDifference > 3 * 60 * 60 * 1000;
+    // return vaultKeys.length && vault.isMultiSig && timeDifference > 90 * 24 * 60 * 60 * 1000;
+  };
 
-  function SignersList({
-    colorMode,
-    vaultKeys,
-    signerMap,
-    vault,
-    typeBasedIndicator,
-  }: {
-    colorMode: string;
-    vaultKeys: VaultSigner[];
-    signerMap: any;
-    vault: Vault;
-    typeBasedIndicator: any;
-  }) {
-    const list = transformedArray.filter((item) => item.isHealthCheckPending);
+  useEffect(() => {
+    const countPendingHealthChecks = () => {
+      let count = 0;
+      keys.forEach((item) => {
+        const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+        if (isHealthCheckPending(signer, vaultKeys, vault)) {
+          count++;
+        }
+      });
+      setPendingHealthCheckCount(count);
+    };
+
+    countPendingHealthChecks();
+  }, [keys, vaultKeys, signerMap, vault]);
+
+  function SignersList({ colorMode, vaultKeys, signerMap, vault, keys }) {
+    const pendingSigners = keys
+      .map((item) => {
+        const signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+        return { item, signer };
+      })
+      .filter(({ signer }) => isHealthCheckPending(signer, vaultKeys, vault));
 
     return (
       <Box style={styles.addedSignersContainer}>
-        {list.map((item) => {
-          const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
-
-          const showDot =
-            (vaultKeys.length &&
-              !UNVERIFYING_SIGNERS.includes(signer.type) &&
-              !signer.isMock &&
-              vault.isMultiSig) ||
-            typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
-
+        {pendingSigners.map(({ item, signer }) => {
           const isAMF =
             signer.type === SignerType.TAPSIGNER &&
             config.NETWORK_TYPE === NetworkType.TESTNET &&
@@ -318,7 +308,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               customStyle={styles.signerCard}
               icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
               showSelection={false}
-              showDot={showDot}
+              showDot={true}
               isFullText
               colorVarient="green"
               colorMode={colorMode}
@@ -421,6 +411,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           isCollaborativeWallet={isCollaborativeWallet}
           pendingHealthCheckCount={pendingHealthCheckCount}
           isCanaryWallet={vault.type === VaultType.CANARY}
+          setShowHealthCheckModal={setShowHealthCheckModal}
         />
       </VStack>
       <KeeperModal
@@ -486,7 +477,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
               vaultKeys={vaultKeys}
               signerMap={signerMap}
               vault={vault}
-              typeBasedIndicator={typeBasedIndicator}
+              keys={keys}
             />
             <Text style={styles.desc} color={`${colorMode}.modalWhiteContent`}>
               {vaultTranslation.pendingHealthCheckDec}
