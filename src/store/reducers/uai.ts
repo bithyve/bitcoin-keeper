@@ -41,7 +41,8 @@ const uaiSlice = createSlice({
   },
 });
 
-export const { setRefreshUai, createUaiMap, updateUaiActionMap } = uaiSlice.actions;
+export const { setRefreshUai, createUaiMap, updateUaiActionMap, updateCanaryBalanceCache } =
+  uaiSlice.actions;
 
 const uaiPersistConfig = {
   key: 'uai',
