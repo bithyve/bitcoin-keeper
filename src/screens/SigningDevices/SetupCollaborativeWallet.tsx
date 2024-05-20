@@ -41,6 +41,8 @@ import BitcoinIllustration from '../../assets/images/btc-illustration.svg';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { setCosginerModal } from 'src/store/reducers/wallets';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function AddCoSignerContent() {
   const { colorMode } = useColorMode();
@@ -363,8 +365,10 @@ function SetupCollaborativeWallet() {
         textColor={`${colorMode}.modalGreenContent`}
         Content={AddCoSignerContent}
         learnMore
+        learnMoreCallback={() =>
+          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'))
+        }
         learnMoreTitle={common.needMoreHelp}
-        // learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}categories/16888602602141-Wallet`)}
         buttonCallback={() => {
           dispatch(setCosginerModal(false));
         }}

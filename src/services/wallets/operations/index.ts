@@ -425,21 +425,21 @@ export default class WalletOperations {
     // high fee: 10 minutes
     const highFeeBlockEstimate = 1;
     const high = {
-      feePerByte: 3,
+      feePerByte: 50,
       estimatedBlocks: highFeeBlockEstimate,
     };
 
     // medium fee: 30 mins
     const mediumFeeBlockEstimate = 3;
     const medium = {
-      feePerByte: 2,
+      feePerByte: 25,
       estimatedBlocks: mediumFeeBlockEstimate,
     };
 
     // low fee: 60 mins
     const lowFeeBlockEstimate = 6;
     const low = {
-      feePerByte: 1,
+      feePerByte: 12,
       estimatedBlocks: lowFeeBlockEstimate,
     };
     const feeRatesByPriority = { high, medium, low };
@@ -525,6 +525,9 @@ export default class WalletOperations {
     } catch (err) {
       console.log('Failed to fetch fee via mempool.space', { err });
       try {
+        if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+          throw new Error('Take mock fee, testnet3 fee via electrum is unstable');
+        }
         return WalletOperations.estimateFeeRatesViaElectrum();
       } catch (err) {
         console.log({ err });
@@ -912,13 +915,15 @@ export default class WalletOperations {
       });
 
       let derivationPurpose;
-      if (wallet.entityKind === EntityKind.WALLET)
+      if (wallet.entityKind === EntityKind.WALLET) {
         derivationPurpose = WalletUtilities.getPurpose(
           (wallet as Wallet).derivationDetails.xDerivationPath
         );
+      }
 
-      for (const input of inputs)
+      for (const input of inputs) {
         this.addInputToPSBT(PSBT, wallet, input, network, derivationPurpose, scriptType);
+      }
 
       const {
         outputs: outputsWithChange,

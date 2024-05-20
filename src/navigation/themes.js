@@ -50,6 +50,7 @@ export const customTheme = extendTheme({
   },
   colors: {
     light: {
+      buttonText: Colors.White,
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
       primaryGreenBackground: Colors.pantoneGreen,
@@ -164,6 +165,7 @@ export const customTheme = extendTheme({
       PretitleColor: Colors.LightGreenish,
     },
     dark: {
+      buttonText: Colors.Black,
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
       primaryBackground: Colors.LightYellowDark,

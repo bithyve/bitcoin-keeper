@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -7,6 +7,7 @@ import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
   title?: string;
@@ -47,6 +48,8 @@ function KeeperHeader({
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const styles = getStyles(marginLeft);
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <Box style={styles.container}>
       {enableBack && (
@@ -68,7 +71,7 @@ function KeeperHeader({
                 style={styles.learnMoreContainer}
               >
                 <Text color={learnTextColor} style={styles.learnMoreText}>
-                  Need Help?
+                  {common.learnMore}
                 </Text>
               </Box>
             </TouchableOpacity>

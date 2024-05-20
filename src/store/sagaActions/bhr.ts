@@ -21,8 +21,14 @@ export const updateAppImage = ({ wallets, signers }) => ({
   },
 });
 
-export const deleteAppImageEntity = ({ walletIds, signerIds }) => ({
-  type: UPDATE_APP_IMAGE,
+export const deleteAppImageEntity = ({
+  walletIds,
+  signerIds,
+}: {
+  walletIds?: string[];
+  signerIds?: string[];
+}) => ({
+  type: DELETE_APP_IMAGE_ENTITY,
   payload: {
     walletIds,
     signerIds,

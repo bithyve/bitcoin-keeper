@@ -342,7 +342,9 @@ const getPolicyServerStatus = (
 ) => {
   if (addSignerFlow) {
     return {
-      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+      message: isOnL1
+        ? 'Upgrade to Hodler/Diamond Hands to use the key'
+        : 'The key is already added to your Manage Keys section',
       disabled: true,
     };
   } else if (isOnL1) {
@@ -375,7 +377,10 @@ const getInheritanceKeyStatus = (
   if (addSignerFlow) {
     return {
       disabled: true,
-      message: `Please add ${getSignerNameFromType(type)} from the vault creation flow`,
+      message:
+        isOnL1 || isOnL2
+          ? 'Upgrade to Diamond Hands to use the key'
+          : 'The key is already added to your Manage Keys section',
     };
   } else if (isOnL1 || isOnL2) {
     return {

@@ -62,6 +62,7 @@ import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -70,6 +71,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
+import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
 
 const { width } = Dimensions.get('screen');
 
@@ -99,7 +101,11 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
-  }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
+  }: {
+    signer: Signer;
+    vaultKey: VaultSigner;
+    vaultId: string;
+  } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
 
@@ -161,6 +167,14 @@ function SignerAdvanceSettings({ route }: any) {
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+  const {
+    oneTimeBackupStatus,
+  }: {
+    oneTimeBackupStatus: {
+      signingServer: boolean;
+      inheritanceKey: boolean;
+    };
+  } = useAppSelector((state) => state.settings);
 
   const [isSSKeySigner, setIsSSKeySigner] = useState(false);
 
@@ -516,6 +530,8 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const [canaryWalletSingleSigModal, setCanaryWalletSingleSigModal] = useState(false);
+
   const handleCanaryWallet = () => {
     try {
       setCanaryVaultLoading(true);
@@ -523,24 +539,25 @@ function SignerAdvanceSettings({ route }: any) {
       if (!singleSigSigner) {
         showToast('No single Sig found');
         setCanaryVaultLoading(false);
-      }
-      const ssVaultKey: VaultSigner = {
-        ...singleSigSigner,
-        masterFingerprint: signer.masterFingerprint,
-        xfp: WalletUtilities.getFingerprintFromExtendedKey(
-          singleSigSigner.xpub,
-          WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-        ),
-      };
-      const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
-      setCanaryWalletId(canaryVaultId);
-      const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
-
-      if (canaryVault) {
-        navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
-        setCanaryVaultLoading(false);
       } else {
-        createCreateCanaryWallet(ssVaultKey);
+        const ssVaultKey: VaultSigner = {
+          ...singleSigSigner,
+          masterFingerprint: signer.masterFingerprint,
+          xfp: WalletUtilities.getFingerprintFromExtendedKey(
+            singleSigSigner.xpub,
+            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          ),
+        };
+        const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
+        setCanaryWalletId(canaryVaultId);
+        const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
+
+        if (canaryVault) {
+          navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
+          setCanaryVaultLoading(false);
+        } else {
+          createCreateCanaryWallet(ssVaultKey);
+        }
       }
     } catch (err) {
       console.log('Something Went Wrong', err);
@@ -602,11 +619,16 @@ function SignerAdvanceSettings({ route }: any) {
 
     const onPressConfirm = async () => {
       try {
-        const { mnemonic } = await SigningServer.fetchBackup(vaultKey.xfp, Number(otp));
+        const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
+          vaultKey.xfp,
+          Number(otp)
+        );
         navigation.navigate('ExportSeed', {
           seed: mnemonic,
+          derivationPath,
           isFromAssistedKey: true,
         });
+        dispatch(setOTBStatusSS(true));
       } catch (err) {
         showToast(`${err}`);
       }
@@ -660,8 +682,14 @@ function SignerAdvanceSettings({ route }: any) {
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
-
-  const isCanaryWalletAllowed = isOnL2Above;
+  const CANARY_NON_SUPPORTED_DEVICES = [
+    SignerType.UNKOWN_SIGNER,
+    SignerType.INHERITANCEKEY,
+    SignerType.POLICY_SERVER,
+    SignerType.MOBILE_KEY,
+    SignerType.MY_KEEPER,
+  ];
+  const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
@@ -669,15 +697,62 @@ function SignerAdvanceSettings({ route }: any) {
     !signer.isMock;
 
   const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
+  let disableOneTimeBackup = false; // disables OTB once the user has backed it up
+  if (showOneTimeBackup) {
+    if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatus?.signingServer;
+    else if (isInheritanceKey) disableOneTimeBackup = oneTimeBackupStatus?.inheritanceKey;
+  }
 
   const onSuccess = () => hideKey();
+  const initiateOneTimeBackup = async () => {
+    if (isPolicyServer) {
+      setShowOTPModal(true);
+      setBackupModal(false);
+    } else if (isInheritanceKey) {
+      try {
+        let configurationForVault: InheritanceConfiguration = null;
+        const iksConfigs = idx(signer, (_) => _.inheritanceKeyInfo.configurations) || [];
+        for (const config of iksConfigs) {
+          if (config.id === activeVault.id) {
+            configurationForVault = config;
+            break;
+          }
+        }
+        if (!configurationForVault) {
+          showToast('Unable to find IKS configuration');
+          return;
+        }
+
+        const { mnemonic, derivationPath } = await InheritanceKeyServer.fetchBackup(
+          vaultKey.xfp,
+          configurationForVault
+        );
+        navigation.navigate('ExportSeed', {
+          seed: mnemonic,
+          derivationPath,
+          isFromAssistedKey: true,
+        });
+        dispatch(setOTBStatusIKS(true));
+      } catch (err) {
+        showToast(`${err}`);
+      }
+      // navigation.navigate('SignerBackupSeed');
+      setBackupModal(false);
+    } else {
+      showToast('This signer does not support one-time backup');
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
       <KeeperHeader
         title="Settings"
-        subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
+        subtitle={
+          !signer.isBIP85
+            ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
+            : `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'}`
+        }
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -731,6 +806,7 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {showOneTimeBackup && (
           <OptionCard
+            disabled={disableOneTimeBackup}
             title={vaultTranslation.oneTimeBackupTitle}
             description={vaultTranslation.oneTimeBackupDesc}
             callback={() => {
@@ -785,7 +861,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         )}
 
-        {isCanaryWalletAllowed && isSSKeySigner && (
+        {isCanaryWalletAllowed && (
           <OptionCard
             title="Canary Wallet"
             description="Your on-chain key alert"
@@ -924,18 +1000,7 @@ function SignerAdvanceSettings({ route }: any) {
               })
         }
         buttonText={common.proceed}
-        buttonCallback={
-          isPolicyServer
-            ? () => {
-                setShowOTPModal(true);
-                setBackupModal(false);
-              }
-            : () => {
-                showToast('Coming soon');
-                // navigation.navigate('SignerBackupSeed');
-                setBackupModal(false);
-              }
-        }
+        buttonCallback={initiateOneTimeBackup}
         secondaryButtonText="Cancel"
         secondaryCallback={() => setBackupModal(false)}
       />
@@ -947,6 +1012,14 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={SigningServerOTPModal}
+      />
+      <HardwareModalMap
+        type={signer.type}
+        visible={canaryWalletSingleSigModal}
+        close={() => setCanaryWalletSingleSigModal(false)}
+        mode={InteracationMode.CANARY_ADDITION}
+        isMultisig={true}
+        addSignerFlow={false}
       />
     </ScreenWrapper>
   );
