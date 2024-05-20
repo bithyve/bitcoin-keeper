@@ -144,11 +144,6 @@ function SigningDeviceList() {
             borderBottomRadius={last ? 10 : 0}
             style={styles.container}
           >
-            {type === SignerType.TREZOR && (
-              <Box style={styles.cardPillContainer}>
-                <CardPill heading="COMING SOON" backgroundColor={`${colorMode}.signerCardPill`} />
-              </Box>
-            )}
             <Box
               style={[
                 styles.walletMapContainer,
