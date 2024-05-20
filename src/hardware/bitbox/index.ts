@@ -2,23 +2,20 @@
 import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Signer, Vault, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import WalletUtilities from 'src/services/wallets/operations/utils';
-import config from 'src/utils/service-utilities/config';
 import HWError from '../HWErrorState';
 
 export const getBitbox02Details = (data, isMultisig) => {
   try {
-    const { multiSigPath, multiSigXpub, singleSigPath, singleSigXpub } = data;
+    const { multiSigPath, multiSigXpub, singleSigPath, singleSigXpub, mfp } = data;
     const xpubDetails: XpubDetailsType = {};
     xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
     xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
     const xpub = isMultisig ? multiSigXpub : singleSigXpub;
     const derivationPath = isMultisig ? multiSigPath : singleSigPath;
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
     return {
       xpub,
       derivationPath,
-      masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      masterFingerprint: mfp,
       xpubDetails,
     };
   } catch (_) {
