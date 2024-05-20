@@ -9,7 +9,12 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { EntityKind, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
-import { createUaiMap, setRefreshUai, updateUaiActionMap } from '../reducers/uai';
+import {
+  createUaiMap,
+  setRefreshUai,
+  updateCanaryBalanceCache,
+  updateUaiActionMap,
+} from '../reducers/uai';
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
@@ -175,7 +180,6 @@ function* uaiChecksWorker({ payload }) {
       const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
       if (signers.length > 0) {
         for (const signer of signers) {
-          console.log('Is BIP85:', signer.isBIP85);
           const lastHealthCheck = isTestnet()
             ? healthCheckReminderHours(signer.lastHealthCheck)
             : healthCheckReminderDays(signer.lastHealthCheck);
@@ -337,14 +341,15 @@ function* uaiChecksWorker({ payload }) {
       );
 
       const canaryBalanceCache = yield select((state) => state.uai.canaryBalanceCache);
-
       for (const wallet of canaryWallets) {
-        const uai = uaiCollectionCanaryWallet.find((uai) => uai.entityId === wallet.id);
+        const uaiForCanaryWallet = uaiCollectionCanaryWallet?.find(
+          (uai) => uai.entityId === wallet.id
+        );
         const currentTotalBalance =
           wallet.specs.balances.unconfirmed + wallet.specs.balances.confirmed;
-        const cachedBalance = canaryBalanceCache[wallet.id];
-        if (currentTotalBalance < cachedBalance) {
-          if (!uai) {
+        const cachedBalance = canaryBalanceCache?.[wallet.id];
+        if (cachedBalance && currentTotalBalance < cachedBalance) {
+          if (!uaiForCanaryWallet) {
             yield put(
               addToUaiStack({
                 uaiType: uaiType.CANARAY_WALLET,
@@ -355,10 +360,9 @@ function* uaiChecksWorker({ payload }) {
               })
             );
           }
+          yield put(updateCanaryBalanceCache({ id: wallet.id, balance: currentTotalBalance }));
         } else {
-          if (uai) {
-            yield put(uaiActioned({ entityId: uai.entityId, action: true }));
-          }
+          yield put(updateCanaryBalanceCache({ id: wallet.id, balance: currentTotalBalance }));
         }
       }
     }

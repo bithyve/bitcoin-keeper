@@ -178,6 +178,8 @@ function* credentialsAuthWorker({ payload }) {
           yield put(fetchExchangeRates());
           yield put(getMessages());
 
+          yield put(refreshCanaryWallets());
+
           yield put(
             uaiChecks([
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
