@@ -1,18 +1,24 @@
 import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useState } from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
-import { SignerType, XpubTypes } from 'src/services/wallets/enums';
-import { getMockSigner } from 'src/hardware';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import { SignerType } from 'src/services/wallets/enums';
+import { getMockSigner, getSignerDescription } from 'src/hardware';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { captureError } from 'src/services/sentry';
-import { View } from 'native-base';
+import { Box, Text, View, useColorMode } from 'native-base';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from './HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import { StyleSheet } from 'react-native';
+import { hp, wp } from 'src/constants/responsive';
+import KeeperModal from 'src/components/KeeperModal';
+import { SDIcons } from './SigningDeviceIcons';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
 
 MockWrapper.defaultProps = {
   enable: true,
@@ -41,22 +47,17 @@ function MockWrapper({
   const dispatch = useDispatch();
   const nav = navigation ?? useNavigation();
   const { showToast } = useToastMessage();
+  const [keyAddedModal, setKeyAddedModal] = useState(false);
+  const { colorMode } = useColorMode();
+  const [signer, setSigner] = useState(null);
+
   const addMockSigner = () => {
     try {
       const data = getMockSigner(signerType);
       if (data?.signer && data?.key) {
-        const { signer } = data;
+        setSigner(data.signer);
         dispatch(addSigningDevice([signer]));
-        const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
-        nav.dispatch(CommonActions.navigate(navigationState));
-
-        showToast(
-          `${signer.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        setKeyAddedModal(true);
       }
     } catch (error) {
       if (error.toString().includes("We don't support")) {
@@ -120,6 +121,30 @@ function MockWrapper({
     }
   };
 
+  function ModalCard({ title, subTitle, icon = null }) {
+    console.log('TITLE', title);
+    const { colorMode } = useColorMode();
+    return (
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
+        <Box style={styles.iconContainer}>
+          <HexagonIcon
+            width={wp(42.5)}
+            height={hp(38)}
+            icon={icon}
+            backgroundColor={colorMode == 'dark' ? Colors.ForestGreenDark : Colors.pantoneGreen}
+          />
+        </Box>
+        <Box style={styles.textContainer}>
+          <Text style={styles.titleText} color={`${colorMode}.headerText`}>
+            {title}
+          </Text>
+          <Text style={styles.subTitleText} color={`${colorMode}.GreyText`}>
+            {subTitle}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
   const handleMockTap = () => {
     if (mode === InteracationMode.VAULT_ADDITION || mode === InteracationMode.APP_ADDITION) {
       addMockSigner();
@@ -138,9 +163,73 @@ function MockWrapper({
   }
   return (
     <TapGestureHandler numberOfTaps={3} onActivated={handleMockTap}>
-      <View flex={1}>{children}</View>
+      <View flex={1}>
+        {children}
+        <KeeperModal
+          visible={keyAddedModal}
+          close={() => setKeyAddedModal(false)}
+          title={'Signer Added Successfully!'}
+          subTitle={'The signer key is now available to use for creating vaults'}
+          showCloseIcon={false}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.modalWhiteContent`}
+          Content={() => (
+            <Box style={{ gap: 20 }}>
+              <ModalCard
+                title={signer.type}
+                icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                subTitle={getSignerDescription(
+                  signer.type,
+                  signer.extraData?.instanceNumber,
+                  signer
+                )}
+              />
+              <Text style={styles.descText}>Perform regular health checks on your signer key</Text>
+            </Box>
+          )}
+          buttonText="Singer Details"
+          buttonTextColor={`${colorMode}.buttonText`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
+          buttonCallback={() => {
+            const navigationState = addSignerFlow
+              ? { name: 'ManageSigners' }
+              : { name: 'AddSigningDevice', merge: true, params: {} };
+            nav.dispatch(CommonActions.navigate(navigationState));
+          }}
+        />
+      </View>
     </TapGestureHandler>
   );
 }
+const styles = StyleSheet.create({
+  cardContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    minHeight: hp(70),
+    marginBottom: hp(35),
+    marginTop: hp(20),
+  },
+  titleText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  subTitleText: {
+    fontSize: 12,
+    fontWeight: '400',
+  },
+  iconContainer: {
+    marginHorizontal: 10,
+  },
+  textContainer: {},
+  descText: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+    fontWeight: '400',
+    marginBottom: hp(20),
+  },
+});
 
 export default MockWrapper;
