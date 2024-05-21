@@ -21,7 +21,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SignerType } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
 import Note from 'src/components/Note/Note';
 
@@ -42,7 +42,7 @@ function ExportSeedScreen({ route, navigation }) {
     seed: string;
     wallet: Wallet;
     isHealthCheck: boolean;
-    signer: VaultSigner;
+    signer: Signer;
     isFromAssistedKey: boolean;
     derivationPath: string;
   } = route.params;
