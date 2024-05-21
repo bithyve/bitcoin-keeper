@@ -48,7 +48,7 @@ import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from
 import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from './SigningDeviceIcons';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
-import config from 'src/utils/service-utilities/config';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 function Footer({
   vault,
@@ -255,14 +255,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     const lastHealthCheck = new Date(signer.lastHealthCheck);
     const timeDifference = now.getTime() - lastHealthCheck.getTime();
 
-    return (
-      !UNVERIFYING_SIGNERS.includes(signer.type) &&
-      !signer.isMock &&
-      vault.isMultiSig &&
-      timeDifference > 90 * 24 * 60 * 60 * 1000
-    );
-    // return vaultKeys.length && vault.isMultiSig && timeDifference > 3 * 60 * 60 * 1000;
-    // return vaultKeys.length && vault.isMultiSig && timeDifference > 90 * 24 * 60 * 60 * 1000;
+    if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+      return vaultKeys.length && vault.isMultiSig && timeDifference > 3 * 60 * 60 * 1000;
+    } else {
+      return !signer.isMock && vault.isMultiSig && timeDifference > 90 * 24 * 60 * 60 * 1000;
+    }
   };
 
   useEffect(() => {
