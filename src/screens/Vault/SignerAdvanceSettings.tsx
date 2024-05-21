@@ -183,7 +183,7 @@ function SignerAdvanceSettings({ route }: any) {
       dispatch(resetRealyVaultState());
     }
     if (relayVaultError) {
-      showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
+      showToast(`Canary wallet creation failed ${realyVaultErrorMessage}`);
       dispatch(resetRealyVaultState());
       setCanaryVaultLoading(false);
     }
