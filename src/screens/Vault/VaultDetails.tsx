@@ -258,7 +258,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
       return vaultKeys.length && vault.isMultiSig && timeDifference > 3 * 60 * 60 * 1000;
     } else {
-      return !signer.isMock && vault.isMultiSig && timeDifference > 90 * 24 * 60 * 60 * 1000;
+      return (
+        vaultKeys.length &&
+        !signer.isMock &&
+        vault.isMultiSig &&
+        timeDifference > 90 * 24 * 60 * 60 * 1000
+      );
     }
   };
 
