@@ -1,9 +1,9 @@
 import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 import { SignerType } from 'src/services/wallets/enums';
-import { getMockSigner, getSignerDescription } from 'src/hardware';
+import { getMockSigner } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -19,6 +19,8 @@ import KeeperModal from 'src/components/KeeperModal';
 import { SDIcons } from './SigningDeviceIcons';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
+import moment from 'moment';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 MockWrapper.defaultProps = {
   enable: true,
@@ -50,6 +52,8 @@ function MockWrapper({
   const [keyAddedModal, setKeyAddedModal] = useState(false);
   const { colorMode } = useColorMode();
   const [signer, setSigner] = useState(null);
+  const { translations } = useContext(LocalizationContext);
+  const { common, vault, signer: signerTranslations } = translations;
 
   const addMockSigner = () => {
     try {
@@ -74,11 +78,11 @@ function MockWrapper({
       const handleSuccess = () => {
         dispatch(healthCheckSigner([data.signer]));
         nav.dispatch(CommonActions.goBack());
-        showToast(`${data.signer.type} verified successfully`, <TickIcon />);
+        showToast(`${data.signer.type} ${signerTranslations.verifiedSuccessMessage}`, <TickIcon />);
       };
 
       const handleFailure = () => {
-        showToast('Something went wrong, please try again!');
+        showToast(signerTranslations.wentWrongErrorMessage);
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {
@@ -122,7 +126,6 @@ function MockWrapper({
   };
 
   function ModalCard({ title, subTitle, icon = null }) {
-    console.log('TITLE', title);
     const { colorMode } = useColorMode();
     return (
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
@@ -168,8 +171,8 @@ function MockWrapper({
         <KeeperModal
           visible={keyAddedModal}
           close={() => setKeyAddedModal(false)}
-          title={'Signer Added Successfully!'}
-          subTitle={'The signer key is now available to use for creating vaults'}
+          title={signerTranslations.signerAddedSuccessMessage}
+          subTitle={signerTranslations.signerAvailableMessage}
           showCloseIcon={false}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
@@ -178,19 +181,16 @@ function MockWrapper({
               <ModalCard
                 title={signer.type}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-                subTitle={getSignerDescription(
-                  signer.type,
-                  signer.extraData?.instanceNumber,
-                  signer
-                )}
+                subTitle={`Added ${moment(signer.addedOn).calendar()}`}
               />
               <Text style={styles.descText}>Perform regular health checks on your signer key</Text>
             </Box>
           )}
-          buttonText="Singer Details"
+          buttonText={signerTranslations.signerDeatils}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
           buttonCallback={() => {
+            setKeyAddedModal(false);
             const navigationState = addSignerFlow
               ? { name: 'ManageSigners' }
               : { name: 'AddSigningDevice', merge: true, params: {} };

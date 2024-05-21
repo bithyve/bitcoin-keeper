@@ -100,7 +100,8 @@
     "runHealthCheck": "Run Health Check",
     "needMoreHelp": "Need more help?",
     "action": "Action",
-    "commingSoon": "COMING SOON"
+    "commingSoon": "COMING SOON",
+    "saveChanges": "Save Changes"
   },
   "noInternet": {
     "no": "No Internet",
@@ -475,7 +476,14 @@
     "tapRootPrivacyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
     "tapRootEfficiencyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
     "tapRootScalableDesc": "Taproot introduces Merkleized Abstract Syntax Trees (MAST), allowing the creation of more complex spending conditions.",
-    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security."
+    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security.",
+    "creationError": "Error creating collaborative wallet",
+    "collaborativeWallet": "Collaborative Wallet",
+    "multiSig": "2 of 3 multisig",
+    "collaborativeWallet2_3Created": "A 2 of 3 collaborative wallet will be created",
+    "walletCreatedSuccessMessage": "Wallet Created Successfully!",
+    "coWalletCreatedSubTitle": "A collaborative with three App Keys on three separate devices.",
+    "coWalletCreatedDesc": "You should ensure you have a copy of the wallet configuration file for this vault"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -848,7 +856,17 @@
     "addKey": "Add key",
     "keyDetails": "Key Details",
     "ManageKeys": "Manage Keys",
-    "ViewAndChangeKeyDetails": "View and change key details"
+    "ViewAndChangeKeyDetails": "View and change key details",
+    "verifiedSuccessMessage": "verified successfully",
+    "wentWrongErrorMessage": "Something went wrong, please try again!",
+    "signerAddedSuccessMessage": "Signer Added Successfully!",
+    "signerAvailableMessage": "The signer key is now available to use for creating vaults",
+    "signerDeatils": "Signer Details",
+    "addCoSigner": "Add a co-signer",
+    "scanQRMessage": "Please scan until all the QR data has been retrieved",
+    "addingYourKey": "Adding your key...",
+    "cosignerExistsMessage": "This co-signer has already been added",
+    "selfMobileKeyError": "You cannot use more than one of your own Mobile Keys!"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

@@ -43,6 +43,8 @@ import { Box } from 'native-base';
 import { setCosginerModal } from 'src/store/reducers/wallets';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
 
 function AddCoSignerContent() {
   const { colorMode } = useColorMode();
@@ -77,14 +79,16 @@ function SignerItem({
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const signer = vaultKey ? signerMap[vaultKey.masterFingerprint] : null;
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslations } = translations;
 
   const navigateToAddQrBasedSigner = () => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: 'Add a co-signer',
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          title: signerTranslations.addCoSigner,
+          subtitle: signerTranslations.scanQRMessage,
           onQrScan: onQRScan,
           setup: true,
           type: SignerType.KEEPER,
@@ -105,7 +109,9 @@ function SignerItem({
   if (!signer || !vaultKey) {
     return (
       <AddCard
-        name={index === 0 ? 'Adding your key...' : `Add ${getPlaceholder(index)} cosigner`}
+        name={
+          index === 0 ? signerTranslations.addingYourKey : `Add ${getPlaceholder(index)} cosigner`
+        }
         cardStyles={styles.addCard}
         callback={callback}
         loading={index === 0}
@@ -151,7 +157,9 @@ function SetupCollaborativeWallet() {
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
-  const { common } = translations;
+  const { common, signer: signerTranslations, wallet } = translations;
+  const [keyAddedModal, setKeyAddedModal] = useState(false);
+  const [lastAddedSigner, setLastAddedSigner] = useState<VaultSigner | null>(null);
 
   const pushSigner = (
     xpub,
@@ -165,14 +173,14 @@ function SetupCollaborativeWallet() {
     try {
       // duplicate check
       if (coSigners.find((item) => item && item.xpub === xpub)) {
-        showToast('This co-signer has already been added', <ToastErrorIcon />);
+        showToast(signerTranslations.cosignerExistsMessage, <ToastErrorIcon />);
         resetQR();
         return;
       }
 
       // only use one of my mobile keys
       if (signerMap[masterFingerprint]?.type === SignerType.MY_KEEPER) {
-        showToast('You cannot use more than one of your own Mobile Keys!', <ToastErrorIcon />);
+        showToast(signerTranslations.selfMobileKeyError, <ToastErrorIcon />);
         resetQR();
         return;
       }
@@ -194,7 +202,9 @@ function SetupCollaborativeWallet() {
         return item;
       });
       dispatch(addSigningDevice([signer]));
+      setKeyAddedModal(true);
       setCoSigners(newSigners);
+      setLastAddedSigner(key);
       if (goBack) navigation.goBack();
     } catch (err) {
       console.log(err);
@@ -275,7 +285,7 @@ function SetupCollaborativeWallet() {
     }
     if (hasNewVaultGenerationFailed) {
       setIsCreating(false);
-      showToast('Error creating collaborative wallet', <ToastErrorIcon />);
+      showToast(wallet.creationError, <ToastErrorIcon />);
       captureError(error);
     }
   };
@@ -300,8 +310,8 @@ function SetupCollaborativeWallet() {
         vaultScheme: COLLABORATIVE_SCHEME,
         vaultSigners: coSigners,
         vaultDetails: {
-          name: `Collaborative Wallet ${collaborativeWallets.length + 1}`,
-          description: '2 of 3 multisig',
+          name: `${wallet.collaborativeWallet} ${collaborativeWallets.length + 1}`,
+          description: wallet.multiSig,
         },
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -312,11 +322,68 @@ function SetupCollaborativeWallet() {
     }
   }, [coSigners]);
 
+  function ModalCard({ title, subTitle, icon = null }) {
+    const { colorMode } = useColorMode();
+    return (
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
+        <Box style={styles.iconContainer}>
+          <HexagonIcon
+            width={wp(42.5)}
+            height={hp(38)}
+            icon={icon}
+            backgroundColor={colorMode == 'dark' ? Colors.ForestGreenDark : Colors.pantoneGreen}
+          />
+        </Box>
+        <Box style={styles.textContainer}>
+          <Text style={styles.titleText} color={`${colorMode}.headerText`}>
+            {title}
+          </Text>
+          <Text style={styles.subTitleText} color={`${colorMode}.GreyText`}>
+            {subTitle}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  const renderLastAddedSignerModal = () => {
+    if (!lastAddedSigner) return null;
+
+    const signer = signerMap[lastAddedSigner.masterFingerprint];
+    if (!signer) return null;
+
+    return (
+      <KeeperModal
+        visible={keyAddedModal}
+        close={() => setKeyAddedModal(false)}
+        title={signerTranslations.signerAddedSuccessMessage}
+        subTitle={signerTranslations.signerAvailableMessage}
+        showCloseIcon={false}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        Content={() => (
+          <ModalCard
+            title={signer.signerName}
+            subTitle={`Added ${moment(signer.addedOn).calendar()}`}
+            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+          />
+        )}
+        buttonText={signerTranslations.signerDeatils}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonCallback={() => {
+          setKeyAddedModal(false);
+          navigation.dispatch(CommonActions.navigate('ManageSigners'));
+        }}
+      />
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Add Signers"
-        subtitle="A 2 of 3 collaborative wallet will be created"
+        title={signerTranslations.addSigners}
+        subtitle={wallet.collaborativeWallet2_3Created}
         learnMore
         learnMorePressed={() => dispatch(setCosginerModal(true))}
         learnTextColor={`${colorMode}.white`}
@@ -326,27 +393,26 @@ function SetupCollaborativeWallet() {
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         data={coSigners}
-        keyExtractor={(item, index) => item?.xfp ?? index}
+        keyExtractor={(item, index) => (item && item.xfp ? item.xfp : `placeholder-${index}`)}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),
         }}
       />
+
       <FloatingCTA
-        primaryText="Create"
+        primaryText={common.create}
         primaryCallback={createVault}
-        secondaryText="Cancel"
+        secondaryText={common.cancel}
         primaryLoading={isCreating}
         primaryDisable={coSigners.filter((item) => item)?.length < 2}
       />
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title={'Wallet Created Successfully!'}
-        subTitle={'A collaborative with three App Keys on three separate devices.'}
-        buttonText={'View Wallet'}
-        descriptionMessage={
-          'You should ensure you have a copy of the wallet configuration file for this vault'
-        }
+        title={wallet.walletCreatedSuccessMessage}
+        subTitle={wallet.coWalletCreatedSubTitle}
+        buttonText={wallet.ViewWallet}
+        descriptionMessage={wallet.coWalletCreatedDesc}
         buttonCallback={() => {
           navigateToNextScreen();
         }}
@@ -359,7 +425,7 @@ function SetupCollaborativeWallet() {
         close={() => {
           dispatch(setCosginerModal(false));
         }}
-        title={'Add a co-signer'}
+        title={signerTranslations.addCoSigner}
         subTitle={''}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
@@ -374,6 +440,7 @@ function SetupCollaborativeWallet() {
         }}
         buttonBackground={`${colorMode}.modalWhiteButton`}
       />
+      {renderLastAddedSignerModal()}
     </ScreenWrapper>
   );
 }
@@ -432,6 +499,34 @@ const styles = StyleSheet.create({
     letterSpacing: 0.13,
     lineHeight: 18,
     width: wp(295),
+  },
+  cardContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    minHeight: hp(70),
+    marginBottom: hp(35),
+    marginTop: hp(20),
+  },
+  titleText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  subTitleText: {
+    fontSize: 12,
+    fontWeight: '400',
+  },
+  iconContainer: {
+    marginHorizontal: 10,
+  },
+  textContainer: {},
+  descText: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+    fontWeight: '400',
+    marginBottom: hp(20),
   },
 });
 
