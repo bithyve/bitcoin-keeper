@@ -141,8 +141,8 @@ const isAssistedKeyValidForScheme = (signer: Signer, scheme, signerMap, selected
       // signing server key can be added starting from Vaults w/ m: 2 and n:3
       if (scheme.m < 2 || scheme.n < 3) return false;
     } else if (signer.type === SignerType.INHERITANCEKEY) {
-      // inheritance key can be added starting from Vaults w/ m: 3 and n:5(and even w/ a SS already present, the number of assisted keys < m)
-      if (scheme.m < 3 || scheme.n < 5) return false;
+      // inheritance key can be added starting from Vaults w/ m: 3 and n:4
+      if (scheme.m < 3 || scheme.n < 4) return false;
     }
 
     // count based restrictions for assisted keys
@@ -369,7 +369,7 @@ function Signers({
         <SignerCard
           disabled={disabled}
           key={`${shellSigner.masterFingerprint}_${index}`}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF) + ' +'}
+          name={`${getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)} +`}
           description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
@@ -408,7 +408,7 @@ function Signers({
           name={
             !signer.isBIP85
               ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-              : getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'
+              : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
           }
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
