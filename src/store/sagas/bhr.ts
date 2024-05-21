@@ -24,7 +24,7 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import {
   refreshWallets,
@@ -626,6 +626,7 @@ function* backupBsmsOnCloudWorker({
   };
 }) {
   const { password } = payload;
+  const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const bsmsToBackup = [];
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
@@ -638,11 +639,13 @@ function* backupBsmsOnCloudWorker({
       return;
     }
     vaults.forEach((vault) => {
-      const bsms = genrateOutputDescriptors(vault);
-      bsmsToBackup.push({
-        bsms,
-        name: vault.presentationData.name,
-      });
+      if (!excludeVaultTypesForBackup.includes(vault.type)) {
+        const bsms = genrateOutputDescriptors(vault);
+        bsmsToBackup.push({
+          bsms,
+          name: vault.presentationData.name,
+        });
+      }
     });
 
     if (Platform.OS === 'android') {
