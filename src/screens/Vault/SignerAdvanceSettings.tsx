@@ -176,13 +176,6 @@ function SignerAdvanceSettings({ route }: any) {
     };
   } = useAppSelector((state) => state.settings);
 
-  const [isSSKeySigner, setIsSSKeySigner] = useState(false);
-
-  useEffect(() => {
-    const signleSigSigner = !!signer?.signerXpubs[XpubTypes.P2WPKH]?.[0];
-    setIsSSKeySigner(signleSigSigner);
-  }, [signer]);
-
   useEffect(() => {
     if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
