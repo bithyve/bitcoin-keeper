@@ -56,9 +56,9 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
   useEffect(() => {
     if (relayVaultUpdate) {
       showToast('Canary wallet created successfully!');
-      navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
       if (setLoader) setLoader(false);
       dispatch(resetRealyVaultState());
+      navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
     }
     if (relayVaultError) {
       showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
