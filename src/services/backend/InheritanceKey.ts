@@ -418,8 +418,7 @@ export default class InheritanceKeyServer {
       inheritanceConfiguration,
       id
     );
-    const { privateKey, publicKey } = generateRSAKeypair();
-
+    const { privateKey, publicKey } = await generateRSAKeypair();
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/fetchIKSBackup`, {
         HEXA_ID,
