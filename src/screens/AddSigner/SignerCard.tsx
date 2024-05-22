@@ -47,7 +47,6 @@ function SignerCard({
   console.log('isSiginingServer && disabled', isSiginingServer && disabled, name);
   return (
     <Pressable
-      // disabled={disabled}
       disabled={isSiginingServer ? false : disabled}
       backgroundColor={
         isSiginingServer && disabled ? `${colorMode}.disabledColor` : `${colorMode}.seashellWhite`
