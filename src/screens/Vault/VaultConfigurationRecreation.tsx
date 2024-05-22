@@ -1,6 +1,6 @@
 import { Platform, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Box, Input, ScrollView, useColorMode } from 'native-base';
+import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -19,7 +19,12 @@ import Colors from 'src/theme/Colors';
 import UploadImage from 'src/components/UploadImage';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
+import Text from 'src/components/KeeperText';
 import { QRreader } from 'react-native-qr-decode-image-camera';
+import KeeperModal from 'src/components/KeeperModal';
+import { useDispatch } from 'react-redux';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 function VaultConfigurationCreation() {
   const { colorMode } = useColorMode();
@@ -32,6 +37,8 @@ function VaultConfigurationCreation() {
   const { showToast } = useToastMessage();
   let decoder = new URRegistryDecoder();
   const { common } = translations;
+  const dispatch = useDispatch();
+  const [showModal, setShowModal] = useState(false);
 
   // eslint-disable-next-line no-promise-executor-return
   const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -112,6 +119,27 @@ function VaultConfigurationCreation() {
     });
   };
 
+  function ImportVaultContent() {
+    return (
+      <View marginY={5}>
+        <Text style={styles.desc}>
+          You can import a multisig wallet into Keeper if you have the BSMS file of that wallet.
+        </Text>
+        <Text style={styles.desc}>
+          Please note that we are calling a BSMS file (also known as Output Descriptor), as the
+          Wallet Configuration File within Keeper.
+        </Text>
+        <Text style={styles.desc}>
+          If you are importing a vault that you had created in Keeper previously, note that only a
+          specific vault will get imported. Not that complete Keeper app with all its wallets.
+        </Text>
+        <Text style={styles.descLast}>
+          To import a complete Keeper app, please use that app’s Recovery Key.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -120,7 +148,13 @@ function VaultConfigurationCreation() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title="Import a Wallet" subtitle="Using wallet configuration file" />
+        <KeeperHeader
+          title="Import a Wallet"
+          subtitle="Using wallet configuration file"
+          learnMore
+          learnTextColor={`${colorMode}.white`}
+          learnMorePressed={() => setShowModal(true)}
+        />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
@@ -174,6 +208,22 @@ function VaultConfigurationCreation() {
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
+      <KeeperModal
+        visible={showModal}
+        close={() => {
+          setShowModal(false);
+        }}
+        title="Import a wallet:"
+        // subTitle="You can import a multisig wallet into Keeper if you have the BSMS file of that wallet."
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={ImportVaultContent}
+        DarkCloseIcon
+        learnMore
+        learnMoreCallback={() =>
+          dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'))
+        }
+      />
     </ScreenWrapper>
   );
 }
@@ -255,5 +305,19 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     flex: 1,
+  },
+  desc: {
+    color: 'white',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    padding: 5,
+    marginBottom: hp(5),
+  },
+  descLast: {
+    color: 'white',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    padding: 5,
+    marginTop: hp(60),
   },
 });
