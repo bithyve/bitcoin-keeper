@@ -18,6 +18,8 @@ import { generateCosignerMapUpdates } from 'src/services/wallets/factories/Vault
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/models/interfaces/AssistedKeys';
 import { generateExtendedKeysForCosigner } from 'src/services/wallets/factories/WalletFactory';
+import { captureError } from 'src/services/sentry';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
@@ -27,9 +29,6 @@ import {
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
-import { captureError } from 'src/services/sentry';
-import { hash256 } from 'src/utils/service-utilities/encryption';
-import { addNewWhirlpoolWallets } from '../sagaActions/wallets';
 import { addWhirlpoolWalletsWorker } from './wallets';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
@@ -38,6 +37,7 @@ export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
 export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
+export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -60,11 +60,13 @@ export function* applyUpgradeSequence({
     yield call(migrateStructureforSignersInAppImage);
     yield call(migrateStructureforVaultInAppImage);
   }
-  if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION)) {
-    yield call(updateAppKeysToEnableSigning);
-  }
+  if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION)) yield call(updateAppKeysToEnableSigning);
   if (semver.lt(previousVersion, WHIRLPOOL_WALLETS_RECREATION)) {
     yield call(whirlpoolWalletsCreation);
+  }
+
+  if (semver.lt(previousVersion, ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT)) {
+    yield call(assistedKeysCosignersEnrichment);
   }
 
   yield put(setAppVersion(newVersion));
@@ -215,6 +217,57 @@ function* migrateAssistedKeys() {
   }
 }
 
+function* assistedKeysCosignersEnrichment() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const signerMap = {};
+    dbManager
+      .getCollection(RealmSchema.Signer)
+      .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+
+    for (const vault of vaults) {
+      const { signers: keys } = vault;
+
+      // identical logic to VaultFactory's updateCosignersMapForAssistedKeys, different API calls(enrichment) tho
+      for (const key of keys) {
+        const assistedKeyType = signerMap[key.masterFingerprint]?.type;
+        if (
+          assistedKeyType === SignerType.POLICY_SERVER ||
+          assistedKeyType === SignerType.INHERITANCEKEY
+        ) {
+          // creates maps per signer type
+          const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, keys, key);
+
+          // updates our backend with the cosigners map
+          if (assistedKeyType === SignerType.POLICY_SERVER) {
+            const { updated } = yield call(
+              SigningServer.enrichCosignersToSignerMap,
+              key.xfp,
+              cosignersMapUpdates as CosignersMapUpdate[]
+            );
+
+            if (!updated) {
+              console.log('Failed to migrate/enrich cosigners-map for SS Assisted Keys');
+            }
+          } else if (assistedKeyType === SignerType.INHERITANCEKEY) {
+            const { updated } = yield call(
+              InheritanceKeyServer.enrichCosignersToSignerMapIKS,
+              key.xfp,
+              cosignersMapUpdates as IKSCosignersMapUpdate[]
+            );
+
+            if (!updated) {
+              console.log('Failed to migrate/enrich cosigners-map for IKS Assisted Keys');
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.log({ error });
+  }
+}
+
 function* migrateStructureforSignersInAppImage() {
   try {
     const response = yield call(updateAppImageWorker, { payload: {} });
@@ -354,14 +407,14 @@ function updateSignerXpubs(signer, xpriv) {
 function* whirlpoolWalletsCreation() {
   try {
     const Wallets: Wallet[] = dbManager.getCollection(RealmSchema.Wallet);
-    let depositWalletId; //undefined
+    let depositWalletId; // undefined
     const garbageIDs = [
       hash256(`${depositWalletId}${WalletType.PRE_MIX}`),
       hash256(`${depositWalletId}${WalletType.POST_MIX}`),
       hash256(`${depositWalletId}${WalletType.BAD_BANK}`),
     ];
     for (const wallet of Wallets) {
-      //create new whirlpool wallets for missing config
+      // create new whirlpool wallets for missing config
       if (wallet?.whirlpoolConfig?.whirlpoolWalletDetails ?? false) {
         const whirlpoolWalletIds = wallet.whirlpoolConfig.whirlpoolWalletDetails.map(
           (detail) => detail.walletId

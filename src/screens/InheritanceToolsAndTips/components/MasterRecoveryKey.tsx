@@ -53,7 +53,7 @@ function MasterRecoveryKey({ navigation }) {
                 CommonActions.navigate('ExportSeed', {
                   seed: primaryMnemonic,
                   next: true,
-                  isInheritancePlanning: true,
+                  isInheritancePlaning: true,
                 })
               );
             }}

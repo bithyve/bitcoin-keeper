@@ -293,7 +293,7 @@ function SendScreen({ route }) {
         <ScrollView
           style={styles.scrollViewWrapper}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={isSmallDevice && { paddingBottom: hp(40) }}
+          contentContainerStyle={isSmallDevice && { paddingBottom: hp(100) }}
         >
           <Box>
             <Box style={styles.qrcontainer}>

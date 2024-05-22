@@ -38,7 +38,7 @@ function ExportSeedScreen({ route, navigation }) {
     signer,
     isFromAssistedKey = false,
     derivationPath,
-    isInheritancePlanning = false,
+    isInheritancePlaning = false,
   }: {
     seed: string;
     wallet: Wallet;
@@ -46,7 +46,7 @@ function ExportSeedScreen({ route, navigation }) {
     signer: VaultSigner;
     isFromAssistedKey: boolean;
     derivationPath: string;
-    isInheritancePlanning?: boolean;
+    isInheritancePlaning?: boolean;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -58,7 +58,7 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
   useEffect(() => {
-    if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlanning) {
+    if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
     }
   }, [backupMethod]);

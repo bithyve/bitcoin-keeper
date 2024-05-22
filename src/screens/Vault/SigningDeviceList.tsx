@@ -138,6 +138,7 @@ function SigningDeviceList() {
           activeOpacity={0.7}
           onPress={onPress}
           disabled={disabled && !shouldUpgrade}
+          testID={`btn_${type}`}
         >
           <Box
             backgroundColor={`${colorMode}.seashellWhite`}
@@ -201,7 +202,11 @@ function SigningDeviceList() {
           dispatch(setSdIntroModal(true));
         }}
       />
-      <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollViewWrapper}
+        showsVerticalScrollIndicator={false}
+        testID={'Signer_Scroll'}
+      >
         {!signersLoaded ? (
           <ActivityIndicator />
         ) : (
