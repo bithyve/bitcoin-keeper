@@ -163,7 +163,7 @@ function ManageWallets() {
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
       dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
-      showToast('Vault deleted successfully', <TickIcon />);
+      showToast('Wallet deleted successfully', <TickIcon />);
     }
   };
 
