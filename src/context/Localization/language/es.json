@@ -72,7 +72,7 @@
     "sats": "sats",
     "delete": "Delete",
     "connectionError": "Connection error",
-    "electrumErrorSubTitle": "Unable to connect to public electrum servers",
+    "electrumErrorSubTitle": "Check your network and try again",
     "changeNetwork": "Please change the network and try again later",
     "viewSubscription": "View Subscription",
     "continuePleb": "Continue as Pleb",
