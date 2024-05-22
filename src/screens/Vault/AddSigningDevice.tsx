@@ -877,6 +877,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   title: {
+    width: '90%',
     marginLeft: 15,
     fontSize: 14,
   },

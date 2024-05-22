@@ -117,6 +117,9 @@ function InheritanceToolsAndTips({ navigation }) {
         learnMoreCallback={() =>
           dispatch(goToConcierge([ConciergeTag.INHERITANCE], 'inheritance-tools-and-tips'))
         }
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonText={common.continue}
         buttonCallback={() => setInheritanceModal(false)}
       />
     </ScreenWrapper>
