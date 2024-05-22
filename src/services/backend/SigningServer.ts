@@ -201,7 +201,7 @@ export default class SigningServer {
     derivationPath: string;
   }> => {
     let res: AxiosResponse;
-    const { privateKey, publicKey } = generateRSAKeypair();
+    const { privateKey, publicKey } = await generateRSAKeypair();
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/fetchBackup`, {

@@ -1,6 +1,7 @@
 import cryptoJS from 'crypto-js';
 import { randomBytes } from 'crypto';
 import NodeRSA from 'node-rsa';
+import { RSA } from 'react-native-rsa-native';
 
 export const hash256 = (data: string) => cryptoJS.SHA256(data).toString(cryptoJS.enc.Hex);
 export const hash512 = (data: string) => cryptoJS.SHA512(data).toString(cryptoJS.enc.Hex);
@@ -26,13 +27,11 @@ export const generateKey = (length: number): string => {
   return result;
 };
 
-export const generateRSAKeypair = () => {
-  const key = new NodeRSA({ b: 2048 });
-  const publicKey = key.exportKey('pkcs8-public-pem');
-  const privateKey = key.exportKey('pkcs8-private-pem');
+export const generateRSAKeypair = async () => {
+  const keys = await RSA.generateKeys(2048);
   return {
-    publicKey,
-    privateKey,
+    privateKey: keys.private,
+    publicKey: keys.public,
   };
 };
 
