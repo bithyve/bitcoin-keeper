@@ -206,7 +206,7 @@ function SigningServer({ navigation }) {
               Change Signer
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.IconText}>
+          <TouchableOpacity style={styles.IconText} testID='health_check'>
             <SimpleIcon Icon={Heathcheck} height={hp(38)} />
             <Text
               color={`${colorMode}.primaryText`}
