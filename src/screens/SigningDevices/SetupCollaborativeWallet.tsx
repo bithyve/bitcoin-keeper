@@ -120,7 +120,7 @@ function SignerItem({
       description={`Added ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       isSelected={false}
-      showSelection={index === 0}
+      showSelection={false}
       colorVarient="green"
       isFullText
       colorMode={colorMode}
