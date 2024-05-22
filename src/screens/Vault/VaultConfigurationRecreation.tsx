@@ -6,7 +6,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
-import VaultGreenIcon from 'src/assets/images/vault_green.svg';
+import ImportIcon from 'src/assets/images/import.svg';
 
 import { RNCamera } from 'react-native-camera';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
@@ -25,6 +25,14 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+
+function WrappedImportIcon() {
+  return (
+    <View style={styles.iconWrapper}>
+      <ImportIcon width={20} height={20} fill={Colors.pantoneGreen} />
+    </View>
+  );
+}
 
 function VaultConfigurationCreation() {
   const { colorMode } = useColorMode();
@@ -193,7 +201,7 @@ function VaultConfigurationCreation() {
                 <OptionCard
                   title="Upload a file"
                   description="Select a file from your storage locations"
-                  LeftIcon={<VaultGreenIcon />}
+                  LeftIcon={<WrappedImportIcon />}
                   callback={handleDocumentSelection}
                 />
               </Box>
@@ -214,7 +222,6 @@ function VaultConfigurationCreation() {
           setShowModal(false);
         }}
         title="Import a wallet:"
-        // subTitle="You can import a multisig wallet into Keeper if you have the BSMS file of that wallet."
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={ImportVaultContent}
@@ -319,5 +326,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     padding: 5,
     marginTop: hp(60),
+  },
+  iconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.pantoneGreen,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
