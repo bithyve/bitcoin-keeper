@@ -1004,6 +1004,9 @@ function* refreshWalletsWorker({
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
           specs: synchedWallet.specs,
         });
+        if (synchedWallet.type === VaultType.CANARY) {
+          yield put(uaiChecks([uaiType.CANARAY_WALLET]));
+        }
       } else {
         yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
           specs: synchedWallet.specs,
