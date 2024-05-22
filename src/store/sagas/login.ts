@@ -55,6 +55,8 @@ import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { createUaiMap } from '../reducers/uai';
 import { refreshCanaryWallets } from '../sagaActions/vaults';
+import SubScription from 'src/models/interfaces/Subscription';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -195,10 +197,13 @@ function* credentialsAuthWorker({ payload }) {
           yield call(generateSeedHash);
           yield put(setRecepitVerificationFailed(!response.isValid));
           if (subscription.level === 1 && subscription.name === 'Hodler') {
+            yield call(downgradeToPleb)
             yield put(setRecepitVerificationFailed(true));
           } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
+            yield call(downgradeToPleb)
             yield put(setRecepitVerificationFailed(true));
           } else if (subscription.level !== response.level) {
+            yield call(downgradeToPleb)
             yield put(setRecepitVerificationFailed(true));
           }
           yield put(connectToNode());
@@ -215,6 +220,20 @@ function* credentialsAuthWorker({ payload }) {
       // yield put(switchReLogin(false));
     } else yield put(credsAuthenticated(false));
   }
+}
+
+async function downgradeToPleb() {
+  const app : KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const updatedSubscription: SubScription = {
+    receipt: '',
+    productId: SubscriptionTier.L1,
+    name: SubscriptionTier.L1,
+    level: AppSubscriptionLevel.L1,
+    icon: 'assets/ic_pleb.svg',
+  };
+  dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    subscription: updatedSubscription,
+  });
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);

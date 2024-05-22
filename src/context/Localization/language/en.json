@@ -784,7 +784,7 @@
     "youCanChange": "You can change your subscription at anytime from within the app or from your subscription details in your profile",
     "restorePurchases": "Restore Purchases",
     "validateSubscriptionTitle": "Failed to validate your subscription",
-    "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?",
+    "validateSubscriptionSubTitle": "You will continue using the app as a Pleb. You can manage or restore subscriptions from Manage Subscriptions.",
     "viewSubscription": "View Subsciption",
     "noAvailablePurchaseMessage": "No purchases found",
     "currentSubscriptionMessage": "Already subscribed to",
