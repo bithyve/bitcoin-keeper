@@ -110,7 +110,7 @@ function ManageWallets() {
   );
   const [showWalletBalanceAlert, setShowWalletBalanceAlert] = useState(false);
   const [showVaultBalanceAlert, setShowVaultBalanceAlert] = useState(false);
-
+  const [showDeleteVaultBalanceAlert, setShowDeleteVaultBalanceAlert] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [confirmPasscodeVisible, setConfirmPasscodeVisible] = useState(false);
 
@@ -284,6 +284,46 @@ function ManageWallets() {
     }
   };
 
+  function DeleteVaultBalanceAlertModalContent() {
+    return (
+      <Box style={styles.modalContainer}>
+        <Text
+          color={`${colorMode}.secondaryText`}
+          style={styles.unhideText}
+        >{`To delete this vault, please transfer your funds to another wallet or vault first.`}</Text>
+        <Box style={styles.BalanceModalContainer}>
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={() => {
+              updateWalletVisibility(selectedWallet, true, false);
+              setShowDeleteVaultBalanceAlert(false);
+            }}
+            activeOpacity={0.5}
+          >
+            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
+              Cancel
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setShowDeleteVaultBalanceAlert(false);
+              navigation.dispatch(CommonActions.navigate('Send', { sender: selectedWallet }));
+            }}
+          >
+            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+              <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
+                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
+                  Move Funds
+                </Text>
+              </Box>
+            </Shadow>
+          </TouchableOpacity>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -312,8 +352,12 @@ function ManageWallets() {
               }
             }}
             onDelete={() => {
-              setSelectedWallet(item);
-              setConfirmPasscodeVisible(true);
+              if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
+                setShowDeleteVaultBalanceAlert(true);
+              } else {
+                setSelectedWallet(item);
+                setConfirmPasscodeVisible(true);
+              }
             }}
           />
         )}
@@ -367,6 +411,21 @@ function ManageWallets() {
         title="You have funds in your vault"
         subTitle="You have sats in your vault. Are you sure you want to hide it?"
         Content={VaultBalanceAlertModalContent}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(240)}
+        closeOnOverlayClick={false}
+        showButtons
+        showCloseIcon={false}
+      />
+      <KeeperModal
+        dismissible
+        close={() => {
+          setShowDeleteVaultBalanceAlert(false);
+        }}
+        visible={showDeleteVaultBalanceAlert}
+        title="You have funds in your vault"
+        subTitle="You have sats in your vault. Are you sure you want to delete it?"
+        Content={DeleteVaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={false}
