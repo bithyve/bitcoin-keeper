@@ -163,6 +163,7 @@ export const customTheme = extendTheme({
       darkGrey: Colors.DarkGrey,
       lightSkin: Colors.LightSkin,
       PretitleColor: Colors.LightGreenish,
+      disabledColor: Colors.disabledGrey,
     },
     dark: {
       buttonText: Colors.Black,
@@ -280,6 +281,7 @@ export const customTheme = extendTheme({
       // Crayola: Colors.Crayola,
       signerCardPill: Colors.Purple,
       PretitleColor: Colors.RichBlackDark,
+      disabledColor: Colors.disabledGrey,
     },
   },
   config: {

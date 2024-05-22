@@ -418,8 +418,9 @@ function Signers({
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const signerCards = signers.map((signer) => {
+      const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
       const disabled =
-        !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners).isValid ||
+        !isValid ||
         (signer.type === SignerType.MY_KEEPER &&
           myAppKeys.length >= 1 &&
           myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
@@ -431,11 +432,11 @@ function Signers({
         signer.type === SignerType.TAPSIGNER &&
         config.NETWORK_TYPE === NetworkType.TESTNET &&
         !signer.isMock;
-
       return (
         <SignerCard
           showSelection={showSelection}
           disabled={disabled}
+          isSiginingServer={true}
           key={signer.masterFingerprint}
           name={
             !signer.isBIP85
