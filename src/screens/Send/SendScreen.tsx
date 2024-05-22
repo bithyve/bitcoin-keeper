@@ -51,6 +51,8 @@ import Buttons from 'src/components/Buttons';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -81,6 +83,7 @@ function SendScreen({ route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+  const isSmallDevice = useIsSmallDevices();
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -184,14 +187,14 @@ function SendScreen({ route }) {
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         const type =
-          sender.entityKind === 'VAULT'
+          sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
         navigateToNext(address, type, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
         const transferType =
-          sender.entityKind === 'VAULT'
+          sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
         navigateToNext(address, transferType, amount ? amount.toString() : null, null);
@@ -206,14 +209,18 @@ function SendScreen({ route }) {
       if (sender.entityKind === EntityKind.VAULT) {
         navigateToNext(
           WalletOperations.getNextFreeAddress(selectedItem),
-          TransferType.VAULT_TO_WALLET,
+          selectedItem.entityKind === EntityKind.VAULT
+            ? TransferType.VAULT_TO_VAULT
+            : TransferType.VAULT_TO_WALLET,
           null,
           selectedItem
         );
       } else {
         navigateToNext(
           WalletOperations.getNextFreeAddress(selectedItem),
-          TransferType.WALLET_TO_WALLET,
+          selectedItem.entityKind === EntityKind.VAULT
+            ? TransferType.WALLET_TO_VAULT
+            : TransferType.WALLET_TO_WALLET,
           null,
           selectedItem
         );
@@ -261,8 +268,33 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={common.send} subtitle="Scan a bitcoin address" />
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+        <KeeperHeader
+          title="Sending from"
+          subtitle={sender.presentationData.name}
+          marginLeft={false}
+          icon={
+            <HexagonIcon
+              width={44}
+              height={38}
+              backgroundColor={Colors.pantoneGreen}
+              icon={getWalletIcon(sender)}
+            />
+          }
+          availableBalance={
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={sender?.specs.balances.confirmed}
+              fontSize={14}
+              color={`${colorMode}.primaryText`}
+              variation={colorMode === 'light' ? 'dark' : 'light'}
+            />
+          }
+        />
+        <ScrollView
+          style={styles.scrollViewWrapper}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={isSmallDevice && { paddingBottom: hp(100) }}
+        >
           <Box>
             <Box style={styles.qrcontainer}>
               <RNCamera
@@ -326,9 +358,9 @@ function SendScreen({ route }) {
       {showNote && (
         <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Note
-            title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
+            title={sender.entityKind === EntityKind.VAULT ? 'Security Tip' : common.note}
             subtitle={
-              sender.entityKind === 'VAULT'
+              sender.entityKind === EntityKind.VAULT
                 ? 'Check the send-to address on a signer you are going to use to sign the transaction.'
                 : 'Make sure the address or QR is the one where you want to send the funds to'
             }

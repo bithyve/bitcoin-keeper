@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import moment from 'moment';
@@ -16,9 +16,12 @@ import useToastMessage from 'src/hooks/useToastMessage';
 
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import DownArrow from 'src/assets/images/files.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function WalletConfigurationFiles() {
   const [fingerPrints, setFingerPrints] = useState(null);
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
 
   const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
@@ -43,18 +46,20 @@ function WalletConfigurationFiles() {
   }, []);
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>Wallet Configuration Files</Text>
-        <Text style={styles.description}>Download for all vaults</Text>
-        <Text style={styles.commonTextStyle}>
-          For multi-key wallets or vaults, it is important to have the configuration files along
-          with the minimum number of keys needed.
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.walletConfigFilesTitle}
         </Text>
-        <Text style={styles.commonTextStyle}>
-          The wallet configuration file, also known as Output Descriptor or the BSMS file is an
-          important item for vault recovery. Please store it carefully.
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.walletConfigFilesDescpMain}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.walletConfigFilesParagraph1}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.walletConfigFilesParagraph2}
         </Text>
         <Box style={styles.circleStyle}>
           <WalletConfigFilesIcon />
@@ -74,17 +79,16 @@ function WalletConfigurationFiles() {
                 showToast('No vaults found');
               }
             }}
-            name="View Wallet Configuration Files"
+            name={inheritancePlanning.walletConfigFilesTitle}
           />
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            When there is a new vault or change in a vault the configuration file needs to be
-            downloaded again.
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.walletConfigFilesNote}
           </Text>
         </Box>
       </ScrollView>

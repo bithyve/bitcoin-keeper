@@ -79,6 +79,7 @@ export enum WalletType {
 export enum VaultType {
   DEFAULT = 'DEFAULT',
   COLLABORATIVE = 'COLLABORATIVE',
+  CANARY = 'CANARY',
 }
 
 export enum VaultMigrationType {
@@ -181,6 +182,12 @@ export enum KeyGenerationMode {
   RECOVER = 'RECOVER',
   IMPORT = 'IMPORT',
   CREATE = 'CREATE',
+  NFC = 'NFC',
+  FILE = 'FILE',
+  QR = 'QR',
+}
+
+export enum SigningMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',

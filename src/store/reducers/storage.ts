@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface InheritanceToolVisitedHistory {
+interface InheritanceToolVisitedHistoryType {
   BUY_NEW_HARDWARE_SIGNER: number;
   CANARY_WALLETS: number;
   ASSISTED_KEYS: number;
@@ -31,7 +31,8 @@ const initialState: {
   appVersion: string;
   inheritanceRequestId: string;
   recoveryAppCreated: boolean;
-  inheritanceToolVisitedHistory: InheritanceToolVisitedHistory;
+  inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
+  dontShowConceirgeOnboarding: boolean;
 } = {
   appId: '',
   resetCred: {
@@ -62,6 +63,7 @@ const initialState: {
     TRUSTED_CONTACTS_TEMPLATE: null,
     ADDITIONAL_SIGNER_DETAILS: null,
   },
+  dontShowConceirgeOnboarding: false,
 };
 
 const storageSlice = createSlice({
@@ -95,9 +97,12 @@ const storageSlice = createSlice({
 
     updateLastVisitedTimestamp: (
       state,
-      action: PayloadAction<{ option: keyof InheritanceToolVisitedHistory }>
+      action: PayloadAction<{ option: keyof InheritanceToolVisitedHistoryType }>
     ) => {
       const { option } = action.payload;
+      if (!state.inheritanceToolVisitedHistory) {
+        state.inheritanceToolVisitedHistory = initialState.inheritanceToolVisitedHistory;
+      }
       state.inheritanceToolVisitedHistory[option] = Date.now();
     },
     setInheritanceRequestId: (state, action: PayloadAction<string>) => {
@@ -105,6 +110,9 @@ const storageSlice = createSlice({
     },
     setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
       state.recoveryAppCreated = action.payload;
+    },
+    setDontShowConceirgeOnboarding: (state) => {
+      state.dontShowConceirgeOnboarding = true;
     },
   },
 });
@@ -119,6 +127,7 @@ export const {
   setInheritanceRequestId,
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
+  setDontShowConceirgeOnboarding,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

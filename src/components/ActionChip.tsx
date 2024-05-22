@@ -6,7 +6,7 @@ import { Box, useColorMode } from 'native-base';
 const ActionChip = ({ Icon, text, onPress }) => {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity activeOpacity={0.6} onPress={onPress} testID={`btn_${text}`}>
+    <TouchableOpacity activeOpacity={0.6} onPress={onPress} testID={`btn${text}`}>
       <Box
         borderColor={`${colorMode}.BrownNeedHelp`}
         backgroundColor={`${colorMode}.BrownNeedHelp`}

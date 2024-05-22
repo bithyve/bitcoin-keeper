@@ -45,7 +45,7 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import { fetchExchangeRates } from '../sagaActions/send_and_receive';
+import { fetchExchangeRates, fetchOneDayInsight } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
@@ -54,6 +54,7 @@ import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { createUaiMap } from '../reducers/uai';
+import { refreshCanaryWallets } from '../sagaActions/vaults';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -89,7 +90,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     yield put(fetchExchangeRates());
-
+    yield put(refreshCanaryWallets());
     yield put(
       uaiChecks([
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
@@ -177,12 +178,15 @@ function* credentialsAuthWorker({ payload }) {
           yield put(fetchExchangeRates());
           yield put(getMessages());
 
+          yield put(refreshCanaryWallets());
+
           yield put(
             uaiChecks([
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               uaiType.SECURE_VAULT,
               uaiType.VAULT_TRANSFER,
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+              uaiType.FEE_INISGHT,
               uaiType.DEFAULT,
             ])
           );

@@ -144,10 +144,12 @@ export const SignerSchema: ObjectSchema = {
     addedOn: 'date',
     isMock: 'bool?',
     storageType: 'string',
+    isBIP85: 'bool?',
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
     hidden: { type: 'bool', default: false },
     extraData: '{}?',
+    archived: { type: 'bool', default: false },
   },
 };
 
@@ -197,6 +199,7 @@ export const VaultSchema: ObjectSchema = {
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
     archived: 'bool',
+    archivedId: 'string?',
     scriptType: 'string',
   },
   primaryKey: 'id',

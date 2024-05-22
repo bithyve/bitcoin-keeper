@@ -70,7 +70,7 @@ class Configuration {
   public WALLET_INSTANCE_SERIES = {
     [WalletType.DEFAULT]: {
       series: 0,
-      upperBound: 10,
+      upperBound: 100,
     },
 
     // exception: Read-only and Imported(non-bip85 wallets)
@@ -113,6 +113,11 @@ class Configuration {
   public KEEPER_HWI: string = config.KEEPER_HWI?.trim()
     ? config.KEEPER_HWI.trim()
     : DEFAULT_CONFIG.KEEPER_HWI.trim();
+
+  public ZENDESK_CHANNEL_ID = Platform.select({
+    ios: config.ZENDESK_IOS_CHANNEL_ID?.trim(),
+    android: config.ZENDESK_ANDROID_CHANNEL_ID?.trim(),
+  });
 
   constructor() {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()

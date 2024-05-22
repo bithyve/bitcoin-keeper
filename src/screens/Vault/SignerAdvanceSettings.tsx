@@ -1,15 +1,23 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, SignerType, VisibilityType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  NetworkType,
+  SignerType,
+  VaultType,
+  VisibilityType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import InheritanceKeyIcon from 'src/assets/images/icon_ik.svg';
+import SigningServerIcon from 'src/assets/images/server_light.svg';
+
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
@@ -40,10 +48,30 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
-import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
-import DescriptionModal from './components/EditDescriptionModal';
-import { SDIcons } from './SigningDeviceIcons';
+import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { NewVaultInfo } from 'src/store/sagas/wallets';
+import { addNewVault } from 'src/store/sagaActions/vaults';
+import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import useCanaryVault from 'src/hooks/useCanaryWallets';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { useAppSelector } from 'src/store/hooks';
+import usePlan from 'src/hooks/usePlan';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import SigningServer from 'src/services/backend/SigningServer';
+import { SDIcons } from './SigningDeviceIcons';
+import DescriptionModal from './components/EditDescriptionModal';
+import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
 
 const { width } = Dimensions.get('screen');
 
@@ -56,7 +84,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
         icon={<WalletVault />}
         callback={() => {}}
       />
-      <Box style={{ paddingVertical: 20 }}>
+      <Box style={styles.pv20}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
           Either hide the vault or remove the key from the vault to perform this operation.
         </Text>
@@ -65,15 +93,22 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
   );
 }
 
+// add key check for cancary wallet based on ss config
+
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
   const {
     vaultKey,
     vaultId,
     signer: signerFromParam,
-  }: { signer: Signer; vaultKey: VaultSigner; vaultId: string } = route.params;
+  }: {
+    signer: Signer;
+    vaultKey: VaultSigner;
+    vaultId: string;
+  } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
+
   const { showToast } = useToastMessage();
   const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
@@ -81,6 +116,19 @@ function SignerAdvanceSettings({ route }: any) {
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
+  const [backupModal, setBackupModal] = useState(false);
+  const [canaryWalletId, setCanaryWalletId] = useState<string>();
+  const { allCanaryVaults } = useCanaryVault({ getAll: true });
+  const [otp, setOtp] = useState('');
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation, common } = translations;
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+
+  const CANARY_SCHEME = { m: 1, n: 1 };
+
+  const { isOnL2Above } = usePlan();
 
   const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
 
@@ -115,6 +163,53 @@ function SignerAdvanceSettings({ route }: any) {
   const registerColdCard = async () => {
     await withNfcModal(() => registerToColcard({ vault: activeVault }));
   };
+
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
+  const {
+    oneTimeBackupStatus,
+  }: {
+    oneTimeBackupStatus: {
+      signingServer: boolean;
+      inheritanceKey: boolean;
+    };
+  } = useAppSelector((state) => state.settings);
+
+  useEffect(() => {
+    if (relayVaultUpdate) {
+      navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
+      setCanaryVaultLoading(false);
+      dispatch(resetRealyVaultState());
+    }
+    if (relayVaultError) {
+      showToast(`Canary wallet creation failed ${realyVaultErrorMessage}`);
+      dispatch(resetRealyVaultState());
+      setCanaryVaultLoading(false);
+    }
+  }, [relayVaultUpdate, relayVaultError]);
+
+  const createCreateCanaryWallet = useCallback(
+    (ssVaultKey) => {
+      try {
+        const vaultInfo: NewVaultInfo = {
+          vaultType: VaultType.CANARY,
+          vaultScheme: CANARY_SCHEME,
+          vaultSigners: [ssVaultKey],
+          vaultDetails: {
+            name: 'Canary Wallet',
+            description: `Canary Wallet for ${signer.signerName}`,
+          },
+        };
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+        return vaultInfo;
+      } catch (err) {
+        captureError(err);
+        return false;
+      }
+    },
+    [signer]
+  );
 
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
@@ -236,15 +331,17 @@ function SignerAdvanceSettings({ route }: any) {
 
   function WarningContent() {
     return (
-      <Box alignItems="center">
-        <WarningIllustration />
+      <>
+        <Box style={styles.warningIllustration}>
+          <WarningIllustration />
+        </Box>
         <Box>
           <Text color={`${colorMode}.greenText`} style={styles.warningText}>
-            If the signer is identified incorrectly there may be repurcusssions with general signer
+            If the signer is identified incorrectly there may be repercussions with general signer
             interactions like signing etc.
           </Text>
         </Box>
-      </Box>
+      </>
     );
   }
 
@@ -320,12 +417,15 @@ function SignerAdvanceSettings({ route }: any) {
 
   function DeleteEmailModalContent() {
     return (
-      <Box height={200} justifyContent="flex-end">
-        <Box>
-          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
-            You would not receive daily reminders about your Inheritance Key if it is used
+      <Box style={styles.deleteEmailContent}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.emailContainer}>
+          <Text fontSize={13} color={`${colorMode}.secondaryText`}>
+            {currentEmail}
           </Text>
         </Box>
+        <Text color={`${colorMode}.greenText`} style={styles.deleteRegisteredEmailNote}>
+          You would not receive daily reminders about your Inheritance Key if it is used
+        </Text>
       </Box>
     );
   }
@@ -351,27 +451,54 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const signPSBT = (serializedPSBT, resetQR) => {
+  const signPSBT = async (serializedPSBT, resetQR) => {
     try {
       let signedSerialisedPSBT;
       try {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+        if (!key.xpriv) {
+          // generate xpriv that was missed during migrations
+          const { primaryMnemonic } = keeper;
+          const details = await getCosignerDetails(
+            primaryMnemonic,
+            signer.extraData.instanceNumber - 1
+          );
+          const xpub = idx(details, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
+          const signerXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+          if (xpub === signerXpub) {
+            const { xpriv } = details.xpubDetails[XpubTypes.P2WSH];
+            signedSerialisedPSBT = signCosignerPSBT(xpriv, serializedPSBT);
+            dispatch(
+              updateKeyDetails(
+                signer.signerXpubs[XpubTypes.P2WSH][0] as VaultSigner,
+                'xpriv',
+                xpriv
+              )
+            );
+          } else {
+            showToast('There are some key detials missing, please add the key again and retry');
+          }
+        } else {
+          signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+        }
       } catch (e) {
+        showToast(e.message);
         captureError(e);
       }
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'ShowQR',
-          params: {
-            data: signedSerialisedPSBT,
-            encodeToBytes: false,
-            title: 'Signed PSBT',
-            subtitle: 'Please scan until all the QR data has been retrieved',
-            type: SignerType.KEEPER,
-          },
-        })
-      );
+      if (signedSerialisedPSBT) {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ShowQR',
+            params: {
+              data: signedSerialisedPSBT,
+              encodeToBytes: false,
+              title: 'Signed PSBT',
+              subtitle: 'Please scan until all the QR data has been retrieved',
+              type: SignerType.KEEPER,
+            },
+          })
+        );
+      }
     } catch (e) {
       resetQR();
       showToast('Please scan a valid PSBT');
@@ -396,6 +523,40 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const [canaryWalletSingleSigModal, setCanaryWalletSingleSigModal] = useState(false);
+
+  const handleCanaryWallet = () => {
+    try {
+      setCanaryVaultLoading(true);
+      const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+      if (!singleSigSigner) {
+        showToast('No single Sig found');
+        setCanaryVaultLoading(false);
+      } else {
+        const ssVaultKey: VaultSigner = {
+          ...singleSigSigner,
+          masterFingerprint: signer.masterFingerprint,
+          xfp: WalletUtilities.getFingerprintFromExtendedKey(
+            singleSigSigner.xpub,
+            WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
+          ),
+        };
+        const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
+        setCanaryWalletId(canaryVaultId);
+        const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
+
+        if (canaryVault) {
+          navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
+          setCanaryVaultLoading(false);
+        } else {
+          createCreateCanaryWallet(ssVaultKey);
+        }
+      }
+    } catch (err) {
+      console.log('Something Went Wrong', err);
+    }
+  };
+
   const navigateToCosignerDetails = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -404,6 +565,106 @@ function SignerAdvanceSettings({ route }: any) {
       })
     );
   };
+
+  function Card({ title = '', subTitle = '', icon = null }) {
+    const { colorMode } = useColorMode();
+
+    return (
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
+        <Box style={styles.iconContainer}>
+          <HexagonIcon width={44} height={38} backgroundColor={Colors.pantoneGreen} icon={icon} />
+        </Box>
+        <Box style={styles.titlesContainer}>
+          <Text style={styles.titleText}>{title}</Text>
+          <Text style={styles.subTitleText}>{subTitle}</Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  const backupModalContent = ({ title = '', subTitle = '', icon = null }) => {
+    return (
+      <Box>
+        <Card title={title} subTitle={subTitle} icon={icon} />
+        <Text style={styles.textDesc}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        </Text>
+        <Text style={styles.textDesc}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        </Text>
+      </Box>
+    );
+  };
+
+  function SigningServerOTPModal() {
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onPressConfirm = async () => {
+      try {
+        const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
+          vaultKey.xfp,
+          Number(otp)
+        );
+        navigation.navigate('ExportSeed', {
+          seed: mnemonic,
+          derivationPath,
+          isFromAssistedKey: true,
+        });
+        dispatch(setOTBStatusSS(true));
+      } catch (err) {
+        showToast(`${err}`);
+      }
+      setShowOTPModal(false);
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(300)}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+              }
+            }}
+          >
+            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+          </TouchableOpacity>
+          <Text style={styles.cvvInputInfoText} color={`${colorMode}.greenText`}>
+            {vaultTranslation.cvvSigningServerInfo}
+          </Text>
+          <Box mt={10} alignSelf="flex-end" mr={2}>
+            <Box>
+              <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={`${colorMode}.primaryText`}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  }
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
@@ -414,23 +675,77 @@ function SignerAdvanceSettings({ route }: any) {
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
-
-  const { translations } = useContext(LocalizationContext);
-
-  const { wallet: walletTranslation } = translations;
+  const CANARY_NON_SUPPORTED_DEVICES = [
+    SignerType.UNKOWN_SIGNER,
+    SignerType.INHERITANCEKEY,
+    SignerType.POLICY_SERVER,
+    SignerType.MOBILE_KEY,
+    SignerType.MY_KEEPER,
+  ];
+  const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
   const isAMF =
     signer.type === SignerType.TAPSIGNER &&
     config.NETWORK_TYPE === NetworkType.TESTNET &&
     !signer.isMock;
 
+  const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
+  let disableOneTimeBackup = false; // disables OTB once the user has backed it up
+  if (showOneTimeBackup) {
+    if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatus?.signingServer;
+    else if (isInheritanceKey) disableOneTimeBackup = oneTimeBackupStatus?.inheritanceKey;
+  }
+
   const onSuccess = () => hideKey();
+  const initiateOneTimeBackup = async () => {
+    if (isPolicyServer) {
+      setShowOTPModal(true);
+      setBackupModal(false);
+    } else if (isInheritanceKey) {
+      try {
+        let configurationForVault: InheritanceConfiguration = null;
+        const iksConfigs = idx(signer, (_) => _.inheritanceKeyInfo.configurations) || [];
+        for (const config of iksConfigs) {
+          if (config.id === activeVault.id) {
+            configurationForVault = config;
+            break;
+          }
+        }
+        if (!configurationForVault) {
+          showToast('Unable to find IKS configuration');
+          return;
+        }
+
+        const { mnemonic, derivationPath } = await InheritanceKeyServer.fetchBackup(
+          vaultKey.xfp,
+          configurationForVault
+        );
+        navigation.navigate('ExportSeed', {
+          seed: mnemonic,
+          derivationPath,
+          isFromAssistedKey: true,
+        });
+        dispatch(setOTBStatusIKS(true));
+      } catch (err) {
+        showToast(`${err}`);
+      }
+      // navigation.navigate('SignerBackupSeed');
+      setBackupModal(false);
+    } else {
+      showToast('This signer does not support one-time backup');
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
       <KeeperHeader
         title="Settings"
-        subtitle={`for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`}
+        subtitle={
+          !signer.isBIP85
+            ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
+            : `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'}`
+        }
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -438,11 +753,7 @@ function SignerAdvanceSettings({ route }: any) {
           />
         }
       />
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: hp(10),
-        }}
-      >
+      <ScrollView contentContainerStyle={styles.contentContainerStyle}>
         <OptionCard
           title="Edit Description"
           description="Short description to help you remember"
@@ -486,6 +797,16 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
+        {showOneTimeBackup && (
+          <OptionCard
+            disabled={disableOneTimeBackup}
+            title={vaultTranslation.oneTimeBackupTitle}
+            description={vaultTranslation.oneTimeBackupDesc}
+            callback={() => {
+              setBackupModal(true);
+            }}
+          />
+        )}
         {isTapsigner && (
           <OptionCard
             title="Unlock Card"
@@ -516,8 +837,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isAssistedKey || vaultId ? null : (
           <OptionCard
-            title="Hide signer"
-            description="Hide this signer from the list"
+            title="Hide key"
+            description="Hide this key from the list"
             callback={() => {
               for (const vaultItem of allUnhiddenVaults) {
                 if (
@@ -532,10 +853,18 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
+
+        {isCanaryWalletAllowed && (
+          <OptionCard
+            title="Canary Wallet"
+            description="Your on-chain key alert"
+            callback={handleCanaryWallet}
+          />
+        )}
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
-        <ScrollView horizontal contentContainerStyle={{ gap: 5 }}>
+        <ScrollView horizontal contentContainerStyle={styles.signerVaults}>
           {signerVaults.map((vault) => (
             <ActionCard
               key={vault.id}
@@ -563,7 +892,7 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}
-        title="Changing signer Type"
+        title="Changing Signer Type"
         subTitle="Are you sure you want to change the signer type?"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
@@ -591,10 +920,11 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setDeleteEmailModal(false)}
         title="Deleting Registered Email"
         subTitle="Are you sure you want to delete email id?"
+        subTitleWidth={wp(200)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
+        showCloseIcon={false}
         buttonText="Delete"
         buttonCallback={() => {
           updateIKSPolicy(currentEmail);
@@ -631,13 +961,58 @@ function SignerAdvanceSettings({ route }: any) {
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <PasscodeVerifyModal
-            useBiometrics
+            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
             onSuccess={onSuccess}
           />
         )}
+      />
+      <KeeperModal
+        visible={backupModal}
+        closeOnOverlayClick={true}
+        close={() => setBackupModal(false)}
+        showCloseIcon={false}
+        title={vaultTranslation.backingUpMnemonicTitle}
+        subTitle={vaultTranslation.backingUpMnemonicSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() =>
+          isPolicyServer
+            ? backupModalContent({
+                title: vaultTranslation.signingServerTitle,
+                subTitle: 'Added a min ago',
+                icon: <SigningServerIcon />,
+              })
+            : backupModalContent({
+                title: vaultTranslation.inheritanceKeyTitle,
+                subTitle: 'Added a min ago',
+                icon: <InheritanceKeyIcon />,
+              })
+        }
+        buttonText={common.proceed}
+        buttonCallback={initiateOneTimeBackup}
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => setBackupModal(false)}
+      />
+      <KeeperModal
+        visible={showOTPModal}
+        close={() => setShowOTPModal(false)}
+        title={vaultTranslation.oneTimeBackupTitle}
+        subTitle={vaultTranslation.oneTimeBackupDesc}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={SigningServerOTPModal}
+      />
+      <HardwareModalMap
+        type={signer.type}
+        visible={canaryWalletSingleSigModal}
+        close={() => setCanaryWalletSingleSigModal(false)}
+        mode={InteracationMode.CANARY_ADDITION}
+        isMultisig={true}
+        addSignerFlow={false}
       />
     </ScreenWrapper>
   );
@@ -799,5 +1174,69 @@ const styles = StyleSheet.create({
   signerText: {
     marginVertical: hp(15),
     marginHorizontal: 10,
+  },
+  deleteEmailContent: {
+    gap: 60,
+    marginTop: 40,
+  },
+  deleteRegisteredEmailNote: {
+    width: wp(200),
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  emailContainer: {
+    borderRadius: 10,
+    height: hp(65),
+    padding: 15,
+    justifyContent: 'center',
+  },
+  pv20: {
+    paddingVertical: 20,
+  },
+  warningIllustration: {
+    alignSelf: 'center',
+    marginBottom: hp(20),
+    marginRight: wp(40),
+  },
+  contentContainerStyle: {
+    paddingTop: hp(10),
+  },
+  signerVaults: {
+    gap: 5,
+  },
+  textDesc: {
+    fontSize: 13,
+    marginTop: hp(10),
+    marginBottom: hp(10),
+  },
+  cardContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    marginBottom: hp(20),
+    minHeight: hp(70),
+  },
+  iconContainer: {
+    width: wp(30),
+    marginLeft: wp(10),
+  },
+  titlesContainer: {
+    marginLeft: wp(15),
+  },
+  titleText: {
+    color: Colors.pantoneGreen,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  subTitleText: {
+    fontSize: 12,
+  },
+  cvvInputInfoText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: '100%',
+    marginTop: 2,
   },
 });

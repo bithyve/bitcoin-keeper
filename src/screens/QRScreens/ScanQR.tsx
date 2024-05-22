@@ -23,6 +23,10 @@ import { globalStyles } from 'src/constants/globalStyles';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import KeeperModal from 'src/components/KeeperModal';
+import { useDispatch } from 'react-redux';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 let decoder = new URRegistryDecoder();
 
@@ -30,6 +34,7 @@ function ScanQR() {
   const { colorMode } = useColorMode();
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
+  const [visibleModal, setVisibleModal] = useState(false);
   const route = useRoute();
   const { showToast } = useToastMessage();
   const {
@@ -42,10 +47,13 @@ function ScanQR() {
     signer,
     disableMockFlow = false,
     addSignerFlow = false,
+    learnMore = false,
+    learnMoreContent = {},
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const dispatch = useDispatch();
 
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   // eslint-disable-next-line no-promise-executor-return
@@ -113,6 +121,22 @@ function ScanQR() {
     });
   };
 
+  const getPercentageStep = (percentage) => {
+    if (percentage === 100) {
+      return 100;
+    }
+    if (percentage > 75) {
+      return 75;
+    }
+    if (percentage > 50) {
+      return 50;
+    }
+    if (percentage > 25) {
+      return 25;
+    }
+    return 0;
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -122,7 +146,15 @@ function ScanQR() {
         signerXfp={signer?.masterFingerprint}
         mode={mode}
       >
-        <KeeperHeader title={title} subtitle={subtitle} />
+        <KeeperHeader
+          title={title}
+          subtitle={subtitle}
+          learnMore={learnMore}
+          learnMorePressed={() => {
+            setVisibleModal(true);
+          }}
+          learnTextColor={`${colorMode}.white`}
+        />
         <VStack style={globalStyles.centerColumn}>
           <Box style={styles.qrcontainer}>
             {!nfcVisible ? (
@@ -141,7 +173,7 @@ function ScanQR() {
           <UploadImage onPress={handleChooseImage} />
           <HStack>
             {qrPercent !== 100 && <ActivityIndicator />}
-            <Text>{`Scanned ${qrPercent}%`}</Text>
+            <Text>{`Scanned ${getPercentageStep(qrPercent)}%`}</Text>
           </HStack>
         </VStack>
 
@@ -164,6 +196,24 @@ function ScanQR() {
             subtitleColor="GreyText"
           />
         </Box>
+        <KeeperModal
+          visible={visibleModal}
+          close={() => {
+            setVisibleModal(false);
+          }}
+          title={'Add a co-signer'}
+          subTitle={''}
+          modalBackground={`${colorMode}.modalGreenBackground`}
+          textColor={`${colorMode}.modalGreenContent`}
+          Content={learnMoreContent}
+          learnMore
+          learnMoreCallback={() =>
+            dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'))
+          }
+          learnMoreTitle={common.needMoreHelp}
+          buttonCallback={() => setVisibleModal(false)}
+          buttonBackground={`${colorMode}.modalWhiteButton`}
+        />
       </MockWrapper>
     </ScreenWrapper>
   );

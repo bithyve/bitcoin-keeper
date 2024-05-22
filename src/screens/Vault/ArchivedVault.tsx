@@ -1,9 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Pressable, FlatList, Box, useColorMode } from 'native-base';
-// data
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
@@ -11,14 +8,22 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import BTC from 'src/assets/images/btc_black.svg';
 import useBalance from 'src/hooks/useBalance';
 import { StyleSheet } from 'react-native';
-import { useQuery } from '@realm/react';
 import { CommonActions } from '@react-navigation/native';
+import useVault from 'src/hooks/useVault';
 
-function ArchivedVault({ navigation }) {
+function ArchivedVault({ navigation, route }) {
   const { colorMode } = useColorMode();
-  const vault: Vault[] = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => vault.archived);
+  const { vaultId } = route.params;
+  const { allVaults, activeVault: currentVault } = useVault({ includeArchived: true, vaultId });
+  const vaults =
+    currentVault.archived || !currentVault.archivedId
+      ? []
+      : allVaults.filter(
+          (v) =>
+            v.archived &&
+            (v.archivedId === currentVault.archivedId || v.id === currentVault.archivedId)
+        );
+
   const { getBalance } = useBalance();
 
   function VaultItem({ vaultItem }: { vaultItem: Vault }) {
@@ -56,7 +61,12 @@ function ArchivedVault({ navigation }) {
             <Text color={`${colorMode}.headerText`} fontSize={16} bold>
               {vaultItem?.specs?.transactions?.length}
             </Text>
-            <Text color={`${colorMode}.textBlack`} fontSize={12} marginLeft={1} letterSpacing={0.72}>
+            <Text
+              color={`${colorMode}.textBlack`}
+              fontSize={12}
+              marginLeft={1}
+              letterSpacing={0.72}
+            >
               Transactions
             </Text>
           </Box>
@@ -112,7 +122,7 @@ function ArchivedVault({ navigation }) {
       />
       <Box alignItems="center">
         <FlatList
-          data={vault}
+          data={vaults}
           keyExtractor={(item, index) => item.id}
           renderItem={renderArchiveVaults}
           showsVerticalScrollIndicator={false}

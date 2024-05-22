@@ -5,13 +5,18 @@ import Text from 'src/components/KeeperText';
 
 import { useNavigation } from '@react-navigation/native';
 import { hp } from 'src/constants/responsive';
+import Colors from 'src/theme/Colors';
 
 function UpgradeSubscription({ type }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
 
   return (
-    <HStack style={styles.container} justifyContent={'space-around'}>
+    <HStack
+      style={styles.container}
+      borderTopColor={`${colorMode}.lightSkin`}
+      justifyContent={'space-around'}
+    >
       <Text>Available to {type} users</Text>
       <TouchableOpacity
         activeOpacity={0.6}
@@ -50,9 +55,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   container: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEE7E0',
-    height: hp(30),
+    borderTopWidth: 2,
+    paddingTop: hp(10),
+    height: hp(40),
   },
 });
 

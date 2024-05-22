@@ -13,6 +13,9 @@ type ActionCardProps = {
   customStyle?: ViewStyle;
   dottedBorder?: boolean;
   cardPillText?: string;
+  showDot?: boolean;
+  smallDeviceHeight?: number;
+  smallDeviceWidth?: number;
 };
 
 function ActionCard({
@@ -23,6 +26,9 @@ function ActionCard({
   callback,
   dottedBorder = false,
   cardPillText = '',
+  showDot = false,
+  smallDeviceHeight = hp(140),
+  smallDeviceWidth = wp(110),
 }: ActionCardProps) {
   const { colorMode } = useColorMode();
   const isSmallDevice = useIsSmallDevices();
@@ -32,7 +38,8 @@ function ActionCard({
         style={[
           styles.cardContainer,
           { ...customStyle },
-          { minHeight: isSmallDevice ? hp(140) : hp(130) },
+          { minHeight: isSmallDevice ? smallDeviceHeight : hp(114) },
+          { minWidth: isSmallDevice ? smallDeviceWidth : wp(104) },
         ]}
         backgroundColor={`${colorMode}.seashellWhite`}
       >
@@ -46,6 +53,7 @@ function ActionCard({
             <Box borderColor={`${colorMode}.choosePlanHome`} style={styles.dottedBorder} />
           )}
           {icon && icon}
+          {showDot && <Box style={styles.redDot} />}
         </Box>
         <Text numberOfLines={2} medium style={styles.cardName} color={`${colorMode}.primaryText`}>
           {cardName}
@@ -62,7 +70,8 @@ function ActionCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: wp(114),
+    width: wp(104),
+    height: hp(114),
     paddingVertical: hp(10),
     paddingLeft: 10,
     paddingRight: 6,
@@ -94,6 +103,23 @@ const styles = StyleSheet.create({
   cardPillContainer: {
     maxWidth: wp(100),
     alignSelf: 'flex-end',
+  },
+  dot: {
+    height: 7,
+    width: 7,
+    borderRadius: 10,
+    backgroundColor: 'tomato',
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10 / 2,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
 

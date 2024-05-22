@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Icon, ScrollView, useColorMode } from 'native-base';
+import React, { useContext } from 'react';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -12,43 +12,48 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { CommonActions } from '@react-navigation/native';
-import DownArrow from 'src/assets/images/down_arrow.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import MasterKey from 'src/assets/images/master_key.svg';
 
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>Master Recovery Key</Text>
-        <Text style={styles.description}>Backup 12-word seed phrase</Text>
-        <Text style={styles.commonTextStyle}>
-          Each of the vault (multi-key wallet) has configuration details that are needed during
-          recovery.
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyTitle}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyParagraph1}
         </Text>
 
-        <Text style={styles.commonTextStyle}>
-          Your app’s meta data along with all the configuration files are stored on the Keeper cloud
-          server encrypted with the Recovery Key.
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyParagraph2}
         </Text>
-        <Text style={styles.commonTextStyle}>
-          Simply backing up or noting down the Master Recovery Key gives you access to all this data
-          which is updated automatically.
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.masterKeyParagraph3}
         </Text>
         <Box style={styles.circleStyle}>
           <MasterRecoveryKeyIcon />
         </Box>
         <Box mt={5} alignItems={'center'}>
           <DashedButton
-            icon={<DownArrow />}
+            icon={<MasterKey />}
             description="Please view in a private location"
             callback={() => {
               navigation.dispatch(
                 CommonActions.navigate('ExportSeed', {
                   seed: primaryMnemonic,
                   next: true,
+                  isInheritancePlaning: true,
                 })
               );
             }}
@@ -57,13 +62,10 @@ function MasterRecoveryKey({ navigation }) {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            Master Recovery Key also gives access to the app’s hot keys. Please secure the key
-            properly.
-          </Text>
+          <Text color={`${colorMode}.modalGreenContent`}>{inheritancePlanning.masterKeyNote}</Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

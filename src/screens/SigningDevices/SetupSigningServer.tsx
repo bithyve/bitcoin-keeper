@@ -66,7 +66,7 @@ function SetupSigningServer({ route }: { route }) {
 
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
-    const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
+    const { id, isBIP85, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
     const { signer: signingServerKey } = generateSignerFromMetaData({
       xpub,
       derivationPath,
@@ -75,6 +75,7 @@ function SetupSigningServer({ route }: { route }) {
       storageType: SignerStorage.WARM,
       isMultisig: true,
       xfp: id,
+      isBIP85,
       signerPolicy: policy,
     });
 

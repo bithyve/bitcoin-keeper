@@ -6,10 +6,13 @@ import { useDispatch } from 'react-redux';
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import WalletIcon from 'src/assets/images/hexagontile_wallet.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+import TribeWalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
-import CoinsIcon from 'src/assets/images/whirlpool.svg';
+import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -19,22 +22,25 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CardPill from 'src/components/CardPill';
 import ActionCard from 'src/components/ActionCard';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Transactions from './components/Transactions';
-import TransactionFooter from './components/TransactionFooter';
-import LearnMoreModal from './components/LearnMoreModal';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { formatNumber } from 'src/utils/utilities';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import Colors from 'src/theme/Colors';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import LearnMoreModal from './components/LearnMoreModal';
+import TransactionFooter from './components/TransactionFooter';
+import Transactions from './components/Transactions';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -86,6 +92,12 @@ function WalletDetails({ route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
 
+  let isTaprootWallet = false;
+  const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
+  if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
+    isTaprootWallet = true;
+  }
+
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currencyCodeExchangeRate = exchangeRates[currencyCode];
@@ -107,6 +119,25 @@ function WalletDetails({ route }: ScreenProps) {
     setPullRefresh(false);
   };
 
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else if (wallet.entityKind === EntityKind.WALLET) {
+      return (
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.DarkGreen}
+          icon={<WalletIcon />}
+        />
+      );
+    } else if (isWhirlpoolWallet) {
+      return <WhirlpoolAccountIcon />;
+    } else {
+      return <TribeWalletIcon />;
+    }
+  };
+
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <StatusBar barStyle="light-content" />
@@ -122,12 +153,12 @@ function WalletDetails({ route }: ScreenProps) {
           mediumTitle
           subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
           subTitleColor={`${colorMode}.seashellWhite`}
-          icon={isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletIcon />}
+          icon={getWalletIcon(wallet)}
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
             <CardPill
-              heading="SINGLE SIG"
+              heading={isTaprootWallet ? 'TAPROOT' : 'SINGLE SIG'}
               backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
             />
             <CardPill heading={wallet.type} />
@@ -145,7 +176,7 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
-          cardName={'Buy Bitcoin'}
+          cardName="Buy Bitcoin"
           description="into this wallet"
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
@@ -157,7 +188,7 @@ function WalletDetails({ route }: ScreenProps) {
         />
         <ActionCard
           cardName="View All Coins"
-          description="Manage Whirlpool and UTXOs"
+          description="Manage UTXOs"
           callback={() =>
             navigation.navigate('UTXOManagement', {
               data: wallet,

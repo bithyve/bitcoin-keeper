@@ -61,10 +61,12 @@ export interface Signer {
   lastHealthCheck: Date;
   addedOn: Date;
   bip85Config?: BIP85Config;
+  isBIP85?: boolean; // Assisted Keys+ identifier
   signerPolicy?: SignerPolicy; // Signing Server's Signer Policy
   inheritanceKeyInfo?: InheritanceKeyInfo; // IKS config and policy
   hidden: boolean;
   extraData?: SignerExtraData;
+  archived?: boolean;
 }
 
 export type RegisteredVaultInfo = {
@@ -99,6 +101,7 @@ export interface Vault {
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
   archived: boolean;
+  archivedId?: string;
   scriptType: ScriptTypes;
   receivingAddress?: string;
 }

@@ -128,6 +128,7 @@ export type AppStackParams = {
   SignerSettings: undefined;
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
+  HandleFile: undefined;
 };
 
 // Usage:

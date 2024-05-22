@@ -51,7 +51,7 @@ export const genrateOutputDescriptors = (
     )})${includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''}`;
     return des;
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)})${
+  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)}))${
     includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
   }`;
 };
@@ -230,7 +230,6 @@ export const parseTextforVaultConfig = (secret: string) => {
       isMultisig: scheme.n !== 1,
       scheme,
     };
-    console.log(parsedResponse.signersDetails[0]);
     return parsedResponse;
   }
   throw Error('Unsupported format!');

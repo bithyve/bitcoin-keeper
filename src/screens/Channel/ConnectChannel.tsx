@@ -40,6 +40,7 @@ import { createDecipheriv } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
+import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 
 function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
@@ -50,13 +51,15 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
     setChannelCreated(true);
   };
   return !channelCreated ? (
-    <RNCamera
-      autoFocus="on"
-      style={styles.cameraView}
-      captureAudio={false}
-      onBarCodeRead={callback}
-      useNativeZoom
-    />
+    <Box style={styles.qrcontainer}>
+      <RNCamera
+        autoFocus="on"
+        style={styles.cameraView}
+        captureAudio={false}
+        onBarCodeRead={callback}
+        useNativeZoom
+      />
+    </Box>
   ) : (
     <VStack>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
@@ -89,7 +92,7 @@ function ConnectChannel() {
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
-
+  const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { mapUnknownSigner } = useUnkownSigners();
@@ -116,6 +119,9 @@ function ConnectChannel() {
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([bitbox02]));
+          createCreateCanaryWallet(bitbox02);
         } else {
           dispatch(addSigningDevice([bitbox02]));
           const navigationState = addSignerFlow
@@ -146,6 +152,9 @@ function ConnectChannel() {
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([trezor]));
+          createCreateCanaryWallet(trezor);
         } else {
           dispatch(addSigningDevice([trezor]));
           const navigationState = addSignerFlow
@@ -175,6 +184,9 @@ function ConnectChannel() {
           navigation.dispatch(
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([ledger]));
+          createCreateCanaryWallet(ledger);
         } else {
           dispatch(addSigningDevice([ledger]));
           const navigationState = addSignerFlow
@@ -300,6 +312,12 @@ export default ConnectChannel;
 
 const styles = StyleSheet.create({
   container: {
+    marginVertical: 25,
+    alignItems: 'center',
+  },
+  qrcontainer: {
+    borderRadius: 10,
+    overflow: 'hidden',
     marginVertical: 25,
     alignItems: 'center',
   },
