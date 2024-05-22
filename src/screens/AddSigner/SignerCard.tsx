@@ -21,7 +21,7 @@ type SignerCardProps = {
   StaticIcon?: any;
   titleComp?: any;
   colorMode: string;
-  isSiginingServer?: boolean;
+  isFromSiginingList?: boolean;
 };
 
 function SignerCard({
@@ -40,16 +40,15 @@ function SignerCard({
   numberOfLines = 1,
   customStyle,
   colorMode,
-  isSiginingServer = true,
+  isFromSiginingList = true,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.pantoneGreen`;
-  console.log('isSiginingServer && disabled', isSiginingServer && disabled, name);
   return (
     <Pressable
-      disabled={isSiginingServer ? false : disabled}
+      disabled={isFromSiginingList ? false : disabled}
       backgroundColor={
-        isSiginingServer && disabled ? `${colorMode}.disabledColor` : `${colorMode}.seashellWhite`
+        isFromSiginingList && disabled ? `${colorMode}.disabledColor` : `${colorMode}.seashellWhite`
       }
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
