@@ -100,6 +100,7 @@ import {
   DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
+  REFRESH_CANARY_VAULT,
   REINSTATE_VAULT,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
@@ -1003,6 +1004,9 @@ function* refreshWalletsWorker({
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
           specs: synchedWallet.specs,
         });
+        if (synchedWallet.type === VaultType.CANARY) {
+          yield put(uaiChecks([uaiType.CANARAY_WALLET]));
+        }
       } else {
         yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
           specs: synchedWallet.specs,
@@ -1547,3 +1551,27 @@ function* reinstateVaultWorker({ payload }) {
 }
 
 export const reinstateVaultWatcher = createWatcher(reinstateVaultWorker, REINSTATE_VAULT);
+
+function* refreshCanaryWalletsWorker() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const canaryWallets = vaults.filter((vault) => vault.type === VaultType.CANARY);
+    if (canaryWallets.length) {
+      yield call(refreshWalletsWorker, {
+        payload: {
+          wallets: canaryWallets,
+          options: {
+            hardRefresh: true,
+          },
+        },
+      });
+    }
+  } catch (err) {
+    yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
+  }
+}
+
+export const refreshCanaryWalletsWatcher = createWatcher(
+  refreshCanaryWalletsWorker,
+  REFRESH_CANARY_VAULT
+);

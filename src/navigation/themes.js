@@ -131,7 +131,7 @@ export const customTheme = extendTheme({
       // GreenishGrey: Colors.GreenishGrey,
       // Ivory: Colors.Ivory,
       RecoveryBorderColor: Colors.RussetBrownLight,
-      // brownColor: Colors.brownColor,
+      brownColor: Colors.brownColor,
       learMoreTextcolor: Colors.learMoreTextcolor,
       // Linen: Colors.Linen,
       whiteText: Colors.OffWhite,
@@ -163,6 +163,7 @@ export const customTheme = extendTheme({
       darkGrey: Colors.DarkGrey,
       lightSkin: Colors.LightSkin,
       PretitleColor: Colors.LightGreenish,
+      disabledColor: Colors.disabledGrey,
     },
     dark: {
       buttonText: Colors.Black,
@@ -247,7 +248,7 @@ export const customTheme = extendTheme({
       balanceText: Colors.White,
       // GreenishGrey: Colors.GreenishGrey,
       RecoveryBorderColor: Colors.RussetBrownLight,
-      // brownColor: Colors.brownColor,
+      brownColor: Colors.brownColor,
       learMoreTextcolor: Colors.learMoreTextcolor,
       // Linen: Colors.Linen,
       whiteText: Colors.OffWhite,
@@ -280,6 +281,7 @@ export const customTheme = extendTheme({
       // Crayola: Colors.Crayola,
       signerCardPill: Colors.Purple,
       PretitleColor: Colors.RichBlackDark,
+      disabledColor: Colors.disabledGrey,
     },
   },
   config: {

@@ -418,8 +418,7 @@ export default class InheritanceKeyServer {
       inheritanceConfiguration,
       id
     );
-    const { privateKey, publicKey } = generateRSAKeypair();
-
+    const { privateKey, publicKey } = await generateRSAKeypair();
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/fetchIKSBackup`, {
         HEXA_ID,
@@ -470,6 +469,31 @@ export default class InheritanceKeyServer {
     return {
       migrationSuccessful,
       setupData,
+    };
+  };
+
+  static enrichCosignersToSignerMapIKS = async (
+    id: string,
+    cosignersMapIKSUpdates: IKSCosignersMapUpdate[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/enrichCosignersToSignerMapIKS`, {
+        HEXA_ID,
+        id,
+        cosignersMapIKSUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Failed to enrich cosigners to signer map');
+    return {
+      updated,
     };
   };
 }

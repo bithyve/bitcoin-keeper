@@ -216,7 +216,7 @@ function KeeperModal(props: ModalProps) {
                     <Box />
                   )}
                   {!!secondaryButtonText && (
-                    <TouchableOpacity onPress={secondaryCallback}>
+                    <TouchableOpacity onPress={secondaryCallback} testID='modal_secondary_btn'>
                       <Box style={styles.secCta}>
                         <Text style={styles.ctaText} color={secButtonTextColor} medium>
                           {showButtons ? secondaryButtonText : null}
@@ -225,7 +225,7 @@ function KeeperModal(props: ModalProps) {
                     </TouchableOpacity>
                   )}
                   {!!buttonText && (
-                    <TouchableOpacity onPress={buttonCallback}>
+                    <TouchableOpacity onPress={buttonCallback} testID='modal_primary_btn'>
                       <Box backgroundColor={buttonBackground} style={styles.cta}>
                         <Text style={styles.ctaText} color={buttonTextColor} bold>
                           {showButtons ? buttonText : null}
