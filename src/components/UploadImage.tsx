@@ -9,12 +9,16 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
   onPress: () => void;
+  backgroundColor?: string;
 };
 
-function UploadImage({ onPress = () => {} }: Props) {
+function UploadImage({ onPress = () => {}, backgroundColor }: Props) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { importWallet } = translations;
+
+  const bgColor = backgroundColor || `${colorMode}.primaryGreenBackground`;
+
   return (
     <TouchableOpacity
       activeOpacity={0.5}
@@ -24,7 +28,7 @@ function UploadImage({ onPress = () => {} }: Props) {
         alignItems: 'center',
       }}
     >
-      <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
+      <Box backgroundColor={bgColor} style={styles.container}>
         <ImageIcon />
         <Text style={styles.text} color="white">
           {importWallet.uploadFromGallery}

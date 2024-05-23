@@ -394,11 +394,13 @@ function EnterSeedScreen({ route, navigation }) {
           }}
         >
           {isImport && (
-            <Dropdown
-              label={selectedNumberOfWords}
-              options={options}
-              onOptionSelect={selectNumberOfWords}
-            />
+            <Box style={styles.dropdownContainer}>
+              <Dropdown
+                label={selectedNumberOfWords}
+                options={options}
+                onOptionSelect={selectNumberOfWords}
+              />
+            </Box>
           )}
           <FlatList
             ref={ref}
@@ -547,6 +549,9 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     margin: 5,
+  },
+  dropdownContainer: {
+    zIndex: 9999,
   },
 });
 

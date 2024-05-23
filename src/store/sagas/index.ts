@@ -24,6 +24,7 @@ import {
   deleteVaultyWatcher,
   reinstateVaultWatcher,
   refillMobileKeyWatcher,
+  refreshCanaryWalletsWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -111,6 +112,7 @@ const rootSaga = function* () {
     deleteVaultyWatcher,
     reinstateVaultWatcher,
     refillMobileKeyWatcher,
+    refreshCanaryWalletsWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,

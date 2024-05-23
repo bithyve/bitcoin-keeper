@@ -6,9 +6,11 @@ import { UAI } from 'src/models/interfaces/Uai';
 const initialState: {
   refreshUai: boolean;
   uaiActionMap: { [key: string]: boolean };
+  canaryBalanceCache: { [key: string]: number };
 } = {
   refreshUai: true,
   uaiActionMap: {},
+  canaryBalanceCache: {},
 };
 
 const uaiSlice = createSlice({
@@ -29,10 +31,18 @@ const uaiSlice = createSlice({
       const uaiActionMap = { ...state.uaiActionMap, [action.payload]: true };
       state.uaiActionMap = uaiActionMap;
     },
+    updateCanaryBalanceCache: (state, action) => {
+      const canaryBalanceCache = {
+        ...state.canaryBalanceCache,
+        [action.payload.id]: action.payload.balance,
+      };
+      state.canaryBalanceCache = canaryBalanceCache;
+    },
   },
 });
 
-export const { setRefreshUai, createUaiMap, updateUaiActionMap } = uaiSlice.actions;
+export const { setRefreshUai, createUaiMap, updateUaiActionMap, updateCanaryBalanceCache } =
+  uaiSlice.actions;
 
 const uaiPersistConfig = {
   key: 'uai',

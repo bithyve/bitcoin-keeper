@@ -97,7 +97,7 @@ function ManageSigners({ route }: ScreenProps) {
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           rightComponent={
-            <TouchableOpacity onPress={navigateToSettings}>
+            <TouchableOpacity onPress={navigateToSettings} testID='btn_manage_singner_setting'>
               <SettingIcon />
             </TouchableOpacity>
           }
@@ -150,7 +150,7 @@ function SignersList({
   const { signer: signerTranslation } = translations;
   const { level } = useSubscriptionLevel();
   const { showToast } = useToastMessage();
-
+  const isNonVaultManageSignerFlow = !vault; // Manage Signers flow accessible via home screen
   const renderAssistedKeysShell = () => {
     // tier-based, display only, till an actual assisted keys is setup
     const shellAssistedKeys = [];
@@ -243,7 +243,7 @@ function SignersList({
                 name={
                   !signer.isBIP85
                     ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-                    : getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'
+                    : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
                 }
                 description={getSignerDescription(
                   signer.type,
@@ -259,7 +259,7 @@ function SignersList({
               />
             );
           })}
-          {renderAssistedKeysShell()}
+          {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
           {!vaultKeys.length ? (
             <AddCard
               name={signerTranslation.addKey}

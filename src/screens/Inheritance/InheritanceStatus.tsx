@@ -62,7 +62,7 @@ function InheritanceStatus({ route }) {
     }
   }, [activeVault]);
 
-  const disableInheritance = activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5;
+  const disableInheritance = activeVault.scheme.m !== 3 || activeVault.scheme.n !== 4;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

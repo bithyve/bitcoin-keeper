@@ -1792,7 +1792,7 @@ function HardwareModalMap({
         close={() => setConfirmPassVisible(false)}
         title="Enter Passcode"
         subTitleWidth={wp(240)}
-        subTitle="Confirm passcode to delete key"
+        subTitle={'Confirm passcode to generate key'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
