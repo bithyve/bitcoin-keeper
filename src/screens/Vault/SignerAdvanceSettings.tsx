@@ -72,6 +72,7 @@ import SigningServer from 'src/services/backend/SigningServer';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
 
 const { width } = Dimensions.get('screen');
 
@@ -159,6 +160,9 @@ function SignerAdvanceSettings({ route }: any) {
         dispatch(refillMobileKey(vaultKey));
       }
     }
+    return () => {
+      dispatch(resetKeyHealthState());
+    };
   }, []);
 
   const hideKey = () => {

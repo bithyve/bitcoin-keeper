@@ -44,6 +44,7 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -181,6 +182,9 @@ function SignTransactionScreen() {
         dispatch(refillMobileKey(vaultKey));
       }
     });
+    return () => {
+      dispatch(resetKeyHealthState());
+    };
   }, []);
 
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
