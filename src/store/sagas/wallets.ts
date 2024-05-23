@@ -56,6 +56,7 @@ import { generateVault } from 'src/services/wallets/factories/VaultFactory';
 import {
   generateWallet,
   generateWalletSpecsFromMnemonic,
+  getCosignerDetails,
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -67,11 +68,17 @@ import ElectrumClient, {
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import idx from 'idx';
 import _ from 'lodash';
 import { RootState } from '../store';
-import { initiateVaultMigration, vaultCreated, vaultMigrationCompleted } from '../reducers/vaults';
+import {
+  initiateVaultMigration,
+  setKeyHealthCheckError,
+  setKeyHealthCheckLoading,
+  setKeyHealthCheckSuccess,
+  vaultCreated,
+  vaultMigrationCompleted,
+} from '../reducers/vaults';
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
@@ -100,6 +107,7 @@ import {
   DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
+  REFILL_MOBILEKEY,
   REFRESH_CANARY_VAULT,
   REINSTATE_VAULT,
 } from '../sagaActions/vaults';
@@ -1552,6 +1560,48 @@ function* reinstateVaultWorker({ payload }) {
 
 export const reinstateVaultWatcher = createWatcher(reinstateVaultWorker, REINSTATE_VAULT);
 
+function* refillMobileKeyWorker({ payload }) {
+  const { vaultKey } = payload;
+  try {
+    yield put(setKeyHealthCheckLoading(true));
+    const { masterFingerprint, xpriv } = vaultKey;
+    if (!xpriv) {
+      const signerMap = {};
+      const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+      signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+      const keeper: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
+      const { primaryMnemonic } = keeper;
+      const signer = signerMap[masterFingerprint];
+      const details = yield call(
+        getCosignerDetails,
+        primaryMnemonic,
+        signer.extraData.instanceNumber - 1
+      );
+      const xpub = idx(details, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
+      const signerXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      if (xpub === signerXpub) {
+        const { xpriv } = details.xpubDetails[XpubTypes.P2WSH];
+        yield call(updateKeyDetailsWorker, {
+          payload: { signer: signer.signerXpubs[XpubTypes.P2WSH][0], key: 'xpriv', value: xpriv },
+        });
+        yield put(setKeyHealthCheckLoading(false));
+        yield put(setKeyHealthCheckSuccess(true));
+      } else {
+        yield put(setKeyHealthCheckLoading(false));
+        yield put(
+          setKeyHealthCheckError('Key seems to be currupted, please deleta and re-add it.')
+        );
+      }
+    } else {
+      yield put(setKeyHealthCheckLoading(false));
+    }
+  } catch (err) {
+    yield put(setKeyHealthCheckLoading(false));
+    captureError(err);
+  }
+}
+
+export const refillMobileKeyWatcher = createWatcher(refillMobileKeyWorker, REFILL_MOBILEKEY);
 function* refreshCanaryWalletsWorker() {
   try {
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);

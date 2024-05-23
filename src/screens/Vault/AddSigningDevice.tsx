@@ -53,38 +53,6 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
-const getKeyForScheme = (isMultisig, signer, msXpub, ssXpub, amfXpub) => {
-  if (amfXpub) {
-    return {
-      ...amfXpub,
-      masterFingerprint: signer.masterFingerprint,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(
-        amfXpub.xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      ),
-    };
-  }
-  if (isMultisig) {
-    return {
-      ...msXpub,
-      masterFingerprint: signer.masterFingerprint,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(
-        msXpub.xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      ),
-    };
-  } else {
-    return {
-      ...ssXpub,
-      masterFingerprint: signer.masterFingerprint,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(
-        ssXpub.xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      ),
-    };
-  }
-};
-
 const onSignerSelect = (
   selected,
   signer: Signer,
@@ -126,7 +94,7 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
-    const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
+    const scriptKey = WalletUtilities.getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
     const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
@@ -237,7 +205,13 @@ const setInitialKeys = (
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
           const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
-          const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
+          const scriptKey = WalletUtilities.getKeyForScheme(
+            isMultisig,
+            signer,
+            msXpub,
+            ssXpub,
+            amfXpub
+          );
           if (scriptKey) {
             modifiedVaultKeysForScriptType.push(scriptKey);
           }
