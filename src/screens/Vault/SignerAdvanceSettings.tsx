@@ -48,10 +48,10 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
-import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import { addNewVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, refillMobileKey } from 'src/store/sagaActions/vaults';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useCanaryVault from 'src/hooks/useCanaryWallets';
@@ -152,6 +152,14 @@ function SignerAdvanceSettings({ route }: any) {
       }
     }
   });
+
+  useEffect(() => {
+    if (vaultId && vaultKey) {
+      if (signer.type === SignerType.MY_KEEPER && !vaultKey.xpriv) {
+        dispatch(refillMobileKey(vaultKey));
+      }
+    }
+  }, []);
 
   const hideKey = () => {
     dispatch(updateSignerDetails(signer, 'hidden', true));
@@ -456,31 +464,7 @@ function SignerAdvanceSettings({ route }: any) {
       let signedSerialisedPSBT;
       try {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        if (!key.xpriv) {
-          // generate xpriv that was missed during migrations
-          const { primaryMnemonic } = keeper;
-          const details = await getCosignerDetails(
-            primaryMnemonic,
-            signer.extraData.instanceNumber - 1
-          );
-          const xpub = idx(details, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
-          const signerXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
-          if (xpub === signerXpub) {
-            const { xpriv } = details.xpubDetails[XpubTypes.P2WSH];
-            signedSerialisedPSBT = signCosignerPSBT(xpriv, serializedPSBT);
-            dispatch(
-              updateKeyDetails(
-                signer.signerXpubs[XpubTypes.P2WSH][0] as VaultSigner,
-                'xpriv',
-                xpriv
-              )
-            );
-          } else {
-            showToast('There are some key detials missing, please add the key again and retry');
-          }
-        } else {
-          signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
-        }
+        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
       } catch (e) {
         showToast(e.message);
         captureError(e);

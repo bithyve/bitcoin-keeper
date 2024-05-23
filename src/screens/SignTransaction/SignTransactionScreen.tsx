@@ -12,7 +12,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
-import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
+import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import idx from 'idx';
@@ -173,6 +173,15 @@ function SignTransactionScreen() {
     }
     return false;
   };
+
+  useEffect(() => {
+    vaultKeys.forEach((vaultKey) => {
+      const signer = signerMap[vaultKey.masterFingerprint];
+      if (signer.type === SignerType.MY_KEEPER && !vaultKey.xpriv) {
+        dispatch(refillMobileKey(vaultKey));
+      }
+    });
+  }, []);
 
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();

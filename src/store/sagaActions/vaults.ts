@@ -1,4 +1,4 @@
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { NewVaultInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -53,7 +53,7 @@ export const reinstateVault = (payload: string) => ({
   payload: { vaultId: payload },
 });
 
-export const refillMobileKey = (payload: string) => ({
+export const refillMobileKey = (payload: VaultSigner) => ({
   type: REFILL_MOBILEKEY,
   payload: { vaultKey: payload },
 });
