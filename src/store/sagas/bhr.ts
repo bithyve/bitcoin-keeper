@@ -90,8 +90,8 @@ export function* updateAppImageWorker({
     }
   } else if (signers) {
     for (const signer of signers) {
-      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[signer.masterFingerprint] = encrytedWallet;
+      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+      signersObjects[signer.masterFingerprint] = encrytedSigner;
     }
   } else {
     // update all wallets and signers

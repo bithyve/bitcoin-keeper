@@ -11,6 +11,7 @@ export const DELETE_VAULT = 'DELETE_VAULT';
 export const REINSTATE_VAULT = 'REINSTATE_VAULT';
 export const REFILL_MOBILEKEY = 'REFILL_MOBILEKEY';
 export const REFRESH_CANARY_VAULT = 'REFRESH_CANARY_VAULT';
+export const MERGER_SIMILAR_KEYS = 'MERGER_SIMILAR_KEYS';
 
 export const addNewVault = (payload: {
   newVaultInfo: NewVaultInfo;
@@ -60,4 +61,9 @@ export const refillMobileKey = (payload: VaultSigner) => ({
 
 export const refreshCanaryWallets = () => ({
   type: REFRESH_CANARY_VAULT,
+});
+
+export const mergeSimilarKeys = (signer: Signer) => ({
+  type: MERGER_SIMILAR_KEYS,
+  payload: { signer },
 });

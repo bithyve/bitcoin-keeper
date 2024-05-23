@@ -106,6 +106,7 @@ import {
   DELETE_SIGINING_DEVICE,
   DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
+  MERGER_SIMILAR_KEYS,
   MIGRATE_VAULT,
   REFILL_MOBILEKEY,
   REFRESH_CANARY_VAULT,
@@ -1625,3 +1626,35 @@ export const refreshCanaryWalletsWatcher = createWatcher(
   refreshCanaryWalletsWorker,
   REFRESH_CANARY_VAULT
 );
+
+function* mergeSimilarKeysWorker({ payload }) {
+  try {
+    const { signer } = payload;
+    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const similarSigners = signers.filter((s) => s.type === signer.type);
+    for (let i = 0; i < similarSigners.length; i++) {
+      const s = similarSigners[i];
+      const p2wpkh = idx(s, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const p2wsh = idx(s, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const signerp2wpkh = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const signerp2wsh = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      if (
+        p2wpkh === signerp2wpkh &&
+        p2wsh === signerp2wsh &&
+        s.masterFingerprint !== signer.masterFingerprint
+      ) {
+        yield call(updateSignerDetailsWorker, {
+          payload: {
+            signer: s,
+            key: 'masterFingerprint',
+            value: signer.masterFingerprint,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    captureError(err);
+  }
+}
+
+export const mergeSimilarKeysWatcher = createWatcher(mergeSimilarKeysWorker, MERGER_SIMILAR_KEYS);
