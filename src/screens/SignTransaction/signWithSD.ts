@@ -167,6 +167,6 @@ export const signTransactionWithSeedWords = async ({
     );
     return { signedSerializedPSBT };
   } catch (err) {
-    Alert.alert(err);
+    Alert.alert(err?.message);
   }
 };
