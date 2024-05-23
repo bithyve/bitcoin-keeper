@@ -109,7 +109,6 @@ function ManageWallets() {
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showWalletBalanceAlert, setShowWalletBalanceAlert] = useState(false);
-  const [showVaultBalanceAlert, setShowVaultBalanceAlert] = useState(false);
   const [showDeleteVaultBalanceAlert, setShowDeleteVaultBalanceAlert] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [confirmPasscodeVisible, setConfirmPasscodeVisible] = useState(false);
@@ -122,6 +121,8 @@ function ManageWallets() {
   useEffect(() => {
     calculateBalanceAfterVisblityChange();
   }, [wallets]);
+
+  const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
 
   const calculateBalanceAfterVisblityChange = () => {
     const nonHiddenWallets = wallets.filter(
@@ -169,13 +170,9 @@ function ManageWallets() {
     const isWallet = entityKind === EntityKind.WALLET;
 
     if (hide && checkBalance && specs.balances.confirmed + specs.balances.unconfirmed > 0) {
-      if (isWallet) {
-        setShowWalletBalanceAlert(true);
-        setSelectedWallet(wallet);
-      } else {
-        setShowVaultBalanceAlert(true);
-        setSelectedWallet(wallet);
-      }
+      setShowWalletBalanceAlert(true);
+      setSelectedWallet(wallet);
+
       return;
     }
 
@@ -221,7 +218,12 @@ function ManageWallets() {
           <TouchableOpacity
             onPress={() => {
               setShowWalletBalanceAlert(false);
-              navigation.dispatch(CommonActions.navigate('Send', { sender: selectedWallet }));
+              navigation.dispatch(
+                CommonActions.navigate('Send', {
+                  sender: selectedWallet,
+                  isFromManageWallets: true,
+                })
+              );
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
@@ -237,45 +239,6 @@ function ManageWallets() {
     );
   }
 
-  function VaultBalanceAlertModalContent() {
-    return (
-      <Box style={styles.modalContainer}>
-        <Text
-          color={`${colorMode}.secondaryText`}
-          style={styles.unhideText}
-        >{`You can unhide this vault anytime from App Settings >Manage Wallets > Unhide`}</Text>
-        <Box style={styles.BalanceModalContainer}>
-          <TouchableOpacity
-            style={styles.cancelBtn}
-            onPress={() => {
-              updateWalletVisibility(selectedWallet, true, false);
-              setShowVaultBalanceAlert(false);
-            }}
-            activeOpacity={0.5}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              Continue to Hide
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              setShowVaultBalanceAlert(false);
-              navigation.dispatch(CommonActions.navigate('Send', { sender: selectedWallet }));
-            }}
-          >
-            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
-                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
-                  Move Funds
-                </Text>
-              </Box>
-            </Shadow>
-          </TouchableOpacity>
-        </Box>
-      </Box>
-    );
-  }
   const getWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
@@ -285,12 +248,14 @@ function ManageWallets() {
   };
 
   function DeleteVaultBalanceAlertModalContent() {
+    const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
     return (
       <Box style={styles.modalContainer}>
-        <Text
-          color={`${colorMode}.secondaryText`}
-          style={styles.unhideText}
-        >{`To delete this vault, please transfer your funds to another wallet or vault first.`}</Text>
+        <Text color={`${colorMode}.secondaryText`} style={styles.unhideText}>
+          {`To delete this ${
+            isWallet ? 'wallet' : 'vault'
+          }, please transfer your funds to another wallet or vault first.`}
+        </Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
@@ -308,7 +273,12 @@ function ManageWallets() {
           <TouchableOpacity
             onPress={() => {
               setShowDeleteVaultBalanceAlert(false);
-              navigation.dispatch(CommonActions.navigate('Send', { sender: selectedWallet }));
+              navigation.dispatch(
+                CommonActions.navigate('Send', {
+                  sender: selectedWallet,
+                  isFromManageWallets: true,
+                })
+              );
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
@@ -393,24 +363,11 @@ function ManageWallets() {
           setShowWalletBalanceAlert(false);
         }}
         visible={showWalletBalanceAlert}
-        title="You have funds in your wallet"
-        subTitle="You have sats in your wallet. Are you sure you want to hide it?"
+        title={`You have funds in your ${isWallet ? 'wallet' : 'vault'}`}
+        subTitle={`You have sats in your ${
+          isWallet ? 'wallet' : 'vault'
+        }. Are you sure you want to hide it?`}
         Content={WalletBalanceAlertModalContent}
-        subTitleColor={`${colorMode}.secondaryText`}
-        subTitleWidth={wp(240)}
-        closeOnOverlayClick={false}
-        showButtons
-        showCloseIcon={false}
-      />
-      <KeeperModal
-        dismissible
-        close={() => {
-          setShowVaultBalanceAlert(false);
-        }}
-        visible={showVaultBalanceAlert}
-        title="You have funds in your vault"
-        subTitle="You have sats in your vault. Are you sure you want to hide it?"
-        Content={VaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={false}
@@ -423,8 +380,10 @@ function ManageWallets() {
           setShowDeleteVaultBalanceAlert(false);
         }}
         visible={showDeleteVaultBalanceAlert}
-        title="You have funds in your vault"
-        subTitle="You have sats in your vault. Are you sure you want to delete it?"
+        title={`You have funds in your ${isWallet ? 'wallet' : 'vault'}`}
+        subTitle={`You have sats in your ${
+          isWallet ? 'wallet' : 'vault'
+        }. Are you sure you want to delete it?`}
         Content={DeleteVaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
