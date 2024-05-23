@@ -19,11 +19,14 @@ import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
 import Note from 'src/components/Note/Note';
+import { refillMobileKey } from 'src/store/sagaActions/vaults';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import idx from 'idx';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -223,6 +226,16 @@ function ExportSeedScreen({ route, navigation }) {
                 }
                 if (signer.type === SignerType.MY_KEEPER) {
                   dispatch(healthCheckSigner([signer]));
+                  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+                  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+                  const vaultSigner = WalletUtilities.getKeyForScheme(
+                    true,
+                    signer,
+                    msXpub,
+                    ssXpub,
+                    null
+                  );
+                  dispatch(refillMobileKey(vaultSigner));
                   navigation.dispatch(CommonActions.goBack());
                   showToast('Keeper Verified Successfully', <TickIcon />);
                 }

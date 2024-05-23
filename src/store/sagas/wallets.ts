@@ -1565,10 +1565,10 @@ function* refillMobileKeyWorker({ payload }) {
   try {
     yield put(setKeyHealthCheckLoading(true));
     const { masterFingerprint, xpriv } = vaultKey;
-    const signerMap = {};
-    const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
     if (!xpriv) {
+      const signerMap = {};
+      const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+      signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
       const keeper: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
       const { primaryMnemonic } = keeper;
       const signer = signerMap[masterFingerprint];
@@ -1592,8 +1592,13 @@ function* refillMobileKeyWorker({ payload }) {
           setKeyHealthCheckError('Key seems to be currupted, please deleta and re-add it.')
         );
       }
+    } else {
+      yield put(setKeyHealthCheckLoading(false));
     }
-  } catch (err) {}
+  } catch (err) {
+    yield put(setKeyHealthCheckLoading(false));
+    captureError(err);
+  }
 }
 
 export const refillMobileKeyWatcher = createWatcher(refillMobileKeyWorker, REFILL_MOBILEKEY);
