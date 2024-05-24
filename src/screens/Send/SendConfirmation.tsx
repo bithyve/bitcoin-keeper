@@ -209,7 +209,7 @@ function SendingCard({
             title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
               sender?.specs?.balances?.confirmed || 0
-            )}${getSatUnit()}`}
+            )} ${getSatUnit()}`}
           />
         ) : (
           <Card

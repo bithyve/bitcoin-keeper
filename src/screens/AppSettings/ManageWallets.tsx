@@ -39,6 +39,7 @@ import ShowAllIcon from 'src/assets/images/show_wallet.svg';
 import HideAllIcon from 'src/assets/images/hide_wallet.svg';
 import usePlan from 'src/hooks/usePlan';
 import { deleteAppImageEntity } from 'src/store/sagaActions/bhr';
+import { MANAGEWALLETS } from 'src/navigation/contants';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -221,7 +222,7 @@ function ManageWallets() {
               navigation.dispatch(
                 CommonActions.navigate('Send', {
                   sender: selectedWallet,
-                  isFromManageWallets: true,
+                  parentScreen: MANAGEWALLETS,
                 })
               );
             }}

@@ -59,10 +59,10 @@ function SendScreen({ route }) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
 
-  const { sender, selectedUTXOs, isFromManageWallets } = route.params as {
+  const { sender, selectedUTXOs, parentScreen } = route.params as {
     sender: Wallet | Vault;
     selectedUTXOs?: UTXO[];
-    isFromManageWallets?: boolean;
+    parentScreen?: string;
   };
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
@@ -168,7 +168,7 @@ function SendScreen({ route }) {
       amount,
       transferType,
       selectedUTXOs,
-      isFromManageWallets,
+      parentScreen,
     });
   };
 

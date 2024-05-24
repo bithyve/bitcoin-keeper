@@ -40,6 +40,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { MANAGEWALLETS } from 'src/navigation/contants';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -54,7 +55,7 @@ function AddSendAmount({ route }) {
     amount: prefillAmount,
     transferType,
     selectedUTXOs = [],
-    isFromManageWallets,
+    parentScreen,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -62,7 +63,7 @@ function AddSendAmount({ route }) {
     amount: string;
     transferType: TransferType;
     selectedUTXOs: UTXO[];
-    isFromManageWallets?: boolean;
+    parentScreen?: string;
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
@@ -87,6 +88,8 @@ function AddSendAmount({ route }) {
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
+  console.log(MANAGEWALLETS);
+  const isFromManageWallets = parentScreen === MANAGEWALLETS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
