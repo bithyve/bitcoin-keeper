@@ -277,7 +277,7 @@ function ManageWallets() {
               navigation.dispatch(
                 CommonActions.navigate('Send', {
                   sender: selectedWallet,
-                  isFromManageWallets: true,
+                  parentScreen: MANAGEWALLETS,
                 })
               );
             }}
