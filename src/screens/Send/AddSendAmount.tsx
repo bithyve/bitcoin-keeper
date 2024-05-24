@@ -88,7 +88,6 @@ function AddSendAmount({ route }) {
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
-  console.log(MANAGEWALLETS);
   const isFromManageWallets = parentScreen === MANAGEWALLETS;
 
   function convertFiatToSats(fiatAmount: number) {
