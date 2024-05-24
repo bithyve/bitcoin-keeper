@@ -969,6 +969,24 @@ function HardwareModalMap({
     );
   };
 
+  const importSeedWordsBasedKey = (mnemonic) => {
+    try {
+      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+      dispatch(addSigningDevice([signer]));
+      const navigationState = addSignerFlow
+        ? { name: 'ManageSigners' }
+        : { name: 'AddSigningDevice', merge: true, params: {} };
+      navigation.dispatch(CommonActions.navigate(navigationState));
+      showToast(
+        `${signer.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
+    } catch (err) {
+      Alert.alert(err?.message);
+    }
+  };
+
   const navigateToSeedWordSetup = (isImport = false) => {
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
@@ -985,17 +1003,21 @@ function HardwareModalMap({
             next: true,
             isHealthcheck,
             onSuccess: (mnemonic) => {
-              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice([signer]));
-              const navigationState = addSignerFlow
-                ? { name: 'ManageSigners' }
-                : { name: 'AddSigningDevice', merge: true, params: {} };
-              navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(
-                `${signer.signerName} added successfully`,
-                <TickIcon />,
-                IToastCategory.SIGNING_DEVICE
-              );
+              try {
+                const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+                dispatch(addSigningDevice([signer]));
+                const navigationState = addSignerFlow
+                  ? { name: 'ManageSigners' }
+                  : { name: 'AddSigningDevice', merge: true, params: {} };
+                navigation.dispatch(CommonActions.navigate(navigationState));
+                showToast(
+                  `${signer.signerName} added successfully`,
+                  <TickIcon />,
+                  IToastCategory.SIGNING_DEVICE
+                );
+              } catch (err) {
+                showToast(err?.message, <ToastErrorIcon />);
+              }
             },
             addSignerFlow,
           },
@@ -1022,19 +1044,7 @@ function HardwareModalMap({
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
             addSignerFlow,
-            importSeedCta: (mnemonic) => {
-              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice([signer]));
-              const navigationState = addSignerFlow
-                ? { name: 'ManageSigners' }
-                : { name: 'AddSigningDevice', merge: true, params: {} };
-              navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(
-                `${signer.signerName} added successfully`,
-                <TickIcon />,
-                IToastCategory.SIGNING_DEVICE
-              );
-            },
+            importSeedCta: importSeedWordsBasedKey,
           },
         })
       );
@@ -1792,7 +1802,7 @@ function HardwareModalMap({
         close={() => setConfirmPassVisible(false)}
         title="Enter Passcode"
         subTitleWidth={wp(240)}
-        subTitle={'Confirm passcode to generate key'}
+        subTitle="Confirm passcode to generate key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

@@ -37,6 +37,9 @@ export type VaultState = {
   whirlpoolIntro: boolean;
   tempShellId: string;
   backupBSMSForIKS: boolean;
+  keyHeathCheckSuccess: boolean;
+  keyHeathCheckError: string;
+  keyHeathCheckLoading: boolean;
 };
 
 export type SignerUpdatePayload = {
@@ -58,6 +61,9 @@ const initialState: VaultState = {
   whirlpoolIntro: true,
   tempShellId: null,
   backupBSMSForIKS: false,
+  keyHeathCheckSuccess: false,
+  keyHeathCheckError: null,
+  keyHeathCheckLoading: false,
 };
 
 const vaultSlice = createSlice({
@@ -116,6 +122,22 @@ const vaultSlice = createSlice({
     setBackupBSMSForIKS: (state, action: PayloadAction<boolean>) => {
       state.backupBSMSForIKS = action.payload;
     },
+    setKeyHealthCheckSuccess: (state, action: PayloadAction<boolean>) => {
+      state.keyHeathCheckLoading = false;
+      state.keyHeathCheckSuccess = action.payload;
+    },
+    setKeyHealthCheckError: (state, action: PayloadAction<string>) => {
+      state.keyHeathCheckLoading = false;
+      state.keyHeathCheckError = action.payload;
+    },
+    setKeyHealthCheckLoading: (state, action: PayloadAction<boolean>) => {
+      state.keyHeathCheckLoading = action.payload;
+    },
+    resetKeyHealthState: (state) => {
+      state.keyHeathCheckLoading = false;
+      state.keyHeathCheckSuccess = false;
+      state.keyHeathCheckError = null;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_VAULT, (state) => {
@@ -135,6 +157,10 @@ export const {
   setTempShellId,
   setBackupBSMSForIKS,
   resetVaultFlags,
+  setKeyHealthCheckSuccess,
+  setKeyHealthCheckError,
+  setKeyHealthCheckLoading,
+  resetKeyHealthState,
 } = vaultSlice.actions;
 
 const vaultPersistConfig = {
@@ -148,6 +174,9 @@ const vaultPersistConfig = {
     'whirlpoolIntro',
     'tempShellId',
     'backupBSMSForIKS',
+    'keyHeathCheckSuccess',
+    'keyHeathCheckError',
+    'keyHeathCheckLoading',
   ],
 };
 

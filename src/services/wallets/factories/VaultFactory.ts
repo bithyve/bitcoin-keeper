@@ -184,6 +184,9 @@ export const generateSeedWordsKey = (
   derivationPath: string;
   masterFingerprint: string;
 } => {
+  const isValid = bip39.validateMnemonic(mnemonic);
+  if (!isValid) throw new Error('Invalid Mnemonic');
+
   const seed = bip39.mnemonicToSeedSync(mnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
 
