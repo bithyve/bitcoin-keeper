@@ -59,7 +59,6 @@ function ExportSeedScreen({ route, navigation }) {
   const [showQRVisible, setShowQRVisible] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
-  const seedText = translations.seed;
   useEffect(() => {
     if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
@@ -111,11 +110,11 @@ function ExportSeedScreen({ route, navigation }) {
         title={
           isFromAssistedKey
             ? vaultTranslation.backingUpMnemonicTitle
-            : next
-            ? 'Recovery Key'
-            : seedText.walletSeedWords
+            : seedTranslation.walletSeedWords
         }
-        subtitle={isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedText.SeedDesc}
+        subtitle={
+          isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedTranslation.SeedDesc
+        }
       />
 
       <Box style={{ flex: 1 }}>
@@ -237,7 +236,7 @@ function ExportSeedScreen({ route, navigation }) {
                   );
                   dispatch(refillMobileKey(vaultSigner));
                   navigation.dispatch(CommonActions.goBack());
-                  showToast('Keeper Verified Successfully', <TickIcon />);
+                  showToast(seedTranslation.keeperVerified, <TickIcon />);
                 }
               } else {
                 dispatch(seedBackedUp());
@@ -254,7 +253,7 @@ function ExportSeedScreen({ route, navigation }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonText="Done"
+        buttonText={common.done}
         buttonCallback={() => navigation.replace('WalletBackHistory')}
         Content={() => (
           <Box>
