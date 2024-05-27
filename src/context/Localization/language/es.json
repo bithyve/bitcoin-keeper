@@ -476,7 +476,12 @@
     "tapRootPrivacyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
     "tapRootEfficiencyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
     "tapRootScalableDesc": "Taproot introduces Merkleized Abstract Syntax Trees (MAST), allowing the creation of more complex spending conditions.",
-    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security."
+    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security.",
+    "createNew:": "Create New",
+    "singleMultiKey": "Single or multi-key",
+    "import": "Import",
+    "recoverRecreate": "Recover or recreate",
+    "CustomMultiKey": "Custom Multi-key"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
