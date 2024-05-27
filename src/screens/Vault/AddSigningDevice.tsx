@@ -778,8 +778,8 @@ function AddSigningDevice() {
         showButtons
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}

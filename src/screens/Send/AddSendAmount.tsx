@@ -40,6 +40,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { MANAGEWALLETS } from 'src/navigation/contants';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -54,6 +55,7 @@ function AddSendAmount({ route }) {
     amount: prefillAmount,
     transferType,
     selectedUTXOs = [],
+    parentScreen,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -61,6 +63,7 @@ function AddSendAmount({ route }) {
     amount: string;
     transferType: TransferType;
     selectedUTXOs: UTXO[];
+    parentScreen?: string;
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
@@ -85,6 +88,7 @@ function AddSendAmount({ route }) {
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
+  const isFromManageWallets = parentScreen === MANAGEWALLETS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -153,6 +157,22 @@ function AddSendAmount({ route }) {
   useEffect(() => {
     onSendMax(sendMaxFee, selectedUTXOs.length);
   }, [sendMaxFee, selectedUTXOs.length]);
+
+  useEffect(() => {
+    if (isFromManageWallets) {
+      if (sendMaxFee) {
+        onSendMax(sendMaxFee, selectedUTXOs);
+      } else {
+        dispatch(
+          calculateSendMaxFee({
+            numberOfRecipients: recipientCount,
+            wallet: sender,
+            selectedUTXOs,
+          })
+        );
+      }
+    }
+  }, [isFromManageWallets, sendMaxFee, selectedUTXOs]);
 
   const navigateToNext = () => {
     navigation.dispatch(
@@ -343,6 +363,7 @@ function AddSendAmount({ route }) {
                   letterSpacing={1.04}
                   borderWidth="0"
                   value={amount}
+                  isDisabled={isFromManageWallets}
                   onChangeText={(value) => {
                     if (!isNaN(Number(value))) {
                       setAmount(
