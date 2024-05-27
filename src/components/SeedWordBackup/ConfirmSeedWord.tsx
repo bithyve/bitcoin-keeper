@@ -109,7 +109,7 @@ function ConfirmSeedWord(props) {
           autoCapitalize="none"
           keyboardType="name-phone-pad"
           onChangeText={(value) => {
-            setSeedWord(value.trim());
+            setSeedWord(value.toLowerCase().trim());
             setInvalid(false);
           }}
           fontWeight={seedWord ? 500 : 200}
