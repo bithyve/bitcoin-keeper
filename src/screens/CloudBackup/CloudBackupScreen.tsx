@@ -28,7 +28,7 @@ function CloudBackupScreen() {
   const dispatch = useAppDispatch();
   const strings = translations.cloudBackup;
   const data: BackupHistory = useQuery(RealmSchema.CloudBackupHistory);
-  const history = useMemo(() => data.sorted('date', true), [data]);
+  const history = useMemo(() => data.slice().reverse(), [data]);
   const { showToast } = useToastMessage();
   const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
