@@ -101,7 +101,10 @@
     "needMoreHelp": "Need more help?",
     "action": "Action",
     "commingSoon": "COMING SOON",
-    "signerFingerPrint": "Signer Fingerprint"
+    "signerFingerPrint": "Signer Fingerprint",
+    "coSigner": "cosigner",
+    "added": "Added",
+    "collaborativeWallet": "Collaborative Wallet"
   },
   "noInternet": {
     "no": "No Internet",
@@ -481,7 +484,18 @@
     "singleMultiKey": "Single or multi-key",
     "import": "Import",
     "recoverRecreate": "Recover or recreate",
-    "CustomMultiKey": "Custom Multi-key"
+    "CustomMultiKey": "Custom Multi-key",
+    "AddCoSigner": "Add a co-signer",
+    "ScanQRData": "Please scan until all the QR data has been retrieved",
+    "AddingKey": "Adding your key...",
+    "CoSignerExists": "This co-signer has already been added",
+    "SelfKeyError": "You cannot use more than one of your own Mobile Keys!",
+    "CollabWalletError": "Error creating collaborative wallet",
+    "Desc2of3": "2-of-3 Multi-key",
+    "CollaborativeWalletCreated": "A 2 of 3 collaborative wallet will be created",
+    "WalletCreated": "Wallet Created Successfully!",
+    "CollaborativeWalletSubtitle": "A collaborative with three App Keys on three separate devices.",
+    "CollaborativeWalletDesc": "You should ensure you have a copy of the wallet configuration file for this vault"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

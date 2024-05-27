@@ -101,7 +101,10 @@
     "needMoreHelp": "Need more help?",
     "action": "Action",
     "commingSoon": "COMING SOON",
-    "signerFingerPrint": "Signer Fingerprint"
+    "signerFingerPrint": "Signer Fingerprint",
+    "coSigner": "cosigner",
+    "added": "Added",
+    "collaborativeWallet": "Collaborative Wallet"
   },
   "noInternet": {
     "no": "No Internet",
@@ -310,8 +313,6 @@
     "KeySecurity": "Key\nSecurity",
     "BackupAndRecovery": "Backup and\nRecovery",
     "InheritanceDocuments": "Inheritance\nDocuments",
-    "BackupAndRecovery": "Backup and\nRecovery",
-    "InheritanceDocuments": "Inheritance\nDocuments",
     "learnMoreTitle": "Give away your bitcoin safely\n",
     "learnMoreSubTitle": "Plan your bitcoin Inheritance using the tools and templates offered here. These tools are meant to act as guardrails. Protecting your interests while still allowing you to customize an inheritance plan that works best for you and your heir.",
     "learnMoreDescription": "Use the templates to speak with your estate planner, friends and family to set up your inheritance. Optionally, use the inheritance key as an extra security measure to protect the vault you wish to bequeath to your heir."
@@ -481,7 +482,18 @@
     "singleMultiKey": "Single or multi-key",
     "import": "Import",
     "recoverRecreate": "Recover or recreate",
-    "CustomMultiKey": "Custom Multi-key"
+    "CustomMultiKey": "Custom Multi-key",
+    "AddCoSigner": "Add a co-signer",
+    "ScanQRData": "Please scan until all the QR data has been retrieved",
+    "AddingKey": "Adding your key...",
+    "CoSignerExists": "This co-signer has already been added",
+    "SelfKeyError": "You cannot use more than one of your own Mobile Keys!",
+    "CollabWalletError": "Error creating collaborative wallet",
+    "Desc2of3": "2-of-3 Multi-key",
+    "CollaborativeWalletCreated": "A 2 of 3 collaborative wallet will be created",
+    "WalletCreated": "Wallet Created Successfully!",
+    "CollaborativeWalletSubtitle": "A collaborative with three App Keys on three separate devices.",
+    "CollaborativeWalletDesc": "You should ensure you have a copy of the wallet configuration file for this vault"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
