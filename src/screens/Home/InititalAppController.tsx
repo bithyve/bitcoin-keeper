@@ -15,6 +15,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { resetVaultMigration } from 'src/store/reducers/vaults';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -138,6 +139,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         });
       }
     });
+  }, []);
+
+  // cleanup instances on app start
+  useEffect(() => {
+    dispatch(resetVaultMigration());
   }, []);
 
   return null;
