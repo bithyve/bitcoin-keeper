@@ -64,12 +64,14 @@ function Footer({
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const footerItems = vault.archived
     ? [
         {
           Icon: ImportIcon,
-          text: 'Reinstate',
+          text: common.reinstate,
           onPress: () => {
             dispatch(reinstateVault(vault.id));
             showToast('Vault reinstated successfully', <TickIcon />);
@@ -79,14 +81,14 @@ function Footer({
     : [
         {
           Icon: SendIcon,
-          text: 'Send',
+          text: common.send,
           onPress: () => {
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           },
         },
         {
           Icon: RecieveIcon,
-          text: 'Receive',
+          text: common.receive,
           onPress: () => {
             if (pendingHealthCheckCount >= vault.scheme.m) {
               setShowHealthCheckModal(true);
@@ -97,7 +99,7 @@ function Footer({
         },
         {
           Icon: SettingIcon,
-          text: 'Settings',
+          text: common.settings,
           onPress: () => {
             navigation.dispatch(
               CommonActions.navigate(
@@ -113,6 +115,8 @@ function Footer({
 
 function VaultInfo({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
@@ -123,14 +127,16 @@ function VaultInfo({ vault }: { vault: Vault }) {
     <HStack style={styles.vaultInfoContainer}>
       <HStack style={styles.pillsContainer}>
         <CardPill
-          heading={`${vault.scheme.m} of ${vault.scheme.n}`}
+          heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
           backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
         />
         <CardPill
-          heading={`${vault.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`}
+          heading={`${
+            vault.type === VaultType.COLLABORATIVE ? common.COLLABORATIVE : common.VAULT
+          }`}
         />
-        {vault.type === VaultType.CANARY && <CardPill heading={'CANARY'} />}
-        {vault.archived ? <CardPill heading={`ARCHIVED`} backgroundColor="grey" /> : null}
+        {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
+        {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
       </HStack>
       <CurrencyInfo
         hideAmounts={false}
@@ -235,19 +241,27 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <Box style={styles.alignSelf}>
           <VaultSetupIcon />
         </Box>
-        <Text color="white" style={styles.modalContent}>
-          {isCollaborativeWallet
-            ? vaultTranslation.walletSetupDetails
-            : vaultTranslation.keeperSupportSigningDevice}
-        </Text>
-        {!isCollaborativeWallet ? (
-          <Text color="white" style={styles.descText}>
-            {vaultTranslation.additionalOptionForSignDevice}
+        {isCanaryWallet ? (
+          <Text color="white" style={styles.modalContent}>
+            {vaultTranslation.canaryLearnMoreDesc}
           </Text>
-        ) : null}
+        ) : (
+          <>
+            <Text color="white" style={styles.modalContent}>
+              {isCollaborativeWallet
+                ? vaultTranslation.walletSetupDetails
+                : vaultTranslation.keeperSupportSigningDevice}
+            </Text>
+            {!isCollaborativeWallet && (
+              <Text color="white" style={styles.descText}>
+                {vaultTranslation.additionalOptionForSignDevice}
+              </Text>
+            )}
+          </>
+        )}
       </View>
     ),
-    [isCollaborativeWallet]
+    [isCollaborativeWallet, isCanaryWallet]
   );
 
   const isHealthCheckPending = (signer, vaultKeys, vault) => {
@@ -358,8 +372,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <HStack style={styles.actionCardContainer}>
           {!isCanaryWallet && (
             <ActionCard
-              cardName={'Buy Bitcoin'}
-              description="into this wallet"
+              cardName={common.buyBitCoin}
+              description={common.inToThisWallet}
               callback={() =>
                 navigation.dispatch(
                   CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
@@ -372,8 +386,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             />
           )}
           <ActionCard
-            cardName="View All Coins"
-            description="Manage UTXO"
+            cardName={common.viewAllCoins}
+            description={common.manageUTXO}
             callback={() =>
               navigation.navigate('UTXOManagement', {
                 data: vault,
@@ -385,8 +399,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           />
           {!isCanaryWallet && (
             <ActionCard
-              cardName="Manage Keys"
-              description="For this vault"
+              cardName={common.manageKeys}
+              description={common.forThisVault}
               callback={() =>
                 navigation.dispatch(
                   CommonActions.navigate({
@@ -412,7 +426,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
           pendingHealthCheckCount={pendingHealthCheckCount}
-          isCanaryWallet={vault.type === VaultType.CANARY}
+          isCanaryWallet={isCanaryWallet}
           setShowHealthCheckModal={setShowHealthCheckModal}
         />
       </VStack>
@@ -424,12 +438,16 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         title={
           isCollaborativeWallet
             ? vaultTranslation.collaborativeWallet
+            : isCanaryWallet
+            ? vaultTranslation.canaryWallet
             : vaultTranslation.keeperVault
         }
         subTitle={
           isCollaborativeWallet
             ? vaultTranslation.collaborativeWalletMultipleUsers
-            : `Create multi-key vaults of various configurations. Subscribe to unlock advanced features.`
+            : isCanaryWallet
+            ? vaultTranslation.canaryLearnMoreSubtitle
+            : vaultTranslation.vaultLearnMoreSubtitle
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}

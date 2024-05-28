@@ -100,7 +100,19 @@
     "runHealthCheck": "Run Health Check",
     "needMoreHelp": "Need more help?",
     "action": "Action",
-    "commingSoon": "COMING SOON"
+    "commingSoon": "COMING SOON",
+    "reinstate": "Reinstate",
+    "of": "of",
+    "COLLABORATIVE": "COLLABORATIVE",
+    "VAULT": "VAULT",
+    "CANARY": "CANARY",
+    "ARCHIVED": "ARCHIVED",
+    "buyBitCoin": "Buy Bitcoin",
+    "inToThisWallet": "into this wallet",
+    "viewAllCoins": "View All Coins",
+    "manageUTXO": "Manage UTXO",
+    "manageKeys": "Manage Keys",
+    "forThisVault": "For this vault"
   },
   "noInternet": {
     "no": "No Internet",
@@ -523,6 +535,7 @@
     "newVaultCreated": "New vault Created",
     "collaborativeWallet": "Collaborative Wallet",
     "keeperVault": "Keeper vault",
+    "canaryWallet": "Canary Wallets",
     "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.",
     "signingOldVault": "Old Vaults with the previous signer configuration will be in the archived list of Vaults",
     "cvvSigningServerInfo": "If you lose your authenticator app, use the other signers to reset the signer",
@@ -543,7 +556,10 @@
     "VaultCreatedModalDesc": "You should ensure you have a copy of the wallet configuration file for this vault",
     "Vault3_5CreatedModalDesc1": "For sending bitcoin out of the vault you will need the signers",
     "Vault3_5CreatedModalDesc2": "This means no one can steal your sats from the vault unless they also have access to your signers",
-    "Vault3_5CreatedModalDesc3": "Additionally, Get notified of Key activation and have option to decline use"
+    "Vault3_5CreatedModalDesc3": "Additionally, Get notified of Key activation and have option to decline use",
+    "vaultLearnMoreSubtitle": "Create multi-key vaults of various configurations. Subscribe to unlock advanced features.",
+    "canaryLearnMoreSubtitle": "Each key used in a multi-key wallet can also be used as a single-key wallet itself. Keeping funds in these wallets act as Canary.",
+    "canaryLearnMoreDesc": "If someone gets access to one of the keys and finds funds in the single-key wallet they may try to withdraw those funds. This will be detected by the app and the user will be advised to change that key from any multi-key setup."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
