@@ -54,16 +54,18 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
   );
 
   useEffect(() => {
-    if (relayVaultUpdate) {
-      showToast('Canary wallet created successfully!');
-      if (setLoader) setLoader(false);
-      dispatch(resetRealyVaultState());
-      navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
-    }
-    if (relayVaultError) {
-      showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
-      dispatch(resetRealyVaultState());
-      if (setLoader) setLoader(false);
+    if (canaryVaultId) {
+      if (relayVaultUpdate) {
+        showToast('Canary wallet created successfully!');
+        if (setLoader) setLoader(false);
+        dispatch(resetRealyVaultState());
+        navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
+      }
+      if (relayVaultError) {
+        showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
+        dispatch(resetRealyVaultState());
+        if (setLoader) setLoader(false);
+      }
     }
   }, [relayVaultUpdate, relayVaultError]);
 

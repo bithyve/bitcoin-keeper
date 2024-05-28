@@ -111,7 +111,7 @@ function TorSettings() {
         <OptionCard
           title={settings.inAppTor}
           description={settings.inAppTorSubTitle}
-          callback={() => setShowTorModal(true)}
+          callback={() => handleInAppTor()}
         />
       </ScrollView>
       <Box style={styles.note}>
