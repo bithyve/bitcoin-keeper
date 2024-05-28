@@ -112,7 +112,10 @@
     "viewAllCoins": "View All Coins",
     "manageUTXO": "Manage UTXO",
     "manageKeys": "Manage Keys",
-    "forThisVault": "For this vault"
+    "forThisVault": "For this vault",
+    "saveChanges": "Save Changes",
+    "continueToHide": "Continue to Hide",
+    "MoveFunds": "Move Funds"
   },
   "noInternet": {
     "no": "No Internet",
@@ -487,7 +490,8 @@
     "tapRootPrivacyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
     "tapRootEfficiencyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
     "tapRootScalableDesc": "Taproot introduces Merkleized Abstract Syntax Trees (MAST), allowing the creation of more complex spending conditions.",
-    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security."
+    "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security.",
+    "walletDeatilsUpdated": "Wallet details updated"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -559,7 +563,27 @@
     "Vault3_5CreatedModalDesc3": "Additionally, Get notified of Key activation and have option to decline use",
     "vaultLearnMoreSubtitle": "Create multi-key vaults of various configurations. Subscribe to unlock advanced features.",
     "canaryLearnMoreSubtitle": "Each key used in a multi-key wallet can also be used as a single-key wallet itself. Keeping funds in these wallets act as Canary.",
-    "canaryLearnMoreDesc": "If someone gets access to one of the keys and finds funds in the single-key wallet they may try to withdraw those funds. This will be detected by the app and the user will be advised to change that key from any multi-key setup."
+    "canaryLearnMoreDesc": "If someone gets access to one of the keys and finds funds in the single-key wallet they may try to withdraw those funds. This will be detected by the app and the user will be advised to change that key from any multi-key setup.",
+    "vaultHiddenSuccessMessage": "Vault hidden successfully",
+    "hideVaultModalDesc": "You can unhide this vault anytime from App Settings >Manage Wallets > Unhide",
+    "vaultSettingsTitle": "Vault Settings",
+    "vaultSettingsSubtitle": "Settings specific to the vault",
+    "vaultDetailsTitle": "Vault Details",
+    "vaultDetailsDesc": "Vault name & description",
+    "vaultConfigurationFileTitle": "Vault configuration file",
+    "vaultConfigurationFileDesc": "Vault configuration that needs to be stored privately",
+    "vaultArchiveTitle": "Archived vault",
+    "vaultArchiveDesc": "View details of old vaults",
+    "vaultHideTitle": "Hide vault",
+    "vaultHideDesc": "Hidden vaults can be managed from manage wallets",
+    "vaultSchemeTitle": "Update scheme",
+    "vaultSchemeDesc": "Update your vault configuration and transfer funds",
+    "vaultFingerprint": "Vault Fingerprint",
+    "vaultEditTitle": "Edit name & description",
+    "vaultEditSubtitle": "This will reflect on the home screen",
+    "vaultDetailsUpdated": "Vault details updated",
+    "vaultFundsTitle": "You have funds in your vault",
+    "vaultFundsSubtitle": "You have sats in your vault. Are you sure you want to hide it?"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
