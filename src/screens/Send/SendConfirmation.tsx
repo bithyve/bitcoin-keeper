@@ -68,6 +68,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import usePlan from 'src/hooks/usePlan';
+import { resetVaultMigration } from 'src/store/reducers/vaults';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -756,6 +757,10 @@ function SendConfirmation({ route }) {
       );
     }
   }, [serializedPSBTEnvelops]);
+
+  useEffect(() => {
+    dispatch(resetVaultMigration());
+  }, []);
 
   const viewDetails = () => {
     setVisibleModal(false);

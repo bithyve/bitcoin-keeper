@@ -59,7 +59,7 @@ function VaultMigrationController({
   }, [vaultCreating]);
 
   useEffect(() => {
-    if (temporaryVault) {
+    if (vaultId && temporaryVault) {
       createNewVault();
     }
     return () => {
