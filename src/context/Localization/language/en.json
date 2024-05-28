@@ -395,7 +395,7 @@
     "remixVault": "Remix to vault",
     "selectToSend": "Select to Send",
     "noUTXOYet": "No UTXOs yet",
-    "noUTXOYetSubTitle": "UTXOs from all your Tx0s land here.",
+    "noUTXOYetSubTitle": "Label and send specific UTXOs.",
     "intiatePremixToastMsg": "Please wait for a confirmation to \"Initiate Premix\". For confirmation ETA, click on the transaction > Transaction ID",
     "utxoAllowedTime": "Only a single UTXO mix allowed at a time",
     "newWalletCreated": "New wallet created!",
