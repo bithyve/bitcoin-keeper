@@ -491,7 +491,16 @@
     "tapRootEfficiencyDesc": "Taproot makes single-key and multi-key transactions indistinguishable on the bitcoin blockchain.",
     "tapRootScalableDesc": "Taproot introduces Merkleized Abstract Syntax Trees (MAST), allowing the creation of more complex spending conditions.",
     "tapRootSecurityDesc": "The switch to Schnorr signatures not only improves privacy and efficiency but also contributes to better security.",
-    "walletDeatilsUpdated": "Wallet details updated"
+    "walletDeatilsUpdated": "Wallet details updated",
+    "walletHiddenSuccessMessage": "Wallet hidden successfully",
+    "hideWalletModalDesc": "You can unhide this wallet anytime from App Settings >Manage Wallets > Unhide",
+    "walletFundsTitle": "You have funds in your Wallet",
+    "walletFundsSubtitle": "You have sats in your wallet. Are you sure you want to hide it?",
+    "somethingWentWrong": "Something went wrong!",
+    "hideWalletTitle": "Hide Wallet",
+    "hideWalletDesc": "Hidden wallets can be managed from manage wallets",
+    "walletFingerPrint": "Wallet Fingerprint",
+    "mnemonicDoesNotExist": "Mnemonic doesn't exists"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

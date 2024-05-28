@@ -40,7 +40,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import { MANAGEWALLETS, VAULTSETTINGS } from 'src/navigation/contants';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -88,7 +88,10 @@ function AddSendAmount({ route }) {
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
-  const isMoveAllFunds = parentScreen === MANAGEWALLETS || parentScreen === VAULTSETTINGS;
+  const isMoveAllFunds =
+    parentScreen === MANAGEWALLETS ||
+    parentScreen === VAULTSETTINGS ||
+    parentScreen === WALLETSETTINGS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
