@@ -1,14 +1,6 @@
 appId: ${APPID}
 ---
 - runFlow: newapp.yaml
-- runFlow: viewwallet.yaml
-- runFlow: appsettings.yaml
-- runFlow: copywalletaddress.yaml
-- runFlow: editwalletdetails.yaml
 - runFlow: addwallet.yaml
-- runFlow: receivesats.yaml
-- tapOn:
-    id: 'btn_back'
-- waitForAnimationToEnd:
-    timeout: 1000
-- runFlow: send.yaml
+- runFlow: addNewKey.yaml
+

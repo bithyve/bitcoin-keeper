@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from 'src/components/KeeperText';
+import { hp } from 'src/constants/responsive';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import Colors from 'src/theme/Colors';
 
@@ -44,8 +45,10 @@ const styles = StyleSheet.create({
   noOfWallet: {
     fontSize: 22,
     lineHeight: 27,
+    marginBottom: hp(3),
   },
   amount: {
+    height: hp(25),
     textAlign: 'center',
     gap: 5,
     alignItems: 'center',

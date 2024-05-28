@@ -68,10 +68,11 @@ const useConfigRecovery = () => {
       };
       dispatch(resetRealyVaultState());
       setRecoveryLoading(false);
-      showToast('Vault Imported Successfully!');
+      showToast('Vault imported successfully!');
       navigation.dispatch(CommonActions.reset(navigationState));
     }
     if (relayVaultError) {
+      showToast('Vault import failed!');
       setRecoveryLoading(false);
     }
   }, [relayVaultUpdate, relayVaultError]);

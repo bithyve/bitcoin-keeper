@@ -45,9 +45,9 @@ function InheritanceTips({}) {
   ];
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
-      <Text style={styles.marginLeft} color={`${colorMode}.white`}>
+      <Text style={styles.marginLeft} color={`${colorMode}.modalGreenContent`}>
         {inheritancePlanning.inheritanceTipsTitle}
       </Text>
       <TipsSlider items={tips} />

@@ -42,13 +42,7 @@ function TorConnectionFailed() {
 
 function TorModalMap({ visible, close }) {
   const { colorMode } = useColorMode();
-  const [torStatus, settorStatus] = useState<TorStatus>(TorStatus.CONNECTING);
-
-  if (visible) {
-    setTimeout(() => {
-      settorStatus(TorStatus.ERROR);
-    }, 5000);
-  }
+  const [torStatus] = useState<TorStatus>(TorStatus.CONNECTING);
 
   return (
     <>

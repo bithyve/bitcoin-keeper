@@ -23,7 +23,7 @@ function TipsSlider({ items }) {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box style={styles.container} backgroundColor={`${colorMode}.modalGreenBackground`}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box>
           <FlatList

@@ -24,7 +24,7 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import {
   refreshWallets,
@@ -48,6 +48,7 @@ import {
 import {
   BACKUP_BSMS_ON_CLOUD,
   BSMS_CLOUD_HEALTH_CHECK,
+  DELETE_APP_IMAGE_ENTITY,
   GET_APP_IMAGE,
   RECOVER_BACKUP,
   SEED_BACKEDUP,
@@ -226,6 +227,11 @@ export function* deleteAppImageEntityWorker({
       signers: signerIds,
       walletIds: walletIds,
     });
+    if (walletIds.length > 0) {
+      for (const walletId of walletIds) {
+        yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
+      }
+    }
     return response;
   } catch (err) {
     captureError(err);
@@ -620,6 +626,7 @@ function* backupBsmsOnCloudWorker({
   };
 }) {
   const { password } = payload;
+  const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const bsmsToBackup = [];
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
@@ -632,11 +639,13 @@ function* backupBsmsOnCloudWorker({
       return;
     }
     vaults.forEach((vault) => {
-      const bsms = genrateOutputDescriptors(vault);
-      bsmsToBackup.push({
-        bsms,
-        name: vault.presentationData.name,
-      });
+      if (!excludeVaultTypesForBackup.includes(vault.type)) {
+        const bsms = genrateOutputDescriptors(vault);
+        bsmsToBackup.push({
+          bsms,
+          name: vault.presentationData.name,
+        });
+      }
     });
 
     if (Platform.OS === 'android') {
@@ -789,5 +798,5 @@ export const healthCheckSignerWatcher = createWatcher(
 
 export const deleteAppImageEntityWatcher = createWatcher(
   deleteAppImageEntityWorker,
-  UPADTE_HEALTH_CHECK_SIGNER
+  DELETE_APP_IMAGE_ENTITY
 );

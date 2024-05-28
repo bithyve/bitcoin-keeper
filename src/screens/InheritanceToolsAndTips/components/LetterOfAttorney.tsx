@@ -30,13 +30,21 @@ function LetterOfAttorney() {
   const { inheritancePlanning } = translations;
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>{inheritancePlanning.letterOfAttorneyTitle}</Text>
-        <Text style={styles.description}>{inheritancePlanning.letterOfAttorneyDescp}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.letterOfAttorneyP1}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.letterOfAttorneyP2}</Text>
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyTitle}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyP1}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyP2}
+        </Text>
         <Box style={styles.circleStyle}>
           <LetterOfattorneyIcon />
         </Box>
@@ -60,10 +68,12 @@ function LetterOfAttorney() {
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color="light.primaryBackground">
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color="light.primaryBackground">{inheritancePlanning.letterOfAttorneyNotes}</Text>
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.letterOfAttorneyNotes}
+          </Text>
         </Box>
       </ScrollView>
     </ScreenWrapper>

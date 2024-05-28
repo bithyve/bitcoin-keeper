@@ -10,11 +10,13 @@ import DashedButton from 'src/components/DashedButton';
 import PersonalCloudBackupIcon from 'src/assets/images/personal-cloud-backup.svg';
 import Cloud from 'src/assets/images/cloud.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useNavigation } from '@react-navigation/native';
 
 function PersonalCloudBackup({}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const navigation = useNavigation();
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
       <InheritanceHeader />
@@ -29,7 +31,7 @@ function PersonalCloudBackup({}) {
         <Box mt={5} alignItems={'center'}>
           <DashedButton
             description="Ensure only you have access"
-            callback={() => {}}
+            callback={() => navigation.navigate('AppSettings')}
             name="Manage Cloud Backup"
             icon={<Cloud />}
           />

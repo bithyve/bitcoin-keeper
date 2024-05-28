@@ -18,17 +18,25 @@ function CanaryWallets({ navigation }) {
   const { inheritancePlanning } = translations;
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView>
-        <Text style={styles.heading}>{inheritancePlanning.canaryWallet}</Text>
-        <Text style={styles.description}>{inheritancePlanning.canaryWalletDesp}</Text>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.canaryWalletDescp1}</Text>
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.canaryWallet}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.canaryWalletDesp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.canaryWalletDescp1}
+        </Text>
 
         <Box style={styles.circleStyle}>
           <CanaryIcon />
         </Box>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.canaryWalletDescp2}</Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.canaryWalletDescp2}
+        </Text>
         <Box mt={5}>
           <DashedButton
             description={inheritancePlanning.canaryWalletCtaDescp}
@@ -37,7 +45,9 @@ function CanaryWallets({ navigation }) {
             icon={<Chip />}
           />
         </Box>
-        <Text style={styles.commonTextStyle}>{inheritancePlanning.canaryWalletDescp3}</Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.canaryWalletDescp3}
+        </Text>
       </ScrollView>
     </ScreenWrapper>
   );
@@ -55,16 +65,12 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 18,
-    color: Colors.white,
   },
   description: {
     fontSize: 14,
-    color: Colors.white,
   },
   commonTextStyle: {
-    // textAlign: 'center',
     marginTop: hp(40),
-    color: Colors.white,
   },
   circleStyle: {
     alignItems: 'center',

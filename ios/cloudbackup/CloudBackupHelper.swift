@@ -67,9 +67,9 @@ import QRCoder
     let currentDate = Date()
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
-    formatter.timeStyle = .medium
+    //formatter.timeStyle = .none
     let dateTime = formatter.string(from: currentDate)
-    let pdfFileName = name + "-" + dateTime + ".pdf"
+    let pdfFileName = name + ".pdf"
     do {
       let pdfPath = NSTemporaryDirectory().appending(pdfFileName as String)
       try PDFGenerator.generate([page], to: pdfPath, password: PDFPassword(password))
@@ -87,11 +87,6 @@ import QRCoder
           return nil
       }
     return iCloudURL
-      if FileManager.default.fileExists(atPath: iCloudURL.path) {
-          return iCloudURL
-      } else {
-          return nil
-      }
   }
   
   func uploadToIcloud(files: [String], callback: @escaping ((String)-> Void)) {
@@ -110,12 +105,12 @@ import QRCoder
           } else {
             try fileManager.copyItem(at: url, to: destinationURL)
           }
-          let response = getJsonResponse(status: true, data: files.joined(separator: ", "), error: "")
-          callback(response)
-          print("File uploaded to iCloud successfully.")
         }
+        let response = getJsonResponse(status: true, data: "", error: "")
+        callback(response)
+        //print("File uploaded to iCloud successfully.")
       } else {
-        let response = getJsonResponse(status: false, data: "", error: "")
+        let response = getJsonResponse(status: false, data: "", error: "iCloud is currently inaccessible. Please check authentication with your iCloud and try again.")
         callback(response)
       }
     } catch{

@@ -109,7 +109,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const [introModalVisible, setIntroModalVisible] = useState(false);
   const appCreationError = useAppSelector((state) => state.login.appCreationError);
   const { translations } = useContext(LocalizationContext);
-  const { login } = translations;
+  const { login, common } = translations;
 
   useEffect(() => {
     if (appCreated) {
@@ -171,7 +171,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
     title: 'Setting up your app',
     subTitle:
       'Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets called vaults.',
-    message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
+    message: 'Stack sats, hodl long term, and plan your inheritance with Keeper.',
   });
 
   function SignUpModalContent() {
@@ -208,7 +208,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         onPress={() => setIntroModalVisible(true)}
       >
         <Text style={styles.learnMoreText} medium color={`${colorMode}.white`}>
-          {login.HelpNeeded}
+          {common.learnMore}
         </Text>
       </Pressable>
       <Box style={styles.contentContainer}>

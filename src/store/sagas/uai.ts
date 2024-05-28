@@ -7,9 +7,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind } from 'src/services/wallets/enums';
+import { EntityKind, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
-import { createUaiMap, setRefreshUai, updateUaiActionMap } from '../reducers/uai';
+import {
+  createUaiMap,
+  setRefreshUai,
+  updateCanaryBalanceCache,
+  updateUaiActionMap,
+} from '../reducers/uai';
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
@@ -194,7 +199,10 @@ function* uaiChecksWorker({ payload }) {
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
                   entityId: signer.masterFingerprint,
                   uaiDetails: {
-                    body: `Health check for ${signer.signerName} is due`,
+                    // body: `Health check for ${signer.signerName} is due`,
+                    body: !signer.isBIP85
+                      ? `Health check for ${signer.signerName} is due`
+                      : `Health check for ${signer.signerName} + is due`,
                   },
                 })
               );
@@ -318,6 +326,44 @@ function* uaiChecksWorker({ payload }) {
             uaiType: uaiType.DEFAULT,
           })
         );
+      }
+    }
+    if (checkForTypes.includes(uaiType.CANARAY_WALLET)) {
+      //TO-DO
+      //fetch all canary vaults
+      const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+      const canaryWallets = vaults.filter((vault) => vault.type === VaultType.CANARY);
+
+      const uaiCollectionCanaryWallet: UAI[] = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.CANARAY_WALLET,
+        'uaiType'
+      );
+
+      const canaryBalanceCache = yield select((state) => state.uai.canaryBalanceCache);
+      for (const wallet of canaryWallets) {
+        const uaiForCanaryWallet = uaiCollectionCanaryWallet?.find(
+          (uai) => uai.entityId === wallet.id
+        );
+        const currentTotalBalance =
+          wallet.specs.balances.unconfirmed + wallet.specs.balances.confirmed;
+        const cachedBalance = canaryBalanceCache?.[wallet.id];
+        if (cachedBalance && currentTotalBalance < cachedBalance) {
+          if (!uaiForCanaryWallet) {
+            yield put(
+              addToUaiStack({
+                uaiType: uaiType.CANARAY_WALLET,
+                entityId: wallet.id,
+                uaiDetails: {
+                  body: `Canary Vault  from ${wallet.presentationData.name}`,
+                },
+              })
+            );
+          }
+          yield put(updateCanaryBalanceCache({ id: wallet.id, balance: currentTotalBalance }));
+        } else {
+          yield put(updateCanaryBalanceCache({ id: wallet.id, balance: currentTotalBalance }));
+        }
       }
     }
   } catch (err) {
