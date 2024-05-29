@@ -747,7 +747,11 @@
     "deleteKeys": "Show and delete keys",
     "deleteKeysSubtitle": "for hidden keys",
     "currencyErrorTitle": "Currency Not Available",
-    "currencyErrorSubTitle": "This currency currently does not exist."
+    "currencyErrorSubTitle": "This currency currently does not exist.",
+    "EnterPasscodeTitle": "Enter Passcode",
+    "EnterPasscodeSubtitle": "Confirm passcode to show all hidden keys",
+    "SingerSettingsTitle": "Advanced Options",
+    "SingerSettingsSubtitle": "For all keys"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
