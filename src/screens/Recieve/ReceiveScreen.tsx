@@ -144,7 +144,7 @@ function ReceiveScreen({ route }: { route }) {
               ? walletTranslation.addressReceiveDirectly
               : home.reflectSats
           }
-          subtitleColor="GreenishGrey"
+          subtitleColor="GreyText"
         />
       </Box>
       <KeeperModal
