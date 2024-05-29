@@ -553,7 +553,7 @@
     "confirmOTPTitle": "Confirm OTP for One Time Backup",
     "confirmOTPSubtitle": "To make one time backup",
     "oneTimeBackupTitle": "One Time Backup",
-    "oneTimeBackupDesc": "Backup",
+    "oneTimeBackupDesc": "Note down seed words",
     "pendingHealthCheck": "Pending keys Health Check",
     "pendingHealthCheckSub1": "There are",
     "pendingHealthCheckSub2": "keys awaiting health check",
