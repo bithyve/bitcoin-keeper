@@ -122,7 +122,6 @@ const getSignerContent = (
   colorMode: string,
   isNfcSupported: boolean
 ) => {
-  console.log(isNfcSupported);
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
     case SignerType.COLDCARD:
