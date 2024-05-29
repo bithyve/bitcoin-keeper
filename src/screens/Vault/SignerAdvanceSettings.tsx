@@ -925,7 +925,11 @@ function SignerAdvanceSettings({ route }: any) {
         buttonText="View Vault"
         secondaryButtonText="Back"
         secondaryCallback={() => setHideWarning(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
