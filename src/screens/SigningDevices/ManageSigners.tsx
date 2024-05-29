@@ -97,7 +97,7 @@ function ManageSigners({ route }: ScreenProps) {
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           rightComponent={
-            <TouchableOpacity onPress={navigateToSettings} testID='btn_manage_singner_setting'>
+            <TouchableOpacity onPress={navigateToSettings} testID="btn_manage_singner_setting">
               <SettingIcon />
             </TouchableOpacity>
           }
@@ -187,7 +187,7 @@ function SignersList({
       const isAMF = false;
       return (
         <SignerCard
-          key={shellSigner.masterFingerprint}
+          key={shellSigner.type}
           onCardSelect={() => {
             showToast('Please add the key to a Vault in order to use it');
           }}
