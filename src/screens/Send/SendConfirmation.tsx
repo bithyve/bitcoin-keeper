@@ -797,6 +797,7 @@ function SendConfirmation({ route }) {
     }
   };
   const viewManageWallets = () => {
+    //TODO: @Pratyaskh - Refresh wallets
     navigation.navigate('ManageWallets');
   };
   useEffect(() => {
