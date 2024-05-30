@@ -73,6 +73,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import moment from 'moment';
 
 const { width } = Dimensions.get('screen');
 
@@ -574,12 +575,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box>
         <Card title={title} subTitle={subTitle} icon={icon} />
-        <Text style={styles.textDesc}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        </Text>
-        <Text style={styles.textDesc}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        </Text>
+        <Text style={styles.textDesc}>You will only be shown the words once.</Text>
       </Box>
     );
   };
@@ -968,17 +964,11 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() =>
-          isPolicyServer
-            ? backupModalContent({
-                title: vaultTranslation.signingServerTitle,
-                subTitle: 'Added a min ago',
-                icon: <SigningServerIcon />,
-              })
-            : backupModalContent({
-                title: vaultTranslation.inheritanceKeyTitle,
-                subTitle: 'Added a min ago',
-                icon: <InheritanceKeyIcon />,
-              })
+          backupModalContent({
+            title: signer.signerName,
+            subTitle: `Added ${moment(signer.addedOn).calendar()}`,
+            icon: <SigningServerIcon />,
+          })
         }
         buttonText={common.proceed}
         buttonCallback={initiateOneTimeBackup}
