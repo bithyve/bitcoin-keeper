@@ -515,10 +515,11 @@ const getnavigationState = (type) => ({
   ],
 });
 
-function formatDuration(ms) {
+export function formatDuration(ms) {
   const duration = moment.duration(ms);
   return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
 }
+
 function SignerContent({
   Illustration,
   Instructions,
