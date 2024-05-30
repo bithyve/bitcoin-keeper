@@ -386,6 +386,7 @@
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details",
     "ViewWallets": "View Wallets",
+    "ManageWallets": "Manage Wallets",
     "approveTransVault": "Approve Transfer to vault",
     "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction at 100,000 sats that needs your approval",
     "TransNow": "Transfer Now",

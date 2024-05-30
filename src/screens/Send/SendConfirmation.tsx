@@ -8,7 +8,6 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import moment from 'moment';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
@@ -34,7 +33,6 @@ import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/models/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
@@ -55,7 +53,6 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
-import TickIcon from 'src/assets/images/tick_icon.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -67,8 +64,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import usePlan from 'src/hooks/usePlan';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -603,6 +600,7 @@ function SendConfirmation({ route }) {
     label,
     selectedUTXOs,
     isAutoTransfer,
+    parentScreen,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -614,6 +612,7 @@ function SendConfirmation({ route }) {
     uaiSetActionFalse: any;
     note: string;
     isAutoTransfer: boolean;
+    parentScreen: string;
     label: {
       name: string;
       isSystem: boolean;
@@ -656,6 +655,10 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const isMoveAllFunds =
+    parentScreen === MANAGEWALLETS ||
+    parentScreen === VAULTSETTINGS ||
+    parentScreen === WALLETSETTINGS;
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -793,7 +796,9 @@ function SendConfirmation({ route }) {
       navigation.dispatch(CommonActions.reset(navigationState));
     }
   };
-
+  const viewManageWallets = () => {
+    navigation.navigate('ManageWallets');
+  };
   useEffect(() => {
     if (walletSendSuccessful) {
       setProgress(false);
@@ -946,11 +951,13 @@ function SendConfirmation({ route }) {
       />
       <KeeperModal
         visible={visibleModal}
-        close={viewDetails}
+        close={!isMoveAllFunds ? viewDetails : viewManageWallets}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewWallets}
-        buttonCallback={viewDetails}
+        buttonText={
+          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+        }
+        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

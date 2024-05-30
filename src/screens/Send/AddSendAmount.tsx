@@ -187,6 +187,7 @@ function AddSendAmount({ route }) {
         transferType,
         note,
         selectedUTXOs,
+        parentScreen,
         label: labelsToAdd.filter(
           (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
