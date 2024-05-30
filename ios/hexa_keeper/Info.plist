@@ -36,7 +36,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>357</string>
+	<string>358</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
@@ -60,7 +60,7 @@
 	<string>Please allow photo library access to campture screenshots and send app feedback</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
-		<key>iCloud.io.hexawallet.hexakeeper</key>
+		<key>iCloud.io.hexawallet.keeper</key>
 		<dict>
 			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
 			<true/>
