@@ -385,6 +385,9 @@ function SignTransactionScreen() {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
+      case SignerType.UNKOWN_SIGNER:
+        showToast(`Signing not allowed with ${signer.type}, please assign a signer type!`);
+        break;
       case SignerType.INHERITANCEKEY:
         // if (inheritanceKeyInfo) {
         //   const thresholdDescriptors = inheritanceKeyInfo.configuration.descriptors.slice(0, 2);
