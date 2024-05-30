@@ -79,10 +79,7 @@ function AssignSignerType({ route }: IProps) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title="Identify your signer"
-        subtitle="for better communication and conectivity"
-      />
+      <KeeperHeader title="Change Signer" subtitle="Select a signer to replace the current one" />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
         {!signersLoaded ? (
