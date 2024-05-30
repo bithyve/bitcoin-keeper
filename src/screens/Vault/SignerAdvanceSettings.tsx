@@ -616,7 +616,7 @@ function SignerAdvanceSettings({ route }: any) {
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box style={styles.otpModal}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -1214,5 +1214,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  otpModal: {
+    width: '100%',
   },
 });
