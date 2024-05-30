@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
@@ -24,7 +24,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import UAIView from 'src/screens/Home/components/HeaderDetails/components/UAIView';
-import { windowHeight, wp } from 'src/constants/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { TransferType } from 'src/models/enums/TransferType';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -33,6 +33,15 @@ import KeeperModal from './KeeperModal';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import UAIEmptyState from './UAIEmptyState';
 import FeeInsightsContent from 'src/screens/FeeInsights/FeeInsightsContent';
+import useWallets from 'src/hooks/useWallets';
+import VaultIcon from 'src/assets/images/wallet_vault.svg';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletsIcon from 'src/assets/images/daily_wallet.svg';
+import Colors from 'src/theme/Colors';
+
+import useBalance from 'src/hooks/useBalance';
+import BTC from 'src/assets/images/btc_black.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const { width } = Dimensions.get('window');
 
@@ -70,6 +79,8 @@ interface uaiDefinationInterface {
     heading: string;
     subTitle: string;
     body: any;
+    sender: Object;
+    recipient: Object;
     btnConfig: {
       primary: {
         text: string;
@@ -83,6 +94,37 @@ interface uaiDefinationInterface {
   };
 }
 
+function ModalCard({ preTitle = '', title, subTitle = '', isVault = false, icon = null }) {
+  const { colorMode } = useColorMode();
+
+  return (
+    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
+      <Box style={styles.preTitleContainer}>
+        {isVault ? (
+          <VaultIcon width={34} height={30} />
+        ) : (
+          <HexagonIcon
+            width={34}
+            height={30}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<WalletsIcon />}
+          />
+        )}
+        <Text style={styles.cardPreTitle}>{preTitle}</Text>
+      </Box>
+
+      <Box style={styles.subTitleContainer}>
+        <Text numberOfLines={1} style={styles.cardTitle} color={`${colorMode}.balanceText`}>
+          {title}
+        </Text>
+        <Text numberOfLines={1} style={styles.cardSubtitle} color={`${colorMode}.balanceText`}>
+          {icon} {subTitle}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
 function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -91,19 +133,25 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const [showModal, setShowModal] = useState(false);
   const [modalActionLoader, setmodalActionLoader] = useState(false);
   const [insightModal, setInsightModal] = useState(false);
-  const skipUaiHandler = (uai: UAI) => {
-    dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+  const { translations } = useContext(LocalizationContext);
+  const { notification } = translations;
+  const skipUaiHandler = (uai: UAI, action = false) => {
+    dispatch(uaiActioned({ uaiId: uai.id, action }));
   };
 
-  const skipBtnConfig = (uai) => {
+  const skipBtnConfig = (uai: any, action?: boolean) => {
     return {
       text: 'Skip',
-      cta: () => skipUaiHandler(uai),
+      cta: () => skipUaiHandler(uai, action),
     };
   };
   const backupHistory = useQuery(RealmSchema.BackupHistory);
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
+    const { activeVault } = useVault({ getFirst: true });
+    const { wallets } = useWallets({ walletIds: [uai.entityId] });
+    const wallet = wallets[0];
+
     switch (uai.uaiType) {
       case uaiType.SECURE_VAULT:
         return {
@@ -155,12 +203,14 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             secondary: skipBtnConfig(uai),
           },
           modalDetails: {
-            heading: 'Transfer to Vault',
-            subTitle: 'Auto-transfer policy has been triggered',
-            body: 'Transfer policy you established has been activated. You can move funds into the Vault for enhanced protection.',
+            heading: notification.vaultTransferHeading,
+            subTitle: notification.vaultTransferSubTitle,
+            body: notification.vaultTransferBody,
+            sender: wallet,
+            recipient: activeVault,
             btnConfig: {
               primary: {
-                text: 'Continue',
+                text: 'Transfer',
                 cta: () => {
                   setShowModal(false);
                   activeVault
@@ -175,7 +225,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                 },
               },
               secondary: {
-                text: 'Do it later',
+                text: 'Later',
                 cta: () => skipUaiHandler(uai),
               },
             },
@@ -253,10 +303,10 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
           heading: 'Backup Recovery Key',
-          body: 'Backup of Recovery Key is pending',
+          body: 'Creates backup of all vaults and wallets',
           btnConfig: {
             primary: {
-              text: 'Continue',
+              text: 'Backup',
               cta: () => {
                 if (backupHistory.length === 0) {
                   skipUaiHandler(uai);
@@ -303,13 +353,26 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             },
           },
         };
+      case uaiType.CANARAY_WALLET:
+        return {
+          heading: 'Canary Wallet Accessed',
+          body: 'One of your key has been used',
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                navigtaion.navigate('VaultDetails', { vaultId: uai.entityId });
+              },
+            },
+            secondary: skipBtnConfig(uai, true),
+          },
+        };
       default:
         return null;
     }
   };
 
   const uaiConfig = getUaiTypeDefinations(uai);
-  const { activeVault } = useVault({ getFirst: true });
 
   const animations = useAnimatedStyle(() => {
     return {
@@ -339,6 +402,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
     dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
 
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+
   return (
     <>
       <Animated.View testID={`view_${uai.uaiType}`} style={[animations]}>
@@ -363,6 +428,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           setShowModal(false);
           skipUaiHandler(uai);
         }}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
         title={uaiConfig?.modalDetails?.heading}
         subTitle={uaiConfig?.modalDetails?.subTitle}
         buttonText={uaiConfig?.modalDetails?.btnConfig.primary.text}
@@ -370,8 +437,45 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
+        showCloseIcon={false}
         Content={() => (
-          <Text color={`${colorMode}.greenText`}>{uaiConfig?.modalDetails?.body}</Text>
+          <View>
+            <Box style={styles.fdRow}>
+              <Box style={styles.sentFromContainer}>
+                <Text style={styles.transferText}>Transfer From</Text>
+                <ModalCard
+                  preTitle={uaiConfig?.modalDetails?.sender.presentationData.name}
+                  title={notification.availableToSpend}
+                  icon={
+                    colorMode === 'light'
+                      ? getCurrencyIcon(BTC, 'dark')
+                      : getCurrencyIcon(BTC, 'light')
+                  }
+                  subTitle={`${getBalance(
+                    uaiConfig?.modalDetails?.sender.specs.balances.confirmed
+                  )} ${getSatUnit()}`}
+                />
+              </Box>
+              <Box style={styles.sentToContainer}>
+                <Text style={styles.transferText}>Transfer To</Text>
+                <ModalCard
+                  preTitle={uaiConfig?.modalDetails?.recipient.presentationData.name}
+                  title={notification.Balance}
+                  isVault={uaiConfig?.modalDetails?.recipient.entityKind === 'VAULT' ? true : false}
+                  icon={
+                    colorMode === 'light'
+                      ? getCurrencyIcon(BTC, 'dark')
+                      : getCurrencyIcon(BTC, 'light')
+                  }
+                  subTitle={`${getBalance(
+                    uaiConfig?.modalDetails?.recipient.specs.balances.confirmed
+                  )} ${getSatUnit()}`}
+                />
+              </Box>
+            </Box>
+            <Text style={styles.modalBody}>{uaiConfig?.modalDetails?.body}</Text>
+          </View>
         )}
       />
       <KeeperModal
@@ -454,5 +558,58 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  fdRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignContent: 'center',
+  },
+  sentToContainer: {
+    width: '48%',
+  },
+  sentFromContainer: {
+    width: '48%',
+  },
+  subTitleContainer: {
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 10,
+    marginLeft: 10,
+  },
+  cardPreTitle: {
+    marginLeft: wp(5),
+    fontSize: 14,
+    letterSpacing: 0.14,
+  },
+  cardTitle: {
+    fontSize: 11,
+    letterSpacing: 0.14,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    letterSpacing: 0.72,
+  },
+  cardContainer: {
+    alignItems: 'center',
+    borderRadius: 10,
+
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    minHeight: hp(70),
+  },
+  preTitleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginLeft: 10,
+  },
+  transferText: {
+    fontWeight: 500,
+    fontSize: 12,
+    marginBottom: 5,
+    marginLeft: 3,
+  },
+  modalBody: {
+    fontSize: 13,
   },
 });

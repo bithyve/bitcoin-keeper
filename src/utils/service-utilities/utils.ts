@@ -230,7 +230,6 @@ export const parseTextforVaultConfig = (secret: string) => {
       isMultisig: scheme.n !== 1,
       scheme,
     };
-    console.log(parsedResponse.signersDetails[0]);
     return parsedResponse;
   }
   throw Error('Unsupported format!');

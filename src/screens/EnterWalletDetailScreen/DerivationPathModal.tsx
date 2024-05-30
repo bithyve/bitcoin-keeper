@@ -75,8 +75,10 @@ function DerivationPathModalContent({
             backgroundColor={`${colorMode}.seashellWhite`}
             onPress={onDropDownClick}
           >
-            <Text fontSize={12} bold color={`${colorMode}.SlateGreen`}>
-              Choose Wallet Purpose
+            <Text fontSize={12} bold color={`${colorMode}.headerText`}>
+              {purpose
+                ? purposeList.find((item) => item.value === purpose).label
+                : 'Choose Wallet Purpose'}
             </Text>
             <Box
               style={[

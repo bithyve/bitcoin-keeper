@@ -9,6 +9,7 @@ import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
 import { cryptoRandom } from '../../utils/service-utilities/encryption';
 import ecc from '../wallets/operations/taproot-utils/noble_ecc';
+
 bitcoinJS.initEccLib(ecc);
 
 function shufflePeers(peers) {
@@ -39,6 +40,7 @@ const ELECTRUM_CLIENT_DEFAULTS = {
   activePeer: null,
 };
 
+// eslint-disable-next-line import/no-mutable-exports
 export let ELECTRUM_CLIENT: {
   electrumClient: any;
   isClientConnected: boolean;
@@ -86,7 +88,7 @@ export default class ElectrumClient {
         if (ELECTRUM_CLIENT.isClientConnected) {
           console.log('Electrum mainClient.onError():', error?.message || error);
 
-          if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
+          if (ELECTRUM_CLIENT.electrumClient?.close) ELECTRUM_CLIENT.electrumClient.close();
 
           ELECTRUM_CLIENT.isClientConnected = false;
           ELECTRUM_CLIENT.activePeer.isConnected = false;
@@ -123,7 +125,7 @@ export default class ElectrumClient {
       }
     } catch (error) {
       ELECTRUM_CLIENT.isClientConnected = false;
-      ELECTRUM_CLIENT.activePeer.isConnected = false;
+      if (ELECTRUM_CLIENT.activePeer) ELECTRUM_CLIENT.activePeer.isConnected = false;
 
       console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), error);
     } finally {
@@ -143,7 +145,7 @@ export default class ElectrumClient {
     ELECTRUM_CLIENT.connectionAttempt += 1;
 
     // close the connection before attempting again
-    if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
+    if (ELECTRUM_CLIENT.electrumClient?.close) ELECTRUM_CLIENT.electrumClient.close();
 
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
       const nextPeer = ElectrumClient.getNextDefaultPeer();
@@ -171,7 +173,7 @@ export default class ElectrumClient {
 
   public static forceDisconnect() {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client not available');
-    if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
+    if (ELECTRUM_CLIENT.electrumClient?.close) ELECTRUM_CLIENT.electrumClient.close();
     ELECTRUM_CLIENT.isClientConnected = false;
     ELECTRUM_CLIENT.activePeer.isConnected = false;
   }

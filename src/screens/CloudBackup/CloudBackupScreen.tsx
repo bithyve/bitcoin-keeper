@@ -19,16 +19,16 @@ import { backupBsmsOnCloud, bsmsCloudHealthCheck } from 'src/store/sagaActions/b
 import { setBackupLoading } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import EnterPasswordModal from './EnterPasswordModal';
 import useVault from 'src/hooks/useVault';
+import EnterPasswordModal from './EnterPasswordModal';
 
-const CloudBackupScreen = () => {
+function CloudBackupScreen() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const dispatch = useAppDispatch();
   const strings = translations.cloudBackup;
   const data: BackupHistory = useQuery(RealmSchema.CloudBackupHistory);
-  const history = useMemo(() => data.sorted('date', true), [data]);
+  const history = useMemo(() => data.slice().reverse(), [data]);
   const { showToast } = useToastMessage();
   const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -129,7 +129,7 @@ const CloudBackupScreen = () => {
       />
     </ScreenWrapper>
   );
-};
+}
 
 export default CloudBackupScreen;
 

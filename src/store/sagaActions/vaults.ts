@@ -1,4 +1,4 @@
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { NewVaultInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -9,6 +9,8 @@ export const MIGRATE_VAULT = 'MIGRATE_VAULT';
 export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
 export const DELETE_VAULT = 'DELETE_VAULT';
 export const REINSTATE_VAULT = 'REINSTATE_VAULT';
+export const REFILL_MOBILEKEY = 'REFILL_MOBILEKEY';
+export const REFRESH_CANARY_VAULT = 'REFRESH_CANARY_VAULT';
 
 export const addNewVault = (payload: {
   newVaultInfo: NewVaultInfo;
@@ -49,4 +51,13 @@ export const deleteVault = (payload: string) => ({
 export const reinstateVault = (payload: string) => ({
   type: REINSTATE_VAULT,
   payload: { vaultId: payload },
+});
+
+export const refillMobileKey = (payload: VaultSigner) => ({
+  type: REFILL_MOBILEKEY,
+  payload: { vaultKey: payload },
+});
+
+export const refreshCanaryWallets = () => ({
+  type: REFRESH_CANARY_VAULT,
 });

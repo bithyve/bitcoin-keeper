@@ -52,6 +52,11 @@ import { getSignerNameFromType } from 'src/hardware';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import { useAppSelector } from 'src/store/hooks';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import TickIcon from 'src/assets/images/tick_icon.svg';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -231,9 +236,24 @@ function SigningDeviceDetails({ route }) {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-
+  const { keyHeathCheckSuccess, keyHeathCheckError } = useAppSelector((state) => state.vault);
   const { entityBasedIndicator } = useIndicatorHook({ entityId: signerId });
   const [healthCheckArray, setHealthCheckArray] = useState([]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetKeyHealthState());
+    };
+  }, []);
+
+  useEffect(() => {
+    if (keyHeathCheckError) {
+      showToast(keyHeathCheckError);
+    }
+    if (keyHeathCheckSuccess) {
+      showToast('Key restored successfully', <TickIcon />);
+    }
+  }, [keyHeathCheckSuccess, keyHeathCheckError]);
 
   useEffect(() => {
     if (signer) {
@@ -353,8 +373,11 @@ function SigningDeviceDetails({ route }) {
         learnTextColor={`${colorMode}.white`}
         title={signerTranslations.keyDetails}
         subtitle={
-          `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
-          `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+          !signer.isBIP85
+            ? `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
+              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+            : `For ${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}` ||
+              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
         }
         icon={
           <CircleIconWrapper
@@ -411,11 +434,13 @@ function SigningDeviceDetails({ route }) {
       <KeeperModal
         visible={detailModal}
         close={() => setDetailModal(false)}
-        title={title}
+        title={!signer.isBIP85 ? title : title + ' +'}
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        learnMoreCallback={() => openLink(FAQ)}
+        learnMoreCallback={() =>
+          dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'))
+        }
         Content={SignerContent}
         subTitleWidth={wp(280)}
         buttonText="Proceed"

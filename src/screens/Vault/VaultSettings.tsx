@@ -15,7 +15,7 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useTestSats from 'src/hooks/useTestSats';
 import KeeperModal from 'src/components/KeeperModal';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType } from 'src/services/wallets/enums';
@@ -42,7 +42,7 @@ function VaultSettings({ route }) {
           shell: vault.presentationData.shell,
         },
       });
-      showToast('Vault hidden successfully');
+      showToast('Vault hidden successfully', <TickIcon />);
       navigation.navigate('Home');
     } catch (error) {
       console.log(error);
