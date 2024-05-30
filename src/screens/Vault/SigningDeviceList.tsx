@@ -149,7 +149,7 @@ function SigningDeviceList() {
             style={styles.container}
           >
             {type === SignerType.TREZOR && (
-              <Box style={styles.cardPillContainer} onPress={() => alert('test')}>
+              <Box style={styles.cardPillContainer}>
                 <CardPill heading="COMING SOON" backgroundColor={`${colorMode}.signerCardPill`} />
               </Box>
             )}
@@ -157,13 +157,7 @@ function SigningDeviceList() {
               <Box style={styles.upgradeButtonContainer}>
                 <UpgradeSubscription
                   type={SubscriptionTier.L3}
-                  customStyles={{
-                    container: {
-                      borderTopWidth: 0,
-                      justifyContent: 'space-between',
-                      paddingHorizontal: wp(22),
-                    },
-                  }}
+                  customStyles={styles.upgradeButtonCustomStyles}
                 />
               </Box>
             )}
@@ -171,13 +165,7 @@ function SigningDeviceList() {
               <Box style={styles.upgradeButtonContainer}>
                 <UpgradeSubscription
                   type={SubscriptionTier.L2}
-                  customStyles={{
-                    container: {
-                      borderTopWidth: 0,
-                      justifyContent: 'space-between',
-                      paddingHorizontal: wp(22),
-                    },
-                  }}
+                  customStyles={styles.upgradeButtonCustomStyles}
                 />
               </Box>
             )}
@@ -355,6 +343,13 @@ const styles = StyleSheet.create({
   },
   upgradeButtonContainer: {
     width: '100%',
+  },
+  upgradeButtonCustomStyles: {
+    container: {
+      borderTopWidth: 0,
+      justifyContent: 'space-between',
+      paddingHorizontal: wp(22),
+    },
   },
   alignCenter: {
     alignSelf: 'center',
