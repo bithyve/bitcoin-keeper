@@ -527,6 +527,8 @@ function AddSigningDevice() {
   const { vault: vaultTranslation, common, signer } = translations;
 
   const { signers } = useSigners();
+  // filter out archived signers
+  const activeSigners = signers.filter((signer) => !signer.archived);
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
@@ -731,7 +733,7 @@ function AddSigningDevice() {
       <Signers
         keyToRotate={keyToRotate}
         showSelection={!keyToRotate}
-        signers={signers}
+        signers={activeSigners}
         selectedSigners={selectedSigners}
         setSelectedSigners={setSelectedSigners}
         scheme={scheme}
