@@ -74,6 +74,7 @@ import DescriptionModal from './components/EditDescriptionModal';
 import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 const { width } = Dimensions.get('screen');
 
@@ -127,6 +128,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const isSmallDevice = useIsSmallDevices();
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
@@ -856,6 +858,7 @@ function SignerAdvanceSettings({ route }: any) {
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
               callback={() => {}}
+              customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
             />
           ))}
         </ScrollView>
