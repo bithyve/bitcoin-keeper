@@ -54,7 +54,6 @@ import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { createUaiMap } from '../reducers/uai';
-import { refreshCanaryWallets } from '../sagaActions/vaults';
 import SubScription from 'src/models/interfaces/Subscription';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
@@ -92,7 +91,6 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     yield put(fetchExchangeRates());
-    yield put(refreshCanaryWallets());
     yield put(
       uaiChecks([
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
@@ -179,8 +177,6 @@ function* credentialsAuthWorker({ payload }) {
 
           yield put(fetchExchangeRates());
           yield put(getMessages());
-
-          yield put(refreshCanaryWallets());
 
           yield put(
             uaiChecks([

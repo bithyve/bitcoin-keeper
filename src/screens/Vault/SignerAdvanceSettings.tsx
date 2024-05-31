@@ -17,7 +17,7 @@ import {
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import InheritanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
-
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
@@ -62,18 +62,20 @@ import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import moment from 'moment';
+import { generateKey } from 'src/utils/service-utilities/encryption';
+import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import moment from 'moment';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -681,6 +683,8 @@ function SignerAdvanceSettings({ route }: any) {
   }
 
   const onSuccess = () => hideKey();
+
+  const { inheritanceOTBRequestId } = useAppSelector((state) => state.storage);
   const initiateOneTimeBackup = async () => {
     if (isPolicyServer) {
       setShowOTPModal(true);
@@ -700,16 +704,38 @@ function SignerAdvanceSettings({ route }: any) {
           return;
         }
 
-        const { mnemonic, derivationPath } = await InheritanceKeyServer.fetchBackup(
+        let requestId = inheritanceOTBRequestId;
+        let isNewRequest = false;
+        if (!requestId) {
+          requestId = `request-${generateKey(14)}`;
+          isNewRequest = true;
+        }
+
+        const { requestStatus, backup } = await InheritanceKeyServer.fetchBackup(
           vaultKey.xfp,
+          requestId,
           configurationForVault
         );
-        navigation.navigate('ExportSeed', {
-          seed: mnemonic,
-          derivationPath,
-          isFromAssistedKey: true,
-        });
-        dispatch(setOTBStatusIKS(true));
+
+        if (requestStatus && isNewRequest) dispatch(setInheritanceOTBRequestId(requestId));
+
+        // process request based on status
+        if (requestStatus.isDeclined) {
+          showToast('One Time Backup request has been declined', <ToastErrorIcon />);
+        } else if (!requestStatus.isApproved) {
+          showToast(
+            `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
+            <TickIcon />
+          );
+          // dispatch(setInheritanceOTBRequestId('')); // clear existing request
+        } else if (requestStatus.isApproved && backup) {
+          navigation.navigate('ExportSeed', {
+            seed: backup.mnemonic,
+            derivationPath: backup.derivationPath,
+            isFromAssistedKey: true,
+          });
+          dispatch(setOTBStatusIKS(true));
+        } else showToast('Unknown request status, please try again');
       } catch (err) {
         showToast(`${err}`);
       }
@@ -728,7 +754,7 @@ function SignerAdvanceSettings({ route }: any) {
         subtitle={
           !signer.isBIP85
             ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
-            : `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'}`
+            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`}`
         }
         icon={
           <CircleIconWrapper
