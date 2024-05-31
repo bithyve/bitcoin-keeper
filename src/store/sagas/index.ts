@@ -22,6 +22,9 @@ import {
   updateWalletPathAndPuposeDetailWatcher,
   updateVaultDetailsWatcher,
   deleteVaultyWatcher,
+  reinstateVaultWatcher,
+  refillMobileKeyWatcher,
+  refreshCanaryWalletsWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -42,6 +45,8 @@ import {
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
   updateVaultImageWatcher,
+  backupBsmsOnCloudWatcher,
+  bsmsCloudHealthCheckWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -49,6 +54,7 @@ import {
   corssTransferWatcher,
   fetchExchangeRatesWatcher,
   fetchFeeRatesWatcher,
+  fetchOneDayInsightWatcher,
   sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
@@ -59,6 +65,7 @@ import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './sto
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
 import { connectToNodeWatcher } from './network';
+import { openConceirgeWatcher, goToConceirgeWatcher } from './concierge';
 
 const rootSaga = function* () {
   const sagas = [
@@ -73,6 +80,7 @@ const rootSaga = function* () {
 
     // network
     connectToNodeWatcher,
+    fetchOneDayInsightWatcher,
 
     // notification
     updateFCMTokensWatcher,
@@ -102,6 +110,9 @@ const rootSaga = function* () {
     updateSignerDetails,
     updateKeyDetails,
     deleteVaultyWatcher,
+    reinstateVaultWatcher,
+    refillMobileKeyWatcher,
+    refreshCanaryWalletsWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,
@@ -129,6 +140,8 @@ const rootSaga = function* () {
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,
+    backupBsmsOnCloudWatcher,
+    bsmsCloudHealthCheckWatcher,
     deleteAppImageEntityWatcher,
     // upgrade
     updateVersionHistoryWatcher,
@@ -138,6 +151,9 @@ const rootSaga = function* () {
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
     bulkUpdateUTXOLabelWatcher,
+    // concierge
+    openConceirgeWatcher,
+    goToConceirgeWatcher,
   ];
 
   yield all(

@@ -25,6 +25,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import ActionCard from 'src/components/ActionCard';
 import WalletVault from 'src/assets/images/wallet_vault.svg';
 import { deleteSigningDevice } from 'src/store/sagaActions/vaults';
+import useDeletedVault from 'src/hooks/useDeletedVaults';
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -49,11 +50,12 @@ function DeleteKeys({ route }) {
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const { signers } = useSigners();
-  const hiddenSigners = signers.filter((signer) => signer.hidden);
+  const hiddenSigners = signers.filter((signer) => signer.hidden && !signer.archived);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [unhidingMfp, setUnhidingMfp] = useState('');
   const { allVaults } = useVault({ includeArchived: true });
+  const { deletedVaults } = useDeletedVault();
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
   const [signerToDelete, setSignerToDelete] = React.useState<Signer>();
@@ -119,7 +121,11 @@ function DeleteKeys({ route }) {
                   const vaultsInvolved = allVaults.filter((vault) =>
                     vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
                   );
-                  if (vaultsInvolved.length > 0) {
+                  const deletedVaultIds = deletedVaults.map((vault) => vault.id);
+                  const excludeDeletedVaults = vaultsInvolved.filter(
+                    (vault) => !deletedVaultIds.includes(vault.id)
+                  );
+                  if (excludeDeletedVaults.length > 0) {
                     setVaultUsed(vaultsInvolved[0]);
                     setHideWarning(true);
                     return;
@@ -174,7 +180,7 @@ function DeleteKeys({ route }) {
         textColor={`${colorMode}.primaryText`}
         Content={() => (
           <PasscodeVerifyModal
-            useBiometrics
+            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}

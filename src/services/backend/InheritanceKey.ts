@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/utils/service-utilities/config';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import {
   EncryptedInheritancePolicy,
   IKSCosignersMapUpdate,
@@ -8,7 +7,12 @@ import {
   InheritancePolicy,
 } from '../../models/interfaces/AssistedKeys';
 import RestClient from '../rest/RestClient';
-import { asymmetricEncrypt, hash256 } from '../../utils/service-utilities/encryption';
+import {
+  asymmetricDecrypt,
+  asymmetricEncrypt,
+  generateRSAKeypair,
+  hash256,
+} from '../../utils/service-utilities/encryption';
 import { Vault } from '../wallets/interfaces/vault';
 
 const { HEXA_ID, SIGNING_SERVER, SIGNING_SERVER_RSA_PUBKEY } = config;
@@ -51,12 +55,12 @@ export default class InheritanceKeyServer {
     };
   };
 
-  static getEncryptedInheritanceConfiguration = async (
+  static getEncryptedInheritanceConfiguration = (
     inheritanceConfiguration: InheritanceConfiguration
-  ): Promise<InheritanceConfiguration> => {
+  ): InheritanceConfiguration => {
     const hashedDescriptor = inheritanceConfiguration.descriptors.map((desc) => hash256(desc));
     const encryptedBSMS = inheritanceConfiguration.bsms // TODO: encryption for BSMS is not working(to be fixed)
-      ? await asymmetricEncrypt(inheritanceConfiguration.bsms, SIGNING_SERVER_RSA_PUBKEY)
+      ? asymmetricEncrypt(inheritanceConfiguration.bsms, SIGNING_SERVER_RSA_PUBKEY)
       : null;
 
     return {
@@ -68,15 +72,15 @@ export default class InheritanceKeyServer {
     };
   };
 
-  static getEncryptedInheritancePolicy = async (
+  static getEncryptedInheritancePolicy = (
     policy: InheritancePolicy
-  ): Promise<EncryptedInheritancePolicy> => {
+  ): EncryptedInheritancePolicy => {
     let encryptedPolicy: EncryptedInheritancePolicy;
     if (policy) {
       encryptedPolicy = {
         ...policy,
         alert: policy.alert
-          ? await asymmetricEncrypt(JSON.stringify(policy.alert), SIGNING_SERVER_RSA_PUBKEY)
+          ? asymmetricEncrypt(JSON.stringify(policy.alert), SIGNING_SERVER_RSA_PUBKEY)
           : undefined,
       };
     }
@@ -89,6 +93,7 @@ export default class InheritanceKeyServer {
   static initializeIKSetup = async (): Promise<{
     setupData: {
       id: string;
+      isBIP85: boolean;
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
@@ -125,8 +130,8 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
 
-    const encryptedConfiguration = await this.getEncryptedInheritanceConfiguration(configuration);
-    const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(policy);
+    const encryptedConfiguration = this.getEncryptedInheritanceConfiguration(configuration);
+    const updatedEncryptedPolicy = this.getEncryptedInheritancePolicy(policy);
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/finalizeIKSetup`, {
@@ -161,9 +166,7 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      const encryptedNewConfiguration = await this.getEncryptedInheritanceConfiguration(
-        newConfiguration
-      );
+      const encryptedNewConfiguration = this.getEncryptedInheritanceConfiguration(newConfiguration);
       const existingThresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
         existingConfiguration,
         id
@@ -201,7 +204,7 @@ export default class InheritanceKeyServer {
     updated: boolean;
   }> => {
     let res: AxiosResponse;
-    const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(updatedPolicy);
+    const updatedEncryptedPolicy = this.getEncryptedInheritancePolicy(updatedPolicy);
 
     const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
       inheritanceConfiguration,
@@ -301,6 +304,7 @@ export default class InheritanceKeyServer {
     };
     setupInfo?: {
       id: string;
+      isBIP85: boolean;
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
@@ -402,6 +406,51 @@ export default class InheritanceKeyServer {
     };
   };
 
+  static fetchBackup = async (
+    id: string,
+    requestId: string,
+    inheritanceConfiguration: InheritanceConfiguration
+  ): Promise<{
+    requestStatus: {
+      approvesIn: number;
+      isApproved: boolean;
+      isDeclined: boolean;
+    };
+    backup?: {
+      mnemonic: string;
+      derivationPath: string;
+    };
+  }> => {
+    let res: AxiosResponse;
+    const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+      inheritanceConfiguration,
+      id
+    );
+    const { privateKey, publicKey } = await generateRSAKeypair();
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchIKSBackup`, {
+        HEXA_ID,
+        id,
+        requestId,
+        thresholdDescriptors,
+        publicKey,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { requestStatus, encryptedBackup } = res.data;
+
+    if (requestStatus.isApproved) {
+      const decryptedData = asymmetricDecrypt(encryptedBackup, privateKey);
+      const { mnemonic, derivationPath } = JSON.parse(decryptedData);
+      return { requestStatus, backup: { mnemonic, derivationPath } };
+    } else {
+      return { requestStatus };
+    }
+  };
+
   static migrateSignersV2ToV3 = async (
     vaultId: string,
     cosignersMapIKSUpdates: IKSCosignersMapUpdate[]
@@ -409,6 +458,7 @@ export default class InheritanceKeyServer {
     migrationSuccessful: boolean;
     setupData: {
       id: string;
+      isBIP85: boolean;
       inheritanceXpub: any;
       masterFingerprint: any;
       derivationPath: string;
@@ -432,6 +482,31 @@ export default class InheritanceKeyServer {
     return {
       migrationSuccessful,
       setupData,
+    };
+  };
+
+  static enrichCosignersToSignerMapIKS = async (
+    id: string,
+    cosignersMapIKSUpdates: IKSCosignersMapUpdate[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/enrichCosignersToSignerMapIKS`, {
+        HEXA_ID,
+        id,
+        cosignersMapIKSUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Failed to enrich cosigners to signer map');
+    return {
+      updated,
     };
   };
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -8,34 +8,41 @@ import { hp, wp } from 'src/constants/responsive';
 import InheritanceHeader from '../InheritanceHeader';
 import DashedButton from 'src/components/DashedButton';
 import { useNavigation } from '@react-navigation/native';
-import GenerateRecoveryPhraseTemplate from 'src/utils/GenerateRecoveryPhraseTemplate';
 import TrustedContactIcon from 'src/assets/images/trusted-contact-icon.svg';
 import GenerateTrustedContactsPDF from 'src/utils/GenerateTrustedContactsPDF';
 import DownArrow from 'src/assets/images/down_arrow.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function TrustedContactTemplates({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>Trusted Contacts Template</Text>
-        <Text style={styles.description}>Details of people to assist your heir</Text>
-        <Text style={styles.commonTextStyle}>
-          A simple template to note down a list of trusted contacts and their details. This can then
-          be stored along with the keys or separately.
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.trustedContactsTemplateTitle}
+        </Text>
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.trustedContactsTemplateDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.trustedContactsP1}
         </Text>
 
         <Box style={styles.circleStyle}>
           <TrustedContactIcon />
         </Box>
-        <Text style={styles.commonTextStyle}>Refer to Safeguarding Tips for more details</Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {' '}
+          {inheritancePlanning.trustedContactsRef}
+        </Text>
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="Contact details to assist your heir"
+            description={inheritancePlanning.trustedContactsCtaDescp}
             callback={() => {
               GenerateTrustedContactsPDF().then((res) => {
                 if (res) {
@@ -43,16 +50,16 @@ function TrustedContactTemplates({}) {
                 }
               });
             }}
-            name="View Trusted Contacts Template"
+            name={inheritancePlanning.trustedContactsCtaTitle}
           />
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            Please ensure that these individuals would be willing to help your heir selflessly.
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.trustedContactsNotes}
           </Text>
         </Box>
       </ScrollView>

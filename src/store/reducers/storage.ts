@@ -30,8 +30,10 @@ const initialState: {
   pinHash: string;
   appVersion: string;
   inheritanceRequestId: string;
+  inheritanceOTBRequestId: string;
   recoveryAppCreated: boolean;
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
+  dontShowConceirgeOnboarding: boolean;
 } = {
   appId: '',
   resetCred: {
@@ -43,6 +45,7 @@ const initialState: {
   pinHash: '',
   appVersion: '',
   inheritanceRequestId: '',
+  inheritanceOTBRequestId: '',
   recoveryAppCreated: null,
   inheritanceToolVisitedHistory: {
     BUY_NEW_HARDWARE_SIGNER: null,
@@ -62,6 +65,7 @@ const initialState: {
     TRUSTED_CONTACTS_TEMPLATE: null,
     ADDITIONAL_SIGNER_DETAILS: null,
   },
+  dontShowConceirgeOnboarding: false,
 };
 
 const storageSlice = createSlice({
@@ -106,8 +110,14 @@ const storageSlice = createSlice({
     setInheritanceRequestId: (state, action: PayloadAction<string>) => {
       state.inheritanceRequestId = action.payload;
     },
+    setInheritanceOTBRequestId: (state, action: PayloadAction<string>) => {
+      state.inheritanceOTBRequestId = action.payload;
+    },
     setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
       state.recoveryAppCreated = action.payload;
+    },
+    setDontShowConceirgeOnboarding: (state) => {
+      state.dontShowConceirgeOnboarding = true;
     },
   },
 });
@@ -120,8 +130,10 @@ export const {
   setPinHash,
   setAppVersion,
   setInheritanceRequestId,
+  setInheritanceOTBRequestId,
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
+  setDontShowConceirgeOnboarding,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;

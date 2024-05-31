@@ -12,7 +12,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { cloneDeep } from 'lodash';
-import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
+import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/vaults';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import idx from 'idx';
@@ -42,6 +42,9 @@ import SignerList from './SignerList';
 import SignerModals from './SignerModals';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -81,6 +84,7 @@ function SignTransactionScreen() {
   const [otherSDModal, setOtherSDModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -141,13 +145,6 @@ function SignTransactionScreen() {
   }, [sendSuccessful, isMigratingNewVault]);
 
   useEffect(() => {
-    defaultVault.signers.forEach((vaultKey) => {
-      const isCoSignerMyself = signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER;
-      if (isCoSignerMyself) {
-        // self sign PSBT
-        signTransaction({ xfp: vaultKey.xfp });
-      }
-    });
     return () => {
       dispatch(sendPhaseThreeReset());
     };
@@ -159,6 +156,10 @@ function SignTransactionScreen() {
       showToast(sendFailedMessage);
     }
   }, [sendFailedMessage, broadcasting]);
+
+  const onSuccess = () => {
+    signTransaction({ xfp: activeXfp });
+  };
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -173,6 +174,18 @@ function SignTransactionScreen() {
     }
     return false;
   };
+
+  useEffect(() => {
+    vaultKeys.forEach((vaultKey) => {
+      const signer = signerMap[vaultKey.masterFingerprint];
+      if (signer.type === SignerType.MY_KEEPER && !vaultKey.xpriv) {
+        dispatch(refillMobileKey(vaultKey));
+      }
+    });
+    return () => {
+      dispatch(resetKeyHealthState());
+    };
+  }, []);
 
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
@@ -274,6 +287,25 @@ function SignTransactionScreen() {
     [activeXfp, serializedPSBTEnvelops]
   );
 
+  const onFileSign = (signedSerializedPSBT: string) => {
+    const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeXfp)[0];
+    const signer = signerMap[currentKey.masterFingerprint];
+    if (signer.type === SignerType.KEYSTONE) {
+      const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+        (envelop) => envelop.xfp === activeXfp
+      )[0];
+      const tx = getTxHexFromKeystonePSBT(
+        serializedPSBTEnvelop.serializedPSBT,
+        signedSerializedPSBT
+      );
+      dispatch(updatePSBTEnvelops({ xfp: activeXfp, txHex: tx.toHex() }));
+      dispatch(healthCheckSigner([signer]));
+      return;
+    }
+    dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: activeXfp }));
+    dispatch(healthCheckSigner([signer]));
+  };
+
   const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
     setActiveXfp(vaultKey.xfp);
     if (areSignaturesSufficient()) {
@@ -335,10 +367,6 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (signerMap[vaultKey.masterFingerprint].type === SignerType.MY_KEEPER) {
-          signTransaction({ xfp: vaultKey.xfp });
-          return;
-        }
         setKeeperModal(true);
         break;
       case SignerType.TREZOR:
@@ -353,6 +381,9 @@ function SignTransactionScreen() {
         break;
       case SignerType.OTHER_SD:
         setOtherSDModal(true);
+        break;
+      case SignerType.MY_KEEPER:
+        setConfirmPassVisible(true);
         break;
       case SignerType.INHERITANCEKEY:
         // if (inheritanceKeyInfo) {
@@ -474,6 +505,7 @@ function SignTransactionScreen() {
         textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
+        onFileSign={onFileSign}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
@@ -486,6 +518,25 @@ function SignTransactionScreen() {
         textColor={`${colorMode}.greenText`}
         buttonTextColor={`${colorMode}.white`}
         Content={SendSuccessfulContent}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Enter Passcode"
+        subTitle={'Confirm passcode to sign with mobile key'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics={false}
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onSuccess}
+          />
+        )}
       />
     </ScreenWrapper>
   );

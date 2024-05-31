@@ -16,6 +16,7 @@ type WalletInfoCardProps = {
   tags: string[];
   isShowAmount: boolean;
   setIsShowAmount: () => void;
+  showDot?: boolean;
 };
 
 function WalletInfoCard({
@@ -26,6 +27,7 @@ function WalletInfoCard({
   tags,
   isShowAmount = false,
   setIsShowAmount,
+  showDot = false,
 }: WalletInfoCardProps) {
   const { colorMode } = useColorMode();
 
@@ -44,7 +46,13 @@ function WalletInfoCard({
         })}
       </Box>
       <Box style={styles.detailContainer}>
-        <HexagonIcon width={44} height={38} backgroundColor={Colors.DarkGreen} icon={icon} />
+        <HexagonIcon
+          width={44}
+          height={38}
+          backgroundColor={Colors.DarkGreen}
+          icon={icon}
+          showDot={showDot}
+        />
         <Box>
           <Text fontSize={12} color={`${colorMode}.white`} numberOfLines={1}>
             {walletDescription}
@@ -53,7 +61,11 @@ function WalletInfoCard({
             {walletName}
           </Text>
         </Box>
-        <TouchableOpacity testID="btn_currencyinfo" onPress={setIsShowAmount}>
+        <TouchableOpacity
+          style={styles.balance}
+          testID="btn_currencyinfo"
+          onPress={setIsShowAmount}
+        >
           <CurrencyInfo
             amount={amount}
             hideAmounts={!isShowAmount}
@@ -79,6 +91,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
   },
   detailContainer: {
     alignItems: 'flex-start',
@@ -88,6 +101,9 @@ const styles = StyleSheet.create({
   },
   secondCard: {
     maxWidth: wp(80),
+  },
+  balance: {
+    height: hp(30),
   },
 });
 

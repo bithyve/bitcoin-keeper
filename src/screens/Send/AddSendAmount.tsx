@@ -8,7 +8,6 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
-
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -29,6 +28,7 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import AddressIcon from 'src/components/AddressIcon';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
@@ -39,6 +39,8 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import { MANAGEWALLETS } from 'src/navigation/contants';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -53,6 +55,7 @@ function AddSendAmount({ route }) {
     amount: prefillAmount,
     transferType,
     selectedUTXOs = [],
+    parentScreen,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -60,6 +63,7 @@ function AddSendAmount({ route }) {
     amount: string;
     transferType: TransferType;
     selectedUTXOs: UTXO[];
+    parentScreen?: string;
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
@@ -79,8 +83,12 @@ function AddSendAmount({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const { getCurrencyIcon, getSatUnit } = useBalance();
+  const { getCurrencyIcon, getSatUnit, getConvertedBalance } = useBalance();
   const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
+  const isAddress =
+    transferType === TransferType.VAULT_TO_ADDRESS ||
+    transferType === TransferType.WALLET_TO_ADDRESS;
+  const isFromManageWallets = parentScreen === MANAGEWALLETS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -101,6 +109,13 @@ function AddSendAmount({ route }) {
       else setAmountToSend(BtcToSats(parseFloat(amount)).toString());
     } else setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
   }, [currentCurrency, satsEnabled, amount]);
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(amount))) {
+      const amountToSend = getConvertedBalance(parseFloat(amount));
+      setAmount(amountToSend.toString());
+    }
+  }, [currentCurrency]);
 
   useEffect(() => {
     // error handler
@@ -142,6 +157,22 @@ function AddSendAmount({ route }) {
   useEffect(() => {
     onSendMax(sendMaxFee, selectedUTXOs.length);
   }, [sendMaxFee, selectedUTXOs.length]);
+
+  useEffect(() => {
+    if (isFromManageWallets) {
+      if (sendMaxFee) {
+        onSendMax(sendMaxFee, selectedUTXOs);
+      } else {
+        dispatch(
+          calculateSendMaxFee({
+            numberOfRecipients: recipientCount,
+            wallet: sender,
+            selectedUTXOs,
+          })
+        );
+      }
+    }
+  }, [isFromManageWallets, sendMaxFee, selectedUTXOs]);
 
   const navigateToNext = () => {
     navigation.dispatch(
@@ -186,7 +217,7 @@ function AddSendAmount({ route }) {
       navigateToNext();
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-        showToast('You have insufficient balance at this time.');
+        showToast('Insufficient balance for the amount to be sent + fees');
       } else showToast(sendPhaseOneState.failedErrorMessage);
     }
   }, [sendPhaseOneState]);
@@ -200,7 +231,7 @@ function AddSendAmount({ route }) {
     const initialLabels = [];
     if (recipient && recipient.presentationData) {
       const name =
-        recipient.entityKind === EntityKind.VAULT
+        recipient?.entityKind === EntityKind.VAULT
           ? sender.presentationData.name
           : recipient.presentationData.name;
       const isSystem = true;
@@ -227,12 +258,13 @@ function AddSendAmount({ route }) {
   //   setLabelsToAdd([...labelsToAdd]);
   // };
   const getWalletIcon = (wallet) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
+    if (wallet?.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
     } else {
       return <WalletIcon />;
     }
   };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -242,12 +274,8 @@ function AddSendAmount({ route }) {
         style={styles.Container}
       >
         <KeeperHeader
-          title={
-            transferType === TransferType.WALLET_TO_WALLET
-              ? `Sending to Wallet`
-              : `Enter the Amount`
-          }
-          subtitle={`From ${sender.presentationData.name}`}
+          title="Sending from"
+          subtitle={sender.presentationData.name}
           marginLeft={false}
           rightComponent={<CurrencyTypeSwitch />}
           icon={
@@ -255,18 +283,29 @@ function AddSendAmount({ route }) {
               width={44}
               height={38}
               backgroundColor={Colors.pantoneGreen}
-              icon={<WalletIcon />}
+              icon={getWalletIcon(sender)}
+            />
+          }
+          availableBalance={
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={sender?.specs.balances.confirmed}
+              fontSize={14}
+              color={`${colorMode}.primaryText`}
+              variation={colorMode === 'light' ? 'dark' : 'light'}
             />
           }
         />
         <Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
-            icon={getWalletIcon(sender)}
+            icon={isAddress ? <AddressIcon /> : getWalletIcon(recipient)}
             availableAmt={sender?.specs.balances.confirmed}
-            walletName={recipient?.presentationData.name}
+            walletName={isAddress ? address : recipient?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
+            isAddress={isAddress}
+            recipient={recipient}
           />
         </Box>
 
@@ -324,6 +363,7 @@ function AddSendAmount({ route }) {
                   letterSpacing={1.04}
                   borderWidth="0"
                   value={amount}
+                  isDisabled={isFromManageWallets}
                   onChangeText={(value) => {
                     if (!isNaN(Number(value))) {
                       setAmount(
@@ -383,7 +423,7 @@ function AddSendAmount({ route }) {
               <Input
                 testID="input_note"
                 backgroundColor={`${colorMode}.seashellWhite`}
-                placeholder="Add a note"
+                placeholder="Add a note (optional)"
                 autoCapitalize="sentences"
                 placeholderTextColor={`${colorMode}.greenText`}
                 color={`${colorMode}.greenText`}

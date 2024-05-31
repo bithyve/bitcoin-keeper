@@ -45,7 +45,7 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import { fetchExchangeRates } from '../sagaActions/send_and_receive';
+import { fetchExchangeRates, fetchOneDayInsight } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
@@ -54,6 +54,8 @@ import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
 import { createUaiMap } from '../reducers/uai';
+import SubScription from 'src/models/interfaces/Subscription';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -89,7 +91,6 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     yield put(fetchExchangeRates());
-
     yield put(
       uaiChecks([
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
@@ -183,6 +184,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.SECURE_VAULT,
               uaiType.VAULT_TRANSFER,
               uaiType.RECOVERY_PHRASE_HEALTH_CHECK,
+              uaiType.FEE_INISGHT,
               uaiType.DEFAULT,
             ])
           );
@@ -191,10 +193,13 @@ function* credentialsAuthWorker({ payload }) {
           yield call(generateSeedHash);
           yield put(setRecepitVerificationFailed(!response.isValid));
           if (subscription.level === 1 && subscription.name === 'Hodler') {
+            yield call(downgradeToPleb);
             yield put(setRecepitVerificationFailed(true));
           } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
+            yield call(downgradeToPleb);
             yield put(setRecepitVerificationFailed(true));
           } else if (subscription.level !== response.level) {
+            yield call(downgradeToPleb);
             yield put(setRecepitVerificationFailed(true));
           }
           yield put(connectToNode());
@@ -211,6 +216,23 @@ function* credentialsAuthWorker({ payload }) {
       // yield put(switchReLogin(false));
     } else yield put(credsAuthenticated(false));
   }
+}
+
+async function downgradeToPleb() {
+  const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const updatedSubscription: SubScription = {
+    receipt: '',
+    productId: SubscriptionTier.L1,
+    name: SubscriptionTier.L1,
+    level: AppSubscriptionLevel.L1,
+    icon: 'assets/ic_pleb.svg',
+  };
+  dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    subscription: updatedSubscription,
+  });
+  await Relay.updateSubscription(app.id, app.publicId, {
+    productId: SubscriptionTier.L1.toLowerCase(),
+  });
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);

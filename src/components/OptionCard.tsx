@@ -31,6 +31,10 @@ export function OptionCard({
   CardPill,
 }: OptionProps) {
   const { colorMode } = useColorMode();
+  const containerOpacity = disabled ? 0.8 : 1;
+  const preTitleOpacity = colorMode === 'light' ? 1 : 0.7;
+  const descriptionOpacity = colorMode === 'light' ? 1 : 0.8;
+
   return (
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack
@@ -41,32 +45,38 @@ export function OptionCard({
         borderRadius={10}
         testID={`view_${title.replace(/ /g, '_')}`}
       >
-        <HStack style={[styles.iconContainer, { opacity: disabled ? 0.6 : 1 }]}>
+        <HStack style={[styles.iconContainer, { opacity: containerOpacity }]}>
           {LeftIcon && LeftIcon}
           <VStack>
             {preTitle && (
               <Text
                 italic
-                color={`${colorMode}.LightGreenish`}
+                color={
+                  colorMode === 'light' ? `${colorMode}.LightGreenish` : `${colorMode}.primaryText`
+                }
                 testID={`text_${title.replace(/ /g, '_')}`}
-                style={{ fontSize: 13, letterSpacing: 0.13 }}
+                style={[styles.preTitle, { opacity: preTitleOpacity }]}
               >
                 {preTitle}
               </Text>
             )}
             <Text
               color={
-                disabled ? `${colorMode}.LightGreenish` : titleColor || `${colorMode}.primaryText`
+                disabled
+                  ? colorMode === 'light'
+                    ? `${colorMode}.LightGreenish`
+                    : titleColor || `${colorMode}.primaryText`
+                  : titleColor || `${colorMode}.primaryText`
               }
               testID={`text_${title.replace(/ /g, '_')}`}
-              style={{ fontSize: 13, letterSpacing: 0.13 }}
+              style={[styles.title, { opacity: 1 }]}
             >
               {title}
             </Text>
             {description && (
               <Text
                 color={descriptionColor || `${colorMode}.GreyText`}
-                style={{ fontSize: 12, letterSpacing: 0.12 }}
+                style={[styles.description, { opacity: descriptionOpacity }]}
               >
                 {description}
               </Text>
@@ -89,6 +99,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
     paddingRight: 20,
+  },
+  preTitle: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  title: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+  },
+  description: {
+    fontSize: 12,
+    letterSpacing: 0.12,
   },
 });
 

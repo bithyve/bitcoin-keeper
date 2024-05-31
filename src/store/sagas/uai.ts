@@ -1,15 +1,20 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind } from 'src/services/wallets/enums';
+import { EntityKind, VaultType } from 'src/services/wallets/enums';
 import { BackupHistory } from 'src/models/enums/BHR';
-import { createUaiMap, setRefreshUai, updateUaiActionMap } from '../reducers/uai';
+import {
+  createUaiMap,
+  setRefreshUai,
+  updateCanaryBalanceCache,
+  updateUaiActionMap,
+} from '../reducers/uai';
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
@@ -18,9 +23,10 @@ import {
   UAI_CHECKS,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
-
+import { oneDayInsightSelector } from 'src/hooks/useOneDayInsight';
+import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
 const HEALTH_CHECK_REMINDER_MAINNET = 180; // 180 days
-const HEALTH_CHECK_REMINDER_TESTNET = 1; // 3hours
+const HEALTH_CHECK_REMINDER_TESTNET = 3; // 3hours
 const healthCheckReminderThreshold = isTestnet()
   ? HEALTH_CHECK_REMINDER_TESTNET
   : HEALTH_CHECK_REMINDER_MAINNET;
@@ -193,7 +199,10 @@ function* uaiChecksWorker({ payload }) {
                   uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
                   entityId: signer.masterFingerprint,
                   uaiDetails: {
-                    body: `Health check for ${signer.signerName} is due`,
+                    // body: `Health check for ${signer.signerName} is due`,
+                    body: !signer.isBIP85
+                      ? `Health check for ${signer.signerName} is due`
+                      : `Health check for ${signer.signerName} + is due`,
                   },
                 })
               );
@@ -209,6 +218,7 @@ function* uaiChecksWorker({ payload }) {
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
         'uaiType'
       );
+
       if (uaiCollectionHC.length > 0) {
         for (const uai of uaiCollectionHC) {
           const signer: Signer = dbManager.getObjectByPrimaryId(
@@ -224,6 +234,9 @@ function* uaiChecksWorker({ payload }) {
             if (lastHealthCheck < healthCheckReminderThreshold) {
               yield put(uaiActioned({ uaiId: uai.id, action: true }));
             }
+          } //no signer for the UAI that alreay exisists
+          else {
+            yield put(uaiActioned({ uaiId: uai.id, action: true }));
           }
         }
       }
@@ -274,6 +287,32 @@ function* uaiChecksWorker({ payload }) {
 
       yield put(setRefreshUai());
     }
+    if (checkForTypes.includes(uaiType.FEE_INISGHT)) {
+      const uaiCollectionHC: UAI[] = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.FEE_INISGHT,
+        'uaiType'
+      );
+      if (uaiCollectionHC.length > 0) {
+        for (const uai of uaiCollectionHC) {
+          dbManager.deleteObjectById(RealmSchema.UAI, uai.id);
+        }
+      }
+      const graphData = yield select(oneDayInsightSelector);
+      const statement = generateFeeStatement(graphData);
+      if (statement) {
+        yield put(
+          addToUaiStack({
+            uaiType: uaiType.FEE_INISGHT,
+            uaiDetails: {
+              heading: 'Fee Insight',
+              body: statement,
+            },
+          })
+        );
+        yield put(setRefreshUai());
+      }
+    }
     if (checkForTypes.includes(uaiType.DEFAULT)) {
       const defaultUAI: UAI = dbManager.getObjectByField(
         RealmSchema.UAI,
@@ -287,6 +326,44 @@ function* uaiChecksWorker({ payload }) {
             uaiType: uaiType.DEFAULT,
           })
         );
+      }
+    }
+    if (checkForTypes.includes(uaiType.CANARAY_WALLET)) {
+      //TO-DO
+      //fetch all canary vaults
+      const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+      const canaryWallets = vaults.filter((vault) => vault.type === VaultType.CANARY);
+
+      const uaiCollectionCanaryWallet: UAI[] = dbManager.getObjectByField(
+        RealmSchema.UAI,
+        uaiType.CANARAY_WALLET,
+        'uaiType'
+      );
+
+      const canaryBalanceCache = yield select((state) => state.uai.canaryBalanceCache);
+      for (const wallet of canaryWallets) {
+        const uaiForCanaryWallet = uaiCollectionCanaryWallet?.find(
+          (uai) => uai.entityId === wallet.id
+        );
+        const currentTotalBalance =
+          wallet.specs.balances.unconfirmed + wallet.specs.balances.confirmed;
+        const cachedBalance = canaryBalanceCache?.[wallet.id];
+        if (cachedBalance && currentTotalBalance < cachedBalance) {
+          if (!uaiForCanaryWallet) {
+            yield put(
+              addToUaiStack({
+                uaiType: uaiType.CANARAY_WALLET,
+                entityId: wallet.id,
+                uaiDetails: {
+                  body: `Canary Vault  from ${wallet.presentationData.name}`,
+                },
+              })
+            );
+          }
+          yield put(updateCanaryBalanceCache({ id: wallet.id, balance: currentTotalBalance }));
+        } else {
+          yield put(updateCanaryBalanceCache({ id: wallet.id, balance: currentTotalBalance }));
+        }
       }
     }
   } catch (err) {

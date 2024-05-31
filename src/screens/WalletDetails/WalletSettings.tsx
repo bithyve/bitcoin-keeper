@@ -17,6 +17,11 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { VisibilityType } from 'src/services/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
+import { captureError } from 'src/services/sentry';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -35,6 +40,24 @@ function WalletSettings({ route }) {
   const walletTranslation = translations.wallet;
   const { settings } = translations;
   const TestSatsComponent = useTestSats({ wallet });
+  const isImported = wallet.type === WalletType.IMPORTED;
+
+  const updateWalletVisibility = () => {
+    try {
+      const updatedPresentationData = {
+        ...wallet.presentationData,
+        visibility: VisibilityType.HIDDEN,
+      };
+      dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
+        presentationData: updatedPresentationData,
+      });
+      showToast('Wallet hidden successfully');
+      navigation.navigate('Home');
+    } catch (error) {
+      captureError(error);
+      showToast('Something went wrong!');
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -50,6 +73,11 @@ function WalletSettings({ route }) {
             navigation.navigate('WalletDetailsSettings', { wallet });
           }}
         />
+        <OptionCard
+          title="Hide Wallet"
+          description="Hidden wallets can be managed from manage wallets"
+          callback={() => updateWalletVisibility()}
+        />
         {walletMnemonic && (
           <OptionCard
             title={walletTranslation.walletSeedWord}
@@ -59,13 +87,15 @@ function WalletSettings({ route }) {
             }}
           />
         )}
-        <OptionCard
-          title={walletTranslation.TransferPolicy}
-          description={walletTranslation.TransferPolicyDesc}
-          callback={() => {
-            setTransferPolicyVisible(true);
-          }}
-        />
+        {!isImported && (
+          <OptionCard
+            title={walletTranslation.TransferPolicy}
+            description={walletTranslation.TransferPolicyDesc}
+            callback={() => {
+              setTransferPolicyVisible(true);
+            }}
+          />
+        )}
         {TestSatsComponent}
       </ScrollView>
       <Box style={styles.fingerprint}>
@@ -85,6 +115,7 @@ function WalletSettings({ route }) {
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
+        showCurrencyTypeSwitch={true}
         Content={() => (
           <TransferPolicy
             wallet={wallet}

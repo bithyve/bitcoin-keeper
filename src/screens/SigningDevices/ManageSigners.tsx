@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -18,14 +18,19 @@ import { useAppSelector } from 'src/store/hooks';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import SignerCard from '../AddSigner/SignerCard';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import SettingIcon from 'src/assets/images/settings.svg';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
+import SignerCard from '../AddSigner/SignerCard';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -40,6 +45,13 @@ function ManageSigners({ route }: ScreenProps) {
   const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
+
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslation } = translations;
+
+  const { typeBasedIndicator } = useIndicatorHook({
+    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
+  });
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
@@ -79,13 +91,13 @@ function ManageSigners({ route }: ScreenProps) {
     >
       <Box style={styles.topSection}>
         <KeeperHeader
-          title="Manage Keys"
-          subtitle="View and change key details"
+          title={signerTranslation.ManageKeys}
+          subtitle={signerTranslation.ViewAndChangeKeyDetails}
           mediumTitle
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           rightComponent={
-            <TouchableOpacity onPress={navigateToSettings}>
+            <TouchableOpacity onPress={navigateToSettings} testID='btn_manage_singner_setting'>
               <SettingIcon />
             </TouchableOpacity>
           }
@@ -107,6 +119,7 @@ function ManageSigners({ route }: ScreenProps) {
           handleCardSelect={handleCardSelect}
           handleAddSigner={handleAddSigner}
           vault={activeVault}
+          typeBasedIndicator={typeBasedIndicator}
         />
       </Box>
     </Box>
@@ -121,6 +134,7 @@ function SignersList({
   handleCardSelect,
   handleAddSigner,
   vault,
+  typeBasedIndicator,
 }: {
   colorMode: string;
   vaultKeys: VaultSigner[];
@@ -129,8 +143,66 @@ function SignersList({
   handleCardSelect: any;
   handleAddSigner: any;
   vault: Vault;
+  typeBasedIndicator: any;
 }) {
   const list = vaultKeys.length ? vaultKeys : signers.filter((signer) => !signer.hidden);
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslation } = translations;
+  const { level } = useSubscriptionLevel();
+  const { showToast } = useToastMessage();
+  const isNonVaultManageSignerFlow = !vault; // Manage Signers flow accessible via home screen
+  const renderAssistedKeysShell = () => {
+    // tier-based, display only, till an actual assisted keys is setup
+    const shellAssistedKeys = [];
+
+    const generateShellAssistedKey = (signerType: SignerType): Signer => {
+      return {
+        type: signerType,
+        storageType: SignerStorage.WARM,
+        signerName: getSignerNameFromType(signerType, false, false),
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+        masterFingerprint: '',
+        signerXpubs: {},
+        hidden: false,
+      };
+    };
+
+    let hasSigningServer = false; // actual signing server present?
+    let hasInheritanceKey = false; // actual inheritance key present?
+    for (const signer of signers) {
+      if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
+      else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
+    }
+
+    if (!hasSigningServer && level >= AppSubscriptionLevel.L2) {
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
+    }
+
+    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3) {
+      shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
+    }
+
+    return shellAssistedKeys.map((shellSigner) => {
+      const isAMF = false;
+      return (
+        <SignerCard
+          key={shellSigner.masterFingerprint}
+          onCardSelect={() => {
+            showToast('Please add the key to a Vault in order to use it');
+          }}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          description="Setup required"
+          icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
+          showSelection={false}
+          showDot={true}
+          isFullText
+          colorVarient="green"
+          colorMode={colorMode}
+        />
+      );
+    });
+  };
 
   return (
     <SafeAreaView style={styles.topContainer}>
@@ -142,16 +214,20 @@ function SignersList({
         <Box style={styles.addedSignersContainer}>
           {list.map((item) => {
             const signer: Signer = vaultKeys.length ? signerMap[item.masterFingerprint] : item;
+            if (signer.archived) {
+              return null;
+            }
             const isRegistered = vaultKeys.length
               ? item.registeredVaults.find((info) => info.vaultId === vault.id)
               : false;
 
             const showDot =
-              vaultKeys.length &&
-              !UNVERIFYING_SIGNERS.includes(signer.type) &&
-              !isRegistered &&
-              !signer.isMock &&
-              vault.isMultiSig;
+              (vaultKeys.length &&
+                !UNVERIFYING_SIGNERS.includes(signer.type) &&
+                !isRegistered &&
+                !signer.isMock &&
+                vault.isMultiSig) ||
+              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
 
             const isAMF =
               signer.type === SignerType.TAPSIGNER &&
@@ -164,7 +240,11 @@ function SignersList({
                 onCardSelect={() => {
                   handleCardSelect(signer, item);
                 }}
-                name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+                name={
+                  !signer.isBIP85
+                    ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
+                    : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
+                }
                 description={getSignerDescription(
                   signer.type,
                   signer.extraData?.instanceNumber,
@@ -179,8 +259,13 @@ function SignersList({
               />
             );
           })}
+          {isNonVaultManageSignerFlow && renderAssistedKeysShell()}
           {!vaultKeys.length ? (
-            <AddCard name="Add Key" cardStyles={styles.addCard} callback={handleAddSigner} />
+            <AddCard
+              name={signerTranslation.addKey}
+              cardStyles={styles.addCard}
+              callback={handleAddSigner}
+            />
           ) : null}
         </Box>
       </ScrollView>

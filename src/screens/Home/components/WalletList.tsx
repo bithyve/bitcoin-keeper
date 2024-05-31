@@ -1,8 +1,8 @@
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack } from 'native-base';
+import { Box } from 'native-base';
 import AddCard from 'src/components/AddCard';
-import { EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
+import { DerivationPurpose, EntityKind, VaultType, WalletType } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
@@ -13,6 +13,8 @@ import { hp, wp } from 'src/constants/responsive';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
 import WalletInfoEmptyState from './WalletInfoEmptyState';
+import { uaiType } from 'src/models/interfaces/Uai';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 export function WalletsList({
   allWallets,
@@ -20,9 +22,10 @@ export function WalletsList({
   totalBalance,
   isShowAmount,
   setIsShowAmount,
+  typeBasedIndicator,
 }) {
   return (
-    <Box style={styles.valueWrapper}>
+    <Box style={styles.valueWrapper} testID='wallet_list'>
       <BalanceComponent
         setIsShowAmount={setIsShowAmount}
         isShowAmount={isShowAmount}
@@ -34,9 +37,9 @@ export function WalletsList({
         horizontal
         data={allWallets}
         keyExtractor={(item) => item.id}
-        renderItem={({ item: wallet }) => (
+        renderItem={({ item: wallet, index }) => (
           <TouchableOpacity
-            testID={`btn_${wallet.presentationData.name}`}
+            testID={`view_wallet_${index}`}
             style={styles.walletCardWrapper}
             onPress={() => handleWalletPress(wallet, navigation)}
           >
@@ -48,6 +51,7 @@ export function WalletsList({
               walletDescription={wallet.presentationData.description}
               icon={getWalletIcon(wallet)}
               amount={calculateWalletBalance(wallet)}
+              showDot={typeBasedIndicator?.[uaiType.VAULT_TRANSFER]?.[wallet.id]}
             />
           </TouchableOpacity>
         )}
@@ -57,6 +61,7 @@ export function WalletsList({
             name={'Add\nWallet'}
             cardStyles={{ height: hp(260), width: wp(130) }}
             callback={() => navigation.navigate('AddWallet')}
+            isAddWallet
           />
         )}
       />
@@ -86,8 +91,12 @@ const getWalletTags = (wallet) => {
       if (isWatchOnly) walletKind = 'WATCH ONLY';
       else walletKind = 'IMPORTED WALLET';
     }
-
-    return ['SINGLE-KEY', walletKind];
+    let isTaprootWallet = false;
+    const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
+    if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86)
+      isTaprootWallet = true;
+    if (isTaprootWallet) return ['TAPROOT', walletKind];
+    else return ['SINGLE-KEY', walletKind];
   }
 };
 

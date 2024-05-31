@@ -56,6 +56,7 @@ import { generateVault } from 'src/services/wallets/factories/VaultFactory';
 import {
   generateWallet,
   generateWalletSpecsFromMnemonic,
+  getCosignerDetails,
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -67,11 +68,17 @@ import ElectrumClient, {
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import idx from 'idx';
 import _ from 'lodash';
 import { RootState } from '../store';
-import { initiateVaultMigration, vaultCreated, vaultMigrationCompleted } from '../reducers/vaults';
+import {
+  initiateVaultMigration,
+  setKeyHealthCheckError,
+  setKeyHealthCheckLoading,
+  setKeyHealthCheckSuccess,
+  vaultCreated,
+  vaultMigrationCompleted,
+} from '../reducers/vaults';
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
@@ -100,6 +107,9 @@ import {
   DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
+  REFILL_MOBILEKEY,
+  REFRESH_CANARY_VAULT,
+  REINSTATE_VAULT,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
 import {
@@ -115,6 +125,7 @@ import {
   relayVaultUpdateSuccess,
   relayWalletUpdateFail,
   relayWalletUpdateSuccess,
+  setIsCloudBsmsBackupRequired,
   setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
@@ -561,22 +572,34 @@ export function* addNewVaultWorker({
     }
 
     yield put(setRelayVaultUpdateLoading(true));
-    const response = isMigrated
-      ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : yield call(updateVaultImageWorker, { payload: { vault } });
+    const newVaultResponse = yield call(updateVaultImageWorker, { payload: { vault } });
 
-    if (response.updated) {
+    if (newVaultResponse.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
       yield put(uaiChecks([uaiType.SECURE_VAULT]));
 
       if (isMigrated) {
-        yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, {
+        let oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+        const updatedParams = {
           archived: true,
+          archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
+        };
+        const archivedVaultresponse = yield call(updateVaultImageWorker, {
+          payload: {
+            vault: {
+              ...oldVault,
+              ...updatedParams,
+            },
+          },
         });
+        if (archivedVaultresponse.updated) {
+          yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, updatedParams);
+        }
       }
 
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
+      yield put(setIsCloudBsmsBackupRequired(true));
       return true;
     }
     throw new Error('Relay updation failed');
@@ -600,17 +623,18 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
 
   try {
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    const filteredSigners = existingSigners.filter((s) => !s.archived);
     const signerMap = Object.fromEntries(
-      existingSigners.map((signer) => [signer.masterFingerprint, signer])
+      filteredSigners.map((signer) => [signer.masterFingerprint, signer])
     );
-    const signersToUpdate = [];
+    let signersToUpdate = [];
 
     try {
       // update signers with signer count
       let incrementForCurrentSigners = 0;
       signers = signers.map((signer) => {
         if (signer.type === SignerType.MY_KEEPER) {
-          const myAppKeys = existingSigners.filter((s) => s.type === SignerType.MY_KEEPER);
+          const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
           const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
           const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
           signer.extraData = { instanceNumber: instanceNumberToSet + 1 };
@@ -642,16 +666,24 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
         signersToUpdate.push(newSigner);
         continue;
       }
+      const newSsKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const existingSsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const newMsKey = idx(newSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const existingMsKey = idx(existingSigner, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const missingMsKey = existingSsKey && !existingMsKey;
+      const missingSsKey = !existingSsKey && existingMsKey;
 
       const singleSigMatch = keysMatch(XpubTypes.P2WPKH, newSigner, existingSigner);
       const multiSigMatch = keysMatch(XpubTypes.P2WSH, newSigner, existingSigner);
+      const signerMergeCondition = // if the new signer has one of the keys missing or has the same xpubs as the existing signer, then update the type and xpubs
+        (missingMsKey && newMsKey) || (missingSsKey && newSsKey) || singleSigMatch || multiSigMatch;
 
-      // if the new signer has the same xpubs as the existing signer, then update the type and xpubs
-      if (singleSigMatch || multiSigMatch) {
+      if (signerMergeCondition) {
         signersToUpdate.push({
           ...existingSigner,
-          type:
-            existingSigner.type === SignerType.UNKOWN_SIGNER ? newSigner.type : existingSigner.type,
+          type: [SignerType.UNKOWN_SIGNER, SignerType.OTHER_SD].includes(existingSigner.type)
+            ? newSigner.type
+            : existingSigner.type,
           signerXpubs: _.merge(existingSigner.signerXpubs, newSigner.signerXpubs),
         });
         continue;
@@ -671,6 +703,13 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       }
     }
     if (signersToUpdate.length) {
+      const signerMap = Object.fromEntries(
+        existingSigners.map((signer) => [signer.masterFingerprint, signer])
+      );
+      signersToUpdate = signersToUpdate.map((s) => {
+        const isSignerArchived = signerMap[s.masterFingerprint]?.archived || false;
+        return isSignerArchived ? { ...s, archived: false, hidden: false } : s;
+      });
       yield put(setRelaySignersUpdateLoading(true));
       const response = yield call(updateAppImageWorker, { payload: { signers: signersToUpdate } });
       if (response.updated) {
@@ -678,6 +717,8 @@ function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers:
       } else {
         yield put(relaySignersUpdateFail(response.error));
       }
+    } else if (signers.length === 1) {
+      yield put(relaySignersUpdateFail('The signer already exists.'));
     }
   } catch (error) {
     captureError(error);
@@ -709,22 +750,16 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
     }
 
     if (signersToDelete.length) {
-      yield put(setRelaySignersUpdateLoading(true));
-      const response = yield call(deleteAppImageEntityWorker, {
-        payload: { signerIds: signersToDeleteIds },
-      });
-      if (response.updated) {
-        for (const signer of signersToDelete) {
-          yield call(
-            dbManager.deleteObjectByPrimaryKey,
-            RealmSchema.Signer,
-            'masterFingerprint',
-            signer.masterFingerprint
-          );
-        }
-      } else {
-        yield put(relaySignersUpdateFail(response.error));
+      for (let i = 0; i < signersToDelete.length; i++) {
+        yield call(updateSignerDetailsWorker, {
+          payload: {
+            signer: signersToDelete[i],
+            key: 'archived',
+            value: true,
+          },
+        });
       }
+      yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
     }
   } catch (error) {
     captureError(error);
@@ -790,7 +825,12 @@ export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAU
 function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
   try {
     const { vaultId } = payload;
-    const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    const oldVault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON() as Vault;
+    let migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    migratedVault = {
+      ...migratedVault,
+      archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
+    };
     const migrated = yield call(addNewVaultWorker, {
       payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
     });
@@ -972,6 +1012,9 @@ function* refreshWalletsWorker({
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
           specs: synchedWallet.specs,
         });
+        if (synchedWallet.type === VaultType.CANARY) {
+          yield put(uaiChecks([uaiType.CANARAY_WALLET]));
+        }
       } else {
         yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
           specs: synchedWallet.specs,
@@ -1455,9 +1498,22 @@ function* deleteVaultWorker({ payload }) {
   const { vaultId } = payload;
   try {
     yield put(setRelayVaultUpdateLoading(true));
-    const response = yield call(deleteVaultImageWorker, { payload: { vaultIds: [vaultId] } });
+    const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
+    const updatedParams = {
+      archived: true,
+      archivedId: null,
+    };
+    const response = yield call(updateVaultImageWorker, {
+      payload: {
+        vault: {
+          ...vault,
+          ...updatedParams,
+        },
+        isUpdate: true,
+      },
+    });
     if (response.updated) {
-      yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
       yield put(relayVaultUpdateSuccess());
     } else {
       yield put(relayVaultUpdateFail(response.error));
@@ -1468,3 +1524,104 @@ function* deleteVaultWorker({ payload }) {
 }
 
 export const deleteVaultyWatcher = createWatcher(deleteVaultWorker, DELETE_VAULT);
+
+function* reinstateVaultWorker({ payload }) {
+  const { vaultId } = payload;
+  try {
+    yield put(setRelayVaultUpdateLoading(true));
+    const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
+    const updatedParams = {
+      archived: false,
+      archivedId: null,
+      presentationData: {
+        ...vault.presentationData,
+        visibility: VisibilityType.DEFAULT,
+      },
+    };
+    const response = yield call(updateVaultImageWorker, {
+      payload: {
+        vault: {
+          ...vault,
+          ...updatedParams,
+        },
+        isUpdate: true,
+      },
+    });
+    if (response.updated) {
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
+      yield put(relayVaultUpdateSuccess());
+    } else {
+      yield put(relayVaultUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
+  }
+}
+
+export const reinstateVaultWatcher = createWatcher(reinstateVaultWorker, REINSTATE_VAULT);
+
+function* refillMobileKeyWorker({ payload }) {
+  const { vaultKey } = payload;
+  try {
+    yield put(setKeyHealthCheckLoading(true));
+    const { masterFingerprint, xpriv } = vaultKey;
+    if (!xpriv) {
+      const signerMap = {};
+      const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+      signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+      const keeper: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
+      const { primaryMnemonic } = keeper;
+      const signer = signerMap[masterFingerprint];
+      const details = yield call(
+        getCosignerDetails,
+        primaryMnemonic,
+        signer.extraData.instanceNumber - 1
+      );
+      const xpub = idx(details, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
+      const signerXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      if (xpub === signerXpub) {
+        const { xpriv } = details.xpubDetails[XpubTypes.P2WSH];
+        yield call(updateKeyDetailsWorker, {
+          payload: { signer: signer.signerXpubs[XpubTypes.P2WSH][0], key: 'xpriv', value: xpriv },
+        });
+        yield put(setKeyHealthCheckLoading(false));
+        yield put(setKeyHealthCheckSuccess(true));
+      } else {
+        yield put(setKeyHealthCheckLoading(false));
+        yield put(
+          setKeyHealthCheckError('Key seems to be currupted, please deleta and re-add it.')
+        );
+      }
+    } else {
+      yield put(setKeyHealthCheckLoading(false));
+    }
+  } catch (err) {
+    yield put(setKeyHealthCheckLoading(false));
+    captureError(err);
+  }
+}
+
+export const refillMobileKeyWatcher = createWatcher(refillMobileKeyWorker, REFILL_MOBILEKEY);
+function* refreshCanaryWalletsWorker() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const canaryWallets = vaults.filter((vault) => vault.type === VaultType.CANARY);
+    if (canaryWallets.length) {
+      yield call(refreshWalletsWorker, {
+        payload: {
+          wallets: canaryWallets,
+          options: {
+            hardRefresh: true,
+          },
+        },
+      });
+    }
+  } catch (err) {
+    yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
+  }
+}
+
+export const refreshCanaryWalletsWatcher = createWatcher(
+  refreshCanaryWalletsWorker,
+  REFRESH_CANARY_VAULT
+);

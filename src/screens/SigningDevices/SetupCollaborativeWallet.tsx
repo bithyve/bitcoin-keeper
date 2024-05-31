@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, windowWidth } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
@@ -35,6 +35,33 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BitcoinIllustration from '../../assets/images/btc-illustration.svg';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
+import { setCosginerModal } from 'src/store/reducers/wallets';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+
+function AddCoSignerContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
+  return (
+    <Box style={{ gap: 20 }}>
+      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+        {wallet.addCoSignerDesc}
+      </Text>
+      <Box style={styles.bitcoinIllustration}>
+        <BitcoinIllustration />
+      </Box>
+      <Text color={`${colorMode}.modalGreenContent`} style={styles.addCoSigner}>
+        {wallet.addCoSignerDescTwo}
+      </Text>
+    </Box>
+  );
+}
 
 function SignerItem({
   vaultKey,
@@ -64,6 +91,8 @@ function SignerItem({
           isHealthcheck: true,
           signer,
           disableMockFlow: true,
+          learnMore: true,
+          learnMoreContent: AddCoSignerContent,
         },
       })
     );
@@ -91,7 +120,7 @@ function SignerItem({
       description={`Added ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       isSelected={false}
-      showSelection={index === 0}
+      showSelection={false}
       colorVarient="green"
       isFullText
       colorMode={colorMode}
@@ -120,6 +149,9 @@ function SetupCollaborativeWallet() {
   const { showToast } = useToastMessage();
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
+  const { translations } = useContext(LocalizationContext);
+  const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
+  const { common } = translations;
 
   const pushSigner = (
     xpub,
@@ -282,7 +314,13 @@ function SetupCollaborativeWallet() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Add Signers" subtitle="A 2 of 3 collaborative wallet will be created" />
+      <KeeperHeader
+        title="Add Signers"
+        subtitle="A 2 of 3 collaborative wallet will be created"
+        learnMore
+        learnMorePressed={() => dispatch(setCosginerModal(true))}
+        learnTextColor={`${colorMode}.white`}
+      />
       <FlatList
         horizontal
         keyboardShouldPersistTaps="always"
@@ -315,6 +353,26 @@ function SetupCollaborativeWallet() {
         walletType={walletType}
         walletName={walletName}
         walletDescription={walletDescription}
+      />
+      <KeeperModal
+        visible={cosignerModal}
+        close={() => {
+          dispatch(setCosginerModal(false));
+        }}
+        title={'Add a co-signer'}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={AddCoSignerContent}
+        learnMore
+        learnMoreCallback={() =>
+          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'))
+        }
+        learnMoreTitle={common.needMoreHelp}
+        buttonCallback={() => {
+          dispatch(setCosginerModal(false));
+        }}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
       />
     </ScreenWrapper>
   );
@@ -366,6 +424,14 @@ const styles = StyleSheet.create({
     height: 125,
     width: windowWidth / 3 - windowWidth * 0.05,
     margin: 3,
+  },
+  bitcoinIllustration: {
+    alignSelf: 'center',
+  },
+  addCoSigner: {
+    letterSpacing: 0.13,
+    lineHeight: 18,
+    width: wp(295),
   },
 });
 

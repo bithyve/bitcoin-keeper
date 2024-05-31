@@ -22,7 +22,14 @@ export const SUBSCRIPTION_SCHEME_MAP = {
 const usePlan = () => {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const plan = keeper.subscription.name.toUpperCase();
-  return { plan };
+
+  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
+  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
+
+  const isOnL2Above = isOnL2 || isOnL3;
+
+  return { plan, isOnL1, isOnL2, isOnL3, isOnL2Above };
 };
 
 export default usePlan;

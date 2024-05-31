@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -17,8 +17,6 @@ import { CommonActions } from '@react-navigation/native';
 import InheritanceIcon from 'src/assets/images/inheri.svg';
 import FaqIcon from 'src/assets/images/faq.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
-import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
@@ -27,6 +25,10 @@ import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
+import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -64,15 +66,18 @@ function NewHomeScreen({ navigation }) {
   );
   const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
   const netBalanceAllVaults = calculateBalancesForVaults(allVaults);
-
   const { showToast } = useToastMessage();
   const { top } = useSafeAreaInsets();
-  const { plan } = usePlan();
+
+  const { translations } = useContext(LocalizationContext);
+  const { home: homeTranslation } = translations;
+
+  const { typeBasedIndicator } = useIndicatorHook({ types: [uaiType.VAULT_TRANSFER] });
 
   useEffect(() => {
     if (relayWalletError) {
       showToast(
-        realyWalletErrorMessage || 'Something went wrong - Wallet creation failed',
+        realyWalletErrorMessage || homeTranslation.RelayWalletErrorMessage,
         <ToastErrorIcon />
       );
       dispatch(resetRealyWalletState());
@@ -81,12 +86,12 @@ function NewHomeScreen({ navigation }) {
 
   const cardsData = [
     {
-      name: 'Manage\nKeys',
+      name: homeTranslation.ManageKeys,
       icon: <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
-      name: 'Inheritance\nPlanning',
+      name: homeTranslation.InheritancePlanning,
       icon: <InheritanceIcon />,
       callback: () => {
         //-----FOR Futhure use------
@@ -112,9 +117,9 @@ function NewHomeScreen({ navigation }) {
       },
     },
     {
-      name: `Need\nHelp?`,
+      name: homeTranslation.KeeperConcierge,
       icon: <FaqIcon />,
-      callback: () => openLink(`${KEEPER_KNOWLEDGEBASE}`),
+      callback: () => dispatch(goToConcierge([], 'home-screen')),
     },
   ];
 
@@ -132,6 +137,7 @@ function NewHomeScreen({ navigation }) {
         totalBalance={netBalanceWallets + netBalanceAllVaults}
         isShowAmount={isShowAmount}
         setIsShowAmount={() => setIsShowAmount(!isShowAmount)}
+        typeBasedIndicator={typeBasedIndicator}
       />
       <HomeModals
         electrumErrorVisible={electrumErrorVisible}

@@ -1,18 +1,17 @@
 appId: ${APPID}
 ---
-- launchApp
 - extendedWaitUntil:
     visible: 'Create a passcode'
     timeout: 20000
-- assertNotVisible: 'Create'
+- assertVisible: 'Create'
 - tapOn:
     id: 'key_1'
 - tapOn:
-    id: 'key_2'
+    id: 'key_1'
 - tapOn:
-    id: 'key_3'
+    id: 'key_1'
 - tapOn:
-    id: 'key_4'
+    id: 'key_1'
 - waitForAnimationToEnd:
     timeout: 2000
 - assertVisible: 'Create'
@@ -20,17 +19,17 @@ appId: ${APPID}
 - tapOn:
     id: 'key_1'
 - tapOn:
-    id: 'key_2'
+    id: 'key_1'
 - tapOn:
-    id: 'key_3'
+    id: 'key_1'
 - tapOn:
-    id: 'key_5'
+    id: 'key_4'
 - assertVisible: 'Passcodes do NOT match'
 - tapOn:
     id: 'btn_clear'
 - assertNotVisible: 'Passcodes do NOT match'
 - tapOn:
-    id: 'key_4'
+    id: 'key_1'
 - tapOn: 'Create'
 - waitForAnimationToEnd:
     timeout: 5000

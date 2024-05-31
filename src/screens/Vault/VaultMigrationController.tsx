@@ -11,7 +11,6 @@ import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/services/wallets/operations';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -19,15 +18,16 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
+import useDeletedVault from 'src/hooks/useDeletedVaults';
 
 function VaultMigrationController({
   vaultCreating,
   vaultKeys,
   scheme,
-  setCreating,
   name,
   description,
   vaultId,
+  setGeneratedVaultId,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -42,12 +42,9 @@ function VaultMigrationController({
     unconfirmed: 0,
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { deletedVaults } = useDeletedVault();
 
   const [recipients, setRecepients] = useState<any[]>();
-  const [generatedVaultId, setGeneratedVaultId] = useState('');
 
   useEffect(() => {
     if (temporaryVault && temporaryVault.id) {
@@ -62,36 +59,7 @@ function VaultMigrationController({
   }, [vaultCreating]);
 
   useEffect(() => {
-    const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
-    if (relayVaultUpdate && newVault) {
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          {
-            name: 'VaultDetails',
-            params: { vaultId: generatedVaultId, vaultTransferSuccessful: true },
-          },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    } else if (relayVaultUpdate) {
-      navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
-
-    if (relayVaultError) {
-      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
-      dispatch(resetRealyVaultState());
-      setCreating(false);
-    }
-  }, [relayVaultUpdate, relayVaultError]);
-
-  useEffect(() => {
-    if (temporaryVault) {
+    if (vaultId && temporaryVault) {
       createNewVault();
     }
     return () => {
@@ -167,13 +135,13 @@ function VaultMigrationController({
       };
       const allVaultIds = allVaults.map((vault) => vault.id);
       const generatedVaultId = generateVaultId(signers, scheme);
-      if (allVaultIds.includes(generatedVaultId)) {
-        Alert.alert('Vault with this configuration already exisits');
+      const deletedVaultIds = deletedVaults.map((vault) => vault.id);
+      if (allVaultIds.includes(generatedVaultId) && deletedVaultIds.includes(generatedVaultId)) {
+        Alert.alert('Vault with this configuration already exists');
         navigation.goBack();
       } else {
         setGeneratedVaultId(generatedVaultId);
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-
         return vaultInfo;
       }
     } catch (err) {

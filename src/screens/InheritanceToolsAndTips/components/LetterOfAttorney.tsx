@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +14,7 @@ import LetterOfattorneyIcon from 'src/assets/images/letterOfAttorney.svg';
 import DashedButton from 'src/components/DashedButton';
 import GenerateLetterToAtternyPDFInheritanceTool from 'src/utils/GenerateLetterToAtternyPDFInheritanceTool';
 import DownArrow from 'src/assets/images/down_arrow.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function LetterOfAttorney() {
   const { allVaults } = useVault({
@@ -25,20 +26,24 @@ function LetterOfAttorney() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.pantoneGreen`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.modalGreenBackground`}>
       <InheritanceHeader />
       <ScrollView contentContainerStyle={styles.marginLeft}>
-        <Text style={styles.heading}>Letter to the Attorney</Text>
-        <Text style={styles.description}>A pre-filled letter template</Text>
-        <Text style={styles.commonTextStyle}>
-          This pre-filled letter uses key fingerprints that uniquely identify the keys used in the
-          app without revealing any other information about the setup.
+        <Text style={styles.heading} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyTitle}
         </Text>
-        <Text style={styles.commonTextStyle}>
-          The information contained here could be used by the attorney or estate planner to create
-          the will or other estate planning documents.
+        <Text style={styles.description} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyDescp}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyP1}
+        </Text>
+        <Text style={styles.commonTextStyle} color={`${colorMode}.modalGreenContent`}>
+          {inheritancePlanning.letterOfAttorneyP2}
         </Text>
         <Box style={styles.circleStyle}>
           <LetterOfattorneyIcon />
@@ -46,7 +51,7 @@ function LetterOfAttorney() {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description="Pre-filled template for estate planner"
+            description={inheritancePlanning.letterOfAttorneyCtaDescp}
             callback={() => {
               if (fingerPrints) {
                 GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
@@ -58,16 +63,16 @@ function LetterOfAttorney() {
                 showToast('No vaults found');
               }
             }}
-            name="View Letter to the Attorney"
+            name={inheritancePlanning.letterOfAttorneyCtaTitle}
           />
         </Box>
 
         <Box style={[styles.leftTextStyle]}>
-          <Text bold color={`${colorMode}.white`}>
+          <Text bold color={`${colorMode}.modalGreenContent`}>
             Note:
           </Text>
-          <Text color={`${colorMode}.white`}>
-            The key fingerprint information here does not leak any details about your balance.
+          <Text color={`${colorMode}.modalGreenContent`}>
+            {inheritancePlanning.letterOfAttorneyNotes}
           </Text>
         </Box>
       </ScrollView>

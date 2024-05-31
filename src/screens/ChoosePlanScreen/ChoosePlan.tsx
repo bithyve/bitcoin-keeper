@@ -249,21 +249,19 @@ function ChoosePlan() {
         } else {
           Alert.alert('', response.error, [
             {
-              text: 'Cancel',
+              text: common.cancel,
               onPress: () => {},
               style: 'cancel',
             },
             {
-              text: 'Manage',
+              text: common.manage,
               onPress: () => manageSubscription(response.productId),
             },
           ]);
         }
       } else {
         if (isServiceUnavailible) {
-          showToast(
-            'It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon'
-          );
+          showToast(choosePlan.serviceUnavailableMesage);
           return;
         }
         setRequesting(true);
@@ -325,12 +323,12 @@ function ChoosePlan() {
       const purchases = await getAvailablePurchases();
       setRequesting(false);
       if (purchases.length === 0) {
-        showToast('No purchases found');
+        showToast(choosePlan.noAvailablePurchaseMessage);
       } else {
         for (let i = 0; i < purchases.length; i++) {
           const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {
-            showToast(`Already subscribed to ${subscription.name}`);
+            showToast(`${choosePlan.currentSubscriptionMessage} ${subscription.name}`);
           } else {
             const validPurchase = items.find((item) =>
               item.productIds.includes(purchase.productId)
@@ -365,7 +363,7 @@ function ChoosePlan() {
       <KeeperHeader
         title={choosePlan.choosePlantitle}
         mediumTitle
-        subtitle="Upgrade or downgrade"
+        subtitle={choosePlan.choosePlanSubtitle}
         rightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
         }
@@ -444,9 +442,9 @@ function ChoosePlan() {
                 )}
               </Box>
             </Box>
-            {items?.[currentPosition]?.name !== 'Pleb' && (
+            {items?.[currentPosition]?.comingSoon && (
               <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
-                * COMING SOON
+                * {common.commingSoon}
               </Text>
             )}
           </Box>

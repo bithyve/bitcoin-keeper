@@ -1,6 +1,8 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import React, { StyleSheet, ViewStyle } from 'react-native';
 import Text from './KeeperText';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import { hp } from 'src/constants/responsive';
 
 type WalletCardProps = {
   id: number;
@@ -27,13 +29,16 @@ function WalletCard({
 }: WalletCardProps) {
   const { colorMode } = useColorMode();
   const isSelected = selectedCard === id;
+  const isSmallDevice = useIsSmallDevices();
+
+  let setWidth = isSmallDevice ? hp(129) : hp(107);
 
   return (
     <Pressable testID={`btn_${walletName}`} onPress={() => onCardSelect(id)}>
       <Box
         borderColor={`${colorMode}.TransactionIconBackColor`}
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.seashellWhite`}
-        style={[styles.walletContainer, !isSelected && { opacity: 0.5 }]}
+        style={[styles.walletContainer, !isSelected && { opacity: 0.5 }, { width: setWidth }]}
       >
         <Box style={styles.detailContainer}>
           <Box
@@ -55,7 +60,7 @@ function WalletCard({
             </Text>
             <Text
               color={isSelected ? `${colorMode}.white` : `${colorMode}.black`}
-              fontSize={isSelected ? 11 : 10}
+              fontSize={10}
               numberOfLines={2}
               style={styles.walletDesc}
             >
@@ -73,7 +78,6 @@ function WalletCard({
 
 const styles = StyleSheet.create({
   walletContainer: {
-    width: 114,
     height: 125,
     padding: 10,
     borderRadius: 10,
