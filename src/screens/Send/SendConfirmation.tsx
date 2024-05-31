@@ -68,6 +68,7 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import usePlan from 'src/hooks/usePlan';
+import { resetVaultMigration } from 'src/store/reducers/vaults';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -143,11 +144,17 @@ function SendingCard({
     switch (transferType) {
       case TransferType.VAULT_TO_VAULT:
         return isSend ? (
-          <Card title="Old vault" subTitle="Moving all funds" isVault />
+          <Card
+            title={sender?.presentationData?.name || address}
+            subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
+              sender.specs.balances.confirmed
+            )} ${getSatUnit()}`}
+            isVault
+          />
         ) : (
           <Card
-            title="New vault"
-            subTitle={`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
+            title={recipient?.presentationData?.name || address}
+            subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
             isVault
           />
         );
@@ -169,8 +176,10 @@ function SendingCard({
       case TransferType.VAULT_TO_ADDRESS:
         return isSend ? (
           <Card
-            title="Vault"
-            subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            title={sender?.presentationData?.name || address}
+            subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
+              sender?.specs?.balances?.confirmed || 0
+            )} ${getSatUnit()}`}
             isVault
           />
         ) : (
@@ -201,10 +210,14 @@ function SendingCard({
             title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
               sender?.specs?.balances?.confirmed || 0
-            )}${getSatUnit()}`}
+            )} ${getSatUnit()}`}
           />
         ) : (
-          <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
+          <Card
+            title={recipient?.presentationData?.name || address}
+            subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            isVault
+          />
         );
       case TransferType.WALLET_TO_ADDRESS:
         return isSend ? (
@@ -745,6 +758,10 @@ function SendConfirmation({ route }) {
     }
   }, [serializedPSBTEnvelops]);
 
+  useEffect(() => {
+    dispatch(resetVaultMigration());
+  }, []);
+
   const viewDetails = () => {
     setVisibleModal(false);
     if (vaultTransfers.includes(transferType)) {
@@ -1255,6 +1272,6 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(25),
   },
   sendSuccessfullNote: {
-    marginTop: hp(25),
+    marginTop: hp(5),
   },
 });

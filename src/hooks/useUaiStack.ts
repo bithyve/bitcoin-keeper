@@ -4,7 +4,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import uai from 'src/store/reducers/uai';
 
 interface PriorityMap {
   [entityKind: string]: number;
@@ -12,6 +11,7 @@ interface PriorityMap {
 
 const priorityMap: PriorityMap = {
   [uaiType.IKS_REQUEST]: 100,
+  [uaiType.CANARAY_WALLET]: 100,
   [uaiType.SIGNING_DEVICES_HEALTH_CHECK]: 90,
   [uaiType.RECOVERY_PHRASE_HEALTH_CHECK]: 90,
   [uaiType.VAULT_TRANSFER]: 80,

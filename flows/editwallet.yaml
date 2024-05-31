@@ -1,4 +1,4 @@
-appId: io.hexawallet.hexakeeper.dev
+appId: ${APPID}
 ---
 - runFlow: login.yaml
 - tapOn:

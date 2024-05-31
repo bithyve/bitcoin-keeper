@@ -19,24 +19,38 @@ import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
 import Note from 'src/components/Note/Note';
+import { refillMobileKey } from 'src/store/sagaActions/vaults';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import idx from 'idx';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { BackupWallet, common, seed: seedTranslation } = translations;
+  const { BackupWallet, common, seed: seedTranslation, vault: vaultTranslation } = translations;
   const { login } = translations;
   const {
     seed,
     wallet,
     isHealthCheck,
     signer,
-  }: { seed: string; wallet: Wallet; isHealthCheck: boolean; signer: VaultSigner } = route.params;
+    isFromAssistedKey = false,
+    derivationPath,
+    isInheritancePlaning = false,
+  }: {
+    seed: string;
+    wallet: Wallet;
+    isHealthCheck: boolean;
+    signer: Signer;
+    isFromAssistedKey: boolean;
+    derivationPath: string;
+    isInheritancePlaning?: boolean;
+  } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
   const { next, viewRecoveryKeys } = route.params;
@@ -47,45 +61,43 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
   useEffect(() => {
-    if (backupMethod !== null && next && !isHealthCheck) {
+    if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
     }
   }, [backupMethod]);
 
   function SeedCard({ item, index }: { item; index }) {
     return (
-      <>
-        <TouchableOpacity
-          testID={`btn_seed_word_${index}`}
-          style={styles.seedCardContainer}
-          onPress={() => {
-            setShowWordIndex((prev) => {
-              if (prev === index) {
-                return '';
-              }
-              return index;
-            });
-          }}
+      <TouchableOpacity
+        testID={`btn_seed_word_${index}`}
+        style={styles.seedCardContainer}
+        onPress={() => {
+          setShowWordIndex((prev) => {
+            if (prev === index) {
+              return '';
+            }
+            return index;
+          });
+        }}
+      >
+        <Box
+          backgroundColor={`${colorMode}.seashellWhite`}
+          opacity={showWordIndex === index ? 1 : 0.5}
+          style={styles.seedCardWrapper}
         >
-          <Box
-            backgroundColor={`${colorMode}.seashellWhite`}
-            opacity={showWordIndex === index ? 1 : 0.5}
-            style={styles.seedCardWrapper}
+          <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
+            {index < 9 ? '0' : null}
+            {index + 1}
+          </Text>
+          <Text
+            testID={`text_seed_word_${index}`}
+            style={styles.seedTextStyle01}
+            color={`${colorMode}.GreyText`}
           >
-            <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
-              {index < 9 ? '0' : null}
-              {index + 1}
-            </Text>
-            <Text
-              testID={`text_seed_word_${index}`}
-              style={styles.seedTextStyle01}
-              color={`${colorMode}.GreyText`}
-            >
-              {showWordIndex === index ? item : '******'}
-            </Text>
-          </Box>
-        </TouchableOpacity>
-      </>
+            {showWordIndex === index ? item : '******'}
+          </Text>
+        </Box>
+      </TouchableOpacity>
     );
   }
 
@@ -96,8 +108,14 @@ function ExportSeedScreen({ route, navigation }) {
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
       <KeeperHeader
-        title={next ? 'Recovery Key' : seedText.walletSeedWords}
-        subtitle={seedText.SeedDesc}
+        title={
+          isFromAssistedKey
+            ? vaultTranslation.backingUpMnemonicTitle
+            : next
+            ? 'Recovery Key'
+            : seedText.walletSeedWords
+        }
+        subtitle={isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedText.SeedDesc}
       />
 
       <Box style={{ flex: 1 }}>
@@ -109,14 +127,25 @@ function ExportSeedScreen({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
-      <Box m={2}>
-        <Note
-          title={common.note}
-          subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
-          subtitleColor="GreyText"
-        />
-      </Box>
-      {!viewRecoveryKeys && !next && (
+      {isFromAssistedKey && derivationPath && (
+        <Box style={styles.derivationContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Text color={`${colorMode}.GreyText`}>{derivationPath}</Text>
+        </Box>
+      )}
+      {isFromAssistedKey ? (
+        <Box m={2}>
+          <Note title="" subtitle={BackupWallet.skipHealthCheckPara01} subtitleColor="GreyText" />
+        </Box>
+      ) : (
+        <Box m={2}>
+          <Note
+            title={common.note}
+            subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
+            subtitleColor="GreyText"
+          />
+        </Box>
+      )}
+      {!viewRecoveryKeys && !next && !isFromAssistedKey && (
         <Pressable
           onPress={() => {
             // setShowQRVisible(true);
@@ -144,6 +173,7 @@ function ExportSeedScreen({ route, navigation }) {
           </Box>
         </Pressable>
       )}
+
       <Box style={styles.nextButtonWrapper}>
         {next && (
           <Box>
@@ -156,6 +186,19 @@ function ExportSeedScreen({ route, navigation }) {
           </Box>
         )}
       </Box>
+
+      {isFromAssistedKey && (
+        <Box style={styles.nextButtonWrapper}>
+          <Box>
+            <CustomGreenButton
+              onPress={() => {
+                navigation.goBack();
+              }}
+              value={common.proceed}
+            />
+          </Box>
+        </Box>
+      )}
       {/* Modals */}
       <Box>
         <ModalWrapper
@@ -183,6 +226,16 @@ function ExportSeedScreen({ route, navigation }) {
                 }
                 if (signer.type === SignerType.MY_KEEPER) {
                   dispatch(healthCheckSigner([signer]));
+                  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+                  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+                  const vaultSigner = WalletUtilities.getKeyForScheme(
+                    true,
+                    signer,
+                    msXpub,
+                    ssXpub,
+                    null
+                  );
+                  dispatch(refillMobileKey(vaultSigner));
                   navigation.dispatch(CommonActions.goBack());
                   showToast('Keeper Verified Successfully', <TickIcon />);
                 }
@@ -286,6 +339,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  derivationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 10,
+    marginHorizontal: 8,
+    marginVertical: 10,
+    alignSelf: 'center',
+    width: wp(150),
   },
   backArrow: {
     width: '15%',

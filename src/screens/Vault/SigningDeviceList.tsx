@@ -2,7 +2,6 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-nat
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -14,10 +13,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/services/wallets/enums';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
-import Note from 'src/components/Note/Note';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -29,6 +26,9 @@ import useSigners from 'src/hooks/useSigners';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SDIcons } from './SigningDeviceIcons';
 import CardPill from 'src/components/CardPill';
+import { useDispatch } from 'react-redux';
+import { goToConcierge } from 'src/store/sagaActions/concierge';
+import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 
 type HWProps = {
   type: SignerType;
@@ -56,6 +56,7 @@ function SigningDeviceList() {
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
+  const reduxDispatch = useDispatch();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
   const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
 
@@ -83,7 +84,7 @@ function SigningDeviceList() {
           <SigningDevicesIllustration />
         </Box>
         <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
-          {`In the ${SubscriptionTier.L1} tier, you can add one signer to activate your vault. This can be upgraded to three signers and five signers on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signer is not supported, it will be indicated.`}
+          {`You can add all hardware devices from the ${SubscriptionTier.L1} Tier. Signing Server is unlocked at the ${SubscriptionTier.L2} Tier and Inheritance Key at ${SubscriptionTier.L3}.\n\nIf a particular signer is not supported, it will be indicated.`}
         </Text>
       </View>
     );
@@ -137,6 +138,7 @@ function SigningDeviceList() {
           activeOpacity={0.7}
           onPress={onPress}
           disabled={disabled && !shouldUpgrade}
+          testID={`btn_${type}`}
         >
           <Box
             backgroundColor={`${colorMode}.seashellWhite`}
@@ -200,7 +202,11 @@ function SigningDeviceList() {
           dispatch(setSdIntroModal(true));
         }}
       />
-      <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollViewWrapper}
+        showsVerticalScrollIndicator={false}
+        testID={'Signer_Scroll'}
+      >
         {!signersLoaded ? (
           <ActivityIndicator />
         ) : (
@@ -232,12 +238,6 @@ function SigningDeviceList() {
                 );
               })}
             </Box>
-            <Note
-              title="Note"
-              subtitle="Devices with Register vault tag provide additional checks when you are sending funds from your vault"
-              subtitleColor="GreyText"
-              width={wp(330)}
-            />
           </>
         )}
       </ScrollView>
@@ -260,7 +260,7 @@ function SigningDeviceList() {
         DarkCloseIcon
         learnMore
         learnMoreCallback={() =>
-          openLink(`${KEEPER_KNOWLEDGEBASE}categories/17221731732765-Keys-and-Signers`)
+          reduxDispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'))
         }
       />
     </ScreenWrapper>
