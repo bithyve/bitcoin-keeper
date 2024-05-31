@@ -330,7 +330,6 @@ function UTXOLabeling() {
             setExistingLabels={setExistingLabels}
           />
         )}
-        r
       />
     </ScreenWrapper>
   );
