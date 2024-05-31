@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-native';
 import { Box, Input, useColorMode } from 'native-base';
-import Buttons from 'src/components/Buttons';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { UTXO } from 'src/services/wallets/interfaces';
 import { NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
@@ -15,7 +14,6 @@ import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import config from 'src/utils/service-utilities/config';
-import Done from 'src/assets/images/selected.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
@@ -25,6 +23,11 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { resetState } from 'src/store/reducers/utxos';
 import LabelItem from './components/LabelItem';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Edit from 'src/assets/images/edit.svg';
+import Buttons from 'src/components/Buttons';
+import Done from 'src/assets/images/selected.svg';
 
 function UTXOLabeling() {
   const processDispatched = useRef(false);
@@ -32,15 +35,122 @@ function UTXOLabeling() {
   const {
     params: { utxo, wallet },
   } = useRoute() as { params: { utxo: UTXO; wallet: any } };
-  const [label, setLabel] = useState('');
   const { labels } = useLabelsNew({ utxos: [utxo], wallet });
   const [existingLabels, setExistingLabels] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(-1);
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+
+  const { common } = translations;
+
+  function EditLabelsContent({ existingLabels, setExistingLabels }) {
+    const { colorMode } = useColorMode();
+    const [editingIndex, setEditingIndex] = useState(-1);
+    const [label, setLabel] = useState('');
+
+    const onCloseClick = (index) => {
+      existingLabels.splice(index, 1);
+      setExistingLabels([...existingLabels]);
+    };
+
+    const onEditClick = (item, index) => {
+      setLabel(item.name);
+      setEditingIndex(index);
+    };
+
+    const onAdd = () => {
+      if (label) {
+        if (editingIndex !== -1) {
+          existingLabels[editingIndex] = { name: label, isSystem: false };
+        } else {
+          existingLabels.push({ name: label, isSystem: false });
+        }
+        setEditingIndex(-1);
+        setExistingLabels(existingLabels);
+        setLabel('');
+      }
+    };
+
+    const onSaveChangeClick = async () => {
+      Keyboard.dismiss();
+      const finalLabels = existingLabels.filter(
+        (label) => !label.isSystem // ignore the system label since they are internal references
+      );
+      const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
+      const labelChanges = getLabelChanges(initialLabels, finalLabels);
+      processDispatched.current = true;
+      dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
+    };
+
+    const lablesUpdated =
+      getSortedNames(labels[`${utxo.txId}:${utxo.vout}`]) !== getSortedNames(existingLabels);
+
+    return (
+      <Box>
+        <Box style={styles.editLabelsContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box style={styles.editLabelsSubContainer}>
+            {existingLabels.map((item, index) => (
+              <LabelItem
+                item={item}
+                index={index}
+                key={`${item.name}:${item.isSystem}`}
+                editingIndex={editingIndex}
+                onCloseClick={onCloseClick}
+                onEditClick={onEditClick}
+              />
+            ))}
+          </Box>
+          <Box
+            style={styles.editLabelsInputWrapper}
+            backgroundColor={`${colorMode}.primaryBackground`}
+          >
+            <Box style={styles.editLabelsInputBox}>
+              <Input
+                testID="input_utxoLabel"
+                onChangeText={(text) => {
+                  setLabel(text);
+                }}
+                onSubmitEditing={onAdd}
+                style={styles.editLabelsInput}
+                variant={'unstyled'}
+                placeholder="Type to add label or select to edit"
+                value={label}
+                autoCorrect={false}
+                autoCapitalize="characters"
+                backgroundColor={`${colorMode}.primaryBackground`}
+              />
+            </Box>
+            <Box>
+              <TouchableOpacity
+                style={styles.addBtnWrapper}
+                onPress={onAdd}
+                testID="btn_addUtxoLabel"
+              >
+                <Done />
+              </TouchableOpacity>
+            </Box>
+          </Box>
+        </Box>
+        <Box style={styles.ctaBtnWrapper}>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              primaryLoading={syncingUTXOs}
+              primaryDisable={!lablesUpdated}
+              primaryCallback={onSaveChangeClick}
+              primaryText={common.saveChanges}
+              secondaryCallback={() => setIsEditMode(false)}
+              secondaryText={common.cancel}
+            />
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
   const getSortedNames = (labels) =>
     labels
       .sort((a, b) =>
@@ -50,8 +160,7 @@ function UTXOLabeling() {
         a += c.name;
         return a;
       }, '');
-  const lablesUpdated =
-    getSortedNames(labels[`${utxo.txId}:${utxo.vout}`]) !== getSortedNames(existingLabels);
+  getSortedNames(existingLabels);
 
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -65,27 +174,46 @@ function UTXOLabeling() {
     };
   }, []);
 
-  const onCloseClick = (index) => {
-    existingLabels.splice(index, 1);
-    setExistingLabels([...existingLabels]);
-  };
-  const onEditClick = (item, index) => {
-    setLabel(item.name);
-    setEditingIndex(index);
-  };
-
-  const onAdd = () => {
-    if (label) {
-      if (editingIndex !== -1) {
-        existingLabels[editingIndex] = { name: label, isSystem: false };
-      } else {
-        existingLabels.push({ name: label, isSystem: false });
-      }
-      setEditingIndex(-1);
-      setExistingLabels(existingLabels);
-      setLabel('');
-    }
-  };
+  function InfoCard({
+    title,
+    describtion = '',
+    width = 320,
+    showIcon = false,
+    letterSpacing = 1,
+    numberOfLines = 1,
+    Icon = null,
+    Content = null,
+  }) {
+    return (
+      <Box
+        backgroundColor={`${colorMode}.seashellWhite`}
+        width={wp(width)}
+        style={styles.infoCardContainer}
+      >
+        <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
+          <Box width={showIcon ? '90%' : '100%'}>
+            <Text color={`${colorMode}.headerText`} style={styles.titleText} numberOfLines={1}>
+              {title}
+            </Text>
+            {Content ? (
+              <Content />
+            ) : (
+              <Text
+                style={styles.descText}
+                letterSpacing={letterSpacing}
+                color={`${colorMode}.GreyText`}
+                width={showIcon ? '60%' : '90%'}
+                numberOfLines={numberOfLines}
+              >
+                {describtion}
+              </Text>
+            )}
+          </Box>
+          {showIcon && Icon}
+        </Box>
+      </Box>
+    );
+  }
 
   useEffect(() => {
     if (apiError) {
@@ -112,17 +240,6 @@ function UTXOLabeling() {
 
     return labelChanges;
   }
-
-  const onSaveChangeClick = async () => {
-    Keyboard.dismiss();
-    const finalLabels = existingLabels.filter(
-      (label) => !label.isSystem // ignore the system label since they are internal references
-    );
-    const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
-    const labelChanges = getLabelChanges(initialLabels, finalLabels);
-    processDispatched.current = true;
-    dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
-  };
 
   const redirectToBlockExplorer = () => {
     openLink(
@@ -170,63 +287,51 @@ function UTXOLabeling() {
             </View>
           </View>
         </View>
-        <Box style={styles.listContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-          <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.listHeader}>Labels</Text>
-          </View>
-          <View style={styles.listSubContainer}>
-            {existingLabels.map((item, index) => (
-              <LabelItem
-                item={item}
-                index={index}
-                key={`${item.name}:${item.isSystem}`}
-                editingIndex={editingIndex}
-                onCloseClick={onCloseClick}
-                onEditClick={onEditClick}
-              />
-            ))}
-          </View>
-          <Box style={styles.inputLabeWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-            <Box style={styles.inputLabelBox}>
-              <Input
-                testID="input_utxoLabel"
-                onChangeText={(text) => {
-                  setLabel(text);
-                }}
-                style={styles.inputLabel}
-                borderWidth={0}
-                height={hp(40)}
-                placeholder="Type to add label or Select to edit"
-                color="#E0B486"
-                value={label}
-                autoCorrect={false}
-                autoCapitalize="characters"
-                backgroundColor={`${colorMode}.seashellWhite`}
-              />
-            </Box>
-            <TouchableOpacity
-              style={styles.addBtnWrapper}
-              onPress={onAdd}
-              testID="btn_addUtxoLabel"
-            >
-              <Done />
-            </TouchableOpacity>
-          </Box>
-        </Box>
+
+        <TouchableOpacity
+          style={styles.listContainer}
+          testID="btn_transactionNote"
+          onPress={() => setIsEditMode(!isEditMode)}
+        >
+          <InfoCard
+            title={'Labels'}
+            Content={() => (
+              <Box style={styles.listSubContainer}>
+                {existingLabels.map((item, index) => (
+                  <LabelItem
+                    item={item}
+                    index={index}
+                    key={`${item.name}:${item.isSystem}`}
+                    editable={false}
+                  />
+                ))}
+              </Box>
+            )}
+            showIcon
+            Icon={<Edit />}
+          />
+        </TouchableOpacity>
         <View style={{ flex: 1 }} />
       </ScrollView>
-      <Box style={styles.ctaBtnWrapper}>
-        <Box ml={windowWidth * -0.09}>
-          <Buttons
-            primaryLoading={syncingUTXOs}
-            primaryDisable={!lablesUpdated}
-            primaryCallback={onSaveChangeClick}
-            primaryText="Save Changes"
-            secondaryCallback={navigation.goBack}
-            secondaryText="Cancel"
+      <KeeperModal
+        visible={isEditMode}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
+        close={() => setIsEditMode(false)}
+        showCloseIcon={false}
+        title={'Edit Labels'}
+        subTitle={'Easily identify and manage transactions'}
+        justifyContent="center"
+        Content={() => (
+          <EditLabelsContent
+            existingLabels={existingLabels}
+            setExistingLabels={setExistingLabels}
           />
-        </Box>
-      </Box>
+        )}
+        r
+      />
     </ScreenWrapper>
   );
 }
@@ -234,53 +339,6 @@ function UTXOLabeling() {
 const styles = StyleSheet.create({
   scrollViewWrapper: {
     flex: 1,
-  },
-  itemWrapper: {
-    flexDirection: 'row',
-    backgroundColor: '#FDF7F0',
-    marginVertical: 5,
-    borderRadius: 10,
-    padding: 20,
-  },
-  ctaBtnWrapper: {
-    marginBottom: hp(5),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  addnewWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: hp(30),
-    marginBottom: hp(10),
-  },
-  addNewIcon: {
-    height: 25,
-    width: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  plusText: {
-    fontSize: 18,
-    color: 'white',
-  },
-  inputLabeWrapper: {
-    flexDirection: 'row',
-    height: 50,
-    width: '100%',
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  inputLabelBox: {
-    width: '90%',
-  },
-  inputLabel: {
-    fontSize: 13,
-    fontWeight: '900',
-  },
-  addBtnWrapper: {
-    width: '10%',
   },
   unitText: {
     letterSpacing: 0.6,
@@ -303,12 +361,8 @@ const styles = StyleSheet.create({
     letterSpacing: 2.4,
     width: '50%',
   },
-  listHeader: {
-    flex: 1,
-    color: '#00715B',
-    fontSize: 14,
-  },
   listContainer: {
+    alignSelf: 'center',
     marginTop: 18,
     marginHorizontal: 5,
     paddingHorizontal: 15,
@@ -319,6 +373,63 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginBottom: 20,
     flexDirection: 'row',
+  },
+  editLabelsContainer: {
+    margin: 0,
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: 8,
+    overflow: 'hidden',
+    paddingHorizontal: 5,
+    paddingBottom: 10,
+    paddingTop: 0,
+  },
+  editLabelsSubContainer: {
+    marginHorizontal: wp(5),
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+  },
+  editLabelsInputWrapper: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    width: '98%',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 5,
+    marginTop: hp(30),
+  },
+  editLabelsInputBox: {
+    width: '90%',
+    paddingVertical: 8,
+  },
+  editLabelsInput: {
+    fontSize: 13,
+    fontWeight: '400',
+  },
+  infoCardContainer: {
+    marginVertical: hp(7),
+    justifyContent: 'center',
+    paddingLeft: wp(15),
+    borderRadius: 10,
+    paddingHorizontal: 3,
+    paddingVertical: 10,
+  },
+  titleText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+    width: '90%',
+  },
+  descText: {
+    fontSize: 12,
+  },
+  ctaBtnWrapper: {
+    marginBottom: hp(5),
+    marginTop: hp(25),
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  addBtnWrapper: {
+    width: '10%',
   },
 });
 

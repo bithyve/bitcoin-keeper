@@ -1,8 +1,9 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
 import Text from 'src/components/KeeperText';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function LabelItem({
   item,
@@ -37,16 +38,18 @@ function LabelItem({
         onPress={() => (!item.isSystem && editable ? onEditClick(item, index) : null)}
         testID={`btn_${item.name}`}
       >
-        <Text style={styles.itemText} bold testID={`text_${item.name}`}>
+        <Text style={styles.itemText} color={Colors.white} bold testID={`text_${item.name}`}>
           {item.name.toUpperCase()}
         </Text>
-        {!item.isSystem && editable ? (
+        {!item.isSystem && editable && (
           <TouchableOpacity onPress={() => onCloseClick(index)}>
+            <Box style={styles.separator}></Box>
+
             <Box style={styles.deleteContainer}>
               <DeleteCross />
             </Box>
           </TouchableOpacity>
-        ) : null}
+        )}
       </TouchableOpacity>
     </Box>
   );
@@ -56,10 +59,11 @@ export default LabelItem;
 
 const styles = StyleSheet.create({
   deleteContainer: {
+    zIndex: 999,
     paddingHorizontal: 4,
+    marginLeft: 6,
   },
   itemText: {
-    color: '#fff',
     fontSize: 11,
   },
   labelView: {
@@ -75,5 +79,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+  },
+  separator: {
+    backgroundColor: Colors.white,
+    position: 'absolute',
+    top: -2,
+    left: 2,
+    width: 1,
+    height: 12,
+    marginHorizontal: 2,
   },
 });
