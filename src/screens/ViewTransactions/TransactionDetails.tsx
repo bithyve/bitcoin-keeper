@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
-import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Box, ScrollView, VStack, useColorMode } from 'native-base';
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import { ActivityIndicator, Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Box, Input, ScrollView, VStack, useColorMode } from 'native-base';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -26,6 +26,9 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LabelItem from '../UTXOManagement/components/LabelItem';
+import Buttons from 'src/components/Buttons';
+import Done from 'src/assets/images/selected.svg';
+import { resetState } from 'src/store/reducers/utxos';
 
 function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -57,6 +60,123 @@ function TransactionDetails({ route }) {
   const noteRef = useRef();
   const dispatch = useDispatch();
   const [updatingLabel, setUpdatingLabel] = React.useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [existingLabels, setExistingLabels] = useState([]);
+
+  function EditLabelsContent({ existingLabels, setExistingLabels }) {
+    const { colorMode } = useColorMode();
+    const [editingIndex, setEditingIndex] = useState(-1);
+    const [label, setLabel] = useState('');
+
+    const onCloseClick = (index) => {
+      existingLabels.splice(index, 1);
+      setExistingLabels([...existingLabels]);
+    };
+
+    const onEditClick = (item, index) => {
+      setLabel(item.name);
+      setEditingIndex(index);
+    };
+
+    const onAdd = () => {
+      if (label) {
+        if (editingIndex !== -1) {
+          existingLabels[editingIndex] = { name: label, isSystem: false };
+        } else {
+          existingLabels.push({ name: label, isSystem: false });
+        }
+        setEditingIndex(-1);
+        setExistingLabels(existingLabels);
+        setLabel('');
+      }
+    };
+
+    // const onSaveChangeClick = async () => {
+    //   Keyboard.dismiss();
+    //   const finalLabels = existingLabels.filter(
+    //     (label) => !label.isSystem // ignore the system label since they are internal references
+    //   );
+    //   const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
+    //   const labelChanges = getLabelChanges(initialLabels, finalLabels);
+    //   processDispatched.current = true;
+    //   dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
+    // };
+
+    // const lablesUpdated =
+    //   getSortedNames(labels[`${utxo.txId}:${utxo.vout}`]) !== getSortedNames(existingLabels);
+
+    return (
+      <Box>
+        <Box style={styles.editLabelsContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box style={styles.editLabelsSubContainer}>
+            {existingLabels.map((item, index) => (
+              <LabelItem
+                item={item}
+                index={index}
+                key={`${item.name}:${item.isSystem}`}
+                editingIndex={editingIndex}
+                onCloseClick={onCloseClick}
+                onEditClick={onEditClick}
+              />
+            ))}
+          </Box>
+          <Box
+            style={styles.editLabelsInputWrapper}
+            backgroundColor={`${colorMode}.primaryBackground`}
+          >
+            <Box style={styles.editLabelsInputBox}>
+              <Input
+                testID="input_utxoLabel"
+                onChangeText={(text) => {
+                  setLabel(text);
+                }}
+                onSubmitEditing={onAdd}
+                style={styles.editLabelsInput}
+                variant={'unstyled'}
+                placeholder="Type to add label or select to edit"
+                value={label}
+                autoCorrect={false}
+                autoCapitalize="characters"
+                backgroundColor={`${colorMode}.primaryBackground`}
+              />
+            </Box>
+            <Box>
+              <TouchableOpacity
+                style={styles.addBtnWrapper}
+                onPress={onAdd}
+                testID="btn_addUtxoLabel"
+              >
+                <Done />
+              </TouchableOpacity>
+            </Box>
+          </Box>
+        </Box>
+        <Box style={styles.ctaBtnWrapper}>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              // primaryLoading={syncingUTXOs}
+              // primaryDisable={!lablesUpdated}
+              // primaryCallback={onSaveChangeClick}
+              primaryText={common.saveChanges}
+              secondaryCallback={() => setIsEditMode(false)}
+              secondaryText={common.cancel}
+            />
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
+  const getSortedNames = (labels) =>
+    labels
+      .sort((a, b) =>
+        a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : a.name > b.name ? 1 : -1
+      )
+      .reduce((a, c) => {
+        a += c.name;
+        return a;
+      }, '');
+  getSortedNames(existingLabels);
 
   useEffect(() => {
     if (labels[transaction.txid][0] && noteRef.current) {
@@ -64,6 +184,13 @@ function TransactionDetails({ route }) {
     }
     if (!labels[transaction.txid][0] && !noteRef.current) setUpdatingLabel(false);
   }, [labels]);
+
+  useEffect(() => {
+    setExistingLabels(labels ? txnLabels || [] : []);
+    return () => {
+      dispatch(resetState());
+    };
+  }, []);
 
   useEffect(() => {
     if (updatingLabel) {
@@ -133,7 +260,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };
@@ -188,12 +316,16 @@ function TransactionDetails({ route }) {
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
-          {txnLabels.length ? (
+          <TouchableOpacity
+            style={styles.listContainer}
+            testID="btn_transactionNote"
+            onPress={() => setIsEditMode(!isEditMode)}
+          >
             <InfoCard
-              title={transactions.labels}
+              title={'Labels'}
               Content={() => (
-                <View style={styles.listSubContainer}>
-                  {txnLabels.map((item, index) => (
+                <Box style={styles.listSubContainer}>
+                  {existingLabels.map((item, index) => (
                     <LabelItem
                       item={item}
                       index={index}
@@ -201,12 +333,12 @@ function TransactionDetails({ route }) {
                       editable={false}
                     />
                   ))}
-                </View>
+                </Box>
               )}
-              showIcon={false}
-              letterSpacing={2.4}
+              showIcon
+              Icon={<Edit />}
             />
-          ) : null}
+          </TouchableOpacity>
           <TouchableOpacity testID="btn_transactionNote" onPress={() => setVisible(true)}>
             <InfoCard
               title={common.note}
@@ -266,6 +398,24 @@ function TransactionDetails({ route }) {
             setUpdatingLabel(true);
             close();
           }}
+        />
+        <KeeperModal
+          visible={isEditMode}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
+          close={() => setIsEditMode(false)}
+          showCloseIcon={false}
+          title={'Edit Labels'}
+          subTitle={'Easily identify and manage transactions'}
+          justifyContent="center"
+          Content={() => (
+            <EditLabelsContent
+              existingLabels={existingLabels}
+              setExistingLabels={setExistingLabels}
+            />
+          )}
         />
       </ScrollView>
     </ScreenWrapper>
@@ -333,6 +483,51 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     width: windowWidth * 0.8,
+  },
+  editLabelsContainer: {
+    margin: 0,
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: 8,
+    overflow: 'hidden',
+    paddingHorizontal: 5,
+    paddingBottom: 10,
+    paddingTop: 0,
+  },
+  editLabelsSubContainer: {
+    marginHorizontal: wp(5),
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+  },
+  editLabelsInputWrapper: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    width: '98%',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 5,
+    marginTop: hp(30),
+  },
+  editLabelsInputBox: {
+    width: '90%',
+    paddingVertical: 8,
+  },
+  editLabelsInput: {
+    fontSize: 13,
+    fontWeight: '400',
+  },
+  ctaBtnWrapper: {
+    marginBottom: hp(5),
+    marginTop: hp(25),
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  addBtnWrapper: {
+    width: '10%',
+  },
+  listContainer: {
+    alignSelf: 'center',
+    borderRadius: 10,
   },
 });
 export default TransactionDetails;
