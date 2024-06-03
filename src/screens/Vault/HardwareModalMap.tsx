@@ -1582,11 +1582,11 @@ function HardwareModalMap({
         SignerType.INHERITANCEKEY
       );
       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-      // let requestId = `request-${generateKey(10)}`;
+
       let requestId = inheritanceRequestId;
       let isNewRequest = false;
       if (!requestId) {
-        requestId = `request-${generateKey(10)}`;
+        requestId = `request-${generateKey(14)}`;
         isNewRequest = true;
       }
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
@@ -1595,20 +1595,17 @@ function HardwareModalMap({
         thresholdDescriptors
       );
       if (requestStatus && isNewRequest) dispatch(setInheritanceRequestId(requestId));
+
+      // process request based on status
       if (requestStatus.isDeclined) {
         showToast('Inheritance request has been declined', <ToastErrorIcon />);
         // dispatch(setInheritanceRequestId('')); // clear existing request
-        return;
-      }
-
-      if (!requestStatus.isApproved) {
+      } else if (!requestStatus.isApproved) {
         showToast(
           `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
           <TickIcon />
         );
-      }
-
-      if (requestStatus.isApproved && setupInfo) {
+      } else if (requestStatus.isApproved && setupInfo) {
         const { signer: inheritanceKey } = generateSignerFromMetaData({
           xpub: setupInfo.inheritanceXpub,
           derivationPath: setupInfo.derivationPath,
