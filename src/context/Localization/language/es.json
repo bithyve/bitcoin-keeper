@@ -854,7 +854,10 @@
     "addKey": "Add key",
     "keyDetails": "Key Details",
     "ManageKeys": "Manage Keys",
-    "ViewAndChangeKeyDetails": "View and change key details"
+    "ViewAndChangeKeyDetails": "View and change key details",
+    "changeSignerTitle": "Change Signer",
+    "changeSignerSubtitle": "Select a signer to replace the current one",
+    "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

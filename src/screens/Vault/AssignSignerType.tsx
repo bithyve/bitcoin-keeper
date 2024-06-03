@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode, VStack } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -20,6 +20,7 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import UnknownSignerInfo from './components/UnknownSignerInfo';
 import Note from 'src/components/Note/Note';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type IProps = {
   navigation: any;
@@ -36,6 +37,8 @@ function AssignSignerType({ route }: IProps) {
   const { signers: appSigners } = useSigners();
   const [visible, setVisible] = useState(false);
   const [signerType, setSignerType] = useState<SignerType>();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText } = translations;
   const assignSignerType = (type: SignerType) => {
     setSignerType(type);
     setVisible(true);
@@ -79,7 +82,10 @@ function AssignSignerType({ route }: IProps) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Change Signer" subtitle="Select a signer to replace the current one" />
+      <KeeperHeader
+        title={signerText.changeSignerTitle}
+        subtitle={signerText.changeSignerSubtitle}
+      />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
         {!signersLoaded ? (
@@ -135,7 +141,7 @@ function AssignSignerType({ route }: IProps) {
               })}
             </Box>
             <Box style={styles.noteContainer}>
-              <Note subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault" />
+              <Note subtitle={signerText.changeSignerNote} />
             </Box>
           </Box>
         )}
