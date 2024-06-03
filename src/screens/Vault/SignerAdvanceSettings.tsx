@@ -15,7 +15,6 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import InheritanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
@@ -619,7 +618,7 @@ function SignerAdvanceSettings({ route }: any) {
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box style={styles.otpModal}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -646,7 +645,6 @@ function SignerAdvanceSettings({ route }: any) {
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
           keyColor={`${colorMode}.primaryText`}
-          ClearIcon={<DeleteIcon />}
         />
       </Box>
     );
@@ -1004,8 +1002,8 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={showOTPModal}
         close={() => setShowOTPModal(false)}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         title={vaultTranslation.oneTimeBackupTitle}
-        subTitle={vaultTranslation.oneTimeBackupDesc}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={SigningServerOTPModal}
@@ -1242,5 +1240,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  otpModal: {
+    width: '100%',
   },
 });

@@ -1357,7 +1357,7 @@ function HardwareModalMap({
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box width={'100%'}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
