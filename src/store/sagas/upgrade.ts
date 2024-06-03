@@ -12,7 +12,12 @@ import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
 import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  HealthCheckDetails,
+  Signer,
+  Vault,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
@@ -38,6 +43,7 @@ export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
+export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.7';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -67,6 +73,10 @@ export function* applyUpgradeSequence({
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT)) {
     yield call(assistedKeysCosignersEnrichment);
+  }
+
+  if (semver.lt(previousVersion, HEALTH_CHECK_TIMELINE_MIGRATION_VERSION)) {
+    yield call(healthCheckTimelineMigration);
   }
 
   yield put(setAppVersion(newVersion));
@@ -432,5 +442,26 @@ function* whirlpoolWalletsCreation() {
     }
   } catch (err) {
     console.log('Error in whirlpoolWalletsCreation:', err);
+  }
+}
+
+function* healthCheckTimelineMigration() {
+  try {
+    const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
+    for (const signer of signers) {
+      // create new whirlpool wallets for missing config
+      const healthCheckDetails: HealthCheckDetails = {
+        type: 'HEALTH_CHECK_SUCCESSFUL',
+        actionDate: signer.lastHealthCheck,
+      };
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'healthCheckDetails',
+        signer.masterFingerprint,
+        healthCheckDetails
+      );
+    }
+  } catch (err) {
+    console.log('Error in health check timeline migration:', err);
   }
 }
