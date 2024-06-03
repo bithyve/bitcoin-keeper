@@ -238,7 +238,11 @@ function Footer({
   common,
   colorMode,
   setCreating,
+  isFromCollab,
+  vaultKeys,
+  onGoBack,
 }) {
+  const navigation = useNavigation();
   const renderNotes = () => {
     const notes = [];
     if (amfSigners.length) {
@@ -278,16 +282,34 @@ function Footer({
     }
     return notes;
   };
+
+  const handleProceedButtonClick = () => {
+    if (onGoBack) {
+      onGoBack(vaultKeys);
+    }
+
+    navigation.goBack();
+  };
   return (
     <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
-      {renderNotes()}
-      <Buttons
-        primaryDisable={!!areSignersValid || !!trezorIncompatible}
-        primaryLoading={relayVaultUpdateLoading}
-        primaryText="Proceed"
-        primaryCallback={() => setCreating(true)}
-        paddingHorizontal={wp(30)}
-      />
+      {!isFromCollab && renderNotes()}
+      {!isFromCollab ? (
+        <Buttons
+          primaryDisable={!!areSignersValid || !!trezorIncompatible}
+          primaryLoading={relayVaultUpdateLoading}
+          primaryText="Proceed"
+          primaryCallback={() => setCreating(true)}
+          paddingHorizontal={wp(30)}
+        />
+      ) : (
+        <Buttons
+          primaryDisable={!areSignersValid}
+          primaryLoading={relayVaultUpdateLoading}
+          primaryText="Proceed"
+          primaryCallback={() => handleProceedButtonClick()}
+          paddingHorizontal={wp(30)}
+        />
+      )}
     </Box>
   );
 }
@@ -307,6 +329,8 @@ function Signers({
   showSelection,
   keyToRotate,
   setCreating,
+  isFromCollab,
+  coSigners,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -443,6 +467,81 @@ function Signers({
     return signerCards;
   }, [signers]);
 
+  const renderCollaborativeSigners = useCallback(() => {
+    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
+    const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
+    const validCoSigners = coSigners.filter((signer) => signer);
+    const coSignersMap = new Map(validCoSigners.map((signer) => [signer.masterFingerprint, true]));
+
+    const signerCards = signers
+      .filter((signer) => signer.type === SignerType.KEEPER && !signer.archived)
+      .map((signer) => {
+        const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+        const isCoSigner = coSignersMap.has(signer.masterFingerprint);
+        const disabled =
+          !isValid ||
+          (signer.type === SignerType.MY_KEEPER &&
+            myAppKeys.length >= 1 &&
+            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+          (anySignerSelected && !selectedSigners.get(signer.masterFingerprint)) ||
+          isCoSigner;
+
+        const handleCardSelect = (selected) => {
+          if (disabled) return;
+
+          onSignerSelect(
+            selected,
+            signer,
+            scheme,
+            vaultKeys,
+            setVaultKeys,
+            selectedSigners,
+            setSelectedSigners,
+            showToast
+          );
+        };
+
+        return (
+          <SignerCard
+            showSelection={showSelection}
+            disabled={disabled}
+            isFromSiginingList={true}
+            key={signer.masterFingerprint}
+            name={
+              !signer.isBIP85
+                ? getSignerNameFromType(signer.type, signer.isMock)
+                : `${getSignerNameFromType(signer.type, signer.isMock)} +`
+            }
+            description={getSignerDescription(
+              signer.type,
+              signer.extraData?.instanceNumber,
+              signer
+            )}
+            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+            isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
+            onCardSelect={handleCardSelect}
+            colorMode={colorMode}
+          />
+        );
+      });
+
+    return signerCards;
+  }, [
+    signers,
+    selectedSigners,
+    scheme,
+    signerMap,
+    vaultKeys,
+    keyToRotate,
+    showSelection,
+    colorMode,
+    setSelectedSigners,
+    setVaultKeys,
+    showToast,
+    setCreating,
+    coSigners,
+  ]);
+
   const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
 
   return (
@@ -458,31 +557,37 @@ function Signers({
                 : 'Choose from already added keys'}
             </Text>
             <Box style={styles.addedSigners}>
-              <>
-                {renderSigners()}
-                {renderAssistedKeysShell()}
-              </>
+              {!isFromCollab ? (
+                <>
+                  {renderSigners()}
+                  {renderAssistedKeysShell()}
+                </>
+              ) : (
+                <>{renderCollaborativeSigners()}</>
+              )}
             </Box>
           </Box>
         ) : null}
-        <Box style={styles.gap10}>
-          <Text color={`${colorMode}.headerText`} bold style={styles.title}>
-            {signers.length ? 'or' : ''} add a new key
-          </Text>
-          <AddCard
-            name="Add a key"
-            cardStyles={styles.addCard}
-            callback={() =>
-              navigation.dispatch(
-                CommonActions.navigate('SigningDeviceList', {
-                  scheme,
-                  vaultId,
-                  vaultSigners: vaultKeys,
-                })
-              )
-            }
-          />
-        </Box>
+        {!isFromCollab && (
+          <Box style={styles.gap10}>
+            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
+              {signers.length ? 'or' : ''} add a new key
+            </Text>
+            <AddCard
+              name="Add a key"
+              cardStyles={styles.addCard}
+              callback={() =>
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceList', {
+                    scheme,
+                    vaultId,
+                    vaultSigners: vaultKeys,
+                  })
+                )
+              }
+            />
+          </Box>
+        )}
         <HardwareModalMap
           visible={visible}
           close={close}
@@ -511,6 +616,9 @@ function AddSigningDevice() {
       description: string;
       vaultId: string;
       keyToRotate?: VaultSigner;
+      isFromCollab?: boolean;
+      onGoBack?: any;
+      coSigners?: any;
     };
   };
   const {
@@ -520,6 +628,9 @@ function AddSigningDevice() {
     vaultId = '',
     scheme,
     keyToRotate,
+    isFromCollab = false,
+    onGoBack,
+    coSigners,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
@@ -745,6 +856,8 @@ function AddSigningDevice() {
         vaultId={vaultId}
         signerMap={signerMap}
         setCreating={setCreating}
+        isFromCollab={isFromCollab}
+        coSigners={coSigners}
       />
       <Footer
         amfSigners={amfSigners}
@@ -757,6 +870,9 @@ function AddSigningDevice() {
         common={common}
         colorMode={colorMode}
         setCreating={setCreating}
+        isFromCollab={isFromCollab}
+        onGoBack={onGoBack}
+        vaultKeys={vaultKeys}
       />
       <KeeperModal
         dismissible

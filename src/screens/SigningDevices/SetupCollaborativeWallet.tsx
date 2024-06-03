@@ -8,17 +8,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
-import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
-import {
-  extractKeyFromDescriptor,
-  generateSignerFromMetaData,
-  getSignerNameFromType,
-} from 'src/hardware';
-import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
+import { getPlaceholder } from 'src/utils/utilities';
+import { getSignerNameFromType } from 'src/hardware';
+import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
+import { addNewVault } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { useAppSelector } from 'src/store/hooks';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
@@ -66,40 +62,34 @@ function AddCoSignerContent() {
 function SignerItem({
   vaultKey,
   index,
-  onQRScan,
   signerMap,
+  setSelectedSigner,
+  COLLABORATIVE_SCHEME,
+  coSigners,
 }: {
   vaultKey: VaultSigner | undefined;
   index: number;
-  onQRScan: any;
   signerMap: { [key: string]: Signer };
+  setSelectedSigner: any;
+  COLLABORATIVE_SCHEME: object;
+  coSigners: any;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const signer = vaultKey ? signerMap[vaultKey.masterFingerprint] : null;
 
-  const navigateToAddQrBasedSigner = () => {
+  const callback = () => {
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'ScanQR',
+        name: 'AddSigningDevice',
         params: {
-          title: 'Add a co-signer',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-          onQrScan: onQRScan,
-          setup: true,
-          type: SignerType.KEEPER,
-          isHealthcheck: true,
-          signer,
-          disableMockFlow: true,
-          learnMore: true,
-          learnMoreContent: AddCoSignerContent,
+          isFromCollab: true,
+          scheme: COLLABORATIVE_SCHEME,
+          coSigners,
+          onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys),
         },
       })
     );
-  };
-
-  const callback = () => {
-    navigateToAddQrBasedSigner();
   };
 
   if (!signer || !vaultKey) {
@@ -152,55 +142,28 @@ function SetupCollaborativeWallet() {
   const { translations } = useContext(LocalizationContext);
   const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
   const { common } = translations;
+  const [selectedSigner, setSelectedSigner] = useState(null);
 
-  const pushSigner = (
-    xpub,
-    derivationPath,
-    masterFingerprint,
-    resetQR,
-    xpriv = '',
-    goBack = true,
-    mine = false
-  ) => {
-    try {
-      // duplicate check
-      if (coSigners.find((item) => item && item.xpub === xpub)) {
+  const handleSelectedSigners = (vaultKeys) => {
+    setCoSigners((prevCoSigners) => {
+      let newSigners = [...prevCoSigners];
+      const newKey = vaultKeys[0];
+      const existingIndex = newSigners.findIndex(
+        (signer) => signer && signer.masterFingerprint === newKey.masterFingerprint
+      );
+      if (existingIndex !== -1) {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
-        resetQR();
-        return;
-      }
-
-      // only use one of my mobile keys
-      if (signerMap[masterFingerprint]?.type === SignerType.MY_KEEPER) {
-        showToast('You cannot use more than one of your own Mobile Keys!', <ToastErrorIcon />);
-        resetQR();
-        return;
-      }
-      const { key, signer } = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        masterFingerprint,
-        xpriv,
-        signerType: mine ? SignerType.MY_KEEPER : SignerType.KEEPER,
-        storageType: SignerStorage.WARM,
-        isMultisig: true,
-      });
-      let addedSigner = false;
-      const newSigners = coSigners.map((item) => {
-        if (!addedSigner && !item) {
-          addedSigner = true;
-          return key;
+        return prevCoSigners;
+      } else {
+        const nullIndex = newSigners.indexOf(null || undefined);
+        if (nullIndex !== -1) {
+          newSigners[nullIndex] = newKey;
+        } else {
+          newSigners.push(newKey);
         }
-        return item;
-      });
-      dispatch(addSigningDevice([signer]));
-      setCoSigners(newSigners);
-      if (goBack) navigation.goBack();
-    } catch (err) {
-      console.log(err);
-      const message = crossInteractionHandler(err);
-      showToast(message, <ToastErrorIcon />);
-    }
+      }
+      return newSigners;
+    });
   };
 
   const { signers } = useSigners();
@@ -210,7 +173,7 @@ function SetupCollaborativeWallet() {
   useEffect(() => {
     if (!coSigners[0]) {
       setTimeout(() => {
-        const updatedSigners = coSigners.map((item, index) => {
+        let updatedSigners = coSigners.map((item, index) => {
           if (index === 0 && myAppKeyCount > 0) {
             const signer = myAppKeys[myAppKeyCount - 1];
             const msXpub: signerXpubs[XpubTypes.P2WSH][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -232,7 +195,7 @@ function SetupCollaborativeWallet() {
       dispatch(resetVaultFlags());
       dispatch(resetRealyVaultState());
     };
-  }, []);
+  }, [selectedSigner]);
 
   useEffect(() => {
     if (
@@ -284,11 +247,10 @@ function SetupCollaborativeWallet() {
     <SignerItem
       vaultKey={item}
       index={index}
-      onQRScan={(data, resetQR) => {
-        const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
-        pushSigner(xpub, derivationPath, masterFingerprint, resetQR, '');
-      }}
+      COLLABORATIVE_SCHEME={COLLABORATIVE_SCHEME}
       signerMap={signerMap}
+      setSelectedSigner={handleSelectedSigners}
+      coSigners={coSigners}
     />
   );
 
