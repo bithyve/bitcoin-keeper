@@ -55,12 +55,12 @@ function SigningDeviceList() {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { plan } = usePlan();
+  const { plan, isOnL1, isOnL2 } = usePlan();
   const dispatch = useAppDispatch();
   const reduxDispatch = useDispatch();
-  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
   const isOnL1L2 = isOnL1 || isOnL2;
+
+  console.log(plan, 'plan');
 
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
