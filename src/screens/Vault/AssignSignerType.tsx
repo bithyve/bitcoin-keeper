@@ -9,7 +9,6 @@ import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
 import useSigners from 'src/hooks/useSigners';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -43,7 +42,7 @@ function AssignSignerType({ route }: IProps) {
     setSignerType(type);
     setVisible(true);
   };
-  const { plan } = usePlan();
+  const { plan, isOnL1, isOnL2 } = usePlan();
 
   const availableSigners = [
     SignerType.TAPSIGNER,
@@ -64,8 +63,6 @@ function AssignSignerType({ route }: IProps) {
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
-  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
