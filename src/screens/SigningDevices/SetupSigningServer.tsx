@@ -120,7 +120,7 @@ function SetupSigningServer({ route }: { route }) {
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box style={styles.otpContainer}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -285,6 +285,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  otpContainer: {
+    width: '100%',
   },
 });
 export default SetupSigningServer;

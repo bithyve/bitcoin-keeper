@@ -753,11 +753,11 @@ function AddSigningDevice() {
               />
             </Box>
             <Box>
-              {vault.presentationData.description && (
+              {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
                 </Text>
-              )}
+              ) : null}
               <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
                 {vault.presentationData.name}
               </Text>
