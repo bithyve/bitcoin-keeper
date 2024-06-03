@@ -116,7 +116,7 @@ function HealthCheckComponent(props) {
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
             type === BackupType.SEED
-              ? setSeedWord(value.toLocaleLowerCase())
+              ? setSeedWord(value?.toLocaleLowerCase())
               : setStrongPassword(value)
           }
           style={styles.inputContainer}
