@@ -768,7 +768,11 @@
     "deleteKeys": "Show and delete keys",
     "deleteKeysSubtitle": "for hidden keys",
     "currencyErrorTitle": "Currency Not Available",
-    "currencyErrorSubTitle": "This currency currently does not exist."
+    "currencyErrorSubTitle": "This currency currently does not exist.",
+    "EnterPasscodeTitle": "Enter Passcode",
+    "EnterPasscodeSubtitle": "Confirm passcode to show all hidden keys",
+    "SingerSettingsTitle": "Advanced Options",
+    "SingerSettingsSubtitle": "For all keys"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -871,7 +875,10 @@
     "addKey": "Add key",
     "keyDetails": "Key Details",
     "ManageKeys": "Manage Keys",
-    "ViewAndChangeKeyDetails": "View and change key details"
+    "ViewAndChangeKeyDetails": "View and change key details",
+    "changeSignerTitle": "Change Signer",
+    "changeSignerSubtitle": "Select a signer to replace the current one",
+    "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

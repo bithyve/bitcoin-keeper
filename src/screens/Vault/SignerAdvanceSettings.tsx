@@ -67,13 +67,14 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import moment from 'moment';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import moment from 'moment';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
@@ -128,6 +129,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const isSmallDevice = useIsSmallDevices();
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
@@ -880,6 +882,7 @@ function SignerAdvanceSettings({ route }: any) {
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
               callback={() => {}}
+              customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
             />
           ))}
         </ScrollView>
@@ -949,7 +952,11 @@ function SignerAdvanceSettings({ route }: any) {
         buttonText="View Vault"
         secondaryButtonText="Back"
         secondaryCallback={() => setHideWarning(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));

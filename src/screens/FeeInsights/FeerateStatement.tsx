@@ -69,7 +69,7 @@ const FeerateStatement = (props: Props) => {
       </Box>
       <View style={styles.divider}></View>
       <Box style={styles.statementWrapper}>
-        <Text style={styles.highAlertSatsFee} color={`${colorMode}.SlateGrey`}>
+        <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoTitleColor`}>
           Fees are
         </Text>
         <Box>
@@ -77,11 +77,11 @@ const FeerateStatement = (props: Props) => {
             <Box style={styles.arrowWrapper}>
               {arrowPointer === 'lower' ? <BTC_DOWN /> : <BTC_UP />}
             </Box>
-            <Text style={styles.percentageStatement} color={`${colorMode}.Feldgrau`}>
+            <Text style={styles.percentageStatement} color={`${colorMode}.feeInfoColor`}>
               {Math.abs(Number(percentageDifference.toFixed(2)))}%
             </Text>
           </Box>
-          <Text style={styles.highAlertSatsFee} color={`${colorMode}.SlateGrey`}>
+          <Text style={styles.highAlertSatsFee} color={`${colorMode}.feeInfoColor`}>
             {arrowPointer} than usual
           </Text>
         </Box>
