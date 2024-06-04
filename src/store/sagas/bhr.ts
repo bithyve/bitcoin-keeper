@@ -232,6 +232,16 @@ export function* deleteAppImageEntityWorker({
         yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
       }
     }
+    if (signerIds.length > 0) {
+      for (const signerId of signerIds) {
+        yield call(
+          dbManager.deleteObjectByPrimaryKey,
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signerId
+        );
+      }
+    }
     return response;
   } catch (err) {
     captureError(err);
