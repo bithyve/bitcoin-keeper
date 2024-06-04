@@ -937,8 +937,7 @@ function SendConfirmation({ route }) {
             <Box style={styles.transferSentFromContainer}>
               <Text style={styles.transferText}>Transfer From</Text>
               <TransferCard
-                // preTitle={sourceWallet?.presentationData?.name}
-                preTitle={'Bitcoin Tribe'}
+                preTitle={sourceWallet?.presentationData?.name}
                 title={'Available to Spend'}
                 subTitle={`${getBalance(sourceWallet?.specs?.balances?.confirmed)} ${getSatUnit()}`}
                 icon={
