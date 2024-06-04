@@ -33,6 +33,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import {
   signTransactionWithColdCard,
+  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
@@ -45,6 +46,11 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
+import { generateKey } from 'src/utils/service-utilities/encryption';
+import { formatDuration } from '../Vault/HardwareModalMap';
+import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
+import TickIcon from 'src/assets/images/tick_icon.svg';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -189,18 +195,19 @@ function SignTransactionScreen() {
 
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
+  const { inheritanceSigningRequestId } = useAppSelector((state) => state.storage);
 
   const signTransaction = useCallback(
     async ({
       xfp,
       signingServerOTP,
       seedBasedSingerMnemonic,
-      thresholdDescriptors,
+      inheritanceConfiguration,
     }: {
       xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
-      thresholdDescriptors?: string[];
+      inheritanceConfiguration?: InheritanceConfiguration;
     } = {}) => {
       const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
@@ -257,15 +264,39 @@ function SignTransactionScreen() {
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
-          showToast('Signing via inheritance key is not available yet.');
-          // TODO: implement inheritance key signing, rewire the threshold descriptor w/ inheritance config; check InheritanceKeyServer.thresholdDescriptors
-          // const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
-          //   signingPayload,
-          //   serializedPSBT,
-          //   xfp,
-          //   thresholdDescriptors,
-          // });
-          // dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          let requestId = inheritanceSigningRequestId;
+          let isNewRequest = false;
+
+          if (!requestId) {
+            requestId = `request-${generateKey(14)}`;
+            isNewRequest = true;
+          }
+
+          const { requestStatus, signedSerializedPSBT } = await signTransactionWithInheritanceKey({
+            signingPayload,
+            serializedPSBT,
+            xfp,
+            requestId,
+            inheritanceConfiguration,
+            showToast,
+          });
+
+          if (requestStatus && isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
+
+          // process request based on status
+          if (requestStatus.isDeclined) {
+            showToast('Inheritance Key Signing request has been declined', <ToastErrorIcon />);
+            // dispatch(setInheritanceSigningRequestId('')); // clear existing request
+          } else if (!requestStatus.isApproved) {
+            showToast(
+              `Request would approve in ${formatDuration(
+                requestStatus.approvesIn
+              )} if not rejected`,
+              <TickIcon />
+            );
+          } else if (requestStatus.isApproved && signedSerializedPSBT) {
+            dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+          } else showToast('Unknown request status, please try again');
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -340,6 +371,23 @@ function SignTransactionScreen() {
           } else showOTPModal(true);
         } else showOTPModal(true);
         break;
+      case SignerType.INHERITANCEKEY:
+        if (signer.inheritanceKeyInfo) {
+          let configurationForVault: InheritanceConfiguration;
+          for (const config of signer.inheritanceKeyInfo.configurations) {
+            if (config.id === defaultVault.id) {
+              configurationForVault = config;
+              break;
+            }
+          }
+          if (!configurationForVault) {
+            showToast(`Missing vault configuration for ${defaultVault.id}`);
+            return;
+          }
+
+          signTransaction({ xfp: vaultKey.xfp, inheritanceConfiguration: configurationForVault });
+        } else showToast('Inheritance key info missing');
+        break;
       case SignerType.SEED_WORDS:
         navigation.dispatch(
           CommonActions.navigate({
@@ -384,13 +432,6 @@ function SignTransactionScreen() {
         break;
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
-        break;
-      case SignerType.INHERITANCEKEY:
-        // if (inheritanceKeyInfo) {
-        //   const thresholdDescriptors = inheritanceKeyInfo.configuration.descriptors.slice(0, 2);
-        //   signTransaction({ signerId, thresholdDescriptors });
-        // } else showToast('Inheritance config missing');
-        showToast('Signing via Inheritance Key is not available', <ToastErrorIcon />);
         break;
       default:
         showToast(`action not set for ${signer.type}`);
