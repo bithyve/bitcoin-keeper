@@ -1414,6 +1414,5 @@ const styles = StyleSheet.create({
   },
   transferSentFromContainer: {
     width: '48%',
-    // marginLeft: 10,
   },
 });
