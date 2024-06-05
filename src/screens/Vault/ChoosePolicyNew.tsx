@@ -136,7 +136,7 @@ function ChoosePolicyNew({ navigation, route }) {
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box width={'100%'}>
         <Box>
           <TouchableOpacity
             onPress={async () => {

@@ -77,14 +77,16 @@ function SignerItem({
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const signer = vaultKey ? signerMap[vaultKey.masterFingerprint] : null;
+  const { translations } = useContext(LocalizationContext);
+  const { wallet, common } = translations;
 
   const navigateToAddQrBasedSigner = () => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: 'Add a co-signer',
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          title: wallet.AddCoSigner,
+          subtitle: wallet.ScanQRData,
           onQrScan: onQRScan,
           setup: true,
           type: SignerType.KEEPER,
@@ -105,7 +107,11 @@ function SignerItem({
   if (!signer || !vaultKey) {
     return (
       <AddCard
-        name={index === 0 ? 'Adding your key...' : `Add ${getPlaceholder(index)} cosigner`}
+        name={
+          index === 0
+            ? wallet.AddingKey
+            : `${common.add} ${getPlaceholder(index)} ${common.coSigner}`
+        }
         cardStyles={styles.addCard}
         callback={callback}
         loading={index === 0}
@@ -117,7 +123,7 @@ function SignerItem({
     <SignerCard
       key={signer.masterFingerprint}
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
-      description={`Added ${moment(signer.addedOn).calendar()}`}
+      description={`${common.added} ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       isSelected={false}
       showSelection={false}
@@ -151,7 +157,7 @@ function SetupCollaborativeWallet() {
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
-  const { common } = translations;
+  const { common, wallet, signer } = translations;
 
   const pushSigner = (
     xpub,
@@ -165,14 +171,14 @@ function SetupCollaborativeWallet() {
     try {
       // duplicate check
       if (coSigners.find((item) => item && item.xpub === xpub)) {
-        showToast('This co-signer has already been added', <ToastErrorIcon />);
+        showToast(wallet.CoSignerExists, <ToastErrorIcon />);
         resetQR();
         return;
       }
 
       // only use one of my mobile keys
       if (signerMap[masterFingerprint]?.type === SignerType.MY_KEEPER) {
-        showToast('You cannot use more than one of your own Mobile Keys!', <ToastErrorIcon />);
+        showToast(wallet.SelfKeyError, <ToastErrorIcon />);
         resetQR();
         return;
       }
@@ -275,7 +281,7 @@ function SetupCollaborativeWallet() {
     }
     if (hasNewVaultGenerationFailed) {
       setIsCreating(false);
-      showToast('Error creating collaborative wallet', <ToastErrorIcon />);
+      showToast(wallet.CollabWalletError, <ToastErrorIcon />);
       captureError(error);
     }
   };
@@ -300,8 +306,8 @@ function SetupCollaborativeWallet() {
         vaultScheme: COLLABORATIVE_SCHEME,
         vaultSigners: coSigners,
         vaultDetails: {
-          name: `Collaborative Wallet ${collaborativeWallets.length + 1}`,
-          description: '2 of 3 multisig',
+          name: `${common.collaborativeWallet} ${collaborativeWallets.length + 1}`,
+          description: wallet.Desc2of3,
         },
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -315,8 +321,8 @@ function SetupCollaborativeWallet() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Add Signers"
-        subtitle="A 2 of 3 collaborative wallet will be created"
+        title={signer.addSigners}
+        subtitle={wallet.CollaborativeWalletCreated}
         learnMore
         learnMorePressed={() => dispatch(setCosginerModal(true))}
         learnTextColor={`${colorMode}.white`}
@@ -333,20 +339,18 @@ function SetupCollaborativeWallet() {
         }}
       />
       <FloatingCTA
-        primaryText="Create"
+        primaryText={common.create}
         primaryCallback={createVault}
-        secondaryText="Cancel"
+        secondaryText={common.cancel}
         primaryLoading={isCreating}
         primaryDisable={coSigners.filter((item) => item)?.length < 2}
       />
       <WalletVaultCreationModal
         visible={walletCreatedModal}
-        title={'Wallet Created Successfully!'}
-        subTitle={'A collaborative with three App Keys on three separate devices.'}
-        buttonText={'View Wallet'}
-        descriptionMessage={
-          'You should ensure you have a copy of the wallet configuration file for this vault'
-        }
+        title={wallet.WalletCreated}
+        subTitle={wallet.CollaborativeWalletSubtitle}
+        buttonText={wallet.ViewWallet}
+        descriptionMessage={wallet.CollaborativeWalletDesc}
         buttonCallback={() => {
           navigateToNextScreen();
         }}
@@ -359,7 +363,7 @@ function SetupCollaborativeWallet() {
         close={() => {
           dispatch(setCosginerModal(false));
         }}
-        title={'Add a co-signer'}
+        title={wallet.AddCoSigner}
         subTitle={''}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
