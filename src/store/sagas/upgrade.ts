@@ -35,6 +35,7 @@ import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -449,9 +450,8 @@ function* healthCheckTimelineMigration() {
   try {
     const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
     for (const signer of signers) {
-      // create new whirlpool wallets for missing config
       const healthCheckDetails: HealthCheckDetails = {
-        type: 'HEALTH_CHECK_SUCCESSFUL',
+        type: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
         actionDate: signer.lastHealthCheck,
       };
       dbManager.updateObjectByPrimaryId(
