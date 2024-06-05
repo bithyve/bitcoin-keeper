@@ -13,7 +13,12 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
-import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  HealthCheckDetails,
+  Signer,
+  Vault,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -58,6 +63,7 @@ import {
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
   getAppImage,
+  healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
@@ -66,6 +72,7 @@ import { KEY_MANAGEMENT_VERSION } from './upgrade';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 export function* updateAppImageWorker({
   payload,
@@ -570,6 +577,37 @@ function* recoverBackupWorker({
     console.log(error);
   }
 }
+
+function* healthCheckSatutsUpdateWorker({
+  payload,
+}: {
+  payload: {
+    signerUpdates: { signerId: string; hcSatatus: string }[];
+  };
+}) {
+  try {
+    const { signerUpdates } = payload;
+    for (const signerUpdate of signerUpdates) {
+      const signer: Signer = dbManager.getObjectById(RealmSchema.Signer, signerUpdate.signerId);
+      if (signer) {
+        const date = new Date();
+        const healthCheckDetails: HealthCheckDetails = {
+          type: signerUpdate.hcSatatus,
+          actionDate: date,
+        };
+        yield put(updateSignerDetails(signer, 'healthCheckDetails', healthCheckDetails));
+        yield put(healthCheckSigner([signer]));
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const healthCheckSatutsUpdateWatcher = createWatcher(
+  healthCheckSatutsUpdateWorker,
+  DELETE_APP_IMAGE_ENTITY
+);
 
 function* healthCheckSignerWorker({
   payload,
