@@ -115,7 +115,11 @@
     "forThisVault": "For this vault",
     "saveChanges": "Save Changes",
     "continueToHide": "Continue to Hide",
-    "MoveFunds": "Move Funds"
+    "MoveFunds": "Move Funds",
+    "signerFingerPrint": "Signer Fingerprint",
+    "coSigner": "cosigner",
+    "added": "Added",
+    "collaborativeWallet": "Collaborative Wallet"
   },
   "noInternet": {
     "no": "No Internet",
@@ -407,7 +411,7 @@
     "remixVault": "Remix to vault",
     "selectToSend": "Select to Send",
     "noUTXOYet": "No UTXOs yet",
-    "noUTXOYetSubTitle": "UTXOs from all your Tx0s land here.",
+    "noUTXOYetSubTitle": "Label and send specific UTXOs.",
     "intiatePremixToastMsg": "Please wait for a confirmation to \"Initiate Premix\". For confirmation ETA, click on the transaction > Transaction ID",
     "utxoAllowedTime": "Only a single UTXO mix allowed at a time",
     "newWalletCreated": "New wallet created!",
@@ -501,7 +505,23 @@
     "hideWalletTitle": "Hide Wallet",
     "hideWalletDesc": "Hidden wallets can be managed from manage wallets",
     "walletFingerPrint": "Wallet Fingerprint",
-    "mnemonicDoesNotExist": "Mnemonic doesn't exists"
+    "mnemonicDoesNotExist": "Mnemonic doesn't exists",
+    "createNew:": "Create New",
+    "singleMultiKey": "Single or multi-key",
+    "import": "Import",
+    "recoverRecreate": "Recover or recreate",
+    "CustomMultiKey": "Custom Multi-key",
+    "AddCoSigner": "Add a co-signer",
+    "ScanQRData": "Please scan until all the QR data has been retrieved",
+    "AddingKey": "Adding your key...",
+    "CoSignerExists": "This co-signer has already been added",
+    "SelfKeyError": "You cannot use more than one of your own Mobile Keys!",
+    "CollabWalletError": "Error creating collaborative wallet",
+    "Desc2of3": "2-of-3 Multi-key",
+    "CollaborativeWalletCreated": "A 2 of 3 collaborative wallet will be created",
+    "WalletCreated": "Wallet Created Successfully!",
+    "CollaborativeWalletSubtitle": "A collaborative with three App Keys on three separate devices.",
+    "CollaborativeWalletDesc": "You should ensure you have a copy of the wallet configuration file for this vault"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -602,13 +622,13 @@
     "seedDescription": "Make sure to use the Wallet Recovery Phrase (seed words) in private",
     "recoverWallet": "To recover your wallet",
     "ExportSeed": "Seed words",
-    "SeedDesc": "Make sure you keep them safe",
+    "SeedDesc": "Make sure you keep it safe",
     "longing": "longing",
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Recovery Phrase",
     "backupPhrase": "Recovery Key",
-    "walletSeedWords": "Recovery Keys",
+    "walletSeedWords": "Recovery Key",
     "enterRecoveryPhrase": "Recover an existing Keeper App",
     "enterRecoveryPhraseSubTitle": "Enter existing 12-word recovery phrase below",
     "enterRecoveryPhraseNote": "Make sure to use the 12-word recovery phrase in private",
@@ -617,7 +637,8 @@
     "walletRecoveryPhrase": "Wallet Recovery Phrase",
     "showXPubNoteSubText": "Losing your Wallet Seed Words may result in permanent loss of funds. Store them carefully.",
     "mobileKeyVerified": "Mobile Key verified successfully",
-    "seedWordVerified": "Seed Words verified successfully"
+    "seedWordVerified": "Seed Words verified successfully",
+    "keeperVerified": "Keeper Verified Successfully"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signer",
@@ -699,8 +720,12 @@
     "walletSettings": "Wallet Settings",
     "walletSettingsSub": "Your wallet settings & preferences",
     "walletSettingSubTitle": "Setting for the wallet only",
-    "BackupSettings": "Backup Settings",
-    "BackupSettingSubTitle": "Setting your backup",
+    "BackupSettings": "Recovery Key Settings",
+    "BackupSettingSubTitle": "Manage your key",
+    "ViewRKTitle": "View Recovery Key",
+    "ViewRKDesc": "View seedwords for your key",
+    "ConfirmPassTitle": "Confirm Passcode",
+    "ConfirmPassSubTitle": "To show wallet seed words",
     "AppInfo": "App Info",
     "AppInfoSub": "Hexa app version number and details",
     "Disconnectyour": "Disconnect your own node and connect to Hexa node",
@@ -800,7 +825,11 @@
     "deleteKeys": "Show and delete keys",
     "deleteKeysSubtitle": "for hidden keys",
     "currencyErrorTitle": "Currency Not Available",
-    "currencyErrorSubTitle": "This currency currently does not exist."
+    "currencyErrorSubTitle": "This currency currently does not exist.",
+    "EnterPasscodeTitle": "Enter Passcode",
+    "EnterPasscodeSubtitle": "Confirm passcode to show all hidden keys",
+    "SingerSettingsTitle": "Advanced Options",
+    "SingerSettingsSubtitle": "For all keys"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -903,7 +932,10 @@
     "addKey": "Add key",
     "keyDetails": "Key Details",
     "ManageKeys": "Manage Keys",
-    "ViewAndChangeKeyDetails": "View and change key details"
+    "ViewAndChangeKeyDetails": "View and change key details",
+    "changeSignerTitle": "Change Signer",
+    "changeSignerSubtitle": "Select a signer to replace the current one",
+    "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
