@@ -454,7 +454,7 @@ function OtpContent({ signTransaction }) {
   };
 
   return (
-    <Box width={hp(280)}>
+    <Box width={'100%'}>
       <Box>
         <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
         <Text

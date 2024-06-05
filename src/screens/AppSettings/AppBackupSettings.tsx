@@ -24,7 +24,7 @@ function AppBackupSettings() {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const { settings } = translations;
+  const { settings, common } = translations;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -34,8 +34,8 @@ function AppBackupSettings() {
         showsVerticalScrollIndicator={false}
       >
         <OptionCard
-          title="View Recovery Keys"
-          description="you can view keys"
+          title={settings.ViewRKTitle}
+          description={settings.ViewRKDesc}
           callback={() => {
             setConfirmPassVisible(true);
           }}
@@ -45,9 +45,9 @@ function AppBackupSettings() {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Confirm Passcode"
+        title={settings.ConfirmPassTitle}
         subTitleWidth={wp(240)}
-        subTitle="To backup app recovery key"
+        subTitle={settings.ConfirmPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -71,7 +71,7 @@ function AppBackupSettings() {
         )}
       />
       <Box style={styles.fingerprint}>
-        <WalletFingerprint title="Signer Fingerprint" fingerprint={publicId.toString()} />
+        <WalletFingerprint title={common.signerFingerPrint} fingerprint={publicId.toString()} />
       </Box>
     </ScreenWrapper>
   );
