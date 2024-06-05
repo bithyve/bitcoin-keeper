@@ -1,9 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SendAndReceiveState } from './send_and_receive';
+import { SendConfirmationRouteParams } from 'src/screens/Send/SendConfirmation';
 
 const initialState: {
   snapshots: {
-    [cachedTxid: string]: SendAndReceiveState;
+    [cachedTxid: string]: {
+      state: SendAndReceiveState;
+      routeParams: any;
+    };
   };
 } = {
   snapshots: {},
@@ -15,7 +19,10 @@ const cachedTxSlice = createSlice({
   reducers: {
     setTransactionSnapshot: (
       state,
-      action: PayloadAction<{ cachedTxid: string; snapshot: SendAndReceiveState }>
+      action: PayloadAction<{
+        cachedTxid: string;
+        snapshot: { state: SendAndReceiveState; routeParams: SendConfirmationRouteParams };
+      }>
     ) => {
       state.snapshots = {
         ...state.snapshots,

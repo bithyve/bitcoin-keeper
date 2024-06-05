@@ -52,19 +52,22 @@ import { formatDuration } from '../Vault/HardwareModalMap';
 import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { dropTransactionSnapshot, setTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId } = (route.params || {
+  const { note, label, vaultId, sendConfirmationRouteParams } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
+    sendConfirmationRouteParams: null,
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
     vaultId: string;
+    sendConfirmationRouteParams: SendConfirmationRouteParams;
   };
 
   const { activeVault: defaultVault } = useVault({
@@ -125,7 +128,15 @@ function SignTransactionScreen() {
       dispatch(dropTransactionSnapshot({ cachedTxid }));
     } else {
       // transaction in process, sets/updates transaction snapshot
-      dispatch(setTransactionSnapshot({ cachedTxid, snapshot: sendAndReceive }));
+      dispatch(
+        setTransactionSnapshot({
+          cachedTxid,
+          snapshot: {
+            state: sendAndReceive,
+            routeParams: sendConfirmationRouteParams,
+          },
+        })
+      );
     }
   }, [sendAndReceive]);
 

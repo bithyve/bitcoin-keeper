@@ -86,7 +86,7 @@ export interface SendAndReceiveState {
     failedErrorMessage: string | null;
     isSuccessful: boolean;
     serializedPSBTEnvelops: SerializedPSBTEnvelop[];
-    cachedTxId: string;
+    cachedTxid: string;
     txid: string | null;
   };
   sendPhaseThree: {
@@ -126,7 +126,7 @@ const initialState: SendAndReceiveState = {
     failedErrorMessage: null,
     isSuccessful: false,
     serializedPSBTEnvelops: null,
-    cachedTxId: null,
+    cachedTxid: null,
     txid: null,
   },
   sendPhaseThree: {
@@ -234,7 +234,7 @@ const sendAndReceiveSlice = createSlice({
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
         serializedPSBTEnvelops: successful ? serializedPSBTEnvelops : null,
-        cachedTxId: serializedPSBTEnvelops ? cachedTxid : null,
+        cachedTxid: serializedPSBTEnvelops ? cachedTxid : null,
         txid: successful ? txid : null,
       };
     },

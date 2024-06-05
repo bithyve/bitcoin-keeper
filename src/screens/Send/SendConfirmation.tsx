@@ -587,6 +587,24 @@ function AddLabel() {
   );
 }
 
+export interface SendConfirmationRouteParams {
+  sender: Wallet | Vault;
+  recipient: Wallet | Vault;
+  address: string;
+  amount: number;
+  walletId: string;
+  uiMetaData: any;
+  transferType: TransferType;
+  uaiSetActionFalse: any;
+  note: string;
+  isAutoTransfer: boolean;
+  label: {
+    name: string;
+    isSystem: boolean;
+  }[];
+  selectedUTXOs: UTXO[];
+}
+
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -603,23 +621,7 @@ function SendConfirmation({ route }) {
     label,
     selectedUTXOs,
     isAutoTransfer,
-  }: {
-    sender: Wallet | Vault;
-    recipient: Wallet | Vault;
-    address: string;
-    amount: number;
-    walletId: string;
-    uiMetaData: any;
-    transferType: TransferType;
-    uaiSetActionFalse: any;
-    note: string;
-    isAutoTransfer: boolean;
-    label: {
-      name: string;
-      isSystem: boolean;
-    }[];
-    selectedUTXOs: UTXO[];
-  } = route.params;
+  }: SendConfirmationRouteParams = route.params;
 
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
@@ -753,6 +755,7 @@ function SendConfirmation({ route }) {
           note,
           label,
           vaultId: sender.id,
+          sendConfirmationRouteParams: route.params,
         })
       );
     }
