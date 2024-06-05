@@ -55,6 +55,7 @@ import {
   BSMS_CLOUD_HEALTH_CHECK,
   DELETE_APP_IMAGE_ENTITY,
   GET_APP_IMAGE,
+  HEALTH_CHECK_STATUS_UPDATE,
   RECOVER_BACKUP,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
@@ -588,7 +589,11 @@ function* healthCheckSatutsUpdateWorker({
   try {
     const { signerUpdates } = payload;
     for (const signerUpdate of signerUpdates) {
-      const signer: Signer = dbManager.getObjectById(RealmSchema.Signer, signerUpdate.signerId);
+      const signer: Signer = dbManager.getObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerpint',
+        RealmSchema.Signer
+      );
       if (signer) {
         const date = new Date();
         const healthCheckDetails: HealthCheckDetails = {
@@ -606,7 +611,7 @@ function* healthCheckSatutsUpdateWorker({
 
 export const healthCheckSatutsUpdateWatcher = createWatcher(
   healthCheckSatutsUpdateWorker,
-  DELETE_APP_IMAGE_ENTITY
+  HEALTH_CHECK_STATUS_UPDATE
 );
 
 function* healthCheckSignerWorker({
