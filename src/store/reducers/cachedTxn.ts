@@ -5,8 +5,9 @@ import { SendConfirmationRouteParams } from 'src/screens/Send/SendConfirmation';
 const initialState: {
   snapshots: {
     [cachedTxid: string]: {
-      state: SendAndReceiveState;
-      routeParams: any;
+      state: SendAndReceiveState; // state snapshot
+      routeParams: SendConfirmationRouteParams; // cached route params(for confirmation screen)
+      options?: any; // extra data for post transaction action
     };
   };
 } = {
@@ -21,15 +22,17 @@ const cachedTxSlice = createSlice({
       state,
       action: PayloadAction<{
         cachedTxid: string;
-        snapshot: { state: SendAndReceiveState; routeParams: SendConfirmationRouteParams };
+        snapshot: {
+          state: SendAndReceiveState;
+          routeParams: SendConfirmationRouteParams;
+          options?: any;
+        };
       }>
     ) => {
       state.snapshots = {
         ...state.snapshots,
         [action.payload.cachedTxid]: action.payload.snapshot,
       };
-      console.log('Setting snapshot for: ', action.payload.cachedTxid);
-      console.log({ snap: state.snapshots });
     },
     dropTransactionSnapshot: (state, action: PayloadAction<{ cachedTxid: string }>) => {
       delete state.snapshots[action.payload.cachedTxid];
