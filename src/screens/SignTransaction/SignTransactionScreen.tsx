@@ -51,6 +51,7 @@ import { generateKey } from 'src/utils/service-utilities/encryption';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
+import { dropTransactionSnapshot, setTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -99,6 +100,7 @@ function SignTransactionScreen() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -111,9 +113,21 @@ function SignTransactionScreen() {
   const [broadcasting, setBroadcasting] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const textRef = useRef(null);
+  const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
-  const card = useRef(new CKTapCard()).current;
+  const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
+  const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+
+  useEffect(() => {
+    if (sendAndReceive.sendPhaseThree.txid) {
+      // transaction successful
+      dispatch(dropTransactionSnapshot({ cachedTxid }));
+    } else {
+      // transaction in process, sets/updates transaction snapshot
+      dispatch(setTransactionSnapshot({ cachedTxid, snapshot: sendAndReceive }));
+    }
+  }, [sendAndReceive]);
 
   useEffect(() => {
     if (relayVaultUpdate) {
