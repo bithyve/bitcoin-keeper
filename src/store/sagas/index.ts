@@ -47,6 +47,7 @@ import {
   updateVaultImageWatcher,
   backupBsmsOnCloudWatcher,
   bsmsCloudHealthCheckWatcher,
+  healthCheckSatutsUpdateWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -137,6 +138,7 @@ const rootSaga = function* () {
     seedBackeupConfirmedWatcher,
     recoverBackupWatcher,
     healthCheckSignerWatcher,
+    healthCheckSatutsUpdateWatcher,
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,
