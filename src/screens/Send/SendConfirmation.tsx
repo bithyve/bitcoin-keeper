@@ -66,6 +66,7 @@ import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
 import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -753,9 +754,11 @@ function SendConfirmation({ route }) {
       setProgress(false);
       navigation.dispatch(
         CommonActions.navigate('SignTransactionScreen', {
+          isMoveAllFunds,
           note,
           label,
           vaultId: sender.id,
+          sender: sender,
         })
       );
     }
@@ -796,10 +799,35 @@ function SendConfirmation({ route }) {
       navigation.dispatch(CommonActions.reset(navigationState));
     }
   };
+
   const viewManageWallets = () => {
-    //TODO: @Pratyaskh - Refresh wallets
-    navigation.navigate('ManageWallets');
+    new Promise((resolve, reject) => {
+      try {
+        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    })
+      .then(() => {
+        setVisibleModal(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              {
+                name: 'ManageWallets',
+              },
+            ],
+          })
+        );
+      })
+      .catch((error) => {
+        console.error('Error refreshing wallets:', error);
+      });
   };
+
   useEffect(() => {
     if (walletSendSuccessful) {
       setProgress(false);
