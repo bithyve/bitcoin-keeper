@@ -64,7 +64,7 @@ export interface Signer {
   signerXpubs: signerXpubs;
   signerName?: string;
   signerDescription?: string;
-  healthCheckDetails: HealthCheckDetails;
+  healthCheckDetails: HealthCheckDetails[];
   lastHealthCheck: Date;
   addedOn: Date;
   bip85Config?: BIP85Config;
