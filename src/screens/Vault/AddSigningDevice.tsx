@@ -392,6 +392,7 @@ function Signers({
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const signerCards = signers.map((signer) => {
+      if (signer.archived) return null;
       const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
       const disabled =
         !isValid ||
