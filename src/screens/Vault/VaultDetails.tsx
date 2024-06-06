@@ -157,14 +157,27 @@ function TransactionList({
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
-      onPress={() => {
-        navigation.dispatch(
-          CommonActions.navigate('TransactionDetails', {
-            transaction: item,
-            wallet: vault,
-          })
-        );
-      }}
+      isCached={item?.isCached}
+      onPress={
+        !item?.isCached
+          ? () => {
+              navigation.dispatch(
+                CommonActions.navigate('TransactionDetails', {
+                  transaction: item,
+                  wallet: vault,
+                })
+              );
+            }
+          : //TODO: For Parsh - To naviagate with original data
+            () => {
+              // navigation.dispatch(
+              //   CommonActions.navigate('TransactionDetails', {
+              //     transaction: item,
+              //     wallet: vault,
+              //   })
+              // );
+            }
+      }
     />
   );
   return (
@@ -218,6 +231,43 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
+  //TODO: For Parsh - To integrate with original data
+  const cachedTransactions = [
+    {
+      address: 'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
+      amount: 50000,
+      blockTime: null,
+      confirmations: 22,
+      date: 'Wed, 05 Jun 2024 09:33:31 GMT',
+      fee: 22600,
+      recipientAddresses: [
+        '2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8',
+        'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
+      ],
+      senderAddresses: ['2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8'],
+      tags: [],
+      transactionType: 'Received',
+      txid: '4619eed99289d996bd76551877520dbf783d2189b32307374ea423b67bf0ea1d',
+      isCached: true,
+    },
+    {
+      address: 'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
+      amount: 50000,
+      blockTime: null,
+      confirmations: 22,
+      date: 'Wed, 05 Jun 2024 09:33:24 GMT',
+      fee: 22600,
+      recipientAddresses: [
+        '2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8',
+        'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
+      ],
+      senderAddresses: ['2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8'],
+      tags: [],
+      transactionType: 'Received',
+      txid: '53095dbf67d39ecbe13dcfb3c4db5fb18fa9898d3f472b8bee08d83e424f647e',
+      isCached: true,
+    },
+  ];
 
   useEffect(() => {
     if (autoRefresh) syncVault();
@@ -402,7 +452,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       )}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <TransactionList
-          transactions={transactions}
+          //TODO: For Parsh - To integrate with original data
+          transactions={[...cachedTransactions, ...transactions]}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
           vault={vault}
