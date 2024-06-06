@@ -658,6 +658,19 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+
+  const {
+    txid: walletSendSuccessful,
+    hasFailed: sendPhaseTwoFailed,
+    cachedTxid,
+  } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -700,23 +713,6 @@ function SendConfirmation({ route }) {
 
   const [inProgress, setProgress] = useState(false);
 
-  useEffect(() => {
-    if (inProgress) {
-      setTimeout(() => {
-        dispatch(sendPhaseTwoReset());
-        dispatch(
-          sendPhaseTwo({
-            wallet: sender,
-            txnPriority: transactionPriority,
-            note,
-            label,
-            transferType,
-          })
-        );
-      }, 200);
-    }
-  }, [inProgress]);
-
   const onProceed = () => {
     if (isAutoTransferFlow) {
       if (defaultVault) {
@@ -727,29 +723,38 @@ function SendConfirmation({ route }) {
     }
   };
 
-  useEffect(
-    () => () => {
-      dispatch(sendPhaseTwoReset());
-      dispatch(crossTransferReset());
-    },
-    []
-  );
-
-  const serializedPSBTEnvelops = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-
-  const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo
-  );
-  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
-    (state) => state.settings
-  );
-  const navigation = useNavigation();
+  // useEffect(
+  //   () => () => {
+  //     dispatch(sendPhaseTwoReset());
+  //     dispatch(crossTransferReset());
+  //   },
+  //   []
+  // );
 
   useEffect(() => {
-    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
-      setProgress(false);
+    if (cachedTxid) {
+      // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
+    } else {
+      // case: new transaction
+      if (inProgress) {
+        setTimeout(() => {
+          dispatch(sendPhaseTwoReset());
+          dispatch(
+            sendPhaseTwo({
+              wallet: sender,
+              txnPriority: transactionPriority,
+              note,
+              label,
+              transferType,
+            })
+          );
+        }, 200);
+      }
+    }
+  }, [inProgress]);
+
+  useEffect(() => {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length && inProgress) {
       navigation.dispatch(
         CommonActions.navigate('SignTransactionScreen', {
           note,
@@ -758,8 +763,9 @@ function SendConfirmation({ route }) {
           sendConfirmationRouteParams: route.params,
         })
       );
+      setProgress(false);
     }
-  }, [serializedPSBTEnvelops]);
+  }, [serializedPSBTEnvelops, inProgress]);
 
   useEffect(() => {
     dispatch(resetVaultMigration());
