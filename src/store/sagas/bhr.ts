@@ -583,7 +583,7 @@ function* healthCheckSatutsUpdateWorker({
   payload,
 }: {
   payload: {
-    signerUpdates: { signerId: string; hcSatatus: string }[];
+    signerUpdates: { signerId: string; status: string }[];
   };
 }) {
   try {
@@ -591,16 +591,22 @@ function* healthCheckSatutsUpdateWorker({
     for (const signerUpdate of signerUpdates) {
       const signer: Signer = dbManager.getObjectByPrimaryId(
         RealmSchema.Signer,
-        'masterFingerpint',
-        RealmSchema.Signer
+        'masterFingerprint',
+        signerUpdate.signerId
       );
       if (signer) {
         const date = new Date();
-        const healthCheckDetails: HealthCheckDetails = {
-          type: signerUpdate.hcSatatus,
+        const newHealthCheckDetails: HealthCheckDetails = {
+          type: signerUpdate.status,
           actionDate: date,
         };
-        yield put(updateSignerDetails(signer, 'healthCheckDetails', healthCheckDetails));
+
+        const updatedDetailsArray: HealthCheckDetails[] = [
+          ...signer.healthCheckDetails,
+          newHealthCheckDetails,
+        ];
+
+        yield put(updateSignerDetails(signer, 'healthCheckDetails', updatedDetailsArray));
         yield put(healthCheckSigner([signer]));
       }
     }

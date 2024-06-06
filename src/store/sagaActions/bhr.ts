@@ -87,9 +87,7 @@ export const healthCheckSigner = (signers: Signer[]) => ({
   },
 });
 
-export const healthCheckStatusUpdate = (
-  signerUpdates: { signerIds: string; status: string }[]
-) => ({
+export const healthCheckStatusUpdate = (signerUpdates: { signerId: string; status: string }[]) => ({
   type: HEALTH_CHECK_STATUS_UPDATE,
   payload: {
     signerUpdates,
