@@ -731,12 +731,11 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 
 function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
-    let signersToDeleteIds = [];
-    for (const signer of signers) {
-      signersToDeleteIds.push(signer.masterFingerprint);
-    }
-
     if (signers.length) {
+      let signersToDeleteIds = [];
+      for (const signer of signers) {
+        signersToDeleteIds.push(signer.masterFingerprint);
+      }
       for (let i = 0; i < signers.length; i++) {
         yield call(deleteAppImageEntityWorker, {
           payload: {
