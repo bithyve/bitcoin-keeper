@@ -1060,6 +1060,18 @@
     "regularUpdatesP2": "Please keep an eye out for firmware and other updates from device manufacturers. Sometimes buttons get moved around or processes change that would need to be updated in your instructions.",
     "regularUpdatesP1": "Keep your estate planning documents and instructions regarding your multi-key setup, up-to-date. Changes in your setup or personal circumstances should be promptly reflected to avoid future complications for your heirs."
   },
+  "cloudBackup": {
+    "cloudBackup": "Cloud Backup",
+    "recentHistory": "Recent History",
+    "noBackup": "No backup history found.",
+    "backupNow": "Backup Now",
+    "healthCheck": "Health Check",
+    "CLOUD_BACKUP_CREATED": "Cloud backup created",
+    "CLOUD_BACKUP_FAILED": "Cloud backup failed",
+    "CLOUD_BACKUP_HEALTH": "Health check success",
+    "CLOUD_BACKUP_HEALTH_FAILED": "Health check failed",
+    "cloudBackupSubtitle": "Keeper's Cloud Backup feature allows you to securely store your multikey configuration files and metadata on your preferred cloud service. This ensures that even if your device is lost or damaged, your multikey setup and related data can be easily recovered. The folder itself is protected by a password setup by you within the app. This enhances the security of your BSMS file folder on your cloud."
+  },
   "notification": {
     "Balance": "Balance",
     "availableToSpend": "Available to spend",
