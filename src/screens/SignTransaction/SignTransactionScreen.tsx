@@ -52,15 +52,18 @@ import { formatDuration } from '../Vault/HardwareModalMap';
 import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { dropTransactionSnapshot, setTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId, isMoveAllFunds, sender } = (route.params || {
+  const { note, label, vaultId, sendConfirmationRouteParams } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
+    sendConfirmationRouteParams: null,
     isMoveAllFunds: false,
     sender: {},
   }) as {
@@ -69,6 +72,7 @@ function SignTransactionScreen() {
     vaultId: string;
     isMoveAllFunds: boolean;
     sender: Vault;
+    sendConfirmationRouteParams: SendConfirmationRouteParams;
   };
 
   const { activeVault: defaultVault } = useVault({
@@ -104,6 +108,7 @@ function SignTransactionScreen() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -116,11 +121,31 @@ function SignTransactionScreen() {
   const [broadcasting, setBroadcasting] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const textRef = useRef(null);
+  const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
   const [isIKSClicked, setIsIKSClicked] = useState(false);
   const [IKSSignTime, setIKSSignTime] = useState(0);
 
-  const card = useRef(new CKTapCard()).current;
+  const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
+  const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+
+  useEffect(() => {
+    if (sendAndReceive.sendPhaseThree.txid) {
+      // transaction successful
+      dispatch(dropTransactionSnapshot({ cachedTxid }));
+    } else {
+      // transaction in process, sets/updates transaction snapshot
+      dispatch(
+        setTransactionSnapshot({
+          cachedTxid,
+          snapshot: {
+            state: sendAndReceive,
+            routeParams: sendConfirmationRouteParams,
+          },
+        })
+      );
+    }
+  }, [sendAndReceive]);
 
   useEffect(() => {
     if (relayVaultUpdate) {

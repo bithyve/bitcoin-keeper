@@ -49,6 +49,8 @@ import SignerCard from '../AddSigner/SignerCard';
 import { SDIcons } from './SigningDeviceIcons';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
+import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 
 function Footer({
   vault,
@@ -160,16 +162,28 @@ function TransactionList({
   const { common } = translations;
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
+  const dispatch = useDispatch();
+
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
+      isCached={item?.isCached}
       onPress={() => {
-        navigation.dispatch(
-          CommonActions.navigate('TransactionDetails', {
-            transaction: item,
-            wallet: vault,
-          })
-        );
+        if (item?.isCached) {
+          dispatch(setStateFromSnapshot(item.snapshot.state));
+          navigation.dispatch(
+            CommonActions.navigate('SendConfirmation', {
+              ...item.snapshot.routeParams,
+            })
+          );
+        } else {
+          navigation.dispatch(
+            CommonActions.navigate('TransactionDetails', {
+              transaction: item,
+              wallet: vault,
+            })
+          );
+        }
       }}
     />
   );
@@ -224,6 +238,38 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = vault || { signers: [] };
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
+  const [cachedTransactions, setCachedTransactions] = useState([]);
+  const cachedTxn = useAppSelector((state) => state.cachedTxn);
+
+  useEffect(() => {
+    const cached = [];
+    for (const cachedTxid in cachedTxn.snapshots) {
+      const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+      if (!snapshot.routeParams) continue; // route params missing
+
+      const { address, amount, recipient, sender, transferType, date } = snapshot.routeParams;
+      if (sender?.id !== vault.id) continue; // doesn't belong to the current vault
+
+      const cachedTx = {
+        address,
+        amount,
+        blockTime: null,
+        confirmations: 0,
+        date,
+        fee: 0,
+        recipientAddresses: [],
+        senderAddresses: [],
+        tags: [],
+        transactionType: transferType,
+        txid: cachedTxid,
+        isCached: true,
+        snapshot,
+      };
+      cached.push(cachedTx);
+    }
+
+    if (cached.length) setCachedTransactions(cached);
+  }, [cachedTxn]);
 
   useEffect(() => {
     if (autoRefresh) syncVault();
@@ -416,7 +462,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       )}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <TransactionList
-          transactions={transactions}
+          transactions={[...cachedTransactions, ...transactions]}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
           vault={vault}

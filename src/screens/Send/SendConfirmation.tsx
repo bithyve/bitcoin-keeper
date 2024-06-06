@@ -634,6 +634,26 @@ function AddLabel() {
   );
 }
 
+export interface SendConfirmationRouteParams {
+  sender: Wallet | Vault;
+  recipient: Wallet | Vault;
+  address: string;
+  amount: number;
+  walletId: string;
+  uiMetaData: any;
+  transferType: TransferType;
+  uaiSetActionFalse: any;
+  note: string;
+  isAutoTransfer: boolean;
+  label: {
+    name: string;
+    isSystem: boolean;
+  }[];
+  selectedUTXOs: UTXO[];
+  date: Date;
+  parentScreen: string;
+}
+
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -651,24 +671,7 @@ function SendConfirmation({ route }) {
     selectedUTXOs,
     isAutoTransfer,
     parentScreen,
-  }: {
-    sender: Wallet | Vault;
-    recipient: Wallet | Vault;
-    address: string;
-    amount: number;
-    walletId: string;
-    uiMetaData: any;
-    transferType: TransferType;
-    uaiSetActionFalse: any;
-    note: string;
-    isAutoTransfer: boolean;
-    parentScreen: string;
-    label: {
-      name: string;
-      isSystem: boolean;
-    }[];
-    selectedUTXOs: UTXO[];
-  } = route.params;
+  }: SendConfirmationRouteParams = route.params;
 
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
@@ -709,6 +712,19 @@ function SendConfirmation({ route }) {
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
     parentScreen === WALLETSETTINGS;
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+
+  const {
+    txid: walletSendSuccessful,
+    hasFailed: sendPhaseTwoFailed,
+    cachedTxid,
+  } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (isAutoTransfer) {
@@ -753,23 +769,6 @@ function SendConfirmation({ route }) {
 
   const [inProgress, setProgress] = useState(false);
 
-  useEffect(() => {
-    if (inProgress) {
-      setTimeout(() => {
-        dispatch(sendPhaseTwoReset());
-        dispatch(
-          sendPhaseTwo({
-            wallet: sender,
-            txnPriority: transactionPriority,
-            note,
-            label,
-            transferType,
-          })
-        );
-      }, 200);
-    }
-  }, [inProgress]);
-
   const onProceed = () => {
     if (isAutoTransferFlow) {
       if (defaultVault) {
@@ -780,29 +779,38 @@ function SendConfirmation({ route }) {
     }
   };
 
-  useEffect(
-    () => () => {
-      dispatch(sendPhaseTwoReset());
-      dispatch(crossTransferReset());
-    },
-    []
-  );
-
-  const serializedPSBTEnvelops = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-
-  const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo
-  );
-  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
-    (state) => state.settings
-  );
-  const navigation = useNavigation();
+  // useEffect(
+  //   () => () => {
+  //     dispatch(sendPhaseTwoReset());
+  //     dispatch(crossTransferReset());
+  //   },
+  //   []
+  // );
 
   useEffect(() => {
-    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
-      setProgress(false);
+    if (cachedTxid) {
+      // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
+    } else {
+      // case: new transaction
+      if (inProgress) {
+        setTimeout(() => {
+          dispatch(sendPhaseTwoReset());
+          dispatch(
+            sendPhaseTwo({
+              wallet: sender,
+              txnPriority: transactionPriority,
+              note,
+              label,
+              transferType,
+            })
+          );
+        }, 200);
+      }
+    }
+  }, [inProgress]);
+
+  useEffect(() => {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length && inProgress) {
       navigation.dispatch(
         CommonActions.navigate('SignTransactionScreen', {
           isMoveAllFunds,
@@ -810,10 +818,12 @@ function SendConfirmation({ route }) {
           label,
           vaultId: sender.id,
           sender: sender,
+          sendConfirmationRouteParams: route.params,
         })
       );
+      setProgress(false);
     }
-  }, [serializedPSBTEnvelops]);
+  }, [serializedPSBTEnvelops, inProgress]);
 
   useEffect(() => {
     dispatch(resetVaultMigration());
