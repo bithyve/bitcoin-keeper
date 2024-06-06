@@ -23,8 +23,7 @@ type Props = {
 function EditWalletDetailsModal({ wallet = {}, close }: Props) {
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const walletText = translations.wallet;
-  const { common } = translations;
+  const { common, wallet: walletText, vault: vaultText } = translations;
 
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
@@ -54,7 +53,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
     }
     if (relayWalletUpdate) {
       close();
-      showToast('Wallet details updated', <TickIcon />);
+      showToast(walletText.walletDeatilsUpdated, <TickIcon />);
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
@@ -66,7 +65,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
     }
     if (relayVaultUpdate) {
       close();
-      showToast('Vault details updated', <TickIcon />);
+      showToast(vaultText.vaultDetailsUpdated, <TickIcon />);
       dispatch(resetRealyVaultState());
     }
   }, [relayVaultUpdate, relayVaultError, realyVaultErrorMessage]);
@@ -93,7 +92,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         <Buttons
           secondaryText={common.cancel}
           secondaryCallback={close}
-          primaryText="Save Changes"
+          primaryText={common.save}
           primaryCallback={editWallet}
           primaryLoading={
             relayWalletUpdateLoading ||

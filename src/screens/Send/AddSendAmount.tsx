@@ -40,7 +40,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import { MANAGEWALLETS } from 'src/navigation/contants';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -88,7 +88,10 @@ function AddSendAmount({ route }) {
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
-  const isFromManageWallets = parentScreen === MANAGEWALLETS;
+  const isMoveAllFunds =
+    parentScreen === MANAGEWALLETS ||
+    parentScreen === VAULTSETTINGS ||
+    parentScreen === WALLETSETTINGS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -159,7 +162,7 @@ function AddSendAmount({ route }) {
   }, [sendMaxFee, selectedUTXOs.length]);
 
   useEffect(() => {
-    if (isFromManageWallets) {
+    if (isMoveAllFunds) {
       if (sendMaxFee) {
         onSendMax(sendMaxFee, selectedUTXOs);
       } else {
@@ -172,7 +175,7 @@ function AddSendAmount({ route }) {
         );
       }
     }
-  }, [isFromManageWallets, sendMaxFee, selectedUTXOs]);
+  }, [isMoveAllFunds, sendMaxFee, selectedUTXOs]);
 
   const navigateToNext = () => {
     navigation.dispatch(
@@ -184,6 +187,7 @@ function AddSendAmount({ route }) {
         transferType,
         note,
         selectedUTXOs,
+        parentScreen,
         label: labelsToAdd.filter(
           (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
@@ -364,7 +368,7 @@ function AddSendAmount({ route }) {
                   letterSpacing={1.04}
                   borderWidth="0"
                   value={amount}
-                  isDisabled={isFromManageWallets}
+                  isDisabled={isMoveAllFunds}
                   onChangeText={(value) => {
                     if (!isNaN(Number(value))) {
                       setAmount(
