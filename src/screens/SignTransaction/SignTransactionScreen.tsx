@@ -470,7 +470,7 @@ function SignTransactionScreen() {
         <Box alignSelf="center">
           <SuccessIcon />
         </Box>
-        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
+        <Text color={`${colorMode}.primaryText`} fontSize={13} padding={2}>
           {walletTransactions.sendTransSuccessMsg}
         </Text>
       </Box>
@@ -580,10 +580,14 @@ function SignTransactionScreen() {
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewDetails}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonCallback={viewDetails}
-        textColor={`${colorMode}.greenText`}
         buttonTextColor={`${colorMode}.white`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={SendSuccessfulContent}
+        DarkCloseIcon={colorMode === 'dark' ? 'light' : 'dark'}
       />
       <KeeperModal
         visible={confirmPassVisible}

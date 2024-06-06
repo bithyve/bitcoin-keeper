@@ -27,6 +27,7 @@ import Note from 'src/components/Note/Note';
 import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
+import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -42,6 +43,8 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey = false,
     derivationPath,
     isInheritancePlaning = false,
+    isIKS = false,
+    isSS = false,
   }: {
     seed: string;
     wallet: Wallet;
@@ -50,6 +53,8 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey: boolean;
     derivationPath: string;
     isInheritancePlaning?: boolean;
+    isIKS?: boolean;
+    isSS?: boolean;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -59,7 +64,6 @@ function ExportSeedScreen({ route, navigation }) {
   const [showQRVisible, setShowQRVisible] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
-  const seedText = translations.seed;
   useEffect(() => {
     if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
@@ -111,11 +115,11 @@ function ExportSeedScreen({ route, navigation }) {
         title={
           isFromAssistedKey
             ? vaultTranslation.backingUpMnemonicTitle
-            : next
-            ? 'Recovery Key'
-            : seedText.walletSeedWords
+            : seedTranslation.walletSeedWords
         }
-        subtitle={isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedText.SeedDesc}
+        subtitle={
+          isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedTranslation.SeedDesc
+        }
       />
 
       <Box style={{ flex: 1 }}>
@@ -192,7 +196,7 @@ function ExportSeedScreen({ route, navigation }) {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                navigation.goBack();
+                setConfirmSeedModal(true);
               }}
               value={common.proceed}
             />
@@ -237,8 +241,16 @@ function ExportSeedScreen({ route, navigation }) {
                   );
                   dispatch(refillMobileKey(vaultSigner));
                   navigation.dispatch(CommonActions.goBack());
-                  showToast('Keeper Verified Successfully', <TickIcon />);
+                  showToast(seedTranslation.keeperVerified, <TickIcon />);
                 }
+              } else if (isFromAssistedKey) {
+                if (isIKS) {
+                  dispatch(setOTBStatusIKS(true));
+                } else if (isSS) {
+                  dispatch(setOTBStatusSS(true));
+                }
+                showToast('One Time Backup Successful', <TickIcon />);
+                navigation.goBack();
               } else {
                 dispatch(seedBackedUp());
               }
@@ -254,7 +266,7 @@ function ExportSeedScreen({ route, navigation }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonText="Done"
+        buttonText={common.done}
         buttonCallback={() => navigation.replace('WalletBackHistory')}
         Content={() => (
           <Box>
