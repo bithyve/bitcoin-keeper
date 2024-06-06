@@ -1047,6 +1047,8 @@ function SendConfirmation({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.proceed}
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setHighFeeAlertVisible(false)}
@@ -1073,6 +1075,7 @@ function SendConfirmation({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
         Content={() => <FeeInsights />}
