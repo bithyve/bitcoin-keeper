@@ -91,43 +91,6 @@ function WalletDetails({ route }: ScreenProps) {
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
-  //TODO: For Parsh - To integrate with original data
-  const cachedTransactions = [
-    {
-      address: 'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
-      amount: 50000,
-      blockTime: null,
-      confirmations: 22,
-      date: 'Wed, 05 Jun 2024 09:33:31 GMT',
-      fee: 22600,
-      recipientAddresses: [
-        '2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8',
-        'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
-      ],
-      senderAddresses: ['2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8'],
-      tags: [],
-      transactionType: 'Received',
-      txid: '4619eed99289d996bd76551877520dbf783d2189b32307374ea423b67bf0ea1d',
-      isCached: true,
-    },
-    {
-      address: 'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
-      amount: 50000,
-      blockTime: null,
-      confirmations: 22,
-      date: 'Wed, 05 Jun 2024 09:33:24 GMT',
-      fee: 22600,
-      recipientAddresses: [
-        '2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8',
-        'tb1qxl5vl63shn2e9f7emnlxu73ujf9yh5n2a2t0j3',
-      ],
-      senderAddresses: ['2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8'],
-      tags: [],
-      transactionType: 'Received',
-      txid: '53095dbf67d39ecbe13dcfb3c4db5fb18fa9898d3f472b8bee08d83e424f647e',
-      isCached: true,
-    },
-  ];
 
   let isTaprootWallet = false;
   const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
@@ -247,8 +210,7 @@ function WalletDetails({ route }: ScreenProps) {
               </HStack>
             ) : null}
             <TransactionsAndUTXOs
-              //TODO: For Parsh - To integrate with original data
-              transactions={[...cachedTransactions, ...wallet?.specs?.transactions]}
+              transactions={wallet?.specs?.transactions}
               setPullRefresh={setPullRefresh}
               pullRefresh={pullRefresh}
               wallet={wallet}
