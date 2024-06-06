@@ -12,16 +12,29 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import DotView from 'src/components/DotView';
 import { useQuery } from '@realm/react';
-
+import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
+import AlertIllustrationDark from 'src/assets/images/upgrade-successfulDark.svg';
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import AdvnaceOptions from 'src/assets/images/settings.svg';
 import KeeperFooter from '../KeeperFooter';
 import HealthCheckComponent from './HealthCheckComponent';
+import KeeperModal from '../KeeperModal';
+
+function Content() {
+  const { colorMode } = useColorMode();
+  return (
+    <Box width={wp(270)}>
+      <Box alignItems="center">
+        {colorMode === 'light' ? <AlertIllustration /> : <AlertIllustrationDark />}
+      </Box>
+    </Box>
+  );
+}
 
 function BackupHealthCheckList({ isUaiFlow }) {
   const { colorMode } = useColorMode();
@@ -151,24 +164,24 @@ function BackupHealthCheckList({ isUaiFlow }) {
           }}
         />
       </ModalWrapper>
-
-      <ModalWrapper
+      <KeeperModal
+        close={() => setHealthCheckModal(false)}
         visible={healthCheckModal}
-        onSwipeComplete={() => setHealthCheckModal(false)}
-        position="center"
-      >
-        <BackupSuccessful
-          closeBottomSheet={() => {
-            setHealthCheckModal(false);
-          }}
-          title={BackupWallet.backupSuccessTitle}
-          subTitle={BackupWallet.backupSuccessSubTitle}
-          paragraph={BackupWallet.backupSuccessParagraph}
-          confirmBtnPress={() => {
-            navigtaion.navigate('Home');
-          }}
-        />
-      </ModalWrapper>
+        title={BackupWallet.backupSuccessTitle}
+        subTitle={BackupWallet.backupSuccessSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonText={BackupWallet.home}
+        buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonCallback={() => {
+          navigtaion.navigate('Home');
+        }}
+        DarkCloseIcon={colorMode === 'dark'}
+        Content={() => <Content />}
+        closeOnOverlayClick={true}
+      />
     </Box>
   );
 }

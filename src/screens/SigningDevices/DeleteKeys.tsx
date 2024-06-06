@@ -160,7 +160,11 @@ function DeleteKeys({ route }) {
               buttonText="View Vault"
               secondaryButtonText="Back"
               secondaryCallback={() => setHideWarning(false)}
+              secButtonTextColor={`${colorMode}.greenText`}
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              buttonBackground={`${colorMode}.greenButtonBackground`}
               buttonTextColor={`${colorMode}.white`}
+              DarkCloseIcon={colorMode === 'dark'}
               buttonCallback={() => {
                 setHideWarning(false);
                 navigation.dispatch(

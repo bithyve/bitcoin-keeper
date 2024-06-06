@@ -115,10 +115,13 @@ function HealthCheckComponent(props) {
           backgroundColor={`${colorMode}.seashellWhite`}
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
-            type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)
+            type === BackupType.SEED
+              ? setSeedWord(value?.toLocaleLowerCase())
+              : setStrongPassword(value)
           }
           style={styles.inputContainer}
           borderRadius={10}
+          autoCapitalize="none"
           marginY={2}
           borderWidth="0"
         />
