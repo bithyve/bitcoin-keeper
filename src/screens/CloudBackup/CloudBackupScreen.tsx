@@ -56,7 +56,7 @@ function CloudBackupScreen() {
         visible={showPasswordModal}
         close={() => setShowPasswordModal(false)}
         callback={(value: any) => {
-          dispatch(backupBsmsOnCloud(value));
+          dispatch(backupBsmsOnCloud(value ? value : ''));
         }}
       />
 
