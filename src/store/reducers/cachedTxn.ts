@@ -2,13 +2,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SendAndReceiveState } from './send_and_receive';
 import { SendConfirmationRouteParams } from 'src/screens/Send/SendConfirmation';
 
+export interface cachedTxSnapshot {
+  state: SendAndReceiveState; // state snapshot
+  routeParams: SendConfirmationRouteParams; // cached route params(for confirmation screen)
+  options?: any; // extra data for post transaction action
+}
+
 const initialState: {
   snapshots: {
-    [cachedTxid: string]: {
-      state: SendAndReceiveState; // state snapshot
-      routeParams: SendConfirmationRouteParams; // cached route params(for confirmation screen)
-      options?: any; // extra data for post transaction action
-    };
+    [cachedTxid: string]: cachedTxSnapshot;
   };
 } = {
   snapshots: {},

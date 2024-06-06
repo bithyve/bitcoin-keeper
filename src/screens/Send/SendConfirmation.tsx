@@ -648,6 +648,7 @@ export interface SendConfirmationRouteParams {
     isSystem: boolean;
   }[];
   selectedUTXOs: UTXO[];
+  date: Date;
 }
 
 function SendConfirmation({ route }) {
