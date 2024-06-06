@@ -150,7 +150,7 @@ export const SignerSchema: ObjectSchema = {
     signerXpubs: `${RealmSchema.SignerXpubs}`,
     signerName: 'string?',
     signerDescription: 'string?',
-    healthCheckDetails: `${RealmSchema.HealthCheckDetails}`,
+    healthCheckDetails: `${RealmSchema.HealthCheckDetails}[]`,
     lastHealthCheck: 'date',
     addedOn: 'date',
     isMock: 'bool?',

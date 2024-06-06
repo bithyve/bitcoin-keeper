@@ -448,6 +448,7 @@ function* whirlpoolWalletsCreation() {
 
 function* healthCheckTimelineMigration() {
   try {
+    console.log('running migrationssss');
     const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
     for (const signer of signers) {
       const healthCheckDetails: HealthCheckDetails = {
@@ -458,7 +459,7 @@ function* healthCheckTimelineMigration() {
         RealmSchema.Signer,
         'healthCheckDetails',
         signer.masterFingerprint,
-        healthCheckDetails
+        [healthCheckDetails]
       );
     }
   } catch (err) {
