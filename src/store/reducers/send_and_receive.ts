@@ -320,6 +320,7 @@ const sendAndReceiveSlice = createSlice({
     },
     setStateFromSnapshot: (state, action: PayloadAction<SendAndReceiveState>) => {
       state = action.payload;
+      return state;
     },
   },
 });
