@@ -1576,8 +1576,21 @@ function* reinstateVaultWorker({ payload }) {
         isUpdate: true,
       },
     });
+    const signerMap = {};
+    const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+
     if (response.updated) {
       yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
+      for (let i = 0; i < vault.signers.length; i++) {
+        yield call(updateSignerDetailsWorker, {
+          payload: {
+            signer: signerMap[vault.signers[i].masterFingerprint],
+            key: 'archived',
+            value: false,
+          },
+        });
+      }
       yield put(relayVaultUpdateSuccess());
     } else {
       yield put(relayVaultUpdateFail(response.error));
