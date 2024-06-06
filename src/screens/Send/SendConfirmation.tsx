@@ -65,6 +65,8 @@ import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 import KeeperFooter from 'src/components/KeeperFooter';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
@@ -632,6 +634,26 @@ function AddLabel() {
   );
 }
 
+export interface SendConfirmationRouteParams {
+  sender: Wallet | Vault;
+  recipient: Wallet | Vault;
+  address: string;
+  amount: number;
+  walletId: string;
+  uiMetaData: any;
+  transferType: TransferType;
+  uaiSetActionFalse: any;
+  note: string;
+  isAutoTransfer: boolean;
+  label: {
+    name: string;
+    isSystem: boolean;
+  }[];
+  selectedUTXOs: UTXO[];
+  date: Date;
+  parentScreen: string;
+}
+
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -648,23 +670,8 @@ function SendConfirmation({ route }) {
     label,
     selectedUTXOs,
     isAutoTransfer,
-  }: {
-    sender: Wallet | Vault;
-    recipient: Wallet | Vault;
-    address: string;
-    amount: number;
-    walletId: string;
-    uiMetaData: any;
-    transferType: TransferType;
-    uaiSetActionFalse: any;
-    note: string;
-    isAutoTransfer: boolean;
-    label: {
-      name: string;
-      isSystem: boolean;
-    }[];
-    selectedUTXOs: UTXO[];
-  } = route.params;
+    parentScreen,
+  }: SendConfirmationRouteParams = route.params;
 
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
@@ -701,6 +708,23 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const isMoveAllFunds =
+    parentScreen === MANAGEWALLETS ||
+    parentScreen === VAULTSETTINGS ||
+    parentScreen === WALLETSETTINGS;
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+
+  const {
+    txid: walletSendSuccessful,
+    hasFailed: sendPhaseTwoFailed,
+    cachedTxid,
+  } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (isAutoTransfer) {
@@ -745,23 +769,6 @@ function SendConfirmation({ route }) {
 
   const [inProgress, setProgress] = useState(false);
 
-  useEffect(() => {
-    if (inProgress) {
-      setTimeout(() => {
-        dispatch(sendPhaseTwoReset());
-        dispatch(
-          sendPhaseTwo({
-            wallet: sender,
-            txnPriority: transactionPriority,
-            note,
-            label,
-            transferType,
-          })
-        );
-      }, 200);
-    }
-  }, [inProgress]);
-
   const onProceed = () => {
     if (isAutoTransferFlow) {
       if (defaultVault) {
@@ -772,38 +779,51 @@ function SendConfirmation({ route }) {
     }
   };
 
-  useEffect(
-    () => () => {
-      dispatch(sendPhaseTwoReset());
-      dispatch(crossTransferReset());
-    },
-    []
-  );
-
-  const serializedPSBTEnvelops = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-
-  const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo
-  );
-  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
-    (state) => state.settings
-  );
-  const navigation = useNavigation();
+  // useEffect(
+  //   () => () => {
+  //     dispatch(sendPhaseTwoReset());
+  //     dispatch(crossTransferReset());
+  //   },
+  //   []
+  // );
 
   useEffect(() => {
-    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
-      setProgress(false);
+    if (cachedTxid) {
+      // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
+    } else {
+      // case: new transaction
+      if (inProgress) {
+        setTimeout(() => {
+          dispatch(sendPhaseTwoReset());
+          dispatch(
+            sendPhaseTwo({
+              wallet: sender,
+              txnPriority: transactionPriority,
+              note,
+              label,
+              transferType,
+            })
+          );
+        }, 200);
+      }
+    }
+  }, [inProgress]);
+
+  useEffect(() => {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length && inProgress) {
       navigation.dispatch(
         CommonActions.navigate('SignTransactionScreen', {
+          isMoveAllFunds,
           note,
           label,
           vaultId: sender.id,
+          sender: sender,
+          sendConfirmationRouteParams: route.params,
         })
       );
+      setProgress(false);
     }
-  }, [serializedPSBTEnvelops]);
+  }, [serializedPSBTEnvelops, inProgress]);
 
   useEffect(() => {
     dispatch(resetVaultMigration());
@@ -839,6 +859,34 @@ function SendConfirmation({ route }) {
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     }
+  };
+
+  const viewManageWallets = () => {
+    new Promise((resolve, reject) => {
+      try {
+        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    })
+      .then(() => {
+        setVisibleModal(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              {
+                name: 'ManageWallets',
+              },
+            ],
+          })
+        );
+      })
+      .catch((error) => {
+        console.error('Error refreshing wallets:', error);
+      });
   };
 
   useEffect(() => {
@@ -1032,11 +1080,13 @@ function SendConfirmation({ route }) {
       )}
       <KeeperModal
         visible={visibleModal}
-        close={viewDetails}
+        close={!isMoveAllFunds ? viewDetails : viewManageWallets}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewWallets}
-        buttonCallback={viewDetails}
+        buttonText={
+          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+        }
+        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

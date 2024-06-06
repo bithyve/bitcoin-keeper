@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/services/wallets/enums';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -51,19 +51,28 @@ import { generateKey } from 'src/utils/service-utilities/encryption';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { dropTransactionSnapshot, setTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId } = (route.params || {
+  const { note, label, vaultId, sendConfirmationRouteParams } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
+    sendConfirmationRouteParams: null,
+    isMoveAllFunds: false,
+    sender: {},
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
     vaultId: string;
+    isMoveAllFunds: boolean;
+    sender: Vault;
+    sendConfirmationRouteParams: SendConfirmationRouteParams;
   };
 
   const { activeVault: defaultVault } = useVault({
@@ -99,6 +108,7 @@ function SignTransactionScreen() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -111,9 +121,31 @@ function SignTransactionScreen() {
   const [broadcasting, setBroadcasting] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const textRef = useRef(null);
-  const dispatch = useDispatch();
-
   const card = useRef(new CKTapCard()).current;
+  const dispatch = useDispatch();
+  const [isIKSClicked, setIsIKSClicked] = useState(false);
+  const [IKSSignTime, setIKSSignTime] = useState(0);
+
+  const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
+  const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+
+  useEffect(() => {
+    if (sendAndReceive.sendPhaseThree.txid) {
+      // transaction successful
+      dispatch(dropTransactionSnapshot({ cachedTxid }));
+    } else {
+      // transaction in process, sets/updates transaction snapshot
+      dispatch(
+        setTransactionSnapshot({
+          cachedTxid,
+          snapshot: {
+            state: sendAndReceive,
+            routeParams: sendConfirmationRouteParams,
+          },
+        })
+      );
+    }
+  }, [sendAndReceive]);
 
   useEffect(() => {
     if (relayVaultUpdate) {
@@ -264,6 +296,7 @@ function SignTransactionScreen() {
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
+          setIsIKSClicked(true);
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
 
@@ -281,13 +314,17 @@ function SignTransactionScreen() {
             showToast,
           });
 
-          if (requestStatus && isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
+          if (requestStatus && isNewRequest) {
+            dispatch(setInheritanceSigningRequestId(requestId));
+            setIsIKSClicked(true);
+          }
 
           // process request based on status
           if (requestStatus.isDeclined) {
             showToast('Inheritance Key Signing request has been declined', <ToastErrorIcon />);
             // dispatch(setInheritanceSigningRequestId('')); // clear existing request
           } else if (!requestStatus.isApproved) {
+            setIKSSignTime(requestStatus.approvesIn);
             showToast(
               `Request would approve in ${formatDuration(
                 requestStatus.approvesIn
@@ -433,6 +470,9 @@ function SignTransactionScreen() {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
+      case SignerType.UNKOWN_SIGNER:
+        showToast(`Signing not allowed with ${signer.type}, please assign a signer type!`);
+        break;
       default:
         showToast(`action not set for ${signer.type}`);
         break;
@@ -463,6 +503,34 @@ function SignTransactionScreen() {
       })
     );
   };
+
+  const viewManageWallets = () => {
+    new Promise((resolve, reject) => {
+      try {
+        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    })
+      .then(() => {
+        setVisibleModal(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              {
+                name: 'ManageWallets',
+              },
+            ],
+          })
+        );
+      })
+      .catch((error) => {
+        console.error('Error refreshing wallets:', error);
+      });
+  };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
@@ -476,6 +544,8 @@ function SignTransactionScreen() {
         keyExtractor={(item) => item.xfp}
         renderItem={({ item }) => (
           <SignerList
+            isIKSClicked={isIKSClicked}
+            IKSSignTime={IKSSignTime}
             vaultKey={item}
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
@@ -499,6 +569,7 @@ function SignTransactionScreen() {
                   label,
                 })
               );
+              setBroadcasting(false);
             } else {
               showToast("Sorry there aren't enough signatures!");
             }
@@ -554,9 +625,11 @@ function SignTransactionScreen() {
         close={() => setVisibleModal(false)}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewDetails}
+        buttonText={
+          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+        }
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonCallback={viewDetails}
+        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         buttonTextColor={`${colorMode}.white`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
