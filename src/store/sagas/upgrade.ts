@@ -457,9 +457,11 @@ function* healthCheckTimelineMigration() {
       };
       dbManager.updateObjectByPrimaryId(
         RealmSchema.Signer,
-        'healthCheckDetails',
+        'masterFingerprint',
         signer.masterFingerprint,
-        [healthCheckDetails]
+        {
+          healthCheckDetails: [healthCheckDetails],
+        }
       );
     }
   } catch (err) {
