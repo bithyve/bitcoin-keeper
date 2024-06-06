@@ -731,29 +731,16 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 
 function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
-    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const signerMap = Object.fromEntries(
-      existingSigners.map((signer) => [signer.masterFingerprint, signer])
-    );
-    const signersToDelete = [];
-
-    for (const signer of signers) {
-      const existingSigner = signerMap[signer.masterFingerprint];
-      if (!existingSigner) {
-        continue;
-      }
-      signersToDelete.push(signer);
-    }
     let signersToDeleteIds = [];
-    for (const signer of signersToDelete) {
+    for (const signer of signers) {
       signersToDeleteIds.push(signer.masterFingerprint);
     }
 
-    if (signersToDelete.length) {
-      for (let i = 0; i < signersToDelete.length; i++) {
+    if (signers.length) {
+      for (let i = 0; i < signers.length; i++) {
         yield call(deleteAppImageEntityWorker, {
           payload: {
-            signerIds: signersToDelete,
+            signerIds: signersToDeleteIds,
           },
         });
       }
@@ -772,30 +759,15 @@ export const deleteSigningDeviceWatcher = createWatcher(
 
 function* archiveSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
-    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const signerMap = Object.fromEntries(
-      existingSigners.map((signer) => [signer.masterFingerprint, signer])
-    );
-    const signersToArchive = [];
-
-    for (const signer of signers) {
-      const existingSigner = signerMap[signer.masterFingerprint];
-      if (!existingSigner) {
-        continue;
-      }
-      signersToArchive.push(signer);
-    }
-
     let signersToArchiveIds = [];
-    for (const signer of signersToArchive) {
+    for (const signer of signers) {
       signersToArchiveIds.push(signer.masterFingerprint);
     }
-
-    if (signersToArchive.length) {
-      for (let i = 0; i < signersToArchive.length; i++) {
+    if (signers.length) {
+      for (let i = 0; i < signers.length; i++) {
         yield call(updateSignerDetailsWorker, {
           payload: {
-            signer: signersToArchive[i],
+            signer: signers[i],
             key: 'archived',
             value: true,
           },
