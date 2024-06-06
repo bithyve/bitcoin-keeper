@@ -418,7 +418,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
-        options: [
+        options: !isHealthcheck && [
           {
             title: 'Import',
             icon: <Import />,
@@ -1026,11 +1026,14 @@ function HardwareModalMap({
       );
     } else if (mode === InteracationMode.HEALTH_CHECK || mode === InteracationMode.IDENTIFICATION) {
       navigation.dispatch(
-        CommonActions.navigate('ExportSeed', {
-          seed: primaryMnemonic,
-          next: true,
-          isHealthCheck: true,
-          signer,
+        CommonActions.navigate({
+          name: 'EnterSeedScreen',
+          params: {
+            mode,
+            signer,
+            isMultisig,
+            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+          },
         })
       );
     } else if (isImport) {

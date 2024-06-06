@@ -161,7 +161,6 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             primary: {
               text: 'Continue',
               cta: () => {
-                setShowModal(true);
                 navigtaion.navigate('AddWallet');
               },
             },

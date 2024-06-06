@@ -433,6 +433,9 @@ function SignTransactionScreen() {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
+      case SignerType.UNKOWN_SIGNER:
+        showToast(`Signing not allowed with ${signer.type}, please assign a signer type!`);
+        break;
       default:
         showToast(`action not set for ${signer.type}`);
         break;
