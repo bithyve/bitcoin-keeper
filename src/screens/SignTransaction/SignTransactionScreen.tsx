@@ -437,11 +437,21 @@ function SignTransactionScreen() {
         showToast(`Signing not allowed with ${signer.type}, please assign a signer type!`);
         break;
       case SignerType.INHERITANCEKEY:
-        // if (inheritanceKeyInfo) {
-        //   const thresholdDescriptors = inheritanceKeyInfo.configuration.descriptors.slice(0, 2);
-        //   signTransaction({ signerId, thresholdDescriptors });
-        // } else showToast('Inheritance config missing');
-        showToast('Signing via Inheritance Key is not available', <ToastErrorIcon />);
+        if (signer.inheritanceKeyInfo) {
+          let configurationForVault: InheritanceConfiguration;
+          for (const config of signer.inheritanceKeyInfo.configurations) {
+            if (config.id === defaultVault.id) {
+              configurationForVault = config;
+              break;
+            }
+          }
+          if (!configurationForVault) {
+            showToast(`Missing vault configuration for ${defaultVault.id}`);
+            return;
+          }
+
+          signTransaction({ xfp: vaultKey.xfp, inheritanceConfiguration: configurationForVault });
+        } else showToast('Inheritance key info missing');
         break;
       default:
         showToast(`action not set for ${signer.type}`);
