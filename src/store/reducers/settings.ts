@@ -81,11 +81,9 @@ const settingsSlice = createSlice({
     // },
     setOTBStatusSS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.signingServer = action.payload;
-      console.log({ oneTimeBackupStatus: state.oneTimeBackupStatus });
     },
     setOTBStatusIKS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.inheritanceKey = action.payload;
-      console.log({ oneTimeBackupStatus: state.oneTimeBackupStatus });
     },
   },
 });

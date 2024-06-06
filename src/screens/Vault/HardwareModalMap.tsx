@@ -515,10 +515,11 @@ const getnavigationState = (type) => ({
   ],
 });
 
-function formatDuration(ms) {
+export function formatDuration(ms) {
   const duration = moment.duration(ms);
   return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
 }
+
 function SignerContent({
   Illustration,
   Instructions,
@@ -969,6 +970,24 @@ function HardwareModalMap({
     );
   };
 
+  const importSeedWordsBasedKey = (mnemonic) => {
+    try {
+      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+      dispatch(addSigningDevice([signer]));
+      const navigationState = addSignerFlow
+        ? { name: 'ManageSigners' }
+        : { name: 'AddSigningDevice', merge: true, params: {} };
+      navigation.dispatch(CommonActions.navigate(navigationState));
+      showToast(
+        `${signer.signerName} added successfully`,
+        <TickIcon />,
+        IToastCategory.SIGNING_DEVICE
+      );
+    } catch (err) {
+      Alert.alert(err?.message);
+    }
+  };
+
   const navigateToSeedWordSetup = (isImport = false) => {
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
@@ -985,17 +1004,21 @@ function HardwareModalMap({
             next: true,
             isHealthcheck,
             onSuccess: (mnemonic) => {
-              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice([signer]));
-              const navigationState = addSignerFlow
-                ? { name: 'ManageSigners' }
-                : { name: 'AddSigningDevice', merge: true, params: {} };
-              navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(
-                `${signer.signerName} added successfully`,
-                <TickIcon />,
-                IToastCategory.SIGNING_DEVICE
-              );
+              try {
+                const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+                dispatch(addSigningDevice([signer]));
+                const navigationState = addSignerFlow
+                  ? { name: 'ManageSigners' }
+                  : { name: 'AddSigningDevice', merge: true, params: {} };
+                navigation.dispatch(CommonActions.navigate(navigationState));
+                showToast(
+                  `${signer.signerName} added successfully`,
+                  <TickIcon />,
+                  IToastCategory.SIGNING_DEVICE
+                );
+              } catch (err) {
+                showToast(err?.message, <ToastErrorIcon />);
+              }
             },
             addSignerFlow,
           },
@@ -1022,19 +1045,7 @@ function HardwareModalMap({
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
             addSignerFlow,
-            importSeedCta: (mnemonic) => {
-              const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice([signer]));
-              const navigationState = addSignerFlow
-                ? { name: 'ManageSigners' }
-                : { name: 'AddSigningDevice', merge: true, params: {} };
-              navigation.dispatch(CommonActions.navigate(navigationState));
-              showToast(
-                `${signer.signerName} added successfully`,
-                <TickIcon />,
-                IToastCategory.SIGNING_DEVICE
-              );
-            },
+            importSeedCta: importSeedWordsBasedKey,
           },
         })
       );
@@ -1346,7 +1357,7 @@ function HardwareModalMap({
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box width={'100%'}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -1571,11 +1582,11 @@ function HardwareModalMap({
         SignerType.INHERITANCEKEY
       );
       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-      // let requestId = `request-${generateKey(10)}`;
+
       let requestId = inheritanceRequestId;
       let isNewRequest = false;
       if (!requestId) {
-        requestId = `request-${generateKey(10)}`;
+        requestId = `request-${generateKey(14)}`;
         isNewRequest = true;
       }
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
@@ -1584,20 +1595,17 @@ function HardwareModalMap({
         thresholdDescriptors
       );
       if (requestStatus && isNewRequest) dispatch(setInheritanceRequestId(requestId));
+
+      // process request based on status
       if (requestStatus.isDeclined) {
         showToast('Inheritance request has been declined', <ToastErrorIcon />);
         // dispatch(setInheritanceRequestId('')); // clear existing request
-        return;
-      }
-
-      if (!requestStatus.isApproved) {
+      } else if (!requestStatus.isApproved) {
         showToast(
           `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
           <TickIcon />
         );
-      }
-
-      if (requestStatus.isApproved && setupInfo) {
+      } else if (requestStatus.isApproved && setupInfo) {
         const { signer: inheritanceKey } = generateSignerFromMetaData({
           xpub: setupInfo.inheritanceXpub,
           derivationPath: setupInfo.derivationPath,
@@ -1792,7 +1800,7 @@ function HardwareModalMap({
         close={() => setConfirmPassVisible(false)}
         title="Enter Passcode"
         subTitleWidth={wp(240)}
-        subTitle="Confirm passcode to delete key"
+        subTitle="Confirm passcode to generate key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

@@ -15,9 +15,8 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import InheritanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
-
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
@@ -48,10 +47,10 @@ import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
-import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import { addNewVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, refillMobileKey } from 'src/store/sagaActions/vaults';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useCanaryVault from 'src/hooks/useCanaryWallets';
@@ -62,16 +61,21 @@ import usePlan from 'src/hooks/usePlan';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
+import { generateKey } from 'src/utils/service-utilities/encryption';
+import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import moment from 'moment';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
@@ -125,6 +129,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const isSmallDevice = useIsSmallDevices();
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
@@ -153,6 +158,17 @@ function SignerAdvanceSettings({ route }: any) {
     }
   });
 
+  useEffect(() => {
+    if (vaultId && vaultKey) {
+      if (signer.type === SignerType.MY_KEEPER && !vaultKey.xpriv) {
+        dispatch(refillMobileKey(vaultKey));
+      }
+    }
+    return () => {
+      dispatch(resetKeyHealthState());
+    };
+  }, []);
+
   const hideKey = () => {
     dispatch(updateSignerDetails(signer, 'hidden', true));
     showToast('Keys hidden successfully', <TickIcon />);
@@ -176,13 +192,6 @@ function SignerAdvanceSettings({ route }: any) {
     };
   } = useAppSelector((state) => state.settings);
 
-  const [isSSKeySigner, setIsSSKeySigner] = useState(false);
-
-  useEffect(() => {
-    const signleSigSigner = !!signer?.signerXpubs[XpubTypes.P2WPKH]?.[0];
-    setIsSSKeySigner(signleSigSigner);
-  }, [signer]);
-
   useEffect(() => {
     if (relayVaultUpdate) {
       navigation.navigate('VaultDetails', { vaultId: canaryWalletId });
@@ -190,7 +199,7 @@ function SignerAdvanceSettings({ route }: any) {
       dispatch(resetRealyVaultState());
     }
     if (relayVaultError) {
-      showToast(`Canary Vault creation failed ${realyVaultErrorMessage}`);
+      showToast(`Canary wallet creation failed ${realyVaultErrorMessage}`);
       dispatch(resetRealyVaultState());
       setCanaryVaultLoading(false);
     }
@@ -463,31 +472,7 @@ function SignerAdvanceSettings({ route }: any) {
       let signedSerialisedPSBT;
       try {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        if (!key.xpriv) {
-          // generate xpriv that was missed during migrations
-          const { primaryMnemonic } = keeper;
-          const details = await getCosignerDetails(
-            primaryMnemonic,
-            signer.extraData.instanceNumber - 1
-          );
-          const xpub = idx(details, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
-          const signerXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
-          if (xpub === signerXpub) {
-            const { xpriv } = details.xpubDetails[XpubTypes.P2WSH];
-            signedSerialisedPSBT = signCosignerPSBT(xpriv, serializedPSBT);
-            dispatch(
-              updateKeyDetails(
-                signer.signerXpubs[XpubTypes.P2WSH][0] as VaultSigner,
-                'xpriv',
-                xpriv
-              )
-            );
-          } else {
-            showToast('There are some key detials missing, please add the key again and retry');
-          }
-        } else {
-          signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
-        }
+        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
       } catch (e) {
         showToast(e.message);
         captureError(e);
@@ -593,12 +578,7 @@ function SignerAdvanceSettings({ route }: any) {
     return (
       <Box>
         <Card title={title} subTitle={subTitle} icon={icon} />
-        <Text style={styles.textDesc}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        </Text>
-        <Text style={styles.textDesc}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        </Text>
+        <Text style={styles.textDesc}>You will only be shown the words once.</Text>
       </Box>
     );
   };
@@ -640,7 +620,7 @@ function SignerAdvanceSettings({ route }: any) {
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box style={styles.otpModal}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -667,7 +647,6 @@ function SignerAdvanceSettings({ route }: any) {
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
           keyColor={`${colorMode}.primaryText`}
-          ClearIcon={<DeleteIcon />}
         />
       </Box>
     );
@@ -704,6 +683,8 @@ function SignerAdvanceSettings({ route }: any) {
   }
 
   const onSuccess = () => hideKey();
+
+  const { inheritanceOTBRequestId } = useAppSelector((state) => state.storage);
   const initiateOneTimeBackup = async () => {
     if (isPolicyServer) {
       setShowOTPModal(true);
@@ -723,16 +704,38 @@ function SignerAdvanceSettings({ route }: any) {
           return;
         }
 
-        const { mnemonic, derivationPath } = await InheritanceKeyServer.fetchBackup(
+        let requestId = inheritanceOTBRequestId;
+        let isNewRequest = false;
+        if (!requestId) {
+          requestId = `request-${generateKey(14)}`;
+          isNewRequest = true;
+        }
+
+        const { requestStatus, backup } = await InheritanceKeyServer.fetchBackup(
           vaultKey.xfp,
+          requestId,
           configurationForVault
         );
-        navigation.navigate('ExportSeed', {
-          seed: mnemonic,
-          derivationPath,
-          isFromAssistedKey: true,
-        });
-        dispatch(setOTBStatusIKS(true));
+
+        if (requestStatus && isNewRequest) dispatch(setInheritanceOTBRequestId(requestId));
+
+        // process request based on status
+        if (requestStatus.isDeclined) {
+          showToast('One Time Backup request has been declined', <ToastErrorIcon />);
+        } else if (!requestStatus.isApproved) {
+          showToast(
+            `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
+            <TickIcon />
+          );
+          // dispatch(setInheritanceOTBRequestId('')); // clear existing request
+        } else if (requestStatus.isApproved && backup) {
+          navigation.navigate('ExportSeed', {
+            seed: backup.mnemonic,
+            derivationPath: backup.derivationPath,
+            isFromAssistedKey: true,
+          });
+          dispatch(setOTBStatusIKS(true));
+        } else showToast('Unknown request status, please try again');
       } catch (err) {
         showToast(`${err}`);
       }
@@ -751,7 +754,7 @@ function SignerAdvanceSettings({ route }: any) {
         subtitle={
           !signer.isBIP85
             ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
-            : `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'}`
+            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`}`
         }
         icon={
           <CircleIconWrapper
@@ -879,6 +882,7 @@ function SignerAdvanceSettings({ route }: any) {
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
               callback={() => {}}
+              customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
             />
           ))}
         </ScrollView>
@@ -948,7 +952,11 @@ function SignerAdvanceSettings({ route }: any) {
         buttonText="View Vault"
         secondaryButtonText="Back"
         secondaryCallback={() => setHideWarning(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
@@ -987,17 +995,11 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() =>
-          isPolicyServer
-            ? backupModalContent({
-                title: vaultTranslation.signingServerTitle,
-                subTitle: 'Added a min ago',
-                icon: <SigningServerIcon />,
-              })
-            : backupModalContent({
-                title: vaultTranslation.inheritanceKeyTitle,
-                subTitle: 'Added a min ago',
-                icon: <InheritanceKeyIcon />,
-              })
+          backupModalContent({
+            title: signer.signerName,
+            subTitle: `Added ${moment(signer.addedOn).calendar()}`,
+            icon: <SigningServerIcon />,
+          })
         }
         buttonText={common.proceed}
         buttonCallback={initiateOneTimeBackup}
@@ -1007,8 +1009,8 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={showOTPModal}
         close={() => setShowOTPModal(false)}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         title={vaultTranslation.oneTimeBackupTitle}
-        subTitle={vaultTranslation.oneTimeBackupDesc}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={SigningServerOTPModal}
@@ -1245,5 +1247,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  otpModal: {
+    width: '100%',
   },
 });

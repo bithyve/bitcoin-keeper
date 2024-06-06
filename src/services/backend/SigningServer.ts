@@ -201,7 +201,7 @@ export default class SigningServer {
     derivationPath: string;
   }> => {
     let res: AxiosResponse;
-    const { privateKey, publicKey } = generateRSAKeypair();
+    const { privateKey, publicKey } = await generateRSAKeypair();
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/fetchBackup`, {
@@ -371,6 +371,31 @@ export default class SigningServer {
     return {
       migrationSuccessful,
       setupData,
+    };
+  };
+
+  static enrichCosignersToSignerMap = async (
+    id: string,
+    cosignersMapUpdates: CosignersMapUpdate[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/enrichCosignersToSignerMap`, {
+        HEXA_ID,
+        id,
+        cosignersMapUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Failed to enrich cosigners to signer map');
+    return {
+      updated,
     };
   };
 }

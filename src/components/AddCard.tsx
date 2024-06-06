@@ -22,6 +22,7 @@ type AddSignerCardProps = {
   borderColor?: string;
   nameColor?: string;
   icon?: any;
+  isAddWallet?:boolean;
 };
 
 function AddCard({
@@ -33,11 +34,12 @@ function AddCard({
   loading = false,
   borderColor,
   nameColor,
+  isAddWallet,
   icon = <AddCardIcon />,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity testID={`btn_${name}`} activeOpacity={0.95} onPress={() => callback(name)}>
+    <TouchableOpacity testID={isAddWallet?'btn_add_wallet':`btn_${name}`} activeOpacity={0.95} onPress={() => callback(name)}>
       <Box
         backgroundColor={`${colorMode}.pantoneGreenLight`}
         borderColor={borderColor ? borderColor : `${colorMode}.pantoneGreen`}

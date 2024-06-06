@@ -53,38 +53,6 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 
 const { width } = Dimensions.get('screen');
 
-const getKeyForScheme = (isMultisig, signer, msXpub, ssXpub, amfXpub) => {
-  if (amfXpub) {
-    return {
-      ...amfXpub,
-      masterFingerprint: signer.masterFingerprint,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(
-        amfXpub.xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      ),
-    };
-  }
-  if (isMultisig) {
-    return {
-      ...msXpub,
-      masterFingerprint: signer.masterFingerprint,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(
-        msXpub.xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      ),
-    };
-  } else {
-    return {
-      ...ssXpub,
-      masterFingerprint: signer.masterFingerprint,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(
-        ssXpub.xpub,
-        WalletUtilities.getNetworkByType(config.NETWORK_TYPE)
-      ),
-    };
-  }
-};
-
 const onSignerSelect = (
   selected,
   signer: Signer,
@@ -126,7 +94,7 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
-    const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
+    const scriptKey = WalletUtilities.getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
     const updatedSignerMap = selectedSigners.set(signer.masterFingerprint, true);
@@ -134,15 +102,26 @@ const onSignerSelect = (
   }
 };
 
-const isAssistedKeyValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
+const isAssistedKeyValidForScheme = (
+  signer: Signer,
+  scheme,
+  signerMap,
+  selectedSigners
+): { isValid: boolean; err?: string } => {
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
     // scheme based restrictions for assisted keys
     if (signer.type === SignerType.POLICY_SERVER) {
       // signing server key can be added starting from Vaults w/ m: 2 and n:3
-      if (scheme.m < 2 || scheme.n < 3) return false;
+      if (scheme.n < 3) return { isValid: false, err: 'Requires a minimum of 3 Total Keys' };
+      else if (scheme.m < 2) {
+        return { isValid: false, err: 'Requires a minimum of 2 Required Keys' };
+      }
     } else if (signer.type === SignerType.INHERITANCEKEY) {
-      // inheritance key can be added starting from Vaults w/ m: 3 and n:5(and even w/ a SS already present, the number of assisted keys < m)
-      if (scheme.m < 3 || scheme.n < 5) return false;
+      // inheritance key can be added starting from Vaults w/ m: 3 and n:4
+      if (scheme.n < 4) return { isValid: false, err: 'Requires a minimum of 4 Total Keys' };
+      else if (scheme.m < 3) {
+        return { isValid: false, err: 'Requires a minimum of 3 Required Keys' };
+      }
     }
 
     // count based restrictions for assisted keys
@@ -158,13 +137,31 @@ const isAssistedKeyValidForScheme = (signer: Signer, scheme, signerMap, selected
     }
     const assistedKeys = existingAssistedKeys + currentAssistedKey;
     const cannotFormQuorum = assistedKeys < scheme.m; // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
+    if (!cannotFormQuorum) {
+      return {
+        isValid: false,
+        err: 'Number of assisted keys should be less than the Required Keys',
+      };
+    }
+
     const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m; // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
-    if (!cannotFormQuorum || !notRequiredForQuorum) return false;
+    if (!notRequiredForQuorum) {
+      return {
+        isValid: false,
+        err: 'Required Keys is not achievable without the assisted keys',
+      };
+    }
   }
-  return true;
+
+  return { isValid: true };
 };
 
-const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigners) => {
+const isSignerValidForScheme = (
+  signer: Signer,
+  scheme,
+  signerMap,
+  selectedSigners
+): { isValid: boolean; err?: string } => {
   const amfXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.AMF][0]);
   const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
   const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
@@ -173,12 +170,14 @@ const isSignerValidForScheme = (signer: Signer, scheme, signerMap, selectedSigne
     (scheme.n > 1 && !msXpub && !amfXpub && !signer.isMock) ||
     (scheme.n === 1 && !ssXpub && !amfXpub && !signer.isMock)
   ) {
-    return false;
+    return { isValid: false };
   }
 
   if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
     return isAssistedKeyValidForScheme(signer, scheme, signerMap, selectedSigners);
-  } else return true;
+  }
+
+  return { isValid: true };
 };
 
 const setInitialKeys = (
@@ -200,13 +199,19 @@ const setInitialKeys = (
     const updatedSignerMap = new Map();
     vaultKeys.forEach((key) => {
       const signer = signerMap[key.masterFingerprint];
-      if (isSignerValidForScheme(signer, scheme, signerMap, selectedSigners)) {
+      if (isSignerValidForScheme(signer, scheme, signerMap, selectedSigners).isValid) {
         if (modifiedVaultKeysForScriptType.length < scheme.n) {
           updatedSignerMap.set(key.masterFingerprint, true);
           const msXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
           const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
           const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
-          const scriptKey = getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
+          const scriptKey = WalletUtilities.getKeyForScheme(
+            isMultisig,
+            signer,
+            msXpub,
+            ssXpub,
+            amfXpub
+          );
           if (scriptKey) {
             modifiedVaultKeysForScriptType.push(scriptKey);
           }
@@ -358,18 +363,19 @@ function Signers({
     }
 
     return shellAssistedKeys.map((shellSigner, index) => {
-      const disabled = !isAssistedKeyValidForScheme(
+      const { isValid, err } = isAssistedKeyValidForScheme(
         shellSigner,
         scheme,
         signerMap,
         selectedSigners
       );
+      const disable = !isValid;
       const isAMF = false;
       return (
         <SignerCard
-          disabled={disabled}
+          disabled={disable}
           key={`${shellSigner.masterFingerprint}_${index}`}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF) + ' +'}
+          name={`${getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)} +`}
           description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
@@ -386,8 +392,9 @@ function Signers({
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const signerCards = signers.map((signer) => {
+      const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
       const disabled =
-        !isSignerValidForScheme(signer, scheme, signerMap, selectedSigners) ||
+        !isValid ||
         (signer.type === SignerType.MY_KEEPER &&
           myAppKeys.length >= 1 &&
           myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
@@ -399,16 +406,16 @@ function Signers({
         signer.type === SignerType.TAPSIGNER &&
         config.NETWORK_TYPE === NetworkType.TESTNET &&
         !signer.isMock;
-
       return (
         <SignerCard
           showSelection={showSelection}
           disabled={disabled}
+          isFromSiginingList={true}
           key={signer.masterFingerprint}
           name={
             !signer.isBIP85
               ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-              : getSignerNameFromType(signer.type, signer.isMock, isAMF) + ' +'
+              : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
           }
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
@@ -520,6 +527,8 @@ function AddSigningDevice() {
   const { vault: vaultTranslation, common, signer } = translations;
 
   const { signers } = useSigners();
+  // filter out archived signers
+  const activeSigners = signers.filter((signer) => !signer.archived);
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
@@ -633,11 +642,11 @@ function AddSigningDevice() {
               />
             </Box>
             <Box>
-              {vault.presentationData.description && (
+              {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
                 </Text>
-              )}
+              ) : null}
               <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
                 {vault.presentationData.name}
               </Text>
@@ -724,7 +733,7 @@ function AddSigningDevice() {
       <Signers
         keyToRotate={keyToRotate}
         showSelection={!keyToRotate}
-        signers={signers}
+        signers={activeSigners}
         selectedSigners={selectedSigners}
         setSelectedSigners={setSelectedSigners}
         scheme={scheme}
@@ -771,8 +780,8 @@ function AddSigningDevice() {
         showButtons
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
@@ -845,6 +854,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   title: {
+    width: '90%',
     marginLeft: 15,
     fontSize: 14,
   },

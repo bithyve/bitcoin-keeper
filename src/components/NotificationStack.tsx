@@ -135,14 +135,14 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const [insightModal, setInsightModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { notification } = translations;
-  const skipUaiHandler = (uai: UAI) => {
-    dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+  const skipUaiHandler = (uai: UAI, action = false) => {
+    dispatch(uaiActioned({ uaiId: uai.id, action }));
   };
 
-  const skipBtnConfig = (uai) => {
+  const skipBtnConfig = (uai: any, action?: boolean) => {
     return {
       text: 'Skip',
-      cta: () => skipUaiHandler(uai),
+      cta: () => skipUaiHandler(uai, action),
     };
   };
   const backupHistory = useQuery(RealmSchema.BackupHistory);
@@ -351,6 +351,20 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                 cta: () => {},
               },
             },
+          },
+        };
+      case uaiType.CANARAY_WALLET:
+        return {
+          heading: 'Canary Wallet Accessed',
+          body: 'One of your key has been used',
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                navigtaion.navigate('VaultDetails', { vaultId: uai.entityId });
+              },
+            },
+            secondary: skipBtnConfig(uai, true),
           },
         };
       default:

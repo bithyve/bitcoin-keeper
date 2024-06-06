@@ -19,11 +19,14 @@ import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
 import Note from 'src/components/Note/Note';
+import { refillMobileKey } from 'src/store/sagaActions/vaults';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import idx from 'idx';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -38,13 +41,15 @@ function ExportSeedScreen({ route, navigation }) {
     signer,
     isFromAssistedKey = false,
     derivationPath,
+    isInheritancePlaning = false,
   }: {
     seed: string;
     wallet: Wallet;
     isHealthCheck: boolean;
-    signer: VaultSigner;
+    signer: Signer;
     isFromAssistedKey: boolean;
     derivationPath: string;
+    isInheritancePlaning?: boolean;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -54,9 +59,8 @@ function ExportSeedScreen({ route, navigation }) {
   const [showQRVisible, setShowQRVisible] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
-  const seedText = translations.seed;
   useEffect(() => {
-    if (backupMethod !== null && next && !isHealthCheck) {
+    if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
     }
   }, [backupMethod]);
@@ -106,11 +110,11 @@ function ExportSeedScreen({ route, navigation }) {
         title={
           isFromAssistedKey
             ? vaultTranslation.backingUpMnemonicTitle
-            : next
-            ? 'Recovery Key'
-            : seedText.walletSeedWords
+            : seedTranslation.walletSeedWords
         }
-        subtitle={isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedText.SeedDesc}
+        subtitle={
+          isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedTranslation.SeedDesc
+        }
       />
 
       <Box style={{ flex: 1 }}>
@@ -221,8 +225,18 @@ function ExportSeedScreen({ route, navigation }) {
                 }
                 if (signer.type === SignerType.MY_KEEPER) {
                   dispatch(healthCheckSigner([signer]));
+                  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+                  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+                  const vaultSigner = WalletUtilities.getKeyForScheme(
+                    true,
+                    signer,
+                    msXpub,
+                    ssXpub,
+                    null
+                  );
+                  dispatch(refillMobileKey(vaultSigner));
                   navigation.dispatch(CommonActions.goBack());
-                  showToast('Keeper Verified Successfully', <TickIcon />);
+                  showToast(seedTranslation.keeperVerified, <TickIcon />);
                 }
               } else {
                 dispatch(seedBackedUp());
@@ -239,7 +253,7 @@ function ExportSeedScreen({ route, navigation }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonText="Done"
+        buttonText={common.done}
         buttonCallback={() => navigation.replace('WalletBackHistory')}
         Content={() => (
           <Box>

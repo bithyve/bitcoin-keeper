@@ -59,11 +59,11 @@ function SendScreen({ route }) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
 
-  const { sender, selectedUTXOs } = route.params as {
+  const { sender, selectedUTXOs, parentScreen } = route.params as {
     sender: Wallet | Vault;
     selectedUTXOs?: UTXO[];
+    parentScreen?: string;
   };
-
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -168,6 +168,7 @@ function SendScreen({ route }) {
       amount,
       transferType,
       selectedUTXOs,
+      parentScreen,
     });
   };
 
@@ -293,7 +294,7 @@ function SendScreen({ route }) {
         <ScrollView
           style={styles.scrollViewWrapper}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={isSmallDevice && { paddingBottom: hp(40) }}
+          contentContainerStyle={isSmallDevice && { paddingBottom: hp(100) }}
         >
           <Box>
             <Box style={styles.qrcontainer}>

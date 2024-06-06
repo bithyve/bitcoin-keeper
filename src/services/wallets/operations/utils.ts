@@ -1008,4 +1008,36 @@ export default class WalletUtilities {
     }
     return instanceNumber;
   };
+
+  static getKeyForScheme = (isMultisig, signer, msXpub, ssXpub, amfXpub) => {
+    if (amfXpub) {
+      return {
+        ...amfXpub,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: this.getFingerprintFromExtendedKey(
+          amfXpub.xpub,
+          this.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+    }
+    if (isMultisig) {
+      return {
+        ...msXpub,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: this.getFingerprintFromExtendedKey(
+          msXpub.xpub,
+          this.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+    } else {
+      return {
+        ...ssXpub,
+        masterFingerprint: signer.masterFingerprint,
+        xfp: this.getFingerprintFromExtendedKey(
+          ssXpub.xpub,
+          this.getNetworkByType(config.NETWORK_TYPE)
+        ),
+      };
+    }
+  };
 }

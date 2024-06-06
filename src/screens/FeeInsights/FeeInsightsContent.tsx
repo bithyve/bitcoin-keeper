@@ -52,7 +52,7 @@ const FeeInsightsContent = () => {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ minHeight: 400 }}>
         <View style={[styles.headerWrapper, { backgroundColor: `${colorMode}.seashellWhite` }]}>
-          <Text style={styles.titleLabel} color={`${colorMode}.SlateGrey`}>
+          <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>
             BTC transaction fee insights
           </Text>
         </View>
@@ -86,7 +86,7 @@ const FeeInsightsContent = () => {
             </View>
             <FeeGraph dataSet={oneWeekFeeRate} recentData={oneDayFeeRate} />
             <FeeDataStats />
-            <FeeDataSource/>
+            <FeeDataSource />
           </>
         )}
       </ScrollView>
