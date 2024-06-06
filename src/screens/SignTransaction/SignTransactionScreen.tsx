@@ -95,6 +95,8 @@ function SignTransactionScreen() {
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [isIKSClicked, setIsIKSClicked] = useState(false);
+  const [IKSSignTime, setIKSSignTime] = useState(0);
 
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -289,6 +291,8 @@ function SignTransactionScreen() {
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
+          setIsIKSClicked(true);
+
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
 
@@ -306,13 +310,18 @@ function SignTransactionScreen() {
             showToast,
           });
 
-          if (requestStatus && isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
+          if (requestStatus && isNewRequest) {
+            setIsIKSClicked(true);
+
+            dispatch(setInheritanceSigningRequestId(requestId));
+          }
 
           // process request based on status
           if (requestStatus.isDeclined) {
             showToast('Inheritance Key Signing request has been declined', <ToastErrorIcon />);
             // dispatch(setInheritanceSigningRequestId('')); // clear existing request
           } else if (!requestStatus.isApproved) {
+            setIKSSignTime(requestStatus.approvesIn);
             showToast(
               `Request would approve in ${formatDuration(
                 requestStatus.approvesIn
@@ -458,9 +467,6 @@ function SignTransactionScreen() {
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
         break;
-      case SignerType.UNKOWN_SIGNER:
-        showToast(`Signing not allowed with ${signer.type}, please assign a signer type!`);
-        break;
       default:
         showToast(`action not set for ${signer.type}`);
         break;
@@ -504,6 +510,8 @@ function SignTransactionScreen() {
         keyExtractor={(item) => item.xfp}
         renderItem={({ item }) => (
           <SignerList
+            isIKSClicked={isIKSClicked}
+            IKSSignTime={IKSSignTime}
             vaultKey={item}
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
