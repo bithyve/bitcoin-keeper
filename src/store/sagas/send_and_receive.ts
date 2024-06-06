@@ -78,7 +78,6 @@ export const fetchExchangeRatesWatcher = createWatcher(
   FETCH_EXCHANGE_RATES
 );
 
-
 function* fetchOneDayInsightWorker() {
   try {
     const data = yield call(Relay.fetchOneDayHistoricalFee);
@@ -89,10 +88,7 @@ function* fetchOneDayInsightWorker() {
   }
 }
 
-export const fetchOneDayInsightWatcher = createWatcher(
-  fetchOneDayInsightWorker,
-  ONE_DAY_INSIGHT
-);
+export const fetchOneDayInsightWatcher = createWatcher(fetchOneDayInsightWorker, ONE_DAY_INSIGHT);
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const { wallet, recipients, selectedUTXOs } = payload;
@@ -168,7 +164,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
   }
   try {
-    const { txid, serializedPSBTEnvelops, finalOutputs } = yield call(
+    const { txid, serializedPSBTEnvelops, cachedTxid, finalOutputs } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
@@ -211,6 +207,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
           sendPhaseTwoExecuted({
             successful: true,
             serializedPSBTEnvelops,
+            cachedTxid,
           })
         );
         break;
