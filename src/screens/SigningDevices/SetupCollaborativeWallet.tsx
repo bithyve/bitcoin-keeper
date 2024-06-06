@@ -43,6 +43,8 @@ import { Box } from 'native-base';
 import { setCosginerModal } from 'src/store/reducers/wallets';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
 
 function AddCoSignerContent() {
   const { colorMode } = useColorMode();
@@ -200,7 +202,9 @@ function SetupCollaborativeWallet() {
         return item;
       });
       dispatch(addSigningDevice([signer]));
+      setKeyAddedModal(true);
       setCoSigners(newSigners);
+      setLastAddedSigner(key);
       if (goBack) navigation.goBack();
     } catch (err) {
       console.log(err);
@@ -318,6 +322,63 @@ function SetupCollaborativeWallet() {
     }
   }, [coSigners]);
 
+  function ModalCard({ title, subTitle, icon = null }) {
+    const { colorMode } = useColorMode();
+    return (
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
+        <Box style={styles.iconContainer}>
+          <HexagonIcon
+            width={wp(42.5)}
+            height={hp(38)}
+            icon={icon}
+            backgroundColor={colorMode == 'dark' ? Colors.ForestGreenDark : Colors.pantoneGreen}
+          />
+        </Box>
+        <Box style={styles.textContainer}>
+          <Text style={styles.titleText} color={`${colorMode}.headerText`}>
+            {title}
+          </Text>
+          <Text style={styles.subTitleText} color={`${colorMode}.GreyText`}>
+            {subTitle}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  const renderLastAddedSignerModal = () => {
+    if (!lastAddedSigner) return null;
+
+    const signer = signerMap[lastAddedSigner.masterFingerprint];
+    if (!signer) return null;
+
+    return (
+      <KeeperModal
+        visible={keyAddedModal}
+        close={() => setKeyAddedModal(false)}
+        title={signerTranslations.signerAddedSuccessMessage}
+        subTitle={signerTranslations.signerAvailableMessage}
+        showCloseIcon={false}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        Content={() => (
+          <ModalCard
+            title={signer.signerName}
+            subTitle={`Added ${moment(signer.addedOn).calendar()}`}
+            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+          />
+        )}
+        buttonText={signerTranslations.signerDeatils}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonCallback={() => {
+          setKeyAddedModal(false);
+          navigation.dispatch(CommonActions.navigate('ManageSigners'));
+        }}
+      />
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -332,12 +393,13 @@ function SetupCollaborativeWallet() {
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         data={coSigners}
-        keyExtractor={(item, index) => item?.xfp ?? index}
+        keyExtractor={(item, index) => (item && item.xfp ? item.xfp : `placeholder-${index}`)}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),
         }}
       />
+
       <FloatingCTA
         primaryText={common.create}
         primaryCallback={createVault}
@@ -378,6 +440,7 @@ function SetupCollaborativeWallet() {
         }}
         buttonBackground={`${colorMode}.modalWhiteButton`}
       />
+      {renderLastAddedSignerModal()}
     </ScreenWrapper>
   );
 }
@@ -436,6 +499,34 @@ const styles = StyleSheet.create({
     letterSpacing: 0.13,
     lineHeight: 18,
     width: wp(295),
+  },
+  cardContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    minHeight: hp(70),
+    marginBottom: hp(35),
+    marginTop: hp(20),
+  },
+  titleText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  subTitleText: {
+    fontSize: 12,
+    fontWeight: '400',
+  },
+  iconContainer: {
+    marginHorizontal: 10,
+  },
+  textContainer: {},
+  descText: {
+    fontSize: 13,
+    letterSpacing: 0.13,
+    fontWeight: '400',
+    marginBottom: hp(20),
   },
 });
 
