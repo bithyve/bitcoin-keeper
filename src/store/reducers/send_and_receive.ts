@@ -103,6 +103,7 @@ export interface SendAndReceiveState {
   sendMaxFee: number;
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
+  inheritanceSigningRequestId: string;
 }
 
 const initialState: SendAndReceiveState = {
@@ -160,6 +161,7 @@ const initialState: SendAndReceiveState = {
       estimatedBlocksBeforeConfirmation: 0,
     },
   },
+  inheritanceSigningRequestId: '',
 };
 
 const sendAndReceiveSlice = createSlice({
@@ -279,12 +281,8 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhasesReset: (state) => {
-      state.sendMaxFee = 0;
-      state.sendPhaseOne = initialState.sendPhaseOne;
-      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
-      state.sendPhaseTwo = initialState.sendPhaseTwo;
-      state.sendPhaseThree = initialState.sendPhaseThree;
-      state.transactionFeeInfo = initialState.transactionFeeInfo;
+      state = initialState;
+      return state;
     },
     sendPhaseOneReset: (state) => {
       state.sendPhaseOne = initialState.sendPhaseOne;
@@ -322,6 +320,9 @@ const sendAndReceiveSlice = createSlice({
       state = action.payload;
       return state;
     },
+    setInheritanceSigningRequestId: (state, action: PayloadAction<string>) => {
+      state.inheritanceSigningRequestId = action.payload;
+    },
   },
 });
 
@@ -342,5 +343,6 @@ export const {
   updatePSBTEnvelops,
   sendPhaseTwoStarted,
   setStateFromSnapshot,
+  setInheritanceSigningRequestId,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;
