@@ -27,6 +27,7 @@ import Note from 'src/components/Note/Note';
 import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
+import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -42,6 +43,8 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey = false,
     derivationPath,
     isInheritancePlaning = false,
+    isIKS = false,
+    isSS = false,
   }: {
     seed: string;
     wallet: Wallet;
@@ -50,6 +53,8 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey: boolean;
     derivationPath: string;
     isInheritancePlaning?: boolean;
+    isIKS?: boolean;
+    isSS?: boolean;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -191,7 +196,7 @@ function ExportSeedScreen({ route, navigation }) {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                navigation.goBack();
+                setConfirmSeedModal(true);
               }}
               value={common.proceed}
             />
@@ -238,6 +243,14 @@ function ExportSeedScreen({ route, navigation }) {
                   navigation.dispatch(CommonActions.goBack());
                   showToast(seedTranslation.keeperVerified, <TickIcon />);
                 }
+              } else if (isFromAssistedKey) {
+                if (isIKS) {
+                  dispatch(setOTBStatusIKS(true));
+                } else if (isSS) {
+                  dispatch(setOTBStatusSS(true));
+                }
+                showToast('One Time Backup Successful', <TickIcon />);
+                navigation.goBack();
               } else {
                 dispatch(seedBackedUp());
               }

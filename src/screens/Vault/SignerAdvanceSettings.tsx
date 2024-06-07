@@ -71,7 +71,7 @@ import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
-import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
+import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
@@ -121,6 +121,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
+  const [OTBLoading, setOTBLoading] = useState(false);
   const [backupModal, setBackupModal] = useState(false);
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
@@ -574,6 +575,12 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
+  useEffect(() => {
+    if (!showOTPModal) {
+      setOtp('');
+    }
+  }, [showOTPModal]);
+
   const backupModalContent = ({ title = '', subTitle = '', icon = null }) => {
     return (
       <Box>
@@ -599,17 +606,20 @@ function SignerAdvanceSettings({ route }: any) {
 
     const onPressConfirm = async () => {
       try {
+        setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
           vaultKey.xfp,
           Number(otp)
         );
+        setOTBLoading(false);
         navigation.navigate('ExportSeed', {
           seed: mnemonic,
           derivationPath,
           isFromAssistedKey: true,
+          isSS: true,
         });
-        dispatch(setOTBStatusSS(true));
       } catch (err) {
+        setOTBLoading(false);
         showToast(`${err}`);
       }
       setShowOTPModal(false);
@@ -691,6 +701,7 @@ function SignerAdvanceSettings({ route }: any) {
       setBackupModal(false);
     } else if (isInheritanceKey) {
       try {
+        setOTBLoading(true);
         let configurationForVault: InheritanceConfiguration = null;
         const iksConfigs = idx(signer, (_) => _.inheritanceKeyInfo.configurations) || [];
         for (const config of iksConfigs) {
@@ -716,6 +727,7 @@ function SignerAdvanceSettings({ route }: any) {
           requestId,
           configurationForVault
         );
+        setOTBLoading(false);
 
         if (requestStatus && isNewRequest) dispatch(setInheritanceOTBRequestId(requestId));
 
@@ -733,8 +745,8 @@ function SignerAdvanceSettings({ route }: any) {
             seed: backup.mnemonic,
             derivationPath: backup.derivationPath,
             isFromAssistedKey: true,
+            isIKS: true,
           });
-          dispatch(setOTBStatusIKS(true));
         } else showToast('Unknown request status, please try again');
       } catch (err) {
         showToast(`${err}`);
@@ -748,7 +760,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
+      <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
       <KeeperHeader
         title="Settings"
         subtitle={
@@ -998,7 +1010,12 @@ function SignerAdvanceSettings({ route }: any) {
           backupModalContent({
             title: signer.signerName,
             subTitle: `Added ${moment(signer.addedOn).calendar()}`,
-            icon: <SigningServerIcon />,
+            icon:
+              signer.type === SignerType.INHERITANCEKEY ? (
+                <InhertanceKeyIcon />
+              ) : (
+                <SigningServerIcon />
+              ),
           })
         }
         buttonText={common.proceed}

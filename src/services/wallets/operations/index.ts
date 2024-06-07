@@ -43,6 +43,7 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -1225,11 +1226,13 @@ export default class WalletOperations {
   ): Promise<
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
+        cachedTxid: string;
         txid?;
         finalOutputs?: bitcoinJS.TxOutput[];
       }
     | {
         serializedPSBTEnvelop?;
+        cachedTxid?;
         txid: string;
         finalOutputs: bitcoinJS.TxOutput[];
       }
@@ -1264,7 +1267,7 @@ export default class WalletOperations {
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
 
-      return { serializedPSBTEnvelops };
+      return { serializedPSBTEnvelops, cachedTxid: hash256(PSBT.toBase64()) };
     } else {
       // case: wallet(single-sig)
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);

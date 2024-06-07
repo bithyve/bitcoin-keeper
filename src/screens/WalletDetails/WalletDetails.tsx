@@ -210,7 +210,7 @@ function WalletDetails({ route }: ScreenProps) {
               </HStack>
             ) : null}
             <TransactionsAndUTXOs
-              transactions={wallet?.specs.transactions}
+              transactions={wallet?.specs?.transactions}
               setPullRefresh={setPullRefresh}
               pullRefresh={pullRefresh}
               wallet={wallet}
