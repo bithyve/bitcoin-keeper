@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/services/wallets/enums';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -51,6 +51,7 @@ import { generateKey } from 'src/utils/service-utilities/encryption';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { dropTransactionSnapshot, setTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
@@ -63,10 +64,14 @@ function SignTransactionScreen() {
     label: [],
     vaultId: '',
     sendConfirmationRouteParams: null,
+    isMoveAllFunds: false,
+    sender: {},
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
     vaultId: string;
+    isMoveAllFunds: boolean;
+    sender: Vault;
     sendConfirmationRouteParams: SendConfirmationRouteParams;
   };
 
@@ -120,6 +125,8 @@ function SignTransactionScreen() {
   const textRef = useRef(null);
   const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
+  const [isIKSClicked, setIsIKSClicked] = useState(false);
+  const [IKSSignTime, setIKSSignTime] = useState(0);
 
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
@@ -292,7 +299,6 @@ function SignTransactionScreen() {
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
           setIsIKSClicked(true);
-
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
 
@@ -312,7 +318,6 @@ function SignTransactionScreen() {
 
           if (requestStatus && isNewRequest) {
             setIsIKSClicked(true);
-
             dispatch(setInheritanceSigningRequestId(requestId));
           }
 
@@ -497,6 +502,34 @@ function SignTransactionScreen() {
       })
     );
   };
+
+  const viewManageWallets = () => {
+    new Promise((resolve, reject) => {
+      try {
+        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    })
+      .then(() => {
+        setVisibleModal(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              {
+                name: 'ManageWallets',
+              },
+            ],
+          })
+        );
+      })
+      .catch((error) => {
+        console.error('Error refreshing wallets:', error);
+      });
+  };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
@@ -535,6 +568,7 @@ function SignTransactionScreen() {
                   label,
                 })
               );
+              setBroadcasting(false);
             } else {
               showToast("Sorry there aren't enough signatures!");
             }
@@ -590,9 +624,11 @@ function SignTransactionScreen() {
         close={() => setVisibleModal(false)}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewDetails}
+        buttonText={
+          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+        }
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonCallback={viewDetails}
+        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         buttonTextColor={`${colorMode}.white`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
