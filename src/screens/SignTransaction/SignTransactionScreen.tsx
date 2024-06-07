@@ -100,6 +100,8 @@ function SignTransactionScreen() {
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [isIKSClicked, setIsIKSClicked] = useState(false);
+  const [IKSSignTime, setIKSSignTime] = useState(0);
 
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -315,8 +317,8 @@ function SignTransactionScreen() {
           });
 
           if (requestStatus && isNewRequest) {
-            dispatch(setInheritanceSigningRequestId(requestId));
             setIsIKSClicked(true);
+            dispatch(setInheritanceSigningRequestId(requestId));
           }
 
           // process request based on status
@@ -469,9 +471,6 @@ function SignTransactionScreen() {
         break;
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
-        break;
-      case SignerType.UNKOWN_SIGNER:
-        showToast(`Signing not allowed with ${signer.type}, please assign a signer type!`);
         break;
       default:
         showToast(`action not set for ${signer.type}`);
