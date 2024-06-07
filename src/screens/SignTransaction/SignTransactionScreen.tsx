@@ -52,14 +52,18 @@ import { formatDuration } from '../Vault/HardwareModalMap';
 import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { dropTransactionSnapshot, setTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import {
+  cachedTxSnapshot,
+  dropTransactionSnapshot,
+  setTransactionSnapshot,
+} from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId, sendConfirmationRouteParams } = (route.params || {
+  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
@@ -102,7 +106,6 @@ function SignTransactionScreen() {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [isIKSClicked, setIsIKSClicked] = useState(false);
   const [IKSSignTime, setIKSSignTime] = useState(0);
-
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
@@ -125,11 +128,26 @@ function SignTransactionScreen() {
   const textRef = useRef(null);
   const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
-  const [isIKSClicked, setIsIKSClicked] = useState(false);
-  const [IKSSignTime, setIKSSignTime] = useState(0);
 
+  const cachedTxn = useAppSelector((state) => state.cachedTxn);
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
+  const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+
+  const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+
+  useEffect(() => {
+    if (snapshotOptions && snapshotOptions.requestStatusIKS) {
+      const { approvesIn, isDeclined, isApproved } = snapshotOptions.requestStatusIKS;
+      if (isApproved) {
+        // do nothing
+      } else if (isDeclined) {
+      } else {
+        setIsIKSClicked(true);
+        setIKSSignTime(approvesIn);
+      }
+    }
+  }, [snapshotOptions]);
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -143,11 +161,12 @@ function SignTransactionScreen() {
           snapshot: {
             state: sendAndReceive,
             routeParams: sendConfirmationRouteParams,
+            options: snapshotOptions,
           },
         })
       );
     }
-  }, [sendAndReceive]);
+  }, [sendAndReceive, snapshotOptions]);
 
   useEffect(() => {
     if (relayVaultUpdate) {
@@ -298,7 +317,6 @@ function SignTransactionScreen() {
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
-          setIsIKSClicked(true);
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
 
@@ -316,9 +334,10 @@ function SignTransactionScreen() {
             showToast,
           });
 
-          if (requestStatus && isNewRequest) {
+          if (requestStatus) {
             setIsIKSClicked(true);
-            dispatch(setInheritanceSigningRequestId(requestId));
+            setSnapshotOptions({ requestStatusIKS: requestStatus });
+            if (isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
           }
 
           // process request based on status
@@ -326,7 +345,6 @@ function SignTransactionScreen() {
             showToast('Inheritance Key Signing request has been declined', <ToastErrorIcon />);
             // dispatch(setInheritanceSigningRequestId('')); // clear existing request
           } else if (!requestStatus.isApproved) {
-            setIKSSignTime(requestStatus.approvesIn);
             showToast(
               `Request would approve in ${formatDuration(
                 requestStatus.approvesIn
@@ -424,7 +442,10 @@ function SignTransactionScreen() {
             return;
           }
 
-          signTransaction({ xfp: vaultKey.xfp, inheritanceConfiguration: configurationForVault });
+          signTransaction({
+            xfp: vaultKey.xfp,
+            inheritanceConfiguration: configurationForVault,
+          });
         } else showToast('Inheritance key info missing');
         break;
       case SignerType.SEED_WORDS:
