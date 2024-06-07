@@ -50,6 +50,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
 import SignerCard from '../AddSigner/SignerCard';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 
 const { width } = Dimensions.get('screen');
 
@@ -238,7 +239,7 @@ function Footer({
   common,
   colorMode,
   setCreating,
-  isFromCollab,
+  isCollaborativeFlow,
   vaultKeys,
   onGoBack,
 }) {
@@ -292,8 +293,8 @@ function Footer({
   };
   return (
     <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
-      {!isFromCollab && renderNotes()}
-      {!isFromCollab ? (
+      {!isCollaborativeFlow && renderNotes()}
+      {!isCollaborativeFlow ? (
         <Buttons
           primaryDisable={!!areSignersValid || !!trezorIncompatible}
           primaryLoading={relayVaultUpdateLoading}
@@ -329,7 +330,7 @@ function Signers({
   showSelection,
   keyToRotate,
   setCreating,
-  isFromCollab,
+  isCollaborativeFlow,
   coSigners,
 }) {
   const { level } = useSubscriptionLevel();
@@ -557,7 +558,7 @@ function Signers({
                 : 'Choose from already added keys'}
             </Text>
             <Box style={styles.addedSigners}>
-              {!isFromCollab ? (
+              {!isCollaborativeFlow ? (
                 <>
                   {renderSigners()}
                   {renderAssistedKeysShell()}
@@ -568,7 +569,7 @@ function Signers({
             </Box>
           </Box>
         ) : null}
-        {!isFromCollab && (
+        {!isCollaborativeFlow && (
           <Box style={styles.gap10}>
             <Text color={`${colorMode}.headerText`} bold style={styles.title}>
               {signers.length ? 'or' : ''} add a new key
@@ -616,7 +617,7 @@ function AddSigningDevice() {
       description: string;
       vaultId: string;
       keyToRotate?: VaultSigner;
-      isFromCollab?: boolean;
+      parentScreen?: string;
       onGoBack?: any;
       coSigners?: any;
     };
@@ -628,7 +629,7 @@ function AddSigningDevice() {
     vaultId = '',
     scheme,
     keyToRotate,
-    isFromCollab = false,
+    parentScreen = '',
     onGoBack,
     coSigners,
   } = route.params;
@@ -644,6 +645,7 @@ function AddSigningDevice() {
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
   const { activeVault, allVaults } = useVault({ vaultId });
+  const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
@@ -856,7 +858,7 @@ function AddSigningDevice() {
         vaultId={vaultId}
         signerMap={signerMap}
         setCreating={setCreating}
-        isFromCollab={isFromCollab}
+        isCollaborativeFlow={isCollaborativeFlow}
         coSigners={coSigners}
       />
       <Footer
@@ -870,7 +872,7 @@ function AddSigningDevice() {
         common={common}
         colorMode={colorMode}
         setCreating={setCreating}
-        isFromCollab={isFromCollab}
+        isCollaborativeFlow={isCollaborativeFlow}
         onGoBack={onGoBack}
         vaultKeys={vaultKeys}
       />

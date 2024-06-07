@@ -39,6 +39,7 @@ import { Box } from 'native-base';
 import { setCosginerModal } from 'src/store/reducers/wallets';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 
 function AddCoSignerContent() {
   const { colorMode } = useColorMode();
@@ -85,7 +86,7 @@ function SignerItem({
       CommonActions.navigate({
         name: 'AddSigningDevice',
         params: {
-          isFromCollab: true,
+          parentScreen: SETUPCOLLABORATIVEWALLET,
           scheme: COLLABORATIVE_SCHEME,
           coSigners,
           onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys),
@@ -147,7 +148,7 @@ function SetupCollaborativeWallet() {
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
-  const { common } = translations;
+  const { common, wallet, signer } = translations;
   const [selectedSigner, setSelectedSigner] = useState(null);
 
   const handleSelectedSigners = (vaultKeys) => {
@@ -158,7 +159,7 @@ function SetupCollaborativeWallet() {
         (signer) => signer && signer.masterFingerprint === newKey.masterFingerprint
       );
       if (existingIndex !== -1) {
-        showToast('This co-signer has already been added', <ToastErrorIcon />);
+        showToast(signer.coSignerAlreadyAdded, <ToastErrorIcon />);
         return prevCoSigners;
       } else {
         const nullIndex = newSigners.indexOf(null || undefined);

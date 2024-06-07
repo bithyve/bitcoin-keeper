@@ -935,7 +935,8 @@
     "ViewAndChangeKeyDetails": "View and change key details",
     "changeSignerTitle": "Change Signer",
     "changeSignerSubtitle": "Select a signer to replace the current one",
-    "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
+    "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault",
+    "coSignerAlreadyAdded": "This co-signer has already been added"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
