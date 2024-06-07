@@ -142,7 +142,7 @@ function CloudBackupScreen() {
       <KeeperModal
         visible={showModal}
         close={() => {
-          dispatch(setShowModal(false));
+          setShowModal(false);
         }}
         title={strings.cloudBackup}
         modalBackground={`${colorMode}.modalGreenBackground`}
@@ -155,7 +155,7 @@ function CloudBackupScreen() {
         Content={() => modalContent()}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={() => dispatch(setShowModal(false))}
+        buttonCallback={() => setShowModal(false)}
       />
     </ScreenWrapper>
   );
