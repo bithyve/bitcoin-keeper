@@ -49,7 +49,7 @@ import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { formatDuration } from '../Vault/HardwareModalMap';
-import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
+import { setInheritanceSigningRequestId } from 'src/store/reducers/send_and_receive';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import {
@@ -248,7 +248,7 @@ function SignTransactionScreen() {
 
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const { inheritanceSigningRequestId } = useAppSelector((state) => state.storage);
+  const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
 
   const signTransaction = useCallback(
     async ({
