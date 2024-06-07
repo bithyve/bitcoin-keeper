@@ -59,7 +59,7 @@ function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId, sendConfirmationRouteParams } = (route.params || {
+  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
@@ -125,8 +125,6 @@ function SignTransactionScreen() {
   const textRef = useRef(null);
   const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
-  const [isIKSClicked, setIsIKSClicked] = useState(false);
-  const [IKSSignTime, setIKSSignTime] = useState(0);
 
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
@@ -298,7 +296,6 @@ function SignTransactionScreen() {
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
-          setIsIKSClicked(true);
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
 
@@ -316,9 +313,9 @@ function SignTransactionScreen() {
             showToast,
           });
 
-          if (requestStatus && isNewRequest) {
+          if (requestStatus) {
             setIsIKSClicked(true);
-            dispatch(setInheritanceSigningRequestId(requestId));
+            if (isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
           }
 
           // process request based on status
