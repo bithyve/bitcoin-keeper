@@ -164,6 +164,8 @@ export const customTheme = extendTheme({
       lightSkin: Colors.LightSkin,
       PretitleColor: Colors.LightGreenish,
       disabledColor: Colors.disabledGrey,
+      feeInfoTitleColor: Colors.SlateGrey,
+      feeInfoColor: Colors.RichBlack,
     },
     dark: {
       buttonText: Colors.Black,
@@ -282,6 +284,8 @@ export const customTheme = extendTheme({
       signerCardPill: Colors.Purple,
       PretitleColor: Colors.RichBlackDark,
       disabledColor: Colors.disabledGrey,
+      feeInfoTitleColor: Colors.White,
+      feeInfoColor: Colors.White,
     },
   },
   config: {

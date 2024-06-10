@@ -392,6 +392,7 @@ function Signers({
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const signerCards = signers.map((signer) => {
+      if (signer.archived) return null;
       const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
       const disabled =
         !isValid ||
@@ -527,6 +528,8 @@ function AddSigningDevice() {
   const { vault: vaultTranslation, common, signer } = translations;
 
   const { signers } = useSigners();
+  // filter out archived signers
+  const activeSigners = signers.filter((signer) => !signer.archived);
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
@@ -640,11 +643,11 @@ function AddSigningDevice() {
               />
             </Box>
             <Box>
-              {vault.presentationData.description && (
+              {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
                 </Text>
-              )}
+              ) : null}
               <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
                 {vault.presentationData.name}
               </Text>
@@ -731,7 +734,7 @@ function AddSigningDevice() {
       <Signers
         keyToRotate={keyToRotate}
         showSelection={!keyToRotate}
-        signers={signers}
+        signers={activeSigners}
         selectedSigners={selectedSigners}
         setSelectedSigners={setSelectedSigners}
         scheme={scheme}

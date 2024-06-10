@@ -421,7 +421,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
-        options: [
+        options: !isHealthcheck && [
           {
             title: 'Import',
             icon: <Import />,
@@ -518,10 +518,11 @@ const getnavigationState = (type) => ({
   ],
 });
 
-function formatDuration(ms) {
+export function formatDuration(ms) {
   const duration = moment.duration(ms);
   return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
 }
+
 function SignerContent({
   Illustration,
   Instructions,
@@ -1039,11 +1040,14 @@ function HardwareModalMap({
       );
     } else if (mode === InteracationMode.HEALTH_CHECK || mode === InteracationMode.IDENTIFICATION) {
       navigation.dispatch(
-        CommonActions.navigate('ExportSeed', {
-          seed: primaryMnemonic,
-          next: true,
-          isHealthCheck: true,
-          signer,
+        CommonActions.navigate({
+          name: 'EnterSeedScreen',
+          params: {
+            mode,
+            signer,
+            isMultisig,
+            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+          },
         })
       );
     } else if (isImport) {
@@ -1370,7 +1374,7 @@ function HardwareModalMap({
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box width={'100%'}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -1595,11 +1599,11 @@ function HardwareModalMap({
         SignerType.INHERITANCEKEY
       );
       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-      // let requestId = `request-${generateKey(10)}`;
+
       let requestId = inheritanceRequestId;
       let isNewRequest = false;
       if (!requestId) {
-        requestId = `request-${generateKey(10)}`;
+        requestId = `request-${generateKey(14)}`;
         isNewRequest = true;
       }
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
@@ -1608,20 +1612,17 @@ function HardwareModalMap({
         thresholdDescriptors
       );
       if (requestStatus && isNewRequest) dispatch(setInheritanceRequestId(requestId));
+
+      // process request based on status
       if (requestStatus.isDeclined) {
         showToast('Inheritance request has been declined', <ToastErrorIcon />);
         // dispatch(setInheritanceRequestId('')); // clear existing request
-        return;
-      }
-
-      if (!requestStatus.isApproved) {
+      } else if (!requestStatus.isApproved) {
         showToast(
           `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
           <TickIcon />
         );
-      }
-
-      if (requestStatus.isApproved && setupInfo) {
+      } else if (requestStatus.isApproved && setupInfo) {
         const { signer: inheritanceKey } = generateSignerFromMetaData({
           xpub: setupInfo.inheritanceXpub,
           derivationPath: setupInfo.derivationPath,
