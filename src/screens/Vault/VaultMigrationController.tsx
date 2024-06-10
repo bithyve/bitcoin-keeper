@@ -62,10 +62,13 @@ function VaultMigrationController({
     if (vaultId && temporaryVault) {
       createNewVault();
     }
+  }, [temporaryVault]);
+
+  useEffect(() => {
     return () => {
       dispatch(sendPhasesReset());
     };
-  }, [temporaryVault]);
+  }, []);
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful && temporaryVault) {
