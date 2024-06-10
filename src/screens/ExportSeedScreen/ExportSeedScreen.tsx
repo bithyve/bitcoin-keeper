@@ -36,6 +36,8 @@ function ExportSeedScreen({ route, navigation }) {
   const { BackupWallet, common, seed: seedTranslation, vault: vaultTranslation } = translations;
   const { login } = translations;
   const {
+    vaultKey,
+    vaultId,
     seed,
     wallet,
     isHealthCheck,
@@ -46,6 +48,8 @@ function ExportSeedScreen({ route, navigation }) {
     isIKS = false,
     isSS = false,
   }: {
+    vaultKey: string;
+    vaultId: string;
     seed: string;
     wallet: Wallet;
     isHealthCheck: boolean;
@@ -114,7 +118,7 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperHeader
         title={
           isFromAssistedKey
-            ? vaultTranslation.backingUpMnemonicTitle
+            ? `${BackupWallet.backingUp} ${signer.signerName}`
             : seedTranslation.walletSeedWords
         }
         subtitle={
@@ -122,7 +126,7 @@ function ExportSeedScreen({ route, navigation }) {
         }
       />
 
-      <Box style={{ flex: 1 }}>
+      <Box style={{ flex: 1, marginTop: 20 }}>
         <FlatList
           data={words}
           numColumns={2}
@@ -137,8 +141,12 @@ function ExportSeedScreen({ route, navigation }) {
         </Box>
       )}
       {isFromAssistedKey ? (
-        <Box m={2}>
-          <Note title="" subtitle={BackupWallet.skipHealthCheckPara01} subtitleColor="GreyText" />
+        <Box m={4}>
+          <Note
+            title={common.note}
+            subtitle={`${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`}
+            subtitleColor="GreyText"
+          />
         </Box>
       ) : (
         <Box m={2}>
@@ -249,8 +257,14 @@ function ExportSeedScreen({ route, navigation }) {
                 } else if (isSS) {
                   dispatch(setOTBStatusSS(true));
                 }
-                showToast('One Time Backup Successful', <TickIcon />);
-                navigation.goBack();
+                showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceDetails', {
+                    signerId: signer.masterFingerprint,
+                    vaultId,
+                    vaultKey,
+                  })
+                );
               } else {
                 dispatch(seedBackedUp());
               }
@@ -358,7 +372,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 10,
     marginHorizontal: 8,
-    marginVertical: 10,
+    marginTop: 10,
     alignSelf: 'center',
     width: wp(150),
   },
