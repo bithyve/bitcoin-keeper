@@ -46,7 +46,7 @@ function TransactionElement({
             backgroundColor={!isCached ? `${colorMode}.TransactionIconBackColor` : null}
             style={styles.circle}
           >
-            {transaction.confirmations === 0 && (
+            {transaction.confirmations === 0 && !isCached && (
               <Box style={styles.transaction}>
                 <TransactionPendingIcon />
               </Box>
