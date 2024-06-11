@@ -721,10 +721,11 @@ function SendConfirmation({ route }) {
   const {
     txid: walletSendSuccessful,
     hasFailed: sendPhaseTwoFailed,
-    cachedTxid,
+    cachedTxid, // generated for new transactions as well(in case they get cached)
   } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
   const cachedTxn = useAppSelector((state) => state.cachedTxn);
   const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+  const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
 
   const navigation = useNavigation();
@@ -794,7 +795,7 @@ function SendConfirmation({ route }) {
   // );
 
   useEffect(() => {
-    if (cachedTxid) {
+    if (isCachedTransaction) {
       // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
     } else {
       // case: new transaction
@@ -845,9 +846,14 @@ function SendConfirmation({ route }) {
     return true;
   };
 
+  const discardCachedTransaction = () => {
+    dispatch(dropTransactionSnapshot({ cachedTxid }));
+    navigation.navigate('VaultDetails', { vaultId: sender.id });
+  };
+
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length && inProgress) {
-      if (cachedTxid) {
+      if (isCachedTransaction) {
         // perform UTXO validation for cached transaction
         const isValid = validateUTXOsForCachedTxn();
         if (!isValid) {
@@ -858,15 +864,14 @@ function SendConfirmation({ route }) {
             [
               {
                 text: 'Discard',
-                onPress: () => {
-                  dispatch(dropTransactionSnapshot({ cachedTxid }));
-                  navigation.goBack();
-                },
+                onPress: discardCachedTransaction,
                 style: 'destructive',
               },
               {
                 text: 'Cancel',
-                onPress: () => {},
+                onPress: () => {
+                  setProgress(false);
+                },
                 style: 'cancel',
               },
             ],
