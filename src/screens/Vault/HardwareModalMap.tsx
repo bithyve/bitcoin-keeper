@@ -420,7 +420,9 @@ const getSignerContent = (
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
-        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        subTitle: isHealthcheck
+          ? 'Seed Key is a 12-word phrase that was generated new or imported'
+          : 'Seed Key is a 12-word phrase that can be generated new or imported',
         options: !isHealthcheck && [
           {
             title: 'Import',
