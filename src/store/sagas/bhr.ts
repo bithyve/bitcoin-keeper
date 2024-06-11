@@ -74,6 +74,7 @@ import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 export function* updateAppImageWorker({
   payload,
@@ -589,11 +590,12 @@ function* healthCheckSatutsUpdateWorker({
   try {
     const { signerUpdates } = payload;
     for (const signerUpdate of signerUpdates) {
-      const signer: Signer = dbManager.getObjectByPrimaryId(
+      const signerRealm: Signer = dbManager.getObjectByPrimaryId(
         RealmSchema.Signer,
         'masterFingerprint',
         signerUpdate.signerId
       );
+      const signer: Signer = getJSONFromRealmObject(signerRealm);
       if (signer) {
         const date = new Date();
         const newHealthCheckDetails: HealthCheckDetails = {
@@ -601,10 +603,12 @@ function* healthCheckSatutsUpdateWorker({
           actionDate: date,
         };
 
-        const updatedDetailsArray: HealthCheckDetails[] = [
-          ...signer.healthCheckDetails,
-          newHealthCheckDetails,
-        ];
+        const oldDetialsArray = [...signer.healthCheckDetails];
+        const oldDetails = oldDetialsArray.map((details) => {
+          return { ...details, date: new Date(details.actionDate) };
+        });
+
+        const updatedDetailsArray: HealthCheckDetails[] = [...oldDetails, newHealthCheckDetails];
 
         yield put(updateSignerDetails(signer, 'healthCheckDetails', updatedDetailsArray));
         yield put(healthCheckSigner([signer]));

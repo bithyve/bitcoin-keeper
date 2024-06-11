@@ -392,7 +392,11 @@ function SigningDeviceDetails({ route }) {
       <ScrollView contentContainerStyle={styles.flex1}>
         <Box style={styles.healthCheckContainer}>
           {healthCheckArray.map((item, index) => (
-            <SigningDeviceChecklist status={item.type} key={index.toString()} date={item.date} />
+            <SigningDeviceChecklist
+              status={item.type}
+              key={index.toString()}
+              date={item.actionDate}
+            />
           ))}
         </Box>
       </ScrollView>
