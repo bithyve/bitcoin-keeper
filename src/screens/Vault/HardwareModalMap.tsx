@@ -66,7 +66,7 @@ import { crossInteractionHandler } from 'src/utils/utilities';
 import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/services/backend/SigningServer';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
@@ -99,6 +99,7 @@ import { extractColdCardExport } from 'src/hardware/coldcard';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import SignerCard from '../AddSigner/SignerCard';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -685,7 +686,14 @@ function PasswordEnter({
     try {
       const currentPinHash = hash512(password);
       if (currentPinHash === pinHash) {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         showToast('Mobile Key verified successfully', <TickIcon />);
         setInProgress(false);
         close();
@@ -912,11 +920,26 @@ function HardwareModalMap({
         );
         const { isSignerAvailable } = await SigningServer.checkSignerHealth(signerXfp, Number(otp));
         if (isSignerAvailable) {
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+              },
+            ])
+          );
           close();
           showToast('Health check done successfully', <TickIcon />);
         } else {
           close();
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_FAILED,
+              },
+            ])
+          );
           showToast('Error in Health check', <ToastErrorIcon />);
         }
         setInProgress(false);
@@ -1079,13 +1102,28 @@ function HardwareModalMap({
       }
 
       const handleSuccess = () => {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         navigation.dispatch(CommonActions.goBack());
         showToast(`${signer.signerName} verified successfully`, <TickIcon />);
       };
 
       const handleFailure = () => {
         navigation.dispatch(CommonActions.goBack());
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_FAILED,
+            },
+          ])
+        );
         showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
       };
 
@@ -1151,11 +1189,26 @@ function HardwareModalMap({
           break;
       }
       if (healthcheckStatus) {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         navigation.dispatch(CommonActions.goBack());
         showToast('Health check done successfully', <TickIcon />);
       } else {
         navigation.dispatch(CommonActions.goBack());
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_FAILED,
+            },
+          ])
+        );
         showToast('Health check Failed', <ToastErrorIcon />);
       }
     } catch (error) {
@@ -1256,7 +1309,14 @@ function HardwareModalMap({
       return;
     }
     if (mode === InteracationMode.HEALTH_CHECK) {
-      dispatch(healthCheckSigner([signer]));
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+          },
+        ])
+      );
       showToast('Health check successful!');
     } else {
       dispatch(addSigningDevice([hw]));
@@ -1482,11 +1542,26 @@ function HardwareModalMap({
       );
       const { isIKSAvailable } = await InheritanceKeyServer.checkIKSHealth(signerXfp);
       if (isIKSAvailable) {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         close();
         showToast('Health check done successfully', <TickIcon />);
       } else {
         close();
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_FAILED,
+            },
+          ])
+        );
         showToast('Error in Health check', <ToastErrorIcon />);
       }
       setInProgress(false);

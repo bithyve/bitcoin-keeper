@@ -15,7 +15,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { pickDocument } from 'src/services/documents';
 import { extractColdCardExport } from 'src/hardware/coldcard';
@@ -26,6 +26,7 @@ import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/key
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { getJadeDetails } from 'src/hardware/jade';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -68,10 +69,25 @@ function SetupOtherSDScreen({ route }) {
         );
       } else if (mode === InteracationMode.HEALTH_CHECK) {
         if (key.xpub === hcSigner.xpub) {
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+              },
+            ])
+          );
           navigation.dispatch(CommonActions.goBack());
           showToast('Other SD verified successfully', <TickIcon />);
         } else {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_FAILED,
+              },
+            ])
+          );
           showToast('Something went wrong!', <ToastErrorIcon />);
         }
       }
