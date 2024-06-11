@@ -848,7 +848,12 @@ function SendConfirmation({ route }) {
 
   const discardCachedTransaction = () => {
     dispatch(dropTransactionSnapshot({ cachedTxid }));
-    navigation.navigate('VaultDetails', { vaultId: sender.id });
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender.id } }],
+      })
+    );
   };
 
   useEffect(() => {
