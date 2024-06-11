@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/services/wallets/enums';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -49,22 +49,35 @@ import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { formatDuration } from '../Vault/HardwareModalMap';
-import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
+import { setInheritanceSigningRequestId } from 'src/store/reducers/send_and_receive';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import {
+  cachedTxSnapshot,
+  dropTransactionSnapshot,
+  setTransactionSnapshot,
+} from 'src/store/reducers/cachedTxn';
+import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId } = (route.params || {
+  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
+    sendConfirmationRouteParams: null,
+    isMoveAllFunds: false,
+    sender: {},
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
     vaultId: string;
+    isMoveAllFunds: boolean;
+    sender: Vault;
+    sendConfirmationRouteParams: SendConfirmationRouteParams;
   };
 
   const { activeVault: defaultVault } = useVault({
@@ -92,7 +105,8 @@ function SignTransactionScreen() {
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-
+  const [isIKSClicked, setIsIKSClicked] = useState(false);
+  const [IKSSignTime, setIKSSignTime] = useState(0);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
@@ -100,6 +114,7 @@ function SignTransactionScreen() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -112,9 +127,47 @@ function SignTransactionScreen() {
   const [broadcasting, setBroadcasting] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const textRef = useRef(null);
+  const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
-  const card = useRef(new CKTapCard()).current;
+  const cachedTxn = useAppSelector((state) => state.cachedTxn);
+  const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
+  const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+
+  const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
+  const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+
+  useEffect(() => {
+    if (snapshotOptions && snapshotOptions.requestStatusIKS) {
+      const { approvesIn, isDeclined, isApproved } = snapshotOptions.requestStatusIKS;
+      if (isApproved) {
+        // do nothing
+      } else if (isDeclined) {
+      } else {
+        setIsIKSClicked(true);
+        setIKSSignTime(approvesIn);
+      }
+    }
+  }, [snapshotOptions]);
+
+  useEffect(() => {
+    if (sendAndReceive.sendPhaseThree.txid) {
+      // transaction successful
+      dispatch(dropTransactionSnapshot({ cachedTxid }));
+    } else {
+      // transaction in process, sets/updates transaction snapshot
+      dispatch(
+        setTransactionSnapshot({
+          cachedTxid,
+          snapshot: {
+            state: sendAndReceive,
+            routeParams: sendConfirmationRouteParams,
+            options: snapshotOptions,
+          },
+        })
+      );
+    }
+  }, [sendAndReceive, snapshotOptions]);
 
   useEffect(() => {
     if (relayVaultUpdate) {
@@ -196,7 +249,7 @@ function SignTransactionScreen() {
 
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const { inheritanceSigningRequestId } = useAppSelector((state) => state.storage);
+  const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
 
   const signTransaction = useCallback(
     async ({
@@ -303,7 +356,11 @@ function SignTransactionScreen() {
             showToast,
           });
 
-          if (requestStatus && isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
+          if (requestStatus) {
+            setIsIKSClicked(true);
+            setSnapshotOptions({ requestStatusIKS: requestStatus });
+            if (isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
+          }
 
           // process request based on status
           if (requestStatus.isDeclined) {
@@ -435,7 +492,10 @@ function SignTransactionScreen() {
             return;
           }
 
-          signTransaction({ xfp: vaultKey.xfp, inheritanceConfiguration: configurationForVault });
+          signTransaction({
+            xfp: vaultKey.xfp,
+            inheritanceConfiguration: configurationForVault,
+          });
         } else showToast('Inheritance key info missing');
         break;
       case SignerType.SEED_WORDS:
@@ -513,6 +573,34 @@ function SignTransactionScreen() {
       })
     );
   };
+
+  const viewManageWallets = () => {
+    new Promise((resolve, reject) => {
+      try {
+        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    })
+      .then(() => {
+        setVisibleModal(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              {
+                name: 'ManageWallets',
+              },
+            ],
+          })
+        );
+      })
+      .catch((error) => {
+        console.error('Error refreshing wallets:', error);
+      });
+  };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
@@ -526,6 +614,8 @@ function SignTransactionScreen() {
         keyExtractor={(item) => item.xfp}
         renderItem={({ item }) => (
           <SignerList
+            isIKSClicked={isIKSClicked}
+            IKSSignTime={IKSSignTime}
             vaultKey={item}
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
@@ -549,6 +639,7 @@ function SignTransactionScreen() {
                   label,
                 })
               );
+              setBroadcasting(false);
             } else {
               showToast("Sorry there aren't enough signatures!");
             }
@@ -604,9 +695,11 @@ function SignTransactionScreen() {
         close={() => setVisibleModal(false)}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewDetails}
+        buttonText={
+          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+        }
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonCallback={viewDetails}
+        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         buttonTextColor={`${colorMode}.white`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}

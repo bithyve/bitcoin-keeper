@@ -100,6 +100,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import SignerCard from '../AddSigner/SignerCard';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import NFC from 'src/services/nfc';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -119,7 +120,8 @@ const getSignerContent = (
   translations: any,
   isHealthcheck: boolean,
   isCanaryAddition: boolean,
-  colorMode: string
+  colorMode: string,
+  isNfcSupported: boolean
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
@@ -146,6 +148,7 @@ const getSignerContent = (
               />
             ),
             name: KeyGenerationMode.NFC,
+            disabled: !isNfcSupported,
           },
           {
             title: 'File',
@@ -419,7 +422,7 @@ const getSignerContent = (
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
         subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
-        options: [
+        options: !isHealthcheck && [
           {
             title: 'Import',
             icon: <Import />,
@@ -565,6 +568,7 @@ function SignerContent({
         {options &&
           options.map((option) => (
             <SignerCard
+              disabled={option.disabled}
               key={option.name}
               isSelected={keyGenerationMode === option.name}
               isFullText={true}
@@ -814,6 +818,16 @@ function HardwareModalMap({
   const isCanaryAddition = mode === InteracationMode.CANARY_ADDITION;
   const [otp, setOtp] = useState('');
   const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
+  const [isNfcSupported, setNfcSupport] = useState(true);
+
+  const getNfcSupport = async () => {
+    const isSupported = await NFC.isNFCSupported();
+    setNfcSupport(isSupported);
+  };
+
+  useEffect(() => {
+    getNfcSupport();
+  }, []);
 
   const navigateToTapsignerSetup = () => {
     if (mode === InteracationMode.RECOVERY) {
@@ -1049,11 +1063,14 @@ function HardwareModalMap({
       );
     } else if (mode === InteracationMode.HEALTH_CHECK || mode === InteracationMode.IDENTIFICATION) {
       navigation.dispatch(
-        CommonActions.navigate('ExportSeed', {
-          seed: primaryMnemonic,
-          next: true,
-          isHealthCheck: true,
-          signer,
+        CommonActions.navigate({
+          name: 'EnterSeedScreen',
+          params: {
+            mode,
+            signer,
+            isMultisig,
+            setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+          },
         })
       );
     } else if (isImport) {
@@ -1755,7 +1772,15 @@ function HardwareModalMap({
     options,
     sepInstruction = '',
     type: signerType,
-  } = getSignerContent(type, isMultisig, translations, isHealthcheck, isCanaryAddition, colorMode);
+  } = getSignerContent(
+    type,
+    isMultisig,
+    translations,
+    isHealthcheck,
+    isCanaryAddition,
+    colorMode,
+    isNfcSupported
+  );
 
   const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -1787,7 +1812,7 @@ function HardwareModalMap({
         onSelect={onSelect}
       />
     ),
-    [keyGenerationMode]
+    [keyGenerationMode, options]
   );
 
   const buttonCallback = () => {

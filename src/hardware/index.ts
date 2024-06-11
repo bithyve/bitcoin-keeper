@@ -298,7 +298,6 @@ export const getDeviceStatus = (
   addSignerFlow: boolean = false
 ) => {
   switch (type) {
-    case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',

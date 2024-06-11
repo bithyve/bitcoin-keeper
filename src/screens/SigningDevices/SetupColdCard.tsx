@@ -191,7 +191,7 @@ function SetupColdCard({ route }) {
   };
 
   const instructions = isConfigRecovery
-    ? 'Export the Vault config by going to Setting > Multisig > Then select the wallet > Export'
+    ? 'Export the Vault config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
     : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

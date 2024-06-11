@@ -236,9 +236,19 @@ export function* deleteAppImageEntityWorker({
       signers: signerIds,
       walletIds: walletIds,
     });
-    if (walletIds.length > 0) {
+    if (walletIds?.length > 0) {
       for (const walletId of walletIds) {
         yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
+      }
+    }
+    if (signerIds?.length > 0) {
+      for (const signerId of signerIds) {
+        yield call(
+          dbManager.deleteObjectByPrimaryKey,
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signerId
+        );
       }
     }
     return response;
@@ -688,6 +698,7 @@ function* backupBsmsOnCloudWorker({
         title: CloudBackupAction.CLOUD_BACKUP_FAILED,
         confirmed: false,
         subtitle: 'No vaults found.',
+        date: Date.now(),
       });
       return;
     }
@@ -717,6 +728,7 @@ function* backupBsmsOnCloudWorker({
               title: CloudBackupAction.CLOUD_BACKUP_CREATED,
               confirmed: true,
               subtitle: response.data,
+              date: Date.now(),
             });
             yield put(setIsCloudBsmsBackupRequired(false));
             yield put(setLastBsmsBackup(Date.now()));
@@ -725,6 +737,7 @@ function* backupBsmsOnCloudWorker({
               title: CloudBackupAction.CLOUD_BACKUP_FAILED,
               confirmed: false,
               subtitle: response.error,
+              date: Date.now(),
             });
           }
         } else {
@@ -732,6 +745,7 @@ function* backupBsmsOnCloudWorker({
             title: CloudBackupAction.CLOUD_BACKUP_FAILED,
             confirmed: false,
             subtitle: login.error,
+            date: Date.now(),
           });
         }
       } else {
@@ -739,6 +753,7 @@ function* backupBsmsOnCloudWorker({
           title: CloudBackupAction.CLOUD_BACKUP_FAILED,
           confirmed: false,
           subtitle: 'Unable to initialize Google Drive',
+          date: Date.now(),
         });
       }
     } else {
@@ -748,12 +763,12 @@ function* backupBsmsOnCloudWorker({
         JSON.stringify(bsmsToBackup),
         password
       );
-      console.log('response', response);
       if (response.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
           title: CloudBackupAction.CLOUD_BACKUP_CREATED,
           confirmed: true,
           subtitle: response.data,
+          date: Date.now(),
         });
         yield put(setIsCloudBsmsBackupRequired(false));
         yield put(setLastBsmsBackup(Date.now()));
@@ -762,6 +777,7 @@ function* backupBsmsOnCloudWorker({
           title: CloudBackupAction.CLOUD_BACKUP_FAILED,
           confirmed: false,
           subtitle: response.error,
+          date: Date.now(),
         });
       }
     }
@@ -771,6 +787,7 @@ function* backupBsmsOnCloudWorker({
       title: CloudBackupAction.CLOUD_BACKUP_FAILED,
       confirmed: false,
       subtitle: `${error}`,
+      date: Date.now(),
     });
   }
 }
@@ -788,6 +805,7 @@ function* bsmsCloudHealthCheckWorker() {
             title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
             confirmed: true,
             subtitle: response.data,
+            date: Date.now(),
           });
           yield put(setIsCloudBsmsBackupRequired(false));
         } else {
@@ -795,6 +813,7 @@ function* bsmsCloudHealthCheckWorker() {
             title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
             confirmed: false,
             subtitle: response.error,
+            date: Date.now(),
           });
         }
       } else {
@@ -802,6 +821,7 @@ function* bsmsCloudHealthCheckWorker() {
           title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
           confirmed: false,
           subtitle: login.error,
+          date: Date.now(),
         });
       }
     } else {
@@ -809,6 +829,7 @@ function* bsmsCloudHealthCheckWorker() {
         title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
         confirmed: false,
         subtitle: 'Unable to initialize Google Drive',
+        date: Date.now(),
       });
     }
   } else {
@@ -816,6 +837,7 @@ function* bsmsCloudHealthCheckWorker() {
       title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
       confirmed: true,
       subtitle: '',
+      date: Date.now(),
     });
     yield put(setIsCloudBsmsBackupRequired(false));
   }

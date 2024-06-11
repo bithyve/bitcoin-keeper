@@ -31,7 +31,7 @@ import {
   migrateLabelsToBip329,
   MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
-import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
+import { deleteVaultImageWorker, updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
@@ -45,6 +45,7 @@ export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
 export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.7';
+export const ARCHIVE_ENABLED_VERSION = '1.2.7';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -74,6 +75,9 @@ export function* applyUpgradeSequence({
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT)) {
     yield call(assistedKeysCosignersEnrichment);
+  }
+  if (semver.gt(newVersion, ARCHIVE_ENABLED_VERSION)) {
+    yield call(cleanupArchivedVaults);
   }
 
   if (semver.lt(previousVersion, HEALTH_CHECK_TIMELINE_MIGRATION_VERSION)) {
@@ -466,5 +470,18 @@ function* healthCheckTimelineMigration() {
     }
   } catch (err) {
     console.log('Error in health check timeline migration:', err);
+function* cleanupArchivedVaults() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const archivedVaults = vaults.filter((vault) => vault.archived);
+    const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+    const response = yield call(deleteVaultImageWorker, { payload: { vaultIds: deletedVaultIds } });
+    if (response.updated) {
+      for (const vault of archivedVaults) {
+        dbManager.deleteObjectById(RealmSchema.Vault, vault.id);
+      }
+    }
+  } catch (err) {
+    console.log('Error in cleanupArchivedVaults:', err);
   }
 }
