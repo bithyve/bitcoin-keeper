@@ -372,7 +372,7 @@ function SignTransactionScreen() {
         }
       }
     },
-    [activeXfp, serializedPSBTEnvelops]
+    [activeXfp, serializedPSBTEnvelops, inheritanceSigningRequestId]
   );
 
   const onFileSign = (signedSerializedPSBT: string) => {

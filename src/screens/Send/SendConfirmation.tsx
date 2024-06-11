@@ -1143,9 +1143,10 @@ function SendConfirmation({ route }) {
       {!isAutoTransferFlow ? (
         <Buttons
           primaryText={common.confirmProceed}
-          secondaryText={common.cancel}
+          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
           secondaryCallback={() => {
-            navigation.goBack();
+            if (isCachedTransaction) discardCachedTransaction();
+            else navigation.goBack();
           }}
           primaryCallback={() => setConfirmPassVisible(true)}
           primaryLoading={inProgress}
