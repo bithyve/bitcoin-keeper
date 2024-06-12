@@ -612,7 +612,8 @@ export function* addNewVaultWorker({
         error: err.toString(),
       })
     );
-    yield put(relayVaultUpdateFail(err));
+    captureError(err);
+    yield put(relayVaultUpdateFail('Vault creation failed!'));
     return false;
   }
 }
