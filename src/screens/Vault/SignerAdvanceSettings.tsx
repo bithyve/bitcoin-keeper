@@ -76,6 +76,7 @@ import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import Note from 'src/components/Note/Note';
 
 const { width } = Dimensions.get('screen');
 
@@ -128,7 +129,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [otp, setOtp] = useState('');
   const [showOTPModal, setShowOTPModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, common } = translations;
+  const { vault: vaultTranslation, common, signer: signerTranslation, BackupWallet } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const isSmallDevice = useIsSmallDevices();
 
@@ -586,8 +587,16 @@ function SignerAdvanceSettings({ route }: any) {
   const backupModalContent = ({ title = '', subTitle = '', icon = null }) => {
     return (
       <Box>
-        <Card title={title} subTitle={subTitle} icon={icon} />
-        <Text style={styles.textDesc}>You will only be shown the words once.</Text>
+        <Box style={styles.cardWrapper}>
+          <Card title={title} subTitle={subTitle} icon={icon} />
+        </Box>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle={signerTranslation.OTBModalNote}
+            subtitleColor="GreyText"
+          />
+        </Box>
       </Box>
     );
   };
@@ -615,8 +624,11 @@ function SignerAdvanceSettings({ route }: any) {
         );
         setOTBLoading(false);
         navigation.navigate('ExportSeed', {
+          vaultKey,
+          vaultId,
           seed: mnemonic,
           derivationPath,
+          signer,
           isFromAssistedKey: true,
           isSS: true,
         });
@@ -744,8 +756,11 @@ function SignerAdvanceSettings({ route }: any) {
           // dispatch(setInheritanceOTBRequestId('')); // clear existing request
         } else if (requestStatus.isApproved && backup) {
           navigation.navigate('ExportSeed', {
+            vaultKey,
+            vaultId,
             seed: backup.mnemonic,
             derivationPath: backup.derivationPath,
+            signer,
             isFromAssistedKey: true,
             isIKS: true,
           });
@@ -823,11 +838,14 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {showOneTimeBackup && (
           <OptionCard
-            disabled={disableOneTimeBackup}
             title={vaultTranslation.oneTimeBackupTitle}
-            description={vaultTranslation.oneTimeBackupDesc}
+            description={
+              disableOneTimeBackup
+                ? BackupWallet.viewBackupHistory
+                : vaultTranslation.oneTimeBackupDesc
+            }
             callback={() => {
-              setBackupModal(true);
+              disableOneTimeBackup ? navigation.goBack() : setBackupModal(true);
             }}
           />
         )}
@@ -1003,15 +1021,15 @@ function SignerAdvanceSettings({ route }: any) {
         closeOnOverlayClick={true}
         close={() => setBackupModal(false)}
         showCloseIcon={false}
-        title={vaultTranslation.backingUpMnemonicTitle}
-        subTitle={vaultTranslation.backingUpMnemonicSubtitle}
+        title={`${signerTranslation.backingUp} ${signer.signerName}`}
+        subTitle={`${signerTranslation.writeBackupSeed} ${signer.signerName}. ${signerTranslation.doItPrivately}`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() =>
           backupModalContent({
             title: signer.signerName,
-            subTitle: `Added ${moment(signer.addedOn).calendar()}`,
+            subTitle: `${common.added} ${moment(signer.addedOn).calendar()}`,
             icon:
               signer.type === SignerType.INHERITANCEKEY ? (
                 <InhertanceKeyIcon />
@@ -1022,7 +1040,7 @@ function SignerAdvanceSettings({ route }: any) {
         }
         buttonText={common.proceed}
         buttonCallback={initiateOneTimeBackup}
-        secondaryButtonText="Cancel"
+        secondaryButtonText={common.cancel}
         secondaryCallback={() => setBackupModal(false)}
       />
       <KeeperModal
@@ -1269,5 +1287,11 @@ const styles = StyleSheet.create({
   },
   otpModal: {
     width: '100%',
+  },
+  cardWrapper: {
+    marginBottom: hp(50),
+  },
+  noteWrapper: {
+    marginBottom: hp(15),
   },
 });
