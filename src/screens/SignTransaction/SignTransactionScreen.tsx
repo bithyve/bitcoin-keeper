@@ -176,13 +176,6 @@ function SignTransactionScreen() {
     }
   }, [snapshotOptions]);
 
-  const handleRequestForIKS = () => {
-    signTransaction({
-      xfp: vaultKey.xfp,
-      inheritanceConfiguration: configurationForVault,
-    });
-  };
-
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
       // transaction successful
