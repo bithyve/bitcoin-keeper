@@ -58,6 +58,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -227,7 +228,7 @@ function SigningDeviceDetails({ route }) {
   const { signers } = useSigners();
   const currentSigner = signers.find((signer) => signer.masterFingerprint === signerId);
   const { signerMap } = useSignerMap();
-  const signer = currentSigner || signerMap[vaultKey.masterFingerprint];
+  const signer: Signer = currentSigner || signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(isUaiFlow);
@@ -260,7 +261,7 @@ function SigningDeviceDetails({ route }) {
     if (signer) {
       setHealthCheckArray(signer.healthCheckDetails);
     }
-  }, []);
+  }, [signer.healthCheckDetails.length]);
 
   if (!signer) {
     return null;
