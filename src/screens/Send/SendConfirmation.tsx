@@ -1299,7 +1299,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter amount in sats"
+          subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
