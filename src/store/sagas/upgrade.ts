@@ -470,6 +470,9 @@ function* healthCheckTimelineMigration() {
     }
   } catch (err) {
     console.log('Error in health check timeline migration:', err);
+  }
+}
+
 function* cleanupArchivedVaults() {
   try {
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
