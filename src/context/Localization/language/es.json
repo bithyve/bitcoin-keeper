@@ -462,7 +462,7 @@
     "ARRIVALTIME": "ARRIVAL TIME",
     "FEE": "FEE",
     "transactionPriority": "Transaction Priority",
-    "transactionPrioritySubTitle": "Decide how fast you want the sats",
+    "transactionPrioritySubTitle": "Decide how fast you want to send sats",
     "addCustomPriority": "Add Custom Priority",
     "totalAmount": "Total Amount",
     "totalFees": "Total Fees",
