@@ -61,7 +61,8 @@ const onSignerSelect = (
   setVaultKeys,
   selectedSigners,
   setSelectedSigners,
-  showToast
+  showToast,
+  signerMap
 ) => {
   const amfXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.AMF][0];
   const ssXpub: signerXpubs[XpubTypes][0] = signer.signerXpubs[XpubTypes.P2WPKH][0];
@@ -70,6 +71,17 @@ const onSignerSelect = (
   const { isMock } = signer;
   const isAmf = !!amfXpub;
   const isMultisig = msXpub && scheme.n > 1;
+
+  const signerType = signerMap[signer.masterFingerprint].type;
+  const isSigningServer = signerType === SignerType.POLICY_SERVER;
+  const isInheritanceKey = signerType === SignerType.INHERITANCEKEY;
+
+  const isSigningServerSelected = Array.from(selectedSigners.values()).some(
+    (type) => type === SignerType.POLICY_SERVER
+  );
+  const isInheritanceKeySelected = Array.from(selectedSigners.values()).some(
+    (type) => type === SignerType.INHERITANCEKEY
+  );
 
   if (selected) {
     const updated = selectedSigners.delete(signer.masterFingerprint);
@@ -94,6 +106,15 @@ const onSignerSelect = (
       showToast('You have selected the total (n) keys, please proceed with the creation of vault.');
       return;
     }
+    if (scheme.m <= 3 && scheme.n <= 4) {
+      if (isSigningServer && isInheritanceKeySelected) {
+        return;
+      }
+      if (isInheritanceKey && isSigningServerSelected) {
+        return;
+      }
+    }
+
     const scriptKey = WalletUtilities.getKeyForScheme(isMultisig, signer, msXpub, ssXpub, amfXpub);
     vaultKeys.push(scriptKey);
     setVaultKeys(vaultKeys);
@@ -430,7 +451,8 @@ function Signers({
               setVaultKeys,
               selectedSigners,
               setSelectedSigners,
-              showToast
+              showToast,
+              signerMap
             );
             if (keyToRotate && vaultKeys.length === scheme.n) {
               showToast('Updating vault keys and archiving the old vault', <TickIcon />);
