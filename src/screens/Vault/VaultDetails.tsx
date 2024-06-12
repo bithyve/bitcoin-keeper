@@ -268,7 +268,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       cached.push(cachedTx);
     }
 
-    if (cached.length) setCachedTransactions(cached);
+    if (cached.length) {
+      cached.reverse(); // order from newest to oldest
+      setCachedTransactions(cached);
+    }
   }, [snapshots]);
 
   useEffect(() => {
