@@ -382,24 +382,26 @@ function SignerAdvanceSettings({ route }: any) {
               Email is not correct
             </Text>
           )}
-          <TouchableOpacity
-            onPress={() => {
-              setEditEmailModal(false);
-              setDeleteEmailModal(true);
-            }}
-          >
-            <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
-              <Box>
-                <DeleteIcon />
+          {currentEmail && (
+            <TouchableOpacity
+              onPress={() => {
+                setEditEmailModal(false);
+                setDeleteEmailModal(true);
+              }}
+            >
+              <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
+                <Box>
+                  <DeleteIcon />
+                </Box>
+                <Box>
+                  <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
+                    Delete Email
+                  </Text>
+                  <Box fontSize={12}>This is a irreversible action</Box>
+                </Box>
               </Box>
-              <Box>
-                <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
-                  Delete Email
-                </Text>
-                <Box fontSize={12}>This is a irreversible action</Box>
-              </Box>
-            </Box>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
           <Box style={styles.warningIconWrapper}>
             <WarningIllustration />
           </Box>

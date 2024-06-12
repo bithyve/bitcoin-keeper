@@ -105,6 +105,7 @@ function SignTransactionScreen() {
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [isIKSClicked, setIsIKSClicked] = useState(false);
+  const [isIKSDeclined, setIsIKSDeclined] = useState(false);
   const [IKSSignTime, setIKSSignTime] = useState(0);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -142,6 +143,7 @@ function SignTransactionScreen() {
       if (isApproved) {
         // do nothing
       } else if (isDeclined) {
+        setIsIKSDeclined(true);
       } else {
         setIsIKSClicked(true);
         setIKSSignTime(approvesIn);
@@ -342,6 +344,7 @@ function SignTransactionScreen() {
 
           // process request based on status
           if (requestStatus.isDeclined) {
+            setIsIKSDeclined(true);
             showToast('Inheritance Key Signing request has been declined', <ToastErrorIcon />);
             // dispatch(setInheritanceSigningRequestId('')); // clear existing request
           } else if (!requestStatus.isApproved) {
@@ -565,6 +568,7 @@ function SignTransactionScreen() {
         renderItem={({ item }) => (
           <SignerList
             isIKSClicked={isIKSClicked}
+            isIKSDeclined={isIKSDeclined}
             IKSSignTime={IKSSignTime}
             vaultKey={item}
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
