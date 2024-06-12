@@ -58,6 +58,7 @@ import {
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
+import { SIGNTRANSACTION } from 'src/navigation/contants';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -175,13 +176,6 @@ function SignTransactionScreen() {
       }
     }
   }, [snapshotOptions]);
-
-  const handleRequestForIKS = () => {
-    signTransaction({
-      xfp: vaultKey.xfp,
-      inheritanceConfiguration: configurationForVault,
-    });
-  };
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -485,8 +479,9 @@ function SignTransactionScreen() {
       case SignerType.SEED_WORDS:
         navigation.dispatch(
           CommonActions.navigate({
-            name: 'InputSeedWordSigner',
+            name: 'EnterSeedScreen',
             params: {
+              parentScreen: SIGNTRANSACTION,
               xfp: vaultKey.xfp,
               onSuccess: signTransaction,
             },
@@ -603,10 +598,8 @@ function SignTransactionScreen() {
           <SignerList
             isIKSClicked={isIKSClicked}
             isIKSDeclined={isIKSDeclined}
-            // isIKSApproved={isIKSApproved}
             IKSSignTime={IKSSignTime}
             vaultKey={item}
-            callbackForSigners={callbackForSigners}
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
             signerMap={signerMap}
