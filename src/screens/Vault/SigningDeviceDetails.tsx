@@ -425,13 +425,24 @@ function SigningDeviceDetails({ route }) {
         buttonText="Do Later"
         secondaryButtonText="Confirm Access"
         buttonTextColor={`${colorMode}.white`}
-        buttonCallback={() => setSkipHealthCheckModalVisible(false)}
+        buttonCallback={() => {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SKIPPED,
+              },
+            ])
+          );
+          setSkipHealthCheckModalVisible(false);
+          showToast('Device healhcheck skipped!');
+        }}
         secondaryCallback={() => {
           dispatch(
             healthCheckStatusUpdate([
               {
                 signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                status: hcStatusType.HEALTH_CHECK_MANAUAL,
               },
             ])
           );
