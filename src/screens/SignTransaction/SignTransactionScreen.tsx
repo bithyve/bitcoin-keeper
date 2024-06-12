@@ -165,7 +165,6 @@ function SignTransactionScreen() {
                 callbackForSigners(iksKey, signerMap[iksKey.masterFingerprint]);
                 setApproveOnce(false);
               }
-              // callbackForSigners(vaultKey, signerMap[vaultKey.masterFingerprint]);
               clearInterval(interval);
             }
           }, 1000);
@@ -596,10 +595,8 @@ function SignTransactionScreen() {
           <SignerList
             isIKSClicked={isIKSClicked}
             isIKSDeclined={isIKSDeclined}
-            // isIKSApproved={isIKSApproved}
             IKSSignTime={IKSSignTime}
             vaultKey={item}
-            callbackForSigners={callbackForSigners}
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
             signerMap={signerMap}
