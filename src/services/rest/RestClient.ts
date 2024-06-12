@@ -1,4 +1,4 @@
-import Tor, { RequestResponse } from 'react-native-tor';
+// import Tor, { RequestResponse } from 'react-native-tor';
 import axios, { AxiosResponse } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
@@ -6,9 +6,9 @@ import { Platform } from 'react-native';
 import config from 'src/utils/service-utilities/config';
 
 const { HEXA_ID } = config;
-const tor = Tor({
-  stopDaemonOnBackground: true,
-});
+// const tor = Tor({
+//   stopDaemonOnBackground: true,
+// });
 
 enum TorStatus {
   OFF = 'OFF',
@@ -139,11 +139,8 @@ class RestClient {
     tor.stopIfRunning();
   }
 
-  async post(
-    path: string,
-    body: object,
-    headers?: object
-  ): Promise<AxiosResponse | RequestResponse> {
+  async post(path: string, body: object, headers?: object): Promise<AxiosResponse> {
+    // | RequestResponse
     if (RestClient.useTor && RestClient.torStatus === TorStatus.CONNECTED) {
       return tor.post(
         path,
@@ -163,7 +160,8 @@ class RestClient {
     });
   }
 
-  async get(path: string, headers?: object): Promise<AxiosResponse | RequestResponse> {
+  async get(path: string, headers?: object): Promise<AxiosResponse> {
+    //  | RequestResponse
     if (RestClient.useTor && RestClient.torStatus === TorStatus.CONNECTED) {
       return tor.get(
         path,
@@ -184,4 +182,4 @@ class RestClient {
 }
 
 export default new RestClient();
-export { tor, TorStatus };
+export { TorStatus };

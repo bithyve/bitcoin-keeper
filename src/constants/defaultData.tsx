@@ -2,6 +2,7 @@ import React from 'react';
 import LoadingAnimation from 'src/components/Loader';
 import InheritanceToolsIllustartion from 'src/components/SVGComponents/InheritanceToolsIllustartion';
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 export const securityTips = [
   // {
@@ -60,6 +61,7 @@ export const securityTips = [
     assert: <LoadingAnimation />,
     message:
       'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.',
+    developmentOnly: true,
   },
   {
     title: 'Confirming your subscription',
@@ -76,7 +78,14 @@ export const securityTips = [
       'These are generally offline and to keep them secure is your responsibility. Losing them may lead to permanent loss of your bitcoin.',
   },
 ];
+
 export const getSecurityTip = () => {
-  const selected = Math.floor(cryptoRandom() * securityTips.length); // Comment for creating wallet modal WP
-  return securityTips[selected];
+  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+    const selected = Math.floor(cryptoRandom() * securityTips.length); // Comment for creating wallet modal WP
+    return securityTips[selected];
+  } else {
+    const filteredTips = securityTips.filter((tip) => !tip.developmentOnly);
+    const selected = Math.floor(cryptoRandom() * filteredTips.length);
+    return filteredTips[selected];
+  }
 };
