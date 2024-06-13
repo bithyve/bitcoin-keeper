@@ -464,15 +464,25 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
 };
 
 export const extractKeyFromDescriptor = (data) => {
-  if (data.startsWith('BSMS')) {
-    data = data.slice(data.indexOf('['));
-    data = data.slice(0, data.indexOf('\n'));
+  let xpub = '';
+  let derivationPath = '';
+  let masterFingerprint = '';
+
+  if (typeof data === 'object' && data.hasOwnProperty('xPub')) {
+    xpub = data.xPub;
+    derivationPath = data.derivationPath;
+    masterFingerprint = data.mfp;
+  } else {
+    if (data.startsWith('BSMS')) {
+      data = data.slice(data.indexOf('['));
+      data = data.slice(0, data.indexOf('\n'));
+    }
+    xpub = data.slice(data.indexOf(']') + 1);
+    masterFingerprint = data.slice(1, 9);
+    derivationPath = data
+      .slice(data.indexOf('[') + 1, data.indexOf(']'))
+      .replace(masterFingerprint, 'm');
   }
-  const xpub = data.slice(data.indexOf(']') + 1);
-  const masterFingerprint = data.slice(1, 9);
-  const derivationPath = data
-    .slice(data.indexOf('[') + 1, data.indexOf(']'))
-    .replace(masterFingerprint, 'm');
   const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
   let forMultiSig: boolean;
   let forSingleSig: boolean;
