@@ -1085,6 +1085,7 @@
     "recentHistory": "Recent History",
     "noBackup": "No backup history found.",
     "backupNow": "Backup Now",
+    "allowBackup": "Allow Backup",
     "healthCheck": "Health Check",
     "CLOUD_BACKUP_CREATED": "Cloud backup created",
     "CLOUD_BACKUP_FAILED": "Cloud backup failed",
