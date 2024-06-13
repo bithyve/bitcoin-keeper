@@ -166,7 +166,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             val byteArray = stream.toByteArray()
             val image = Image.getInstance(byteArray)
-            image.scaleAbsolute(430F, 200F)
+            image.scaleAbsolute(215F, 100F)
 
             // Align image to center
             image.alignment = Element.ALIGN_CENTER
