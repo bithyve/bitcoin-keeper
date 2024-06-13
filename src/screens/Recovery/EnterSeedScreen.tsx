@@ -1,6 +1,13 @@
 import * as bip39 from 'bip39';
 import { Box, Input, Pressable, ScrollView, View, useColorMode } from 'native-base';
-import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -26,6 +33,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import Dropdown from 'src/components/Dropdown';
+import { SIGNTRANSACTION } from 'src/navigation/contants';
 
 type seedWordItem = {
   id: number;
@@ -49,6 +57,9 @@ function EnterSeedScreen({ route, navigation }) {
     mapUnknownSigner,
     isImport,
     importSeedCta,
+    parentScreen,
+    xfp,
+    onSuccess,
   } = route.params || {};
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
@@ -74,10 +85,12 @@ function EnterSeedScreen({ route, navigation }) {
   const inputRef = useRef([]);
 
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
+  const isSignTransaction = parentScreen === SIGNTRANSACTION;
+  const isIdentification = mode === InteracationMode.IDENTIFICATION;
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
-    setInvalidSeedsModal(true);
+    if (!isSignTransaction) setInvalidSeedsModal(true);
   };
   const closeInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -196,7 +209,7 @@ function EnterSeedScreen({ route, navigation }) {
         if (isSeedFilled(12)) {
           let derivedSigner;
           const seedWord = getSeedWord();
-          if (signer.type === SignerType.MY_KEEPER) {
+          if (signer?.type === SignerType.MY_KEEPER) {
             const details = await getCosignerDetails(
               seedWord,
               signer.extraData?.instanceNumber - 1
@@ -242,6 +255,56 @@ function EnterSeedScreen({ route, navigation }) {
       console.log('Error Soft Key HC', err);
     } finally {
       setHcLoading(false);
+    }
+  };
+
+  const onPressSignTransaction = async () => {
+    if (activePage === 3) {
+      const seedWord = getSeedWord();
+      importSeedCta(seedWord);
+    }
+    if (activePage === 2) {
+      if (!(selectedNumberOfWords === SEED_WORDS_18)) {
+        if (isSeedFilled(18)) setActivePage(3);
+        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      } else {
+        const seedWord = getSeedWord();
+        importSeedCta(seedWord);
+      }
+    }
+    if (activePage === 1) {
+      if (!(selectedNumberOfWords === SEED_WORDS_12)) {
+        if (isSeedFilled(12)) setActivePage(2);
+        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      } else {
+        const seedWord = getSeedWord();
+        importSeedCta(seedWord);
+      }
+    }
+    if (activePage === 0) {
+      if (isSeedFilled(6)) setActivePage(1);
+      else showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+  };
+
+  const onPressNext = async () => {
+    const mnemonic = getSeedWord();
+    if (bip39.validateMnemonic(mnemonic)) {
+      onSuccess({ xfp, seedBasedSingerMnemonic: mnemonic });
+      navigation.goBack();
+    } else Alert.alert('Invalid Mnemonic');
+  };
+
+  const handleNext = () => {
+    const isLastPage =
+      (selectedNumberOfWords === SEED_WORDS_12 && activePage === 1) ||
+      (selectedNumberOfWords === SEED_WORDS_18 && activePage === 2) ||
+      (selectedNumberOfWords === SEED_WORDS_24 && activePage === 3);
+
+    if (isLastPage) {
+      onPressNext();
+    } else {
+      onPressSignTransaction();
     }
   };
 
@@ -371,17 +434,21 @@ function EnterSeedScreen({ route, navigation }) {
       >
         <KeeperHeader
           title={
-            isHealthCheck
+            isHealthCheck || isIdentification
               ? 'Seed key health check'
               : isImport
               ? 'Enter Seed Words'
+              : isSignTransaction
+              ? seed?.EnterSeed
               : seed?.enterRecoveryPhrase
           }
           subtitle={
-            isHealthCheck
+            isHealthCheck || isIdentification
               ? 'Enter the seed key'
               : isImport
               ? 'To import enter the seed key'
+              : isSignTransaction
+              ? 'To sign transaction'
               : seed.enterRecoveryPhraseSubTitle
           }
           // To-Do-Learn-More
@@ -393,7 +460,7 @@ function EnterSeedScreen({ route, navigation }) {
             gap: hp(20),
           }}
         >
-          {isImport && (
+          {(isImport || isSignTransaction) && (
             <Box style={styles.dropdownContainer}>
               <Dropdown
                 label={selectedNumberOfWords}
@@ -466,8 +533,14 @@ function EnterSeedScreen({ route, navigation }) {
             }
             currentScreen={activePage + 1}
           />
-          {isHealthCheck ? (
+          {isHealthCheck || isIdentification ? (
             <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
+          ) : isSignTransaction ? (
+            <Buttons
+              primaryCallback={handleNext}
+              primaryText="Next"
+              primaryLoading={recoveryLoading}
+            />
           ) : (
             <Buttons
               primaryCallback={isImport ? onPressImportNewKey : onPressNextSeedReocvery}

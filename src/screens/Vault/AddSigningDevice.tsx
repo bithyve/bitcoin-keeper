@@ -1,7 +1,7 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Signer,
   Vault,
@@ -346,59 +346,61 @@ function Signers({
     setVisible(true);
   };
 
-  const renderAssistedKeysShell = () => {
-    // tier-based, display only, till an actual assisted keys is setup
-    const shellAssistedKeys = [];
+  const shellKeys = [];
 
-    const generateShellAssistedKey = (signerType: SignerType): Signer => {
-      return {
-        type: signerType,
-        storageType: SignerStorage.WARM,
-        signerName: getSignerNameFromType(signerType, false, false),
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
-        masterFingerprint: '',
-        signerXpubs: {},
-        hidden: false,
-      };
-    };
+  const shellAssistedKeys = useMemo(() => {
+    const generateShellAssistedKey = (signerType: SignerType) => ({
+      type: signerType,
+      storageType: SignerStorage.WARM,
+      signerName: getSignerNameFromType(signerType, false, false),
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+      masterFingerprint: Date.now().toString() + signerType,
+      signerXpubs: {},
+      hidden: false,
+    });
 
     let hasSigningServer = false; // actual signing server present?
     let hasInheritanceKey = false; // actual inheritance key present?
+    let isSigningServerShellCreated = false;
+    let isInheritanceKeyShellCreated = false;
+
+    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0)
+      isSigningServerShellCreated = true;
+
+    if (shellKeys.filter((signer) => signer.type === SignerType.INHERITANCEKEY).length > 0)
+      isInheritanceKeyShellCreated = true;
+
     for (const signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
       else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
     }
 
-    if (!hasSigningServer && level >= AppSubscriptionLevel.L2) {
-      shellAssistedKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
-    }
+    if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2)
+      shellKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
 
-    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3) {
-      shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
-    }
+    if (!isInheritanceKeyShellCreated && !hasInheritanceKey && level >= AppSubscriptionLevel.L3)
+      shellKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
 
-    return shellAssistedKeys.map((shellSigner, index) => {
-      const { isValid, err } = isAssistedKeyValidForScheme(
-        shellSigner,
-        scheme,
-        signerMap,
-        selectedSigners
-      );
-      const disable = !isValid;
+    return shellKeys;
+  }, []);
+
+  const renderAssistedKeysShell = () => {
+    return shellAssistedKeys.map((shellSigner) => {
       const isAMF = false;
       return (
         <SignerCard
-          disabled={disable}
-          key={`${shellSigner.masterFingerprint}_${index}`}
-          name={`${getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)} +`}
+          key={shellSigner.masterFingerprint}
+          onCardSelect={() => {
+            showToast('Please add the key to a Vault in order to use it');
+          }}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
-          isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
-          onCardSelect={() => {
-            if (shellSigner.type === SignerType.POLICY_SERVER) navigateToSigningServerSetup();
-            else if (shellSigner.type === SignerType.INHERITANCEKEY) setupInheritanceKey();
-          }}
+          showSelection={false}
+          showDot={true}
+          isFullText
+          colorVarient="green"
           colorMode={colorMode}
         />
       );

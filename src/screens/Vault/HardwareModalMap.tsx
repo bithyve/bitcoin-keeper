@@ -120,6 +120,7 @@ const getSignerContent = (
   translations: any,
   isHealthcheck: boolean,
   isCanaryAddition: boolean,
+  isIdentification: boolean,
   colorMode: string,
   isNfcSupported: boolean
 ) => {
@@ -421,23 +422,22 @@ const getSignerContent = (
           'It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.',
         ],
         title: isHealthcheck ? 'Verify Seed Key' : 'Setting up Seed Key',
-        subTitle: isHealthcheck
-          ? 'Seed Key is a 12-word phrase that was generated new or imported'
-          : 'Seed Key is a 12-word phrase that can be generated new or imported',
-        options: !isHealthcheck && [
-          {
-            title: 'Import',
-            icon: <Import />,
-            callback: () => {},
-            name: KeyGenerationMode.IMPORT,
-          },
-          {
-            title: 'Create',
-            icon: <RecoverImage />,
-            callback: () => {},
-            name: KeyGenerationMode.CREATE,
-          },
-        ],
+        subTitle: 'Seed Key is a 12-word phrase that can be generated new or imported',
+        options: !isHealthcheck &&
+          !isIdentification && [
+            {
+              title: 'Import',
+              icon: <Import />,
+              callback: () => {},
+              name: KeyGenerationMode.IMPORT,
+            },
+            {
+              title: 'Create',
+              icon: <RecoverImage />,
+              callback: () => {},
+              name: KeyGenerationMode.CREATE,
+            },
+          ],
       };
     case SignerType.TAPSIGNER:
       return {
@@ -817,6 +817,7 @@ function HardwareModalMap({
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
+  const isIdentification = mode === InteracationMode.IDENTIFICATION;
   const isCanaryAddition = mode === InteracationMode.CANARY_ADDITION;
   const [otp, setOtp] = useState('');
   const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
@@ -1780,6 +1781,7 @@ function HardwareModalMap({
     translations,
     isHealthcheck,
     isCanaryAddition,
+    isIdentification,
     colorMode,
     isNfcSupported
   );
