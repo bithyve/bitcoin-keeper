@@ -51,7 +51,12 @@ function SetupSeedWordSigner({ route }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text fontSize={20} backgroundColor="green.700" letterSpacing={1} color={`${colorMode}.GreyText`}>
+          <Text
+            fontSize={20}
+            backgroundColor="green.700"
+            letterSpacing={1}
+            color={`${colorMode}.GreyText`}
+          >
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -62,6 +67,8 @@ function SetupSeedWordSigner({ route }) {
   const renderSeedCard = ({ item, index }: { item; index }) => (
     <SeedCard item={item} index={index} />
   );
+
+  console.log({ words });
 
   return (
     <Box flex={1} padding={5} background={`${colorMode}.secondaryBackground`}>
