@@ -15,7 +15,7 @@ function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPil
   const { colorMode } = useColorMode();
   return (
     <Box
-      backgroundColor={backgroundColor || `${colorMode}.vaultCardText`}
+      backgroundColor={backgroundColor || `${colorMode}.walletTypePillBack`}
       style={[styles.pillContainer, cardStyle && cardStyle]}
     >
       <Text

@@ -111,6 +111,7 @@ export const customTheme = extendTheme({
       sendMax: Colors.JackoBean,
       inActiveMsg: Colors.RichBlack,
       vaultCardText: Colors.Bisque,
+      walletTypePillBack: Colors.Bisque,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.RichGreen, // linearGradient
@@ -233,6 +234,7 @@ export const customTheme = extendTheme({
       sendMax: Colors.JackoBean,
       inActiveMsg: Colors.SpanishGray,
       vaultCardText: Colors.Bisque,
+      walletTypePillBack: Colors.BisqueDark,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.DeepAquamarine, // linearGradient
@@ -258,7 +260,7 @@ export const customTheme = extendTheme({
       TransactionIconBackColor: Colors.Eggshell,
       Teal: Colors.Teal,
       LightBrown: Colors.LightBrown,
-      SignleSigCardPillBackColor: Colors.PaleTurquoise,
+      SignleSigCardPillBackColor: Colors.Turquoise,
       ForestGreenDark: Colors.ForestGreenDark,
       dropdownSeparator: Colors.Taupe,
       LightGreen: Colors.lightGreen,
