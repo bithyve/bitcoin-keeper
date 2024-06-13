@@ -31,7 +31,6 @@ import { captureError } from 'src/services/sentry';
 import config from 'src/utils/service-utilities/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
@@ -41,6 +40,8 @@ import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
@@ -211,13 +212,25 @@ function ConnectChannel() {
 
     const handleVerification = async (data, deviceType) => {
       const handleSuccess = () => {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: data.signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         navigation.dispatch(CommonActions.goBack());
         showToast(`${signer.signerName} verified successfully`, <TickIcon />);
       };
 
       const handleFailure = () => {
         navigation.dispatch(CommonActions.goBack());
+        dispatch(
+          healthCheckStatusUpdate([
+            { signerId: data.signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_FAILED },
+          ])
+        );
         showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
       };
 

@@ -20,7 +20,7 @@ import HWError from 'src/hardware/HWErrorState';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { Signer } from 'src/services/wallets/interfaces/vault';
@@ -28,6 +28,7 @@ import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -144,11 +145,26 @@ function SetupColdCard({ route }) {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { masterFingerprint } = ccDetails;
       const ColdCardVerified = () => {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         navigation.dispatch(CommonActions.goBack());
         showToast('ColdCard verified successfully', <TickIcon />);
       };
       const showVerificationError = () => {
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_FAILED,
+            },
+          ])
+        );
         showToast('Something went wrong!', <ToastErrorIcon />);
       };
       if (mode === InteracationMode.IDENTIFICATION) {

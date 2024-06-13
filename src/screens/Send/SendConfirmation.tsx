@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
@@ -40,7 +40,7 @@ import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/services/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { UTXO } from 'src/services/wallets/interfaces';
+import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
@@ -68,6 +68,8 @@ import { resetVaultMigration } from 'src/store/reducers/vaults';
 import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import KeeperFooter from 'src/components/KeeperFooter';
+import idx from 'idx';
+import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -683,7 +685,7 @@ function SendConfirmation({ route }) {
   );
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { wallets } = useWallets({ getAll: true });
-  const sourceWallet = wallets.find((item) => item.id === walletId);
+  const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
 
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
@@ -719,12 +721,17 @@ function SendConfirmation({ route }) {
   const {
     txid: walletSendSuccessful,
     hasFailed: sendPhaseTwoFailed,
-    cachedTxid,
+    cachedTxid, // generated for new transactions as well(in case they get cached)
   } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
+  const cachedTxn = useAppSelector((state) => state.cachedTxn);
+  const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+  const isCachedTransaction = !!snapshot;
+  const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
+
+  const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
-  const navigation = useNavigation();
 
   useEffect(() => {
     if (isAutoTransfer) {
@@ -788,7 +795,7 @@ function SendConfirmation({ route }) {
   // );
 
   useEffect(() => {
-    if (cachedTxid) {
+    if (isCachedTransaction) {
       // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
     } else {
       // case: new transaction
@@ -809,14 +816,82 @@ function SendConfirmation({ route }) {
     }
   }, [inProgress]);
 
+  const { activeVault: currentSender } = useVault({ vaultId: sender?.id }); // current state of vault
+
+  const validateUTXOsForCachedTxn = () => {
+    // perform UTXO validation for cached transaction
+
+    if (!cachedTxPrerequisites) return false;
+
+    const cachedInputUTXOs: InputUTXOs[] = idx(
+      cachedTxPrerequisites,
+      (_) => _[transactionPriority].inputs
+    );
+    if (!cachedInputUTXOs) return false;
+
+    const currentConfirmedUTXOs: InputUTXOs[] = idx(currentSender, (_) => _.specs.confirmedUTXOs);
+
+    for (const cachedUTXO of cachedInputUTXOs) {
+      let found = false;
+      for (const currentUTXO of currentConfirmedUTXOs) {
+        if (cachedUTXO.txId === currentUTXO.txId && cachedUTXO.vout === currentUTXO.vout) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) return false;
+    }
+
+    return true;
+  };
+
+  const discardCachedTransaction = () => {
+    dispatch(dropTransactionSnapshot({ cachedTxid }));
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+      })
+    );
+  };
+
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length && inProgress) {
+      if (isCachedTransaction) {
+        // perform UTXO validation for cached transaction
+        const isValid = validateUTXOsForCachedTxn();
+        if (!isValid) {
+          // block and show discard alert
+          Alert.alert(
+            'Invalid UTXO set',
+            'Please discard this transaction',
+            [
+              {
+                text: 'Discard',
+                onPress: discardCachedTransaction,
+                style: 'destructive',
+              },
+              {
+                text: 'Cancel',
+                onPress: () => {
+                  setProgress(false);
+                },
+                style: 'cancel',
+              },
+            ],
+            { cancelable: true }
+          );
+          return;
+        }
+      }
+
       navigation.dispatch(
         CommonActions.navigate('SignTransactionScreen', {
           isMoveAllFunds,
           note,
           label,
-          vaultId: sender.id,
+          vaultId: sender?.id,
           sender: sender,
           sendConfirmationRouteParams: route.params,
         })
@@ -840,7 +915,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              vaultId: isAutoTransferFlow ? defaultVault.id : recipient.id,
+              vaultId: isAutoTransferFlow ? defaultVault?.id : recipient.id,
             },
           },
         ],
@@ -854,7 +929,7 @@ function SendConfirmation({ route }) {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender.id } },
+          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender?.id } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -1068,9 +1143,10 @@ function SendConfirmation({ route }) {
       {!isAutoTransferFlow ? (
         <Buttons
           primaryText={common.confirmProceed}
-          secondaryText={common.cancel}
+          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
           secondaryCallback={() => {
-            navigation.goBack();
+            if (isCachedTransaction) discardCachedTransaction();
+            else navigation.goBack();
           }}
           primaryCallback={() => setConfirmPassVisible(true)}
           primaryLoading={inProgress}
@@ -1223,7 +1299,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter amount in sats"
+          subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}

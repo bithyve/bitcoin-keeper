@@ -58,9 +58,9 @@ const useSignerIntel = ({
         if (!isOnL3) {
           invalidIKS = true;
           invalidMessage = `${signerName} is allowed from ${SubscriptionTier.L3} Please upgrade your plan or remove them`;
-        } else if (scheme.m < 3 || scheme.n < 4) {
+        } else if (scheme.m < 2 || scheme.n < 3) {
           invalidIKS = true;
-          invalidMessage = `You need at least 4 signers and 3 required signers to use ${signerName}. Please add more signers`;
+          invalidMessage = `You need at least 3 signers and 2 required signers to use ${signerName}. Please add more signers`;
         }
       }
     }

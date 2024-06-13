@@ -27,7 +27,7 @@ const cachedTxSlice = createSlice({
         snapshot: {
           state: SendAndReceiveState;
           routeParams: SendConfirmationRouteParams;
-          options?: any;
+          options: any;
         };
       }>
     ) => {
