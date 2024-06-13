@@ -74,6 +74,7 @@ function EnterSeedScreen({ route, navigation }) {
   const inputRef = useRef([]);
 
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
+  const isIdentification = mode === InteracationMode.IDENTIFICATION;
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -196,7 +197,7 @@ function EnterSeedScreen({ route, navigation }) {
         if (isSeedFilled(12)) {
           let derivedSigner;
           const seedWord = getSeedWord();
-          if (signer.type === SignerType.MY_KEEPER) {
+          if (signer?.type === SignerType.MY_KEEPER) {
             const details = await getCosignerDetails(
               seedWord,
               signer.extraData?.instanceNumber - 1
@@ -371,14 +372,14 @@ function EnterSeedScreen({ route, navigation }) {
       >
         <KeeperHeader
           title={
-            isHealthCheck
+            isHealthCheck || isIdentification
               ? 'Seed key health check'
               : isImport
               ? 'Enter Seed Words'
               : seed?.enterRecoveryPhrase
           }
           subtitle={
-            isHealthCheck
+            isHealthCheck || isIdentification
               ? 'Enter the seed key'
               : isImport
               ? 'To import enter the seed key'
@@ -466,7 +467,7 @@ function EnterSeedScreen({ route, navigation }) {
             }
             currentScreen={activePage + 1}
           />
-          {isHealthCheck ? (
+          {isHealthCheck || isIdentification ? (
             <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
           ) : (
             <Buttons
