@@ -23,7 +23,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import Text from 'src/components/KeeperText';
@@ -49,17 +49,22 @@ import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { formatDuration } from '../Vault/HardwareModalMap';
-import { setInheritanceSigningRequestId } from 'src/store/reducers/storage';
+import { setInheritanceSigningRequestId } from 'src/store/reducers/send_and_receive';
 import TickIcon from 'src/assets/images/tick_icon.svg';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { dropTransactionSnapshot, setTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import {
+  cachedTxSnapshot,
+  dropTransactionSnapshot,
+  setTransactionSnapshot,
+} from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId, sendConfirmationRouteParams } = (route.params || {
+  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
@@ -100,7 +105,9 @@ function SignTransactionScreen() {
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-
+  const [isIKSClicked, setIsIKSClicked] = useState(false);
+  const [isIKSDeclined, setIsIKSDeclined] = useState(false);
+  const [IKSSignTime, setIKSSignTime] = useState(0);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
@@ -123,11 +130,27 @@ function SignTransactionScreen() {
   const textRef = useRef(null);
   const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
-  const [isIKSClicked, setIsIKSClicked] = useState(false);
-  const [IKSSignTime, setIKSSignTime] = useState(0);
 
+  const cachedTxn = useAppSelector((state) => state.cachedTxn);
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
+  const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+
+  const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+
+  useEffect(() => {
+    if (snapshotOptions && snapshotOptions.requestStatusIKS) {
+      const { approvesIn, isDeclined, isApproved } = snapshotOptions.requestStatusIKS;
+      if (isApproved) {
+        // do nothing
+      } else if (isDeclined) {
+        setIsIKSDeclined(true);
+      } else {
+        setIsIKSClicked(true);
+        setIKSSignTime(approvesIn);
+      }
+    }
+  }, [snapshotOptions]);
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -141,11 +164,12 @@ function SignTransactionScreen() {
           snapshot: {
             state: sendAndReceive,
             routeParams: sendConfirmationRouteParams,
+            options: snapshotOptions,
           },
         })
       );
     }
-  }, [sendAndReceive]);
+  }, [sendAndReceive, snapshotOptions]);
 
   useEffect(() => {
     if (relayVaultUpdate) {
@@ -227,7 +251,7 @@ function SignTransactionScreen() {
 
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const { inheritanceSigningRequestId } = useAppSelector((state) => state.storage);
+  const { inheritanceSigningRequestId } = useAppSelector((state) => state.sendAndReceive);
 
   const signTransaction = useCallback(
     async ({
@@ -266,7 +290,14 @@ function SignTransactionScreen() {
           dispatch(
             updatePSBTEnvelops({ signedSerializedPSBT, xfp, signingPayload: signedPayload })
           );
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -283,7 +314,14 @@ function SignTransactionScreen() {
             xfp,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
             xfp,
@@ -294,9 +332,15 @@ function SignTransactionScreen() {
             showToast,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.INHERITANCEKEY === signerType) {
-          setIsIKSClicked(true);
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
 
@@ -314,17 +358,18 @@ function SignTransactionScreen() {
             showToast,
           });
 
-          if (requestStatus && isNewRequest) {
-            dispatch(setInheritanceSigningRequestId(requestId));
+          if (requestStatus) {
             setIsIKSClicked(true);
+            setSnapshotOptions({ requestStatusIKS: requestStatus });
+            if (isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
           }
 
           // process request based on status
           if (requestStatus.isDeclined) {
+            setIsIKSDeclined(true);
             showToast('Inheritance Key Signing request has been declined', <ToastErrorIcon />);
             // dispatch(setInheritanceSigningRequestId('')); // clear existing request
           } else if (!requestStatus.isApproved) {
-            setIKSSignTime(requestStatus.approvesIn);
             showToast(
               `Request would approve in ${formatDuration(
                 requestStatus.approvesIn
@@ -344,15 +389,29 @@ function SignTransactionScreen() {
             isMultisig: defaultVault.isMultiSig,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.MY_KEEPER === signerType) {
           const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         }
       }
     },
-    [activeXfp, serializedPSBTEnvelops]
+    [activeXfp, serializedPSBTEnvelops, inheritanceSigningRequestId]
   );
 
   const onFileSign = (signedSerializedPSBT: string) => {
@@ -367,11 +426,25 @@ function SignTransactionScreen() {
         signedSerializedPSBT
       );
       dispatch(updatePSBTEnvelops({ xfp: activeXfp, txHex: tx.toHex() }));
-      dispatch(healthCheckSigner([signer]));
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SIGNING,
+          },
+        ])
+      );
       return;
     }
     dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: activeXfp }));
-    dispatch(healthCheckSigner([signer]));
+    dispatch(
+      healthCheckStatusUpdate([
+        {
+          signerId: signer.masterFingerprint,
+          status: hcStatusType.HEALTH_CHECK_SIGNING,
+        },
+      ])
+    );
   };
 
   const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
@@ -422,7 +495,10 @@ function SignTransactionScreen() {
             return;
           }
 
-          signTransaction({ xfp: vaultKey.xfp, inheritanceConfiguration: configurationForVault });
+          signTransaction({
+            xfp: vaultKey.xfp,
+            inheritanceConfiguration: configurationForVault,
+          });
         } else showToast('Inheritance key info missing');
         break;
       case SignerType.SEED_WORDS:
@@ -469,9 +545,6 @@ function SignTransactionScreen() {
         break;
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
-        break;
-      case SignerType.UNKOWN_SIGNER:
-        showToast(`Signing not allowed with ${signer.type}, please assign a signer type!`);
         break;
       default:
         showToast(`action not set for ${signer.type}`);
@@ -545,6 +618,7 @@ function SignTransactionScreen() {
         renderItem={({ item }) => (
           <SignerList
             isIKSClicked={isIKSClicked}
+            isIKSDeclined={isIKSDeclined}
             IKSSignTime={IKSSignTime}
             vaultKey={item}
             callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}

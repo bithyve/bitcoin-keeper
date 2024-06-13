@@ -21,6 +21,7 @@ function ArchivedVault({ navigation, route }) {
       : allVaults.filter(
           (v) =>
             v.archived &&
+            // include vaults that have the same parent archived id or the parent vault itself which is archived but does not have an archived id
             (v.archivedId === currentVault.archivedId || v.id === currentVault.archivedId)
         );
 

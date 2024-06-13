@@ -18,7 +18,7 @@ import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VisibilityType } from 'src/services/wallets/enums';
+import { VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Text from 'src/components/KeeperText';
 import { Shadow } from 'react-native-shadow-2';
@@ -36,7 +36,7 @@ function VaultSettings({ route }) {
   const [showWalletBalanceAlert, setShowWalletBalanceAlert] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
-
+  const isCanaryWalletType = vault.type === VaultType.CANARY;
   const { showToast } = useToastMessage();
 
   const updateWalletVisibility = (checkBalance = true) => {
@@ -141,15 +141,18 @@ function VaultSettings({ route }) {
           callback={() => {
             navigation.dispatch(CommonActions.navigate('ArchivedVault', { vaultId }));
           }}
+          visible={!isCanaryWalletType}
         />
         <OptionCard
           title={vaultText.vaultHideTitle}
           description={vaultText.vaultHideDesc}
           callback={() => updateWalletVisibility()}
+          visible={!isCanaryWalletType}
         />
         <OptionCard
           title={vaultText.vaultSchemeTitle}
           description={vaultText.vaultSchemeDesc}
+          visible={!isCanaryWalletType}
           callback={() => {
             navigation.dispatch(
               CommonActions.navigate({ name: 'VaultSetup', params: { vaultId } })

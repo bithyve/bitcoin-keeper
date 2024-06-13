@@ -239,12 +239,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { signers: vaultKeys } = vault || { signers: [] };
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   const [cachedTransactions, setCachedTransactions] = useState([]);
-  const cachedTxn = useAppSelector((state) => state.cachedTxn);
+  const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
 
   useEffect(() => {
     const cached = [];
-    for (const cachedTxid in cachedTxn.snapshots) {
-      const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+    for (const cachedTxid in snapshots) {
+      const snapshot: cachedTxSnapshot = snapshots[cachedTxid];
       if (!snapshot.routeParams) continue; // route params missing
 
       const { address, amount, recipient, sender, transferType, date } = snapshot.routeParams;
@@ -268,8 +268,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       cached.push(cachedTx);
     }
 
-    if (cached.length) setCachedTransactions(cached);
-  }, [cachedTxn]);
+    if (cached.length) {
+      cached.reverse(); // order from newest to oldest
+      setCachedTransactions(cached);
+    }
+  }, [snapshots]);
 
   useEffect(() => {
     if (autoRefresh) syncVault();

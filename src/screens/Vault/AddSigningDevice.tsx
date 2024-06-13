@@ -109,49 +109,40 @@ const isAssistedKeyValidForScheme = (
   signerMap,
   selectedSigners
 ): { isValid: boolean; err?: string } => {
-  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
-    // scheme based restrictions for assisted keys
-    if (signer.type === SignerType.POLICY_SERVER) {
-      // signing server key can be added starting from Vaults w/ m: 2 and n:3
-      if (scheme.n < 3) return { isValid: false, err: 'Requires a minimum of 3 Total Keys' };
-      else if (scheme.m < 2) {
-        return { isValid: false, err: 'Requires a minimum of 2 Required Keys' };
-      }
-    } else if (signer.type === SignerType.INHERITANCEKEY) {
-      // inheritance key can be added starting from Vaults w/ m: 3 and n:4
-      if (scheme.n < 4) return { isValid: false, err: 'Requires a minimum of 4 Total Keys' };
-      else if (scheme.m < 3) {
-        return { isValid: false, err: 'Requires a minimum of 3 Required Keys' };
-      }
-    }
+  // case 1: scheme based restrictions for assisted keys
+  // both assisted keys can be added starting from Vaults w/ m: 2 and n:3
+  if (scheme.n < 3) return { isValid: false, err: 'Requires a minimum of 3 Total Keys' };
+  else if (scheme.m < 2) return { isValid: false, err: 'Requires a minimum of 2 Required Keys' };
 
-    // count based restrictions for assisted keys
-    const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
-    let existingAssistedKeys = 0;
-    for (const mfp of selectedSigners.keys()) {
-      if (
-        signerMap[mfp].type === SignerType.POLICY_SERVER ||
-        signerMap[mfp].type === SignerType.INHERITANCEKEY
-      ) {
-        existingAssistedKeys++;
-      }
+  // case 2: count based restrictions for assisted keys
+  const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
+  let existingAssistedKeys = 0;
+  for (const mfp of selectedSigners.keys()) {
+    if (
+      signerMap[mfp].type === SignerType.POLICY_SERVER ||
+      signerMap[mfp].type === SignerType.INHERITANCEKEY
+    ) {
+      existingAssistedKeys++;
     }
-    const assistedKeys = existingAssistedKeys + currentAssistedKey;
-    const cannotFormQuorum = assistedKeys < scheme.m; // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
-    if (!cannotFormQuorum) {
-      return {
-        isValid: false,
-        err: 'Number of assisted keys should be less than the Required Keys',
-      };
-    }
+  }
+  const assistedKeys = existingAssistedKeys + currentAssistedKey;
 
-    const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m; // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
-    if (!notRequiredForQuorum) {
-      return {
-        isValid: false,
-        err: 'Required Keys is not achievable without the assisted keys',
-      };
-    }
+  // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
+  const cannotFormQuorum = assistedKeys < scheme.m;
+  if (!cannotFormQuorum) {
+    return {
+      isValid: false,
+      err: 'Number of assisted keys should be less than the Required Keys',
+    };
+  }
+
+  // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
+  const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m;
+  if (!notRequiredForQuorum) {
+    return {
+      isValid: false,
+      err: 'Required Keys is not achievable without the assisted keys',
+    };
   }
 
   return { isValid: true };
@@ -417,6 +408,7 @@ function Signers({
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const signerCards = signers.map((signer) => {
+      if (signer.archived) return null;
       const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
       const disabled =
         !isValid ||

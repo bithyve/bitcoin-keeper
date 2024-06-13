@@ -19,6 +19,7 @@ export enum RealmSchema {
   RegistrationInfo = 'RegistrationInfo',
   Signer = 'Signer',
   SignerXpubs = 'SignerXpubs',
+  HealthCheckDetails = 'HealthCheckDetails',
   KeySpecs = 'KeySpecs',
   VaultPresentationData = 'VaultPresentationData',
   SignerPolicy = 'SignerPolicy',
