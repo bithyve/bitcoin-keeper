@@ -17,6 +17,7 @@ const Colors = {
   DeepSpaceSparkle: 'rgba(78,92,106,1)',
   Black: 'rgba(0,0,0,1)',
   RichBlack: 'rgba(4,21,19,1)',
+  MidNightBlack: 'rgba(14, 20, 40, 1)',
   PineTree: 'rgba(37,44,35,1)',
   DarkGreen: 'rgba(9,44,39,1)',
   MediumJungleGreen: 'rgba(17,56,52,1)',

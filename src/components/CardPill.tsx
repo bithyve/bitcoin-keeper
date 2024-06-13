@@ -20,8 +20,8 @@ function CardPill({ heading, backgroundColor, headingColor, cardStyle }: CardPil
     >
       <Text
         bold
-        style={styles.heading}
-        color={headingColor || `${colorMode}.black`}
+        style={[styles.heading, { opacity: colorMode === 'light' ? 0.75 : 1 }]}
+        color={headingColor || `${colorMode}.pillText`}
         numberOfLines={1}
       >
         {heading}
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     fontSize: 8,
     lineHeight: 18,
     letterSpacing: 0.32,
-    opacity: 0.75,
   },
 });
 
