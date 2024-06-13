@@ -107,6 +107,7 @@ function SignTransactionScreen() {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [isIKSClicked, setIsIKSClicked] = useState(false);
   const [isIKSDeclined, setIsIKSDeclined] = useState(false);
+  const [isIKSApproved, setIsIKSApproved] = useState(false);
   const [IKSSignTime, setIKSSignTime] = useState(0);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -137,17 +138,40 @@ function SignTransactionScreen() {
 
   const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+  const [approveOnce, setApproveOnce] = useState(true);
 
   useEffect(() => {
     if (snapshotOptions && snapshotOptions.requestStatusIKS) {
-      const { approvesIn, isDeclined, isApproved } = snapshotOptions.requestStatusIKS;
+      const { approvesIn, isDeclined, isApproved, syncedAt } = snapshotOptions.requestStatusIKS;
       if (isApproved) {
-        // do nothing
+        setIsIKSApproved(true);
       } else if (isDeclined) {
         setIsIKSDeclined(true);
       } else {
         setIsIKSClicked(true);
-        setIKSSignTime(approvesIn);
+        if (approvesIn && syncedAt) {
+          const interval = setInterval(() => {
+            const timeLeft = approvesIn - (Date.now() - syncedAt);
+            setIKSSignTime(timeLeft);
+            if (timeLeft < 0) {
+              let iksKey;
+              for (let i = 0; i < vaultKeys.length; i++) {
+                const key = vaultKeys[i];
+                if (signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY) {
+                  iksKey = key;
+                  break;
+                }
+              }
+              if (iksKey && approveOnce) {
+                callbackForSigners(iksKey, signerMap[iksKey.masterFingerprint]);
+                setApproveOnce(false);
+              }
+              clearInterval(interval);
+            }
+          }, 1000);
+
+          return () => clearInterval(interval);
+        }
       }
     }
   }, [snapshotOptions]);
@@ -360,7 +384,7 @@ function SignTransactionScreen() {
 
           if (requestStatus) {
             setIsIKSClicked(true);
-            setSnapshotOptions({ requestStatusIKS: requestStatus });
+            setSnapshotOptions({ requestStatusIKS: { ...requestStatus, syncedAt: Date.now() } });
             if (isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
           }
 
@@ -494,7 +518,6 @@ function SignTransactionScreen() {
             showToast(`Missing vault configuration for ${defaultVault.id}`);
             return;
           }
-
           signTransaction({
             xfp: vaultKey.xfp,
             inheritanceConfiguration: configurationForVault,
@@ -551,6 +574,7 @@ function SignTransactionScreen() {
         break;
     }
   };
+
   function SendSuccessfulContent() {
     const { colorMode } = useColorMode();
     return (
@@ -564,6 +588,7 @@ function SignTransactionScreen() {
       </Box>
     );
   }
+
   const viewDetails = () => {
     setVisibleModal(false);
     navigation.dispatch(
@@ -604,6 +629,7 @@ function SignTransactionScreen() {
         console.error('Error refreshing wallets:', error);
       });
   };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
