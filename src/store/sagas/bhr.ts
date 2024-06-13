@@ -594,10 +594,16 @@ function* healthCheckSatutsUpdateWorker({
   payload,
 }: {
   payload: {
-    signerUpdates: { signerId: string; status: string }[];
+    signerUpdates: { signerId: string; status: hcStatusType }[];
   };
 }) {
   try {
+    const HcSuccessTypes = [
+      hcStatusType.HEALTH_CHECK_MANAUAL,
+      hcStatusType.HEALTH_CHECK_SD_ADDITION,
+      hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+      hcStatusType.HEALTH_CHECK_SIGNING,
+    ];
     const { signerUpdates } = payload;
     for (const signerUpdate of signerUpdates) {
       const signerRealm: Signer = dbManager.getObjectByPrimaryId(
@@ -621,7 +627,7 @@ function* healthCheckSatutsUpdateWorker({
         const updatedDetailsArray: HealthCheckDetails[] = [...oldDetails, newHealthCheckDetails];
 
         yield put(updateSignerDetails(signer, 'healthCheckDetails', updatedDetailsArray));
-        yield put(healthCheckSigner([signer]));
+        if (HcSuccessTypes.includes(signerUpdate.status)) yield put(healthCheckSigner([signer]));
       }
     }
   } catch (err) {
