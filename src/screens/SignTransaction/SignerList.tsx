@@ -1,7 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
-
 import CheckIcon from 'src/assets/images/checked.svg';
 import TimeIcon from 'src/assets/images/time.svg';
 import Next from 'src/assets/images/icon_arrow.svg';
@@ -68,10 +67,10 @@ function SignerList({
         remainingMinutes > 0 ? remainingMinutes + ' min' : ''
       }`;
     } else if (durationInMilliseconds >= millisecondsInMinute) {
-      const minutes = Math.floor(durationInMilliseconds / millisecondsInMinute);
+      const minutes = Math.ceil(durationInMilliseconds / millisecondsInMinute);
       return `${minutes} min`;
     } else {
-      return '';
+      return '1 min';
     }
   };
 

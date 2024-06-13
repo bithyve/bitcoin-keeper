@@ -13,7 +13,12 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
-import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  HealthCheckDetails,
+  Signer,
+  Vault,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -50,6 +55,7 @@ import {
   BSMS_CLOUD_HEALTH_CHECK,
   DELETE_APP_IMAGE_ENTITY,
   GET_APP_IMAGE,
+  HEALTH_CHECK_STATUS_UPDATE,
   RECOVER_BACKUP,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
@@ -58,6 +64,7 @@ import {
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
   getAppImage,
+  healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
@@ -66,6 +73,8 @@ import { KEY_MANAGEMENT_VERSION } from './upgrade';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 export function* updateAppImageWorker({
   payload,
@@ -580,6 +589,56 @@ function* recoverBackupWorker({
     console.log(error);
   }
 }
+
+function* healthCheckSatutsUpdateWorker({
+  payload,
+}: {
+  payload: {
+    signerUpdates: { signerId: string; status: hcStatusType }[];
+  };
+}) {
+  try {
+    const HcSuccessTypes = [
+      hcStatusType.HEALTH_CHECK_MANAUAL,
+      hcStatusType.HEALTH_CHECK_SD_ADDITION,
+      hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+      hcStatusType.HEALTH_CHECK_SIGNING,
+    ];
+    const { signerUpdates } = payload;
+    for (const signerUpdate of signerUpdates) {
+      const signerRealm: Signer = dbManager.getObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signerUpdate.signerId
+      );
+      const signer: Signer = getJSONFromRealmObject(signerRealm);
+      if (signer) {
+        const date = new Date();
+        const newHealthCheckDetails: HealthCheckDetails = {
+          type: signerUpdate.status,
+          actionDate: date,
+        };
+
+        const oldDetialsArray = [...signer.healthCheckDetails];
+        const oldDetails = oldDetialsArray.map((details) => {
+          return { ...details, date: new Date(details.actionDate) };
+        });
+
+        const updatedDetailsArray: HealthCheckDetails[] = [...oldDetails, newHealthCheckDetails];
+
+        yield put(updateSignerDetails(signer, 'healthCheckDetails', updatedDetailsArray));
+        if (HcSuccessTypes.includes(signerUpdate.status)) yield put(healthCheckSigner([signer]));
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const healthCheckSatutsUpdateWatcher = createWatcher(
+  healthCheckSatutsUpdateWorker,
+  HEALTH_CHECK_STATUS_UPDATE
+);
 
 function* healthCheckSignerWorker({
   payload,

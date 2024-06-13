@@ -12,7 +12,12 @@ import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
 import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  HealthCheckDetails,
+  Signer,
+  Vault,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
@@ -30,6 +35,7 @@ import { deleteVaultImageWorker, updateAppImageWorker, updateVaultImageWorker } 
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -38,6 +44,7 @@ export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
+export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.7';
 export const ARCHIVE_ENABLED_VERSION = '1.2.7';
 
 export function* applyUpgradeSequence({
@@ -71,6 +78,10 @@ export function* applyUpgradeSequence({
   }
   if (semver.gt(newVersion, ARCHIVE_ENABLED_VERSION)) {
     yield call(cleanupArchivedVaults);
+  }
+
+  if (semver.lt(previousVersion, HEALTH_CHECK_TIMELINE_MIGRATION_VERSION)) {
+    yield call(healthCheckTimelineMigration);
   }
 
   yield put(setAppVersion(newVersion));
@@ -436,6 +447,29 @@ function* whirlpoolWalletsCreation() {
     }
   } catch (err) {
     console.log('Error in whirlpoolWalletsCreation:', err);
+  }
+}
+
+function* healthCheckTimelineMigration() {
+  try {
+    console.log('running migrationssss');
+    const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
+    for (const signer of signers) {
+      const healthCheckDetails: HealthCheckDetails = {
+        type: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+        actionDate: signer.lastHealthCheck,
+      };
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          healthCheckDetails: [healthCheckDetails],
+        }
+      );
+    }
+  } catch (err) {
+    console.log('Error in health check timeline migration:', err);
   }
 }
 

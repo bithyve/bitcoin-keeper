@@ -23,7 +23,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import Text from 'src/components/KeeperText';
@@ -51,6 +51,7 @@ import { generateKey } from 'src/utils/service-utilities/encryption';
 import { formatDuration } from '../Vault/HardwareModalMap';
 import { setInheritanceSigningRequestId } from 'src/store/reducers/send_and_receive';
 import TickIcon from 'src/assets/images/tick_icon.svg';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import {
   cachedTxSnapshot,
@@ -107,6 +108,7 @@ function SignTransactionScreen() {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [isIKSClicked, setIsIKSClicked] = useState(false);
   const [isIKSDeclined, setIsIKSDeclined] = useState(false);
+  const [isIKSApproved, setIsIKSApproved] = useState(false);
   const [IKSSignTime, setIKSSignTime] = useState(0);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
@@ -137,17 +139,40 @@ function SignTransactionScreen() {
 
   const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
+  const [approveOnce, setApproveOnce] = useState(true);
 
   useEffect(() => {
     if (snapshotOptions && snapshotOptions.requestStatusIKS) {
-      const { approvesIn, isDeclined, isApproved } = snapshotOptions.requestStatusIKS;
+      const { approvesIn, isDeclined, isApproved, syncedAt } = snapshotOptions.requestStatusIKS;
       if (isApproved) {
-        // do nothing
+        setIsIKSApproved(true);
       } else if (isDeclined) {
         setIsIKSDeclined(true);
       } else {
         setIsIKSClicked(true);
-        setIKSSignTime(approvesIn);
+        if (approvesIn && syncedAt) {
+          const interval = setInterval(() => {
+            const timeLeft = approvesIn - (Date.now() - syncedAt);
+            setIKSSignTime(timeLeft);
+            if (timeLeft < 0) {
+              let iksKey;
+              for (let i = 0; i < vaultKeys.length; i++) {
+                const key = vaultKeys[i];
+                if (signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY) {
+                  iksKey = key;
+                  break;
+                }
+              }
+              if (iksKey && approveOnce) {
+                callbackForSigners(iksKey, signerMap[iksKey.masterFingerprint]);
+                setApproveOnce(false);
+              }
+              clearInterval(interval);
+            }
+          }, 1000);
+
+          return () => clearInterval(interval);
+        }
       }
     }
   }, [snapshotOptions]);
@@ -290,7 +315,14 @@ function SignTransactionScreen() {
           dispatch(
             updatePSBTEnvelops({ signedSerializedPSBT, xfp, signingPayload: signedPayload })
           );
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -307,7 +339,14 @@ function SignTransactionScreen() {
             xfp,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
             xfp,
@@ -318,7 +357,14 @@ function SignTransactionScreen() {
             showToast,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.INHERITANCEKEY === signerType) {
           let requestId = inheritanceSigningRequestId;
           let isNewRequest = false;
@@ -339,7 +385,7 @@ function SignTransactionScreen() {
 
           if (requestStatus) {
             setIsIKSClicked(true);
-            setSnapshotOptions({ requestStatusIKS: requestStatus });
+            setSnapshotOptions({ requestStatusIKS: { ...requestStatus, syncedAt: Date.now() } });
             if (isNewRequest) dispatch(setInheritanceSigningRequestId(requestId));
           }
 
@@ -368,11 +414,25 @@ function SignTransactionScreen() {
             isMultisig: defaultVault.isMultiSig,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         } else if (SignerType.MY_KEEPER === signerType) {
           const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
         }
       }
     },
@@ -391,11 +451,25 @@ function SignTransactionScreen() {
         signedSerializedPSBT
       );
       dispatch(updatePSBTEnvelops({ xfp: activeXfp, txHex: tx.toHex() }));
-      dispatch(healthCheckSigner([signer]));
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SIGNING,
+          },
+        ])
+      );
       return;
     }
     dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: activeXfp }));
-    dispatch(healthCheckSigner([signer]));
+    dispatch(
+      healthCheckStatusUpdate([
+        {
+          signerId: signer.masterFingerprint,
+          status: hcStatusType.HEALTH_CHECK_SIGNING,
+        },
+      ])
+    );
   };
 
   const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
@@ -445,7 +519,6 @@ function SignTransactionScreen() {
             showToast(`Missing vault configuration for ${defaultVault.id}`);
             return;
           }
-
           signTransaction({
             xfp: vaultKey.xfp,
             inheritanceConfiguration: configurationForVault,
@@ -503,6 +576,7 @@ function SignTransactionScreen() {
         break;
     }
   };
+
   function SendSuccessfulContent() {
     const { colorMode } = useColorMode();
     return (
@@ -516,6 +590,7 @@ function SignTransactionScreen() {
       </Box>
     );
   }
+
   const viewDetails = () => {
     setVisibleModal(false);
     navigation.dispatch(
@@ -556,6 +631,7 @@ function SignTransactionScreen() {
         console.error('Error refreshing wallets:', error);
       });
   };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={broadcasting} showLoader />
