@@ -685,7 +685,7 @@ function SendConfirmation({ route }) {
   );
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { wallets } = useWallets({ getAll: true });
-  const sourceWallet = wallets.find((item) => item.id === walletId);
+  const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
 
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
@@ -816,7 +816,7 @@ function SendConfirmation({ route }) {
     }
   }, [inProgress]);
 
-  const { activeVault: currentSender } = useVault({ vaultId: sender.id }); // current state of vault
+  const { activeVault: currentSender } = useVault({ vaultId: sender?.id }); // current state of vault
 
   const validateUTXOsForCachedTxn = () => {
     // perform UTXO validation for cached transaction
@@ -851,7 +851,7 @@ function SendConfirmation({ route }) {
     navigation.dispatch(
       CommonActions.reset({
         index: 1,
-        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender.id } }],
+        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
       })
     );
   };
@@ -891,7 +891,7 @@ function SendConfirmation({ route }) {
           isMoveAllFunds,
           note,
           label,
-          vaultId: sender.id,
+          vaultId: sender?.id,
           sender: sender,
           sendConfirmationRouteParams: route.params,
         })
@@ -915,7 +915,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              vaultId: isAutoTransferFlow ? defaultVault.id : recipient.id,
+              vaultId: isAutoTransferFlow ? defaultVault?.id : recipient.id,
             },
           },
         ],
@@ -929,7 +929,7 @@ function SendConfirmation({ route }) {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender.id } },
+          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender?.id } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
