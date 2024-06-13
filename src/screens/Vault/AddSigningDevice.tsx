@@ -402,7 +402,6 @@ function Signers({
         <SignerCard
           showSelection={showSelection}
           disabled={disabled}
-          isFromSiginingList={true}
           key={signer.masterFingerprint}
           name={
             !signer.isBIP85
