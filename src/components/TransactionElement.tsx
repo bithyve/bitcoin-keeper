@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
   },
   rowCenter: {
+    marginHorizontal: wp(10),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -137,7 +138,6 @@ const styles = StyleSheet.create({
     left: -4,
   },
   cachedContainer: {
-    paddingLeft: 10,
     marginBottom: -5,
     paddingVertical: 12,
   },
