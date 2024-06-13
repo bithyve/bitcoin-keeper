@@ -1143,9 +1143,10 @@ function SendConfirmation({ route }) {
       {!isAutoTransferFlow ? (
         <Buttons
           primaryText={common.confirmProceed}
-          secondaryText={common.cancel}
+          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
           secondaryCallback={() => {
-            navigation.goBack();
+            if (isCachedTransaction) discardCachedTransaction();
+            else navigation.goBack();
           }}
           primaryCallback={() => setConfirmPassVisible(true)}
           primaryLoading={inProgress}
@@ -1298,7 +1299,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter amount in sats"
+          subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}

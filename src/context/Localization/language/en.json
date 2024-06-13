@@ -464,7 +464,7 @@
     "ARRIVALTIME": "ARRIVAL TIME",
     "FEE": "FEE",
     "transactionPriority": "Transaction Priority",
-    "transactionPrioritySubTitle": "Decide how fast you want the sats",
+    "transactionPrioritySubTitle": "Decide how fast you want to send sats",
     "addCustomPriority": "Add Custom Priority",
     "totalAmount": "Total Amount",
     "totalFees": "Total Fees",
@@ -870,7 +870,7 @@
     "serviceUnavailableMesage": "It seems that you don’t have Google services for app subscriptions. Ability to pay using bitcoin coming soon"
   },
   "BackupWallet": {
-    "confirmSeedWord": "Confirm Backup Phrase",
+    "confirmSeedWord": "Confirm Backup",
     "enterSeedWord": "Enter the second(02) word",
     "seedWordNote": "If you don’t have the words written down, you may choose to start over.",
     "startOver": "Start Over",
@@ -899,7 +899,16 @@
     "recoveryPhrase": "Recovery Phrase",
     "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
     "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key.",
-    "recoveryKeyNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access"
+    "recoveryKeyNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access",
+    "backingUp": "Backing up",
+    "writeSeed": "Write down the following words to back up",
+    "doItPrivately": "Please ensure to do it privately.",
+    "OTBSuccessMessage": "One Time Backup Successful",
+    "confirmBackupSubtitle": "Enter the word exactly like it was displayed",
+    "enterThe": "Enter the",
+    "seedWord": "seed word",
+    "enterSeedWordPlaceholder": "Enter seed word",
+    "viewBackupHistory": "View History of Backup"
   },
   "importWallet": {
     "addDetails": "Add details",
@@ -935,7 +944,11 @@
     "ViewAndChangeKeyDetails": "View and change key details",
     "changeSignerTitle": "Change Signer",
     "changeSignerSubtitle": "Select a signer to replace the current one",
-    "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
+    "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault",
+    "OTBModalNote": "You will only be shown the words once.",
+    "backingUp": "Backing up",
+    "writeBackupSeed": "You are about to write down a few words that would backup",
+    "doItPrivately": "Please ensure to do it privately."
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

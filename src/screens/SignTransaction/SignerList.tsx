@@ -13,6 +13,7 @@ import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import config from 'src/utils/service-utilities/config';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const { width } = Dimensions.get('screen');
 
@@ -22,6 +23,7 @@ function SignerList({
   envelops,
   signerMap,
   isIKSClicked,
+  isIKSDeclined,
   IKSSignTime,
 }: {
   vaultKey: VaultSigner;
@@ -29,6 +31,7 @@ function SignerList({
   envelops: SerializedPSBTEnvelop[];
   signerMap: { [key: string]: Signer };
   isIKSClicked?: boolean;
+  isIKSDeclined?: boolean;
   IKSSignTime?: number;
 }) {
   const { colorMode } = useColorMode();
@@ -75,12 +78,14 @@ function SignerList({
   useEffect(() => {
     if (hasSignerSigned) {
       setShowIcon('check');
-    } else if (isIKS && isIKSClicked) {
-      setShowIcon('time');
+    } else if (isIKS) {
+      if (isIKSDeclined) setShowIcon('cross');
+      else if (isIKSClicked) setShowIcon('time');
+      else setShowIcon('next');
     } else {
       setShowIcon('next');
     }
-  }, [hasSignerSigned, isIKS, isIKSClicked]);
+  }, [hasSignerSigned, isIKS, isIKSClicked, isIKSDeclined]);
 
   return (
     <TouchableOpacity testID={`btn_transactionSigner`} onPress={callback}>
@@ -135,9 +140,10 @@ function SignerList({
           </Box>
           <Box alignItems="center" justifyContent="center">
             {showIcon === 'check' && <CheckIcon />}
+            {showIcon === 'cross' && <ToastErrorIcon />}
             {showIcon === 'time' && <TimeIcon width={15} height={15} />}
             {showIcon === 'next' && <Next />}
-            {isIKS && isIKSClicked && !hasSignerSigned && (
+            {isIKS && !isIKSDeclined && !hasSignerSigned && isIKSClicked && (
               <Text style={{ fontSize: 13 - formatDuration(IKSSignTime).length * 0.5 }}>
                 {formatDuration(IKSSignTime)}
               </Text>
