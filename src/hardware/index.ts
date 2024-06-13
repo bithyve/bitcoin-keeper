@@ -24,6 +24,7 @@ import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
 import HWError from './HWErrorState';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
@@ -83,6 +84,12 @@ export const generateSignerFromMetaData = ({
     isMock,
     signerName: getSignerNameFromType(signerType, isMock, isAmf),
     lastHealthCheck: new Date(),
+    healthCheckDetails: [
+      {
+        type: hcStatusType.HEALTH_CHECK_SD_ADDITION,
+        actionDate: new Date(),
+      },
+    ],
     addedOn: new Date(),
     masterFingerprint,
     isBIP85,

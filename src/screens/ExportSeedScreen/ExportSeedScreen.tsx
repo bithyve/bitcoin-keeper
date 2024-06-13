@@ -9,7 +9,11 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
+import {
+  healthCheckSigner,
+  healthCheckStatusUpdate,
+  seedBackedUp,
+} from 'src/store/sagaActions/bhr';
 import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -27,6 +31,7 @@ import Note from 'src/components/Note/Note';
 import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
 
 function ExportSeedScreen({ route, navigation }) {
@@ -227,17 +232,38 @@ function ExportSeedScreen({ route, navigation }) {
               setConfirmSeedModal(false);
               if (isHealthCheck) {
                 if (signer.type === SignerType.MOBILE_KEY) {
-                  dispatch(healthCheckSigner([signer]));
+                  dispatch(
+                    healthCheckStatusUpdate([
+                      {
+                        signerId: signer.masterFingerprint,
+                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                      },
+                    ])
+                  );
                   navigation.dispatch(CommonActions.goBack());
                   showToast(seedTranslation.mobileKeyVerified, <TickIcon />);
                 }
                 if (signer.type === SignerType.SEED_WORDS) {
-                  dispatch(healthCheckSigner([signer]));
+                  dispatch(
+                    healthCheckStatusUpdate([
+                      {
+                        signerId: signer.masterFingerprint,
+                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                      },
+                    ])
+                  );
                   navigation.dispatch(CommonActions.goBack());
                   showToast(seedTranslation.seedWordVerified, <TickIcon />);
                 }
                 if (signer.type === SignerType.MY_KEEPER) {
-                  dispatch(healthCheckSigner([signer]));
+                  dispatch(
+                    healthCheckStatusUpdate([
+                      {
+                        signerId: signer.masterFingerprint,
+                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                      },
+                    ])
+                  );
                   const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
                   const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
                   const vaultSigner = WalletUtilities.getKeyForScheme(
