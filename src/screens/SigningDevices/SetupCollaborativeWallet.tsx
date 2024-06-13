@@ -43,6 +43,7 @@ import { Box } from 'native-base';
 import { setCosginerModal } from 'src/store/reducers/wallets';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import HWError from 'src/hardware/HWErrorState';
 
 function AddCoSignerContent() {
   const { colorMode } = useColorMode();
@@ -204,8 +205,11 @@ function SetupCollaborativeWallet() {
       if (goBack) navigation.goBack();
     } catch (err) {
       console.log(err);
-      const message = crossInteractionHandler(err);
-      showToast(message, <ToastErrorIcon />);
+      if (err instanceof HWError) {
+        showToast(err.message, <ToastErrorIcon />);
+      } else {
+        crossInteractionHandler(err);
+      }
     }
   };
 
@@ -291,8 +295,14 @@ function SetupCollaborativeWallet() {
       vaultKey={item}
       index={index}
       onQRScan={(data, resetQR) => {
-        const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
-        pushSigner(xpub, derivationPath, masterFingerprint, resetQR, '');
+        try {
+          const { xpub, masterFingerprint, derivationPath } = extractKeyFromDescriptor(data);
+          pushSigner(xpub, derivationPath, masterFingerprint, resetQR, '');
+        } catch (err) {
+          resetQR();
+          captureError(err);
+          showToast('Please scan a valid QR!', <ToastErrorIcon />);
+        }
       }}
       signerMap={signerMap}
     />

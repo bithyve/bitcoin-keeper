@@ -31,7 +31,6 @@ const initialState: {
   appVersion: string;
   inheritanceRequestId: string;
   inheritanceOTBRequestId: string;
-  inheritanceSigningRequestId: string;
   recoveryAppCreated: boolean;
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
   dontShowConceirgeOnboarding: boolean;
@@ -47,7 +46,6 @@ const initialState: {
   appVersion: '',
   inheritanceRequestId: '',
   inheritanceOTBRequestId: '',
-  inheritanceSigningRequestId: '',
   recoveryAppCreated: null,
   inheritanceToolVisitedHistory: {
     BUY_NEW_HARDWARE_SIGNER: null,
@@ -115,9 +113,6 @@ const storageSlice = createSlice({
     setInheritanceOTBRequestId: (state, action: PayloadAction<string>) => {
       state.inheritanceOTBRequestId = action.payload;
     },
-    setInheritanceSigningRequestId: (state, action: PayloadAction<string>) => {
-      state.inheritanceSigningRequestId = action.payload;
-    },
     setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
       state.recoveryAppCreated = action.payload;
     },
@@ -136,7 +131,6 @@ export const {
   setAppVersion,
   setInheritanceRequestId,
   setInheritanceOTBRequestId,
-  setInheritanceSigningRequestId,
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
   setDontShowConceirgeOnboarding,

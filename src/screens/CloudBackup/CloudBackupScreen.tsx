@@ -21,18 +21,22 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
 import EnterPasswordModal from './EnterPasswordModal';
+import KeeperModal from 'src/components/KeeperModal';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import { hp, wp } from 'src/constants/responsive';
 
 function CloudBackupScreen() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const dispatch = useAppDispatch();
-  const strings = translations.cloudBackup;
+  const { cloudBackup: strings, common } = translations;
   const data: BackupHistory = useQuery(RealmSchema.CloudBackupHistory);
   const history = useMemo(() => data.slice().reverse(), [data]);
   const { showToast } = useToastMessage();
   const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { allVaults } = useVault({});
+  const [showModal, setShowModal] = useState(false);
 
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
 
@@ -52,6 +56,14 @@ function CloudBackupScreen() {
     return Platform.select({ android: 'Google Drive', ios: 'iCloud' });
   }, []);
 
+  function modalContent() {
+    return (
+      <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
+        {strings.cloudBackupSubtitle}
+      </Text>
+    );
+  }
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <EnterPasswordModal
@@ -68,7 +80,7 @@ function CloudBackupScreen() {
         learnMore={false}
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
         learnTextColor={`${colorMode}.white`}
-        learnMorePressed={() => {}}
+        learnMorePressed={() => setShowModal(true)}
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -128,6 +140,24 @@ function CloudBackupScreen() {
         secondaryText={isBackupAllowed ? strings.healthCheck : ''}
         secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
       />
+      <KeeperModal
+        visible={showModal}
+        close={() => {
+          dispatch(setShowModal(false));
+        }}
+        title={strings.cloudBackup}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        DarkCloseIcon
+        learnMore
+        showCloseIcon={false}
+        learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'))}
+        buttonText={common.continue}
+        Content={() => modalContent()}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonCallback={() => dispatch(setShowModal(false))}
+      />
     </ScreenWrapper>
   );
 }
@@ -148,5 +178,13 @@ const styles = StyleSheet.create({
     marginTop: 25,
     letterSpacing: 0.16,
     marginHorizontal: 20,
+  },
+  backupModalDesc: {
+    fontWeight: 400,
+    fontSize: 13,
+    letterSpacing: 0.65,
+    padding: 1,
+    marginBottom: 25,
+    width: wp(295),
   },
 });

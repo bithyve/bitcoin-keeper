@@ -30,7 +30,7 @@ import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/services/wallets/enums';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -57,6 +57,8 @@ import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { useAppSelector } from 'src/store/hooks';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import TickIcon from 'src/assets/images/tick_icon.svg';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -226,7 +228,7 @@ function SigningDeviceDetails({ route }) {
   const { signers } = useSigners();
   const currentSigner = signers.find((signer) => signer.masterFingerprint === signerId);
   const { signerMap } = useSignerMap();
-  const signer = currentSigner || signerMap[vaultKey.masterFingerprint];
+  const signer: Signer = currentSigner || signerMap[vaultKey.masterFingerprint];
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(isUaiFlow);
@@ -257,11 +259,9 @@ function SigningDeviceDetails({ route }) {
 
   useEffect(() => {
     if (signer) {
-      setHealthCheckArray([
-        { name: 'Health Check Successful', lastHealthCheck: signer.lastHealthCheck },
-      ]);
+      setHealthCheckArray(signer.healthCheckDetails);
     }
-  }, []);
+  }, [signer.healthCheckDetails.length]);
 
   if (!signer) {
     return null;
@@ -392,8 +392,12 @@ function SigningDeviceDetails({ route }) {
       </Box>
       <ScrollView contentContainerStyle={styles.flex1}>
         <Box style={styles.healthCheckContainer}>
-          {healthCheckArray.map((_, index) => (
-            <SigningDeviceChecklist item={signer} key={index.toString()} />
+          {healthCheckArray.map((item, index) => (
+            <SigningDeviceChecklist
+              status={item.type}
+              key={index.toString()}
+              date={item.actionDate}
+            />
           ))}
         </Box>
       </ScrollView>
@@ -422,9 +426,27 @@ function SigningDeviceDetails({ route }) {
         buttonText="Do Later"
         secondaryButtonText="Confirm Access"
         buttonTextColor={`${colorMode}.white`}
-        buttonCallback={() => setSkipHealthCheckModalVisible(false)}
+        buttonCallback={() => {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SKIPPED,
+              },
+            ])
+          );
+          setSkipHealthCheckModalVisible(false);
+          showToast('Device healhcheck skipped!');
+        }}
         secondaryCallback={() => {
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_MANAUAL,
+              },
+            ])
+          );
           showToast('Device verified manually!');
           setSkipHealthCheckModalVisible(false);
         }}

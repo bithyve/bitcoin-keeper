@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
@@ -8,7 +8,6 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import moment from 'moment';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
@@ -34,7 +33,6 @@ import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/models/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
@@ -42,8 +40,7 @@ import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/services/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-
-import { UTXO } from 'src/services/wallets/interfaces';
+import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
@@ -55,7 +52,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
-import TickIcon from 'src/assets/images/tick_icon.svg';
+import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -67,8 +64,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import usePlan from 'src/hooks/usePlan';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import KeeperFooter from 'src/components/KeeperFooter';
+import idx from 'idx';
+import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -245,6 +246,54 @@ function SendingCard({
       {getCardDetails()}
     </Box>
   );
+}
+
+function TransferCard({ preTitle = '', title, subTitle = '', isVault = false, icon = null }) {
+  const { colorMode } = useColorMode();
+
+  return (
+    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.transferCardContainer}>
+      <Box style={styles.preTitleContainer}>
+        {isVault ? (
+          <VaultIcon width={34} height={30} />
+        ) : (
+          <HexagonIcon
+            width={34}
+            height={30}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<WalletsIcon />}
+          />
+        )}
+        <Text style={styles.cardTransferPreTitle}>{preTitle}</Text>
+      </Box>
+
+      <Box style={styles.subTitleContainer}>
+        <Text numberOfLines={1} style={styles.transferCardTitle} color={`${colorMode}.balanceText`}>
+          {title}
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={styles.transferCardSubtitle}
+          color={`${colorMode}.balanceText`}
+        >
+          {icon} {subTitle}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function Footer({ setConfirmPassVisible }: { setConfirmPassVisible: (value: boolean) => void }) {
+  const footerItems = [
+    {
+      Icon: SendIcon,
+      text: 'Send',
+      onPress: () => {
+        setConfirmPassVisible(true);
+      },
+    },
+  ];
+  return <KeeperFooter items={footerItems} wrappedScreen={true} />;
 }
 
 function TextValue({ amt, getValueIcon, inverted = false }) {
@@ -587,6 +636,26 @@ function AddLabel() {
   );
 }
 
+export interface SendConfirmationRouteParams {
+  sender: Wallet | Vault;
+  recipient: Wallet | Vault;
+  address: string;
+  amount: number;
+  walletId: string;
+  uiMetaData: any;
+  transferType: TransferType;
+  uaiSetActionFalse: any;
+  note: string;
+  isAutoTransfer: boolean;
+  label: {
+    name: string;
+    isSystem: boolean;
+  }[];
+  selectedUTXOs: UTXO[];
+  date: Date;
+  parentScreen: string;
+}
+
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -603,23 +672,8 @@ function SendConfirmation({ route }) {
     label,
     selectedUTXOs,
     isAutoTransfer,
-  }: {
-    sender: Wallet | Vault;
-    recipient: Wallet | Vault;
-    address: string;
-    amount: number;
-    walletId: string;
-    uiMetaData: any;
-    transferType: TransferType;
-    uaiSetActionFalse: any;
-    note: string;
-    isAutoTransfer: boolean;
-    label: {
-      name: string;
-      isSystem: boolean;
-    }[];
-    selectedUTXOs: UTXO[];
-  } = route.params;
+    parentScreen,
+  }: SendConfirmationRouteParams = route.params;
 
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
@@ -631,7 +685,7 @@ function SendConfirmation({ route }) {
   );
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { wallets } = useWallets({ getAll: true });
-  const sourceWallet = wallets.find((item) => item.id === walletId);
+  const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
 
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
@@ -656,9 +710,33 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const isMoveAllFunds =
+    parentScreen === MANAGEWALLETS ||
+    parentScreen === VAULTSETTINGS ||
+    parentScreen === WALLETSETTINGS;
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+
+  const {
+    txid: walletSendSuccessful,
+    hasFailed: sendPhaseTwoFailed,
+    cachedTxid, // generated for new transactions as well(in case they get cached)
+  } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
+  const cachedTxn = useAppSelector((state) => state.cachedTxn);
+  const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+  const isCachedTransaction = !!snapshot;
+  const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
+
+  const navigation = useNavigation();
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
 
   useEffect(() => {
-    if (vaultTransfers.includes(transferType)) {
+    if (isAutoTransfer) {
+      setSubTitle('Review auto-transfer transaction details');
+    } else if (vaultTransfers.includes(transferType)) {
       setTitle('Sending to vault');
     } else if (walletTransfers.includes(transferType)) {
       setTitle('Sending to wallet');
@@ -698,23 +776,6 @@ function SendConfirmation({ route }) {
 
   const [inProgress, setProgress] = useState(false);
 
-  useEffect(() => {
-    if (inProgress) {
-      setTimeout(() => {
-        dispatch(sendPhaseTwoReset());
-        dispatch(
-          sendPhaseTwo({
-            wallet: sender,
-            txnPriority: transactionPriority,
-            note,
-            label,
-            transferType,
-          })
-        );
-      }, 200);
-    }
-  }, [inProgress]);
-
   const onProceed = () => {
     if (isAutoTransferFlow) {
       if (defaultVault) {
@@ -725,38 +786,119 @@ function SendConfirmation({ route }) {
     }
   };
 
-  useEffect(
-    () => () => {
-      dispatch(sendPhaseTwoReset());
-      dispatch(crossTransferReset());
-    },
-    []
-  );
-
-  const serializedPSBTEnvelops = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-
-  const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo
-  );
-  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
-    (state) => state.settings
-  );
-  const navigation = useNavigation();
+  // useEffect(
+  //   () => () => {
+  //     dispatch(sendPhaseTwoReset());
+  //     dispatch(crossTransferReset());
+  //   },
+  //   []
+  // );
 
   useEffect(() => {
-    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
-      setProgress(false);
+    if (isCachedTransaction) {
+      // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
+    } else {
+      // case: new transaction
+      if (inProgress) {
+        setTimeout(() => {
+          dispatch(sendPhaseTwoReset());
+          dispatch(
+            sendPhaseTwo({
+              wallet: sender,
+              txnPriority: transactionPriority,
+              note,
+              label,
+              transferType,
+            })
+          );
+        }, 200);
+      }
+    }
+  }, [inProgress]);
+
+  const { activeVault: currentSender } = useVault({ vaultId: sender?.id }); // current state of vault
+
+  const validateUTXOsForCachedTxn = () => {
+    // perform UTXO validation for cached transaction
+
+    if (!cachedTxPrerequisites) return false;
+
+    const cachedInputUTXOs: InputUTXOs[] = idx(
+      cachedTxPrerequisites,
+      (_) => _[transactionPriority].inputs
+    );
+    if (!cachedInputUTXOs) return false;
+
+    const currentConfirmedUTXOs: InputUTXOs[] = idx(currentSender, (_) => _.specs.confirmedUTXOs);
+
+    for (const cachedUTXO of cachedInputUTXOs) {
+      let found = false;
+      for (const currentUTXO of currentConfirmedUTXOs) {
+        if (cachedUTXO.txId === currentUTXO.txId && cachedUTXO.vout === currentUTXO.vout) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) return false;
+    }
+
+    return true;
+  };
+
+  const discardCachedTransaction = () => {
+    dispatch(dropTransactionSnapshot({ cachedTxid }));
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length && inProgress) {
+      if (isCachedTransaction) {
+        // perform UTXO validation for cached transaction
+        const isValid = validateUTXOsForCachedTxn();
+        if (!isValid) {
+          // block and show discard alert
+          Alert.alert(
+            'Invalid UTXO set',
+            'Please discard this transaction',
+            [
+              {
+                text: 'Discard',
+                onPress: discardCachedTransaction,
+                style: 'destructive',
+              },
+              {
+                text: 'Cancel',
+                onPress: () => {
+                  setProgress(false);
+                },
+                style: 'cancel',
+              },
+            ],
+            { cancelable: true }
+          );
+          return;
+        }
+      }
+
       navigation.dispatch(
         CommonActions.navigate('SignTransactionScreen', {
+          isMoveAllFunds,
           note,
           label,
-          vaultId: sender.id,
+          vaultId: sender?.id,
+          sender: sender,
+          sendConfirmationRouteParams: route.params,
         })
       );
+      setProgress(false);
     }
-  }, [serializedPSBTEnvelops]);
+  }, [serializedPSBTEnvelops, inProgress]);
 
   useEffect(() => {
     dispatch(resetVaultMigration());
@@ -773,7 +915,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              vaultId: isAutoTransferFlow ? defaultVault.id : recipient.id,
+              vaultId: isAutoTransferFlow ? defaultVault?.id : recipient.id,
             },
           },
         ],
@@ -787,11 +929,39 @@ function SendConfirmation({ route }) {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender.id } },
+          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender?.id } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     }
+  };
+
+  const viewManageWallets = () => {
+    new Promise((resolve, reject) => {
+      try {
+        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    })
+      .then(() => {
+        setVisibleModal(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              {
+                name: 'ManageWallets',
+              },
+            ],
+          })
+        );
+      })
+      .catch((error) => {
+        console.error('Error refreshing wallets:', error);
+      });
   };
 
   useEffect(() => {
@@ -856,31 +1026,66 @@ function SendConfirmation({ route }) {
         rightComponent={<CurrencyTypeSwitch />}
       />
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <SendingCard
-          isSend
-          currentCurrency={currentCurrency}
-          currencyCode={currencyCode}
-          sender={sender || sourceWallet}
-          recipient={recipient}
-          address={address}
-          amount={amount}
-          transferType={transferType}
-          getBalance={getBalance}
-          getSatUnit={getSatUnit}
-        />
-        <SendingCard
-          isSend={false}
-          currentCurrency={currentCurrency}
-          currencyCode={currencyCode}
-          sender={sender}
-          recipient={recipient}
-          address={address}
-          amount={amount}
-          transferType={transferType}
-          getBalance={getBalance}
-          getSatUnit={getSatUnit}
-          isAddress={isAddress}
-        />
+        {!isAutoTransferFlow ? (
+          <>
+            <SendingCard
+              isSend
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+              sender={sender || sourceWallet}
+              recipient={recipient}
+              address={address}
+              amount={amount}
+              transferType={transferType}
+              getBalance={getBalance}
+              getSatUnit={getSatUnit}
+              isAddress={isAddress}
+            />
+            <SendingCard
+              isSend={false}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+              sender={sender}
+              recipient={recipient}
+              address={address}
+              amount={amount}
+              transferType={transferType}
+              getBalance={getBalance}
+              getSatUnit={getSatUnit}
+              isAddress={isAddress}
+            />
+          </>
+        ) : (
+          <Box style={styles.fdRow}>
+            <Box style={styles.transferSentFromContainer}>
+              <Text style={styles.transferText}>Transfer From</Text>
+              <TransferCard
+                preTitle={sourceWallet?.presentationData?.name}
+                title={'Available to Spend'}
+                subTitle={`${getBalance(sourceWallet?.specs?.balances?.confirmed)} ${getSatUnit()}`}
+                icon={
+                  colorMode === 'light'
+                    ? getCurrencyIcon(BTC, 'dark')
+                    : getCurrencyIcon(BTC, 'light')
+                }
+              />
+            </Box>
+            <Box style={styles.transferSentToContainer}>
+              <Text style={styles.transferText}>Transfer To</Text>
+              <TransferCard
+                preTitle={defaultVault?.presentationData?.name}
+                title={'Balance'}
+                subTitle={`${getBalance(defaultVault?.specs?.balances?.confirmed)} ${getSatUnit()}`}
+                icon={
+                  colorMode === 'light'
+                    ? getCurrencyIcon(BTC, 'dark')
+                    : getCurrencyIcon(BTC, 'light')
+                }
+                isVault
+              />
+            </Box>
+          </Box>
+        )}
         {/* Custom priority diabled for auto transfer  */}
         {!isAutoTransferFlow ? (
           <TouchableOpacity
@@ -935,22 +1140,29 @@ function SendConfirmation({ route }) {
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note title={common.note} subtitle={vault.signingOldVault} />
       ) : null}
-      <Buttons
-        primaryText={common.confirmProceed}
-        secondaryText={common.cancel}
-        secondaryCallback={() => {
-          navigation.goBack();
-        }}
-        primaryCallback={() => setConfirmPassVisible(true)}
-        primaryLoading={inProgress}
-      />
+      {!isAutoTransferFlow ? (
+        <Buttons
+          primaryText={common.confirmProceed}
+          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
+          secondaryCallback={() => {
+            if (isCachedTransaction) discardCachedTransaction();
+            else navigation.goBack();
+          }}
+          primaryCallback={() => setConfirmPassVisible(true)}
+          primaryLoading={inProgress}
+        />
+      ) : (
+        <Footer setConfirmPassVisible={setConfirmPassVisible} />
+      )}
       <KeeperModal
         visible={visibleModal}
-        close={viewDetails}
+        close={!isMoveAllFunds ? viewDetails : viewManageWallets}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewWallets}
-        buttonCallback={viewDetails}
+        buttonText={
+          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+        }
+        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1087,7 +1299,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter amount in sats"
+          subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
@@ -1276,5 +1488,57 @@ const styles = StyleSheet.create({
   },
   sendSuccessfullNote: {
     marginTop: hp(5),
+  },
+  TransferCardPreTitle: {
+    marginLeft: wp(5),
+    fontSize: 14,
+    letterSpacing: 0.14,
+  },
+  transferCardTitle: {
+    fontSize: 11,
+    letterSpacing: 0.14,
+  },
+  transferCardSubtitle: {
+    fontSize: 14,
+    letterSpacing: 0.72,
+  },
+  transferCardContainer: {
+    alignItems: 'center',
+    borderRadius: 10,
+
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    minHeight: hp(70),
+  },
+  preTitleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginLeft: 10,
+  },
+  transferText: {
+    fontWeight: 500,
+    fontSize: 12,
+    marginBottom: 5,
+    marginLeft: 3,
+    marginTop: 15,
+  },
+  cardTransferPreTitle: {
+    marginLeft: wp(5),
+    fontSize: 14,
+    letterSpacing: 0.14,
+  },
+  subTitleContainer: {
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 10,
+    marginLeft: 10,
+  },
+  transferSentToContainer: {
+    width: '48%',
+    marginLeft: 10,
+  },
+  transferSentFromContainer: {
+    width: '48%',
   },
 });
