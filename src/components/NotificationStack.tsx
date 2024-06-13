@@ -196,7 +196,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             primary: {
               text: 'Continue',
               cta: () => {
-                setShowModal(true);
+                activeVault ? setShowModal(true) : showToast('No vaults found', <ToastErrorIcon />);
               },
             },
             secondary: skipBtnConfig(uai),
