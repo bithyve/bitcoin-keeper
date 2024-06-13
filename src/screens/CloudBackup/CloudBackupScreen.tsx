@@ -34,6 +34,8 @@ function CloudBackupScreen() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { allVaults } = useVault({});
 
+  const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
+
   useEffect(() => {
     if (loading) {
       const lastUpdate = data[data.length - 1];
@@ -56,17 +58,17 @@ function CloudBackupScreen() {
         visible={showPasswordModal}
         close={() => setShowPasswordModal(false)}
         callback={(value: any) => {
-          dispatch(backupBsmsOnCloud(value ? value : ''));
+          dispatch(backupBsmsOnCloud(value || ''));
         }}
       />
 
       <KeeperHeader
         title={strings.cloudBackup}
         subtitle={`On your ${cloudName}`}
-        learnMore
+        learnMore={false}
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
         learnTextColor={`${colorMode}.white`}
-        learnMorePressed={() => console.log('ss')}
+        learnMorePressed={() => {}}
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -114,7 +116,7 @@ function CloudBackupScreen() {
       />
 
       <Buttons
-        primaryText={strings.backupNow}
+        primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
         primaryCallback={() => {
           if (allVaults.length === 0) {
             showToast('No vaults found.', <ToastErrorIcon />);
@@ -123,8 +125,7 @@ function CloudBackupScreen() {
           }
         }}
         primaryLoading={loading}
-        secondaryText={strings.healthCheck}
-        secondaryDisable={lastBsmsBackup < 0}
+        secondaryText={isBackupAllowed ? strings.healthCheck : ''}
         secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
       />
     </ScreenWrapper>
