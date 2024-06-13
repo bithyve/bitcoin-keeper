@@ -68,8 +68,6 @@ function SetupSeedWordSigner({ route }) {
     <SeedCard item={item} index={index} />
   );
 
-  console.log({ words });
-
   return (
     <Box flex={1} padding={5} background={`${colorMode}.secondaryBackground`}>
       <StatusBarComponent padding={30} />
