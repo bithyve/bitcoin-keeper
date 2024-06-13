@@ -59,6 +59,7 @@ import {
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
 import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
+import { SIGNTRANSACTION } from 'src/navigation/contants';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -527,8 +528,9 @@ function SignTransactionScreen() {
       case SignerType.SEED_WORDS:
         navigation.dispatch(
           CommonActions.navigate({
-            name: 'InputSeedWordSigner',
+            name: 'EnterSeedScreen',
             params: {
+              parentScreen: SIGNTRANSACTION,
               xfp: vaultKey.xfp,
               onSuccess: signTransaction,
             },
