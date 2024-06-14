@@ -17,7 +17,7 @@ import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getAppImage, healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { getAppImage, healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
@@ -34,6 +34,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import Dropdown from 'src/components/Dropdown';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 type seedWordItem = {
   id: number;
@@ -195,12 +196,27 @@ function EnterSeedScreen({ route, navigation }) {
     setHcLoading(true);
 
     const handleSuccess = () => {
-      dispatch(healthCheckSigner([signer]));
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+          },
+        ])
+      );
       showToast('Health check successful!', <TickIcon />);
       navigation.dispatch(CommonActions.goBack());
     };
 
     const handleFailure = () => {
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_FAILED,
+          },
+        ])
+      );
       showToast('Health check failed');
     };
 
@@ -209,6 +225,8 @@ function EnterSeedScreen({ route, navigation }) {
         if (isSeedFilled(12)) {
           let derivedSigner;
           const seedWord = getSeedWord();
+
+          console.log({ seedWord });
           if (signer?.type === SignerType.MY_KEEPER) {
             const details = await getCosignerDetails(
               seedWord,
@@ -261,7 +279,7 @@ function EnterSeedScreen({ route, navigation }) {
   const onPressSignTransaction = async () => {
     if (activePage === 3) {
       const seedWord = getSeedWord();
-      importSeedCta(seedWord);
+      importSeedCta(seedWord); //
     }
     if (activePage === 2) {
       if (!(selectedNumberOfWords === SEED_WORDS_18)) {
@@ -287,6 +305,32 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
+  const onPressHandleHealthCheck = async () => {
+    if (activePage === 3) {
+      onPressHealthCheck();
+    }
+    if (activePage === 2) {
+      if (!(selectedNumberOfWords === SEED_WORDS_18)) {
+        if (isSeedFilled(18)) setActivePage(3);
+        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      } else {
+        onPressHealthCheck();
+      }
+    }
+    if (activePage === 1) {
+      if (!(selectedNumberOfWords === SEED_WORDS_12)) {
+        if (isSeedFilled(12)) setActivePage(2);
+        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      } else {
+        onPressHealthCheck();
+      }
+    }
+    if (activePage === 0) {
+      if (isSeedFilled(6)) setActivePage(1);
+      else showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+  };
+
   const onPressNext = async () => {
     const mnemonic = getSeedWord();
     if (bip39.validateMnemonic(mnemonic)) {
@@ -302,7 +346,9 @@ function EnterSeedScreen({ route, navigation }) {
       (selectedNumberOfWords === SEED_WORDS_24 && activePage === 3);
 
     if (isLastPage) {
-      onPressNext();
+      console.log({ isHealthCheck });
+      if (isHealthCheck || isIdentification) onPressHandleHealthCheck();
+      else onPressNext();
     } else {
       onPressSignTransaction();
     }
@@ -460,7 +506,7 @@ function EnterSeedScreen({ route, navigation }) {
             gap: hp(20),
           }}
         >
-          {(isImport || isSignTransaction) && (
+          {(isImport || isSignTransaction || isHealthCheck || isIdentification) && (
             <Box style={styles.dropdownContainer}>
               <Dropdown
                 label={selectedNumberOfWords}
@@ -534,7 +580,7 @@ function EnterSeedScreen({ route, navigation }) {
             currentScreen={activePage + 1}
           />
           {isHealthCheck || isIdentification ? (
-            <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
+            <Buttons primaryCallback={handleNext} primaryText="Next" />
           ) : isSignTransaction ? (
             <Buttons
               primaryCallback={handleNext}
