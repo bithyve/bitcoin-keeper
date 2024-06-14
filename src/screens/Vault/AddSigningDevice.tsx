@@ -20,7 +20,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -51,6 +51,10 @@ import VaultMigrationController from './VaultMigrationController';
 import SignerCard from '../AddSigner/SignerCard';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
+import { setupKeeperSigner } from 'src/hardware/signerSetup';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { captureError } from 'src/services/sentry';
+import HWError from 'src/hardware/HWErrorState';
 
 const { width } = Dimensions.get('screen');
 
@@ -233,6 +237,7 @@ function Footer({
   isCollaborativeFlow,
   vaultKeys,
   onGoBack,
+  selectedSigners,
 }) {
   const navigation = useNavigation();
   const renderNotes = () => {
@@ -282,6 +287,8 @@ function Footer({
 
     navigation.goBack();
   };
+
+  const isProceedDisabled = isCollaborativeFlow && selectedSigners.size === 0;
   return (
     <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
       {!isCollaborativeFlow && renderNotes()}
@@ -295,7 +302,7 @@ function Footer({
         />
       ) : (
         <Buttons
-          primaryDisable={!areSignersValid}
+          primaryDisable={isProceedDisabled}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
           primaryCallback={() => handleProceedButtonClick()}
@@ -538,6 +545,34 @@ function Signers({
 
   const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
 
+  const onQrScan = async (qrData, resetQR) => {
+    try {
+      let hw: { signer: Signer; key: VaultSigner };
+      hw = setupKeeperSigner(qrData);
+      if (hw) {
+        dispatch(addSigningDevice([hw.signer]));
+        showToast(
+          `${hw.signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+        navigation.dispatch(CommonActions.goBack());
+      }
+    } catch (error) {
+      if (error instanceof HWError) {
+        showToast(error.message, <ToastErrorIcon />);
+        resetQR();
+      } else {
+        captureError(error);
+        showToast(
+          `Invalid QR, please scan the QR from a ${getSignerNameFromType(SignerType.KEEPER)}`,
+          <ToastErrorIcon />
+        );
+        navigation.goBack();
+      }
+    }
+  };
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.signerContainer}>
@@ -562,7 +597,7 @@ function Signers({
             </Box>
           </Box>
         ) : null}
-        {!isCollaborativeFlow && (
+        {
           <Box style={styles.gap10}>
             <Text color={`${colorMode}.headerText`} bold style={styles.title}>
               {signers.length ? 'or' : ''} add a new key
@@ -570,18 +605,34 @@ function Signers({
             <AddCard
               name="Add a key"
               cardStyles={styles.addCard}
-              callback={() =>
-                navigation.dispatch(
-                  CommonActions.navigate('SigningDeviceList', {
-                    scheme,
-                    vaultId,
-                    vaultSigners: vaultKeys,
-                  })
-                )
+              callback={
+                !isCollaborativeFlow
+                  ? () =>
+                      navigation.dispatch(
+                        CommonActions.navigate('SigningDeviceList', {
+                          scheme,
+                          vaultId,
+                          vaultSigners: vaultKeys,
+                        })
+                      )
+                  : () => {
+                      navigation.dispatch(
+                        CommonActions.navigate({
+                          name: 'ScanQR',
+                          params: {
+                            title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
+                            subtitle: 'Please scan until all the QR data has been retrieved',
+                            onQrScan,
+                            setup: true,
+                            type: SignerType.KEEPER,
+                          },
+                        })
+                      );
+                    }
               }
             />
           </Box>
-        )}
+        }
         <HardwareModalMap
           visible={visible}
           close={close}
@@ -868,6 +919,7 @@ function AddSigningDevice() {
         isCollaborativeFlow={isCollaborativeFlow}
         onGoBack={onGoBack}
         vaultKeys={vaultKeys}
+        selectedSigners={selectedSigners}
       />
       <KeeperModal
         dismissible
