@@ -225,8 +225,6 @@ function EnterSeedScreen({ route, navigation }) {
         if (isSeedFilled(12)) {
           let derivedSigner;
           const seedWord = getSeedWord();
-
-          console.log({ seedWord });
           if (signer?.type === SignerType.MY_KEEPER) {
             const details = await getCosignerDetails(
               seedWord,
@@ -279,7 +277,7 @@ function EnterSeedScreen({ route, navigation }) {
   const onPressSignTransaction = async () => {
     if (activePage === 3) {
       const seedWord = getSeedWord();
-      importSeedCta(seedWord); //
+      importSeedCta(seedWord);
     }
     if (activePage === 2) {
       if (!(selectedNumberOfWords === SEED_WORDS_18)) {
@@ -346,7 +344,6 @@ function EnterSeedScreen({ route, navigation }) {
       (selectedNumberOfWords === SEED_WORDS_24 && activePage === 3);
 
     if (isLastPage) {
-      console.log({ isHealthCheck });
       if (isHealthCheck || isIdentification) onPressHandleHealthCheck();
       else onPressNext();
     } else {
