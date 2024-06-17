@@ -900,9 +900,12 @@ function SendConfirmation({ route }) {
     }
   }, [serializedPSBTEnvelops, inProgress]);
 
-  useEffect(() => {
-    dispatch(resetVaultMigration());
-  }, []);
+  useEffect(
+    () => () => {
+      dispatch(resetVaultMigration());
+    },
+    []
+  );
 
   const viewDetails = () => {
     setVisibleModal(false);
