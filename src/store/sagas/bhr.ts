@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import {
   decrypt,
@@ -31,6 +31,11 @@ import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/
 import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
+import { Platform } from 'react-native';
+import CloudBackupModule from 'src/nativemodules/CloudBackup';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
   refreshWallets,
   updateSignerDetails,
@@ -45,6 +50,7 @@ import {
   setBackupLoading,
   setBackupType,
   setBackupWarning,
+  setEncPassword,
   setInvalidPassword,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
@@ -70,11 +76,7 @@ import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
-import { Platform } from 'react-native';
-import CloudBackupModule from 'src/nativemodules/CloudBackup';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
-import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RootState } from '../store';
 
 export function* updateAppImageWorker({
   payload,
@@ -234,7 +236,7 @@ export function* deleteAppImageEntityWorker({
     const response = yield call(Relay.deleteAppImageEntity, {
       appId: id,
       signers: signerIds,
-      walletIds: walletIds,
+      walletIds,
     });
     if (walletIds?.length > 0) {
       for (const walletId of walletIds) {
@@ -254,7 +256,6 @@ export function* deleteAppImageEntityWorker({
     return response;
   } catch (err) {
     captureError(err);
-    return;
   }
 }
 
@@ -275,7 +276,6 @@ export function* deleteVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
-    return;
   }
 }
 
@@ -695,6 +695,7 @@ function* backupBsmsOnCloudWorker({
   };
 }) {
   const { password } = payload;
+  if (password) yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const bsmsToBackup = [];
@@ -717,6 +718,7 @@ function* backupBsmsOnCloudWorker({
         });
       }
     });
+    const { encPassword } = yield select((state: RootState) => state.bhr);
 
     if (Platform.OS === 'android') {
       yield put(setBackupLoading(true));
@@ -727,7 +729,7 @@ function* backupBsmsOnCloudWorker({
           const response = yield call(
             CloudBackupModule.backupBsms,
             JSON.stringify(bsmsToBackup),
-            password
+            password || encPassword || ''
           );
           if (response.status) {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -767,7 +769,7 @@ function* backupBsmsOnCloudWorker({
       const response = yield call(
         CloudBackupModule.backupBsms,
         JSON.stringify(bsmsToBackup),
-        password
+        password || encPassword || ''
       );
       if (response.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {

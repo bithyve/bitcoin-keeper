@@ -20,10 +20,10 @@ import { setBackupLoading } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
-import EnterPasswordModal from './EnterPasswordModal';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import { hp, wp } from 'src/constants/responsive';
+import EnterPasswordModal from './EnterPasswordModal';
 
 function CloudBackupScreen() {
   const { colorMode } = useColorMode();
@@ -77,7 +77,7 @@ function CloudBackupScreen() {
       <KeeperHeader
         title={strings.cloudBackup}
         subtitle={`On your ${cloudName}`}
-        learnMore={false}
+        learnMore={true}
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
         learnTextColor={`${colorMode}.white`}
         learnMorePressed={() => setShowModal(true)}
