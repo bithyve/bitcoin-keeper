@@ -45,7 +45,7 @@ export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
 export const ARCHIVE_ENABLED_VERSION = '1.2.7';
-export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.9';
+export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.6';
 
 export function* applyUpgradeSequence({
   previousVersion,
