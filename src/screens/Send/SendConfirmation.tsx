@@ -900,9 +900,12 @@ function SendConfirmation({ route }) {
     }
   }, [serializedPSBTEnvelops, inProgress]);
 
-  useEffect(() => {
-    dispatch(resetVaultMigration());
-  }, []);
+  useEffect(
+    () => () => {
+      dispatch(resetVaultMigration());
+    },
+    []
+  );
 
   const viewDetails = () => {
     setVisibleModal(false);
@@ -1101,11 +1104,14 @@ function SendConfirmation({ route }) {
           </TouchableOpacity>
         ) : null}
         {OneDayHistoricalFee.length > 0 && (
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
-            <FeerateStatement
-              showFeesInsightModal={toogleFeesInsightModal}
-              feeInsightData={OneDayHistoricalFee}
-            />
+          <Box style={styles.feeStatContainer}>
+            <Text style={styles.feeStatText}>Fee stats</Text>
+            <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
+              <FeerateStatement
+                showFeesInsightModal={toogleFeesInsightModal}
+                feeInsightData={OneDayHistoricalFee}
+              />
+            </Box>
           </Box>
         )}
         <AmountDetails
@@ -1336,6 +1342,7 @@ const styles = StyleSheet.create({
   transTitleText: {
     fontSize: 14,
     letterSpacing: 1.12,
+    fontWeight: '500',
   },
   transLabelText: {
     fontSize: 12,
@@ -1402,6 +1409,12 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 5,
     borderRadius: 10,
+  },
+  feeStatContainer: {
+    marginTop: 10,
+  },
+  feeStatText: {
+    fontWeight: '500',
   },
   feeStatementWrapper: {
     width: '100%',

@@ -189,7 +189,7 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.1 }}>
+      <VStack style={styles.transTitleWrapper}>
         {transactions?.length ? (
           <Text
             color={`${colorMode}.black`}
@@ -464,20 +464,24 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         </HStack>
       )}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
-        <TransactionList
-          transactions={[...cachedTransactions, ...transactions]}
-          pullDownRefresh={syncVault}
-          pullRefresh={pullRefresh}
-          vault={vault}
-          isCollaborativeWallet={isCollaborativeWallet}
-        />
-        <Footer
-          vault={vault}
-          isCollaborativeWallet={isCollaborativeWallet}
-          pendingHealthCheckCount={pendingHealthCheckCount}
-          isCanaryWallet={isCanaryWallet}
-          setShowHealthCheckModal={setShowHealthCheckModal}
-        />
+        <Box flex={1} style={styles.transactionsContainer}>
+          <TransactionList
+            transactions={[...cachedTransactions, ...transactions]}
+            pullDownRefresh={syncVault}
+            pullRefresh={pullRefresh}
+            vault={vault}
+            isCollaborativeWallet={isCollaborativeWallet}
+          />
+        </Box>
+        <Box style={styles.footerContainer}>
+          <Footer
+            vault={vault}
+            isCollaborativeWallet={isCollaborativeWallet}
+            pendingHealthCheckCount={pendingHealthCheckCount}
+            isCanaryWallet={isCanaryWallet}
+            setShowHealthCheckModal={setShowHealthCheckModal}
+          />
+        </Box>
       </VStack>
       <KeeperModal
         visible={introModal}
@@ -588,10 +592,19 @@ const styles = StyleSheet.create({
     paddingTop: 15,
   },
   bottomSection: {
-    paddingHorizontal: wp(30),
     flex: 1,
     justifyContent: 'space-between',
     paddingBottom: 20,
+  },
+  transactionsContainer: {
+    paddingHorizontal: wp(22),
+  },
+  footerContainer: {
+    paddingHorizontal: wp(28),
+  },
+  transTitleWrapper: {
+    paddingTop: windowHeight * 0.1,
+    marginLeft: wp(15),
   },
   transactionHeading: {
     fontSize: 16,
