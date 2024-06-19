@@ -11,7 +11,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import OptionCard from 'src/components/OptionCard';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
-import WalletFingerprint from 'src/components/WalletFingerPrint';
 import useTestSats from 'src/hooks/useTestSats';
 import KeeperModal from 'src/components/KeeperModal';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
@@ -161,9 +160,6 @@ function VaultSettings({ route }) {
         />
         {TestSatsComponent}
       </ScrollView>
-      <Box style={styles.fingerprint}>
-        <WalletFingerprint fingerprint={vaultId} title={vaultText.vaultFingerprint} />
-      </Box>
       <KeeperModal
         visible={vaultDetailVisible}
         close={() => setVaultDetailVisible(false)}
@@ -201,9 +197,6 @@ function VaultSettings({ route }) {
 const styles = StyleSheet.create({
   optionViewWrapper: {
     marginTop: hp(30),
-    alignItems: 'center',
-  },
-  fingerprint: {
     alignItems: 'center',
   },
   cancelBtn: {
