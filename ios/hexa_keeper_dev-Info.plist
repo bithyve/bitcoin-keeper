@@ -65,7 +65,7 @@
 			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
 			<true/>
 			<key>NSUbiquitousContainerName</key>
-			<string>Keeper</string>
+			<string>KeeperDev</string>
 			<key>NSUbiquitousContainerSupportedFolderLevels</key>
 			<string>One</string>
 		</dict>
