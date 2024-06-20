@@ -1040,4 +1040,21 @@ export default class WalletUtilities {
       };
     }
   };
+
+  static extractKeysFromBsms = (
+    bsms: string
+  ): { xpub: string; masterFingerprint: string; derivationPath: string }[] => {
+    const regex = /\[(\w+)\/([mh\/\d]+)]([tpub\w]+)/g;
+    let match;
+    const result = [];
+
+    while ((match = regex.exec(bsms)) !== null) {
+      result.push({
+        masterFingerprint: match[1],
+        derivationPath: `m/${match[2]}`, // Adding 'm' as the root for the path
+        xpub: match[3],
+      });
+    }
+    return result;
+  };
 }
