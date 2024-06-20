@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, HStack, VStack, useColorMode } from 'native-base';
-import { windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import SettingsIcon from 'src/assets/images/SignerShow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -14,6 +14,7 @@ import Text from 'src/components/KeeperText';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import ActionChip from 'src/components/ActionChip';
 import DeleteIcon from 'src/assets/images/delete_bin.svg';
+import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import ShowIcon from 'src/assets/images/show.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
@@ -99,84 +100,95 @@ function DeleteKeys({ route }) {
         }
       />
       <Box paddingY={'5'} />
-      {hiddenSigners.map((signer) => {
-        return (
-          <Box
-            key={signer.masterFingerprint}
-            backgroundColor={`${colorMode}.seashellWhite`}
-            style={styles.signerContainer}
-          >
-            <VStack>
-              <Box alignItems={'flex-start'}>
-                <HexagonIcon
-                  width={40}
-                  height={40}
-                  backgroundColor={Colors.pantoneGreen}
-                  icon={SDIcons(signer.type, true).Icon}
+      {hiddenSigners.length === 0 ? (
+        <Box style={styles.emptyWrapper}>
+          <Text style={styles.emptyText} semiBold>
+            No Hidden Keys
+          </Text>
+          <Text style={styles.emptySubText}>There are no hidden keys to show</Text>
+          <EmptyState />
+        </Box>
+      ) : (
+        hiddenSigners.map((signer) => {
+          return (
+            <Box
+              key={signer.masterFingerprint}
+              backgroundColor={`${colorMode}.seashellWhite`}
+              style={styles.signerContainer}
+            >
+              <VStack>
+                <Box alignItems={'flex-start'}>
+                  <HexagonIcon
+                    width={40}
+                    height={40}
+                    backgroundColor={Colors.pantoneGreen}
+                    icon={SDIcons(signer.type, true).Icon}
+                  />
+                </Box>
+                <Text fontSize={12}>{getSignerNameFromType(signer.type)}</Text>
+                <Text fontSize={11} color={`${colorMode}.secondaryText`}>
+                  {getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
+                </Text>
+              </VStack>
+              <HStack>
+                <ActionChip
+                  text="Delete"
+                  onPress={() => {
+                    // check if signer is a part of any of the vaults
+                    const vaultsInvolved = allVaults.filter(
+                      (vault) =>
+                        !vault.archived &&
+                        vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
+                    );
+                    if (vaultsInvolved.length > 0) {
+                      setVaultUsed(vaultsInvolved[0]);
+                      setHideWarning(true);
+                      return;
+                    }
+                    setConfirmPassVisible(true);
+                    setSignerToDelete(signer);
+                  }}
+                  Icon={<DeleteIcon />}
                 />
-              </Box>
-              <Text fontSize={12}>{getSignerNameFromType(signer.type)}</Text>
-              <Text fontSize={11} color={`${colorMode}.secondaryText`}>
-                {getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
-              </Text>
-            </VStack>
-            <HStack>
-              <ActionChip
-                text="Delete"
-                onPress={() => {
-                  // check if signer is a part of any of the vaults
-                  const vaultsInvolved = allVaults.filter(
-                    (vault) =>
-                      !vault.archived &&
-                      vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
-                  );
-                  if (vaultsInvolved.length > 0) {
-                    setVaultUsed(vaultsInvolved[0]);
-                    setHideWarning(true);
-                    return;
+                <ActionChip
+                  text="Unhide"
+                  onPress={() => unhide(signer)}
+                  Icon={
+                    signer.masterFingerprint === unhidingMfp ? (
+                      <ActivityIndicator color={'white'} />
+                    ) : (
+                      <ShowIcon />
+                    )
                   }
-                  setConfirmPassVisible(true);
-                  setSignerToDelete(signer);
+                />
+              </HStack>
+              <KeeperModal
+                visible={warningEnabled && !!vaultUsed}
+                close={() => setHideWarning(false)}
+                title="Key is being used for Vault"
+                subTitle="The Key you are trying to hide is used in one of the visible vaults."
+                buttonText="View Vault"
+                secondaryButtonText="Back"
+                secondaryCallback={() => setHideWarning(false)}
+                secButtonTextColor={`${colorMode}.greenText`}
+                modalBackground={`${colorMode}.modalWhiteBackground`}
+                buttonBackground={`${colorMode}.greenButtonBackground`}
+                buttonTextColor={`${colorMode}.white`}
+                DarkCloseIcon={colorMode === 'dark'}
+                buttonCallback={() => {
+                  setHideWarning(false);
+                  navigation.dispatch(
+                    CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id })
+                  );
                 }}
-                Icon={<DeleteIcon />}
+                textColor={`${colorMode}.primaryText`}
+                Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
               />
-              <ActionChip
-                text="Unhide"
-                onPress={() => unhide(signer)}
-                Icon={
-                  signer.masterFingerprint === unhidingMfp ? (
-                    <ActivityIndicator color={'white'} />
-                  ) : (
-                    <ShowIcon />
-                  )
-                }
-              />
-            </HStack>
-            <KeeperModal
-              visible={warningEnabled && !!vaultUsed}
-              close={() => setHideWarning(false)}
-              title="Key is being used for Vault"
-              subTitle="The Key you are trying to hide is used in one of the visible vaults."
-              buttonText="View Vault"
-              secondaryButtonText="Back"
-              secondaryCallback={() => setHideWarning(false)}
-              secButtonTextColor={`${colorMode}.greenText`}
-              modalBackground={`${colorMode}.modalWhiteBackground`}
-              buttonBackground={`${colorMode}.greenButtonBackground`}
-              buttonTextColor={`${colorMode}.white`}
-              DarkCloseIcon={colorMode === 'dark'}
-              buttonCallback={() => {
-                setHideWarning(false);
-                navigation.dispatch(
-                  CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id })
-                );
-              }}
-              textColor={`${colorMode}.primaryText`}
-              Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
-            />
-          </Box>
-        );
-      })}
+            </Box>
+          );
+        })
+      )}
+
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
@@ -216,6 +228,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     padding: 1,
     letterSpacing: 0.65,
+  },
+  emptyWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 0.8,
+  },
+  emptyText: {
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    marginBottom: hp(30),
   },
 });
 

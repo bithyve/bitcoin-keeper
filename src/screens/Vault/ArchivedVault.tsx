@@ -6,6 +6,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import BTC from 'src/assets/images/btc_black.svg';
+import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import useBalance from 'src/hooks/useBalance';
 import { StyleSheet } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
@@ -121,18 +122,28 @@ function ArchivedVault({ navigation, route }) {
         subtitle="Previously used vaults"
         headerTitleColor={`${colorMode}.headerText`}
       />
-      <Box alignItems="center">
-        <FlatList
-          data={vaults}
-          keyExtractor={(item, index) => item.id}
-          renderItem={renderArchiveVaults}
-          showsVerticalScrollIndicator={false}
-          style={{
-            marginTop: hp(44),
-            marginBottom: hp(100),
-          }}
-        />
-      </Box>
+      {vaults.length === 0 ? (
+        <Box style={styles.emptyWrapper}>
+          <Text style={styles.emptyText} semiBold>
+            No archived vaults
+          </Text>
+          <Text style={styles.emptySubText}>There are no archived vaults to show</Text>
+          <EmptyState />
+        </Box>
+      ) : (
+        <Box alignItems="center">
+          <FlatList
+            data={vaults}
+            keyExtractor={(item, index) => item.id}
+            renderItem={renderArchiveVaults}
+            showsVerticalScrollIndicator={false}
+            style={{
+              marginTop: hp(44),
+              marginBottom: hp(100),
+            }}
+          />
+        </Box>
+      )}
     </ScreenWrapper>
   );
 }
@@ -140,6 +151,17 @@ function ArchivedVault({ navigation, route }) {
 const styles = StyleSheet.create({
   date: {
     fontStyle: 'italic',
+  },
+  emptyWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 0.8,
+  },
+  emptyText: {
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    marginBottom: hp(30),
   },
 });
 
