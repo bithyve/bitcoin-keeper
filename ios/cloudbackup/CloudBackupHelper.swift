@@ -11,21 +11,15 @@ import QRCoder
   }
   
   @objc func backupBsms(data: String, password: String, callback: @escaping ((String)-> Void)){
-    var pdfFiles = [String]()
     let pdf = generatePdf(data: data, password: password)
-    print(pdf)
-    pdfFiles.append(pdf)
-      print(pdfFiles.count)
-      if pdfFiles.count > 0 {
-        uploadToIcloud(files: pdfFiles, callback: callback)
-      }
+    print("PDF: "+pdf)
+    uploadToIcloud(files: pdf, callback: callback)
   }
   
   func generatePdf(data: String, password: String) -> String{
     let currentDate = Date()
     let formatter = DateFormatter()
-    formatter.dateStyle = .medium
-    //formatter.timeStyle = .none
+    formatter.dateFormat = "dd-MM-yyy-HH:mm:ss"
     let dateTime = formatter.string(from: currentDate)
     
     let txtTitle = UILabel();
@@ -109,7 +103,7 @@ import QRCoder
         print("Error parsing JSON")
     }
     
-    let pdfFileName = "Your-Wallet-Configurations-" + ".pdf"
+    let pdfFileName = "Your-Wallet-Configurations-" + String(format: "%.0f", Date().timeIntervalSince1970) + ".pdf"
     do {
       let pdfPath = NSTemporaryDirectory().appending(pdfFileName as String)
       try PDFGenerator.generate(pages, to: pdfPath, password: PDFPassword(password))
@@ -122,38 +116,55 @@ import QRCoder
   }
   
   func getICloudFolder(named folderName: String) -> URL? {
-      guard let iCloudURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents") else {
+    let fileManager = FileManager.default
+      guard let iCloudURL = fileManager.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents") else {
           print("iCloud is not available.")
           return nil
       }
-    return iCloudURL
+    let folderURL = iCloudURL
+//    if !fileManager.fileExists(atPath: folderURL.path) {
+//            do {
+//                try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+//                print("Folder created at: \(folderURL.path)")
+//              return folderURL
+//            } catch {
+//                print("Error creating folder: \(error.localizedDescription)")
+//              return nil
+//            }
+//        } else {
+//            print("Folder already exists at: \(folderURL.path)")
+          return folderURL
+//        }
   }
   
-  func uploadToIcloud(files: [String], callback: @escaping ((String)-> Void)) {
+  func uploadToIcloud(files: String, callback: @escaping ((String)-> Void)) {
     print("uploading to iCloud...")
     let fileManager = FileManager.default
-    do {
-      let iCloudFolderURL = getICloudFolder(named: "Bitcoin-Keeper")
+    let iCloudFolderURL = getICloudFolder(named: "BitcoinKeeper")
+    do{
       if iCloudFolderURL != nil {
-        for filePath in files {
-          let url = URL(fileURLWithPath: filePath)
-          let fileName = url.lastPathComponent
-          let destinationURL = iCloudFolderURL!.appendingPathComponent(fileName)
-          if fileManager.fileExists(atPath: destinationURL.path) {
-            try fileManager.removeItem(at: destinationURL)
-            try fileManager.copyItem(at: url, to: destinationURL)
-          } else {
-            try fileManager.copyItem(at: url, to: destinationURL)
-          }
-        }
+        let fileUrl = URL(fileURLWithPath: files)
+        let fileName = fileUrl.lastPathComponent
+        print("fileName: "+fileName)
+        var destinationURL = iCloudFolderURL!.appendingPathComponent(fileName)
+        try fileManager.copyItem(at: fileUrl, to: destinationURL)
         let response = getJsonResponse(status: true, data: "", error: "")
+        
+        let filesURLs = try fileManager.contentsOfDirectory(at: iCloudFolderURL!, includingPropertiesForKeys: nil)
+        if filesURLs.isEmpty {
+                    print("No files found in folder: \(filesURLs)")
+                } else {
+                    print("Files in folder \(filesURLs):")
+                    for fileURL in filesURLs {
+                        print(fileURL.lastPathComponent)
+                    }
+                }
         callback(response)
-        //print("File uploaded to iCloud successfully.")
       } else {
         let response = getJsonResponse(status: false, data: "", error: "iCloud is currently inaccessible. Please check authentication with your iCloud and try again.")
         callback(response)
       }
-    } catch{
+    } catch {
       print("Error uploading file to iCloud: \(error.localizedDescription)")
       let response = getJsonResponse(status: false, data: "", error: error.localizedDescription)
       callback(response)
