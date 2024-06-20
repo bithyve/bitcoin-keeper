@@ -302,7 +302,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
           heading: 'Backup Recovery Key',
-          body: 'Creates backup of all vaults and wallets',
+          body: 'Backup the Recovery Key to secure the app',
           btnConfig: {
             primary: {
               text: 'Backup',
