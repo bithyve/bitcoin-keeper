@@ -51,6 +51,7 @@ export const customTheme = extendTheme({
   colors: {
     light: {
       buttonText: Colors.White,
+      navButtonText: Colors.DeepSpaceSparkle,
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
       primaryGreenBackground: Colors.pantoneGreen,
@@ -170,6 +171,7 @@ export const customTheme = extendTheme({
       feeInfoColor: Colors.RichBlack,
     },
     dark: {
+      navButtonText: Colors.paleWhite,
       buttonText: Colors.Black,
       primaryGreen: Colors.GenericViridian,
       darkGrey: Colors.DarkGrey,
