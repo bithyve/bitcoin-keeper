@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useEffect, useState } from 'react';
-import { StyleSheet, Platform, FlatList } from 'react-native';
+import { StyleSheet, Platform, FlatList, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -19,11 +19,14 @@ import { backupBsmsOnCloud, bsmsCloudHealthCheck } from 'src/store/sagaActions/b
 import { setBackupLoading } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import BTCIllustration from 'src/assets/images/btc-illustration.svg';
 import useVault from 'src/hooks/useVault';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import EnterPasswordModal from './EnterPasswordModal';
+import Checked from 'src/assets/images/check';
+import { setBackupModal } from 'src/store/reducers/settings';
 
 function CloudBackupScreen() {
   const { colorMode } = useColorMode();
@@ -36,7 +39,11 @@ function CloudBackupScreen() {
   const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { allVaults } = useVault({});
-  const [showModal, setShowModal] = useState(false);
+  const backupModal = useAppSelector((state) => state.settings.backupModal);
+  const [showModal, setShowModal] = useState(backupModal);
+  const [dontShow, setDontShow] = useState(false);
+
+  console.log(showModal, 'backupModal');
 
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
 
@@ -56,11 +63,39 @@ function CloudBackupScreen() {
     return Platform.select({ android: 'Google Drive', ios: 'iCloud' });
   }, []);
 
+  function Check({ checked = false }) {
+    return checked ? (
+      <Box height={5} width={5}>
+        <Checked default={false} />
+      </Box>
+    ) : (
+      <Box style={styles.circle} />
+    );
+  }
+
   function modalContent() {
     return (
-      <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
-        {strings.cloudBackupSubtitle}
-      </Text>
+      <Box>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
+          {strings.cloudBackupModalSubitle}
+        </Text>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
+          {strings.cloudBackupModalDesc}
+        </Text>
+        <Box style={styles.illustration}>
+          <BTCIllustration />
+        </Box>
+        <TouchableOpacity
+          onPress={() => setDontShow((prev) => !prev)}
+          style={styles.checkboxContainer}
+          activeOpacity={0.6}
+        >
+          <Check checked={dontShow} />
+          <Text color={`${colorMode}.modalGreenContent`} style={styles.checkBoxText}>
+            {common.dontShowAgain}
+          </Text>
+        </TouchableOpacity>
+      </Box>
     );
   }
 
@@ -145,18 +180,25 @@ function CloudBackupScreen() {
         close={() => {
           setShowModal(false);
         }}
-        title={strings.cloudBackup}
+        title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        DarkCloseIcon
+        DarkCloseIcon={colorMode === 'dark' ? true : false}
         learnMore
-        showCloseIcon={false}
+        showCloseIcon={true}
         learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'))}
         buttonText={common.continue}
         Content={() => modalContent()}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={() => setShowModal(false)}
+        buttonCallback={
+          dontShow
+            ? () => {
+                setShowModal(false);
+                dispatch(setBackupModal(false));
+              }
+            : () => setShowModal(false)
+        }
       />
     </ScreenWrapper>
   );
@@ -184,7 +226,31 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.65,
     padding: 1,
+    marginBottom: 15,
+    width: wp(295),
+  },
+  checkBoxText: {
+    marginLeft: 10,
+    fontWeight: 400,
+    fontSize: 15,
+    letterSpacing: 0.65,
+    padding: 1,
     marginBottom: 25,
     width: wp(295),
+  },
+  illustration: {
+    alignSelf: 'center',
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderRadius: 20 / 2,
+    borderWidth: 1,
+    borderColor: '#FDF7F0',
+  },
+  checkboxContainer: {
+    textAlign: 'center',
+    flexDirection: 'row',
+    marginTop: 40,
   },
 });
