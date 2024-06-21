@@ -119,7 +119,9 @@
     "signerFingerPrint": "Signer Fingerprint",
     "coSigner": "cosigner",
     "added": "Added",
-    "collaborativeWallet": "Collaborative Wallet"
+    "collaborativeWallet": "Collaborative Wallet",
+    "dontShowAgain": "Don’t show me this message again",
+    "for": "For"
   },
   "noInternet": {
     "no": "No Internet",
@@ -611,7 +613,9 @@
     "vaultEditSubtitle": "This will reflect on the home screen",
     "vaultDetailsUpdated": "Vault details updated",
     "vaultFundsTitle": "You have funds in your vault",
-    "vaultFundsSubtitle": "You have sats in your vault. Are you sure you want to hide it?"
+    "vaultFundsSubtitle": "You have sats in your vault. Are you sure you want to hide it?",
+    "archivedVaultsTitle": "Archived Vaults",
+    "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
