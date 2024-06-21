@@ -473,12 +473,19 @@ export const extractKeyFromDescriptor = (data) => {
     derivationPath = data.derivationPath;
     masterFingerprint = data.mfp;
   } else {
+    // scanning first key of bsms
     if (data.startsWith('BSMS')) {
       const keys = WalletUtilities.extractKeysFromBsms(data);
       xpub = keys[0].xpub;
       derivationPath = keys[0].derivationPath;
       masterFingerprint = keys[0].masterFingerprint;
     }
+    // scanning keeper's mobile key
+    xpub = data.slice(data.indexOf(']') + 1);
+    masterFingerprint = data.slice(1, 9);
+    derivationPath = data
+      .slice(data.indexOf('[') + 1, data.indexOf(']'))
+      .replace(masterFingerprint, 'm');
   }
   const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
   let forMultiSig: boolean;
