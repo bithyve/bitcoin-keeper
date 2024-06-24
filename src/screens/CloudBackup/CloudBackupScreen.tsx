@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useEffect, useState } from 'react';
-import { StyleSheet, Platform, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Platform, FlatList } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -25,7 +25,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import { wp } from 'src/constants/responsive';
 import EnterPasswordModal from './EnterPasswordModal';
-import Checked from 'src/assets/images/check';
 import { setBackupModal } from 'src/store/reducers/settings';
 
 function CloudBackupScreen() {
@@ -41,9 +40,6 @@ function CloudBackupScreen() {
   const { allVaults } = useVault({});
   const backupModal = useAppSelector((state) => state.settings.backupModal);
   const [showModal, setShowModal] = useState(backupModal);
-  const [dontShow, setDontShow] = useState(false);
-
-  console.log(showModal, 'backupModal');
 
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
 
@@ -63,16 +59,6 @@ function CloudBackupScreen() {
     return Platform.select({ android: 'Google Drive', ios: 'iCloud' });
   }, []);
 
-  function Check({ checked = false }) {
-    return checked ? (
-      <Box height={5} width={5}>
-        <Checked default={false} />
-      </Box>
-    ) : (
-      <Box style={styles.circle} />
-    );
-  }
-
   function modalContent() {
     return (
       <Box>
@@ -85,16 +71,6 @@ function CloudBackupScreen() {
         <Box style={styles.illustration}>
           <BTCIllustration />
         </Box>
-        <TouchableOpacity
-          onPress={() => setDontShow((prev) => !prev)}
-          style={styles.checkboxContainer}
-          activeOpacity={0.6}
-        >
-          <Check checked={dontShow} />
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.checkBoxText}>
-            {common.dontShowAgain}
-          </Text>
-        </TouchableOpacity>
       </Box>
     );
   }
@@ -179,6 +155,9 @@ function CloudBackupScreen() {
         visible={showModal}
         close={() => {
           setShowModal(false);
+          if (setBackupModal) {
+            dispatch(setBackupModal(false));
+          }
         }}
         title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
@@ -191,14 +170,12 @@ function CloudBackupScreen() {
         Content={() => modalContent()}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={
-          dontShow
-            ? () => {
-                setShowModal(false);
-                dispatch(setBackupModal(false));
-              }
-            : () => setShowModal(false)
-        }
+        buttonCallback={() => {
+          setShowModal(false);
+          if (setBackupModal) {
+            dispatch(setBackupModal(false));
+          }
+        }}
       />
     </ScreenWrapper>
   );
@@ -239,7 +216,9 @@ const styles = StyleSheet.create({
     width: wp(295),
   },
   illustration: {
+    marginTop: 20,
     alignSelf: 'center',
+    marginBottom: 40,
   },
   circle: {
     width: 20,
