@@ -206,30 +206,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     width: wp(295),
   },
-  checkBoxText: {
-    marginLeft: 10,
-    fontWeight: 400,
-    fontSize: 15,
-    letterSpacing: 0.65,
-    padding: 1,
-    marginBottom: 25,
-    width: wp(295),
-  },
   illustration: {
     marginTop: 20,
     alignSelf: 'center',
     marginBottom: 40,
-  },
-  circle: {
-    width: 20,
-    height: 20,
-    borderRadius: 20 / 2,
-    borderWidth: 1,
-    borderColor: '#FDF7F0',
-  },
-  checkboxContainer: {
-    textAlign: 'center',
-    flexDirection: 'row',
-    marginTop: 40,
   },
 });
