@@ -615,7 +615,9 @@
     "vaultFundsTitle": "You have funds in your vault",
     "vaultFundsSubtitle": "You have sats in your vault. Are you sure you want to hide it?",
     "archivedVaultsTitle": "Archived Vaults",
-    "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining."
+    "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining.",
+    "archivedVaultEmptyTitle": "View Archived Vaults",
+    "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -789,7 +791,7 @@
     "ManageWallets": "Manage\nWallets",
     "needHelp": "Need\nHelp?",
     "ManageWalletsTitle": "Manage Wallets",
-    "ManageWalletsSub": "Hide wallets and unhide them.",
+    "ManageWalletsSub": "Hide/Unhide Wallets From Homescreen",
     "settingsSubTitle": "Customize your app",
     "appBackup": "Recovery\nKey",
     "torSettingTitle": "Tor Settings",
@@ -826,7 +828,9 @@
     "EnterPasscodeTitle": "Enter Passcode",
     "EnterPasscodeSubtitle": "Confirm passcode to show all hidden keys",
     "SingerSettingsTitle": "Advanced Options",
-    "SingerSettingsSubtitle": "For all keys"
+    "SingerSettingsSubtitle": "For all keys",
+    "ManageWalletsEmptyTitle": "Hide Unhide Wallets",
+    "ManageWalletsEmptySubtitle": "Avoid clutter on the homescreen and keep wallets away from prying eyes."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -946,7 +950,9 @@
     "OTBModalNote": "You will only be shown the words once.",
     "backingUp": "Backing up",
     "writeBackupSeed": "You are about to write down a few words that would backup",
-    "doItPrivately": "Please ensure to do it privately."
+    "doItPrivately": "Please ensure to do it privately.",
+    "hideSignerTitle": "Hide/Unhide Keys",
+    "hideSignerSubtitle": "Hiding keys ensures only the ones you frequently use are visible in Manage Keys while the others are readily available here."
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

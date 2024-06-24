@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, HStack, VStack, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import SettingsIcon from 'src/assets/images/SignerShow.svg';
@@ -27,6 +27,7 @@ import ActionCard from 'src/components/ActionCard';
 import WalletVault from 'src/assets/images/wallet_vault.svg';
 import { archiveSigningDevice, deleteSigningDevice } from 'src/store/sagaActions/vaults';
 import useArchivedVault from 'src/hooks/useArchivedVaults';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -60,6 +61,8 @@ function DeleteKeys({ route }) {
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
   const [signerToDelete, setSignerToDelete] = React.useState<Signer>();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText } = translations;
 
   const onSuccess = () => {
     if (signerToDelete) {
@@ -103,9 +106,9 @@ function DeleteKeys({ route }) {
       {hiddenSigners.length === 0 ? (
         <Box style={styles.emptyWrapper}>
           <Text style={styles.emptyText} semiBold>
-            No Hidden Keys
+            {signerText.hideSignerTitle}
           </Text>
-          <Text style={styles.emptySubText}>There are no hidden keys to show</Text>
+          <Text style={styles.emptySubText}>{signerText.hideSignerSubtitle}</Text>
           <EmptyState />
         </Box>
       ) : (
@@ -238,6 +241,8 @@ const styles = StyleSheet.create({
     marginBottom: hp(3),
   },
   emptySubText: {
+    width: wp(250),
+    textAlign: 'center',
     marginBottom: hp(30),
   },
 });

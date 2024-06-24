@@ -306,9 +306,9 @@ function ManageWallets() {
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
           <Text style={styles.emptyText} semiBold>
-            No wallets to hide
+            {settings.ManageWalletsEmptyTitle}
           </Text>
-          <Text style={styles.emptySubText}>There are no wallets to hide</Text>
+          <Text style={styles.emptySubText}>{settings.ManageWalletsEmptySubtitle}</Text>
           <EmptyState />
         </Box>
       ) : (
@@ -544,6 +544,8 @@ const styles = StyleSheet.create({
     marginBottom: hp(3),
   },
   emptySubText: {
+    width: wp(250),
+    textAlign: 'center',
     marginBottom: hp(30),
   },
 });
