@@ -326,6 +326,7 @@ function SetupCollaborativeWallet() {
         close={() => {
           dispatch(setCosginerModal(false));
         }}
+        DarkCloseIcon={colorMode === 'dark' ? true : false}
         title={wallet.AddCoSigner}
         subTitle={''}
         modalBackground={`${colorMode}.modalGreenBackground`}
@@ -340,6 +341,8 @@ function SetupCollaborativeWallet() {
           dispatch(setCosginerModal(false));
         }}
         buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonText="Continue"
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       />
     </ScreenWrapper>
   );

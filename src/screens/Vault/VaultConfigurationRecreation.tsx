@@ -230,6 +230,10 @@ function VaultConfigurationCreation() {
         learnMoreCallback={() =>
           dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'))
         }
+        buttonText="Continue"
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonCallback={() => setShowModal(false)}
       />
     </ScreenWrapper>
   );
