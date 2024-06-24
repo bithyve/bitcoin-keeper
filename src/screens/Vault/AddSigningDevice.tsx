@@ -736,7 +736,7 @@ function AddSigningDevice() {
     }
 
     if (relayVaultError) {
-      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
+      showToast(`Error: ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
       setCreating(false);
     }

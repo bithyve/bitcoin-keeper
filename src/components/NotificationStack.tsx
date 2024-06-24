@@ -249,7 +249,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             body: 'There is a request by someone for accessing the Inheritance Key you have set up using this app',
             btnConfig: {
               primary: {
-                text: 'Continue',
+                text: 'Decline',
                 cta: async (entityId) => {
                   try {
                     setmodalActionLoader(true);
@@ -271,13 +271,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                   setmodalActionLoader(false);
                 },
               },
-              secondary: {
-                text: 'Skip',
-                cta: () => {
-                  setShowModal(false);
-                  skipUaiHandler(uai);
-                },
-              },
+              secondary: skipBtnConfig(uai, true),
             },
           },
         };
@@ -302,7 +296,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
           heading: 'Backup Recovery Key',
-          body: 'Creates backup of all vaults and wallets',
+          body: 'Backup the Recovery Key to secure the app',
           btnConfig: {
             primary: {
               text: 'Backup',
