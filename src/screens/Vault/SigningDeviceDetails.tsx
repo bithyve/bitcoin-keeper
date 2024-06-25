@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { FlatList, StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -18,6 +18,7 @@ import AdvnaceOptions from 'src/assets/images/settings.svg';
 import Change from 'src/assets/images/change.svg';
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
+import MobileKeyModalIllustration from 'src/assets/images/passwordlock.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
@@ -30,14 +31,13 @@ import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
 import { SignerType } from 'src/services/wallets/enums';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperFooter from 'src/components/KeeperFooter';
-import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import moment from 'moment';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
@@ -59,6 +59,10 @@ import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { Signer } from 'src/services/wallets/interfaces/vault';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import BackupModalContent from 'src/screens/AppSettings/BackupModal';
+import DotView from 'src/components/DotView';
+import Note from 'src/components/Note/Note';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -220,7 +224,7 @@ const getSignerContent = (type: SignerType) => {
 
 function SigningDeviceDetails({ route }) {
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslations } = translations;
+  const { signer: signerTranslations, BackupWallet: strings, common } = translations;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -241,6 +245,11 @@ function SigningDeviceDetails({ route }) {
   const { keyHeathCheckSuccess, keyHeathCheckError } = useAppSelector((state) => state.vault);
   const { entityBasedIndicator } = useIndicatorHook({ entityId: signerId });
   const [healthCheckArray, setHealthCheckArray] = useState([]);
+  const [showMobileKeyModal, setShowMobileKeyModal] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const data = useQuery(RealmSchema.BackupHistory);
+  const history = useMemo(() => data.sorted('date', true), [data]);
 
   useEffect(() => {
     return () => {
@@ -293,6 +302,17 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
+  function MobileKeyModalContent() {
+    return (
+      <Box>
+        <Box style={styles.mobileKeyIllustration}>
+          <MobileKeyModalIllustration />
+        </Box>
+        <Text style={styles.mobileKeyText}>{signerTranslations.MKHealthCheckModalDesc}</Text>
+      </Box>
+    );
+  }
+
   function FooterIcon({ Icon, showDot = false }) {
     return (
       <Box
@@ -334,6 +354,8 @@ function SigningDeviceDetails({ route }) {
               },
             })
           );
+        } else if (signer.type === SignerType.MY_KEEPER) {
+          setShowMobileKeyModal(true);
         } else {
           setVisible(true);
         }
@@ -392,15 +414,51 @@ function SigningDeviceDetails({ route }) {
       </Box>
       <ScrollView contentContainerStyle={styles.flex1}>
         <Box style={styles.healthCheckContainer}>
-          {healthCheckArray.map((item, index) => (
-            <SigningDeviceChecklist
-              status={item.type}
-              key={index.toString()}
-              date={item.actionDate}
-            />
-          ))}
+          {healthCheckArray.map((item, index) => {
+            return currentSigner.type !== SignerType.MY_KEEPER ? (
+              <SigningDeviceChecklist
+                status={item.type}
+                key={index.toString()}
+                date={item.actionDate}
+              />
+            ) : (
+              <Box style={styles.healthCheckListContainer}>
+                <FlatList
+                  data={history}
+                  contentContainerStyle={{ flexGrow: 1, paddingBottom: hp(220) }}
+                  renderItem={({ item, index }) => (
+                    <Box
+                      style={styles.itemBox}
+                      borderLeftColor={`${colorMode}.RecoveryBorderColor`}
+                      key={index}
+                    >
+                      <Box
+                        style={styles.dotContainer}
+                        backgroundColor={`${colorMode}.RecoveryBorderColor`}
+                      >
+                        <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
+                      </Box>
+                      <Text style={styles.title} color={`${colorMode}.secondaryText`}>
+                        {strings[item?.title]}
+                      </Text>
+                      <Text color={`${colorMode}.GreyText`} style={styles.date}>
+                        {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
+                      </Text>
+                    </Box>
+                  )}
+                />
+              </Box>
+            );
+          })}
         </Box>
       </ScrollView>
+      <Box style={styles.noteWrapper}>
+        <Note
+          title={common.note}
+          subtitle={signerTranslations.MKHealthCheckNote}
+          subtitleColor="GreyText"
+        />
+      </Box>
       <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
       <HardwareModalMap
         type={signer?.type}
@@ -465,12 +523,80 @@ function SigningDeviceDetails({ route }) {
         }
         Content={SignerContent}
         subTitleWidth={wp(280)}
-        buttonText="Proceed"
+        buttonText={common.proceed}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => setDetailModal(false)}
         DarkCloseIcon
         learnMore
+      />
+      <KeeperModal
+        visible={showMobileKeyModal}
+        close={() => setShowMobileKeyModal(false)}
+        title={signerTranslations.performHealthCheckTitle}
+        subTitle={signerTranslations.performHealthCheckSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.modalWhiteContent`}
+        subTitleWidth={wp(280)}
+        buttonText={common.continue}
+        buttonCallback={() => {
+          if (data.length === 0) {
+            setConfirmPassVisible(true);
+          } else {
+            setShowMobileKeyModal(false);
+            navigation.navigate('WalletBackHistory');
+          }
+        }}
+        secondaryButtonText={common.back}
+        secondaryCallback={() => setShowMobileKeyModal(false)}
+        buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        Content={MobileKeyModalContent}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title={common.confirmPassCode}
+        subTitleWidth={wp(240)}
+        subTitle={signerTranslations.RKBackupPassSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={() => {
+              setShowMobileKeyModal(false);
+              setBackupModalVisible(true);
+            }}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={backupModalVisible}
+        close={() => setBackupModalVisible(false)}
+        title={signerTranslations.RKBackupTitle}
+        subTitle={signerTranslations.RKBackupSubTitle}
+        subTitleWidth={wp(300)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText={common.backupNow}
+        buttonCallback={() => {
+          setBackupModalVisible(false);
+          navigation.dispatch(
+            CommonActions.navigate('ExportSeed', {
+              seed: primaryMnemonic,
+              next: true,
+            })
+          );
+        }}
+        Content={BackupModalContent}
       />
       <IdentifySignerModal
         visible={identifySigner && identifySignerModal}
@@ -545,6 +671,45 @@ const styles = StyleSheet.create({
   },
   healthCheckContainer: {
     marginHorizontal: wp(15),
+  },
+  mobileKeyIllustration: {
+    alignSelf: 'center',
+    marginBottom: hp(20),
+  },
+  mobileKeyText: {
+    width: wp(280),
+    marginBottom: hp(20),
+  },
+  healthCheckListContainer: {
+    height: hp(520),
+  },
+  itemBox: {
+    padding: 4,
+    marginLeft: 10,
+    borderLeftWidth: 1,
+    width: '100%',
+    position: 'relative',
+  },
+  dotContainer: {
+    zIndex: 999,
+    position: 'absolute',
+    left: -8,
+    padding: 4,
+    borderRadius: 15,
+  },
+  title: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginLeft: 20,
+    opacity: 0.7,
+  },
+  date: {
+    fontSize: 11,
+    marginLeft: 20,
+    opacity: 0.7,
+  },
+  noteWrapper: {
+    marginHorizontal: '5%',
   },
 });
 

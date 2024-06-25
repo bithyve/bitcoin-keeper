@@ -119,7 +119,9 @@
     "signerFingerPrint": "Signer Fingerprint",
     "coSigner": "cosigner",
     "added": "Added",
-    "collaborativeWallet": "Collaborative Wallet"
+    "collaborativeWallet": "Collaborative Wallet",
+    "confirmPassCode": "Confirm Passcode",
+    "backupNow": "Backup Now"
   },
   "noInternet": {
     "no": "No Internet",
@@ -949,7 +951,14 @@
     "OTBModalNote": "You will only be shown the words once.",
     "backingUp": "Backing up",
     "writeBackupSeed": "You are about to write down a few words that would backup",
-    "doItPrivately": "Please ensure to do it privately."
+    "doItPrivately": "Please ensure to do it privately.",
+    "RKBackupPassSubTitle": "To backup app recovery key",
+    "RKBackupTitle": "Backup Recovery Key",
+    "RKBackupSubTitle": "Carefully write down the 12-word Recovery Key in a private place and ensure its security",
+    "performHealthCheckTitle": "Perform Health Check",
+    "performHealthCheckSubTitle": "Please perform Health Check on Recovery Key from home screen Settings. Your Mobile Key’s Health Check will be done automatically.",
+    "MKHealthCheckNote": "Please backup the Recovery Key from home screen Settings. Your Mobile Key will be backed-up automatically.",
+    "MKHealthCheckModalDesc": "Mobile Key is derived from the app’s master key using BIP-85"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
