@@ -425,7 +425,7 @@ function SigningDeviceDetails({ route }) {
               <Box style={styles.healthCheckListContainer}>
                 <FlatList
                   data={history}
-                  contentContainerStyle={{ flexGrow: 1, paddingBottom: hp(220) }}
+                  contentContainerStyle={styles.healthCheckList}
                   renderItem={({ item, index }) => (
                     <Box
                       style={styles.itemBox}
@@ -452,13 +452,15 @@ function SigningDeviceDetails({ route }) {
           })}
         </Box>
       </ScrollView>
-      <Box style={styles.noteWrapper}>
-        <Note
-          title={common.note}
-          subtitle={signerTranslations.MKHealthCheckNote}
-          subtitleColor="GreyText"
-        />
-      </Box>
+      {currentSigner.type === SignerType.MY_KEEPER && (
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle={signerTranslations.MKHealthCheckNote}
+            subtitleColor="GreyText"
+          />
+        </Box>
+      )}
       <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
       <HardwareModalMap
         type={signer?.type}
@@ -667,7 +669,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   flex1: {
-    flex: 1,
+    flexGrow: 1,
   },
   healthCheckContainer: {
     marginHorizontal: wp(15),
@@ -710,6 +712,10 @@ const styles = StyleSheet.create({
   },
   noteWrapper: {
     marginHorizontal: '5%',
+  },
+  healthCheckList: {
+    flexGrow: 1,
+    paddingBottom: hp(220),
   },
 });
 
