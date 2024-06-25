@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode, VStack } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -9,7 +9,6 @@ import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
 import useSigners from 'src/hooks/useSigners';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -20,6 +19,7 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import UnknownSignerInfo from './components/UnknownSignerInfo';
 import Note from 'src/components/Note/Note';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type IProps = {
   navigation: any;
@@ -36,11 +36,13 @@ function AssignSignerType({ route }: IProps) {
   const { signers: appSigners } = useSigners();
   const [visible, setVisible] = useState(false);
   const [signerType, setSignerType] = useState<SignerType>();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText } = translations;
   const assignSignerType = (type: SignerType) => {
     setSignerType(type);
     setVisible(true);
   };
-  const { plan } = usePlan();
+  const { plan, isOnL1, isOnL2 } = usePlan();
 
   const availableSigners = [
     SignerType.TAPSIGNER,
@@ -61,8 +63,6 @@ function AssignSignerType({ route }: IProps) {
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
-  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -80,8 +80,8 @@ function AssignSignerType({ route }: IProps) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Identify your signer"
-        subtitle="for better communication and conectivity"
+        title={signerText.changeSignerTitle}
+        subtitle={signerText.changeSignerSubtitle}
       />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {signer.type === SignerType.UNKOWN_SIGNER && <UnknownSignerInfo signer={signer} />}
@@ -138,7 +138,7 @@ function AssignSignerType({ route }: IProps) {
               })}
             </Box>
             <Box style={styles.noteContainer}>
-              <Note subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault" />
+              <Note subtitle={signerText.changeSignerNote} />
             </Box>
           </Box>
         )}

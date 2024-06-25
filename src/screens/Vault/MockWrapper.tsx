@@ -9,10 +9,11 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { captureError } from 'src/services/sentry';
 import { View } from 'native-base';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from './HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 MockWrapper.defaultProps = {
   enable: true,
@@ -71,7 +72,11 @@ function MockWrapper({
     try {
       const data = getMockSigner(signerType);
       const handleSuccess = () => {
-        dispatch(healthCheckSigner([data.signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            { signerId: data.signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_MANAUAL },
+          ])
+        );
         nav.dispatch(CommonActions.goBack());
         showToast(`${data.signer.type} verified successfully`, <TickIcon />);
       };

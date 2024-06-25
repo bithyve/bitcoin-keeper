@@ -3,13 +3,15 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/constants/responsive';
-import BtcBlack from 'src/assets/images/btc_black.svg';
+import BTC from 'src/assets/images/btc.svg';
+
 import useBalance from 'src/hooks/useBalance';
 
 function UTXOSelectionTotal(props: any) {
   const { selectionTotal, selectedUTXOs } = props;
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+  const variation = colorMode === 'light' ? 'dark' : 'light';
 
   return (
     <Box style={styles.tabWrapper} testID="view_UTXOSelectTotal">
@@ -18,10 +20,10 @@ function UTXOSelectionTotal(props: any) {
       </Box>
       <Box style={styles.totalWrapper}>
         <Text style={styles.selectionTotalText}>Total</Text>
-        <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
+        <Box>{getCurrencyIcon(BTC, variation)}</Box>
         <Text style={styles.selectionText}>
-          {getBalance(selectionTotal)}
-          <Text color={`${colorMode}.dateText`} style={styles.selectionText}>
+          {`${getBalance(selectionTotal)} `}
+          <Text color={`${colorMode}.GreyText`} style={styles.selectionText}>
             {getSatUnit()}
           </Text>
         </Text>

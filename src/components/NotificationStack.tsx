@@ -79,8 +79,8 @@ interface uaiDefinationInterface {
     heading: string;
     subTitle: string;
     body: any;
-    sender: Object;
-    recipient: Object;
+    sender?: Object;
+    recipient?: Object;
     btnConfig: {
       primary: {
         text: string;
@@ -161,7 +161,6 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             primary: {
               text: 'Continue',
               cta: () => {
-                setShowModal(true);
                 navigtaion.navigate('AddWallet');
               },
             },
@@ -197,7 +196,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             primary: {
               text: 'Continue',
               cta: () => {
-                setShowModal(true);
+                activeVault ? setShowModal(true) : showToast('No vaults found', <ToastErrorIcon />);
               },
             },
             secondary: skipBtnConfig(uai),
@@ -246,11 +245,11 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           },
           modalDetails: {
             heading: 'Inheritance Key request',
-            subTitle: 'Pleasetake action for the IKS ',
+            subTitle: 'Please take action for the IKS ',
             body: 'There is a request by someone for accessing the Inheritance Key you have set up using this app',
             btnConfig: {
               primary: {
-                text: 'Continue',
+                text: 'Decline',
                 cta: async (entityId) => {
                   try {
                     setmodalActionLoader(true);
@@ -272,13 +271,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
                   setmodalActionLoader(false);
                 },
               },
-              secondary: {
-                text: 'Skip',
-                cta: () => {
-                  setShowModal(false);
-                  skipUaiHandler(uai);
-                },
-              },
+              secondary: skipBtnConfig(uai, true),
             },
           },
         };
@@ -303,7 +296,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       case uaiType.RECOVERY_PHRASE_HEALTH_CHECK:
         return {
           heading: 'Backup Recovery Key',
-          body: 'Creates backup of all vaults and wallets',
+          body: 'Backup the Recovery Key to secure the app',
           btnConfig: {
             primary: {
               text: 'Backup',
@@ -439,44 +432,51 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         buttonTextColor={`${colorMode}.white`}
         buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
-        Content={() => (
-          <View>
-            <Box style={styles.fdRow}>
-              <Box style={styles.sentFromContainer}>
-                <Text style={styles.transferText}>Transfer From</Text>
-                <ModalCard
-                  preTitle={uaiConfig?.modalDetails?.sender.presentationData.name}
-                  title={notification.availableToSpend}
-                  icon={
-                    colorMode === 'light'
-                      ? getCurrencyIcon(BTC, 'dark')
-                      : getCurrencyIcon(BTC, 'light')
-                  }
-                  subTitle={`${getBalance(
-                    uaiConfig?.modalDetails?.sender.specs.balances.confirmed
-                  )} ${getSatUnit()}`}
-                />
+        Content={() =>
+          // temporary fix
+          uai.type === uaiType.VAULT_TRANSFER ? (
+            <View>
+              <Box style={styles.fdRow}>
+                <Box style={styles.sentFromContainer}>
+                  <Text style={styles.transferText}>Transfer From</Text>
+                  <ModalCard
+                    preTitle={uaiConfig?.modalDetails?.sender.presentationData.name}
+                    title={notification.availableToSpend}
+                    icon={
+                      colorMode === 'light'
+                        ? getCurrencyIcon(BTC, 'dark')
+                        : getCurrencyIcon(BTC, 'light')
+                    }
+                    subTitle={`${getBalance(
+                      uaiConfig?.modalDetails?.sender.specs.balances.confirmed
+                    )} ${getSatUnit()}`}
+                  />
+                </Box>
+                <Box style={styles.sentToContainer}>
+                  <Text style={styles.transferText}>Transfer To</Text>
+                  <ModalCard
+                    preTitle={uaiConfig?.modalDetails?.recipient.presentationData.name}
+                    title={notification.Balance}
+                    isVault={
+                      uaiConfig?.modalDetails?.recipient.entityKind === 'VAULT' ? true : false
+                    }
+                    icon={
+                      colorMode === 'light'
+                        ? getCurrencyIcon(BTC, 'dark')
+                        : getCurrencyIcon(BTC, 'light')
+                    }
+                    subTitle={`${getBalance(
+                      uaiConfig?.modalDetails?.recipient.specs.balances.confirmed
+                    )} ${getSatUnit()}`}
+                  />
+                </Box>
               </Box>
-              <Box style={styles.sentToContainer}>
-                <Text style={styles.transferText}>Transfer To</Text>
-                <ModalCard
-                  preTitle={uaiConfig?.modalDetails?.recipient.presentationData.name}
-                  title={notification.Balance}
-                  isVault={uaiConfig?.modalDetails?.recipient.entityKind === 'VAULT' ? true : false}
-                  icon={
-                    colorMode === 'light'
-                      ? getCurrencyIcon(BTC, 'dark')
-                      : getCurrencyIcon(BTC, 'light')
-                  }
-                  subTitle={`${getBalance(
-                    uaiConfig?.modalDetails?.recipient.specs.balances.confirmed
-                  )} ${getSatUnit()}`}
-                />
-              </Box>
-            </Box>
-            <Text style={styles.modalBody}>{uaiConfig?.modalDetails?.body}</Text>
-          </View>
-        )}
+              <Text style={styles.modalBody}>{uaiConfig?.modalDetails?.body}</Text>
+            </View>
+          ) : (
+            <Text style={styles.transferText}>{uaiConfig?.modalDetails?.body}</Text>
+          )
+        }
       />
       <KeeperModal
         visible={insightModal}
