@@ -231,6 +231,7 @@ export default class InheritanceKeyServer {
 
   static signPSBT = async (
     id: string,
+    requestId: string,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -239,35 +240,43 @@ export default class InheritanceKeyServer {
         vout: number;
         value: number;
       };
-    }>
-    // thresholdDescriptors: string[]
+    }>,
+    inheritanceConfiguration: InheritanceConfiguration
   ): Promise<{
-    signedPSBT: string;
+    requestStatus: {
+      approvesIn: number;
+      isApproved: boolean;
+      isDeclined: boolean;
+    };
+    signedPSBT?: string;
   }> => {
     let res: AxiosResponse;
 
-    // const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
-    //   inheritanceConfiguration,
-    //   id
-    // );
+    const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+      inheritanceConfiguration,
+      id
+    );
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/signTransactionViaInheritanceKey`, {
         HEXA_ID,
         id,
+        requestId,
         serializedPSBT,
         childIndexArray,
-        // thresholdDescriptors,
+        thresholdDescriptors,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
 
-    const { signedPSBT } = res.data;
-    return {
-      signedPSBT,
-    };
+    const { requestStatus, signedPSBT } = res.data;
+    if (requestStatus.isApproved) {
+      return { requestStatus, signedPSBT };
+    } else {
+      return { requestStatus };
+    }
   };
 
   static checkIKSHealth = async (
@@ -408,10 +417,18 @@ export default class InheritanceKeyServer {
 
   static fetchBackup = async (
     id: string,
+    requestId: string,
     inheritanceConfiguration: InheritanceConfiguration
   ): Promise<{
-    mnemonic: string;
-    derivationPath: string;
+    requestStatus: {
+      approvesIn: number;
+      isApproved: boolean;
+      isDeclined: boolean;
+    };
+    backup?: {
+      mnemonic: string;
+      derivationPath: string;
+    };
   }> => {
     let res: AxiosResponse;
     const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
@@ -423,6 +440,7 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v3/fetchIKSBackup`, {
         HEXA_ID,
         id,
+        requestId,
         thresholdDescriptors,
         publicKey,
       });
@@ -431,11 +449,15 @@ export default class InheritanceKeyServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const { encryptedBackup } = res.data;
-    const decryptedData = asymmetricDecrypt(encryptedBackup, privateKey);
-    const { mnemonic, derivationPath } = JSON.parse(decryptedData);
+    const { requestStatus, encryptedBackup } = res.data;
 
-    return { mnemonic, derivationPath };
+    if (requestStatus.isApproved) {
+      const decryptedData = asymmetricDecrypt(encryptedBackup, privateKey);
+      const { mnemonic, derivationPath } = JSON.parse(decryptedData);
+      return { requestStatus, backup: { mnemonic, derivationPath } };
+    } else {
+      return { requestStatus };
+    }
   };
 
   static migrateSignersV2ToV3 = async (

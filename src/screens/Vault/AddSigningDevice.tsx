@@ -1,7 +1,7 @@
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Signer,
   Vault,
@@ -20,7 +20,7 @@ import { useAppSelector } from 'src/store/hooks';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import useSigners from 'src/hooks/useSigners';
 import AddCard from 'src/components/AddCard';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import useSignerMap from 'src/hooks/useSignerMap';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
@@ -50,6 +50,11 @@ import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
 import SignerCard from '../AddSigner/SignerCard';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
+import { setupKeeperSigner } from 'src/hardware/signerSetup';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { captureError } from 'src/services/sentry';
+import HWError from 'src/hardware/HWErrorState';
 
 const { width } = Dimensions.get('screen');
 
@@ -108,49 +113,40 @@ const isAssistedKeyValidForScheme = (
   signerMap,
   selectedSigners
 ): { isValid: boolean; err?: string } => {
-  if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
-    // scheme based restrictions for assisted keys
-    if (signer.type === SignerType.POLICY_SERVER) {
-      // signing server key can be added starting from Vaults w/ m: 2 and n:3
-      if (scheme.n < 3) return { isValid: false, err: 'Requires a minimum of 3 Total Keys' };
-      else if (scheme.m < 2) {
-        return { isValid: false, err: 'Requires a minimum of 2 Required Keys' };
-      }
-    } else if (signer.type === SignerType.INHERITANCEKEY) {
-      // inheritance key can be added starting from Vaults w/ m: 3 and n:4
-      if (scheme.n < 4) return { isValid: false, err: 'Requires a minimum of 4 Total Keys' };
-      else if (scheme.m < 3) {
-        return { isValid: false, err: 'Requires a minimum of 3 Required Keys' };
-      }
-    }
+  // case 1: scheme based restrictions for assisted keys
+  // both assisted keys can be added starting from Vaults w/ m: 2 and n:3
+  if (scheme.n < 3) return { isValid: false, err: 'Requires a minimum of 3 Total Keys' };
+  else if (scheme.m < 2) return { isValid: false, err: 'Requires a minimum of 2 Required Keys' };
 
-    // count based restrictions for assisted keys
-    const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
-    let existingAssistedKeys = 0;
-    for (const mfp of selectedSigners.keys()) {
-      if (
-        signerMap[mfp].type === SignerType.POLICY_SERVER ||
-        signerMap[mfp].type === SignerType.INHERITANCEKEY
-      ) {
-        existingAssistedKeys++;
-      }
+  // case 2: count based restrictions for assisted keys
+  const currentAssistedKey = 1; // the assisted key for which the conditions are being checked
+  let existingAssistedKeys = 0;
+  for (const mfp of selectedSigners.keys()) {
+    if (
+      signerMap[mfp].type === SignerType.POLICY_SERVER ||
+      signerMap[mfp].type === SignerType.INHERITANCEKEY
+    ) {
+      existingAssistedKeys++;
     }
-    const assistedKeys = existingAssistedKeys + currentAssistedKey;
-    const cannotFormQuorum = assistedKeys < scheme.m; // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
-    if (!cannotFormQuorum) {
-      return {
-        isValid: false,
-        err: 'Number of assisted keys should be less than the Required Keys',
-      };
-    }
+  }
+  const assistedKeys = existingAssistedKeys + currentAssistedKey;
 
-    const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m; // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
-    if (!notRequiredForQuorum) {
-      return {
-        isValid: false,
-        err: 'Required Keys is not achievable without the assisted keys',
-      };
-    }
+  // Assisted Keys restriction I:  The number of assisted keys should be less than the threshold(m) for a given Vault, such that they can’t form a signing quorum by themselves.
+  const cannotFormQuorum = assistedKeys < scheme.m;
+  if (!cannotFormQuorum) {
+    return {
+      isValid: false,
+      err: 'Number of assisted keys should be less than the Required Keys',
+    };
+  }
+
+  // Assisted Keys restriction II: The threshold for the multi-sig should be achievable w/o the assisted keys
+  const notRequiredForQuorum = assistedKeys <= scheme.n - scheme.m;
+  if (!notRequiredForQuorum) {
+    return {
+      isValid: false,
+      err: 'Required Keys is not achievable without the assisted keys',
+    };
   }
 
   return { isValid: true };
@@ -238,7 +234,12 @@ function Footer({
   common,
   colorMode,
   setCreating,
+  isCollaborativeFlow,
+  vaultKeys,
+  onGoBack,
+  selectedSigners,
 }) {
+  const navigation = useNavigation();
   const renderNotes = () => {
     const notes = [];
     if (amfSigners.length) {
@@ -278,16 +279,36 @@ function Footer({
     }
     return notes;
   };
+
+  const handleProceedButtonClick = () => {
+    if (onGoBack) {
+      onGoBack(vaultKeys);
+    }
+
+    navigation.goBack();
+  };
+
+  const isProceedDisabled = isCollaborativeFlow && selectedSigners.size === 0;
   return (
     <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
-      {renderNotes()}
-      <Buttons
-        primaryDisable={!!areSignersValid || !!trezorIncompatible}
-        primaryLoading={relayVaultUpdateLoading}
-        primaryText="Proceed"
-        primaryCallback={() => setCreating(true)}
-        paddingHorizontal={wp(30)}
-      />
+      {!isCollaborativeFlow && renderNotes()}
+      {!isCollaborativeFlow ? (
+        <Buttons
+          primaryDisable={!!areSignersValid || !!trezorIncompatible}
+          primaryLoading={relayVaultUpdateLoading}
+          primaryText="Proceed"
+          primaryCallback={() => setCreating(true)}
+          paddingHorizontal={wp(30)}
+        />
+      ) : (
+        <Buttons
+          primaryDisable={isProceedDisabled}
+          primaryLoading={relayVaultUpdateLoading}
+          primaryText="Proceed"
+          primaryCallback={() => handleProceedButtonClick()}
+          paddingHorizontal={wp(30)}
+        />
+      )}
     </Box>
   );
 }
@@ -307,6 +328,8 @@ function Signers({
   showSelection,
   keyToRotate,
   setCreating,
+  isCollaborativeFlow,
+  coSigners,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -330,59 +353,61 @@ function Signers({
     setVisible(true);
   };
 
-  const renderAssistedKeysShell = () => {
-    // tier-based, display only, till an actual assisted keys is setup
-    const shellAssistedKeys = [];
+  const shellKeys = [];
 
-    const generateShellAssistedKey = (signerType: SignerType): Signer => {
-      return {
-        type: signerType,
-        storageType: SignerStorage.WARM,
-        signerName: getSignerNameFromType(signerType, false, false),
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
-        masterFingerprint: '',
-        signerXpubs: {},
-        hidden: false,
-      };
-    };
+  const shellAssistedKeys = useMemo(() => {
+    const generateShellAssistedKey = (signerType: SignerType) => ({
+      type: signerType,
+      storageType: SignerStorage.WARM,
+      signerName: getSignerNameFromType(signerType, false, false),
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+      masterFingerprint: Date.now().toString() + signerType,
+      signerXpubs: {},
+      hidden: false,
+    });
 
     let hasSigningServer = false; // actual signing server present?
     let hasInheritanceKey = false; // actual inheritance key present?
+    let isSigningServerShellCreated = false;
+    let isInheritanceKeyShellCreated = false;
+
+    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0)
+      isSigningServerShellCreated = true;
+
+    if (shellKeys.filter((signer) => signer.type === SignerType.INHERITANCEKEY).length > 0)
+      isInheritanceKeyShellCreated = true;
+
     for (const signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
       else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
     }
 
-    if (!hasSigningServer && level >= AppSubscriptionLevel.L2) {
-      shellAssistedKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
-    }
+    if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2)
+      shellKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
 
-    if (!hasInheritanceKey && level >= AppSubscriptionLevel.L3) {
-      shellAssistedKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
-    }
+    if (!isInheritanceKeyShellCreated && !hasInheritanceKey && level >= AppSubscriptionLevel.L3)
+      shellKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
 
-    return shellAssistedKeys.map((shellSigner, index) => {
-      const { isValid, err } = isAssistedKeyValidForScheme(
-        shellSigner,
-        scheme,
-        signerMap,
-        selectedSigners
-      );
-      const disable = !isValid;
+    return shellKeys;
+  }, []);
+
+  const renderAssistedKeysShell = () => {
+    return shellAssistedKeys.map((shellSigner) => {
       const isAMF = false;
       return (
         <SignerCard
-          disabled={disable}
-          key={`${shellSigner.masterFingerprint}_${index}`}
-          name={`${getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)} +`}
+          key={shellSigner.masterFingerprint}
+          onCardSelect={() => {
+            showToast('Please add the key to a Vault in order to use it');
+          }}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
-          isSelected={!!selectedSigners.get(shellSigner.masterFingerprint)} // false
-          onCardSelect={() => {
-            if (shellSigner.type === SignerType.POLICY_SERVER) navigateToSigningServerSetup();
-            else if (shellSigner.type === SignerType.INHERITANCEKEY) setupInheritanceKey();
-          }}
+          showSelection={false}
+          showDot={true}
+          isFullText
+          colorVarient="green"
           colorMode={colorMode}
         />
       );
@@ -392,6 +417,7 @@ function Signers({
   const renderSigners = useCallback(() => {
     const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
     const signerCards = signers.map((signer) => {
+      if (signer.archived) return null;
       const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
       const disabled =
         !isValid ||
@@ -410,7 +436,6 @@ function Signers({
         <SignerCard
           showSelection={showSelection}
           disabled={disabled}
-          isFromSiginingList={true}
           key={signer.masterFingerprint}
           name={
             !signer.isBIP85
@@ -443,7 +468,110 @@ function Signers({
     return signerCards;
   }, [signers]);
 
+  const renderCollaborativeSigners = useCallback(() => {
+    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
+    const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
+    const validCoSigners = coSigners.filter((signer) => signer);
+    const coSignersMap = new Map(validCoSigners.map((signer) => [signer.masterFingerprint, true]));
+
+    const signerCards = signers
+      .filter((signer) => signer.type === SignerType.KEEPER && !signer.archived)
+      .map((signer) => {
+        const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
+        const isCoSigner = coSignersMap.has(signer.masterFingerprint);
+        const disabled =
+          !isValid ||
+          (signer.type === SignerType.MY_KEEPER &&
+            myAppKeys.length >= 1 &&
+            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+          (anySignerSelected && !selectedSigners.get(signer.masterFingerprint)) ||
+          isCoSigner;
+
+        const handleCardSelect = (selected) => {
+          if (disabled) return;
+
+          onSignerSelect(
+            selected,
+            signer,
+            scheme,
+            vaultKeys,
+            setVaultKeys,
+            selectedSigners,
+            setSelectedSigners,
+            showToast
+          );
+        };
+
+        return (
+          <SignerCard
+            showSelection={showSelection}
+            disabled={disabled}
+            isFromSiginingList={true}
+            key={signer.masterFingerprint}
+            name={
+              !signer.isBIP85
+                ? getSignerNameFromType(signer.type, signer.isMock)
+                : `${getSignerNameFromType(signer.type, signer.isMock)} +`
+            }
+            description={getSignerDescription(
+              signer.type,
+              signer.extraData?.instanceNumber,
+              signer
+            )}
+            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+            isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
+            onCardSelect={handleCardSelect}
+            colorMode={colorMode}
+          />
+        );
+      });
+
+    return signerCards;
+  }, [
+    signers,
+    selectedSigners,
+    scheme,
+    signerMap,
+    vaultKeys,
+    keyToRotate,
+    showSelection,
+    colorMode,
+    setSelectedSigners,
+    setVaultKeys,
+    showToast,
+    setCreating,
+    coSigners,
+  ]);
+
   const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
+
+  const onQrScan = async (qrData, resetQR) => {
+    try {
+      let hw: { signer: Signer; key: VaultSigner };
+      hw = setupKeeperSigner(qrData);
+      if (hw) {
+        dispatch(addSigningDevice([hw.signer]));
+        showToast(
+          `${hw.signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+        navigation.dispatch(CommonActions.goBack());
+      }
+    } catch (error) {
+      if (error instanceof HWError) {
+        showToast(error.message, <ToastErrorIcon />);
+        resetQR();
+      } else {
+        captureError(error);
+        showToast(
+          `Invalid QR, please scan the QR from a ${getSignerNameFromType(SignerType.KEEPER)}`,
+          <ToastErrorIcon />
+        );
+        navigation.goBack();
+      }
+    }
+  };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -458,31 +586,53 @@ function Signers({
                 : 'Choose from already added keys'}
             </Text>
             <Box style={styles.addedSigners}>
-              <>
-                {renderSigners()}
-                {renderAssistedKeysShell()}
-              </>
+              {!isCollaborativeFlow ? (
+                <>
+                  {renderSigners()}
+                  {renderAssistedKeysShell()}
+                </>
+              ) : (
+                <>{renderCollaborativeSigners()}</>
+              )}
             </Box>
           </Box>
         ) : null}
-        <Box style={styles.gap10}>
-          <Text color={`${colorMode}.headerText`} bold style={styles.title}>
-            {signers.length ? 'or' : ''} add a new key
-          </Text>
-          <AddCard
-            name="Add a key"
-            cardStyles={styles.addCard}
-            callback={() =>
-              navigation.dispatch(
-                CommonActions.navigate('SigningDeviceList', {
-                  scheme,
-                  vaultId,
-                  vaultSigners: vaultKeys,
-                })
-              )
-            }
-          />
-        </Box>
+        {
+          <Box style={styles.gap10}>
+            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
+              {signers.length ? 'or' : ''} add a new key
+            </Text>
+            <AddCard
+              name="Add a key"
+              cardStyles={styles.addCard}
+              callback={
+                !isCollaborativeFlow
+                  ? () =>
+                      navigation.dispatch(
+                        CommonActions.navigate('SigningDeviceList', {
+                          scheme,
+                          vaultId,
+                          vaultSigners: vaultKeys,
+                        })
+                      )
+                  : () => {
+                      navigation.dispatch(
+                        CommonActions.navigate({
+                          name: 'ScanQR',
+                          params: {
+                            title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
+                            subtitle: 'Please scan until all the QR data has been retrieved',
+                            onQrScan,
+                            setup: true,
+                            type: SignerType.KEEPER,
+                          },
+                        })
+                      );
+                    }
+              }
+            />
+          </Box>
+        }
         <HardwareModalMap
           visible={visible}
           close={close}
@@ -511,6 +661,9 @@ function AddSigningDevice() {
       description: string;
       vaultId: string;
       keyToRotate?: VaultSigner;
+      parentScreen?: string;
+      onGoBack?: any;
+      coSigners?: any;
     };
   };
   const {
@@ -520,6 +673,9 @@ function AddSigningDevice() {
     vaultId = '',
     scheme,
     keyToRotate,
+    parentScreen = '',
+    onGoBack,
+    coSigners,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
@@ -533,6 +689,7 @@ function AddSigningDevice() {
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
   const { activeVault, allVaults } = useVault({ vaultId });
+  const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
@@ -579,7 +736,7 @@ function AddSigningDevice() {
     }
 
     if (relayVaultError) {
-      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
+      showToast(`Error: ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
       setCreating(false);
     }
@@ -642,11 +799,11 @@ function AddSigningDevice() {
               />
             </Box>
             <Box>
-              {vault.presentationData.description && (
+              {vault.presentationData.description ? (
                 <Text fontSize={12} color={`${colorMode}.secondaryText`}>
                   {vault.presentationData.description}
                 </Text>
-              )}
+              ) : null}
               <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
                 {vault.presentationData.name}
               </Text>
@@ -745,6 +902,8 @@ function AddSigningDevice() {
         vaultId={vaultId}
         signerMap={signerMap}
         setCreating={setCreating}
+        isCollaborativeFlow={isCollaborativeFlow}
+        coSigners={coSigners}
       />
       <Footer
         amfSigners={amfSigners}
@@ -757,6 +916,10 @@ function AddSigningDevice() {
         common={common}
         colorMode={colorMode}
         setCreating={setCreating}
+        isCollaborativeFlow={isCollaborativeFlow}
+        onGoBack={onGoBack}
+        vaultKeys={vaultKeys}
+        selectedSigners={selectedSigners}
       />
       <KeeperModal
         dismissible

@@ -106,7 +106,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
     };
   }, [session]);
 
-  if (signerType !== SignerType.KEEPER || signerType !== SignerType.MY_KEEPER) {
+  if (signerType !== SignerType.KEEPER) {
     return null;
   }
   return (

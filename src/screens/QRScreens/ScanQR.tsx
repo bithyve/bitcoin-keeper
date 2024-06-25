@@ -77,8 +77,12 @@ function ScanQR() {
     };
   }, [qrData]);
 
-  const onBarCodeRead = (data) => {
-    if (!qrData && data.data) {
+  const onBarCodeRead = (data, fromImage = false) => {
+    if (
+      !qrData &&
+      data.data &&
+      (data.type === 'QR_CODE' || data.type === 'org.iso.QRCode' || fromImage)
+    ) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
@@ -113,7 +117,7 @@ function ScanQR() {
           showToast(response.errorMessage);
         } else {
           const data = await QRreader(response.assets[0].uri);
-          onBarCodeRead({ data });
+          onBarCodeRead({ data }, true);
         }
       } catch (_) {
         showToast('Invalid or No related QR code');

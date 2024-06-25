@@ -9,34 +9,55 @@ import { Transaction } from 'src/services/wallets/interfaces';
 import IconSent from 'src/assets/images/icon_sent_red.svg';
 import IconRecieve from 'src/assets/images/icon_recieved_red.svg';
 import TransactionPendingIcon from 'src/assets/images/transaction_pending.svg';
+import IconCache from 'src/assets/images/cache_icon.svg';
 
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import Text from 'src/components/KeeperText';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
+import Colors from 'src/theme/Colors';
 
 function TransactionElement({
   transaction,
-  onPress = () => { },
+  onPress = () => {},
   index,
+  isCached,
 }: {
   transaction: Transaction;
   onPress?: () => void;
   index?: number;
+  isCached: boolean;
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  •  HH:mm A');
 
   return (
     <TouchableOpacity onPress={onPress} testID={`btn_transaction_${transaction?.txid}`}>
-      <Box style={styles.container}>
+      <Box
+        style={[
+          styles.container,
+          isCached && [
+            styles.cachedContainer,
+            { backgroundColor: colorMode === 'light' ? Colors.Seashell : Colors.SeashellDark },
+          ],
+        ]}
+      >
         <Box style={styles.rowCenter}>
-          <Box backgroundColor={`${colorMode}.TransactionIconBackColor`} style={styles.circle}>
-            {transaction.confirmations === 0 && (
+          <Box
+            backgroundColor={!isCached ? `${colorMode}.TransactionIconBackColor` : null}
+            style={styles.circle}
+          >
+            {transaction.confirmations === 0 && !isCached && (
               <Box style={styles.transaction}>
                 <TransactionPendingIcon />
               </Box>
             )}
-            {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
+            {isCached ? (
+              <IconCache />
+            ) : transaction?.transactionType === 'Received' ? (
+              <IconRecieve />
+            ) : (
+              <IconSent />
+            )}
           </Box>
           <Box style={styles.transactionContainer}>
             <Text color={`${colorMode}.secondaryText`} medium style={styles.transactionIdText}>
@@ -79,6 +100,7 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
   },
   rowCenter: {
+    marginHorizontal: wp(10),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -114,6 +136,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -7,
     left: -4,
+  },
+  cachedContainer: {
+    marginBottom: -5,
+    paddingVertical: 12,
   },
 });
 export default TransactionElement;

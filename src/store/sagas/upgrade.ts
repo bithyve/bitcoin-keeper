@@ -12,7 +12,12 @@ import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
 import { LabelRefType, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  HealthCheckDetails,
+  Signer,
+  Vault,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateCosignerMapUpdates } from 'src/services/wallets/factories/VaultFactory';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
@@ -26,10 +31,11 @@ import {
   migrateLabelsToBip329,
   MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
-import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
+import { deleteVaultImageWorker, updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { addWhirlpoolWalletsWorker } from './wallets';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -38,6 +44,8 @@ export const KEY_MANAGEMENT_VERSION = '1.1.9';
 export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const WHIRLPOOL_WALLETS_RECREATION = '1.1.14';
 export const ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT = '1.2.7';
+export const ARCHIVE_ENABLED_VERSION = '1.2.7';
+export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.6';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -67,6 +75,13 @@ export function* applyUpgradeSequence({
 
   if (semver.lt(previousVersion, ASSISTED_KEYS_COSIGNERSMAP_ENRICHMENT)) {
     yield call(assistedKeysCosignersEnrichment);
+  }
+  if (semver.gt(newVersion, ARCHIVE_ENABLED_VERSION)) {
+    yield call(cleanupArchivedVaults);
+  }
+
+  if (semver.lt(previousVersion, HEALTH_CHECK_TIMELINE_MIGRATION_VERSION)) {
+    yield call(healthCheckTimelineMigration);
   }
 
   yield put(setAppVersion(newVersion));
@@ -432,5 +447,43 @@ function* whirlpoolWalletsCreation() {
     }
   } catch (err) {
     console.log('Error in whirlpoolWalletsCreation:', err);
+  }
+}
+
+function* healthCheckTimelineMigration() {
+  try {
+    const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
+    for (const signer of signers) {
+      const healthCheckDetails: HealthCheckDetails = {
+        type: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+        actionDate: signer.lastHealthCheck,
+      };
+      dbManager.updateObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signer.masterFingerprint,
+        {
+          healthCheckDetails: [healthCheckDetails],
+        }
+      );
+    }
+  } catch (err) {
+    console.log('Error in health check timeline migration:', err);
+  }
+}
+
+function* cleanupArchivedVaults() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const archivedVaults = vaults.filter((vault) => vault.archived);
+    const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+    const response = yield call(deleteVaultImageWorker, { payload: { vaultIds: deletedVaultIds } });
+    if (response.updated) {
+      for (const vault of archivedVaults) {
+        dbManager.deleteObjectById(RealmSchema.Vault, vault.id);
+      }
+    }
+  } catch (err) {
+    console.log('Error in cleanupArchivedVaults:', err);
   }
 }
