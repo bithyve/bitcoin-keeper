@@ -634,7 +634,8 @@
     "showXPubNoteSubText": "Losing your Wallet Seed Words may result in permanent loss of funds. Store them carefully.",
     "mobileKeyVerified": "Mobile Key verified successfully",
     "seedWordVerified": "Seed Words verified successfully",
-    "keeperVerified": "Keeper Verified Successfully"
+    "keeperVerified": "Keeper Verified Successfully",
+    "SeedErrorToast": "Please enter correct seed word"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signer",

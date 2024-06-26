@@ -22,7 +22,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { getPlaceholder } from 'src/utils/utilities';
+import { getPlaceholder, getPlaceholderSuperScripted } from 'src/utils/utilities';
 import { SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { generateSignerFromMetaData } from 'src/hardware';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -159,7 +159,7 @@ function EnterSeedScreen({ route, navigation }) {
         setActivePage(1);
       }
     } else {
-      showToast('Enter correct seedwords', <ToastErrorIcon />);
+      showToast(seed.SeedErrorToast, <ToastErrorIcon />);
     }
   };
 
@@ -171,7 +171,7 @@ function EnterSeedScreen({ route, navigation }) {
     if (activePage === 2) {
       if (!(selectedNumberOfWords === SEED_WORDS_18)) {
         if (isSeedFilled(18)) setActivePage(3);
-        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+        else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
       } else {
         const seedWord = getSeedWord();
         importSeedCta(seedWord);
@@ -180,7 +180,7 @@ function EnterSeedScreen({ route, navigation }) {
     if (activePage === 1) {
       if (!(selectedNumberOfWords === SEED_WORDS_12)) {
         if (isSeedFilled(12)) setActivePage(2);
-        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+        else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
       } else {
         const seedWord = getSeedWord();
         importSeedCta(seedWord);
@@ -188,7 +188,7 @@ function EnterSeedScreen({ route, navigation }) {
     }
     if (activePage === 0) {
       if (isSeedFilled(6)) setActivePage(1);
-      else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
     }
   };
 
@@ -282,7 +282,7 @@ function EnterSeedScreen({ route, navigation }) {
     if (activePage === 2) {
       if (!(selectedNumberOfWords === SEED_WORDS_18)) {
         if (isSeedFilled(18)) setActivePage(3);
-        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+        else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
       } else {
         const seedWord = getSeedWord();
         importSeedCta(seedWord);
@@ -291,7 +291,7 @@ function EnterSeedScreen({ route, navigation }) {
     if (activePage === 1) {
       if (!(selectedNumberOfWords === SEED_WORDS_12)) {
         if (isSeedFilled(12)) setActivePage(2);
-        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+        else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
       } else {
         const seedWord = getSeedWord();
         importSeedCta(seedWord);
@@ -299,7 +299,7 @@ function EnterSeedScreen({ route, navigation }) {
     }
     if (activePage === 0) {
       if (isSeedFilled(6)) setActivePage(1);
-      else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
     }
   };
 
@@ -310,7 +310,7 @@ function EnterSeedScreen({ route, navigation }) {
     if (activePage === 2) {
       if (!(selectedNumberOfWords === SEED_WORDS_18)) {
         if (isSeedFilled(18)) setActivePage(3);
-        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+        else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
       } else {
         onPressHealthCheck();
       }
@@ -318,14 +318,14 @@ function EnterSeedScreen({ route, navigation }) {
     if (activePage === 1) {
       if (!(selectedNumberOfWords === SEED_WORDS_12)) {
         if (isSeedFilled(12)) setActivePage(2);
-        else showToast('Enter correct seedwords', <ToastErrorIcon />);
+        else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
       } else {
         onPressHealthCheck();
       }
     }
     if (activePage === 0) {
       if (isSeedFilled(6)) setActivePage(1);
-      else showToast('Enter correct seedwords', <ToastErrorIcon />);
+      else showToast(seed.SeedErrorToast, <ToastErrorIcon />);
     }
   };
 
@@ -422,7 +422,7 @@ function EnterSeedScreen({ route, navigation }) {
             borderColor={item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.seashellWhite`}
             ref={(el) => (inputRef.current[index] = el)}
             style={styles.input}
-            placeholder={`Enter ${getPlaceholder(index)} word`}
+            placeholder={`Enter ${getPlaceholderSuperScripted(index)} word`}
             placeholderTextColor={`${colorMode}.SlateGreen`}
             value={item?.name}
             textContentType="none"
