@@ -533,7 +533,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
         title={vaultTranslation.pendingHealthCheck}
-        // subTitle={`${vaultTranslation.pendingHealthCheckSub1} ${pendingHealthCheckCount} ${vaultTranslation.pendingHealthCheckSub2}`}
+        subTitle={`${vaultTranslation.pendingHealthCheckSub1} ${pendingHealthCheckCount} ${vaultTranslation.pendingHealthCheckSub2}`}
         buttonText={vaultTranslation.healthCheck}
         buttonCallback={() => {
           setShowHealthCheckModal(false);
