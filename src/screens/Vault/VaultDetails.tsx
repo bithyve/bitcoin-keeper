@@ -513,10 +513,16 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         }}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() =>
+        learnMoreCallback={
           isCollaborativeWallet
-            ? dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'vault-details'))
-            : dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'))
+            ? () => {
+                dispatch(setIntroModal(false));
+                dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'vault-details'));
+              }
+            : () => {
+                dispatch(setIntroModal(false));
+                dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'));
+              }
         }
       />
       <KeeperModal
@@ -527,7 +533,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
         title={vaultTranslation.pendingHealthCheck}
-        subTitle={`${vaultTranslation.pendingHealthCheckSub1} ${pendingHealthCheckCount} ${vaultTranslation.pendingHealthCheckSub2}`}
+        // subTitle={`${vaultTranslation.pendingHealthCheckSub1} ${pendingHealthCheckCount} ${vaultTranslation.pendingHealthCheckSub2}`}
         buttonText={vaultTranslation.healthCheck}
         buttonCallback={() => {
           setShowHealthCheckModal(false);
