@@ -314,6 +314,7 @@ function SendingPriority({
   transactionPriority,
   setTransactionPriority,
   availableTransactionPriorities,
+  customFeePerByte,
   setVisibleCustomPriorityModal,
   getBalance,
   getSatUnit,
@@ -342,6 +343,11 @@ function SendingPriority({
                 return;
             }
 
+            const satvByte =
+              priority === TxPriority.CUSTOM
+                ? customFeePerByte
+                : averageTxFees[networkType]?.[priority]?.feePerByte;
+
             return (
               <TouchableOpacity
                 key={priority}
@@ -361,7 +367,7 @@ function SendingPriority({
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  subtitle={`${averageTxFees[networkType]?.[priority]?.feePerByte} sats/vbyte`}
+                  subtitle={`${satvByte} sats/vbyte`}
                   description={`≈${
                     txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
                   } mins`}
@@ -711,6 +717,7 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.crossTransfer
   );
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
+  const [customFeePerByte, setCustomFeePerByte] = useState('');
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
@@ -1274,6 +1281,7 @@ function SendConfirmation({ route }) {
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
             getSatUnit={getSatUnit}
+            customFeePerByte={customFeePerByte}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
               dispatch(customPrioritySendPhaseOneReset());
@@ -1339,9 +1347,12 @@ function SendConfirmation({ route }) {
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
-          buttonCallback={(setCustomTxPriority) => {
+          buttonCallback={(setCustomTxPriority, customFeePerByte) => {
             setVisibleCustomPriorityModal(false);
-            if (setCustomTxPriority) setTransactionPriority(TxPriority.CUSTOM);
+            if (setCustomTxPriority) {
+              setTransactionPriority(TxPriority.CUSTOM);
+              setCustomFeePerByte(customFeePerByte);
+            }
           }}
         />
       )}
