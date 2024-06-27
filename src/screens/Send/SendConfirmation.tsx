@@ -303,23 +303,26 @@ function TextValue({ amt, getValueIcon, inverted = false }) {
         ...styles.priorityTableText,
       }}
     >
-      {amt} {getValueIcon() === 'sats' ? 'sats' : '$'}
+      {getValueIcon() === 'sats' ? `${amt} sats` : `$ ${amt}`}
     </Text>
   );
 }
 
 function SendingPriority({
   txFeeInfo,
+  averageTxFees,
   transactionPriority,
   setTransactionPriority,
   availableTransactionPriorities,
   setVisibleCustomPriorityModal,
   getBalance,
   getSatUnit,
+  networkType,
 }) {
   const { colorMode } = useColorMode();
   return (
     <Box>
+      <Text style={styles.sendingPriorityText}>Select an option</Text>
       <Box style={styles.fdRow}>
         {availableTransactionPriorities?.map((priority) => {
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
@@ -331,24 +334,28 @@ function SendingPriority({
                 }}
               >
                 <SignerCard
+                  isFeePriority
                   titleComp={
                     <TextValue
                       amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
                       getValueIcon={getSatUnit}
                     />
                   }
+                  icon={{}}
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  description={`~${
+                  subtitle={`${averageTxFees[networkType]?.[priority]?.feePerByte} sats/vbyte`}
+                  description={`≈${
                     txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
                   } mins`}
+                  boldDesc
                   numberOfLines={2}
                   onCardSelect={() => setTransactionPriority(priority)}
                   customStyle={{
-                    width: windowWidth / 3.4 - windowWidth * 0.05,
-                    height: 135,
+                    width: wp(96.5),
                     opacity: transactionPriority === priority ? 1 : 0.5,
+                    height: getSatUnit() === 'sats' ? 150 : 135,
                   }}
                   colorMode={colorMode}
                 />
@@ -357,11 +364,14 @@ function SendingPriority({
           }
         })}
       </Box>
-      <AddCard
-        cardStyles={styles.customPriorityCard}
-        name="Custom Priority"
-        callback={setVisibleCustomPriorityModal}
-      />
+      <Box style={styles.customPriorityCardContainer}>
+        <Text style={styles.customPriorityText}>or choose custom fee</Text>
+        <AddCard
+          cardStyles={styles.customPriorityCard}
+          name="Custom Priority"
+          callback={setVisibleCustomPriorityModal}
+        />
+      </Box>
     </Box>
   );
 }
@@ -680,6 +690,7 @@ function SendConfirmation({ route }) {
     transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
@@ -1240,6 +1251,8 @@ function SendConfirmation({ route }) {
         Content={() => (
           <SendingPriority
             txFeeInfo={txFeeInfo}
+            averageTxFees={averageTxFees}
+            networkType={sender?.networkType || sourceWallet?.networkType}
             transactionPriority={transactionPriority}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
@@ -1472,9 +1485,17 @@ const styles = StyleSheet.create({
   fdRow: {
     flexDirection: 'row',
   },
+  customPriorityCardContainer: {
+    marginTop: hp(50),
+    marginBottom: hp(20),
+  },
   customPriorityCard: {
     width: windowWidth / 3.4 - windowWidth * 0.05,
     marginTop: 5,
+  },
+  customPriorityText: {
+    fontSize: 15,
+    marginBottom: hp(5),
   },
   sentToContainer: {
     width: '50%',
@@ -1554,4 +1575,13 @@ const styles = StyleSheet.create({
   transferSentFromContainer: {
     width: '48%',
   },
+  sendingPriorityText: {
+    fontSize: 15,
+    letterSpacing: 0.15,
+    marginBottom: hp(5),
+  },
+  satsStyle: {
+    height: hp(500),
+  },
+  dollarsStyle: {},
 });
