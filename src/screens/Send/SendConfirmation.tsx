@@ -320,12 +320,28 @@ function SendingPriority({
   networkType,
 }) {
   const { colorMode } = useColorMode();
+
   return (
     <Box>
       <Text style={styles.sendingPriorityText}>Select an option</Text>
       <Box style={styles.fdRow}>
         {availableTransactionPriorities?.map((priority) => {
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
+            // chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
+            if (priority === TxPriority.HIGH) {
+              if (
+                txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
+                txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
+              )
+                return;
+            } else if (priority === TxPriority.MEDIUM) {
+              if (
+                txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
+                txFeeInfo[TxPriority.LOW.toLowerCase()].amount
+              )
+                return;
+            }
+
             return (
               <TouchableOpacity
                 key={priority}
