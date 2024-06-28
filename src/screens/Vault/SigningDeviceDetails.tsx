@@ -520,9 +520,10 @@ function SigningDeviceDetails({ route }) {
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        learnMoreCallback={() =>
-          dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'))
-        }
+        learnMoreCallback={() => {
+          setDetailModal(false);
+          dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
+        }}
         Content={SignerContent}
         subTitleWidth={wp(280)}
         buttonText={common.proceed}
