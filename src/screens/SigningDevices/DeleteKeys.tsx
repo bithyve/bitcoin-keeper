@@ -28,6 +28,7 @@ import WalletVault from 'src/assets/images/wallet_vault.svg';
 import { archiveSigningDevice, deleteSigningDevice } from 'src/store/sagaActions/vaults';
 import useArchivedVault from 'src/hooks/useArchivedVaults';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { SignerType } from 'src/services/wallets/enums';
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -134,25 +135,30 @@ function DeleteKeys({ route }) {
                 </Text>
               </VStack>
               <HStack>
-                <ActionChip
-                  text="Delete"
-                  onPress={() => {
-                    // check if signer is a part of any of the vaults
-                    const vaultsInvolved = allVaults.filter(
-                      (vault) =>
-                        !vault.archived &&
-                        vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
-                    );
-                    if (vaultsInvolved.length > 0) {
-                      setVaultUsed(vaultsInvolved[0]);
-                      setHideWarning(true);
-                      return;
-                    }
-                    setConfirmPassVisible(true);
-                    setSignerToDelete(signer);
-                  }}
-                  Icon={<DeleteIcon />}
-                />
+                {signer.type !== SignerType.INHERITANCEKEY &&
+                  signer.type !== SignerType.POLICY_SERVER && (
+                    <ActionChip
+                      text="Delete"
+                      onPress={() => {
+                        // check if signer is a part of any of the vaults
+                        const vaultsInvolved = allVaults.filter(
+                          (vault) =>
+                            !vault.archived &&
+                            vault.signers.find(
+                              (s) => s.masterFingerprint === signer.masterFingerprint
+                            )
+                        );
+                        if (vaultsInvolved.length > 0) {
+                          setVaultUsed(vaultsInvolved[0]);
+                          setHideWarning(true);
+                          return;
+                        }
+                        setConfirmPassVisible(true);
+                        setSignerToDelete(signer);
+                      }}
+                      Icon={<DeleteIcon />}
+                    />
+                  )}
                 <ActionChip
                   text="Unhide"
                   onPress={() => unhide(signer)}

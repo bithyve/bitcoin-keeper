@@ -206,13 +206,14 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Multisig setup file (exported from Keeper)\n';
-  line += `Name: ${vault.presentationData.name} ${Date.now()}\n`;
+  line += `Name: ${vault.presentationData.name}\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
   line += 'Format: P2WSH\n';
   line += '\n';
   vault.signers.forEach((signer) => {
-    line += `Derivation: ${signer.derivationPath.replaceAll('h', "'")}\n`;
-    line += `${signer.masterFingerprint}: ${signer.xpub}\n\n`;
+    line += `Derivation:${signer.derivationPath.replaceAll('h', "'")}\n`;
+    line += `${signer.masterFingerprint}:`;
+    line += `${signer.xpub}\n\n`;
   });
   return line;
 };
@@ -473,10 +474,14 @@ export const extractKeyFromDescriptor = (data) => {
     derivationPath = data.derivationPath;
     masterFingerprint = data.mfp;
   } else {
+    // scanning first key of bsms
     if (data.startsWith('BSMS')) {
-      data = data.slice(data.indexOf('['));
-      data = data.slice(0, data.indexOf('\n'));
+      const keys = WalletUtilities.extractKeysFromBsms(data);
+      xpub = keys[0].xpub;
+      derivationPath = keys[0].derivationPath;
+      masterFingerprint = keys[0].masterFingerprint;
     }
+    // scanning keeper's mobile key
     xpub = data.slice(data.indexOf(']') + 1);
     masterFingerprint = data.slice(1, 9);
     derivationPath = data

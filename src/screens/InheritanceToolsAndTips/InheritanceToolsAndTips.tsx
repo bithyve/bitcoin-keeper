@@ -114,9 +114,10 @@ function InheritanceToolsAndTips({ navigation }) {
         DarkCloseIcon
         learnMore
         learnMoreTitle={common.needMoreHelp}
-        learnMoreCallback={() =>
-          dispatch(goToConcierge([ConciergeTag.INHERITANCE], 'inheritance-tools-and-tips'))
-        }
+        learnMoreCallback={() => {
+          setInheritanceModal(false);
+          dispatch(goToConcierge([ConciergeTag.INHERITANCE], 'inheritance-tools-and-tips'));
+        }}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText={common.continue}

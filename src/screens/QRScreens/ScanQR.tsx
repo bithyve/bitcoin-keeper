@@ -77,8 +77,12 @@ function ScanQR() {
     };
   }, [qrData]);
 
-  const onBarCodeRead = (data) => {
-    if (!qrData && data.data && data.type === 'QR_CODE') {
+  const onBarCodeRead = (data, fromImage = false) => {
+    if (
+      !qrData &&
+      data.data &&
+      (data.type === 'QR_CODE' || data.type === 'org.iso.QRCode' || fromImage)
+    ) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
@@ -113,7 +117,7 @@ function ScanQR() {
           showToast(response.errorMessage);
         } else {
           const data = await QRreader(response.assets[0].uri);
-          onBarCodeRead({ data });
+          onBarCodeRead({ data }, true);
         }
       } catch (_) {
         showToast('Invalid or No related QR code');
@@ -207,9 +211,10 @@ function ScanQR() {
           textColor={`${colorMode}.modalGreenContent`}
           Content={learnMoreContent}
           learnMore
-          learnMoreCallback={() =>
-            dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'))
-          }
+          learnMoreCallback={() => {
+            setVisibleModal(false);
+            dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'));
+          }}
           learnMoreTitle={common.needMoreHelp}
           buttonCallback={() => setVisibleModal(false)}
           buttonBackground={`${colorMode}.modalWhiteButton`}

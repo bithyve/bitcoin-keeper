@@ -278,9 +278,10 @@ function SigningDeviceList() {
         Content={VaultSetupContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() =>
-          reduxDispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'))
-        }
+        learnMoreCallback={() => {
+          dispatch(setSdIntroModal(false));
+          reduxDispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'));
+        }}
       />
     </ScreenWrapper>
   );
