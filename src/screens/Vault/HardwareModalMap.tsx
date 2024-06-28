@@ -122,7 +122,8 @@ const getSignerContent = (
   isCanaryAddition: boolean,
   isIdentification: boolean,
   colorMode: string,
-  isNfcSupported: boolean
+  isNfcSupported: boolean,
+  keyGenerationMode: KeyGenerationMode
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
@@ -322,18 +323,42 @@ const getSignerContent = (
         ],
       };
     case SignerType.POLICY_SERVER:
+      console.log(keyGenerationMode, 'KeyGenerationMode');
+      const subtitle =
+        keyGenerationMode !== KeyGenerationMode.RECOVER
+          ? 'The Signing Server will hold one of the keys of the Vault'
+          : 'Recover an existing Signing Server using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
         Illustration: <SigningServerIllustration />,
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks its health']
+          : keyGenerationMode !== KeyGenerationMode.RECOVER
+          ? [
+              '2FA Authenticator will have to be set up to use this option',
+              'On providing a correct OTP from the authenticator app, the Signing Server will sign the transaction.',
+            ]
           : [
-              'A 2FA authenticator will have to be set up to use this option.',
-              'On providing the correct code from the auth app, the signer will sign the transaction.',
+              'At least 2 signers are required in order to identify and recover an existing Signing Server',
+              'OTP from the authenticator is also required along with the two signers to initiate Signing Server recovery.',
             ],
-        title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
-        subTitle: 'A signer will hold one of the keys of the vault',
-        options: [],
+        title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
+        subTitle: subtitle,
+        options: isHealthcheck
+          ? []
+          : [
+              {
+                title: 'Configure a New Key',
+                icon: <RecoverImage />,
+                callback: () => {},
+                name: KeyGenerationMode.NEW,
+              },
+              {
+                title: 'Recover Existing Key',
+                icon: <RecoverImage />,
+                name: KeyGenerationMode.RECOVER,
+              },
+            ],
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
@@ -821,7 +846,9 @@ function HardwareModalMap({
   const isCanaryAddition = mode === InteracationMode.CANARY_ADDITION;
   const [otp, setOtp] = useState('');
   const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
+  const [signingServerRecoverOTPModal, setSigningServerRecoverOTPModal] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
+  const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
@@ -968,7 +995,6 @@ function HardwareModalMap({
       }
     }
   };
-
   const navigateToSigningServerSetup = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -1461,9 +1487,18 @@ function HardwareModalMap({
                   if (mode === InteracationMode.HEALTH_CHECK) {
                     checkSigningServerHealth();
                     setSigningServerHealthCheckOTPModal(false);
+                  } else if (
+                    mode === InteracationMode.VAULT_ADDITION &&
+                    keyGenerationMode === KeyGenerationMode.RECOVER
+                  ) {
+                    // TODO: Add recover flow @parsh
+                    setSigningServerRecoverOTPModal(false);
                   } else {
-                    if (mode === InteracationMode.IDENTIFICATION) findSigningServer(otp);
-                    else verifySigningServer(otp);
+                    if (mode === InteracationMode.IDENTIFICATION) {
+                      findSigningServer(otp);
+                    } else {
+                      verifySigningServer(otp);
+                    }
                   }
                 }}
                 value={common.confirm}
@@ -1600,6 +1635,19 @@ function HardwareModalMap({
         requestInheritanceKeyRecovery();
       } else {
         setupInheritanceKey();
+      }
+    }
+  };
+
+  const handleSigningServerKey = () => {
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      setSigningServerHealthCheckOTPModal(true);
+    } else {
+      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
+        console.log('inside recover');
+        setSigningServerRecoverOTPModal(true);
+      } else {
+        navigateToSigningServerSetup();
       }
     }
   };
@@ -1783,14 +1831,15 @@ function HardwareModalMap({
     isCanaryAddition,
     isIdentification,
     colorMode,
-    isNfcSupported
+    isNfcSupported,
+    keyGenerationMode
   );
 
-  const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const onSelect = (option) => {
     switch (signerType) {
+      case SignerType.POLICY_SERVER:
       case SignerType.INHERITANCEKEY:
       case SignerType.KEEPER:
       case SignerType.SEED_WORDS:
@@ -1830,9 +1879,7 @@ function HardwareModalMap({
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
-        if (mode === InteracationMode.HEALTH_CHECK) {
-          return setSigningServerHealthCheckOTPModal(true);
-        } else return navigateToSigningServerSetup();
+        return handleSigningServerKey();
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
@@ -1878,7 +1925,7 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
+        buttonText={signerType === SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
         buttonTextColor={`${colorMode}.white`}
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
@@ -1887,12 +1934,16 @@ function HardwareModalMap({
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
         secondaryButtonText={
-          isHealthcheck ? 'Skip' : type === SignerType.INHERITANCEKEY ? 'cancel' : null
+          isHealthcheck
+            ? 'Skip'
+            : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
+            ? 'cancel'
+            : null
         }
         secondaryCallback={
           isHealthcheck
             ? skipHealthCheckCallBack
-            : type === SignerType.INHERITANCEKEY
+            : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
             ? close
             : null
         }
@@ -1948,23 +1999,33 @@ function HardwareModalMap({
             (mode === InteracationMode.RECOVERY || mode === InteracationMode.IDENTIFICATION)) ||
           (type === SignerType.POLICY_SERVER &&
             mode === InteracationMode.HEALTH_CHECK &&
-            signingServerHealthCheckOTPModal)
+            signingServerHealthCheckOTPModal) ||
+          (type === SignerType.POLICY_SERVER &&
+            mode === InteracationMode.VAULT_ADDITION &&
+            keyGenerationMode === KeyGenerationMode.RECOVER &&
+            signingServerRecoverOTPModal)
         }
         close={() => {
           if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK) {
             setSigningServerHealthCheckOTPModal(false);
+          } else {
+            setSigningServerRecoverOTPModal(false);
           }
           close();
         }}
         title={
           signingServerHealthCheckOTPModal
             ? 'Confirm OTP to perform health check'
-            : 'Confirm OTP to setup 2FA'
+            : keyGenerationMode !== KeyGenerationMode.RECOVER
+            ? 'Confirm OTP to setup 2FA'
+            : 'Confirm OTP to recover Signing Server'
         }
         subTitle={
           signingServerHealthCheckOTPModal
             ? 'To check health of the signer'
-            : 'To complete setting up the signer'
+            : keyGenerationMode !== KeyGenerationMode.RECOVER
+            ? 'To complete setting up the signer'
+            : 'To complete recovery of the signer'
         }
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
