@@ -206,13 +206,14 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Multisig setup file (exported from Keeper)\n';
-  line += `Name: ${vault.presentationData.name} ${Date.now()}\n`;
+  line += `Name: ${vault.presentationData.name}\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
   line += 'Format: P2WSH\n';
   line += '\n';
   vault.signers.forEach((signer) => {
-    line += `Derivation: ${signer.derivationPath.replaceAll('h', "'")}\n`;
-    line += `${signer.masterFingerprint}: ${signer.xpub}\n\n`;
+    line += `Derivation:${signer.derivationPath.replaceAll('h', "'")}\n`;
+    line += `${signer.masterFingerprint}:`;
+    line += `${signer.xpub}\n\n`;
   });
   return line;
 };
