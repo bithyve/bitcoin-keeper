@@ -18,10 +18,14 @@ function TipsSlider({ items }) {
     return () => backHandler.remove();
   }, []);
 
-  const onViewRef = React.useRef((viewableItems) => {
-    setCurrentPosition(viewableItems.changed[0].index);
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems && viewableItems.length > 0) {
+      setCurrentPosition(viewableItems[0].index);
+    }
   });
-  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
+
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 });
+
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.modalGreenBackground`}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
@@ -30,14 +34,13 @@ function TipsSlider({ items }) {
             ref={onboardingSlideRef}
             data={items}
             horizontal
+            pagingEnabled
             snapToInterval={width}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ flexWrap: 'wrap' }}
-            disableIntervalMomentum
             decelerationRate="fast"
-            onViewableItemsChanged={onViewRef.current}
-            viewabilityConfig={viewConfigRef.current}
-            keyExtractor={(item) => item.id}
+            onViewableItemsChanged={onViewableItemsChanged.current}
+            viewabilityConfig={viewabilityConfig.current}
+            keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
             renderItem={({ item }) => (
               <TipsSliderContentComponent
                 title={item.title}
@@ -48,10 +51,10 @@ function TipsSlider({ items }) {
             )}
           />
         </Box>
-        <Box alignItems="center" flexDirection="row" height={5}>
+        <Box style={styles.indicatorContainer}>
           {items.map((item, index) => (
             <Box
-              key={item.id}
+              key={`dot-${item.id ? item.id : index}`}
               style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
             />
           ))}
@@ -71,6 +74,11 @@ const styles = StyleSheet.create({
   safeAreaViewWrapper: {
     flex: 1,
     position: 'relative',
+  },
+  indicatorContainer: {
+    position: 'absolute',
+    bottom: 0,
+    flexDirection: 'row',
   },
   selectedDot: {
     width: 25,
