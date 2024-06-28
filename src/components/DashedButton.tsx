@@ -39,8 +39,8 @@ function DashedButton({
           icon={icon}
         />
         <Box>
-          <Text color={`${colorMode}.dashedButtonContent`}>{name}</Text>
-          <Text color={`${colorMode}.dashedButtonContent`}>{description}</Text>
+          {name && <Text color={`${colorMode}.dashedButtonContent`}>{name}</Text>}
+          {description && <Text color={`${colorMode}.dashedButtonContent`}>{description}</Text>}
         </Box>
       </Box>
     </TouchableOpacity>

@@ -44,7 +44,7 @@ function VaultConfigurationCreation() {
   const { translations } = useContext(LocalizationContext);
   const { showToast } = useToastMessage();
   let decoder = new URRegistryDecoder();
-  const { common } = translations;
+  const { common, importWallet } = translations;
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
 
@@ -157,8 +157,8 @@ function VaultConfigurationCreation() {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title="Import a Wallet"
-          subtitle="Using wallet configuration file"
+          title={importWallet.importAWallet}
+          subtitle={importWallet.insertTextfromFile}
           learnMore
           learnTextColor={`${colorMode}.white`}
           learnMorePressed={() => setShowModal(true)}

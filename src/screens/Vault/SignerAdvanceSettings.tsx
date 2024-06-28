@@ -858,8 +858,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {(isAppKey || isMyAppKey) && (
           <OptionCard
-            title="Key Details"
-            description="xPub for adding to another vault"
+            title={signerTranslation.keyDetails}
+            description={signerTranslation.keyDetailsSubtitle}
             callback={navigateToCosignerDetails}
           />
         )}

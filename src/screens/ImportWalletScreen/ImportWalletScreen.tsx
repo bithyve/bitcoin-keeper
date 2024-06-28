@@ -116,7 +116,7 @@ function ImportWalletScreen() {
       >
         <KeeperHeader
           title={wallet.ImportWallet}
-          subtitle={importWallet.usingWalletConfigurationFile}
+          subtitle={importWallet.usingExternalZPub}
           learnMore
           learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
           learnTextColor={`${colorMode}.white`}
