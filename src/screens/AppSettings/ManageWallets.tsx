@@ -368,7 +368,10 @@ function ManageWallets() {
         subTitle={`You have sats in your ${
           isWallet ? 'wallet' : 'vault'
         }. Are you sure you want to hide it?`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
         Content={WalletBalanceAlertModalContent}
+        buttonTextColor={`${colorMode}.white`}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={false}
@@ -385,8 +388,11 @@ function ManageWallets() {
         subTitle={`You have sats in your ${
           isWallet ? 'wallet' : 'vault'
         }. Are you sure you want to delete it?`}
+        textColor={`${colorMode}.primaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
+        buttonTextColor={`${colorMode}.white`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={false}
         showButtons

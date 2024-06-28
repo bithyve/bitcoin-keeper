@@ -23,12 +23,13 @@ import { captureError } from 'src/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { getPsbtForHwi } from 'src/hardware';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -127,21 +128,42 @@ function SignWithChannel() {
         if (signer.type === SignerType.TREZOR) {
           const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: data.signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         } else if (signer.type === SignerType.BITBOX02) {
           const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: data.signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         } else if (signer.type === SignerType.LEDGER) {
           const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-          dispatch(healthCheckSigner([signer]));
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: data.signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );

@@ -94,13 +94,15 @@ function ConfirmSeedWord(props) {
           {BackupWallet.confirmSeedWord}
         </Text>
         <Text fontSize={13} color={`${colorMode}.secondaryText`}>
-          Type exactly as they were displayed
+          {BackupWallet.confirmBackupSubtitle}
         </Text>
       </Box>
       <Box style={styles.contentContainer}>
-        <Text style={styles.noOfWord}>{`Enter the ${getSeedNumber(index)} word`}</Text>
+        <Text style={styles.noOfWord}>{`${BackupWallet.enterThe} ${getSeedNumber(index)} ${
+          BackupWallet.seedWord
+        }`}</Text>
         <Input
-          placeholder={`Enter ${getHint(index)} word`}
+          placeholder={BackupWallet.enterSeedWordPlaceholder}
           placeholderTextColor={`${colorMode}.secondaryText`}
           backgroundColor={`${colorMode}.seashellWhite`}
           value={seedWord}
@@ -109,7 +111,7 @@ function ConfirmSeedWord(props) {
           autoCapitalize="none"
           keyboardType="name-phone-pad"
           onChangeText={(value) => {
-            setSeedWord(value.trim());
+            setSeedWord(value?.toLowerCase()?.trim());
             setInvalid(false);
           }}
           fontWeight={seedWord ? 500 : 200}
@@ -125,9 +127,9 @@ function ConfirmSeedWord(props) {
           {getErrorMsg()}
         </Text>
       )}
-      <Text style={styles.seedWordNote}>{BackupWallet.seedWordNote}</Text>
+      <Box style={styles.seedWordNote}></Box>
       <Buttons
-        secondaryText={BackupWallet.startOver}
+        secondaryText={common.skip}
         secondaryCallback={() => {
           props.closeBottomSheet();
         }}
@@ -163,7 +165,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.96,
   },
   seedWordNote: {
-    fontSize: 13,
-    marginVertical: 20,
+    marginVertical: 30,
   },
 });

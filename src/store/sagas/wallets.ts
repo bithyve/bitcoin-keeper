@@ -104,6 +104,7 @@ import {
   ADD_NEW_VAULT,
   ADD_SIGINING_DEVICE,
   DELETE_SIGINING_DEVICE,
+  ARCHIVE_SIGINING_DEVICE,
   DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
   MERGER_SIMILAR_KEYS,
@@ -612,7 +613,8 @@ export function* addNewVaultWorker({
         error: err.toString(),
       })
     );
-    yield put(relayVaultUpdateFail(err));
+    captureError(err);
+    yield put(relayVaultUpdateFail('Vault creation failed!'));
     return false;
   }
 }
@@ -731,32 +733,15 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 
 function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
-    const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const signerMap = Object.fromEntries(
-      existingSigners.map((signer) => [signer.masterFingerprint, signer])
-    );
-    const signersToDelete = [];
-
-    for (const signer of signers) {
-      const existingSigner = signerMap[signer.masterFingerprint];
-      if (!existingSigner) {
-        continue;
+    if (signers.length) {
+      let signersToDeleteIds = [];
+      for (const signer of signers) {
+        signersToDeleteIds.push(signer.masterFingerprint);
       }
-      signersToDelete.push(signer);
-    }
-
-    let signersToDeleteIds = [];
-    for (const signer of signersToDelete) {
-      signersToDeleteIds.push(signer.masterFingerprint);
-    }
-
-    if (signersToDelete.length) {
-      for (let i = 0; i < signersToDelete.length; i++) {
-        yield call(updateSignerDetailsWorker, {
+      for (let i = 0; i < signers.length; i++) {
+        yield call(deleteAppImageEntityWorker, {
           payload: {
-            signer: signersToDelete[i],
-            key: 'archived',
-            value: true,
+            signerIds: signersToDeleteIds,
           },
         });
       }
@@ -771,6 +756,35 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
 export const deleteSigningDeviceWatcher = createWatcher(
   deleteSigningDeviceWorker,
   DELETE_SIGINING_DEVICE
+);
+
+function* archiveSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
+  try {
+    let signersToArchiveIds = [];
+    for (const signer of signers) {
+      signersToArchiveIds.push(signer.masterFingerprint);
+    }
+    if (signers.length) {
+      for (let i = 0; i < signers.length; i++) {
+        yield call(updateSignerDetailsWorker, {
+          payload: {
+            signer: signers[i],
+            key: 'archived',
+            value: true,
+          },
+        });
+      }
+      yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
+    }
+  } catch (error) {
+    captureError(error);
+    yield put(relaySignersUpdateFail('An error occurred while archiving signers.'));
+  }
+}
+
+export const archiveSigningDeviceWatcher = createWatcher(
+  archiveSigningDeviceWorker,
+  ARCHIVE_SIGINING_DEVICE
 );
 
 function* migrateVaultWorker({
@@ -1499,22 +1513,9 @@ function* deleteVaultWorker({ payload }) {
   const { vaultId } = payload;
   try {
     yield put(setRelayVaultUpdateLoading(true));
-    const vault: Vault = dbManager.getObjectById(RealmSchema.Vault, vaultId).toJSON();
-    const updatedParams = {
-      archived: true,
-      archivedId: null,
-    };
-    const response = yield call(updateVaultImageWorker, {
-      payload: {
-        vault: {
-          ...vault,
-          ...updatedParams,
-        },
-        isUpdate: true,
-      },
-    });
+    const response = yield call(deleteVaultImageWorker, { payload: { vaultIds: [vaultId] } });
     if (response.updated) {
-      yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
+      yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
       yield put(relayVaultUpdateSuccess());
     } else {
       yield put(relayVaultUpdateFail(response.error));
@@ -1548,8 +1549,21 @@ function* reinstateVaultWorker({ payload }) {
         isUpdate: true,
       },
     });
+    const signerMap = {};
+    const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
+
     if (response.updated) {
       yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, updatedParams);
+      for (let i = 0; i < vault.signers.length; i++) {
+        yield call(updateSignerDetailsWorker, {
+          payload: {
+            signer: signerMap[vault.signers[i].masterFingerprint],
+            key: 'archived',
+            value: false,
+          },
+        });
+      }
       yield put(relayVaultUpdateSuccess());
     } else {
       yield put(relayVaultUpdateFail(response.error));

@@ -24,8 +24,8 @@ import useVault from 'src/hooks/useVault';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ActionCard from 'src/components/ActionCard';
 import WalletVault from 'src/assets/images/wallet_vault.svg';
-import { deleteSigningDevice } from 'src/store/sagaActions/vaults';
-import useDeletedVault from 'src/hooks/useDeletedVaults';
+import { archiveSigningDevice, deleteSigningDevice } from 'src/store/sagaActions/vaults';
+import useArchivedVault from 'src/hooks/useArchivedVaults';
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -55,14 +55,21 @@ function DeleteKeys({ route }) {
   const navigation = useNavigation();
   const [unhidingMfp, setUnhidingMfp] = useState('');
   const { allVaults } = useVault({ includeArchived: true });
-  const { deletedVaults } = useDeletedVault();
+  const { archivedVaults } = useArchivedVault();
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
   const [signerToDelete, setSignerToDelete] = React.useState<Signer>();
 
   const onSuccess = () => {
     if (signerToDelete) {
-      dispatch(deleteSigningDevice([signerToDelete]));
+      const involvedArchivedVaults = archivedVaults.filter((vault) =>
+        vault.signers.find((s) => s.masterFingerprint === signerToDelete.masterFingerprint)
+      );
+      if (involvedArchivedVaults.length) {
+        dispatch(archiveSigningDevice([signerToDelete]));
+      } else {
+        dispatch(deleteSigningDevice([signerToDelete]));
+      }
       setSignerToDelete(null);
     }
   };
@@ -118,14 +125,12 @@ function DeleteKeys({ route }) {
                 text="Delete"
                 onPress={() => {
                   // check if signer is a part of any of the vaults
-                  const vaultsInvolved = allVaults.filter((vault) =>
-                    vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
+                  const vaultsInvolved = allVaults.filter(
+                    (vault) =>
+                      !vault.archived &&
+                      vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
                   );
-                  const deletedVaultIds = deletedVaults.map((vault) => vault.id);
-                  const excludeDeletedVaults = vaultsInvolved.filter(
-                    (vault) => !deletedVaultIds.includes(vault.id)
-                  );
-                  if (excludeDeletedVaults.length > 0) {
+                  if (vaultsInvolved.length > 0) {
                     setVaultUsed(vaultsInvolved[0]);
                     setHideWarning(true);
                     return;
@@ -155,7 +160,11 @@ function DeleteKeys({ route }) {
               buttonText="View Vault"
               secondaryButtonText="Back"
               secondaryCallback={() => setHideWarning(false)}
+              secButtonTextColor={`${colorMode}.greenText`}
+              modalBackground={`${colorMode}.modalWhiteBackground`}
+              buttonBackground={`${colorMode}.greenButtonBackground`}
               buttonTextColor={`${colorMode}.white`}
+              DarkCloseIcon={colorMode === 'dark'}
               buttonCallback={() => {
                 setHideWarning(false);
                 navigation.dispatch(

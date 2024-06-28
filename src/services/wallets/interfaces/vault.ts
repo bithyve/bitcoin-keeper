@@ -47,6 +47,12 @@ export type SignerExtraData = {
   instanceNumber?: number;
 };
 
+export interface HealthCheckDetails {
+  type: string;
+  actionDate: Date;
+  extraData?: object;
+}
+
 export interface Signer {
   // Represents a h/w or s/w wallet(Signer)
   // Rel: Signer hosts multiple VaultSigners(key), diff derivation paths
@@ -58,6 +64,7 @@ export interface Signer {
   signerXpubs: signerXpubs;
   signerName?: string;
   signerDescription?: string;
+  healthCheckDetails: HealthCheckDetails[];
   lastHealthCheck: Date;
   addedOn: Date;
   bip85Config?: BIP85Config;

@@ -15,6 +15,7 @@ type OptionProps = {
   Icon?: Element;
   LeftIcon?: Element;
   disabled?: boolean;
+  visible?: boolean;
   CardPill?: Element;
 };
 
@@ -29,12 +30,13 @@ export function OptionCard({
   LeftIcon,
   disabled = false,
   CardPill,
+  visible = true,
 }: OptionProps) {
   const { colorMode } = useColorMode();
   const containerOpacity = disabled ? 0.8 : 1;
   const preTitleOpacity = colorMode === 'light' ? 1 : 0.7;
   const descriptionOpacity = colorMode === 'light' ? 1 : 0.8;
-
+  if (!visible) return null;
   return (
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack

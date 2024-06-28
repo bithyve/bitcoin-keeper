@@ -26,6 +26,7 @@ import {
   refillMobileKeyWatcher,
   refreshCanaryWalletsWatcher,
   mergeSimilarKeysWatcher,
+  archiveSigningDeviceWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher } from './uai';
 import {
@@ -48,6 +49,7 @@ import {
   updateVaultImageWatcher,
   backupBsmsOnCloudWatcher,
   bsmsCloudHealthCheckWatcher,
+  healthCheckSatutsUpdateWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -115,6 +117,7 @@ const rootSaga = function* () {
     refillMobileKeyWatcher,
     refreshCanaryWalletsWatcher,
     mergeSimilarKeysWatcher,
+    archiveSigningDeviceWatcher,
 
     // send and receive
     fetchExchangeRatesWatcher,
@@ -139,6 +142,7 @@ const rootSaga = function* () {
     seedBackeupConfirmedWatcher,
     recoverBackupWatcher,
     healthCheckSignerWatcher,
+    healthCheckSatutsUpdateWatcher,
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
     updateWalletPathAndPuposeDetailWatcher,

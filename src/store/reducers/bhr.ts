@@ -40,6 +40,7 @@ const initialState: {
   relayVaultReoveryShellId: string;
   isCloudBsmsBackupRequired: boolean;
   lastBsmsBackup?: number;
+  encPassword?: string;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -74,6 +75,7 @@ const initialState: {
   realySignersUpdateErrorMessage: null,
   isCloudBsmsBackupRequired: false,
   lastBsmsBackup: null,
+  encPassword: '',
 };
 
 const bhrSlice = createSlice({
@@ -203,6 +205,9 @@ const bhrSlice = createSlice({
     setLastBsmsBackup: (state, action: PayloadAction<number>) => {
       state.lastBsmsBackup = action.payload;
     },
+    setEncPassword: (state, action: PayloadAction<string>) => {
+      state.encPassword = action.payload;
+    },
   },
 });
 
@@ -243,6 +248,7 @@ export const {
   setVaultRecoveryDetails,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
+  setEncPassword,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {

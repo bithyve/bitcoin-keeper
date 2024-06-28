@@ -29,6 +29,7 @@ import CardPill from 'src/components/CardPill';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
 
 type HWProps = {
   type: SignerType;
@@ -54,11 +55,12 @@ function SigningDeviceList() {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { plan } = usePlan();
+  const { plan, isOnL1, isOnL2 } = usePlan();
   const dispatch = useAppDispatch();
   const reduxDispatch = useDispatch();
-  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
+  const isOnL1L2 = isOnL1 || isOnL2;
+
+  console.log(plan, 'plan');
 
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -146,6 +148,22 @@ function SigningDeviceList() {
             borderBottomRadius={last ? 10 : 0}
             style={styles.container}
           >
+            {isOnL1L2 && type === SignerType.INHERITANCEKEY && (
+              <Box style={styles.upgradeButtonContainer}>
+                <UpgradeSubscription
+                  type={SubscriptionTier.L3}
+                  customStyles={styles.upgradeButtonCustomStyles}
+                />
+              </Box>
+            )}
+            {isOnL1 && type === SignerType.POLICY_SERVER && (
+              <Box style={styles.upgradeButtonContainer}>
+                <UpgradeSubscription
+                  type={SubscriptionTier.L2}
+                  customStyles={styles.upgradeButtonCustomStyles}
+                />
+              </Box>
+            )}
             <Box
               style={[
                 styles.walletMapContainer,
@@ -316,6 +334,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 40,
     top: 15,
+  },
+  upgradeButtonContainer: {
+    width: '100%',
+  },
+  upgradeButtonCustomStyles: {
+    container: {
+      borderTopWidth: 0,
+      justifyContent: 'space-between',
+      paddingHorizontal: wp(22),
+    },
   },
   alignCenter: {
     alignSelf: 'center',

@@ -131,6 +131,16 @@ export const VaultSignerSchema: ObjectSchema = {
   },
 };
 
+export const HealthCheckDetails: ObjectSchema = {
+  embedded: true,
+  name: RealmSchema.HealthCheckDetails,
+  properties: {
+    type: 'string',
+    actionDate: 'date',
+    extraData: '{}?',
+  },
+};
+
 export const SignerSchema: ObjectSchema = {
   name: RealmSchema.Signer,
   primaryKey: 'masterFingerprint',
@@ -140,6 +150,7 @@ export const SignerSchema: ObjectSchema = {
     signerXpubs: `${RealmSchema.SignerXpubs}`,
     signerName: 'string?',
     signerDescription: 'string?',
+    healthCheckDetails: `${RealmSchema.HealthCheckDetails}[]`,
     lastHealthCheck: 'date',
     addedOn: 'date',
     isMock: 'bool?',

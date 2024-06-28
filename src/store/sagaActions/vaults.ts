@@ -5,6 +5,7 @@ import { NewVaultInfo } from '../sagas/wallets';
 export const ADD_NEW_VAULT = 'ADD_NEW_VAULT';
 export const ADD_SIGINING_DEVICE = 'ADD_SIGINING_DEVICE';
 export const DELETE_SIGINING_DEVICE = 'DELETE_SIGINING_DEVICE';
+export const ARCHIVE_SIGINING_DEVICE = 'ARCHIVE_SIGINING_DEVICE';
 export const MIGRATE_VAULT = 'MIGRATE_VAULT';
 export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
 export const DELETE_VAULT = 'DELETE_VAULT';
@@ -31,6 +32,11 @@ export const addSigningDevice = (signers: Signer[]) => ({
 
 export const deleteSigningDevice = (signers: Signer[]) => ({
   type: DELETE_SIGINING_DEVICE,
+  payload: { signers },
+});
+
+export const archiveSigningDevice = (signers: Signer[]) => ({
+  type: ARCHIVE_SIGINING_DEVICE,
   payload: { signers },
 });
 

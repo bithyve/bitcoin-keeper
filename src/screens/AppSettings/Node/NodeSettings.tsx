@@ -2,7 +2,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { hp, windowHeight } from 'src/constants/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
@@ -185,7 +185,7 @@ function NodeSettings() {
                           {item.host}
                         </Text>
                       </Box>
-                      <Box>
+                      <Box style={styles.portContainer}>
                         <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.portNumber}
                         </Text>
@@ -257,7 +257,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -327,6 +327,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
   },
   nodeDetail: {
+    overflow: 'hidden',
     width: '64%',
     flexDirection: 'row',
     paddingHorizontal: 3,
@@ -392,6 +393,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '400',
     letterSpacing: 0.6,
+  },
+  portContainer: {
+    marginLeft: wp(-5),
   },
 });
 

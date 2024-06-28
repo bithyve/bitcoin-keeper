@@ -63,7 +63,6 @@ export type AppStackParams = {
   AddSigningDevice: undefined;
   SetupSigningServer: undefined;
   SetupSeedWordSigner: undefined;
-  InputSeedWordSigner: undefined;
   ArchivedVault: undefined;
   VaultSettings: undefined;
   SignWithColdCard: undefined;
