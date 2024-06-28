@@ -333,9 +333,10 @@ function SetupCollaborativeWallet() {
         textColor={`${colorMode}.modalGreenContent`}
         Content={AddCoSignerContent}
         learnMore
-        learnMoreCallback={() =>
-          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'))
-        }
+        learnMoreCallback={() => {
+          dispatch(setCosginerModal(false));
+          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'));
+        }}
         learnMoreTitle={common.needMoreHelp}
         buttonCallback={() => {
           dispatch(setCosginerModal(false));
