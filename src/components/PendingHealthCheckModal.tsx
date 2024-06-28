@@ -3,7 +3,11 @@ import { Box, Text, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
-import config, { APP_STAGE } from 'src/utils/service-utilities/config';
+import config, {
+  APP_STAGE,
+  PENDING_HEALTH_CHECK_TIME_DEV,
+  PENDING_HEALTH_CHECK_TIME_PROD,
+} from 'src/utils/service-utilities/config';
 import { SignerType, EntityKind, NetworkType } from 'src/services/wallets/enums';
 import { wp, hp } from 'src/constants/responsive';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
@@ -54,13 +58,15 @@ const PendingHealthCheckModal = ({
     const timeDifference = now.getTime() - lastHealthCheck.getTime();
 
     if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-      return vaultKeys?.length && vault.isMultiSig && timeDifference > 3 * 60 * 60 * 1000;
+      return (
+        vaultKeys?.length && vault.isMultiSig && timeDifference > PENDING_HEALTH_CHECK_TIME_DEV
+      );
     } else {
       return (
         vaultKeys?.length &&
         !signer.isMock &&
         vault.isMultiSig &&
-        timeDifference > 90 * 24 * 60 * 60 * 1000
+        timeDifference > PENDING_HEALTH_CHECK_TIME_PROD
       );
     }
   };
