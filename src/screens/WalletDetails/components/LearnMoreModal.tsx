@@ -40,7 +40,10 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       DarkCloseIcon
       learnMore
       showCloseIcon={false}
-      learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.WALLET], 'wallet-details'))}
+      learnMoreCallback={() => {
+        dispatch(setIntroModal(false));
+        dispatch(goToConcierge([ConciergeTag.WALLET], 'wallet-details'));
+      }}
       buttonText="Back to Wallet"
       buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}

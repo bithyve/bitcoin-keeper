@@ -392,9 +392,11 @@ function EnterWalletDetailScreen({ route }) {
         showCloseIcon={true}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() =>
-          dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet-advanced-settings'))
-        }
+        learnMoreCallback={() => {
+          setAdvancedSettingsVisible(false);
+          setVisibleModal(false);
+          dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet-advanced-settings'));
+        }}
         learnMoreTitle={common.needMoreHelp}
       />
     </ScreenWrapper>

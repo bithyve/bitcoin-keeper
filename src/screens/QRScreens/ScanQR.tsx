@@ -250,9 +250,10 @@ function ScanQR() {
             textColor={`${colorMode}.modalGreenContent`}
             Content={learnMoreContent}
             learnMore
-            learnMoreCallback={() =>
-              dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'))
-            }
+            learnMoreCallback={() => {
+              setVisibleModal(false);
+              dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'));
+            }}
             learnMoreTitle={common.needMoreHelp}
             buttonCallback={() => setVisibleModal(false)}
             buttonBackground={`${colorMode}.modalWhiteButton`}

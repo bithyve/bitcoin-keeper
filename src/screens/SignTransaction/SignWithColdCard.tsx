@@ -22,6 +22,7 @@ import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaAction
 import useVault from 'src/hooks/useVault';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { useNavigation } from '@react-navigation/native';
 
 function Card({ message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -63,6 +64,7 @@ function Card({ message, buttonText, buttonCallBack }) {
 }
 
 function SignWithColdCard({ route }: { route }) {
+  const navigation = useNavigation();
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
   const { vaultKey, signTransaction, isMultisig, vaultId } = route.params as {
@@ -108,6 +110,7 @@ function SignWithColdCard({ route }: { route }) {
             },
           ])
         );
+        navigation.goBack();
       }
     });
 
