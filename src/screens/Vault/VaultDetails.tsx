@@ -438,10 +438,16 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         }}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() =>
+        learnMoreCallback={
           isCollaborativeWallet
-            ? dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'vault-details'))
-            : dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'))
+            ? () => {
+                dispatch(setIntroModal(false));
+                dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'vault-details'));
+              }
+            : () => {
+                dispatch(setIntroModal(false));
+                dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'));
+              }
         }
       />
       <PendingHealthCheckModal

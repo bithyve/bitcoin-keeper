@@ -20,6 +20,7 @@ const initialState: {
     signingServer: boolean;
     inheritanceKey: boolean;
   };
+  backupModal: boolean;
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -37,6 +38,7 @@ const initialState: {
     signingServer: false,
     inheritanceKey: false,
   },
+  backupModal: true,
 };
 
 const settingsSlice = createSlice({
@@ -85,6 +87,9 @@ const settingsSlice = createSlice({
     setOTBStatusIKS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.inheritanceKey = action.payload;
     },
+    setBackupModal: (state, action: PayloadAction<boolean>) => {
+      state.backupModal = action.payload;
+    },
   },
 });
 
@@ -103,6 +108,7 @@ export const {
   // setRecoveryInstructionPath,
   setOTBStatusSS,
   setOTBStatusIKS,
+  setBackupModal,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

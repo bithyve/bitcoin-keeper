@@ -41,7 +41,6 @@ function RecoveryPhraseTemplate({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description={inheritancePlanning.recoveryPhraseCtaDescp}
             callback={() => {
               GenerateRecoveryPhraseTemplate().then((res) => {
                 if (res) {
