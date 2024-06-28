@@ -877,7 +877,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
           />
         )}
-        {isAssistedKey || vaultId ? null : (
+        {vaultId ? null : (
           <OptionCard
             title="Hide key"
             description="Hide this key from the list"
