@@ -20,6 +20,9 @@ export enum BITCOIN_NETWORK {
 export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/hc/en-us/';
 export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/';
 
+export const PENDING_HEALTH_CHECK_TIME_DEV = 3 * 60 * 60 * 1000;
+export const PENDING_HEALTH_CHECK_TIME_PROD = 90 * 24 * 60 * 60 * 1000;
+
 // defaults to development environment
 const DEFAULT_CONFIG = {
   BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,

@@ -227,6 +227,10 @@ function VaultConfigurationCreation() {
         Content={ImportVaultContent}
         DarkCloseIcon
         learnMore
+        buttonText="Continue"
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonCallback={() => setShowModal(false)}
         learnMoreCallback={() => {
           setShowModal(false);
           dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'));

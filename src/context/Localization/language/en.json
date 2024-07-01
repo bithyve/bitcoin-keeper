@@ -122,7 +122,8 @@
     "collaborativeWallet": "Collaborative Wallet",
     "confirmPassCode": "Confirm Passcode",
     "backupNow": "Backup Now",
-    "dontShowAgain": "Don’t show me this message again"
+    "dontShowAgain": "Don’t show me this message again",
+    "for": "For"
   },
   "noInternet": {
     "no": "No Internet",
@@ -585,9 +586,8 @@
     "oneTimeBackupTitle": "One Time Backup",
     "oneTimeBackupDesc": "Note down seed words",
     "pendingHealthCheck": "Pending keys Health Check",
-    "pendingHealthCheckSub1": "There are",
-    "pendingHealthCheckSub2": "keys awaiting health check",
-    "pendingHealthCheckDec": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+    "pendingHealthCheckSubtitle": "You are trying to receive funds in a vault for which the health check of keys is pending.",
+    "pendingHealthCheckDec": "You can perform Health Check for these keys from their settings.",
     "healthCheck": "Health Check",
     "vaultCreatedSuccessTitle": "Vault Created Successfully!",
     "VaultCreatedModalDesc": "You should ensure you have a copy of the wallet configuration file for this vault",
@@ -616,7 +616,11 @@
     "vaultEditSubtitle": "This will reflect on the home screen",
     "vaultDetailsUpdated": "Vault details updated",
     "vaultFundsTitle": "You have funds in your vault",
-    "vaultFundsSubtitle": "You have sats in your vault. Are you sure you want to hide it?"
+    "vaultFundsSubtitle": "You have sats in your vault. Are you sure you want to hide it?",
+    "archivedVaultsTitle": "Archived Vaults",
+    "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining.",
+    "archivedVaultEmptyTitle": "View Archived Vaults",
+    "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -794,7 +798,7 @@
     "ManageWallets": "Manage\nWallets",
     "needHelp": "Need\nHelp?",
     "ManageWalletsTitle": "Manage Wallets",
-    "ManageWalletsSub": "Hide wallets and unhide them.",
+    "ManageWalletsSub": "Hide/Unhide Wallets From Homescreen",
     "settingsSubTitle": "Customize your app",
     "appBackup": "Recovery\nKey",
     "torSettingTitle": "Tor Settings",
@@ -832,7 +836,9 @@
     "EnterPasscodeTitle": "Enter Passcode",
     "EnterPasscodeSubtitle": "Confirm passcode to show all hidden keys",
     "SingerSettingsTitle": "Advanced Options",
-    "SingerSettingsSubtitle": "For all keys"
+    "SingerSettingsSubtitle": "For all keys",
+    "ManageWalletsEmptyTitle": "Hide Unhide Wallets",
+    "ManageWalletsEmptySubtitle": "Avoid clutter on the homescreen and keep wallets away from prying eyes."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -963,7 +969,9 @@
     "performHealthCheckTitle": "Perform Health Check",
     "performHealthCheckSubTitle": "Please perform Health Check on Recovery Key from home screen Settings. Your Mobile Key’s Health Check will be done automatically.",
     "MKHealthCheckNote": "Please backup the Recovery Key from home screen Settings. Your Mobile Key will be backed-up automatically.",
-    "MKHealthCheckModalDesc": "Mobile Key is derived from the app’s master key using BIP-85"
+    "MKHealthCheckModalDesc": "Mobile Key is derived from the app’s master key using BIP-85",
+    "hideSignerTitle": "Hide/Unhide Keys",
+    "hideSignerSubtitle": "Hiding keys ensures only the ones you frequently use are visible in Manage Keys while the others are readily available here."
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

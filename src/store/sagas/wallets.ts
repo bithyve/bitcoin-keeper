@@ -40,6 +40,7 @@ import {
   setTestCoinsReceived,
   walletGenerationFailed,
   setWhirlpoolCreated,
+  setSignerPolicyError,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -1187,56 +1188,53 @@ export const updateWalletSettingsWatcher = createWatcher(
 export function* updateSignerPolicyWorker({
   payload,
 }: {
-  payload: { signer; signingKey; updates; verificationToken };
+  payload: {
+    signer: Signer;
+    signingKey: VaultSigner;
+    updates: { restrictions?: SignerRestriction; exceptions?: SignerException };
+    verificationToken: number;
+  };
 }) {
   const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
   const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
-  const {
-    signer,
-    signingKey,
-    updates,
-    verificationToken,
-  }: {
-    signer: Signer;
-    signingKey: VaultSigner;
-    updates: {
-      restrictions?: SignerRestriction;
-      exceptions?: SignerException;
-    };
-    verificationToken;
-  } = payload;
-  const { updated } = yield call(
-    SigningServer.updatePolicy,
-    signingKey.xfp,
-    verificationToken,
-    updates
-  );
-  if (!updated) {
-    Alert.alert('Failed to update signer policy, try again.');
-    throw new Error('Failed to update the policy');
-  }
-
-  const { signers } = activeVault;
-  for (const current of signers) {
-    if (current.xfp === signingKey.xfp) {
-      const updatedSignerPolicy = {
-        ...signer.signerPolicy,
-        restrictions: updates.restrictions,
-        exceptions: updates.exceptions,
-      };
-
-      yield call(
-        dbManager.updateObjectByPrimaryId,
-        RealmSchema.Signer,
-        'masterFingerprint',
-        signer.masterFingerprint,
-        {
-          signerPolicy: updatedSignerPolicy,
-        }
-      );
-      break;
+  const { signer, signingKey, updates, verificationToken } = payload;
+  try {
+    const { updated } = yield call(
+      SigningServer.updatePolicy,
+      signingKey.xfp,
+      verificationToken,
+      updates
+    );
+    if (!updated) {
+      Alert.alert('Failed to update signer policy, try again.');
+      throw new Error('Failed to update the policy');
     }
+
+    const { signers } = activeVault;
+    for (const current of signers) {
+      if (current.xfp === signingKey.xfp) {
+        const updatedSignerPolicy = {
+          ...signer.signerPolicy,
+          restrictions: updates.restrictions,
+          exceptions: updates.exceptions,
+        };
+        yield put(setSignerPolicyError(false));
+
+        yield call(
+          dbManager.updateObjectByPrimaryId,
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signer.masterFingerprint,
+          {
+            signerPolicy: updatedSignerPolicy,
+          }
+        );
+        break;
+      }
+    }
+  } catch (err) {
+    yield put(setSignerPolicyError(true));
   }
 }
 
