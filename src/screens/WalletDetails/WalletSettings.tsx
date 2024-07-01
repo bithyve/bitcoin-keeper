@@ -13,7 +13,6 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
@@ -148,10 +147,6 @@ function WalletSettings({ route }) {
         )}
         {TestSatsComponent}
       </ScrollView>
-      <Box style={styles.fingerprint}>
-        <WalletFingerprint fingerprint={wallet.id} title={walletTranslation.walletFingerPrint} />
-      </Box>
-
       <KeeperModal
         visible={transferPolicyVisible}
         close={() => {
