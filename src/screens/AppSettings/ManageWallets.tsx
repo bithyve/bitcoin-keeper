@@ -11,6 +11,7 @@ import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enum
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import ShowIcon from 'src/assets/images/show.svg';
@@ -302,39 +303,49 @@ function ManageWallets() {
         subtitle={settings.ManageWalletsSub}
         rightComponent={<CurrencyTypeSwitch />}
       />
-      <FlatList
-        data={showAll ? [...visibleWallets, ...hiddenWallets] : [...visibleWallets]}
-        extraData={[visibleWallets, hiddenWallets]}
-        contentContainerStyle={styles.walletsContainer}
-        renderItem={({ item }) => (
-          <ListItem
-            icon={getWalletIcon(item)}
-            title={item.presentationData.name}
-            subtitle={item.presentationData.description}
-            balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
-            isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
-            visibilityToggle={() => {
-              setSelectedWallet(item);
-              if (item.presentationData.visibility === VisibilityType.HIDDEN) {
-                setPasswordMode(PasswordMode.DEFAULT);
-                setConfirmPassVisible(true);
-              } else {
-                updateWalletVisibility(item, true);
-              }
-            }}
-            onDelete={() => {
-              if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
-                setShowDeleteVaultBalanceAlert(true);
-              } else {
+      {!showAll && visibleWallets.length === 0 ? (
+        <Box style={styles.emptyWrapper}>
+          <Text style={styles.emptyText} semiBold>
+            {settings.ManageWalletsEmptyTitle}
+          </Text>
+          <Text style={styles.emptySubText}>{settings.ManageWalletsEmptySubtitle}</Text>
+          <EmptyState />
+        </Box>
+      ) : (
+        <FlatList
+          data={showAll ? [...visibleWallets, ...hiddenWallets] : [...visibleWallets]}
+          extraData={[visibleWallets, hiddenWallets]}
+          contentContainerStyle={styles.walletsContainer}
+          renderItem={({ item }) => (
+            <ListItem
+              icon={getWalletIcon(item)}
+              title={item.presentationData.name}
+              subtitle={item.presentationData.description}
+              balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
+              isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
+              visibilityToggle={() => {
                 setSelectedWallet(item);
-                setConfirmPasscodeVisible(true);
-              }
-            }}
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-      />
+                if (item.presentationData.visibility === VisibilityType.HIDDEN) {
+                  setPasswordMode(PasswordMode.DEFAULT);
+                  setConfirmPassVisible(true);
+                } else {
+                  updateWalletVisibility(item, true);
+                }
+              }}
+              onDelete={() => {
+                if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
+                  setShowDeleteVaultBalanceAlert(true);
+                } else {
+                  setSelectedWallet(item);
+                  setConfirmPasscodeVisible(true);
+                }
+              }}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
+        />
+      )}
 
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable
@@ -523,5 +534,18 @@ const styles = StyleSheet.create({
   unhideText: {
     fontSize: 13,
     width: wp(200),
+  },
+  emptyWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  emptyText: {
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    width: wp(250),
+    textAlign: 'center',
+    marginBottom: hp(30),
   },
 });
