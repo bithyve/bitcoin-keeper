@@ -11,6 +11,7 @@ import { Signer, VaultScheme, VaultSigner } from 'src/services/wallets/interface
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import useToastMessage from './useToastMessage';
 import useVault from './useVault';
 
@@ -68,7 +69,7 @@ const useConfigRecovery = () => {
       };
       dispatch(resetRealyVaultState());
       setRecoveryLoading(false);
-      showToast('Vault imported successfully!');
+      showToast('Vault imported successfully!', <TickIcon />);
       navigation.dispatch(CommonActions.reset(navigationState));
     }
     if (relayVaultError) {

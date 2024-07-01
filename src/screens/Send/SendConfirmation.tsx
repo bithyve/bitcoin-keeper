@@ -429,15 +429,22 @@ function SendSuccessfulContent({
           />
         </Box>
       </Box>
-      <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
+      <AmountDetails
+        title={walletTransactions.totalAmount}
+        satsAmount={`${getBalance(amount)} ${getSatUnit()}`}
+      />
       <AmountDetails
         title={walletTransactions.totalFees}
-        satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
       />
       <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
       <AmountDetails
         title={walletTransactions.total}
-        satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
         fontSize={17}
         fontWeight={'400'}
       />
@@ -483,6 +490,7 @@ function TransactionPriorityDetails({
   txFeeInfo,
   getBalance,
   getCurrencyIcon,
+  getSatUnit,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -515,7 +523,9 @@ function TransactionPriorityDetails({
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
                 <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
-                  {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+                  {`${getBalance(
+                    txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                  )} ${getSatUnit()}`}
                 </Text>
               </Box>
             </Box>
@@ -1111,6 +1121,7 @@ function SendConfirmation({ route }) {
               txFeeInfo={txFeeInfo}
               getBalance={getBalance}
               getCurrencyIcon={getCurrencyIcon}
+              getSatUnit={getSatUnit}
             />
           </TouchableOpacity>
         ) : null}
@@ -1127,14 +1138,20 @@ function SendConfirmation({ route }) {
         )}
         <AmountDetails
           title={walletTransactions.totalAmount}
-          satsAmount={isAutoTransferFlow ? getBalance(sourceWalletAmount) : getBalance(amount)}
+          satsAmount={
+            isAutoTransferFlow
+              ? `${getBalance(sourceWalletAmount)} ${getSatUnit()}`
+              : ` ${getBalance(amount)} ${getSatUnit()}`
+          }
         />
         <AmountDetails
           title={walletTransactions.totalFees}
           satsAmount={
             isAutoTransferFlow
-              ? getBalance(sendMaxFee)
-              : getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)
+              ? `${getBalance(sendMaxFee)} ${getSatUnit()}`
+              : `${getBalance(
+                  txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                )} ${getSatUnit()}`
           }
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
@@ -1142,13 +1159,13 @@ function SendConfirmation({ route }) {
           title={walletTransactions.total}
           satsAmount={
             isAutoTransferFlow
-              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
+              ? `${addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
                   satsEnabled ? 2 : 8
-                )
-              : addNumbers(
+                )} ${getSatUnit()}`
+              : `${addNumbers(
                   getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
                   getBalance(amount)
-                ).toFixed(satsEnabled ? 2 : 8)
+                ).toFixed(satsEnabled ? 2 : 8)} ${getSatUnit()}`
           }
           fontSize={17}
           fontWeight="400"

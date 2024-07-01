@@ -53,6 +53,9 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import useSignerMap from 'src/hooks/useSignerMap';
+import useSigners from 'src/hooks/useSigners';
+import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -69,7 +72,7 @@ function SendScreen({ route }) {
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
-
+  const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const network = WalletUtilities.getNetworkByType(sender.networkType);
   const { wallets } = useWallets({ getAll: true });
   const { allVaults } = useVault({ includeArchived: false });
@@ -79,11 +82,18 @@ function SendScreen({ route }) {
   const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
     (item) => item !== null
   );
-  const otherWallets = allWallets.filter((existingWallet) => existingWallet.id !== sender.id);
+  const otherWallets = allWallets.filter((existingWallet) => existingWallet?.id !== sender.id);
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
   const isSmallDevice = useIsSmallDevices();
+  const { signerMap } = useSignerMap();
+  const { signers: vaultKeys } = selectedItem || { signers: [] };
+  const { vaultSigners: keys } = useSigners(
+    selectedItem?.entityKind === EntityKind.VAULT ? selectedItem?.id : ''
+  );
+
+  const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -205,26 +215,44 @@ function SendScreen({ route }) {
     }
   };
 
-  const handleProceed = () => {
+  const handleProceed = (skipHealthCheck = false) => {
     if (selectedItem) {
-      if (sender.entityKind === EntityKind.VAULT) {
-        navigateToNext(
-          WalletOperations.getNextFreeAddress(selectedItem),
-          selectedItem.entityKind === EntityKind.VAULT
-            ? TransferType.VAULT_TO_VAULT
-            : TransferType.VAULT_TO_WALLET,
-          null,
-          selectedItem
-        );
-      } else {
-        navigateToNext(
-          WalletOperations.getNextFreeAddress(selectedItem),
-          selectedItem.entityKind === EntityKind.VAULT
-            ? TransferType.WALLET_TO_VAULT
-            : TransferType.WALLET_TO_WALLET,
-          null,
-          selectedItem
-        );
+      if (selectedItem.entityKind === EntityKind.VAULT) {
+        if (sender.entityKind === EntityKind.VAULT) {
+          navigateToNext(
+            WalletOperations.getNextFreeAddress(selectedItem),
+            TransferType.VAULT_TO_VAULT,
+            null,
+            selectedItem
+          );
+        } else if (sender.entityKind === EntityKind.WALLET) {
+          if (!skipHealthCheck && pendingHealthCheckCount >= selectedItem.scheme.m) {
+            setShowHealthCheckModal(true);
+          } else {
+            navigateToNext(
+              WalletOperations.getNextFreeAddress(selectedItem),
+              TransferType.VAULT_TO_WALLET,
+              null,
+              selectedItem
+            );
+          }
+        }
+      } else if (selectedItem.entityKind === EntityKind.WALLET) {
+        if (sender.entityKind === EntityKind.VAULT) {
+          navigateToNext(
+            WalletOperations.getNextFreeAddress(selectedItem),
+            TransferType.WALLET_TO_VAULT,
+            null,
+            selectedItem
+          );
+        } else if (sender.entityKind === EntityKind.WALLET) {
+          navigateToNext(
+            WalletOperations.getNextFreeAddress(selectedItem),
+            TransferType.WALLET_TO_WALLET,
+            null,
+            selectedItem
+          );
+        }
       }
     } else {
       showToast('Please select a wallet or vault');
@@ -333,7 +361,7 @@ function SendScreen({ route }) {
                   <FlatList
                     data={otherWallets}
                     renderItem={renderWallets}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item?.id}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     ListEmptyComponent={
@@ -369,6 +397,20 @@ function SendScreen({ route }) {
           />
         </Box>
       )}
+      <PendingHealthCheckModal
+        selectedItem={selectedItem}
+        vaultKeys={vaultKeys}
+        signerMap={signerMap}
+        keys={keys}
+        showHealthCheckModal={showHealthCheckModal}
+        setShowHealthCheckModal={setShowHealthCheckModal}
+        pendingHealthCheckCount={pendingHealthCheckCount}
+        setPendingHealthCheckCount={setPendingHealthCheckCount}
+        primaryButtonCallback={() => {
+          setShowHealthCheckModal(false);
+          handleProceed(true);
+        }}
+      />
     </ScreenWrapper>
   );
 }

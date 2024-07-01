@@ -42,6 +42,10 @@ import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc_black.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import PendingHealthCheckModal from './PendingHealthCheckModal';
+import useSignerMap from 'src/hooks/useSignerMap';
+import useSigners from 'src/hooks/useSigners';
+import { EntityKind } from 'src/services/wallets/enums';
 
 const { width } = Dimensions.get('window');
 
@@ -135,6 +139,15 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const [insightModal, setInsightModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { notification } = translations;
+  const { activeVault } = useVault({ getFirst: true });
+  const { signerMap } = useSignerMap();
+  const { signers: vaultKeys } = activeVault || { signers: [] };
+  const { vaultSigners: keys } = useSigners(
+    activeVault?.entityKind === EntityKind.VAULT ? activeVault?.id : ''
+  );
+  const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
+  const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
+
   const skipUaiHandler = (uai: UAI, action = false) => {
     dispatch(uaiActioned({ uaiId: uai.id, action }));
   };
@@ -211,16 +224,21 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               primary: {
                 text: 'Transfer',
                 cta: () => {
-                  setShowModal(false);
-                  activeVault
-                    ? navigtaion.navigate('SendConfirmation', {
-                        uaiSetActionFalse,
-                        walletId: uai.entityId,
-                        transferType: TransferType.WALLET_TO_VAULT,
-                        isAutoTransfer: true,
-                      })
-                    : showToast('No vaults found', <ToastErrorIcon />);
-                  skipUaiHandler(uai);
+                  if (pendingHealthCheckCount >= activeVault.scheme.m) {
+                    setShowModal(false);
+                    setShowHealthCheckModal(true);
+                  } else {
+                    setShowModal(false);
+                    activeVault
+                      ? navigtaion.navigate('SendConfirmation', {
+                          uaiSetActionFalse,
+                          walletId: uai.entityId,
+                          transferType: TransferType.WALLET_TO_VAULT,
+                          isAutoTransfer: true,
+                        })
+                      : showToast('No vaults found', <ToastErrorIcon />);
+                    skipUaiHandler(uai);
+                  }
                 },
               },
               secondary: {
@@ -477,6 +495,28 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             <Text style={styles.transferText}>{uaiConfig?.modalDetails?.body}</Text>
           )
         }
+      />
+      <PendingHealthCheckModal
+        selectedItem={activeVault}
+        vaultKeys={vaultKeys}
+        signerMap={signerMap}
+        keys={keys}
+        showHealthCheckModal={showHealthCheckModal}
+        setShowHealthCheckModal={setShowHealthCheckModal}
+        pendingHealthCheckCount={pendingHealthCheckCount}
+        setPendingHealthCheckCount={setPendingHealthCheckCount}
+        primaryButtonCallback={() => {
+          setShowHealthCheckModal(false);
+          if (activeVault) {
+            navigtaion.navigate('SendConfirmation', {
+              walletId: uai.entityId,
+              transferType: TransferType.WALLET_TO_VAULT,
+              isAutoTransfer: true,
+            });
+          } else {
+            showToast('No vaults found', <ToastErrorIcon />);
+          }
+        }}
       />
       <KeeperModal
         visible={insightModal}
