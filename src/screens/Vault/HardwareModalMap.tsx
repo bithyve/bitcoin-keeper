@@ -323,7 +323,6 @@ const getSignerContent = (
         ],
       };
     case SignerType.POLICY_SERVER:
-      console.log(keyGenerationMode, 'KeyGenerationMode');
       const subtitle =
         keyGenerationMode !== KeyGenerationMode.RECOVER
           ? 'The Signing Server will hold one of the keys of the Vault'
@@ -1407,7 +1406,7 @@ function HardwareModalMap({
       }
     } catch (err) {
       setInProgress(false);
-      Alert.alert(`${err}`);
+      showToast(`${err}`, <ToastErrorIcon />);
     }
   };
 
@@ -1437,7 +1436,45 @@ function HardwareModalMap({
       }
     } catch (err) {
       setInProgress(false);
-      Alert.alert(`${err}`);
+      showToast(`${err}`, <ToastErrorIcon />);
+    }
+  };
+
+  const recoverSigningServer = async (otp) => {
+    try {
+      setInProgress(true);
+
+      if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        vaultSigners,
+        SignerType.POLICY_SERVER
+      );
+      const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
+      if (response.xpub) {
+        const { signer: signingServerKey } = generateSignerFromMetaData({
+          xpub: response.xpub,
+          derivationPath: response.derivationPath,
+          masterFingerprint: response.masterFingerprint,
+          signerType: SignerType.POLICY_SERVER,
+          storageType: SignerStorage.WARM,
+          isMultisig: true,
+          xfp: response.id,
+          isBIP85: response.isBIP85,
+          signerPolicy: response.policy,
+        });
+        setInProgress(false);
+
+        dispatch(addSigningDevice([signingServerKey]));
+        showToast(
+          `${signingServerKey.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+      }
+    } catch (err) {
+      setInProgress(false);
+      showToast(`${err}`, <ToastErrorIcon />);
     }
   };
 
@@ -1491,7 +1528,7 @@ function HardwareModalMap({
                     mode === InteracationMode.VAULT_ADDITION &&
                     keyGenerationMode === KeyGenerationMode.RECOVER
                   ) {
-                    // TODO: Add recover flow @parsh
+                    recoverSigningServer(otp);
                     setSigningServerRecoverOTPModal(false);
                   } else {
                     if (mode === InteracationMode.IDENTIFICATION) {
@@ -1627,95 +1664,7 @@ function HardwareModalMap({
     }
   };
 
-  const handleInheritanceKey = () => {
-    if (mode === InteracationMode.HEALTH_CHECK) {
-      checkIKSHealth();
-    } else {
-      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
-        requestInheritanceKeyRecovery();
-      } else {
-        setupInheritanceKey();
-      }
-    }
-  };
-
-  const handleSigningServerKey = () => {
-    if (mode === InteracationMode.HEALTH_CHECK) {
-      setSigningServerHealthCheckOTPModal(true);
-    } else {
-      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
-        console.log('inside recover');
-        setSigningServerRecoverOTPModal(true);
-      } else {
-        navigateToSigningServerSetup();
-      }
-    }
-  };
-
-  // const requestInheritanceKeyRecovery = async () => {
-  //   if (mode === InteracationMode.IDENTIFICATION) {
-  //     try {
-  //       setInProgress(true);
-  //       if (vaultSigners.length <= 1)
-  //         throw new Error('Add two other devices first to do a health check');
-  //       const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  //       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-  //       const ids = vaultSigners.map((signer) => signer.xfp);
-  //       const response = await InheritanceKeyServer.findIKSSetup(ids, thresholdDescriptors);
-  //       note: findIKSSetup will only be able to provide the id in the setupInfo
-  //       if (response.setupInfo.id) {
-  //         const mapped = mapUnknownSigner({
-  //           masterFingerprint: response.setupInfo.masterFingerprint,
-  //           type: SignerType.POLICY_SERVER,
-  //           inheritanceKeyInfo: {
-  //             configuration: response.setupInfo.configuration, // not available
-  //             policy: response.setupInfo?.policy,              // not available
-  //           },
-  //         });
-  //         if (mapped) {
-  //           showToast(`IKS verified successfully`, <TickIcon />);
-  //         } else {
-  //           showToast(`Something Went Wrong!`, <ToastErrorIcon />);
-  //         }
-  //         setInProgress(false);
-  //       }
-  //     } catch (err) {
-  //       setInProgress(false);
-  //       Alert.alert(`${err}`);
-  //     }
-  //   } else {
-  //     try {
-  //       if (vaultSigners.length <= 1) throw new Error('Add two others devices first to recover');
-  //       const cosignersMapIds = generateCosignerMapIds(
-  //         signerMap,
-  //         vaultSigners,
-  //         SignerType.INHERITANCEKEY
-  //       );
-
-  //       const requestId = `request-${generateKey(10)}`;
-  //       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-
-  //       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
-  //         requestId,
-  //         cosignersMapIds[0],
-  //         thresholdDescriptors
-  //       );
-
-  //       showToast(
-  //         `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
-  //         <TickIcon />
-  //       );
-  //       dispatch(setInheritanceRequestId(requestId));
-  //       navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-  //     } catch (err) {
-  //       showToast(`${err}`, <ToastErrorIcon />);
-  //     }
-  //   }
-
-  //   close();
-  // };
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
-
   const requestInheritanceKeyRecovery = async () => {
     try {
       if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
@@ -1811,6 +1760,30 @@ function HardwareModalMap({
     } catch (err) {
       console.log({ err });
       showToast('Failed to add inheritance key', <TickIcon />);
+    }
+  };
+
+  const handleInheritanceKey = () => {
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      checkIKSHealth();
+    } else {
+      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
+        requestInheritanceKeyRecovery();
+      } else {
+        setupInheritanceKey();
+      }
+    }
+  };
+
+  const handleSigningServerKey = () => {
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      setSigningServerHealthCheckOTPModal(true);
+    } else {
+      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
+        setSigningServerRecoverOTPModal(true);
+      } else {
+        navigateToSigningServerSetup();
+      }
     }
   };
 
