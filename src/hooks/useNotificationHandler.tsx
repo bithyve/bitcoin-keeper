@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { Text, useColorMode } from 'native-base';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
@@ -15,8 +15,8 @@ const NotificationHandler = () => {
   const { showToast } = useToastMessage();
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
       setForegroundNotifcation(remoteMessage);
+      setShowNotifcationModal(true);
     });
 
     return unsubscribe;
@@ -24,8 +24,9 @@ const NotificationHandler = () => {
 
   const declineRequest = async () => {
     try {
-      setShowLoader(true);
-      if (foregroundNotifcation?.notification?.data?.reqId) {
+      const requestId = foregroundNotifcation?.data?.reqId;
+      if (requestId) {
+        setShowLoader(true);
         const res = await InheritanceKeyServer.declineInheritanceKeyRequest(
           foregroundNotifcation.notification.data.reqId
         );
@@ -37,6 +38,8 @@ const NotificationHandler = () => {
           setShowLoader(false);
           Alert.alert('Something went Wrong!');
         }
+      } else {
+        Alert.alert('Something went Wrong: Request ID missing');
       }
     } catch (err) {
       setShowLoader(false);
@@ -52,20 +55,31 @@ const NotificationHandler = () => {
         close={() => {
           setShowNotifcationModal(false);
         }}
-        showCloseIcon={false}
+        showCloseIcon={true}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         title={'Inheritance Key request'}
-        subTitle={foregroundNotifcation.notification.title}
+        subTitle={foregroundNotifcation?.notification?.title}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
         buttonText={'Decline'}
         buttonCallback={() => declineRequest()}
-        Content={() => <Text>{foregroundNotifcation.notification.body}</Text>}
+        Content={() => (
+          <Text style={styles.contentText}>{foregroundNotifcation?.notification?.body}</Text>
+        )}
       />
       <ActivityIndicatorView visible={showLoader} showLoader />
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  contentText: {
+    color: 'black',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    padding: 1,
+  },
+});
 
 export default NotificationHandler;
