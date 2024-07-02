@@ -514,6 +514,7 @@ function SignerAdvanceSettings({ route }: any) {
           isHealthcheck: true,
           signer,
           disableMockFlow: true,
+          isPSBT: true,
         },
       })
     );
