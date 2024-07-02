@@ -396,10 +396,10 @@ const getInheritanceKeyStatus = (
     };
   } else if (existingSigners.find((s) => s.type === SignerType.INHERITANCEKEY)) {
     return { message: `${getSignerNameFromType(type)} has been already added`, disabled: true };
-  } else if (type === SignerType.INHERITANCEKEY && (scheme.n < 5 || scheme.m < 3)) {
+  } else if (type === SignerType.INHERITANCEKEY && (scheme.n < 3 || scheme.m < 2)) {
     return {
       disabled: true,
-      message: 'Please create a vault with a minimum of 5 signers and 3 required signers',
+      message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
     };
   } else {
     return { message: '', disabled: false };
