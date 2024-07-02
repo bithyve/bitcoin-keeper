@@ -23,6 +23,11 @@ import idx from 'idx';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { numberToOrdinal } from 'src/utils/utilities';
 import moment from 'moment';
+import reverse from 'buffer-reverse';
+import * as bitcoinJS from 'bitcoinjs-lib';
+import ElectrumClient from 'src/services/electrum/client';
+import { captureError } from 'src/services/sentry';
+const base58check = require('base58check');
 import HWError from './HWErrorState';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
@@ -327,10 +332,6 @@ export const getDeviceStatus = (
             disabled: true,
           }
         : { message: '', disabled: false };
-    case SignerType.TREZOR:
-      return addSignerFlow || scheme?.n > 1
-        ? { disabled: true, message: 'Multi-key with Trezor is coming soon!' }
-        : { message: '', disabled: false };
     case SignerType.POLICY_SERVER:
       return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
     case SignerType.INHERITANCEKEY:
@@ -499,4 +500,38 @@ export const extractKeyFromDescriptor = (data) => {
     forSingleSig = true;
   }
   return { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig };
+};
+
+export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
+  try {
+    const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, {
+      network: WalletUtilities.getNetworkByType(config.NETWORK_TYPE),
+    });
+    const txids = psbt.txInputs.map((input) => {
+      const item = reverse(input.hash).toString('hex');
+      return item;
+    });
+    const prevTxs = await ElectrumClient.getTransactionsById(txids, true, 40, true);
+    psbt.txInputs.forEach((input, index) => {
+      psbt.updateInput(index, {
+        nonWitnessUtxo: Buffer.from(prevTxs[reverse(input.hash).toString('hex')].hex, 'hex'),
+      });
+    });
+
+    psbt.updateGlobal({
+      globalXpub: vault.signers.map((signer) => {
+        console.log(signer.xpub);
+        const extendedPubkey = base58check.decode(signer.xpub);
+        return {
+          extendedPubkey: Buffer.concat([extendedPubkey.prefix, extendedPubkey.data]),
+          masterFingerprint: Buffer.from(signer.masterFingerprint, 'hex'),
+          path: signer.derivationPath,
+        };
+      }),
+    });
+    return { serializedPSBT: psbt.toBase64() };
+  } catch (_) {
+    captureError(_);
+    return { serializedPSBT };
+  }
 };

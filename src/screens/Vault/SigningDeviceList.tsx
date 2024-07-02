@@ -148,11 +148,6 @@ function SigningDeviceList() {
             borderBottomRadius={last ? 10 : 0}
             style={styles.container}
           >
-            {type === SignerType.TREZOR && (
-              <Box style={styles.cardPillContainer}>
-                <CardPill heading="COMING SOON" backgroundColor={`${colorMode}.signerCardPill`} />
-              </Box>
-            )}
             {isOnL1L2 && type === SignerType.INHERITANCEKEY && (
               <Box style={styles.upgradeButtonContainer}>
                 <UpgradeSubscription
@@ -169,7 +164,6 @@ function SigningDeviceList() {
                 />
               </Box>
             )}
-
             <Box
               style={[
                 styles.walletMapContainer,

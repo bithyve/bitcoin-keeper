@@ -9,7 +9,7 @@ const bscript = require('bitcoinjs-lib/src/script');
 
 export const getLedgerDetailsFromChannel = (data, isMultisig) => {
   try {
-    const { multiSigPath, multiSigXpub, singleSigPath, singleSigXpub, xfp } = data;
+    const { multiSigPath, multiSigXpub, singleSigPath, singleSigXpub, mfp } = data;
     const xpubDetails: XpubDetailsType = {};
     xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
     xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
@@ -18,7 +18,7 @@ export const getLedgerDetailsFromChannel = (data, isMultisig) => {
     return {
       xpub,
       derivationPath,
-      masterFingerprint: xfp,
+      masterFingerprint: mfp,
       xpubDetails,
     };
   } catch (error) {
