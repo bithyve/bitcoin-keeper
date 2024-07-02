@@ -314,18 +314,40 @@ function SendingPriority({
   transactionPriority,
   setTransactionPriority,
   availableTransactionPriorities,
+  customFeePerByte,
   setVisibleCustomPriorityModal,
   getBalance,
   getSatUnit,
   networkType,
 }) {
   const { colorMode } = useColorMode();
+
   return (
     <Box>
       <Text style={styles.sendingPriorityText}>Select an option</Text>
       <Box style={styles.fdRow}>
         {availableTransactionPriorities?.map((priority) => {
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
+            // chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
+            if (priority === TxPriority.HIGH) {
+              if (
+                txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
+                txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
+              )
+                return;
+            } else if (priority === TxPriority.MEDIUM) {
+              if (
+                txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
+                txFeeInfo[TxPriority.LOW.toLowerCase()].amount
+              )
+                return;
+            }
+
+            const satvByte =
+              priority === TxPriority.CUSTOM
+                ? customFeePerByte
+                : averageTxFees[networkType]?.[priority]?.feePerByte;
+
             return (
               <TouchableOpacity
                 key={priority}
@@ -345,7 +367,7 @@ function SendingPriority({
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  subtitle={`${averageTxFees[networkType]?.[priority]?.feePerByte} sats/vbyte`}
+                  subtitle={`${satvByte} sats/vbyte`}
                   description={`≈${
                     txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
                   } mins`}
@@ -705,6 +727,7 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.crossTransfer
   );
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
+  const [customFeePerByte, setCustomFeePerByte] = useState('');
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
@@ -1275,6 +1298,7 @@ function SendConfirmation({ route }) {
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
             getSatUnit={getSatUnit}
+            customFeePerByte={customFeePerByte}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
               dispatch(customPrioritySendPhaseOneReset());
@@ -1340,9 +1364,12 @@ function SendConfirmation({ route }) {
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
-          buttonCallback={(setCustomTxPriority) => {
+          buttonCallback={(setCustomTxPriority, customFeePerByte) => {
             setVisibleCustomPriorityModal(false);
-            if (setCustomTxPriority) setTransactionPriority(TxPriority.CUSTOM);
+            if (setCustomTxPriority) {
+              setTransactionPriority(TxPriority.CUSTOM);
+              setCustomFeePerByte(customFeePerByte);
+            }
           }}
         />
       )}
