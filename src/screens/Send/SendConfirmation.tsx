@@ -331,19 +331,22 @@ function SendingPriority({
           if (isCachedTransaction) if (priority !== transactionPriority) return; // cached tx has priority locked in(the one set during creation of the cached tx)
 
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
-            // chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
-            if (priority === TxPriority.HIGH) {
-              if (
-                txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
-                txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
-              )
-                return;
-            } else if (priority === TxPriority.MEDIUM) {
-              if (
-                txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
-                txFeeInfo[TxPriority.LOW.toLowerCase()].amount
-              )
-                return;
+            if (!isCachedTransaction) {
+              // for fresh transactions: chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
+              // for cached transactions: only one priority exists(lock-in), hence we don't need to chip out anything
+              if (priority === TxPriority.HIGH) {
+                if (
+                  txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
+                )
+                  return;
+              } else if (priority === TxPriority.MEDIUM) {
+                if (
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.LOW.toLowerCase()].amount
+                )
+                  return;
+              }
             }
 
             const satvByte =
