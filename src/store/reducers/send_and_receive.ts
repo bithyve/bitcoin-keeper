@@ -40,6 +40,7 @@ export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
   serializedPSBTEnvelops?: SerializedPSBTEnvelop[];
   cachedTxid?: string;
+  cachedTxPriority?: TxPriority;
   txid?: string;
   err?: string;
 }
@@ -87,6 +88,7 @@ export interface SendAndReceiveState {
     isSuccessful: boolean;
     serializedPSBTEnvelops: SerializedPSBTEnvelop[];
     cachedTxid: string;
+    cachedTxPriority: TxPriority;
     txid: string | null;
   };
   sendPhaseThree: {
@@ -128,6 +130,7 @@ const initialState: SendAndReceiveState = {
     isSuccessful: false,
     serializedPSBTEnvelops: null,
     cachedTxid: null,
+    cachedTxPriority: null,
     txid: null,
   },
   sendPhaseThree: {
@@ -229,7 +232,8 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
-      const { successful, txid, serializedPSBTEnvelops, cachedTxid, err } = action.payload;
+      const { successful, txid, serializedPSBTEnvelops, cachedTxid, cachedTxPriority, err } =
+        action.payload;
       state.sendPhaseTwo = {
         inProgress: false,
         hasFailed: !successful,
@@ -237,6 +241,7 @@ const sendAndReceiveSlice = createSlice({
         isSuccessful: successful,
         serializedPSBTEnvelops: successful ? serializedPSBTEnvelops : null,
         cachedTxid: serializedPSBTEnvelops ? cachedTxid : null,
+        cachedTxPriority: serializedPSBTEnvelops ? cachedTxPriority : null,
         txid: successful ? txid : null,
       };
     },

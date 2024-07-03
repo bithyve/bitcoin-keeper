@@ -312,6 +312,7 @@ function SendingPriority({
   txFeeInfo,
   averageTxFees,
   transactionPriority,
+  isCachedTransaction,
   setTransactionPriority,
   availableTransactionPriorities,
   customFeePerByte,
@@ -327,6 +328,8 @@ function SendingPriority({
       <Text style={styles.sendingPriorityText}>Select an option</Text>
       <Box style={styles.fdRow}>
         {availableTransactionPriorities?.map((priority) => {
+          if (isCachedTransaction) if (priority !== transactionPriority) return; // cached tx has priority locked in(the one set during creation of the cached tx)
+
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
             // chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
             if (priority === TxPriority.HIGH) {
@@ -386,14 +389,16 @@ function SendingPriority({
           }
         })}
       </Box>
-      <Box style={styles.customPriorityCardContainer}>
-        <Text style={styles.customPriorityText}>or choose custom fee</Text>
-        <AddCard
-          cardStyles={styles.customPriorityCard}
-          name="Custom Priority"
-          callback={setVisibleCustomPriorityModal}
-        />
-      </Box>
+      {isCachedTransaction ? null : (
+        <Box style={styles.customPriorityCardContainer}>
+          <Text style={styles.customPriorityText}>or choose custom fee</Text>
+          <AddCard
+            cardStyles={styles.customPriorityCard}
+            name="Custom Priority"
+            callback={setVisibleCustomPriorityModal}
+          />
+        </Box>
+      )}
     </Box>
   );
 }
@@ -726,7 +731,6 @@ function SendConfirmation({ route }) {
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const [customFeePerByte, setCustomFeePerByte] = useState('');
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item?.id === walletId);
@@ -766,11 +770,16 @@ function SendConfirmation({ route }) {
     txid: walletSendSuccessful,
     hasFailed: sendPhaseTwoFailed,
     cachedTxid, // generated for new transactions as well(in case they get cached)
+    cachedTxPriority,
   } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
   const cachedTxn = useAppSelector((state) => state.cachedTxn);
   const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
+
+  const [transactionPriority, setTransactionPriority] = useState(
+    isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
+  );
 
   const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -1294,6 +1303,7 @@ function SendConfirmation({ route }) {
             averageTxFees={averageTxFees}
             networkType={sender?.networkType || sourceWallet?.networkType}
             transactionPriority={transactionPriority}
+            isCachedTransaction={isCachedTransaction}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
