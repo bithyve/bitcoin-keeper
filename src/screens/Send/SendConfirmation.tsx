@@ -322,12 +322,16 @@ function SendingPriority({
   networkType,
 }) {
   const { colorMode } = useColorMode();
+  const reorderedPriorities = [
+    ...availableTransactionPriorities.filter((priority) => priority === TxPriority.CUSTOM),
+    ...availableTransactionPriorities.filter((priority) => priority !== TxPriority.CUSTOM),
+  ];
 
   return (
     <Box>
       <Text style={styles.sendingPriorityText}>Select an option</Text>
-      <Box style={styles.fdRow}>
-        {availableTransactionPriorities?.map((priority) => {
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.fdRow}>
+        {reorderedPriorities?.map((priority) => {
           if (isCachedTransaction) if (priority !== transactionPriority) return; // cached tx has priority locked in(the one set during creation of the cached tx)
 
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
@@ -391,7 +395,7 @@ function SendingPriority({
             );
           }
         })}
-      </Box>
+      </ScrollView>
       {isCachedTransaction ? null : (
         <Box style={styles.customPriorityCardContainer}>
           <Text style={styles.customPriorityText}>or choose custom fee</Text>
