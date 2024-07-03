@@ -59,21 +59,22 @@ export const fetchNotificationsWatcher = createWatcher(
 export function* notficationsToUAI(messages) {
   for (const message of messages) {
     if (message.additionalInfo !== null && typeof message.additionalInfo === 'object') {
-      const { title, body, data } = message.additionalInfo;
+      const { reqId, type } = message.additionalInfo;
+      const { info, title } = message;
+
+      console.log(reqId, type, info, title);
       if (
-        data?.reqId !== null &&
-        [IKSType.IKS_REQUEST, IKSType.SIGN_TRANSACTION, IKSType.ONE_TIME_BACKUP].includes(
-          data?.type
-        )
+        reqId !== null &&
+        [IKSType.IKS_REQUEST, IKSType.SIGN_TRANSACTION, IKSType.ONE_TIME_BACKUP].includes(type)
       ) {
-        const uais = dbManager.getObjectByField(RealmSchema.UAI, data.reqId, 'entityId');
+        const uais = dbManager.getObjectByField(RealmSchema.UAI, reqId, 'entityId');
 
         if (!uais.length) {
           yield put(
             addToUaiStack({
-              uaiType: data.type,
-              entityId: data.reqId,
-              uaiDetails: { heading: title, body: body },
+              uaiType: type,
+              entityId: reqId,
+              uaiDetails: { heading: title, body: info },
             })
           );
         }
