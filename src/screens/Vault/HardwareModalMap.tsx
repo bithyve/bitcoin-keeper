@@ -236,7 +236,7 @@ const getSignerContent = (
       };
     case SignerType.KEYSTONE:
       const keystoneInstructions = isMultisig
-        ? 'Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n'
+        ? 'Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Native SegWit.\n'
         : 'Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
       return {
         type: SignerType.KEYSTONE,
