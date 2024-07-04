@@ -1,22 +1,25 @@
 import { Box } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import WatchOnlyIcon from 'src/assets/images/watch_only.svg';
 import ConfigurationIcon from 'src/assets/images/file.svg';
 import SignerIcon from 'src/assets/images/signer.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ImportWallets({ navigation }) {
+  const { translations } = useContext(LocalizationContext);
+  const { importWallet } = translations;
   return (
     <Box>
       <OptionCard
-        title="Watch Only"
-        description="Use external xPub"
+        title={importWallet.watchOnly}
+        description={importWallet.usingExternalZPub}
         LeftIcon={<WatchOnlyIcon />}
         callback={() => navigation.navigate('ImportWallet')}
       />
       <OptionCard
-        title="Wallet Configuration File"
-        description="Text in your Recovery Instructions"
+        title={importWallet.usingConfigFile}
+        description={importWallet.insertTextfromFile}
         LeftIcon={<ConfigurationIcon />}
         callback={() => navigation.navigate('VaultConfigurationCreation')}
       />

@@ -1,6 +1,7 @@
 const Colors = {
   // Light
   White: 'rgba(255,255,255,1)',
+  paleWhite: 'rgba(248, 255, 254, 1)',
   disabledGrey: 'rgba(248,242,234,1)',
   // Glass: 'rgba(255,255,255,2)',
   LightYellow: 'rgba(242,237,230,1)',

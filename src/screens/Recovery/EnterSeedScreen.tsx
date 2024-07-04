@@ -35,6 +35,7 @@ import Breadcrumbs from 'src/components/Breadcrumbs';
 import Dropdown from 'src/components/Dropdown';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 
 type seedWordItem = {
   id: number;
@@ -48,7 +49,7 @@ const SEED_WORDS_24 = '24 Seed Words';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const { seed } = translations;
+  const { seed, common } = translations;
 
   const {
     mode,
@@ -577,17 +578,32 @@ function EnterSeedScreen({ route, navigation }) {
             currentScreen={activePage + 1}
           />
           {isHealthCheck || isIdentification ? (
-            <Buttons primaryCallback={handleNext} primaryText="Next" />
+            <Buttons
+              primaryCallback={handleNext}
+              primaryText={common.next}
+              secondaryText={common.needHelp}
+              secondaryCallback={() => {
+                dispatch(goToConcierge([ConciergeTag.VAULT], 'sign-transaction-seed-key'));
+              }}
+            />
           ) : isSignTransaction ? (
             <Buttons
               primaryCallback={handleNext}
-              primaryText="Next"
+              primaryText={common.next}
+              secondaryText={common.needHelp}
+              secondaryCallback={() => {
+                dispatch(goToConcierge([ConciergeTag.VAULT], 'sign-transaction-seed-key'));
+              }}
               primaryLoading={recoveryLoading}
             />
           ) : (
             <Buttons
               primaryCallback={isImport ? onPressImportNewKey : onPressNextSeedReocvery}
-              primaryText="Next"
+              primaryText={common.next}
+              secondaryText={common.needHelp}
+              secondaryCallback={() => {
+                dispatch(goToConcierge([ConciergeTag.VAULT], 'sign-transaction-seed-key'));
+              }}
               primaryLoading={recoveryLoading}
             />
           )}

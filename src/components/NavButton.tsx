@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import LinkIcon from 'src/assets/images/link_black.svg';
+import LinkDarkIcon from 'src/assets/images/link-white.svg';
 import openLink from 'src/utils/OpenLink';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
@@ -21,14 +22,12 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
         <Box style={styles.headingWrapper}>
           {icon}
           <Box>
-            <Text color={`${colorMode}.textColor2`} style={styles.heading}>
+            <Text color={`${colorMode}.navButtonText`} style={styles.heading}>
               {heading}
             </Text>
           </Box>
         </Box>
-        <Box style={styles.link}>
-          <LinkIcon />
-        </Box>
+        <Box style={styles.link}>{colorMode === 'dark' ? <LinkDarkIcon /> : <LinkIcon />}</Box>
       </Box>
     </TouchableOpacity>
   );

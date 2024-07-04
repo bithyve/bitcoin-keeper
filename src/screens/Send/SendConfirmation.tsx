@@ -312,20 +312,52 @@ function SendingPriority({
   txFeeInfo,
   averageTxFees,
   transactionPriority,
+  isCachedTransaction,
   setTransactionPriority,
   availableTransactionPriorities,
+  customFeePerByte,
   setVisibleCustomPriorityModal,
   getBalance,
   getSatUnit,
   networkType,
 }) {
   const { colorMode } = useColorMode();
+  const reorderedPriorities = [
+    ...availableTransactionPriorities.filter((priority) => priority === TxPriority.CUSTOM),
+    ...availableTransactionPriorities.filter((priority) => priority !== TxPriority.CUSTOM),
+  ];
+
   return (
     <Box>
       <Text style={styles.sendingPriorityText}>Select an option</Text>
-      <Box style={styles.fdRow}>
-        {availableTransactionPriorities?.map((priority) => {
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.fdRow}>
+        {reorderedPriorities?.map((priority) => {
+          if (isCachedTransaction) if (priority !== transactionPriority) return; // cached tx has priority locked in(the one set during creation of the cached tx)
+
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
+            if (!isCachedTransaction) {
+              // for fresh transactions: chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
+              // for cached transactions: only one priority exists(lock-in), hence we don't need to chip out anything
+              if (priority === TxPriority.HIGH) {
+                if (
+                  txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
+                )
+                  return;
+              } else if (priority === TxPriority.MEDIUM) {
+                if (
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.LOW.toLowerCase()].amount
+                )
+                  return;
+              }
+            }
+
+            const satvByte =
+              priority === TxPriority.CUSTOM
+                ? customFeePerByte
+                : averageTxFees[networkType]?.[priority]?.feePerByte;
+
             return (
               <TouchableOpacity
                 key={priority}
@@ -345,7 +377,7 @@ function SendingPriority({
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  subtitle={`${averageTxFees[networkType]?.[priority]?.feePerByte} sats/vbyte`}
+                  subtitle={`${satvByte} sats/vbyte`}
                   description={`≈${
                     txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
                   } mins`}
@@ -363,15 +395,17 @@ function SendingPriority({
             );
           }
         })}
-      </Box>
-      <Box style={styles.customPriorityCardContainer}>
-        <Text style={styles.customPriorityText}>or choose custom fee</Text>
-        <AddCard
-          cardStyles={styles.customPriorityCard}
-          name="Custom Priority"
-          callback={setVisibleCustomPriorityModal}
-        />
-      </Box>
+      </ScrollView>
+      {isCachedTransaction ? null : (
+        <Box style={styles.customPriorityCardContainer}>
+          <Text style={styles.customPriorityText}>or choose custom fee</Text>
+          <AddCard
+            cardStyles={styles.customPriorityCard}
+            name="Custom Priority"
+            callback={setVisibleCustomPriorityModal}
+          />
+        </Box>
+      )}
     </Box>
   );
 }
@@ -429,15 +463,22 @@ function SendSuccessfulContent({
           />
         </Box>
       </Box>
-      <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
+      <AmountDetails
+        title={walletTransactions.totalAmount}
+        satsAmount={`${getBalance(amount)} ${getSatUnit()}`}
+      />
       <AmountDetails
         title={walletTransactions.totalFees}
-        satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
       />
       <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
       <AmountDetails
         title={walletTransactions.total}
-        satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
         fontSize={17}
         fontWeight={'400'}
       />
@@ -483,6 +524,7 @@ function TransactionPriorityDetails({
   txFeeInfo,
   getBalance,
   getCurrencyIcon,
+  getSatUnit,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -515,7 +557,9 @@ function TransactionPriorityDetails({
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
                 <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
-                  {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+                  {`${getBalance(
+                    txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                  )} ${getSatUnit()}`}
                 </Text>
               </Box>
             </Box>
@@ -694,7 +738,7 @@ function SendConfirmation({ route }) {
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
+  const [customFeePerByte, setCustomFeePerByte] = useState('');
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
@@ -733,11 +777,16 @@ function SendConfirmation({ route }) {
     txid: walletSendSuccessful,
     hasFailed: sendPhaseTwoFailed,
     cachedTxid, // generated for new transactions as well(in case they get cached)
+    cachedTxPriority,
   } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
   const cachedTxn = useAppSelector((state) => state.cachedTxn);
   const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
+
+  const [transactionPriority, setTransactionPriority] = useState(
+    isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
+  );
 
   const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -1111,6 +1160,7 @@ function SendConfirmation({ route }) {
               txFeeInfo={txFeeInfo}
               getBalance={getBalance}
               getCurrencyIcon={getCurrencyIcon}
+              getSatUnit={getSatUnit}
             />
           </TouchableOpacity>
         ) : null}
@@ -1127,14 +1177,20 @@ function SendConfirmation({ route }) {
         )}
         <AmountDetails
           title={walletTransactions.totalAmount}
-          satsAmount={isAutoTransferFlow ? getBalance(sourceWalletAmount) : getBalance(amount)}
+          satsAmount={
+            isAutoTransferFlow
+              ? `${getBalance(sourceWalletAmount)} ${getSatUnit()}`
+              : ` ${getBalance(amount)} ${getSatUnit()}`
+          }
         />
         <AmountDetails
           title={walletTransactions.totalFees}
           satsAmount={
             isAutoTransferFlow
-              ? getBalance(sendMaxFee)
-              : getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)
+              ? `${getBalance(sendMaxFee)} ${getSatUnit()}`
+              : `${getBalance(
+                  txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                )} ${getSatUnit()}`
           }
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
@@ -1142,13 +1198,13 @@ function SendConfirmation({ route }) {
           title={walletTransactions.total}
           satsAmount={
             isAutoTransferFlow
-              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
+              ? `${addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
                   satsEnabled ? 2 : 8
-                )
-              : addNumbers(
+                )} ${getSatUnit()}`
+              : `${addNumbers(
                   getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
                   getBalance(amount)
-                ).toFixed(satsEnabled ? 2 : 8)
+                ).toFixed(satsEnabled ? 2 : 8)} ${getSatUnit()}`
           }
           fontSize={17}
           fontWeight="400"
@@ -1254,10 +1310,12 @@ function SendConfirmation({ route }) {
             averageTxFees={averageTxFees}
             networkType={sender?.networkType || sourceWallet?.networkType}
             transactionPriority={transactionPriority}
+            isCachedTransaction={isCachedTransaction}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
             getSatUnit={getSatUnit}
+            customFeePerByte={customFeePerByte}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
               dispatch(customPrioritySendPhaseOneReset());
@@ -1323,9 +1381,12 @@ function SendConfirmation({ route }) {
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
-          buttonCallback={(setCustomTxPriority) => {
+          buttonCallback={(setCustomTxPriority, customFeePerByte) => {
             setVisibleCustomPriorityModal(false);
-            if (setCustomTxPriority) setTransactionPriority(TxPriority.CUSTOM);
+            if (setCustomTxPriority) {
+              setTransactionPriority(TxPriority.CUSTOM);
+              setCustomFeePerByte(customFeePerByte);
+            }
           }}
         />
       )}

@@ -41,7 +41,6 @@ function AdditionalSignerDetailsTemplate({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description={inheritancePlanning.additionalKeysCtaDescp}
             callback={() => {
               GenerateAdditionalKeyDetailsTemplate().then((res) => {
                 if (res) {

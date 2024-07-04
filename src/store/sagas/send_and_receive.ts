@@ -208,6 +208,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
             successful: true,
             serializedPSBTEnvelops,
             cachedTxid,
+            cachedTxPriority: txnPriority,
           })
         );
         break;

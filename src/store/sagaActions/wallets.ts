@@ -36,6 +36,7 @@ export const UPDATE_KEY_DETAILS = 'UPDATE_KEY_DETAILS';
 export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
 export const ADD_WHIRLPOOL_WALLETS_LOCAL = 'ADD_WHIRLPOOL_WALLETS_LOCAL';
 export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_PATH_PURPOSE_DETAILS';
+export const UPDATE_SIGNER_POLICY_ERROR = 'UPDATE_SIGNER_POLICY_ERROR';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -129,6 +130,11 @@ export const updateSignerPolicy = (
     updates,
     verificationToken,
   },
+});
+
+export const updateSignerPolicyError = (error) => ({
+  type: UPDATE_SIGNER_POLICY_ERROR,
+  payload: error,
 });
 
 export const resetTwoFA = (secondaryMnemonic) => ({
