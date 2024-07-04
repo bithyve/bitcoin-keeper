@@ -227,7 +227,6 @@ function Footer({
   amfSigners,
   invalidSS,
   invalidIKS,
-  trezorIncompatible,
   invalidMessage,
   areSignersValid,
   relayVaultUpdateLoading,
@@ -260,15 +259,6 @@ function Footer({
         </Box>
       );
     }
-    if (trezorIncompatible) {
-      const message =
-        'Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault';
-      notes.push(
-        <Box style={styles.noteContainer} testID="view_warning02" key={message}>
-          <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>
-      );
-    }
     if (!notes.length) {
       const message = 'You can easily change one or more signers after the vault is setup';
       notes.push(
@@ -294,7 +284,7 @@ function Footer({
       {!isCollaborativeFlow && renderNotes()}
       {!isCollaborativeFlow ? (
         <Buttons
-          primaryDisable={!!areSignersValid || !!trezorIncompatible}
+          primaryDisable={!!areSignersValid}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
           primaryCallback={() => setCreating(true)}
@@ -771,16 +761,6 @@ function AddSigningDevice() {
         }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
-  let trezorIncompatible = false;
-  if (scheme.n > 1) {
-    for (const mfp of selectedSigners.keys()) {
-      if (signerMap[mfp].type === SignerType.TREZOR) {
-        trezorIncompatible = true;
-        break;
-      }
-    }
-  }
-
   function VaultCreatedModalContent(vault: Vault) {
     const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
     return (
@@ -919,7 +899,6 @@ function AddSigningDevice() {
         amfSigners={amfSigners}
         invalidSS={invalidSS}
         invalidIKS={invalidIKS}
-        trezorIncompatible={trezorIncompatible}
         invalidMessage={invalidMessage}
         areSignersValid={areSignersValid}
         relayVaultUpdateLoading={relayVaultUpdateLoading}

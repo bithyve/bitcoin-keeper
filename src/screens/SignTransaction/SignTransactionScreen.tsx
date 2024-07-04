@@ -556,10 +556,6 @@ function SignTransactionScreen() {
         setKeeperModal(true);
         break;
       case SignerType.TREZOR:
-        if (defaultVault.isMultiSig) {
-          showToast('Signing with trezor for multisig transactions is coming soon!');
-          return;
-        }
         setTrezorModal(true);
         break;
       case SignerType.BITBOX02:
