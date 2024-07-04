@@ -624,7 +624,13 @@ export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT
 
 function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   if (!signers.length) return;
-
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
+    const updatedExisting = yield call(mergeSimilarKeysWorker, { payload: { signer } });
+    if (updatedExisting) {
+      return;
+    }
+  }
   try {
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     const filteredSigners = existingSigners.filter((s) => !s.archived);
@@ -1639,13 +1645,12 @@ export const refreshCanaryWalletsWatcher = createWatcher(
   REFRESH_CANARY_VAULT
 );
 
-function* mergeSimilarKeysWorker({ payload }) {
+function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
   try {
     const { signer } = payload;
     const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const similarSigners = signers.filter((s) => s.type === signer.type);
-    for (let i = 0; i < similarSigners.length; i++) {
-      const s = similarSigners[i];
+    for (let i = 0; i < signers.length; i++) {
+      const s = signers[i];
       const p2wpkh = idx(s, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
       const p2wsh = idx(s, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
       const signerp2wpkh = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
@@ -1655,15 +1660,37 @@ function* mergeSimilarKeysWorker({ payload }) {
         p2wsh === signerp2wsh &&
         s.masterFingerprint !== signer.masterFingerprint
       ) {
-        yield call(updateSignerDetailsWorker, {
-          payload: {
-            signer: s,
-            key: 'masterFingerprint',
-            value: signer.masterFingerprint,
-          },
-        });
+        yield call(
+          dbManager.updateObjectByPrimaryId,
+          RealmSchema.Signer,
+          'masterFingerprint',
+          s.masterFingerprint,
+          {
+            masterFingerprint: signer.masterFingerprint,
+          }
+        );
+        // get all keys that have the same masterFingerprint
+        const keys = yield call(
+          dbManager.getObjectByField,
+          RealmSchema.VaultSigner,
+          s.masterFingerprint,
+          'masterFingerprint'
+        );
+        for (let i = 0; i < keys.length; i++) {
+          yield call(
+            dbManager.updateObjectByPrimaryId,
+            RealmSchema.VaultSigner,
+            'xpub',
+            keys[i].xpub,
+            {
+              masterFingerprint: signer.masterFingerprint,
+            }
+          );
+        }
+        return true;
       }
     }
+    return false;
   } catch (err) {
     captureError(err);
   }
