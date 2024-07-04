@@ -60,7 +60,12 @@ import {
   getCosignerDetails,
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
+import {
+  encrypt,
+  generateEncryptionKey,
+  generateKey,
+  hash256,
+} from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/services/sentry';
 import ElectrumClient, {
@@ -1685,6 +1690,21 @@ function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
             {
               masterFingerprint: signer.masterFingerprint,
             }
+          );
+        }
+        const { primarySeed, id } = dbManager.getCollection(RealmSchema.KeeperApp)[0];
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+        const updated = yield call(Relay.migrateXfp, id, [
+          {
+            oldSignerId: s.masterFingerprint,
+            newSignerId: signer.masterFingerprint,
+            newSignerDetails: encrytedSigner,
+          },
+        ]);
+        if (updated) {
+          console.log(
+            `Signer ${s.masterFingerprint} has been merged with ${signer.masterFingerprint}`
           );
         }
         return true;
