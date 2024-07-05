@@ -65,7 +65,6 @@ type CardProps = {
   index: number;
   uai: any;
 };
-
 interface uaiDefinationInterface {
   heading: string;
   body: string;
@@ -272,8 +271,8 @@ function Card({ uai, index, totalLength }: CardProps) {
         };
       case uaiType.IKS_REQUEST:
         return {
-          heading: 'Inheritance Key request',
-          body: 'Take action on the pending IKS request ',
+          heading: uai.uaiDetails?.heading || 'Inheritance Key request',
+          body: uai.uaiDetails?.body || 'Take action on the pending IKS request ',
           btnConfig: {
             primary: {
               text: 'Continue',
@@ -284,19 +283,21 @@ function Card({ uai, index, totalLength }: CardProps) {
             secondary: skipBtnConfig(uai),
           },
           modalDetails: {
-            heading: 'Inheritance Key request',
-            subTitle: 'Please take action for the IKS ',
+            heading: uai.uaiDetails?.heading || 'Inheritance Key request',
+            subTitle: uai.uaiDetails?.body || 'Please take action on the pending IKS request ',
             body: 'There is a request by someone for accessing the Inheritance Key you have set up using this app',
             btnConfig: {
               primary: {
                 text: 'Decline',
-                cta: async (entityId) => {
+                cta: async () => {
                   try {
                     setmodalActionLoader(true);
-                    if (entityId) {
-                      const res = await InheritanceKeyServer.declineInheritanceKeyRequest(entityId);
+                    if (uai.entityId) {
+                      const res = await InheritanceKeyServer.declineInheritanceKeyRequest(
+                        uai.entityId
+                      );
                       if (res?.declined) {
-                        showToast('IKS declined');
+                        showToast('IKS request declined');
                         uaiSetActionFalse();
                         setShowModal(false);
                       } else {
