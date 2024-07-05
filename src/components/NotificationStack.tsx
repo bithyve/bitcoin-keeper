@@ -596,7 +596,7 @@ export default function NotificationStack() {
       activeIndex.value = withTiming(
         activeIndex.value + 1,
         {
-          duration: 400,
+          duration: 300,
           easing: Easing.inOut(Easing.ease),
         },
         (isFinished) => {
