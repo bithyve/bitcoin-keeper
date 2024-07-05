@@ -4,7 +4,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -181,7 +181,7 @@ function SignWithChannel() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Sign with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to sign with the device`}
+        subtitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to sign with this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />
