@@ -585,9 +585,7 @@ export default function NotificationStack() {
 
   const dispatchActionWithDelay = useCallback(
     (uaiId, action) => {
-      setTimeout(() => {
-        dispatch(uaiActioned({ uaiId, action }));
-      }, 300);
+      dispatch(uaiActioned({ uaiId, action }));
     },
     [dispatch]
   );
@@ -598,7 +596,7 @@ export default function NotificationStack() {
       activeIndex.value = withTiming(
         activeIndex.value + 1,
         {
-          duration: 250,
+          duration: 400,
           easing: Easing.inOut(Easing.ease),
         },
         (isFinished) => {
