@@ -133,7 +133,7 @@ const getSignerContent = (
         Illustration: <ColdCardSetupImage />,
         Instructions: [
           'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
-          'From here choose the account number and transfer over NFC',
+          'From here choose the account number and transfer over NFC or via file.',
         ],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
