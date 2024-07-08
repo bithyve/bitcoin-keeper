@@ -132,7 +132,7 @@ const getSignerContent = (
         type: SignerType.COLDCARD,
         Illustration: <ColdCardSetupImage />,
         Instructions: [
-          'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
+          'Export the zPub by going to Advanced/Tools > Export wallet > Generic JSON.',
           'From here choose the account number and transfer over NFC or via file.',
         ],
         title: coldcard.SetupTitle,
@@ -166,7 +166,7 @@ const getSignerContent = (
         ],
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the zPub by going to Settings > Zpub Export. Also to be sure that the wallet type and script type is set to ${
         isMultisig ? 'MultiSig' : 'SingleSig'
       } and Native Segwit in the options section.`;
       return {
@@ -236,8 +236,8 @@ const getSignerContent = (
       };
     case SignerType.KEYSTONE:
       const keystoneInstructions = isMultisig
-        ? 'Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Native SegWit.\n'
-        : 'Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
+        ? 'Make sure the BTC-only firmware is installed and export the zPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export ZPUB > Native SegWit.\n'
+        : 'Make sure the BTC-only firmware is installed and export the zPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
       return {
         type: SignerType.KEYSTONE,
         Illustration: <KeystoneSetupImage />,
@@ -279,7 +279,7 @@ const getSignerContent = (
         ],
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+      const passportInstructions = `Export the zPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
         isMultisig ? 'Multisig' : 'Singlesig'
       } > QR Code.\n`;
       return {
@@ -360,7 +360,7 @@ const getSignerContent = (
             ],
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+      const seedSignerInstructions = `Make sure the seed is loaded and export the zPub by going to Seeds > Select your master fingerprint > Export Zpub > ${
         isMultisig ? 'Multisig' : 'Singlesig'
       } > Native Segwit > Keeper.\n`;
       return {
@@ -381,7 +381,7 @@ const getSignerContent = (
         options: [],
       };
     case SignerType.SPECTER:
-      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
+      const specterInstructions = `Make sure the seed is loaded and export the zPub by going to Master Keys > ${
         isMultisig ? 'Multisig' : 'Singlesig'
       } > Native Segwit.\n`;
       return {
@@ -481,7 +481,7 @@ const getSignerContent = (
         Illustration: <OtherSDSetup />,
         Instructions: [
           'Provide the Signer details either by entering them or scanning',
-          'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
+          'The hardened part of the derivation path of the zpub has to be denoted with a “h” or “”. Please do not use any other character',
         ],
         title: 'Setting up Signer',
         subTitle: 'Keep your Signer ready before proceeding',
@@ -920,7 +920,7 @@ function HardwareModalMap({
           title: `${
             isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subTitle: 'Please upload or paste the file containing the xpub data',
+          subTitle: 'Please upload or paste the file containing the zpub data',
           mode,
           signerType: type,
           addSignerFlow,

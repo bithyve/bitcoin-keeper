@@ -65,7 +65,7 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
     <VStack>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
         {`\u2022 Please ${
-          mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
+          mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the zPub'
         } from the Keeper web interface`}
       </Text>
       <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>

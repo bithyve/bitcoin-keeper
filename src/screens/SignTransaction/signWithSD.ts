@@ -160,7 +160,7 @@ export const signTransactionWithSeedWords = async ({
       networkType,
       isMultisig ? EntityKind.VAULT : EntityKind.WALLET
     );
-    if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
+    if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; zpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
       inputs,

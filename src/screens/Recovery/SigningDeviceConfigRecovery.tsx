@@ -88,7 +88,7 @@ function PassportSetupContent() {
           }}
         >
           {
-            '\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n'
+            '\u2022 Export the zPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n'
           }
         </Text>
       </Box>

@@ -18,7 +18,7 @@ const config = {
   Illustration: <InheritanceKeyIllustration />,
   Instructions: [
     'Manually provide the signer details',
-    'The hardened part of the derivation path of the xpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
+    'The hardened part of the derivation path of the zpub has to be denoted with a " h " or " \' ". Please do not use any other charecter',
   ],
   title: 'Setting up the Inheritance Key',
   subTitle: 'Keep your signer ready before proceeding',

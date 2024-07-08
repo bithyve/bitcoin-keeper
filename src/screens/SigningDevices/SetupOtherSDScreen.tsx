@@ -41,7 +41,7 @@ function SetupOtherSDScreen({ route }) {
   const validateAndAddSigner = async () => {
     try {
       if (!xpub.match(/^([xyYzZtuUvV]pub[1-9A-HJ-NP-Za-km-z]{79,108})$/)) {
-        throw new Error('Please check the xPub format');
+        throw new Error('Please check the zPub format');
       }
       const { signer, key } = generateSignerFromMetaData({
         xpub,
@@ -259,7 +259,7 @@ function SetupOtherSDScreen({ route }) {
         subtitle="Manually provide the signer details"
       />
       <Box style={styles.flex}>
-        <KeeperTextInput placeholder="xPub" value={xpub} onChangeText={setXpub} testID="xPub" />
+        <KeeperTextInput placeholder="zPub" value={xpub} onChangeText={setXpub} testID="zPub" />
         <KeeperTextInput
           placeholder="Derivation path (m/84h/0h/0h)"
           value={derivationPath}
