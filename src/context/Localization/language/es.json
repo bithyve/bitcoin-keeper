@@ -1018,7 +1018,7 @@
     "masterKeyParagraph3": "Simply backing up or noting down the Master Recovery Key gives you access to all this data which is updated automatically.",
     "masterKeyNote": "Master Recovery Key also gives access to the app’s hot keys. Please secure the key properly.",
     "personalCloudTitle": "Personal Cloud Backup",
-    "personalCloudDescpMain": "Use your iCloud",
+    "personalCloudDescpMain": "Use your",
     "personalCloudParagph1": "Wallet configuration files for vaults can alternatively be stored on the users personal cloud. This ensures that the user has access to them even if they do not have the Keeper app.",
     "personalCloudParagph2": "These files are also encrypted with the Mater Recovery Key which needs to be backed up properly.",
     "personalCloudNotes": "This action needs to be performed regularly as configuration details change",
