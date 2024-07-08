@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
@@ -7,9 +7,10 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
+  SharedValue,
   interpolate,
   runOnJS,
-  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -64,6 +65,8 @@ type CardProps = {
   totalLength: number;
   index: number;
   uai: any;
+  activeIndex: SharedValue<number>;
+  skipUaiHandler: (uai: any, action?: boolean) => void;
 };
 interface uaiDefinationInterface {
   heading: string;
@@ -128,7 +131,7 @@ function ModalCard({ preTitle = '', title, subTitle = '', isVault = false, icon 
   );
 }
 
-function Card({ uai, index, totalLength }: CardProps) {
+const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: CardProps) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -146,40 +149,18 @@ function Card({ uai, index, totalLength }: CardProps) {
   );
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
-  const activeIndex = useSharedValue(0);
+  activeIndex.value = 0;
 
-  const skipUaiHandler = (uai, action = false) => {
-    activeIndex.value = withTiming(
-      activeIndex.value + 1,
-      {
-        duration: 400,
-      },
-      () => {
-        runOnJS(dispatchUaiActioned)(uai.id, action);
-      }
-    );
-  };
-
-  const dispatchUaiActioned = (uaiId, action) => {
-    dispatch(uaiActioned({ uaiId, action }));
-  };
-
-  const skipBtnConfig = (uai: any, action?: boolean) => {
-    return {
-      text: 'Skip',
-      cta: () => skipUaiHandler(uai, action),
-    };
-  };
-  const backupHistory = useQuery(RealmSchema.BackupHistory);
-
-  useAnimatedReaction(
-    () => activeIndex.value,
-    (newValue, oldValue) => {
-      if (newValue !== index && oldValue === index) {
-        activeIndex.value = withTiming(index + 1, { duration: 400 });
-      }
-    }
+  const skipBtnConfig = useCallback(
+    (uai: any, action?: boolean) => {
+      return {
+        text: 'Skip',
+        cta: () => skipUaiHandler(uai, action),
+      };
+    },
+    [skipUaiHandler]
   );
+  const backupHistory = useQuery(RealmSchema.BackupHistory);
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const { activeVault } = useVault({ getFirst: true });
@@ -431,7 +412,6 @@ function Card({ uai, index, totalLength }: CardProps) {
       ],
     };
   });
-
   const uaiSetActionFalse = () => {
     dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
@@ -444,7 +424,7 @@ function Card({ uai, index, totalLength }: CardProps) {
     entryAnimation.value = withTiming(1, {
       duration: 500 + index * 100,
     });
-  }, []);
+  }, [index]);
 
   const entryAnimatedStyle = useAnimatedStyle(() => {
     if (index >= 3) {
@@ -456,14 +436,16 @@ function Card({ uai, index, totalLength }: CardProps) {
         ? interpolate(entryAnimation.value, [0, 1], [0, 1])
         : interpolate(entryAnimation.value, [0, 1], [0, 1 - index * 0.3]);
 
+    const translateY = interpolate(entryAnimation.value, [0, 1], [layout.height, index * 10]);
+
     return {
       opacity: opacity,
       transform: [
         {
-          translateY: interpolate(entryAnimation.value, [0, 1], [layout.height, index * 10]),
+          translateY: translateY,
         },
         {
-          scale: interpolate(entryAnimation.value, [index - 1, index, index + 1], [0.94, 0.97, 1]),
+          scale: interpolate(entryAnimation.value, [index - 1, index, index + 1], [0.92, 0.96, 1]),
         },
       ],
     };
@@ -593,13 +575,41 @@ function Card({ uai, index, totalLength }: CardProps) {
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>
   );
-}
+});
 
 export default function NotificationStack() {
   const { colorMode } = useColorMode();
   const { uaiStack } = useUaiStack();
+  const activeIndex = useSharedValue(0);
+  const dispatch = useDispatch();
 
-  const removeCard = () => {};
+  const dispatchActionWithDelay = useCallback(
+    (uaiId, action) => {
+      dispatch(uaiActioned({ uaiId, action }));
+    },
+    [dispatch]
+  );
+
+  const skipUaiHandler = useCallback(
+    (uai, action = false) => {
+      'worklet';
+      activeIndex.value = withTiming(
+        activeIndex.value + 1,
+        {
+          duration: 300,
+          easing: Easing.inOut(Easing.ease),
+        },
+        (isFinished) => {
+          if (isFinished) {
+            runOnJS(dispatchActionWithDelay)(uai.id, action);
+          }
+        }
+      );
+    },
+    [dispatchActionWithDelay]
+  );
+
+  const removeCard = useCallback(() => {}, []);
 
   const flingUp = Gesture.Fling()
     .direction(Directions.UP)
@@ -616,7 +626,14 @@ export default function NotificationStack() {
           ) : (
             uaiStack.map((uai, index) => {
               return (
-                <Card uai={uai} key={uai.id} index={index} totalLength={uaiStack.length - 1} />
+                <Card
+                  uai={uai}
+                  key={uai.id}
+                  index={index}
+                  totalLength={uaiStack.length - 1}
+                  activeIndex={activeIndex}
+                  skipUaiHandler={skipUaiHandler}
+                />
               );
             })
           )}
