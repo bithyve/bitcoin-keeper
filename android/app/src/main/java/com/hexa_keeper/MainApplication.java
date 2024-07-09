@@ -61,6 +61,6 @@ public class MainApplication extends Application implements ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       DefaultNewArchitectureEntryPoint.load();
     }
-    io.hexawallet.keeper.ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    // io.hexawallet.keeper.ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }
 }
