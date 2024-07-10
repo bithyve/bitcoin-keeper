@@ -25,6 +25,8 @@ import { SignerType } from 'src/services/wallets/enums';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -93,6 +95,14 @@ function RegisterWithChannel() {
             vaultId: vault.id,
           })
         );
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+            },
+          ])
+        );
         navgation.goBack();
       } catch (error) {
         captureError(error);
@@ -119,6 +129,14 @@ function RegisterWithChannel() {
               vaultId: vault.id,
               registrationInfo: JSON.stringify({ registeredWallet: policy.policyHmac }),
             })
+          );
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+              },
+            ])
           );
           navgation.goBack();
       }
