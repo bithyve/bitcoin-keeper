@@ -128,6 +128,9 @@ function SignWithChannel() {
         if (signer.type === SignerType.TREZOR) {
           const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -135,13 +138,13 @@ function SignWithChannel() {
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
-          );
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         } else if (signer.type === SignerType.BITBOX02) {
           const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -149,13 +152,13 @@ function SignWithChannel() {
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
-          );
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         } else if (signer.type === SignerType.LEDGER) {
           const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -163,9 +166,6 @@ function SignWithChannel() {
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
-          );
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         }
       } catch (error) {
