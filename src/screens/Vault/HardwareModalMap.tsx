@@ -407,7 +407,7 @@ const getSignerContent = (
         Illustration: <BitboxImage />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with BitBox02.`,
-          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.',
+          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
@@ -419,7 +419,7 @@ const getSignerContent = (
         Illustration: <TrezorSetup />,
         Instructions: [
           `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Trezor.`,
-          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.',
+          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
         subTitle: trezor.SetupDescription,

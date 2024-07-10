@@ -131,7 +131,7 @@ function RegisterWithChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Register with Keeper Hardware Interface"
+        title="Register with Keeper Desktop App"
         subtitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to register this signer.`}
       />
       <Box style={styles.qrcontainer}>
