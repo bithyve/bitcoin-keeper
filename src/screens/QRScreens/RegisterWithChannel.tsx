@@ -45,7 +45,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
   ) : (
     <VStack>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'\u2022 Please resigter the vault from the Keeper web interface'}
+        {'\u2022 Please resigter the vault from the Keeper Desktop App'}
       </Text>
       <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
         {
