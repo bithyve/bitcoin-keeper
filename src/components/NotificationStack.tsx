@@ -488,7 +488,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         showCloseIcon={false}
         Content={() =>
           // temporary fix
-          uai.type === uaiType.VAULT_TRANSFER ? (
+          uai.uaiType === uaiType.VAULT_TRANSFER ? (
             <View>
               <Box style={styles.fdRow}>
                 <Box style={styles.sentFromContainer}>

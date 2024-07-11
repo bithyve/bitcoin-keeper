@@ -177,7 +177,7 @@ function NodeSettings() {
                 >
                   <Box backgroundColor={`${colorMode}.seashellWhite`} style={[styles.nodeList]}>
                     <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
-                      <Box style={{ width: '60%' }}>
+                      <Box style={{ width: '53%' }}>
                         <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.host}
                         </Text>
@@ -203,7 +203,7 @@ function NodeSettings() {
                         <Box
                           style={[
                             styles.actionArea,
-                            { width: 70, paddingTop: isConnected ? 4 : 5 },
+                            { width: 60, paddingTop: isConnected ? 4 : 5, marginRight: 8 },
                           ]}
                         >
                           {isConnected ? <DisconnectIcon /> : <ConnectIcon />}
@@ -335,14 +335,14 @@ const styles = StyleSheet.create({
   },
   nodeList: {
     flexDirection: 'row',
-    width: '99%',
+    width: '100%',
     marginBottom: 4,
     alignItems: 'center',
     borderRadius: 5,
+    paddingHorizontal: 10,
   },
   nodeButtons: {
     flexDirection: 'row',
-    width: '36%',
   },
   selectedItem: {
     borderRadius: 5,
@@ -367,14 +367,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   nodeTextHeader: {
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     fontSize: 11,
     letterSpacing: 0.6,
   },
   nodeTextValue: {
     fontSize: 12,
     letterSpacing: 1.56,
-    marginLeft: 20,
+    marginLeft: 10,
     paddingBottom: 2,
   },
   activityIndicator: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   portContainer: {
-    marginLeft: wp(-5),
+    // marginLeft: wp(-5),
   },
 });
 

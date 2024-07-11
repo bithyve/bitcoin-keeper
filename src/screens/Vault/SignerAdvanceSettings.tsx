@@ -173,7 +173,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const hideKey = () => {
     dispatch(updateSignerDetails(signer, 'hidden', true));
-    showToast('Keys hidden successfully', <TickIcon />);
+    showToast('Key hidden successfully', <TickIcon />);
     const popAction = StackActions.pop(2);
     navigation.dispatch(popAction);
   };
