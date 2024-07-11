@@ -120,6 +120,8 @@
     "coSigner": "cosigner",
     "added": "Added",
     "collaborativeWallet": "Collaborative Wallet",
+    "confirmPassCode": "Confirm Passcode",
+    "backupNow": "Backup Now",
     "dontShowAgain": "Don’t show me this message again",
     "for": "For"
   },
