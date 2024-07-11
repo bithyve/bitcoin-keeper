@@ -47,7 +47,12 @@ function SignerCard({
   boldDesc = false,
 }: SignerCardProps) {
   const backgroundColor =
-    colorVarient === 'brown' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.pantoneGreen`;
+    colorVarient === 'brown'
+      ? `${colorMode}.BrownNeedHelp`
+      : colorVarient === 'transparent'
+      ? 'transparent'
+      : `${colorMode}.pantoneGreen`;
+
   return (
     <Pressable
       disabled={disabled}
