@@ -1025,7 +1025,7 @@
     "personalCloudParagph2": "These files are also encrypted with the Mater Recovery Key which needs to be backed up properly.",
     "personalCloudNotes": "This action needs to be performed regularly as configuration details change",
     "personalCloudDescp": "Use your iCloud or Google Drive",
-    "walletConfigFilesTitle": "Wallet Configuration Files",
+    "walletConfigFilesTitle": "Wallets Configuration File",
     "walletConfigFilesDescpMain": "Download for all vaults",
     "walletConfigFilesBtnTitle": "View Wallet Configuration Files",
     "walletConfigFilesNote": "When there is a new vault or change in a vault the configuration file needs to be downloaded again.",
