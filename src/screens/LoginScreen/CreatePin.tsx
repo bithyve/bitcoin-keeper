@@ -180,16 +180,11 @@ export default function CreatePin(props) {
   }
 
   const handleShareAnalytics = (enable) => {
-    console.log(`Setting enableAnalytics to ${enable}`);
     dispatch(setIsInitialLogin(true));
     dispatch(setEnableAnalyticsLogin(enable));
     dispatch(storeCreds(passcode));
     setShareAnalyticsModal(false);
   };
-
-  useEffect(() => {
-    console.log('Analytics enabled in CreatePin:', analyticsEnabled);
-  }, [analyticsEnabled]);
 
   return (
     <Box
