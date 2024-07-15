@@ -64,10 +64,10 @@ const SelectWalletModal = ({
   onlyVaults,
   buttonCallback,
   secondaryCallback,
-  title = 'Select Wallet',
-  subTitle = 'Please select wallet',
-  buttonText = 'Proceed',
-  secondaryButtonText = 'Cancel',
+  title = 'Select vault for auto-transfer ',
+  subTitle = 'Please select vault to which you want to transfer your funds',
+  buttonText = 'Transfer',
+  secondaryButtonText = 'Skip',
 }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
