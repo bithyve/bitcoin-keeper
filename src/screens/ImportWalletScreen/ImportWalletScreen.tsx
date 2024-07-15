@@ -1,12 +1,12 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 import { useQuery } from '@realm/react';
 import { RNCamera } from 'react-native-camera';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -56,6 +56,16 @@ function ImportWalletScreen() {
   const { common, importWallet, wallet } = translations;
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
   const [introModal, setIntroModal] = useState(false);
+
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
 
   const handleChooseImage = () => {
     const options = {
@@ -125,14 +135,16 @@ function ImportWalletScreen() {
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
-              <RNCamera
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={(data) => {
-                  initiateWalletImport(data.data);
-                }}
-                notAuthorizedView={<CameraUnauthorized />}
-              />
+              {isFocused && (
+                <RNCamera
+                  style={styles.cameraView}
+                  captureAudio={false}
+                  onBarCodeRead={(data) => {
+                    initiateWalletImport(data.data);
+                  }}
+                  notAuthorizedView={<CameraUnauthorized />}
+                />
+              )}
             </Box>
             {/* Upload Image */}
 
