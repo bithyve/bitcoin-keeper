@@ -33,13 +33,13 @@ export type WalletsState = {
   walletSyncing: {};
   whirlpoolWalletCreated: boolean;
   walletPoolMap: any;
-  signerPolicyError?: boolean;
+  signerPolicyError?: string;
 };
 
 const initialState: WalletsState = {
   walletsSynched: false,
   netBalance: 0,
-  signerPolicyError: false,
+  signerPolicyError: 'idle',
   isGeneratingNewWallet: false,
   hasNewWalletsGenerationSucceeded: false,
   hasNewWalletsGenerationFailed: false,
@@ -142,7 +142,7 @@ const walletSlice = createSlice({
       const prev = state.walletPoolMap;
       state.walletPoolMap = { ...prev, [walletId]: pool };
     },
-    setSignerPolicyError: (state, action: PayloadAction<boolean>) => {
+    setSignerPolicyError: (state, action: PayloadAction<string>) => {
       state.signerPolicyError = action.payload;
     },
   },
