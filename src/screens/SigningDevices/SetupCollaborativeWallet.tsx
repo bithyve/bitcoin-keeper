@@ -326,20 +326,24 @@ function SetupCollaborativeWallet() {
         close={() => {
           dispatch(setCosginerModal(false));
         }}
+        DarkCloseIcon={colorMode === 'dark' ? true : false}
         title={wallet.AddCoSigner}
         subTitle={''}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={AddCoSignerContent}
         learnMore
-        learnMoreCallback={() =>
-          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'))
-        }
+        learnMoreCallback={() => {
+          dispatch(setCosginerModal(false));
+          dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'));
+        }}
         learnMoreTitle={common.needMoreHelp}
         buttonCallback={() => {
           dispatch(setCosginerModal(false));
         }}
         buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonText="Continue"
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       />
     </ScreenWrapper>
   );

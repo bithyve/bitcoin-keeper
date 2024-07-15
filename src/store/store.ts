@@ -65,8 +65,8 @@ const sagaMiddleware = createSagaMiddleware();
 const middlewars = [sagaMiddleware];
 
 if (__DEV__) {
-  const createDebugger = require('redux-flipper').default;
-  middlewars.push(createDebugger());
+  // const createDebugger = require('redux-flipper').default;
+  // middlewars.push(createDebugger());
 }
 
 export const store = configureStore({

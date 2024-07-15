@@ -1,6 +1,6 @@
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
+import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -303,26 +303,61 @@ function TextValue({ amt, getValueIcon, inverted = false }) {
         ...styles.priorityTableText,
       }}
     >
-      {amt} {getValueIcon() === 'sats' ? 'sats' : '$'}
+      {getValueIcon() === 'sats' ? `${amt} sats` : `$ ${amt}`}
     </Text>
   );
 }
 
 function SendingPriority({
   txFeeInfo,
+  averageTxFees,
   transactionPriority,
+  isCachedTransaction,
   setTransactionPriority,
   availableTransactionPriorities,
+  customFeePerByte,
   setVisibleCustomPriorityModal,
   getBalance,
   getSatUnit,
+  networkType,
 }) {
   const { colorMode } = useColorMode();
+  const reorderedPriorities = [
+    ...availableTransactionPriorities.filter((priority) => priority === TxPriority.CUSTOM),
+    ...availableTransactionPriorities.filter((priority) => priority !== TxPriority.CUSTOM),
+  ];
+
   return (
     <Box>
-      <Box style={styles.fdRow}>
-        {availableTransactionPriorities?.map((priority) => {
+      <Text style={styles.sendingPriorityText}>Select an option</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.fdRow}>
+        {reorderedPriorities?.map((priority) => {
+          if (isCachedTransaction) if (priority !== transactionPriority) return; // cached tx has priority locked in(the one set during creation of the cached tx)
+
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
+            if (!isCachedTransaction) {
+              // for fresh transactions: chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
+              // for cached transactions: only one priority exists(lock-in), hence we don't need to chip out anything
+              if (priority === TxPriority.HIGH) {
+                if (
+                  txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
+                )
+                  return;
+              } else if (priority === TxPriority.MEDIUM) {
+                if (
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.LOW.toLowerCase()].amount
+                )
+                  return;
+              }
+            }
+
+            const satvByte =
+              priority === TxPriority.CUSTOM
+                ? customFeePerByte
+                : averageTxFees[networkType]?.[priority]?.feePerByte;
+
             return (
               <TouchableOpacity
                 key={priority}
@@ -331,24 +366,28 @@ function SendingPriority({
                 }}
               >
                 <SignerCard
+                  isFeePriority
                   titleComp={
                     <TextValue
                       amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
                       getValueIcon={getSatUnit}
                     />
                   }
+                  icon={{}}
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  description={`~${
+                  subtitle={`${satvByte} sats/vbyte`}
+                  description={`≈${
                     txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
                   } mins`}
+                  boldDesc
                   numberOfLines={2}
                   onCardSelect={() => setTransactionPriority(priority)}
                   customStyle={{
-                    width: windowWidth / 3.4 - windowWidth * 0.05,
-                    height: 135,
+                    width: wp(96.5),
                     opacity: transactionPriority === priority ? 1 : 0.5,
+                    height: getSatUnit() === 'sats' ? 150 : 135,
                   }}
                   colorMode={colorMode}
                 />
@@ -356,12 +395,17 @@ function SendingPriority({
             );
           }
         })}
-      </Box>
-      <AddCard
-        cardStyles={styles.customPriorityCard}
-        name="Custom Priority"
-        callback={setVisibleCustomPriorityModal}
-      />
+      </ScrollView>
+      {isCachedTransaction ? null : (
+        <Box style={styles.customPriorityCardContainer}>
+          <Text style={styles.customPriorityText}>or choose custom fee</Text>
+          <AddCard
+            cardStyles={styles.customPriorityCard}
+            name="Custom Priority"
+            callback={setVisibleCustomPriorityModal}
+          />
+        </Box>
+      )}
     </Box>
   );
 }
@@ -419,15 +463,22 @@ function SendSuccessfulContent({
           />
         </Box>
       </Box>
-      <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
+      <AmountDetails
+        title={walletTransactions.totalAmount}
+        satsAmount={`${getBalance(amount)} ${getSatUnit()}`}
+      />
       <AmountDetails
         title={walletTransactions.totalFees}
-        satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
       />
       <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
       <AmountDetails
         title={walletTransactions.total}
-        satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
         fontSize={17}
         fontWeight={'400'}
       />
@@ -473,6 +524,7 @@ function TransactionPriorityDetails({
   txFeeInfo,
   getBalance,
   getCurrencyIcon,
+  getSatUnit,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -505,7 +557,9 @@ function TransactionPriorityDetails({
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
                 <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
-                  {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+                  {`${getBalance(
+                    txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                  )} ${getSatUnit()}`}
                 </Text>
               </Box>
             </Box>
@@ -553,42 +607,62 @@ function HighFeeAlert({
   transactionPriority,
   txFeeInfo,
   amountToSend,
-  getBalance,
   showFeesInsightModal,
   OneDayHistoricalFee,
+  isFeeHigh,
+  isUsualFeeHigh,
+  setTopText,
 }) {
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions } = translations;
+  const {
+    translations: { wallet: walletTransactions },
+  } = useContext(LocalizationContext);
 
-  const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
-  return (
+  const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()]?.amount;
+  const [bottomText, setBottomText] = useState('');
+
+  useEffect(() => {
+    const topText = isFeeHigh ? walletTransactions.highCustom : walletTransactions.highWait;
+    const bottomText = isFeeHigh
+      ? isUsualFeeHigh
+        ? walletTransactions.highWait
+        : walletTransactions.highUsual
+      : walletTransactions.lowFee;
+
+    setTopText(topText);
+    setBottomText(bottomText);
+  }, [isFeeHigh, isUsualFeeHigh, setTopText]);
+
+  const renderFeeDetails = () => (
+    <View style={styles.boxWrapper}>
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+        <CurrencyInfo
+          amount={selectedFee}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
+        />
+      </Box>
+      <View style={styles.divider} />
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+        <CurrencyInfo
+          amount={amountToSend}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
+        />
+      </Box>
+    </View>
+  );
+
+  const renderFeeStats = () => (
     <>
-      <View style={styles.boxWrapper}>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-          <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-          <CurrencyInfo
-            amount={selectedFee}
-            hideAmounts={false}
-            fontSize={16}
-            bold
-            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
-          />
-        </Box>
-        <View style={styles.divider} />
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-          <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-          <CurrencyInfo
-            amount={amountToSend}
-            hideAmounts={false}
-            fontSize={16}
-            bold
-            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
-          />
-        </Box>
-      </View>
       <Text style={styles.statsTitle}>Fee Stats</Text>
       {OneDayHistoricalFee.length > 0 && (
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
@@ -598,15 +672,41 @@ function HighFeeAlert({
           />
         </Box>
       )}
-      <Box width={'70%'}>
-        <Text style={styles.highFeeNote}>
-          If not urgent, you could consider waiting for the fees to reduce
-        </Text>
-      </Box>
+    </>
+  );
+
+  return (
+    <>
+      {isFeeHigh && isUsualFeeHigh ? (
+        <>
+          {renderFeeDetails()}
+          {renderFeeStats()}
+          <Box width={'70%'}>
+            <Text style={styles.highFeeNote}>{bottomText}</Text>
+          </Box>
+        </>
+      ) : isFeeHigh ? (
+        <>
+          {renderFeeDetails()}
+          {renderFeeStats()}
+          <Box width={'70%'}>
+            <Text style={styles.highFeeNote}>{bottomText}</Text>
+          </Box>
+        </>
+      ) : (
+        isUsualFeeHigh && (
+          <>
+            <Box style={styles.marginBottom}>{renderFeeStats()}</Box>
+            {renderFeeDetails()}
+            <Box width={'70%'}>
+              <Text style={styles.highFeeNote}>{bottomText}</Text>
+            </Box>
+          </>
+        )
+      )}
     </>
   );
 }
-
 function AddLabel() {
   return (
     <Box
@@ -680,10 +780,11 @@ function SendConfirmation({ route }) {
     transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
+  const [customFeePerByte, setCustomFeePerByte] = useState('');
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
@@ -722,16 +823,45 @@ function SendConfirmation({ route }) {
     txid: walletSendSuccessful,
     hasFailed: sendPhaseTwoFailed,
     cachedTxid, // generated for new transactions as well(in case they get cached)
+    cachedTxPriority,
   } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
   const cachedTxn = useAppSelector((state) => state.cachedTxn);
   const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
+  const [transactionPriority, setTransactionPriority] = useState(
+    isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
+  );
+  const [usualFee, setUsualFee] = useState(0);
+  const [topText, setTopText] = useState('');
+  const [isFeeHigh, setIsFeeHigh] = useState(false);
+  const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
 
   const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+
+  function checkUsualFee(data: any[]) {
+    if (data.length === 0) {
+      return;
+    }
+
+    const total = data.reduce((sum, record) => sum + record.avgFee_75, 0);
+    const historicalAverage = total / data.length;
+    const recentFee = data[data.length - 1].avgFee_75;
+
+    const difference = recentFee - historicalAverage;
+    const percentageDifference = (difference / historicalAverage) * 100;
+    setUsualFee(Math.abs(Number(percentageDifference.toFixed(2))));
+    setIsUsualFeeHigh(usualFee > 10);
+  }
+
+  useEffect(() => {
+    if (OneDayHistoricalFee.length > 0) {
+      checkUsualFee(OneDayHistoricalFee);
+    }
+  }, [OneDayHistoricalFee]);
 
   useEffect(() => {
     if (isAutoTransfer) {
@@ -759,8 +889,10 @@ function SendConfirmation({ route }) {
 
     setFeePercentage(Math.trunc((selectedFee / amount) * 100));
 
-    if (hasHighFee) setHighFeeAlertVisible(true);
-    else setHighFeeAlertVisible(false);
+    if (hasHighFee) {
+      setIsFeeHigh(true);
+      setHighFeeAlertVisible(true);
+    } else setHighFeeAlertVisible(false);
   }, [transactionPriority, amount]);
 
   const onTransferNow = () => {
@@ -1028,7 +1160,11 @@ function SendConfirmation({ route }) {
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
       />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {!isAutoTransferFlow ? (
           <>
             <SendingCard
@@ -1100,6 +1236,7 @@ function SendConfirmation({ route }) {
               txFeeInfo={txFeeInfo}
               getBalance={getBalance}
               getCurrencyIcon={getCurrencyIcon}
+              getSatUnit={getSatUnit}
             />
           </TouchableOpacity>
         ) : null}
@@ -1116,14 +1253,20 @@ function SendConfirmation({ route }) {
         )}
         <AmountDetails
           title={walletTransactions.totalAmount}
-          satsAmount={isAutoTransferFlow ? getBalance(sourceWalletAmount) : getBalance(amount)}
+          satsAmount={
+            isAutoTransferFlow
+              ? `${getBalance(sourceWalletAmount)} ${getSatUnit()}`
+              : ` ${getBalance(amount)} ${getSatUnit()}`
+          }
         />
         <AmountDetails
           title={walletTransactions.totalFees}
           satsAmount={
             isAutoTransferFlow
-              ? getBalance(sendMaxFee)
-              : getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)
+              ? `${getBalance(sendMaxFee)} ${getSatUnit()}`
+              : `${getBalance(
+                  txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                )} ${getSatUnit()}`
           }
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
@@ -1131,13 +1274,13 @@ function SendConfirmation({ route }) {
           title={walletTransactions.total}
           satsAmount={
             isAutoTransferFlow
-              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
+              ? `${addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
                   satsEnabled ? 2 : 8
-                )
-              : addNumbers(
+                )} ${getSatUnit()}`
+              : `${addNumbers(
                   getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
                   getBalance(amount)
-                ).toFixed(satsEnabled ? 2 : 8)
+                ).toFixed(satsEnabled ? 2 : 8)} ${getSatUnit()}`
           }
           fontSize={17}
           fontWeight="400"
@@ -1240,11 +1383,15 @@ function SendConfirmation({ route }) {
         Content={() => (
           <SendingPriority
             txFeeInfo={txFeeInfo}
+            averageTxFees={averageTxFees}
+            networkType={sender?.networkType || sourceWallet?.networkType}
             transactionPriority={transactionPriority}
+            isCachedTransaction={isCachedTransaction}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
             getSatUnit={getSatUnit}
+            customFeePerByte={customFeePerByte}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
               dispatch(customPrioritySendPhaseOneReset());
@@ -1260,7 +1407,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={'Network fee is higher than 10% of the amount being sent'}
+        subTitle={topText}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1281,6 +1428,9 @@ function SendConfirmation({ route }) {
             getBalance={getBalance}
             showFeesInsightModal={toogleFeesInsightModal}
             OneDayHistoricalFee={OneDayHistoricalFee}
+            isFeeHigh={isFeeHigh}
+            isUsualFeeHigh={isUsualFeeHigh}
+            setTopText={setTopText}
           />
         )}
       />
@@ -1310,9 +1460,12 @@ function SendConfirmation({ route }) {
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
-          buttonCallback={(setCustomTxPriority) => {
+          buttonCallback={(setCustomTxPriority, customFeePerByte) => {
             setVisibleCustomPriorityModal(false);
-            if (setCustomTxPriority) setTransactionPriority(TxPriority.CUSTOM);
+            if (setCustomTxPriority) {
+              setTransactionPriority(TxPriority.CUSTOM);
+              setCustomFeePerByte(customFeePerByte);
+            }
           }}
         />
       )}
@@ -1472,9 +1625,17 @@ const styles = StyleSheet.create({
   fdRow: {
     flexDirection: 'row',
   },
+  customPriorityCardContainer: {
+    marginTop: hp(50),
+    marginBottom: hp(20),
+  },
   customPriorityCard: {
     width: windowWidth / 3.4 - windowWidth * 0.05,
     marginTop: 5,
+  },
+  customPriorityText: {
+    fontSize: 15,
+    marginBottom: hp(5),
   },
   sentToContainer: {
     width: '50%',
@@ -1498,6 +1659,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginHorizontal: wp(25),
+  },
+  contentContainer: {
+    paddingBottom: hp(30),
   },
   sendSuccessfullNote: {
     marginTop: hp(5),
@@ -1553,5 +1717,17 @@ const styles = StyleSheet.create({
   },
   transferSentFromContainer: {
     width: '48%',
+  },
+  sendingPriorityText: {
+    fontSize: 15,
+    letterSpacing: 0.15,
+    marginBottom: hp(5),
+  },
+  satsStyle: {
+    height: hp(500),
+  },
+  dollarsStyle: {},
+  marginBottom: {
+    marginBottom: hp(20),
   },
 });

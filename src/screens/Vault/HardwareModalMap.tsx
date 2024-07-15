@@ -44,7 +44,7 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import {
   extractKeyFromDescriptor,
   generateSignerFromMetaData,
@@ -101,6 +101,9 @@ import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import SignerCard from '../AddSigner/SignerCard';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import NFC from 'src/services/nfc';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import BackupModalContent from '../AppSettings/BackupModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -122,7 +125,8 @@ const getSignerContent = (
   isCanaryAddition: boolean,
   isIdentification: boolean,
   colorMode: string,
-  isNfcSupported: boolean
+  isNfcSupported: boolean,
+  keyGenerationMode: KeyGenerationMode
 ) => {
   const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
@@ -132,7 +136,7 @@ const getSignerContent = (
         Illustration: <ColdCardSetupImage />,
         Instructions: [
           'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
-          'From here choose the account number and transfer over NFC',
+          'From here choose the account number and transfer over NFC or via file.',
         ],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
@@ -235,7 +239,7 @@ const getSignerContent = (
       };
     case SignerType.KEYSTONE:
       const keystoneInstructions = isMultisig
-        ? 'Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n'
+        ? 'Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Native SegWit.\n'
         : 'Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet';
       return {
         type: SignerType.KEYSTONE,
@@ -322,18 +326,41 @@ const getSignerContent = (
         ],
       };
     case SignerType.POLICY_SERVER:
+      const subtitle =
+        keyGenerationMode !== KeyGenerationMode.RECOVER
+          ? 'The Signing Server will hold one of the keys of the Vault'
+          : 'Recover an existing Signing Server using other signers from the Vault';
       return {
         type: SignerType.POLICY_SERVER,
         Illustration: <SigningServerIllustration />,
         Instructions: isHealthcheck
           ? ['A request to the signer will be made to checks its health']
+          : keyGenerationMode !== KeyGenerationMode.RECOVER
+          ? [
+              '2FA Authenticator will have to be set up to use this option',
+              'On providing a correct OTP from the authenticator app, the Signing Server will sign the transaction.',
+            ]
           : [
-              'A 2FA authenticator will have to be set up to use this option.',
-              'On providing the correct code from the auth app, the signer will sign the transaction.',
+              'At least 2 signers are required in order to identify and recover an existing Signing Server',
+              'OTP from the authenticator is also required along with the two signers to initiate Signing Server recovery.',
             ],
-        title: isHealthcheck ? 'Verify signer' : 'Setting up a signer',
-        subTitle: 'A signer will hold one of the keys of the vault',
-        options: [],
+        title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
+        subTitle: subtitle,
+        options: isHealthcheck
+          ? []
+          : [
+              {
+                title: 'Configure a New Key',
+                icon: <RecoverImage />,
+                callback: () => {},
+                name: KeyGenerationMode.NEW,
+              },
+              {
+                title: 'Recover Existing Key',
+                icon: <RecoverImage />,
+                name: KeyGenerationMode.RECOVER,
+              },
+            ],
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
@@ -382,8 +409,8 @@ const getSignerContent = (
         type: SignerType.BITBOX02,
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02. `,
-          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.',
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with BitBox02.`,
+          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
@@ -394,8 +421,8 @@ const getSignerContent = (
         type: SignerType.TREZOR,
         Illustration: <TrezorSetup />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor. `,
-          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.',
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Trezor.`,
+          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
         subTitle: trezor.SetupDescription,
@@ -406,7 +433,7 @@ const getSignerContent = (
         type: SignerType.LEDGER,
         Illustration: <LedgerImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Ledger. `,
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
         ],
         title: ledger.SetupTitle,
@@ -821,7 +848,11 @@ function HardwareModalMap({
   const isCanaryAddition = mode === InteracationMode.CANARY_ADDITION;
   const [otp, setOtp] = useState('');
   const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
+  const [signingServerRecoverOTPModal, setSigningServerRecoverOTPModal] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
+  const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
+  const data = useQuery(RealmSchema.BackupHistory);
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
@@ -968,7 +999,6 @@ function HardwareModalMap({
       }
     }
   };
-
   const navigateToSigningServerSetup = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -986,7 +1016,7 @@ function HardwareModalMap({
           title: `${
             isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
+          subtitle: `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect.`,
           type,
           signer,
           mode,
@@ -1093,6 +1123,15 @@ function HardwareModalMap({
         })
       );
     }
+  };
+
+  const navigateToRecoveryKeySetup = () => {
+    if (data.length === 0 && mode === InteracationMode.HEALTH_CHECK) {
+      setConfirmPassVisible(true);
+    } else {
+      return navigation.navigate('WalletBackHistory', { isUaiFlow: true });
+    }
+    close();
   };
 
   const onQRScan = async (qrData, resetQR) => {
@@ -1381,7 +1420,7 @@ function HardwareModalMap({
       }
     } catch (err) {
       setInProgress(false);
-      Alert.alert(`${err}`);
+      showToast(`${err}`, <ToastErrorIcon />);
     }
   };
 
@@ -1411,7 +1450,45 @@ function HardwareModalMap({
       }
     } catch (err) {
       setInProgress(false);
-      Alert.alert(`${err}`);
+      showToast(`${err}`, <ToastErrorIcon />);
+    }
+  };
+
+  const recoverSigningServer = async (otp) => {
+    try {
+      setInProgress(true);
+
+      if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(
+        signerMap,
+        vaultSigners,
+        SignerType.POLICY_SERVER
+      );
+      const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
+      if (response.xpub) {
+        const { signer: signingServerKey } = generateSignerFromMetaData({
+          xpub: response.xpub,
+          derivationPath: response.derivationPath,
+          masterFingerprint: response.masterFingerprint,
+          signerType: SignerType.POLICY_SERVER,
+          storageType: SignerStorage.WARM,
+          isMultisig: true,
+          xfp: response.id,
+          isBIP85: response.isBIP85,
+          signerPolicy: response.policy,
+        });
+        setInProgress(false);
+
+        dispatch(addSigningDevice([signingServerKey]));
+        showToast(
+          `${signingServerKey.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+      }
+    } catch (err) {
+      setInProgress(false);
+      showToast(`${err}`, <ToastErrorIcon />);
     }
   };
 
@@ -1461,9 +1538,18 @@ function HardwareModalMap({
                   if (mode === InteracationMode.HEALTH_CHECK) {
                     checkSigningServerHealth();
                     setSigningServerHealthCheckOTPModal(false);
+                  } else if (
+                    mode === InteracationMode.VAULT_ADDITION &&
+                    keyGenerationMode === KeyGenerationMode.RECOVER
+                  ) {
+                    recoverSigningServer(otp);
+                    setSigningServerRecoverOTPModal(false);
                   } else {
-                    if (mode === InteracationMode.IDENTIFICATION) findSigningServer(otp);
-                    else verifySigningServer(otp);
+                    if (mode === InteracationMode.IDENTIFICATION) {
+                      findSigningServer(otp);
+                    } else {
+                      verifySigningServer(otp);
+                    }
                   }
                 }}
                 value={common.confirm}
@@ -1592,82 +1678,7 @@ function HardwareModalMap({
     }
   };
 
-  const handleInheritanceKey = () => {
-    if (mode === InteracationMode.HEALTH_CHECK) {
-      checkIKSHealth();
-    } else {
-      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
-        requestInheritanceKeyRecovery();
-      } else {
-        setupInheritanceKey();
-      }
-    }
-  };
-
-  // const requestInheritanceKeyRecovery = async () => {
-  //   if (mode === InteracationMode.IDENTIFICATION) {
-  //     try {
-  //       setInProgress(true);
-  //       if (vaultSigners.length <= 1)
-  //         throw new Error('Add two other devices first to do a health check');
-  //       const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  //       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-  //       const ids = vaultSigners.map((signer) => signer.xfp);
-  //       const response = await InheritanceKeyServer.findIKSSetup(ids, thresholdDescriptors);
-  //       note: findIKSSetup will only be able to provide the id in the setupInfo
-  //       if (response.setupInfo.id) {
-  //         const mapped = mapUnknownSigner({
-  //           masterFingerprint: response.setupInfo.masterFingerprint,
-  //           type: SignerType.POLICY_SERVER,
-  //           inheritanceKeyInfo: {
-  //             configuration: response.setupInfo.configuration, // not available
-  //             policy: response.setupInfo?.policy,              // not available
-  //           },
-  //         });
-  //         if (mapped) {
-  //           showToast(`IKS verified successfully`, <TickIcon />);
-  //         } else {
-  //           showToast(`Something Went Wrong!`, <ToastErrorIcon />);
-  //         }
-  //         setInProgress(false);
-  //       }
-  //     } catch (err) {
-  //       setInProgress(false);
-  //       Alert.alert(`${err}`);
-  //     }
-  //   } else {
-  //     try {
-  //       if (vaultSigners.length <= 1) throw new Error('Add two others devices first to recover');
-  //       const cosignersMapIds = generateCosignerMapIds(
-  //         signerMap,
-  //         vaultSigners,
-  //         SignerType.INHERITANCEKEY
-  //       );
-
-  //       const requestId = `request-${generateKey(10)}`;
-  //       const thresholdDescriptors = vaultSigners.map((signer) => signer.xfp);
-
-  //       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
-  //         requestId,
-  //         cosignersMapIds[0],
-  //         thresholdDescriptors
-  //       );
-
-  //       showToast(
-  //         `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
-  //         <TickIcon />
-  //       );
-  //       dispatch(setInheritanceRequestId(requestId));
-  //       navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-  //     } catch (err) {
-  //       showToast(`${err}`, <ToastErrorIcon />);
-  //     }
-  //   }
-
-  //   close();
-  // };
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
-
   const requestInheritanceKeyRecovery = async () => {
     try {
       if (vaultSigners.length <= 1) throw new Error('Add two other devices first to recover');
@@ -1766,6 +1777,30 @@ function HardwareModalMap({
     }
   };
 
+  const handleInheritanceKey = () => {
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      checkIKSHealth();
+    } else {
+      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
+        requestInheritanceKeyRecovery();
+      } else {
+        setupInheritanceKey();
+      }
+    }
+  };
+
+  const handleSigningServerKey = () => {
+    if (mode === InteracationMode.HEALTH_CHECK) {
+      setSigningServerHealthCheckOTPModal(true);
+    } else {
+      if (keyGenerationMode === KeyGenerationMode.RECOVER) {
+        setSigningServerRecoverOTPModal(true);
+      } else {
+        navigateToSigningServerSetup();
+      }
+    }
+  };
+
   const {
     Illustration,
     Instructions,
@@ -1783,14 +1818,15 @@ function HardwareModalMap({
     isCanaryAddition,
     isIdentification,
     colorMode,
-    isNfcSupported
+    isNfcSupported,
+    keyGenerationMode
   );
 
-  const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const onSelect = (option) => {
     switch (signerType) {
+      case SignerType.POLICY_SERVER:
       case SignerType.INHERITANCEKEY:
       case SignerType.KEEPER:
       case SignerType.SEED_WORDS:
@@ -1830,9 +1866,7 @@ function HardwareModalMap({
         }
         return navigateToColdCardSetup();
       case SignerType.POLICY_SERVER:
-        if (mode === InteracationMode.HEALTH_CHECK) {
-          return setSigningServerHealthCheckOTPModal(true);
-        } else return navigateToSigningServerSetup();
+        return handleSigningServerKey();
       case SignerType.MOBILE_KEY:
         return navigateToMobileKey(isMultisig);
       case SignerType.SEED_WORDS:
@@ -1843,7 +1877,7 @@ function HardwareModalMap({
         }
       case SignerType.MY_KEEPER:
         if (mode === InteracationMode.HEALTH_CHECK) {
-          return navigateToSeedWordSetup();
+          return navigateToRecoveryKeySetup();
         }
         return setConfirmPassVisible(true);
       case SignerType.BITBOX02:
@@ -1878,7 +1912,7 @@ function HardwareModalMap({
         close={close}
         title={title}
         subTitle={subTitle}
-        buttonText={SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
+        buttonText={signerType === SignerType.SEED_WORDS ? 'Next' : 'Proceed'}
         buttonTextColor={`${colorMode}.white`}
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
@@ -1887,12 +1921,16 @@ function HardwareModalMap({
         buttonBackground={`${colorMode}.greenButtonBackground`}
         Content={Content}
         secondaryButtonText={
-          isHealthcheck ? 'Skip' : type === SignerType.INHERITANCEKEY ? 'cancel' : null
+          isHealthcheck
+            ? 'Skip'
+            : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
+            ? 'cancel'
+            : null
         }
         secondaryCallback={
           isHealthcheck
             ? skipHealthCheckCallBack
-            : type === SignerType.INHERITANCEKEY
+            : type === SignerType.INHERITANCEKEY || type === SignerType.POLICY_SERVER
             ? close
             : null
         }
@@ -1913,7 +1951,14 @@ function HardwareModalMap({
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={generateMyAppKey}
+            onSuccess={() => {
+              if (type === SignerType.MY_KEEPER && mode === InteracationMode.HEALTH_CHECK) {
+                setConfirmPassVisible(false);
+                setBackupModalVisible(true);
+              } else {
+                generateMyAppKey();
+              }
+            }}
           />
         )}
       />
@@ -1948,27 +1993,59 @@ function HardwareModalMap({
             (mode === InteracationMode.RECOVERY || mode === InteracationMode.IDENTIFICATION)) ||
           (type === SignerType.POLICY_SERVER &&
             mode === InteracationMode.HEALTH_CHECK &&
-            signingServerHealthCheckOTPModal)
+            signingServerHealthCheckOTPModal) ||
+          (type === SignerType.POLICY_SERVER &&
+            mode === InteracationMode.VAULT_ADDITION &&
+            keyGenerationMode === KeyGenerationMode.RECOVER &&
+            signingServerRecoverOTPModal)
         }
         close={() => {
           if (type === SignerType.POLICY_SERVER && mode === InteracationMode.HEALTH_CHECK) {
             setSigningServerHealthCheckOTPModal(false);
+          } else {
+            setSigningServerRecoverOTPModal(false);
           }
           close();
         }}
         title={
           signingServerHealthCheckOTPModal
             ? 'Confirm OTP to perform health check'
-            : 'Confirm OTP to setup 2FA'
+            : keyGenerationMode !== KeyGenerationMode.RECOVER
+            ? 'Confirm OTP to setup 2FA'
+            : 'Confirm OTP to recover Signing Server'
         }
         subTitle={
           signingServerHealthCheckOTPModal
             ? 'To check health of the signer'
-            : 'To complete setting up the signer'
+            : keyGenerationMode !== KeyGenerationMode.RECOVER
+            ? 'To complete setting up the signer'
+            : 'To complete recovery of the signer'
         }
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={SigningServerOTPModal}
+      />
+      <KeeperModal
+        visible={backupModalVisible}
+        close={() => setBackupModalVisible(false)}
+        title="Backup Recovery Key"
+        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        subTitleWidth={wp(300)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText="Backup Now"
+        buttonCallback={() => {
+          setBackupModalVisible(false);
+          navigation.dispatch(
+            CommonActions.navigate('ExportSeed', {
+              seed: primaryMnemonic,
+              next: true,
+            })
+          );
+        }}
+        Content={BackupModalContent}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </>

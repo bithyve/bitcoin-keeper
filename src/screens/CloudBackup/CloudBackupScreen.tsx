@@ -19,11 +19,13 @@ import { backupBsmsOnCloud, bsmsCloudHealthCheck } from 'src/store/sagaActions/b
 import { setBackupLoading } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import BTCIllustration from 'src/assets/images/btc-illustration.svg';
 import useVault from 'src/hooks/useVault';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import EnterPasswordModal from './EnterPasswordModal';
+import { setBackupModal } from 'src/store/reducers/settings';
 
 function CloudBackupScreen() {
   const { colorMode } = useColorMode();
@@ -36,7 +38,8 @@ function CloudBackupScreen() {
   const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { allVaults } = useVault({});
-  const [showModal, setShowModal] = useState(false);
+  const backupModal = useAppSelector((state) => state.settings.backupModal);
+  const [showModal, setShowModal] = useState(backupModal);
 
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
 
@@ -58,9 +61,17 @@ function CloudBackupScreen() {
 
   function modalContent() {
     return (
-      <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
-        {strings.cloudBackupSubtitle}
-      </Text>
+      <Box>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
+          {strings.cloudBackupModalSubitle}
+        </Text>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.backupModalDesc}>
+          {strings.cloudBackupModalDesc}
+        </Text>
+        <Box style={styles.illustration}>
+          <BTCIllustration />
+        </Box>
+      </Box>
     );
   }
 
@@ -144,19 +155,33 @@ function CloudBackupScreen() {
         visible={showModal}
         close={() => {
           setShowModal(false);
+          if (setBackupModal) {
+            dispatch(setBackupModal(false));
+          }
         }}
-        title={strings.cloudBackup}
+        title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        DarkCloseIcon
+        DarkCloseIcon={colorMode === 'dark' ? true : false}
         learnMore
-        showCloseIcon={false}
-        learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'))}
+        showCloseIcon={true}
+        learnMoreCallback={() => {
+          setShowModal(false);
+          if (setBackupModal) {
+            dispatch(setBackupModal(false));
+          }
+          dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'));
+        }}
         buttonText={common.continue}
         Content={() => modalContent()}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={() => setShowModal(false)}
+        buttonCallback={() => {
+          setShowModal(false);
+          if (setBackupModal) {
+            dispatch(setBackupModal(false));
+          }
+        }}
       />
     </ScreenWrapper>
   );
@@ -184,7 +209,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.65,
     padding: 1,
-    marginBottom: 25,
+    marginBottom: 15,
     width: wp(295),
+  },
+  illustration: {
+    marginTop: 20,
+    alignSelf: 'center',
+    marginBottom: 40,
   },
 });

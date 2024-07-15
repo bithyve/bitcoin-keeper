@@ -4,7 +4,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -19,19 +19,16 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { getTxForTrezor } from 'src/hardware/trezor';
 import { captureError } from 'src/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
-import { getSignedSerializedPSBTForBitbox02, getTxForBitBox02 } from 'src/hardware/bitbox';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
-import { signWithLedgerChannel } from 'src/hardware/ledger';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
-import useToastMessage from 'src/hooks/useToastMessage';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import { getPsbtForHwi } from 'src/hardware';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 function ScanAndInstruct({ onBarCodeRead }) {
@@ -53,7 +50,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
   ) : (
     <VStack>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'\u2022 Please sign the transaction from the Keeper web interface'}
+        {'\u2022 Please sign the transaction from the Keeper Desktop App'}
       </Text>
       <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
         {
@@ -74,14 +71,12 @@ function SignWithChannel() {
   };
   const { signer } = useSignerFromKey(vaultKey);
   const { activeVault } = useVault({ vaultId });
-  const { isMultiSig: isMultisig } = activeVault;
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
+  const { serializedPSBT } = serializedPSBTEnvelops.filter(
     (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
-  const { showToast } = useToastMessage();
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
@@ -99,22 +94,15 @@ function SignWithChannel() {
 
   useEffect(() => {
     channel.on(BITBOX_SIGN, async ({ room }) => {
-      const data = await getTxForBitBox02(
-        serializedPSBT,
-        signingPayload,
-        vaultKey,
-        isMultisig,
-        activeVault,
-        signer
-      );
+      const data = await getPsbtForHwi(serializedPSBT, activeVault);
       channel.emit(BITBOX_SIGN, {
         data: createCipheriv(JSON.stringify(data), decryptionKey.current),
         room,
       });
     });
-    channel.on(TREZOR_SIGN, ({ room }) => {
+    channel.on(TREZOR_SIGN, async ({ room }) => {
       try {
-        const data = getTxForTrezor(serializedPSBT, signingPayload, vaultKey, activeVault);
+        const data = await getPsbtForHwi(serializedPSBT, activeVault);
         channel.emit(TREZOR_SIGN, {
           data: createCipheriv(JSON.stringify(data), decryptionKey.current),
           room,
@@ -123,25 +111,9 @@ function SignWithChannel() {
         captureError(err);
       }
     });
-    channel.on(LEDGER_SIGN, ({ room }) => {
+    channel.on(LEDGER_SIGN, async ({ room }) => {
       try {
-        const registerationInfo = vaultKey.registeredVaults.find(
-          (info) => info.vaultId === activeVault.id
-        )?.registrationInfo;
-        if (!registerationInfo) {
-          showToast('Please register the wallet before signing', null);
-          return;
-        }
-        const hmac = JSON.parse(registerationInfo)?.registeredWallet;
-        if (!hmac) {
-          showToast('Please register the wallet before signing', null);
-          return;
-        }
-        const data = {
-          serializedPSBT,
-          vault: activeVault,
-          registeredWallet: activeVault.isMultiSig ? hmac : undefined,
-        };
+        const data = await getPsbtForHwi(serializedPSBT, activeVault);
         channel.emit(LEDGER_SIGN, {
           data: createCipheriv(JSON.stringify(data), decryptionKey.current),
           room,
@@ -154,8 +126,11 @@ function SignWithChannel() {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
         if (signer.type === SignerType.TREZOR) {
-          const { serializedTx: txHex } = decrypted;
-          dispatch(updatePSBTEnvelops({ txHex, xfp: vaultKey.xfp }));
+          const { signedSerializedPSBT } = decrypted;
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -163,17 +138,13 @@ function SignWithChannel() {
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
-          );
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         } else if (signer.type === SignerType.BITBOX02) {
-          const { signedSerializedPSBT } = getSignedSerializedPSBTForBitbox02(
-            serializedPSBT,
-            decrypted,
-            signingPayload
-          );
+          const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -181,17 +152,13 @@ function SignWithChannel() {
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
-          );
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         } else if (signer.type === SignerType.LEDGER) {
-          const { signedSerializedPSBT } = signWithLedgerChannel(
-            serializedPSBT,
-            signingPayload,
-            decrypted
-          );
+          const { signedSerializedPSBT } = decrypted;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -199,9 +166,6 @@ function SignWithChannel() {
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
-          );
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
           );
         }
       } catch (error) {
@@ -216,8 +180,8 @@ function SignWithChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Sign with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to sign with the device`}
+        title="Sign with Keeper Desktop App"
+        subtitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to sign with this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />
