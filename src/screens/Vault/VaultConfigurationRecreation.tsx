@@ -157,7 +157,7 @@ function VaultConfigurationCreation() {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={importWallet.importAWallet}
+          title={importWallet.usingConfigFile}
           subtitle={importWallet.insertTextfromFile}
           learnMore
           learnTextColor={`${colorMode}.white`}
