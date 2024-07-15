@@ -227,7 +227,6 @@ function Footer({
   amfSigners,
   invalidSS,
   invalidIKS,
-  trezorIncompatible,
   invalidMessage,
   areSignersValid,
   relayVaultUpdateLoading,
@@ -260,15 +259,6 @@ function Footer({
         </Box>
       );
     }
-    if (trezorIncompatible) {
-      const message =
-        'Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault';
-      notes.push(
-        <Box style={styles.noteContainer} testID="view_warning02" key={message}>
-          <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>
-      );
-    }
     if (!notes.length) {
       const message = 'You can easily change one or more signers after the vault is setup';
       notes.push(
@@ -294,7 +284,7 @@ function Footer({
       {!isCollaborativeFlow && renderNotes()}
       {!isCollaborativeFlow ? (
         <Buttons
-          primaryDisable={!!areSignersValid || !!trezorIncompatible}
+          primaryDisable={!!areSignersValid}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
           primaryCallback={() => setCreating(true)}
@@ -334,19 +324,16 @@ function Signers({
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
+  const [showSSModal, setShowSSModal] = useState(false);
   const isMultisig = scheme.n !== 1;
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
   const close = () => setVisible(false);
+  const closeSSModal = () => setShowSSModal(false);
 
-  const navigateToSigningServerSetup = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ChoosePolicyNew',
-        params: { signer: undefined, addSignerFlow: false, vaultId: '' },
-      })
-    );
+  const setupSignigngServer = async () => {
+    setShowSSModal(true);
   };
 
   const setupInheritanceKey = async () => {
@@ -389,8 +376,9 @@ function Signers({
     if (!isInheritanceKeyShellCreated && !hasInheritanceKey && level >= AppSubscriptionLevel.L3)
       shellKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
 
-    return shellKeys;
-  }, []);
+    const addedSignersTypes = signers.map((signer) => signer.type);
+    return shellKeys.filter((shellSigner) => !addedSignersTypes.includes(shellSigner.type));
+  }, [signers]);
 
   const renderAssistedKeysShell = () => {
     return shellAssistedKeys.map((shellSigner) => {
@@ -399,7 +387,8 @@ function Signers({
         <SignerCard
           key={shellSigner.masterFingerprint}
           onCardSelect={() => {
-            showToast('Please add the key to a Vault in order to use it');
+            if (shellSigner.type === SignerType.POLICY_SERVER) setupSignigngServer();
+            else if (shellSigner.type === SignerType.INHERITANCEKEY) setupInheritanceKey();
           }}
           name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
           description="Setup required"
@@ -644,6 +633,17 @@ function Signers({
           vaultId={vaultId}
           vaultSigners={vaultKeys}
         />
+        <HardwareModalMap
+          visible={showSSModal}
+          close={closeSSModal}
+          type={SignerType.POLICY_SERVER}
+          mode={InteracationMode.VAULT_ADDITION}
+          isMultisig={isMultisig}
+          primaryMnemonic={primaryMnemonic}
+          addSignerFlow={false}
+          vaultId={vaultId}
+          vaultSigners={vaultKeys}
+        />
       </Box>
     </ScrollView>
   );
@@ -760,16 +760,6 @@ function AddSigningDevice() {
           isInheritance ? ' for Inheritance' : ''
         }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
-
-  let trezorIncompatible = false;
-  if (scheme.n > 1) {
-    for (const mfp of selectedSigners.keys()) {
-      if (signerMap[mfp].type === SignerType.TREZOR) {
-        trezorIncompatible = true;
-        break;
-      }
-    }
-  }
 
   function VaultCreatedModalContent(vault: Vault) {
     const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
@@ -909,7 +899,6 @@ function AddSigningDevice() {
         amfSigners={amfSigners}
         invalidSS={invalidSS}
         invalidIKS={invalidIKS}
-        trezorIncompatible={trezorIncompatible}
         invalidMessage={invalidMessage}
         areSignersValid={areSignersValid}
         relayVaultUpdateLoading={relayVaultUpdateLoading}

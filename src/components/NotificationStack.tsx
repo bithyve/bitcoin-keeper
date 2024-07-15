@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { Alert, Dimensions, StyleSheet, View } from 'react-native';
 import {
   Directions,
@@ -7,11 +7,13 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
   SharedValue,
   interpolate,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import { Box, useColorMode } from 'native-base';
 import { UAI, uaiType } from 'src/models/interfaces/Uai';
@@ -42,6 +44,10 @@ import Colors from 'src/theme/Colors';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc_black.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import PendingHealthCheckModal from './PendingHealthCheckModal';
+import useSignerMap from 'src/hooks/useSignerMap';
+import useSigners from 'src/hooks/useSigners';
+import { EntityKind } from 'src/services/wallets/enums';
 
 const { width } = Dimensions.get('window');
 
@@ -60,8 +66,8 @@ type CardProps = {
   index: number;
   uai: any;
   activeIndex: SharedValue<number>;
+  skipUaiHandler: (uai: any, action?: boolean) => void;
 };
-
 interface uaiDefinationInterface {
   heading: string;
   body: string;
@@ -125,7 +131,7 @@ function ModalCard({ preTitle = '', title, subTitle = '', isVault = false, icon 
   );
 }
 
-function Card({ uai, index, totalLength, activeIndex }: CardProps) {
+const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: CardProps) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -135,16 +141,25 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
   const [insightModal, setInsightModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { notification } = translations;
-  const skipUaiHandler = (uai: UAI, action = false) => {
-    dispatch(uaiActioned({ uaiId: uai.id, action }));
-  };
+  const { activeVault } = useVault({ getFirst: true });
+  const { signerMap } = useSignerMap();
+  const { signers: vaultKeys } = activeVault || { signers: [] };
+  const { vaultSigners: keys } = useSigners(
+    activeVault?.entityKind === EntityKind.VAULT ? activeVault?.id : ''
+  );
+  const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
+  const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
+  activeIndex.value = 0;
 
-  const skipBtnConfig = (uai: any, action?: boolean) => {
-    return {
-      text: 'Skip',
-      cta: () => skipUaiHandler(uai, action),
-    };
-  };
+  const skipBtnConfig = useCallback(
+    (uai: any, action?: boolean) => {
+      return {
+        text: 'Skip',
+        cta: () => skipUaiHandler(uai, action),
+      };
+    },
+    [skipUaiHandler]
+  );
   const backupHistory = useQuery(RealmSchema.BackupHistory);
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
@@ -211,16 +226,21 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
               primary: {
                 text: 'Transfer',
                 cta: () => {
-                  setShowModal(false);
-                  activeVault
-                    ? navigtaion.navigate('SendConfirmation', {
-                        uaiSetActionFalse,
-                        walletId: uai.entityId,
-                        transferType: TransferType.WALLET_TO_VAULT,
-                        isAutoTransfer: true,
-                      })
-                    : showToast('No vaults found', <ToastErrorIcon />);
-                  skipUaiHandler(uai);
+                  if (pendingHealthCheckCount >= activeVault.scheme.m) {
+                    setShowModal(false);
+                    setShowHealthCheckModal(true);
+                  } else {
+                    setShowModal(false);
+                    activeVault
+                      ? navigtaion.navigate('SendConfirmation', {
+                          uaiSetActionFalse,
+                          walletId: uai.entityId,
+                          transferType: TransferType.WALLET_TO_VAULT,
+                          isAutoTransfer: true,
+                        })
+                      : showToast('No vaults found', <ToastErrorIcon />);
+                    skipUaiHandler(uai);
+                  }
                 },
               },
               secondary: {
@@ -232,8 +252,8 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         };
       case uaiType.IKS_REQUEST:
         return {
-          heading: 'Inheritance Key request',
-          body: 'Take action on the pending IKS request ',
+          heading: uai.uaiDetails?.heading || 'Inheritance Key request',
+          body: uai.uaiDetails?.body || 'Take action on the pending IKS request ',
           btnConfig: {
             primary: {
               text: 'Continue',
@@ -244,19 +264,21 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
             secondary: skipBtnConfig(uai),
           },
           modalDetails: {
-            heading: 'Inheritance Key request',
-            subTitle: 'Please take action for the IKS ',
+            heading: uai.uaiDetails?.heading || 'Inheritance Key request',
+            subTitle: uai.uaiDetails?.body || 'Please take action on the pending IKS request ',
             body: 'There is a request by someone for accessing the Inheritance Key you have set up using this app',
             btnConfig: {
               primary: {
                 text: 'Decline',
-                cta: async (entityId) => {
+                cta: async () => {
                   try {
                     setmodalActionLoader(true);
-                    if (entityId) {
-                      const res = await InheritanceKeyServer.declineInheritanceKeyRequest(entityId);
+                    if (uai.entityId) {
+                      const res = await InheritanceKeyServer.declineInheritanceKeyRequest(
+                        uai.entityId
+                      );
                       if (res?.declined) {
-                        showToast('IKS declined');
+                        showToast('IKS request declined');
                         uaiSetActionFalse();
                         setShowModal(false);
                       } else {
@@ -374,14 +396,14 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       opacity: interpolate(
         activeIndex.value,
         [index - 1, index, index + 1],
-        [1 - 1 / maxVisibleItems, 1, 1]
+        [1 - 1 / maxVisibleItems, 1, 0]
       ),
       transform: [
         {
           translateY: interpolate(
             activeIndex.value,
             [index - 1, index, index + 1],
-            [layout.cardsGap, 0, layout.height + layout.cardsGap]
+            [layout.cardsGap, 0, -layout.height / 4]
           ),
         },
         {
@@ -390,16 +412,48 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       ],
     };
   });
-
   const uaiSetActionFalse = () => {
     dispatch(uaiActioned({ uaiId: uai.id, action: true }));
   };
 
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
+  const entryAnimation = useSharedValue(0);
+
+  useEffect(() => {
+    entryAnimation.value = withTiming(1, {
+      duration: 500 + index * 100,
+    });
+  }, [index]);
+
+  const entryAnimatedStyle = useAnimatedStyle(() => {
+    if (index >= 3) {
+      return {};
+    }
+
+    const opacity =
+      index === 0
+        ? interpolate(entryAnimation.value, [0, 1], [0, 1])
+        : interpolate(entryAnimation.value, [0, 1], [0, 1 - index * 0.3]);
+
+    const translateY = interpolate(entryAnimation.value, [0, 1], [layout.height, index * 10]);
+
+    return {
+      opacity: opacity,
+      transform: [
+        {
+          translateY: translateY,
+        },
+        {
+          scale: interpolate(entryAnimation.value, [index - 1, index, index + 1], [0.92, 0.96, 1]),
+        },
+      ],
+    };
+  });
+
   return (
     <>
-      <Animated.View testID={`view_${uai.uaiType}`} style={[animations]}>
+      <Animated.View testID={`view_${uai.uaiType}`} style={[animations, entryAnimatedStyle]}>
         {uai.uaiType === uaiType.DEFAULT ? (
           <UAIEmptyState />
         ) : uaiConfig ? (
@@ -434,7 +488,7 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
         showCloseIcon={false}
         Content={() =>
           // temporary fix
-          uai.type === uaiType.VAULT_TRANSFER ? (
+          uai.uaiType === uaiType.VAULT_TRANSFER ? (
             <View>
               <Box style={styles.fdRow}>
                 <Box style={styles.sentFromContainer}>
@@ -478,6 +532,28 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
           )
         }
       />
+      <PendingHealthCheckModal
+        selectedItem={activeVault}
+        vaultKeys={vaultKeys}
+        signerMap={signerMap}
+        keys={keys}
+        showHealthCheckModal={showHealthCheckModal}
+        setShowHealthCheckModal={setShowHealthCheckModal}
+        pendingHealthCheckCount={pendingHealthCheckCount}
+        setPendingHealthCheckCount={setPendingHealthCheckCount}
+        primaryButtonCallback={() => {
+          setShowHealthCheckModal(false);
+          if (activeVault) {
+            navigtaion.navigate('SendConfirmation', {
+              walletId: uai.entityId,
+              transferType: TransferType.WALLET_TO_VAULT,
+              isAutoTransfer: true,
+            });
+          } else {
+            showToast('No vaults found', <ToastErrorIcon />);
+          }
+        }}
+      />
       <KeeperModal
         visible={insightModal}
         close={() => {
@@ -499,14 +575,41 @@ function Card({ uai, index, totalLength, activeIndex }: CardProps) {
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>
   );
-}
+});
 
 export default function NotificationStack() {
   const { colorMode } = useColorMode();
-  const activeIndex = useSharedValue(0);
   const { uaiStack } = useUaiStack();
+  const activeIndex = useSharedValue(0);
+  const dispatch = useDispatch();
 
-  const removeCard = () => {};
+  const dispatchActionWithDelay = useCallback(
+    (uaiId, action) => {
+      dispatch(uaiActioned({ uaiId, action }));
+    },
+    [dispatch]
+  );
+
+  const skipUaiHandler = useCallback(
+    (uai, action = false) => {
+      'worklet';
+      activeIndex.value = withTiming(
+        activeIndex.value + 1,
+        {
+          duration: 300,
+          easing: Easing.inOut(Easing.ease),
+        },
+        (isFinished) => {
+          if (isFinished) {
+            runOnJS(dispatchActionWithDelay)(uai.id, action);
+          }
+        }
+      );
+    },
+    [dispatchActionWithDelay]
+  );
+
+  const removeCard = useCallback(() => {}, []);
 
   const flingUp = Gesture.Fling()
     .direction(Directions.UP)
@@ -529,6 +632,7 @@ export default function NotificationStack() {
                   index={index}
                   totalLength={uaiStack.length - 1}
                   activeIndex={activeIndex}
+                  skipUaiHandler={skipUaiHandler}
                 />
               );
             })

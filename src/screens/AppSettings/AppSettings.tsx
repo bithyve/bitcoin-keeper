@@ -11,16 +11,17 @@ import SettingsIcon from 'src/assets/images/settings_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CloudIcon from 'src/assets/images/cloud-white.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
+import TwitterDark from 'src/assets/images/Twitter-white.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
+import TelegramDark from 'src/assets/images/Telegram-white.svg';
+
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
-import {
-  KEEPER_WEBSITE_BASE_URL,
-} from 'src/utils/service-utilities/config';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import ActionCard from 'src/components/ActionCard';
 import NavButton from 'src/components/NavButton';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
@@ -176,12 +177,12 @@ function AppSettings({ navigation, route }) {
       <Box backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.bottomNav}>
           <NavButton
-            icon={<Telegram />}
+            icon={colorMode === 'dark' ? <TelegramDark /> : <Telegram />}
             heading="Keeper Telegram"
             link="https://telegram.me/bitcoinkeeper"
           />
           <NavButton
-            icon={<Twitter />}
+            icon={colorMode === 'dark' ? <TwitterDark /> : <Twitter />}
             heading="Keeper X"
             link="https://twitter.com/bitcoinKeeper_"
           />

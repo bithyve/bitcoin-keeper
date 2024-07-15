@@ -40,6 +40,7 @@ import {
   setTestCoinsReceived,
   walletGenerationFailed,
   setWhirlpoolCreated,
+  setSignerPolicyError,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -59,7 +60,12 @@ import {
   getCosignerDetails,
 } from 'src/services/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { generateKey, hash256 } from 'src/utils/service-utilities/encryption';
+import {
+  encrypt,
+  generateEncryptionKey,
+  generateKey,
+  hash256,
+} from 'src/utils/service-utilities/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/services/sentry';
 import ElectrumClient, {
@@ -107,6 +113,7 @@ import {
   ARCHIVE_SIGINING_DEVICE,
   DELETE_VAULT,
   FINALISE_VAULT_MIGRATION,
+  MERGER_SIMILAR_KEYS,
   MIGRATE_VAULT,
   REFILL_MOBILEKEY,
   REFRESH_CANARY_VAULT,
@@ -622,7 +629,13 @@ export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT
 
 function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   if (!signers.length) return;
-
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
+    const updatedExisting = yield call(mergeSimilarKeysWorker, { payload: { signer } });
+    if (updatedExisting) {
+      return;
+    }
+  }
   try {
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     const filteredSigners = existingSigners.filter((s) => !s.archived);
@@ -1187,56 +1200,53 @@ export const updateWalletSettingsWatcher = createWatcher(
 export function* updateSignerPolicyWorker({
   payload,
 }: {
-  payload: { signer; signingKey; updates; verificationToken };
+  payload: {
+    signer: Signer;
+    signingKey: VaultSigner;
+    updates: { restrictions?: SignerRestriction; exceptions?: SignerException };
+    verificationToken: number;
+  };
 }) {
   const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
   const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
-  const {
-    signer,
-    signingKey,
-    updates,
-    verificationToken,
-  }: {
-    signer: Signer;
-    signingKey: VaultSigner;
-    updates: {
-      restrictions?: SignerRestriction;
-      exceptions?: SignerException;
-    };
-    verificationToken;
-  } = payload;
-  const { updated } = yield call(
-    SigningServer.updatePolicy,
-    signingKey.xfp,
-    verificationToken,
-    updates
-  );
-  if (!updated) {
-    Alert.alert('Failed to update signer policy, try again.');
-    throw new Error('Failed to update the policy');
-  }
-
-  const { signers } = activeVault;
-  for (const current of signers) {
-    if (current.xfp === signingKey.xfp) {
-      const updatedSignerPolicy = {
-        ...signer.signerPolicy,
-        restrictions: updates.restrictions,
-        exceptions: updates.exceptions,
-      };
-
-      yield call(
-        dbManager.updateObjectByPrimaryId,
-        RealmSchema.Signer,
-        'masterFingerprint',
-        signer.masterFingerprint,
-        {
-          signerPolicy: updatedSignerPolicy,
-        }
-      );
-      break;
+  const { signer, signingKey, updates, verificationToken } = payload;
+  try {
+    const { updated } = yield call(
+      SigningServer.updatePolicy,
+      signingKey.xfp,
+      verificationToken,
+      updates
+    );
+    if (!updated) {
+      Alert.alert('Failed to update signer policy, try again.');
+      throw new Error('Failed to update the policy');
     }
+
+    const { signers } = activeVault;
+    for (const current of signers) {
+      if (current.xfp === signingKey.xfp) {
+        const updatedSignerPolicy = {
+          ...signer.signerPolicy,
+          restrictions: updates.restrictions,
+          exceptions: updates.exceptions,
+        };
+        yield put(setSignerPolicyError(false));
+
+        yield call(
+          dbManager.updateObjectByPrimaryId,
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signer.masterFingerprint,
+          {
+            signerPolicy: updatedSignerPolicy,
+          }
+        );
+        break;
+      }
+    }
+  } catch (err) {
+    yield put(setSignerPolicyError(true));
   }
 }
 
@@ -1639,3 +1649,71 @@ export const refreshCanaryWalletsWatcher = createWatcher(
   refreshCanaryWalletsWorker,
   REFRESH_CANARY_VAULT
 );
+
+function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
+  try {
+    const { signer } = payload;
+    const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    for (let i = 0; i < signers.length; i++) {
+      const s = signers[i];
+      const p2wpkh = idx(s, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const p2wsh = idx(s, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      const signerp2wpkh = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpub);
+      const signerp2wsh = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpub);
+      if (
+        p2wpkh === signerp2wpkh &&
+        p2wsh === signerp2wsh &&
+        s.masterFingerprint !== signer.masterFingerprint
+      ) {
+        yield call(
+          dbManager.updateObjectByPrimaryId,
+          RealmSchema.Signer,
+          'masterFingerprint',
+          s.masterFingerprint,
+          {
+            masterFingerprint: signer.masterFingerprint,
+          }
+        );
+        // get all keys that have the same masterFingerprint
+        const keys = yield call(
+          dbManager.getObjectByField,
+          RealmSchema.VaultSigner,
+          s.masterFingerprint,
+          'masterFingerprint'
+        );
+        for (let i = 0; i < keys.length; i++) {
+          yield call(
+            dbManager.updateObjectByPrimaryId,
+            RealmSchema.VaultSigner,
+            'xpub',
+            keys[i].xpub,
+            {
+              masterFingerprint: signer.masterFingerprint,
+            }
+          );
+        }
+        const { primarySeed, id } = dbManager.getCollection(RealmSchema.KeeperApp)[0];
+        const encryptionKey = generateEncryptionKey(primarySeed);
+        const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+        const updated = yield call(Relay.migrateXfp, id, [
+          {
+            oldSignerId: s.masterFingerprint,
+            newSignerId: signer.masterFingerprint,
+            newSignerDetails: encrytedSigner,
+          },
+        ]);
+        if (updated) {
+          console.log(
+            `Signer ${s.masterFingerprint} has been merged with ${signer.masterFingerprint}`
+          );
+        }
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    captureError(err);
+  }
+}
+
+export const mergeSimilarKeysWatcher = createWatcher(mergeSimilarKeysWorker, MERGER_SIMILAR_KEYS);

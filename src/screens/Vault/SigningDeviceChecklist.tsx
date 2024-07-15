@@ -20,6 +20,8 @@ const getHealthCheckStatusText = (status) => {
       return 'Manual health confirmation';
     case hcStatusType.HEALTH_CHECK_SIGNING:
       return 'Key used for signing';
+    case hcStatusType.HEALTH_CHECK_REGISTRATION:
+      return 'Signer used for vault registration';
   }
 };
 

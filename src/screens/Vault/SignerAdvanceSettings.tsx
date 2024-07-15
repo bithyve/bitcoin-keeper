@@ -77,6 +77,8 @@ import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const { width } = Dimensions.get('screen');
 
@@ -173,7 +175,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const hideKey = () => {
     dispatch(updateSignerDetails(signer, 'hidden', true));
-    showToast('Keys hidden successfully', <TickIcon />);
+    showToast('Key hidden successfully', <TickIcon />);
     const popAction = StackActions.pop(2);
     navigation.dispatch(popAction);
   };
@@ -309,6 +311,14 @@ function SignerAdvanceSettings({ route }: any) {
             registered: true,
             vaultId: activeVault.id,
           })
+        );
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+            },
+          ])
         );
         return;
       case SignerType.LEDGER:
@@ -514,6 +524,7 @@ function SignerAdvanceSettings({ route }: any) {
           isHealthcheck: true,
           signer,
           disableMockFlow: true,
+          isPSBT: true,
         },
       })
     );
@@ -858,8 +869,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {(isAppKey || isMyAppKey) && (
           <OptionCard
-            title="Key Details"
-            description="xPub for adding to another vault"
+            title={signerTranslation.keyDetails}
+            description={signerTranslation.keyDetailsSubtitle}
             callback={navigateToCosignerDetails}
           />
         )}
@@ -877,7 +888,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
           />
         )}
-        {isAssistedKey || vaultId ? null : (
+        {vaultId ? null : (
           <OptionCard
             title="Hide key"
             description="Hide this key from the list"

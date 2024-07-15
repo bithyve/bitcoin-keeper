@@ -153,7 +153,10 @@ function AddWallet({ navigation }) {
         showCloseIcon={false}
         learnMore
         learnMoreTitle={common.needMoreHelp}
-        learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet'))}
+        learnMoreCallback={() => {
+          setVisibleModal(false);
+          dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet'));
+        }}
         buttonText={common.continue}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
