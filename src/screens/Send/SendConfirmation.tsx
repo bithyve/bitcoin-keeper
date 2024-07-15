@@ -1,6 +1,6 @@
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
+import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -607,42 +607,62 @@ function HighFeeAlert({
   transactionPriority,
   txFeeInfo,
   amountToSend,
-  getBalance,
   showFeesInsightModal,
   OneDayHistoricalFee,
+  isFeeHigh,
+  isUsualFeeHigh,
+  setTopText,
 }) {
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions } = translations;
+  const {
+    translations: { wallet: walletTransactions },
+  } = useContext(LocalizationContext);
 
-  const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
-  return (
+  const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()]?.amount;
+  const [bottomText, setBottomText] = useState('');
+
+  useEffect(() => {
+    const topText = isFeeHigh ? walletTransactions.highCustom : walletTransactions.highWait;
+    const bottomText = isFeeHigh
+      ? isUsualFeeHigh
+        ? walletTransactions.highWait
+        : walletTransactions.highUsual
+      : walletTransactions.lowFee;
+
+    setTopText(topText);
+    setBottomText(bottomText);
+  }, [isFeeHigh, isUsualFeeHigh, setTopText]);
+
+  const renderFeeDetails = () => (
+    <View style={styles.boxWrapper}>
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+        <CurrencyInfo
+          amount={selectedFee}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
+        />
+      </Box>
+      <View style={styles.divider} />
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+        <CurrencyInfo
+          amount={amountToSend}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
+        />
+      </Box>
+    </View>
+  );
+
+  const renderFeeStats = () => (
     <>
-      <View style={styles.boxWrapper}>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-          <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-          <CurrencyInfo
-            amount={selectedFee}
-            hideAmounts={false}
-            fontSize={16}
-            bold
-            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
-          />
-        </Box>
-        <View style={styles.divider} />
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-          <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-          <CurrencyInfo
-            amount={amountToSend}
-            hideAmounts={false}
-            fontSize={16}
-            bold
-            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
-          />
-        </Box>
-      </View>
       <Text style={styles.statsTitle}>Fee Stats</Text>
       {OneDayHistoricalFee.length > 0 && (
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
@@ -652,15 +672,41 @@ function HighFeeAlert({
           />
         </Box>
       )}
-      <Box width={'70%'}>
-        <Text style={styles.highFeeNote}>
-          If not urgent, you could consider waiting for the fees to reduce
-        </Text>
-      </Box>
+    </>
+  );
+
+  return (
+    <>
+      {isFeeHigh && isUsualFeeHigh ? (
+        <>
+          {renderFeeDetails()}
+          {renderFeeStats()}
+          <Box width={'70%'}>
+            <Text style={styles.highFeeNote}>{bottomText}</Text>
+          </Box>
+        </>
+      ) : isFeeHigh ? (
+        <>
+          {renderFeeDetails()}
+          {renderFeeStats()}
+          <Box width={'70%'}>
+            <Text style={styles.highFeeNote}>{bottomText}</Text>
+          </Box>
+        </>
+      ) : (
+        isUsualFeeHigh && (
+          <>
+            <Box style={styles.marginBottom}>{renderFeeStats()}</Box>
+            {renderFeeDetails()}
+            <Box width={'70%'}>
+              <Text style={styles.highFeeNote}>{bottomText}</Text>
+            </Box>
+          </>
+        )
+      )}
     </>
   );
 }
-
 function AddLabel() {
   return (
     <Box
@@ -783,15 +829,39 @@ function SendConfirmation({ route }) {
   const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
-
   const [transactionPriority, setTransactionPriority] = useState(
     isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
   );
+  const [usualFee, setUsualFee] = useState(0);
+  const [topText, setTopText] = useState('');
+  const [isFeeHigh, setIsFeeHigh] = useState(false);
+  const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
 
   const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+
+  function checkUsualFee(data: any[]) {
+    if (data.length === 0) {
+      return;
+    }
+
+    const total = data.reduce((sum, record) => sum + record.avgFee_75, 0);
+    const historicalAverage = total / data.length;
+    const recentFee = data[data.length - 1].avgFee_75;
+
+    const difference = recentFee - historicalAverage;
+    const percentageDifference = (difference / historicalAverage) * 100;
+    setUsualFee(Math.abs(Number(percentageDifference.toFixed(2))));
+    setIsUsualFeeHigh(usualFee > 10);
+  }
+
+  useEffect(() => {
+    if (OneDayHistoricalFee.length > 0) {
+      checkUsualFee(OneDayHistoricalFee);
+    }
+  }, [OneDayHistoricalFee]);
 
   useEffect(() => {
     if (isAutoTransfer) {
@@ -819,8 +889,10 @@ function SendConfirmation({ route }) {
 
     setFeePercentage(Math.trunc((selectedFee / amount) * 100));
 
-    if (hasHighFee) setHighFeeAlertVisible(true);
-    else setHighFeeAlertVisible(false);
+    if (hasHighFee) {
+      setIsFeeHigh(true);
+      setHighFeeAlertVisible(true);
+    } else setHighFeeAlertVisible(false);
   }, [transactionPriority, amount]);
 
   const onTransferNow = () => {
@@ -1088,7 +1160,11 @@ function SendConfirmation({ route }) {
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
       />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {!isAutoTransferFlow ? (
           <>
             <SendingCard
@@ -1331,7 +1407,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={'Network fee is higher than 10% of the amount being sent'}
+        subTitle={topText}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1352,6 +1428,9 @@ function SendConfirmation({ route }) {
             getBalance={getBalance}
             showFeesInsightModal={toogleFeesInsightModal}
             OneDayHistoricalFee={OneDayHistoricalFee}
+            isFeeHigh={isFeeHigh}
+            isUsualFeeHigh={isUsualFeeHigh}
+            setTopText={setTopText}
           />
         )}
       />
@@ -1581,6 +1660,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: wp(25),
   },
+  contentContainer: {
+    paddingBottom: hp(30),
+  },
   sendSuccessfullNote: {
     marginTop: hp(5),
   },
@@ -1645,4 +1727,7 @@ const styles = StyleSheet.create({
     height: hp(500),
   },
   dollarsStyle: {},
+  marginBottom: {
+    marginBottom: hp(20),
+  },
 });

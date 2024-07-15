@@ -44,7 +44,7 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import {
   extractKeyFromDescriptor,
   generateSignerFromMetaData,
@@ -101,6 +101,9 @@ import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import SignerCard from '../AddSigner/SignerCard';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import NFC from 'src/services/nfc';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import BackupModalContent from '../AppSettings/BackupModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -406,8 +409,8 @@ const getSignerContent = (
         type: SignerType.BITBOX02,
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02. `,
-          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.',
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with BitBox02.`,
+          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
@@ -418,8 +421,8 @@ const getSignerContent = (
         type: SignerType.TREZOR,
         Illustration: <TrezorSetup />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor. `,
-          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.',
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Trezor.`,
+          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
         subTitle: trezor.SetupDescription,
@@ -430,7 +433,7 @@ const getSignerContent = (
         type: SignerType.LEDGER,
         Illustration: <LedgerImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Ledger. `,
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
         ],
         title: ledger.SetupTitle,
@@ -848,6 +851,8 @@ function HardwareModalMap({
   const [signingServerRecoverOTPModal, setSigningServerRecoverOTPModal] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [keyGenerationMode, setKeyGenerationMode] = useState(KeyGenerationMode.FILE);
+  const data = useQuery(RealmSchema.BackupHistory);
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
@@ -1011,7 +1016,7 @@ function HardwareModalMap({
           title: `${
             isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
+          subtitle: `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect.`,
           type,
           signer,
           mode,
@@ -1118,6 +1123,15 @@ function HardwareModalMap({
         })
       );
     }
+  };
+
+  const navigateToRecoveryKeySetup = () => {
+    if (data.length === 0 && mode === InteracationMode.HEALTH_CHECK) {
+      setConfirmPassVisible(true);
+    } else {
+      return navigation.navigate('WalletBackHistory', { isUaiFlow: true });
+    }
+    close();
   };
 
   const onQRScan = async (qrData, resetQR) => {
@@ -1863,7 +1877,7 @@ function HardwareModalMap({
         }
       case SignerType.MY_KEEPER:
         if (mode === InteracationMode.HEALTH_CHECK) {
-          return navigateToSeedWordSetup();
+          return navigateToRecoveryKeySetup();
         }
         return setConfirmPassVisible(true);
       case SignerType.BITBOX02:
@@ -1937,7 +1951,14 @@ function HardwareModalMap({
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={generateMyAppKey}
+            onSuccess={() => {
+              if (type === SignerType.MY_KEEPER && mode === InteracationMode.HEALTH_CHECK) {
+                setConfirmPassVisible(false);
+                setBackupModalVisible(true);
+              } else {
+                generateMyAppKey();
+              }
+            }}
           />
         )}
       />
@@ -2003,6 +2024,28 @@ function HardwareModalMap({
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={SigningServerOTPModal}
+      />
+      <KeeperModal
+        visible={backupModalVisible}
+        close={() => setBackupModalVisible(false)}
+        title="Backup Recovery Key"
+        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        subTitleWidth={wp(300)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText="Backup Now"
+        buttonCallback={() => {
+          setBackupModalVisible(false);
+          navigation.dispatch(
+            CommonActions.navigate('ExportSeed', {
+              seed: primaryMnemonic,
+              next: true,
+            })
+          );
+        }}
+        Content={BackupModalContent}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </>

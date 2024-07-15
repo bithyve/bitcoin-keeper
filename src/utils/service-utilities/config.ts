@@ -33,7 +33,6 @@ const DEFAULT_CONFIG = {
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
   CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
-  KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
   RAMP_BASE_URL: 'https://app.ramp.network/',
   RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
   SIGNING_SERVER_RSA_PUBKEY:
@@ -112,10 +111,6 @@ class Configuration {
   public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
     ? config.CHANNEL_URL.trim()
     : DEFAULT_CONFIG.CHANNEL_URL.trim();
-
-  public KEEPER_HWI: string = config.KEEPER_HWI?.trim()
-    ? config.KEEPER_HWI.trim()
-    : DEFAULT_CONFIG.KEEPER_HWI.trim();
 
   public ZENDESK_CHANNEL_ID = Platform.select({
     ios: config.ZENDESK_IOS_CHANNEL_ID?.trim(),

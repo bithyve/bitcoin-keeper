@@ -5,7 +5,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
@@ -25,6 +25,8 @@ import { SignerType } from 'src/services/wallets/enums';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -45,7 +47,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
   ) : (
     <VStack>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'\u2022 Please resigter the vault from the Keeper web interface'}
+        {'\u2022 Please resigter the vault from the Keeper Desktop App'}
       </Text>
       <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
         {
@@ -93,6 +95,14 @@ function RegisterWithChannel() {
             vaultId: vault.id,
           })
         );
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+            },
+          ])
+        );
         navgation.goBack();
       } catch (error) {
         captureError(error);
@@ -120,6 +130,14 @@ function RegisterWithChannel() {
               registrationInfo: JSON.stringify({ registeredWallet: policy.policyHmac }),
             })
           );
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+              },
+            ])
+          );
           navgation.goBack();
       }
     });
@@ -131,8 +149,8 @@ function RegisterWithChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Register with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to register with the device`}
+        title="Register with Keeper Desktop App"
+        subtitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to register this signer.`}
       />
       <Box style={styles.qrcontainer}>
         <ScanAndInstruct onBarCodeRead={onBarCodeRead} />

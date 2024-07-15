@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
@@ -42,6 +42,7 @@
     "@types/crypto-js": "4.1.1",
     "assert": "2.0.0",
     "axios": "1.6.8",
+    "base58check": "^2.0.0",
     "bip21": "2.0.3",
     "bip32-path": "0.4.2",
     "bip39": "3.0.4",
