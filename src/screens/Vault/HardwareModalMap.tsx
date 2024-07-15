@@ -44,7 +44,7 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import {
   extractKeyFromDescriptor,
   generateSignerFromMetaData,
@@ -409,8 +409,8 @@ const getSignerContent = (
         type: SignerType.BITBOX02,
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02. `,
-          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.',
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with BitBox02.`,
+          'Make sure the device is setup with the Bitbox02 app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
@@ -421,8 +421,8 @@ const getSignerContent = (
         type: SignerType.TREZOR,
         Illustration: <TrezorSetup />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor. `,
-          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.',
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Trezor.`,
+          'Make sure the device is setup with the Trezor Connect app before using it with the Keeper Desktop App.',
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
         subTitle: trezor.SetupDescription,
@@ -433,7 +433,7 @@ const getSignerContent = (
         type: SignerType.LEDGER,
         Illustration: <LedgerImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Ledger. `,
+          `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
         ],
         title: ledger.SetupTitle,
@@ -1016,7 +1016,7 @@ function HardwareModalMap({
           title: `${
             isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary' : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
+          subtitle: `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect.`,
           type,
           signer,
           mode,
