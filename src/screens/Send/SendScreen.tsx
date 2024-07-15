@@ -25,7 +25,13 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { EntityKind, PaymentInfoKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  NetworkType,
+  PaymentInfoKind,
+  VaultType,
+  VisibilityType,
+} from 'src/services/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -289,6 +295,10 @@ function SendScreen({ route }) {
     );
   };
 
+  const availableBalance =
+    sender.networkType === NetworkType.MAINNET
+      ? sender.specs.balances.confirmed
+      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -312,7 +322,7 @@ function SendScreen({ route }) {
           availableBalance={
             <CurrencyInfo
               hideAmounts={false}
-              amount={sender?.specs.balances.confirmed}
+              amount={availableBalance}
               fontSize={14}
               color={`${colorMode}.primaryText`}
               variation={colorMode === 'light' ? 'dark' : 'light'}
