@@ -29,7 +29,7 @@ const initialState: {
   language: 'en',
   torEnbled: false,
   inheritanceModal: true,
-  satsEnabled: true,
+  satsEnabled: false,
   whirlpoolSwiperModal: true,
   keySecurityTips: '',
   letterToAttorny: '',

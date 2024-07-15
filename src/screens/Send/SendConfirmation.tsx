@@ -1,6 +1,6 @@
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
+import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -1160,7 +1160,11 @@ function SendConfirmation({ route }) {
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
       />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {!isAutoTransferFlow ? (
           <>
             <SendingCard
@@ -1655,6 +1659,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginHorizontal: wp(25),
+  },
+  contentContainer: {
+    paddingBottom: hp(30),
   },
   sendSuccessfullNote: {
     marginTop: hp(5),
