@@ -48,6 +48,7 @@ import PendingHealthCheckModal from './PendingHealthCheckModal';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import { EntityKind } from 'src/services/wallets/enums';
+import SelectWalletModal from './SelectWalletModal';
 
 const { width } = Dimensions.get('window');
 
@@ -142,12 +143,14 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
   const { translations } = useContext(LocalizationContext);
   const { notification } = translations;
   const { activeVault } = useVault({ getFirst: true });
+  const { wallets: allWallets } = useWallets({ getAll: true });
   const { signerMap } = useSignerMap();
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { vaultSigners: keys } = useSigners(
     activeVault?.entityKind === EntityKind.VAULT ? activeVault?.id : ''
   );
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
+  const [showSelectVault, setShowSelectVault] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
   activeIndex.value = 0;
 
@@ -224,7 +227,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
             recipient: activeVault,
             btnConfig: {
               primary: {
-                text: 'Transfer',
+                text: 'Proceed',
                 cta: () => {
                   if (pendingHealthCheckCount >= activeVault.scheme.m) {
                     setShowModal(false);
@@ -232,12 +235,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
                   } else {
                     setShowModal(false);
                     activeVault
-                      ? navigtaion.navigate('SendConfirmation', {
-                          uaiSetActionFalse,
-                          walletId: uai.entityId,
-                          transferType: TransferType.WALLET_TO_VAULT,
-                          isAutoTransfer: true,
-                        })
+                      ? setShowSelectVault(true)
                       : showToast('No vaults found', <ToastErrorIcon />);
                     skipUaiHandler(uai);
                   }
@@ -486,51 +484,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         buttonTextColor={`${colorMode}.white`}
         buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
-        Content={() =>
-          // temporary fix
-          uai.uaiType === uaiType.VAULT_TRANSFER ? (
-            <View>
-              <Box style={styles.fdRow}>
-                <Box style={styles.sentFromContainer}>
-                  <Text style={styles.transferText}>Transfer From</Text>
-                  <ModalCard
-                    preTitle={uaiConfig?.modalDetails?.sender.presentationData.name}
-                    title={notification.availableToSpend}
-                    icon={
-                      colorMode === 'light'
-                        ? getCurrencyIcon(BTC, 'dark')
-                        : getCurrencyIcon(BTC, 'light')
-                    }
-                    subTitle={`${getBalance(
-                      uaiConfig?.modalDetails?.sender.specs.balances.confirmed
-                    )} ${getSatUnit()}`}
-                  />
-                </Box>
-                <Box style={styles.sentToContainer}>
-                  <Text style={styles.transferText}>Transfer To</Text>
-                  <ModalCard
-                    preTitle={uaiConfig?.modalDetails?.recipient.presentationData.name}
-                    title={notification.Balance}
-                    isVault={
-                      uaiConfig?.modalDetails?.recipient.entityKind === 'VAULT' ? true : false
-                    }
-                    icon={
-                      colorMode === 'light'
-                        ? getCurrencyIcon(BTC, 'dark')
-                        : getCurrencyIcon(BTC, 'light')
-                    }
-                    subTitle={`${getBalance(
-                      uaiConfig?.modalDetails?.recipient.specs.balances.confirmed
-                    )} ${getSatUnit()}`}
-                  />
-                </Box>
-              </Box>
-              <Text style={styles.modalBody}>{uaiConfig?.modalDetails?.body}</Text>
-            </View>
-          ) : (
-            <Text style={styles.transferText}>{uaiConfig?.modalDetails?.body}</Text>
-          )
-        }
+        Content={() => <Text style={styles.transferText}>{uaiConfig?.modalDetails?.body}</Text>}
       />
       <PendingHealthCheckModal
         selectedItem={activeVault}
@@ -571,6 +525,25 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
           skipUaiHandler(uai);
         }}
         Content={() => <FeeInsightsContent />}
+      />
+      <SelectWalletModal
+        showModal={showSelectVault}
+        setShowModal={setShowSelectVault}
+        onlyVaults={true}
+        onlyWallets={false}
+        buttonCallback={(vault) => {
+          const entityWallet = allWallets.find((wallet) => wallet.id === uai.entityId);
+          navigtaion.navigate('AddSendAmount', {
+            sender: entityWallet,
+            recipient: vault,
+            transferType: TransferType.WALLET_TO_VAULT,
+            isSendMax: true,
+          });
+          setShowSelectVault(false);
+        }}
+        secondaryCallback={() => {
+          setShowSelectVault(false);
+        }}
       />
       <ActivityIndicatorView visible={modalActionLoader} showLoader />
     </>

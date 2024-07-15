@@ -56,6 +56,7 @@ function AddSendAmount({ route }) {
     transferType,
     selectedUTXOs = [],
     parentScreen,
+    isSendMax = true,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -64,6 +65,7 @@ function AddSendAmount({ route }) {
     transferType: TransferType;
     selectedUTXOs: UTXO[];
     parentScreen?: string;
+    isSendMax?: boolean;
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
@@ -172,6 +174,11 @@ function AddSendAmount({ route }) {
   }, [sendMaxFee, selectedUTXOs.length]);
 
   useEffect(() => {
+    console.log(isSendMax);
+    if (isSendMax) handleSendMax();
+  }, []);
+
+  useEffect(() => {
     if (isMoveAllFunds) {
       if (sendMaxFee) {
         onSendMax(sendMaxFee, selectedUTXOs);
@@ -206,6 +213,27 @@ function AddSendAmount({ route }) {
     );
   };
   const { showToast } = useToastMessage();
+
+  const handleSendMax = () => {
+    const availableBalance =
+      sender.networkType === NetworkType.MAINNET
+        ? sender.specs.balances.confirmed
+        : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
+    if (availableBalance) {
+      if (sendMaxFee) {
+        onSendMax(sendMaxFee, selectedUTXOs);
+        return;
+      }
+      dispatch(
+        calculateSendMaxFee({
+          numberOfRecipients: recipientCount,
+          wallet: sender,
+          selectedUTXOs,
+        })
+      );
+    }
+  };
 
   const executeSendPhaseOne = () => {
     const recipients = [];
@@ -403,26 +431,7 @@ function AddSendAmount({ route }) {
                 </Text>
 
                 <Pressable
-                  onPress={() => {
-                    const availableBalance =
-                      sender.networkType === NetworkType.MAINNET
-                        ? sender.specs.balances.confirmed
-                        : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
-
-                    if (availableBalance) {
-                      if (sendMaxFee) {
-                        onSendMax(sendMaxFee, selectedUTXOs);
-                        return;
-                      }
-                      dispatch(
-                        calculateSendMaxFee({
-                          numberOfRecipients: recipientCount,
-                          wallet: sender,
-                          selectedUTXOs,
-                        })
-                      );
-                    }
-                  }}
+                  onPress={handleSendMax}
                   borderColor={`${colorMode}.BrownNeedHelp`}
                   backgroundColor={`${colorMode}.BrownNeedHelp`}
                   style={styles.sendMaxWrapper}

@@ -15,6 +15,7 @@
     "skip": "Skip",
     "search": "Search",
     "share": "Share",
+    "dontShare": "Don't Share",
     "note": "Note",
     "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
     "smalldesc": "Provide a bitcoin address or select a wallet",
@@ -218,7 +219,10 @@
     "SelectQuestion": "Select Question",
     "resetSuccess": "Reset Successful!",
     "ResetPassSubPara1": "Your passcode has been reset successfully",
-    "ResetPassSubPara2": "Your passcode can only be reset if you have your wallet backup safe and accessible"
+    "ResetPassSubPara2": "Your passcode can only be reset if you have your wallet backup safe and accessible",
+    "shareAnalyticsDesc": "Only data relevant to app diagnostics is collected. You can optionally share email id while setting up inheritance.",
+    "shareAnalyticsTitle": "Share Analytics",
+    "shareAnalyticsSubTitle": "If you so choose, you can allow Keeper to collect data that would help us serve you better."
   },
   "home": {
     "Hello": "Hello,",

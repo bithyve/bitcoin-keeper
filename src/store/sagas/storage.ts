@@ -20,9 +20,7 @@ import { setAppId } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 
-export const defaultTransferPolicyThreshold =
-  config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
-
+export const defaultTransferPolicyThreshold = null;
 export const maxTransferPolicyThreshold = 1e11;
 
 export function* setupKeeperAppWorker({ payload }) {
@@ -81,7 +79,7 @@ export function* setupKeeperAppWorker({ payload }) {
           description: '',
           transferPolicy: {
             id: uuidv4(),
-            threshold: defaultTransferPolicyThreshold,
+            threshold: null,
           },
         },
       };

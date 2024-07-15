@@ -1231,7 +1231,7 @@ export function* updateSignerPolicyWorker({
           restrictions: updates.restrictions,
           exceptions: updates.exceptions,
         };
-        yield put(setSignerPolicyError(false));
+        yield put(setSignerPolicyError('success'));
 
         yield call(
           dbManager.updateObjectByPrimaryId,
@@ -1246,7 +1246,7 @@ export function* updateSignerPolicyWorker({
       }
     }
   } catch (err) {
-    yield put(setSignerPolicyError(true));
+    yield put(setSignerPolicyError('failure'));
   }
 }
 

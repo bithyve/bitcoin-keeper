@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 // libraries
 import { Box, useColorMode, View } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -39,7 +39,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { TransferType } from 'src/models/enums/TransferType';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import UploadImage from 'src/components/UploadImage';
@@ -98,8 +98,17 @@ function SendScreen({ route }) {
   const { vaultSigners: keys } = useSigners(
     selectedItem?.entityKind === EntityKind.VAULT ? selectedItem?.id : ''
   );
-
+  const [isFocused, setIsFocused] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -336,15 +345,17 @@ function SendScreen({ route }) {
         >
           <Box>
             <Box style={styles.qrcontainer}>
-              <RNCamera
-                testID="qrscanner"
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={(data) => {
-                  handleTextChange(data.data);
-                }}
-                notAuthorizedView={<CameraUnauthorized />}
-              />
+              {isFocused && (
+                <RNCamera
+                  testID="qrscanner"
+                  style={styles.cameraView}
+                  captureAudio={false}
+                  onBarCodeRead={(data) => {
+                    handleTextChange(data.data);
+                  }}
+                  notAuthorizedView={<CameraUnauthorized />}
+                />
+              )}
             </Box>
             <UploadImage onPress={handleChooseImage} />
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>

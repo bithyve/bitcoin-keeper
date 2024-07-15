@@ -108,10 +108,12 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
+    signerId,
   }: {
     signer: Signer;
     vaultKey: VaultSigner;
     vaultId: string;
+    signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
@@ -340,16 +342,13 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const navigateToPolicyChange = () => {
-    const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
-    const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ChoosePolicyNew',
         params: {
-          restrictions,
-          exceptions,
           isUpdate: true,
           signer,
+          signerId,
           vaultId,
           vaultKey,
         },

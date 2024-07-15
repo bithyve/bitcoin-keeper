@@ -1,6 +1,6 @@
 import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
 import { Box, HStack, Text, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -10,6 +10,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import UploadFile from 'src/components/UploadFile';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -23,6 +24,16 @@ function ScanQRFileRecovery({ route }) {
   const { translations } = useContext(LocalizationContext);
 
   const { common } = translations;
+
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
 
   // eslint-disable-next-line no-promise-executor-return
   const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -65,12 +76,14 @@ function ScanQRFileRecovery({ route }) {
           subtitle="Recover the vault from output descriptor/configuration/BSMS File"
         />
         <Box style={styles.qrcontainer}>
-          <RNCamera
-            style={styles.cameraView}
-            captureAudio={false}
-            onBarCodeRead={onBarCodeRead}
-            useNativeZoom
-          />
+          {isFocused && (
+            <RNCamera
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={onBarCodeRead}
+              useNativeZoom
+            />
+          )}
         </Box>
         <HStack justifyContent="center" my={2}>
           {qrPercent !== 100 && <ActivityIndicator />}
