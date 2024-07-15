@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -17,7 +17,7 @@ import {
   TREZOR_HEALTHCHECK,
   TREZOR_SETUP,
 } from 'src/services/channel/constants';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
@@ -47,11 +47,21 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
+
   const callback = (data) => {
     onBarCodeRead(data);
     setChannelCreated(true);
   };
-  return !channelCreated ? (
+  return !channelCreated && isFocused ? (
     <Box style={styles.qrcontainer}>
       <RNCamera
         autoFocus="on"
