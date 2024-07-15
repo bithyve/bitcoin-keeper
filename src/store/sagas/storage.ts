@@ -77,6 +77,10 @@ export function* setupKeeperAppWorker({ payload }) {
         walletDetails: {
           name: 'Wallet 1',
           description: '',
+          transferPolicy: {
+            id: uuidv4(),
+            threshold: null,
+          },
         },
       };
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
