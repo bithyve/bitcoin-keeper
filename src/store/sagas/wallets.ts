@@ -962,7 +962,8 @@ function* finaliseIKSetupWorker({
           updatedPolicy,
           existingConfiguration
         );
-        if (!updated) console.log('Failed to update the inheritance key policy w/ FCM of the heir');
+        if (updated) updatedInheritanceKeyInfo.policy = updatedPolicy;
+        else console.log('Failed to update the inheritance key policy w/ FCM of the heir');
       }
     }
   } else {
