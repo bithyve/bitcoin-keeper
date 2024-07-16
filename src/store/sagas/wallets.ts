@@ -141,6 +141,7 @@ import {
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { getSignerDescription } from 'src/hardware';
+import { backupBsmsOnCloud } from '../sagaActions/bhr';
 
 export interface NewVaultDetails {
   name?: string;
@@ -608,6 +609,7 @@ export function* addNewVaultWorker({
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
       yield put(setIsCloudBsmsBackupRequired(true));
+      yield put(backupBsmsOnCloud(null));
       return true;
     }
     throw new Error('Relay updation failed');
