@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import InheritanceHeader from '../InheritanceHeader';
-import Chip from 'src/assets/images/chip.svg';
-import Add from 'src/assets/images/add-green.svg';
+import SigningServer from 'src/assets/images/ss-green.svg';
+import InheritanceKey from 'src/assets/images/iks-green.svg';
 
 import AssistedKeysIcon from 'src/assets/images/assisted-key.svg';
+import InheritanceKeyIcon from 'src/assets/images/inheritance-key.svg';
 import AssistedKeysSlider from '../AssistedKeysSlider';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function InheritanceTips({}) {
@@ -19,12 +19,12 @@ function InheritanceTips({}) {
   const tips = [
     {
       title: inheritancePlanning.signingServerHeading,
-      description: inheritancePlanning.signingServerHeading,
+      description: inheritancePlanning.signingServerDescp,
       icon: <AssistedKeysIcon />,
       paragraph2: inheritancePlanning.signingServerParagraph2,
       paragraph: inheritancePlanning.signingServerParagraph1,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
-      buttonIcon: <Chip />,
+      buttonIcon: <SigningServer />,
       buttonTitle: inheritancePlanning.signingServerCtaTitle,
       buttonDescription: inheritancePlanning.signingServerCtaDescp,
       note: inheritancePlanning.signingServerNotes,
@@ -32,12 +32,12 @@ function InheritanceTips({}) {
     {
       title: inheritancePlanning.inheritanceKey,
       description: inheritancePlanning.inheritanceKeyDescp,
-      icon: <AssistedKeysIcon />,
+      icon: <InheritanceKeyIcon />,
       paragraph2: inheritancePlanning.inheritanceKeyParagraph2,
       paragraph: inheritancePlanning.inheritanceKeyParagraph1,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
 
-      buttonIcon: <Add />,
+      buttonIcon: <InheritanceKey />,
       buttonTitle: inheritancePlanning.inheritanceKeyCtaTitle,
       buttonDescription: inheritancePlanning.inheritanceKeyCtaDescp,
       note: inheritancePlanning.inheritanceKeyCtaNotes,

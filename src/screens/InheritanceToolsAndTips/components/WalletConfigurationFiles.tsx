@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 18,
+    fontWeight: '500',
     color: Colors.white,
   },
   description: {
