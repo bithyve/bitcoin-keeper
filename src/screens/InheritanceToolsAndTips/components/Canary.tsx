@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   heading: {
+    fontWeight: '500',
     fontSize: 18,
   },
   description: {
