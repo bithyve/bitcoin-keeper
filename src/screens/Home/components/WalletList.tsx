@@ -79,10 +79,13 @@ const handleWalletPress = (wallet, navigation) => {
 
 const getWalletTags = (wallet) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    return [
-      `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
-      `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
-    ];
+    if (wallet.type === VaultType.SINGE_SIG) {
+      return ['Single-key', 'Cold'];
+    } else
+      return [
+        `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
+        `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
+      ];
   } else {
     let walletKind;
     if (wallet.type === WalletType.DEFAULT) walletKind = 'HOT WALLET';
@@ -103,7 +106,8 @@ const getWalletTags = (wallet) => {
 
 const getWalletIcon = (wallet) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
+    else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
   } else {
     return <WalletIcon />;
   }

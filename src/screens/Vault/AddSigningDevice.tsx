@@ -9,7 +9,13 @@ import {
   VaultSigner,
   signerXpubs,
 } from 'src/services/wallets/interfaces/vault';
-import { NetworkType, SignerStorage, SignerType, XpubTypes } from 'src/services/wallets/enums';
+import {
+  NetworkType,
+  SignerStorage,
+  SignerType,
+  VaultType,
+  XpubTypes,
+} from 'src/services/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -664,6 +670,7 @@ function AddSigningDevice() {
       parentScreen?: string;
       onGoBack?: any;
       coSigners?: any;
+      isSSAddition?: boolean;
     };
   };
   const {
@@ -676,6 +683,7 @@ function AddSigningDevice() {
     parentScreen = '',
     onGoBack,
     coSigners,
+    isSSAddition = false,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
@@ -754,12 +762,13 @@ function AddSigningDevice() {
     );
   }, []);
 
-  const subtitle =
-    scheme.n > 1
-      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
-          isInheritance ? ' for Inheritance' : ''
-        }`
-      : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
+  const subtitle = isSSAddition
+    ? 'Choose a single sig key to create a wallet'
+    : scheme.n > 1
+    ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
+        isInheritance ? ' for Inheritance' : ''
+      }`
+    : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
   function VaultCreatedModalContent(vault: Vault) {
     const tags = ['Vault', `${vault.scheme.m}-of-${vault.scheme.n}`];
@@ -833,6 +842,54 @@ function AddSigningDevice() {
     );
   }
 
+  function SingleSigWallet(vault: Vault) {
+    const tags = ['Single-key', 'Cold'];
+    return (
+      <Box>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+          <Box style={styles.pillsContainer}>
+            {tags?.map((tag, index) => {
+              return (
+                <CardPill
+                  key={tag}
+                  heading={tag}
+                  backgroundColor={
+                    index % 2 !== 0 ? null : `${colorMode}.SignleSigCardPillBackColor`
+                  }
+                />
+              );
+            })}
+          </Box>
+          <Box style={styles.walletVaultInfoWrapper}>
+            <Box style={styles.iconWrapper}>
+              <HexagonIcon
+                width={44}
+                height={38}
+                backgroundColor="rgba(45, 103, 89, 1)"
+                icon={<VaultIcon />}
+              />
+            </Box>
+            <Box>
+              {vault.presentationData.description ? (
+                <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+                  {vault.presentationData.description}
+                </Text>
+              ) : null}
+              <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
+                {vault.presentationData.name}
+              </Text>
+            </Box>
+          </Box>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
+            {vaultTranslation.VaultCreatedModalDesc}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   const viewVault = () => {
     setVaultCreatedModalVisible(false);
     const navigationState = {
@@ -872,10 +929,11 @@ function AddSigningDevice() {
         vaultCreating={vaultCreating}
         vaultKeys={vaultKeys}
         scheme={scheme}
-        name={name}
-        description={description}
+        name={isSSAddition ? 'Air-gapped Wallet' : name}
+        description={isSSAddition ? 'External signing device' : description}
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
+        vaultType={isSSAddition ? VaultType.SINGE_SIG : VaultType.DEFAULT}
       />
       <Signers
         keyToRotate={keyToRotate}
@@ -914,18 +972,28 @@ function AddSigningDevice() {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={vaultTranslation.vaultCreatedSuccessTitle}
+        title={
+          isSSAddition ? 'Wallet Created Successfully' : vaultTranslation.vaultCreatedSuccessTitle
+        }
         subTitle={
           inheritanceSigner
             ? `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been setup successfully. You can start receiving/transferring bitcoin`
             : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
         }
         Content={
-          inheritanceSigner
+          isSSAddition
+            ? () => SingleSigWallet(newVault)
+            : inheritanceSigner
             ? () => Vault3_5CreatedModalContent(newVault)
             : () => VaultCreatedModalContent(newVault)
         }
-        buttonText={inheritanceSigner ? vaultTranslation.addEmail : vaultTranslation.ViewVault}
+        buttonText={
+          inheritanceSigner
+            ? vaultTranslation.addEmail
+            : isSSAddition
+            ? 'View Wallet'
+            : vaultTranslation.ViewVault
+        }
         buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
         secondaryButtonText={inheritanceSigner && common.cancel}
         secondaryCallback={viewVault}
