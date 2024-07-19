@@ -10,11 +10,11 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
+import { uaiType } from 'src/models/interfaces/Uai';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
 import WalletInfoEmptyState from './WalletInfoEmptyState';
-import { uaiType } from 'src/models/interfaces/Uai';
-import WalletUtilities from 'src/services/wallets/operations/utils';
 
 export function WalletsList({
   allWallets,
@@ -25,7 +25,7 @@ export function WalletsList({
   typeBasedIndicator,
 }) {
   return (
-    <Box style={styles.valueWrapper} testID='wallet_list'>
+    <Box style={styles.valueWrapper} testID="wallet_list">
       <BalanceComponent
         setIsShowAmount={setIsShowAmount}
         isShowAmount={isShowAmount}
@@ -71,9 +71,9 @@ export function WalletsList({
 
 const handleWalletPress = (wallet, navigation) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    navigation.navigate('VaultDetails', { vaultId: wallet.id });
+    navigation.navigate('VaultDetails', { vaultId: wallet.id, autoRefresh: true });
   } else {
-    navigation.navigate('WalletDetails', { walletId: wallet.id });
+    navigation.navigate('WalletDetails', { walletId: wallet.id, autoRefresh: true });
   }
 };
 
@@ -93,8 +93,9 @@ const getWalletTags = (wallet) => {
     }
     let isTaprootWallet = false;
     const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
-    if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86)
+    if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
       isTaprootWallet = true;
+    }
     if (isTaprootWallet) return ['TAPROOT', walletKind];
     else return ['SINGLE-KEY', walletKind];
   }
