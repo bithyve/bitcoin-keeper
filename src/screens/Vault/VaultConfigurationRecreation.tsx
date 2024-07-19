@@ -30,7 +30,7 @@ import { useFocusEffect } from '@react-navigation/native';
 function WrappedImportIcon() {
   return (
     <View style={styles.iconWrapper}>
-      <ImportIcon width={20} height={20} fill={Colors.pantoneGreen} />
+      <ImportIcon width={15} height={15} />
     </View>
   );
 }
@@ -346,8 +346,9 @@ const styles = StyleSheet.create({
     marginTop: hp(60),
   },
   iconWrapper: {
-    width: 40,
-    height: 40,
+    width: wp(35),
+    height: wp(35),
+    marginLeft: -7,
     borderRadius: 20,
     backgroundColor: Colors.pantoneGreen,
     justifyContent: 'center',
