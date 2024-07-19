@@ -969,11 +969,18 @@ function SendConfirmation({ route }) {
     );
     if (!cachedInputUTXOs) return false;
 
-    const currentConfirmedUTXOs: InputUTXOs[] = idx(currentSender, (_) => _.specs.confirmedUTXOs);
+    const confirmedUTXOs: InputUTXOs[] = idx(currentSender, (_) => _.specs.confirmedUTXOs) || [];
+    const unconfirmedUTXOs: InputUTXOs[] =
+      idx(currentSender, (_) => _.specs.unconfirmedUTXOs) || [];
+
+    const currentUTXOSet =
+      currentSender.networkType === NetworkType.MAINNET
+        ? confirmedUTXOs
+        : [...confirmedUTXOs, ...unconfirmedUTXOs];
 
     for (const cachedUTXO of cachedInputUTXOs) {
       let found = false;
-      for (const currentUTXO of currentConfirmedUTXOs) {
+      for (const currentUTXO of currentUTXOSet) {
         if (cachedUTXO.txId === currentUTXO.txId && cachedUTXO.vout === currentUTXO.vout) {
           found = true;
           break;
