@@ -1261,6 +1261,7 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     paddingTop: hp(10),
+    paddingHorizontal: wp(10),
   },
   signerVaults: {
     gap: 5,
