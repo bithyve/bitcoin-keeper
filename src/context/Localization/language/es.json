@@ -957,7 +957,7 @@
     "addKeys": "Add keys",
     "addKey": "Add key",
     "keyDetails": "Key Details",
-    "keyDetailsSubtitle": "zPub for adding to another vault",
+    "keyDetailsSubtitle": "xPub for adding to another vault",
     "ManageKeys": "Manage Keys",
     "ViewAndChangeKeyDetails": "View and change key details",
     "changeSignerTitle": "Change Signer",
