@@ -17,6 +17,7 @@ import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
@@ -43,7 +44,6 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import { hash256 } from 'src/utils/service-utilities/encryption';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -841,7 +841,7 @@ export default class WalletOperations {
         }
       }
     } else {
-      const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
+      const { p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
         wallet as Vault
       );
@@ -866,7 +866,7 @@ export default class WalletOperations {
             script: p2wsh.output,
             value: input.value,
           },
-          witnessScript: p2ms.output,
+          witnessScript: p2wsh.redeem.output,
         });
       } else if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
         PSBT.addInput({
@@ -878,7 +878,7 @@ export default class WalletOperations {
             value: input.value,
           },
           redeemScript: p2wsh.output,
-          witnessScript: p2ms.output,
+          witnessScript: p2wsh.redeem.output,
         });
       }
     }
@@ -887,7 +887,6 @@ export default class WalletOperations {
   static getPSBTDataForChangeOutput = (
     wallet: Vault,
     changeMultiSig: {
-      p2ms: bitcoinJS.payments.Payment;
       p2wsh: bitcoinJS.payments.Payment;
       p2sh: bitcoinJS.payments.Payment;
       pubkeys: Buffer[];
@@ -901,7 +900,7 @@ export default class WalletOperations {
     witnessScript: Buffer;
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
-    const { subPath, p2wsh, p2ms, signerPubkeyMap } = changeMultiSig;
+    const { subPath, p2wsh, signerPubkeyMap } = changeMultiSig;
     for (const signer of wallet.signers) {
       const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
       const path = `${signer.derivationPath}/${subPath.join('/')}`;
@@ -911,7 +910,7 @@ export default class WalletOperations {
         pubkey: signerPubkeyMap.get(signer.xpub),
       });
     }
-    return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2ms.output };
+    return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2wsh.redeem.output };
   };
 
   static createTransaction = async (

@@ -3,6 +3,8 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import bitcoinMessage from 'bitcoinjs-message';
+import varuint from 'varuint-bitcoin';
+import { PsbtInput } from 'bip174/src/lib/interfaces';
 
 import { CryptoAccount, CryptoHDKey } from 'src/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
@@ -182,13 +184,138 @@ export default class WalletUtilities {
     throw new Error("Unsupported derivation purpose, can't derive address");
   };
 
+  static getCustomScript = (pubkeys: Buffer[]) => {
+    const UK = bitcoinJS.crypto.hash160(pubkeys[0]).toString('hex');
+    const AK1 = bitcoinJS.crypto.hash160(pubkeys[1]).toString('hex');
+    const AK2 = bitcoinJS.crypto.hash160(pubkeys[2]).toString('hex');
+    const T1 = bitcoinJS.script.number.encode(1800).toString('hex');
+    const T2 = bitcoinJS.script.number.encode(3600).toString('hex');
+
+    const script = bitcoinJS.script.fromASM(
+      `
+      OP_IF
+        ${UK} OP_CHECKSIGVERIFY OP_IF
+          OP_DUP OP_HASH160 ${AK1} OP_EQUALVERIFY
+        OP_ELSE
+          OP_DUP OP_HASH160 ${AK2} OP_EQUALVERIFY
+        OP_ENDIF
+        OP_CHECKSIG
+      OP_ELSE
+        OP_IF
+          OP_DUP OP_HASH160 ${UK} OP_EQUALVERIFY OP_CHECKSIGVERIFY ${T1}
+          OP_CHECKLOCKTIMEVERIFY
+        OP_ELSE
+          ${AK1} OP_CHECKSIGVERIFY ${AK2} OP_CHECKSIGVERIFY ${T2}
+          OP_CHECKLOCKTIMEVERIFY
+        OP_ENDIF
+      OP_ENDIF
+      `
+        .replace(/\s+/g, ' ')
+        .trim()
+    );
+
+    /*
+    corresponding miniscript:
+      or_i(and_v(v:pk(UK),c:or_i(pk_h(AK1),pk_h(AK2))),or_i(and_v(v:pkh(UK),after(1800)),and_v(and_v(v:pk(AK1),v:pk(AK2)),after(3600))))
+      note: the above miniscript compiles to the bitcoin script used above
+    similar policy lang:
+      thresh(1, and(pk(UK),or(pk(AK1),pk(AK2))), and(after(1800), pk(N_UK)), and(after(3600), and(pk(N_AK1), pk(N_AK2))))
+      note: in policy lang N_UK and N_AK1 and N_AK2 are replace by UK, AK1 and AK2 in miniscript and bitcoin script, seems like policy lang doesn't support reuse of key substitutes
+    */
+
+    return script;
+  };
+
+  static getFinalScriptsForMyCustomScript(
+    inputIndex: number,
+    input: PsbtInput,
+    script: Buffer,
+    isSegwit: boolean,
+    isP2SH: boolean,
+    isP2WSH: boolean
+  ): {
+    finalScriptSig: Buffer | undefined;
+    finalScriptWitness: Buffer | undefined;
+  } {
+    // Step 1: Check to make sure the meaningful script matches what you expect.
+    const decompiled = bitcoinJS.script.decompile(script);
+    // Checking if first OP is OP_IF... should do better check in production!
+    // You may even want to check the public keys in the script against a
+    // whitelist depending on the circumstances!!!
+    // You also want to check the contents of the input to see if you have enough
+    // info to actually construct the scriptSig and Witnesses.
+
+    if (!decompiled || decompiled[0] !== bitcoinJS.opcodes.OP_IF) {
+      throw new Error(`Can not finalize input #${inputIndex}`);
+    }
+
+    // Step 2: Create final scripts
+    const network = config.NETWORK;
+    let payment: bitcoinJS.Payment = {
+      network,
+      output: script,
+      // This logic should be more strict and make sure the pubkeys in the
+      // meaningful script are the ones signing in the PSBT etc.
+      input: bitcoinJS.script.compile([input.partialSig![0].signature]),
+    };
+    if (isP2WSH && isSegwit) {
+      payment = bitcoinJS.payments.p2wsh({
+        network,
+        redeem: payment,
+      });
+    }
+    if (isP2SH) {
+      payment = bitcoinJS.payments.p2sh({
+        network,
+        redeem: payment,
+      });
+    }
+
+    function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
+      let buffer = Buffer.allocUnsafe(0);
+
+      function writeSlice(slice: Buffer): void {
+        buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+      }
+
+      function writeVarInt(i: number): void {
+        const currentLen = buffer.length;
+        const varintLen = varuint.encodingLength(i);
+
+        buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+        varuint.encode(i, buffer, currentLen);
+      }
+
+      function writeVarSlice(slice: Buffer): void {
+        writeVarInt(slice.length);
+        writeSlice(slice);
+      }
+
+      function writeVector(vector: Buffer[]): void {
+        writeVarInt(vector.length);
+        vector.forEach(writeVarSlice);
+      }
+
+      writeVector(witness);
+
+      return buffer;
+    }
+
+    return {
+      finalScriptSig: payment.input,
+      finalScriptWitness:
+        payment.witness && payment.witness.length > 0
+          ? witnessStackToScriptWitness(payment.witness)
+          : undefined,
+    };
+  }
+
   static deriveMultiSig = (
     required: number,
     pubkeys: Buffer[],
     network: bitcoinJS.Network,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
-    p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment | undefined;
   } => {
@@ -197,10 +324,15 @@ export default class WalletUtilities {
       pubkeys,
       network,
     });
+
     const p2wsh = bitcoinJS.payments.p2wsh({
       redeem: p2ms,
       network,
     });
+
+    // const p2wsh = bitcoinJS.payments.p2wsh({
+    //   redeem: { output: this.getCustomScript(pubkeys), network },
+    // });
 
     let p2sh;
     if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
@@ -211,7 +343,7 @@ export default class WalletUtilities {
       });
     }
 
-    return { p2ms, p2wsh, p2sh };
+    return { p2wsh, p2sh };
   };
 
   static isValidAddress = (address: string, network: bitcoinJS.Network): boolean => {
@@ -446,21 +578,23 @@ export default class WalletUtilities {
   } => {
     const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
-    let xpriv = (wallet as Wallet).specs.xpriv;
+    const xpriv = (wallet as Wallet).specs.xpriv;
 
     const network = WalletUtilities.getNetworkByType(networkType);
     const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      if (addressCache.external[itr] === address)
+      if (addressCache.external[itr] === address) {
         return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, false, itr, network) };
+      }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (addressCache.internal[itr] === address)
+      if (addressCache.internal[itr] === address) {
         return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, true, itr, network) };
+      }
     }
 
     throw new Error(`Could not find public key for: ${address}`);
@@ -472,7 +606,6 @@ export default class WalletUtilities {
     internal: boolean,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
-    p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
     pubkeys: Buffer[];
@@ -522,7 +655,7 @@ export default class WalletUtilities {
       pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
     }
 
-    const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
+    const { p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
       wallet.scheme.m,
       pubkeys,
       network,
@@ -531,7 +664,6 @@ export default class WalletUtilities {
     const address = p2sh ? p2sh.address : p2wsh.address;
 
     return {
-      p2ms,
       p2wsh,
       p2sh,
       pubkeys,
@@ -546,7 +678,6 @@ export default class WalletUtilities {
     address: string,
     wallet: Vault
   ): {
-    p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
     pubkeys: Buffer[];
@@ -636,7 +767,7 @@ export default class WalletUtilities {
       if (WalletUtilities.isValidAddress(address, network)) {
         return {
           type: PaymentInfoKind.PAYMENT_URI,
-          address: address,
+          address,
           amount: options.amount,
           message: options.message,
         };
@@ -662,7 +793,6 @@ export default class WalletUtilities {
     | {
         outputs: OutputUTXOs[];
         changeMultisig: {
-          p2ms: bitcoinJS.payments.Payment;
           p2wsh: bitcoinJS.payments.Payment;
           p2sh: bitcoinJS.payments.Payment;
           pubkeys: Buffer[];
@@ -679,7 +809,6 @@ export default class WalletUtilities {
       } => {
     const changeAddress: string = '';
     let changeMultisig: {
-      p2ms: bitcoinJS.payments.Payment;
       p2wsh: bitcoinJS.payments.Payment;
       p2sh: bitcoinJS.payments.Payment;
       pubkeys: Buffer[];
@@ -709,8 +838,9 @@ export default class WalletUtilities {
         }
 
         let xpub = null;
-        if (wallet.entityKind === EntityKind.VAULT)
-          xpub = (wallet as Vault).specs.xpubs[0]; // 1-of-1 multisig
+        if (wallet.entityKind === EntityKind.VAULT) {
+          xpub = (wallet as Vault).specs.xpubs[0];
+        } // 1-of-1 multisig
         else xpub = (wallet as Wallet).specs.xpub;
 
         output.address = WalletUtilities.getAddressByIndex(
