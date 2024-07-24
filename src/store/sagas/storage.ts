@@ -79,7 +79,7 @@ export function* setupKeeperAppWorker({ payload }) {
           description: '',
           transferPolicy: {
             id: uuidv4(),
-            threshold: null,
+            threshold: 0,
           },
         },
       };
