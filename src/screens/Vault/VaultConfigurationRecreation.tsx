@@ -293,6 +293,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: hp(285),
     width: wp(330),
+    alignSelf: 'center',
   },
   cameraView: {
     height: hp(285),
