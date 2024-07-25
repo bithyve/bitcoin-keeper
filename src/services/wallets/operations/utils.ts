@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable prefer-destructuring */
 
 import * as bip39 from 'bip39';
@@ -19,6 +20,7 @@ import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Signer, Vault } from '../interfaces/vault';
 import {
   BIP48ScriptTypes,
+  CustomScriptType,
   DerivationPurpose,
   EntityKind,
   ImportedKeyType,
@@ -30,6 +32,7 @@ import {
 import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
+import { generateBitcoinScript, generateMiniscript } from './miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -184,46 +187,42 @@ export default class WalletUtilities {
     throw new Error("Unsupported derivation purpose, can't derive address");
   };
 
-  static getCustomScript = (pubkeys: Buffer[]) => {
-    const UK = bitcoinJS.crypto.hash160(pubkeys[0]).toString('hex');
-    const AK1 = bitcoinJS.crypto.hash160(pubkeys[1]).toString('hex');
-    const AK2 = bitcoinJS.crypto.hash160(pubkeys[2]).toString('hex');
-    const T1 = bitcoinJS.script.number.encode(1800).toString('hex');
-    const T2 = bitcoinJS.script.number.encode(3600).toString('hex');
+  static generateCustomScript = (pubkeys: Buffer[], type: CustomScriptType) => {
+    switch (type) {
+      case CustomScriptType.ADVISOR_VAULT:
+        const currentBlockHeight = 2870033; // testnet
+        const T1 = currentBlockHeight + 30;
+        const T2 = currentBlockHeight + 50;
+        const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
+        const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
 
-    const script = bitcoinJS.script.fromASM(
-      `
-      OP_IF
-        ${UK} OP_CHECKSIGVERIFY OP_IF
-          OP_DUP OP_HASH160 ${AK1} OP_EQUALVERIFY
-        OP_ELSE
-          OP_DUP OP_HASH160 ${AK2} OP_EQUALVERIFY
-        OP_ENDIF
-        OP_CHECKSIG
-      OP_ELSE
-        OP_IF
-          OP_DUP OP_HASH160 ${UK} OP_EQUALVERIFY OP_CHECKSIGVERIFY ${T1}
-          OP_CHECKLOCKTIMEVERIFY
-        OP_ELSE
-          ${AK1} OP_CHECKSIGVERIFY ${AK2} OP_CHECKSIGVERIFY ${T2}
-          OP_CHECKLOCKTIMEVERIFY
-        OP_ENDIF
-      OP_ENDIF
-      `
-        .replace(/\s+/g, ' ')
-        .trim()
-    );
+        const [UK, AK1, AK2] = pubkeys; // where UK: User Key, AK1: Advisor Key 1 and AK2: Advisor Key 2
 
-    /*
-    corresponding miniscript:
-      or_i(and_v(v:pk(UK),c:or_i(pk_h(AK1),pk_h(AK2))),or_i(and_v(v:pkh(UK),after(1800)),and_v(and_v(v:pk(AK1),v:pk(AK2)),after(3600))))
-      note: the above miniscript compiles to the bitcoin script used above
-    similar policy lang:
-      thresh(1, and(pk(UK),or(pk(AK1),pk(AK2))), and(after(1800), pk(N_UK)), and(after(3600), and(pk(N_AK1), pk(N_AK2))))
-      note: in policy lang N_UK and N_AK1 and N_AK2 are replace by UK, AK1 and AK2 in miniscript and bitcoin script, seems like policy lang doesn't support reuse of key substitutes
-    */
+        const policy = `or(and(pk(UK),or(or(pk(AK1),pk(AK2)),after(${T1}))),and(and(pk(N_AK1),pk(N_AK2)),after(${T2})))`;
+        // where N_AK1 is AK1 and N_AK2 is AK2, avoiding compilation error due to duplicate keys
 
-    return script;
+        let { miniscript } = generateMiniscript(policy);
+        miniscript = miniscript.replace('N_AK1', 'AK1').replace('N_AK2', 'AK2'); // replacing the substitutes with original keys
+        // results in an insane miniscript(issane:false while compiling the miniscript to bitcoin script)
+        // due to duplicate keys, but is doesn't mean that the miniscript and the resulting bitcoin script is is not valid
+
+        let { asm } = generateBitcoinScript(miniscript); // issane:false
+
+        asm = asm
+          .replace('<UK>', UK.toString('hex'))
+          .replace('<AK1>', AK1.toString('hex'))
+          .replace('<AK2>', AK2.toString('hex'))
+          .replace('<HASH160(AK1)>', bitcoinJS.crypto.hash160(AK1).toString('hex'))
+          .replace('<HASH160(AK2)>', bitcoinJS.crypto.hash160(AK2).toString('hex'))
+          .replace(`<${encodedT1}>`, encodedT1)
+          .replace(`<${encodedT2}>`, encodedT2);
+
+        const script = bitcoinJS.script.fromASM(asm);
+        return script;
+
+      default:
+        throw new Error('Invalid custom script type');
+    }
   };
 
   static getFinalScriptsForMyCustomScript(
@@ -319,20 +318,23 @@ export default class WalletUtilities {
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment | undefined;
   } => {
-    const p2ms = bitcoinJS.payments.p2ms({
-      m: required,
-      pubkeys,
-      network,
-    });
-
-    const p2wsh = bitcoinJS.payments.p2wsh({
-      redeem: p2ms,
-      network,
-    });
+    // const p2ms = bitcoinJS.payments.p2ms({
+    //   m: required,
+    //   pubkeys,
+    //   network,
+    // });
 
     // const p2wsh = bitcoinJS.payments.p2wsh({
-    //   redeem: { output: this.getCustomScript(pubkeys), network },
+    //   redeem: p2ms,
+    //   network,
     // });
+
+    const p2wsh = bitcoinJS.payments.p2wsh({
+      redeem: {
+        output: this.generateCustomScript(pubkeys, CustomScriptType.ADVISOR_VAULT),
+        network,
+      },
+    });
 
     let p2sh;
     if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {

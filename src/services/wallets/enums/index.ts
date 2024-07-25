@@ -193,3 +193,7 @@ export enum SigningMode {
   FILE = 'FILE',
   QR = 'QR',
 }
+
+export enum CustomScriptType {
+  ADVISOR_VAULT = 'ADVISOR_VAULT',
+}
