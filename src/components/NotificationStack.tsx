@@ -361,7 +361,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
               },
               secondary: {
                 text: 'Skip',
-                cta: () => {},
+                cta: skipBtnConfig(uai),
               },
             },
           },
@@ -512,7 +512,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         visible={insightModal}
         close={() => {
           setInsightModal(false);
-          skipUaiHandler(uai);
+          skipUaiHandler(uai, true);
         }}
         showCloseIcon={false}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -522,7 +522,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         buttonText={'Done'}
         buttonCallback={() => {
           setInsightModal(false);
-          skipUaiHandler(uai);
+          skipUaiHandler(uai, true);
         }}
         Content={() => <FeeInsightsContent />}
       />
