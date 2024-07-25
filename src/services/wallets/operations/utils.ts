@@ -16,6 +16,7 @@ import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
 import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
+import RestClient from 'src/services/rest/RestClient';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
 import { Signer, Vault } from '../interfaces/vault';
 import {
@@ -187,12 +188,29 @@ export default class WalletUtilities {
     throw new Error("Unsupported derivation purpose, can't derive address");
   };
 
-  static generateCustomScript = (pubkeys: Buffer[], type: CustomScriptType) => {
+  static fetchCurrentBlockHeight = async () => {
+    try {
+      const endpoint =
+        config.NETWORK_TYPE === NetworkType.MAINNET
+          ? 'https://mempool.space/api/blocks/tip/height'
+          : 'https://mempool.space/testnet/api/blocks/tip/height';
+
+      const res = await RestClient.get(endpoint);
+      const currentBlockHeight = res.data;
+      return { currentBlockHeight };
+    } catch (error) {
+      throw new Error('Failed to fetch current block height');
+    }
+  };
+
+  static generateCustomScript = (
+    type: CustomScriptType,
+    pubkeys: Buffer[],
+    timelocks: number[]
+  ) => {
     switch (type) {
       case CustomScriptType.ADVISOR_VAULT:
-        const currentBlockHeight = 2870033; // testnet
-        const T1 = currentBlockHeight + 30;
-        const T2 = currentBlockHeight + 50;
+        const [T1, T2] = timelocks;
         const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
         const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
 
@@ -318,20 +336,48 @@ export default class WalletUtilities {
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment | undefined;
   } => {
-    // const p2ms = bitcoinJS.payments.p2ms({
-    //   m: required,
-    //   pubkeys,
-    //   network,
-    // });
+    const p2ms = bitcoinJS.payments.p2ms({
+      m: required,
+      pubkeys,
+      network,
+    });
 
-    // const p2wsh = bitcoinJS.payments.p2wsh({
-    //   redeem: p2ms,
-    //   network,
-    // });
+    const p2wsh = bitcoinJS.payments.p2wsh({
+      redeem: p2ms,
+      network,
+    });
+
+    let p2sh;
+    if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+      // wrap native segwit
+      p2sh = bitcoinJS.payments.p2sh({
+        redeem: p2wsh,
+        network,
+      });
+    }
+
+    return { p2wsh, p2sh };
+  };
+
+  static deriveCustomMultiSig = (
+    config: {
+      type: CustomScriptType;
+      pubkeys: Buffer[];
+      timelocks: number[];
+    },
+    network: bitcoinJS.Network,
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
+  ): {
+    p2wsh: bitcoinJS.payments.Payment;
+    p2sh: bitcoinJS.payments.Payment | undefined;
+  } => {
+    // const { currentBlockHeight } = await this.fetchCurrentBlockHeight();
+    // const T1 = currentBlockHeight + 30;
+    // const T2 = currentBlockHeight + 50;
 
     const p2wsh = bitcoinJS.payments.p2wsh({
       redeem: {
-        output: this.generateCustomScript(pubkeys, CustomScriptType.ADVISOR_VAULT),
+        output: this.generateCustomScript(config.type, config.pubkeys, config.timelocks),
         network,
       },
     });
