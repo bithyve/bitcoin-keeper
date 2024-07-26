@@ -194,6 +194,7 @@ export enum SigningMode {
   QR = 'QR',
 }
 
-export enum CustomScriptType {
+export enum MultisigScriptType {
+  DEFAULT_MULTISIG = 'DEFAULT_MULTISIG',
   ADVISOR_VAULT = 'ADVISOR_VAULT',
 }

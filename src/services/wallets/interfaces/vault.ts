@@ -112,3 +112,9 @@ export interface Vault {
   scriptType: ScriptTypes;
   receivingAddress?: string;
 }
+
+export interface MultisigConfig {
+  pubkeys: Buffer[];
+  required?: number;
+  timelocks?: number[];
+}

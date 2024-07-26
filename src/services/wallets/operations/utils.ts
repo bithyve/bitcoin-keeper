@@ -18,10 +18,10 @@ import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import RestClient from 'src/services/rest/RestClient';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
-import { Signer, Vault } from '../interfaces/vault';
+import { MultisigConfig, Signer, Vault } from '../interfaces/vault';
 import {
   BIP48ScriptTypes,
-  CustomScriptType,
+  MultisigScriptType,
   DerivationPurpose,
   EntityKind,
   ImportedKeyType,
@@ -204,12 +204,12 @@ export default class WalletUtilities {
   };
 
   static generateCustomScript = (
-    type: CustomScriptType,
+    type: MultisigScriptType,
     pubkeys: Buffer[],
     timelocks: number[]
   ) => {
     switch (type) {
-      case CustomScriptType.ADVISOR_VAULT:
+      case MultisigScriptType.ADVISOR_VAULT:
         const [T1, T2] = timelocks;
         const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
         const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
@@ -328,59 +328,53 @@ export default class WalletUtilities {
   }
 
   static deriveMultiSig = (
-    required: number,
-    pubkeys: Buffer[],
+    multisigType: MultisigScriptType,
+    config: MultisigConfig,
     network: bitcoinJS.Network,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment | undefined;
   } => {
-    const p2ms = bitcoinJS.payments.p2ms({
-      m: required,
-      pubkeys,
-      network,
-    });
+    let p2wsh;
 
-    const p2wsh = bitcoinJS.payments.p2wsh({
-      redeem: p2ms,
-      network,
-    });
+    switch (multisigType) {
+      case MultisigScriptType.DEFAULT_MULTISIG:
+        if (!config.pubkeys || !config.required) {
+          throw new Error('Invalid multisig config');
+        }
 
-    let p2sh;
-    if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
-      // wrap native segwit
-      p2sh = bitcoinJS.payments.p2sh({
-        redeem: p2wsh,
-        network,
-      });
+        const p2ms = bitcoinJS.payments.p2ms({
+          m: config.required,
+          pubkeys: config.pubkeys,
+          network,
+        });
+
+        p2wsh = bitcoinJS.payments.p2wsh({
+          redeem: p2ms,
+          network,
+        });
+        break;
+
+      case MultisigScriptType.ADVISOR_VAULT:
+        if (!config.pubkeys || !config.timelocks) {
+          throw new Error('Invalid multisig config');
+        }
+        // const { currentBlockHeight } = await this.fetchCurrentBlockHeight();
+        // const T1 = currentBlockHeight + 30;
+        // const T2 = currentBlockHeight + 50;
+
+        p2wsh = bitcoinJS.payments.p2wsh({
+          redeem: {
+            output: this.generateCustomScript(multisigType, config.pubkeys, config.timelocks),
+            network,
+          },
+        });
+        break;
+
+      default:
+        throw new Error('Invalid multisig type');
     }
-
-    return { p2wsh, p2sh };
-  };
-
-  static deriveCustomMultiSig = (
-    config: {
-      type: CustomScriptType;
-      pubkeys: Buffer[];
-      timelocks: number[];
-    },
-    network: bitcoinJS.Network,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
-  ): {
-    p2wsh: bitcoinJS.payments.Payment;
-    p2sh: bitcoinJS.payments.Payment | undefined;
-  } => {
-    // const { currentBlockHeight } = await this.fetchCurrentBlockHeight();
-    // const T1 = currentBlockHeight + 30;
-    // const T2 = currentBlockHeight + 50;
-
-    const p2wsh = bitcoinJS.payments.p2wsh({
-      redeem: {
-        output: this.generateCustomScript(config.type, config.pubkeys, config.timelocks),
-        network,
-      },
-    });
 
     let p2sh;
     if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
@@ -703,9 +697,13 @@ export default class WalletUtilities {
       pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
     }
 
-    const { p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
-      wallet.scheme.m,
+    const config: MultisigConfig = {
       pubkeys,
+      required: wallet.scheme.m,
+    };
+    const { p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
+      MultisigScriptType.DEFAULT_MULTISIG,
+      config,
       network,
       scriptType
     );
