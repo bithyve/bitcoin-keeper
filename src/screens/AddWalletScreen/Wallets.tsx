@@ -12,6 +12,9 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import KeeperModal from 'src/components/KeeperModal';
 import SignerCard from '../AddSigner/SignerCard';
+import AirGappedIcon from 'src/assets/images/airgapped.svg';
+import HotWalletIcon from 'src/assets/images/hotWallet.svg';
+
 enum SingleKeyOptions {
   HOT_WALLET = 'HOT_WALLET',
   AIR_GAPPED = 'AIR_GAPPED',
@@ -55,13 +58,13 @@ function Wallets({ navigation }) {
     {
       name: SingleKeyOptions.HOT_WALLET,
       title: 'Hot wallet',
-      icon: <></>,
+      icon: <HotWalletIcon />,
       subTitle: 'key on the app',
     },
     {
       name: SingleKeyOptions.AIR_GAPPED,
       title: 'Air Gapped',
-      icon: <></>,
+      icon: <AirGappedIcon />,
       subTitle: 'Choose a key',
     },
   ];
