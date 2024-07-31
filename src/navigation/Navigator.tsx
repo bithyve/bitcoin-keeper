@@ -120,6 +120,7 @@ import TrustedContactTemplates from 'src/screens/InheritanceToolsAndTips/compone
 import AdditionalSignerDetailsTemplate from 'src/screens/InheritanceToolsAndTips/components/AdditionalSignerDetailsTemplate';
 import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
 import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
+import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRecovery';
 import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
@@ -181,6 +182,7 @@ function AppStack() {
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
+        <Stack.Screen name="PassportConfigRecovery" component={PassportConfigRecovery} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
