@@ -188,10 +188,12 @@ function SigningDeviceConfigRecovery({ navigation }) {
           buttonText="Continue"
           buttonTextColor={`${colorMode}.white`}
           buttonCallback={() => {
-            navigate('LoginStack', {
-              screen: 'ScanQRFileRecovery',
-              params: { allowFileUploads: false },
-            });
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'PassportConfigRecovery',
+                params: { mode: InteracationMode.CONFIG_RECOVERY },
+              })
+            );
             close();
           }}
           textColor={`${colorMode}.primaryText`}
@@ -217,6 +219,18 @@ function SigningDeviceConfigRecovery({ navigation }) {
                 type={type}
                 first={index === 0}
                 last={index === 3}
+                disabled={disabled}
+                message={message}
+              />
+            );
+          })}
+          {[SignerType.PASSPORT].map((type: SignerType, index: number) => {
+            const { disabled, message } = getDeviceStatus(type, isNfcSupported, signingDevices);
+            return (
+              <HardWareWallet
+                type={type}
+                first={index !== 0}
+                last={index !== 3}
                 disabled={disabled}
                 message={message}
               />
