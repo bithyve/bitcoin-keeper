@@ -512,7 +512,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         visible={insightModal}
         close={() => {
           setInsightModal(false);
-          skipUaiHandler(uai, true);
+          dispatch(uaiActioned({ uaiId: uai.id, action: true }));
         }}
         showCloseIcon={false}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -522,7 +522,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         buttonText={'Done'}
         buttonCallback={() => {
           setInsightModal(false);
-          skipUaiHandler(uai, true);
+          dispatch(uaiActioned({ uaiId: uai.id, action: true }));
         }}
         Content={() => <FeeInsightsContent />}
       />
