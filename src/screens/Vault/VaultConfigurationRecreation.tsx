@@ -25,11 +25,12 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import { useFocusEffect } from '@react-navigation/native';
 
 function WrappedImportIcon() {
   return (
     <View style={styles.iconWrapper}>
-      <ImportIcon width={20} height={20} fill={Colors.pantoneGreen} />
+      <ImportIcon width={15} height={15} />
     </View>
   );
 }
@@ -47,6 +48,16 @@ function VaultConfigurationCreation() {
   const { common, importWallet } = translations;
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
+
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
 
   // eslint-disable-next-line no-promise-executor-return
   const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -166,12 +177,14 @@ function VaultConfigurationCreation() {
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
-              <RNCamera
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={onBarCodeRead}
-                useNativeZoom
-              />
+              {isFocused && (
+                <RNCamera
+                  style={styles.cameraView}
+                  captureAudio={false}
+                  onBarCodeRead={onBarCodeRead}
+                  useNativeZoom
+                />
+              )}
             </Box>
             <Box style={styles.qrStatus}>
               <UploadImage
@@ -280,6 +293,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: hp(285),
     width: wp(330),
+    alignSelf: 'center',
   },
   cameraView: {
     height: hp(285),
@@ -333,8 +347,9 @@ const styles = StyleSheet.create({
     marginTop: hp(60),
   },
   iconWrapper: {
-    width: 40,
-    height: 40,
+    width: wp(35),
+    height: wp(35),
+    marginLeft: -7,
     borderRadius: 20,
     backgroundColor: Colors.pantoneGreen,
     justifyContent: 'center',

@@ -16,7 +16,7 @@ import DotView from 'src/components/DotView';
 import moment from 'moment';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { backupBsmsOnCloud, bsmsCloudHealthCheck } from 'src/store/sagaActions/bhr';
-import { setBackupLoading } from 'src/store/reducers/bhr';
+import { setBackupLoading, setLastBsmsBackup } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import BTCIllustration from 'src/assets/images/btc-illustration.svg';
@@ -24,8 +24,8 @@ import useVault from 'src/hooks/useVault';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import { wp } from 'src/constants/responsive';
-import EnterPasswordModal from './EnterPasswordModal';
 import { setBackupModal } from 'src/store/reducers/settings';
+import EnterPasswordModal from './EnterPasswordModal';
 
 function CloudBackupScreen() {
   const { colorMode } = useColorMode();
@@ -40,7 +40,6 @@ function CloudBackupScreen() {
   const { allVaults } = useVault({});
   const backupModal = useAppSelector((state) => state.settings.backupModal);
   const [showModal, setShowModal] = useState(backupModal);
-
   const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
 
   useEffect(() => {
@@ -81,6 +80,7 @@ function CloudBackupScreen() {
         visible={showPasswordModal}
         close={() => setShowPasswordModal(false)}
         callback={(value: any) => {
+          dispatch(setLastBsmsBackup(Date.now()));
           dispatch(backupBsmsOnCloud(value || ''));
         }}
       />
@@ -162,7 +162,7 @@ function CloudBackupScreen() {
         title={strings.cloudBackupModalTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        DarkCloseIcon={colorMode === 'dark' ? true : false}
+        DarkCloseIcon={colorMode === 'dark'}
         learnMore
         showCloseIcon={true}
         learnMoreCallback={() => {

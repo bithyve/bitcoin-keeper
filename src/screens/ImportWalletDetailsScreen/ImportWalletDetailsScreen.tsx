@@ -17,7 +17,7 @@ function ImportWalletDetailsScreen({ route }) {
   const { home, importWallet } = translations;
 
   const { importedKey, importedKeyDetails, type, name, description } = route.params;
-  const transferPolicy = maxTransferPolicyThreshold.toString();
+  const transferPolicy = null;
 
   const [walletName, setWalletName] = useState(name || '');
   const [walletDescription, setWalletDescription] = useState(description || '');

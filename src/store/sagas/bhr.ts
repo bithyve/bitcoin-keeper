@@ -690,16 +690,19 @@ function* isBackedUP({
 function* backupBsmsOnCloudWorker({
   payload,
 }: {
-  payload: {
+  payload?: {
     password: string;
   };
 }) {
+  const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
+  if (!lastBsmsBackup) return;
   const { password } = payload;
-  if (password) yield put(setEncPassword(password));
+  if (password || password === '') yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const bsmsToBackup = [];
-    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const vaultsCollection = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const vaults = vaultsCollection.filter((vault) => vault.archived === false);
     if (vaults.length === 0) {
       yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
         title: CloudBackupAction.CLOUD_BACKUP_FAILED,

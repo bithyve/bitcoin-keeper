@@ -16,7 +16,8 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { VaultType } from 'src/services/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import { LOGIN_WITH_HEXA, refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -131,9 +132,14 @@ function VaultInfo({ vault }: { vault: Vault }) {
         />
         <CardPill
           heading={`${
-            vault.type === VaultType.COLLABORATIVE ? common.COLLABORATIVE : common.VAULT
+            vault.type === VaultType.COLLABORATIVE
+              ? common.COLLABORATIVE
+              : vault.type === VaultType.SINGE_SIG
+              ? 'Single-key'
+              : common.VAULT
           }`}
         />
+        {vault.type === VaultType.SINGE_SIG && <CardPill heading={'Cold'} />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
       </HStack>
@@ -329,7 +335,15 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 width={58}
                 height={50}
                 backgroundColor={'rgba(9, 44, 39, 0.6)'}
-                icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
+                icon={
+                  isCollaborativeWallet ? (
+                    <CollaborativeIcon />
+                  ) : vault.type === VaultType.SINGE_SIG ? (
+                    <WalletIcon />
+                  ) : (
+                    <VaultIcon />
+                  )
+                }
               />
             }
             subtitle={vault.presentationData?.description}

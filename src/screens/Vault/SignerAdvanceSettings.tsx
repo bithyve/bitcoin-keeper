@@ -108,10 +108,12 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
+    signerId,
   }: {
     signer: Signer;
     vaultKey: VaultSigner;
     vaultId: string;
+    signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
@@ -139,7 +141,14 @@ function SignerAdvanceSettings({ route }: any) {
 
   const { isOnL2Above } = usePlan();
 
-  const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
+  const inheritanceKeyExistingEmailCount =
+    useAppSelector((state) => state.storage.inheritanceKeyExistingEmailCount) || 0; // || 0 for backward compatibility: inheritanceKeyExistingEmailCount might be undefined for upgraded apps
+
+  const currentEmail =
+    idx(
+      signer,
+      (_) => _.inheritanceKeyInfo.policy.alert.emails[inheritanceKeyExistingEmailCount]
+    ) || '';
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
@@ -252,18 +261,16 @@ function SignerAdvanceSettings({ route }: any) {
       const existingEmails = existingAlert.emails || [];
 
       // remove the previous email
-      const index = existingEmails.indexOf(removeEmail);
-      if (index !== -1) existingEmails.splice(index, 1);
+      existingEmails[inheritanceKeyExistingEmailCount] = '';
 
       // add the new email(if provided)
-      const updatedEmails = [...existingEmails];
-      if (newEmail) updatedEmails.push(newEmail);
+      if (newEmail) existingEmails[inheritanceKeyExistingEmailCount] = newEmail; // only update email for the latest inheritor(for source app, inheritanceKeyExistingEmailCount is 0)
 
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
         alert: {
           ...existingAlert,
-          emails: updatedEmails,
+          emails: existingEmails,
         },
       };
 
@@ -340,16 +347,13 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const navigateToPolicyChange = () => {
-    const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
-    const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ChoosePolicyNew',
         params: {
-          restrictions,
-          exceptions,
           isUpdate: true,
           signer,
+          signerId,
           vaultId,
           vaultKey,
         },
@@ -1257,6 +1261,7 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     paddingTop: hp(10),
+    paddingHorizontal: wp(10),
   },
   signerVaults: {
     gap: 5,

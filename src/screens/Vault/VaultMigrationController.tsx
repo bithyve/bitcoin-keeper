@@ -28,6 +28,7 @@ function VaultMigrationController({
   description,
   vaultId,
   setGeneratedVaultId,
+  vaultType = VaultType.DEFAULT,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -125,10 +126,10 @@ function VaultMigrationController({
     }
   };
 
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
+  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme, vaultType) => {
     try {
       const vaultInfo: NewVaultInfo = {
-        vaultType: VaultType.DEFAULT,
+        vaultType,
         vaultScheme: scheme,
         vaultSigners: signers,
         vaultDetails: {
@@ -176,7 +177,7 @@ function VaultMigrationController({
       }
 
       const vaultInfo: NewVaultInfo = {
-        vaultType: VaultType.DEFAULT,
+        vaultType: vaultType,
         vaultScheme: scheme,
         vaultSigners: vaultKeys,
         vaultDetails: {
@@ -186,9 +187,10 @@ function VaultMigrationController({
       };
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(vaultKeys, scheme);
+      createVault(vaultKeys, scheme, vaultType);
     }
   };
+
   return null;
 }
 

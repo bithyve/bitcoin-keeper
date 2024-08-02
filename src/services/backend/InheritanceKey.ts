@@ -350,6 +350,7 @@ export default class InheritanceKeyServer {
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/declineInheritanceKeyRequest`, {
         HEXA_ID,
+        isKeeper: true, //For iks to return the
         requestId,
       });
     } catch (err) {

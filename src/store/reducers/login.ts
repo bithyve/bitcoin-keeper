@@ -12,6 +12,7 @@ export const initialState: {
   authenticationFailed: boolean;
   walletSetupCompleted: boolean;
   walletSetupFailed: boolean;
+  isInitialLogin: boolean;
   reLogin: boolean;
   loading: {
     initializing: boolean;
@@ -39,6 +40,7 @@ export const initialState: {
   authenticationFailed: false,
   walletSetupCompleted: false,
   walletSetupFailed: false,
+  isInitialLogin: false,
   reLogin: false,
   loading: {
     initializing: false,
@@ -135,6 +137,9 @@ const loginSlice = createSlice({
       state.electrumClientConnectionStatus.setElectrumNotConnectedErr =
         initialState.electrumClientConnectionStatus.setElectrumNotConnectedErr;
     },
+    setIsInitialLogin: (state, action: PayloadAction<boolean>) => {
+      state.isInitialLogin = action.payload;
+    },
   },
 });
 
@@ -152,5 +157,6 @@ export const {
   electrumClientConnectionExecuted,
   setElectrumNotConnectedErr,
   resetElectrumNotConnectedErr,
+  setIsInitialLogin,
 } = loginSlice.actions;
 export default loginSlice.reducer;

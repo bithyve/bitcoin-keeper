@@ -72,7 +72,10 @@ import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import {
+  setInheritanceKeyExistingEmailCount,
+  setInheritanceRequestId,
+} from 'src/store/reducers/storage';
 import Instruction from 'src/components/Instruction';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -104,6 +107,7 @@ import NFC from 'src/services/nfc';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import BackupModalContent from '../AppSettings/BackupModal';
+import idx from 'idx';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -1736,6 +1740,10 @@ function HardwareModalMap({
         // }
         dispatch(addSigningDevice([inheritanceKey]));
         dispatch(setInheritanceRequestId('')); // clear approved request
+
+        const registeredEmails = idx(setupInfo.policy, (_) => _.alert.emails) || [];
+        dispatch(setInheritanceKeyExistingEmailCount(registeredEmails.length));
+
         showToast(
           `${inheritanceKey.signerName} added successfully`,
           <TickIcon />,

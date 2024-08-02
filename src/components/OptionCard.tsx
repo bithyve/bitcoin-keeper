@@ -116,8 +116,6 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     width: wp(25),
-    // alignSelf: 'center',
-    // alignItems: 'center',
   },
 });
 

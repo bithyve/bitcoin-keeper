@@ -27,9 +27,7 @@ const NotificationHandler = () => {
       const requestId = foregroundNotifcation?.data?.reqId;
       if (requestId) {
         setShowLoader(true);
-        const res = await InheritanceKeyServer.declineInheritanceKeyRequest(
-          foregroundNotifcation.notification.data.reqId
-        );
+        const res = await InheritanceKeyServer.declineInheritanceKeyRequest(requestId);
         if (res?.declined) {
           setShowLoader(false);
           showToast('IKS request declined');

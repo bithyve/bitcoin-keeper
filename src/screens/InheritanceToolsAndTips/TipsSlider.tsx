@@ -26,6 +26,15 @@ function TipsSlider({ items }) {
 
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 });
 
+  const handleScrollEnd = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const maxOffsetX = (items.length - 1) * width;
+
+    if (offsetX > maxOffsetX) {
+      onboardingSlideRef.current.scrollToOffset({ offset: maxOffsetX, animated: true });
+    }
+  };
+
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.modalGreenBackground`}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
@@ -49,6 +58,7 @@ function TipsSlider({ items }) {
                 paragraph2={item.paragraph2}
               />
             )}
+            onMomentumScrollEnd={handleScrollEnd}
           />
         </Box>
         <Box style={styles.indicatorContainer}>

@@ -141,6 +141,7 @@ import {
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { getSignerDescription } from 'src/hardware';
+import { backupBsmsOnCloud } from '../sagaActions/bhr';
 
 export interface NewVaultDetails {
   name?: string;
@@ -608,6 +609,7 @@ export function* addNewVaultWorker({
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
       yield put(setIsCloudBsmsBackupRequired(true));
+      yield put(backupBsmsOnCloud(null));
       return true;
     }
     throw new Error('Relay updation failed');
@@ -913,6 +915,7 @@ function* finaliseIKSetupWorker({
       backupBSMSForIKS
     );
 
+    let isRecoveredInheritanceKey = false;
     if (!existingConfiguration) {
       // note: a pre-present inheritanceKeyInfo w/ an empty configurations array is also used as a key to identify that it is a recovered inheritance key
       const restoredIKSConfigLength = idx(
@@ -921,6 +924,7 @@ function* finaliseIKSetupWorker({
       ); // will be undefined if this is not a restored IKS(which is an error case)
       if (restoredIKSConfigLength === 0) {
         // case II: recovered IKS synching for the first time
+        isRecoveredInheritanceKey = true;
         existingConfiguration = newIKSConfiguration; // as two signer fingerprints(at least) are required to fetch IKS, the new config will indeed contain a registered threshold number of signer fingerprints to pass validation on the backend and therefore can be taken as the existing configuration
       } else throw new Error('Failed to find the existing configuration for IKS');
     }
@@ -938,6 +942,32 @@ function* finaliseIKSetupWorker({
         configurations: [...ikSigner.inheritanceKeyInfo.configurations, newIKSConfiguration],
       };
     } else throw new Error('Failed to update the inheritance key configuration');
+
+    if (isRecoveredInheritanceKey) {
+      // update inheritance key w/ the FCM token of heir's device
+      const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
+
+      if (fcmToken) {
+        const existingPolicy = idx(ikSigner, (_) => _.inheritanceKeyInfo.policy) || {};
+        const existingTargets =
+          idx(existingPolicy, (_) => (_ as InheritancePolicy).notification.targets) || [];
+        const updatedPolicy: InheritancePolicy = {
+          ...existingPolicy,
+          notification: {
+            targets: [...existingTargets, fcmToken],
+          },
+        };
+
+        const { updated } = yield call(
+          InheritanceKeyServer.updateInheritancePolicy,
+          ikVaultKey.xfp,
+          updatedPolicy,
+          existingConfiguration
+        );
+        if (updated) updatedInheritanceKeyInfo.policy = updatedPolicy;
+        else console.log('Failed to update the inheritance key policy w/ FCM of the heir');
+      }
+    }
   } else {
     // case: setting up a vault w/ IKS for the first time
     const config: InheritanceConfiguration = yield call(
@@ -1231,7 +1261,7 @@ export function* updateSignerPolicyWorker({
           restrictions: updates.restrictions,
           exceptions: updates.exceptions,
         };
-        yield put(setSignerPolicyError(false));
+        yield put(setSignerPolicyError('success'));
 
         yield call(
           dbManager.updateObjectByPrimaryId,
@@ -1246,7 +1276,7 @@ export function* updateSignerPolicyWorker({
       }
     }
   } catch (err) {
-    yield put(setSignerPolicyError(true));
+    yield put(setSignerPolicyError('failure'));
   }
 }
 
