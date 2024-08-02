@@ -64,7 +64,9 @@ function EnterWalletDetailScreen({ route }) {
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
-  const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
+  const [transferPolicy, setTransferPolicy] = useState(
+    defaultTransferPolicyThreshold?.toString() || ''
+  );
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { hasNewWalletsGenerationFailed, err } = useAppSelector((state) => state.wallet);

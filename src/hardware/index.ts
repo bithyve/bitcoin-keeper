@@ -446,7 +446,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'A DIY stateless signer';
     }
     case SignerType.SEED_WORDS: {
-      return '12-words key phrase';
+      return '12, 18 or 24 words phrase';
     }
     case SignerType.TAPSIGNER: {
       return 'Easy-to-use signer from Coinkite';

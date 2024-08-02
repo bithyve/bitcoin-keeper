@@ -15,7 +15,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { TxPriority } from 'src/services/wallets/enums';
+import { NetworkType, TxPriority } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
@@ -142,13 +142,18 @@ function SendingCard({
   };
 
   const getCardDetails = () => {
+    const availableBalance =
+      sender.networkType === NetworkType.MAINNET
+        ? sender.specs.balances.confirmed
+        : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
     switch (transferType) {
       case TransferType.VAULT_TO_VAULT:
         return isSend ? (
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
+              availableBalance
             )} ${getSatUnit()}`}
             isVault
           />
@@ -164,7 +169,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
+              availableBalance
             )} ${getSatUnit()}`}
             isVault
           />
@@ -179,7 +184,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
             isVault
           />
@@ -196,7 +201,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
           />
         ) : (
@@ -210,7 +215,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
           />
         ) : (
@@ -225,7 +230,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
           />
         ) : (
@@ -434,6 +439,11 @@ function SendSuccessfulContent({
     return currencyCode;
   };
 
+  const availableBalance =
+    sender.networkType === NetworkType.MAINNET
+      ? sender.specs.balances.confirmed
+      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
   return (
     <View>
       <Box style={styles.fdRow}>
@@ -457,9 +467,7 @@ function SendSuccessfulContent({
           <Card
             isVault={sender?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
-            subTitle={`${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
-            )} ${getSatUnit()}`}
+            subTitle={`${getCurrencyIcon()} ${getBalance(availableBalance)} ${getSatUnit()}`}
           />
         </Box>
       </Box>
@@ -961,11 +969,18 @@ function SendConfirmation({ route }) {
     );
     if (!cachedInputUTXOs) return false;
 
-    const currentConfirmedUTXOs: InputUTXOs[] = idx(currentSender, (_) => _.specs.confirmedUTXOs);
+    const confirmedUTXOs: InputUTXOs[] = idx(currentSender, (_) => _.specs.confirmedUTXOs) || [];
+    const unconfirmedUTXOs: InputUTXOs[] =
+      idx(currentSender, (_) => _.specs.unconfirmedUTXOs) || [];
+
+    const currentUTXOSet =
+      currentSender.networkType === NetworkType.MAINNET
+        ? confirmedUTXOs
+        : [...confirmedUTXOs, ...unconfirmedUTXOs];
 
     for (const cachedUTXO of cachedInputUTXOs) {
       let found = false;
-      for (const currentUTXO of currentConfirmedUTXOs) {
+      for (const currentUTXO of currentUTXOSet) {
         if (cachedUTXO.txId === currentUTXO.txId && cachedUTXO.vout === currentUTXO.vout) {
           found = true;
           break;

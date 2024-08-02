@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -16,7 +16,7 @@ import {
   TREZOR_SIGN,
 } from 'src/services/channel/constants';
 import { useDispatch } from 'react-redux';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { captureError } from 'src/services/sentry';
@@ -35,11 +35,21 @@ function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
+
   const callback = (data) => {
     onBarCodeRead(data);
     setChannelCreated(true);
   };
-  return !channelCreated ? (
+  return !channelCreated && isFocused ? (
     <RNCamera
       autoFocus="on"
       style={styles.cameraView}

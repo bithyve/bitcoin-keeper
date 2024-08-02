@@ -366,7 +366,7 @@ function SigningDeviceDetails({ route }) {
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
         navigation.dispatch(
-          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId })
+          CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey, vaultId, signerId })
         );
       },
     },
