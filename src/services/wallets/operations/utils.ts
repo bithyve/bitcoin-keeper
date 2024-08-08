@@ -385,64 +385,116 @@ export default class WalletUtilities {
   }
 
   static deriveMultiSig = (
-    multisigType: MultisigScriptType,
-    config: MultisigConfig,
+    wallet: Vault,
+    multisigConfig: MultisigConfig,
     network: bitcoinJS.Network,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment | undefined;
+    subPaths: { [xpub: string]: number[] };
+    signerPubkeyMap: Map<string, Buffer>;
+    orderPreservedPubkeys?: string[];
   } => {
-    let p2wsh;
+    if (multisigConfig.multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+      if (!multisigConfig.required) {
+        throw new Error('Invalid multisig config');
+      }
 
-    switch (multisigType) {
-      case MultisigScriptType.DEFAULT_MULTISIG:
-        if (!config.pubkeys || !config.required) {
-          throw new Error('Invalid multisig config');
-        }
+      const subPaths = {};
+      const signerPubkeyMap = new Map<string, Buffer>();
+      const { internal, childIndex } = multisigConfig;
 
-        const p2ms = bitcoinJS.payments.p2ms({
-          m: config.required,
-          pubkeys: config.pubkeys,
-          network,
+      let orderPreservedPubkeys: string[] = []; // non-bip-67(original order)
+      let pubkeys: Buffer[] = []; // bip-67 ordered
+
+      const { xpubs } = wallet.specs;
+      xpubs.forEach(
+        (xpub) => (subPaths[xpub] = [internal ? 1 : 0, childIndex]) // same for all xpubs in default multisig
+      );
+
+      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+
+      const correspondingAddress = internal
+        ? addressCache.internal[childIndex]
+        : addressCache.external[childIndex];
+
+      if (addressPubs[correspondingAddress]) {
+        // using cached pubkeys to prepare multisig assets
+        const cachedPubs = addressPubs[correspondingAddress].split('/'); // non bip-67 compatible(maintains xpub/signer order)
+        orderPreservedPubkeys = cachedPubs;
+        xpubs.forEach((xpub, i) => {
+          signerPubkeyMap.set(xpub, Buffer.from(cachedPubs[i], 'hex'));
         });
-
-        p2wsh = bitcoinJS.payments.p2wsh({
-          redeem: p2ms,
-          network,
-        });
-        break;
-
-      case MultisigScriptType.ADVISOR_VAULT:
-        if (!config.pubkeys || !config.timelocks) {
-          throw new Error('Invalid multisig config');
-        }
-        // const { currentBlockHeight } = await this.fetchCurrentBlockHeight();
-        // const T1 = currentBlockHeight + 30;
-        // const T2 = currentBlockHeight + 50;
-
-        p2wsh = bitcoinJS.payments.p2wsh({
-          redeem: {
-            output: this.generateCustomScript(multisigType, config.pubkeys, config.timelocks),
+        pubkeys = cachedPubs.sort((a, b) => (a > b ? 1 : -1)).map((pub) => Buffer.from(pub, 'hex')); // bip-67 compatible(cached ones are in hex)
+      } else {
+        // generating pubkeys to prepare multisig assets
+        for (let i = 0; i < xpubs.length; i++) {
+          const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
+            xpubs[i],
             network,
-          },
-        });
-        break;
+            childIndex,
+            internal
+          );
+          const xKey = bip32.fromBase58(childExtendedKey, network);
+          orderPreservedPubkeys[i] = xKey.publicKey.toString('hex');
+          pubkeys[i] = xKey.publicKey;
+          signerPubkeyMap.set(xpubs[i], pubkeys[i]); // the order is currently preserved for pubkeys array(non bip-67)
+        }
+        pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
+      }
 
-      default:
-        throw new Error('Invalid multisig type');
-    }
-
-    let p2sh;
-    if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
-      // wrap native segwit
-      p2sh = bitcoinJS.payments.p2sh({
-        redeem: p2wsh,
+      const p2ms = bitcoinJS.payments.p2ms({
+        m: multisigConfig.required,
+        pubkeys,
         network,
       });
-    }
 
-    return { p2wsh, p2sh };
+      const p2wsh = bitcoinJS.payments.p2wsh({
+        redeem: p2ms,
+        network,
+      });
+
+      let p2sh;
+      if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+        // wrap native segwit
+        p2sh = bitcoinJS.payments.p2sh({
+          redeem: p2wsh,
+          network,
+        });
+      }
+
+      return { p2wsh, p2sh, subPaths, signerPubkeyMap, orderPreservedPubkeys };
+    } else if (multisigConfig.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+      if (!multisigConfig.miniscriptScheme) {
+        throw new Error('Invalid multisig config - miniscript scheme missing');
+      }
+
+      const { script, subPaths, signerPubkeyMap } = this.generateCustomScript(
+        multisigConfig.multisigScriptType,
+        multisigConfig.miniscriptScheme,
+        network
+      );
+
+      const p2wsh = bitcoinJS.payments.p2wsh({
+        redeem: {
+          output: script,
+          network,
+        },
+      });
+
+      let p2sh;
+      if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+        // wrap native segwit
+        p2sh = bitcoinJS.payments.p2sh({
+          redeem: p2wsh,
+          network,
+        });
+      }
+
+      return { p2wsh, p2sh, subPaths, signerPubkeyMap };
+    } else throw new Error('Invalid multisig type');
   };
 
   static isValidAddress = (address: string, network: bitcoinJS.Network): boolean => {
