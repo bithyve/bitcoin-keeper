@@ -289,7 +289,7 @@ export default class WalletOperations {
           if ((wallet as Vault).isMultiSig) {
             const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, false);
             address = multisig.address;
-            pubsToCache = multisig.orderPreservedPubkeys;
+            pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
           } else {
             let xpub = null;
             if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
@@ -307,7 +307,7 @@ export default class WalletOperations {
           }
 
           addressCache.external[itr] = address;
-          addressPubs[address] = pubsToCache.join('/');
+          if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
         }
 
         externalAddresses[address] = itr;
@@ -326,7 +326,7 @@ export default class WalletOperations {
           if ((wallet as Vault).isMultiSig) {
             const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, true);
             address = multisig.address;
-            pubsToCache = multisig.orderPreservedPubkeys;
+            pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
           } else {
             let xpub = null;
             if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
@@ -344,7 +344,7 @@ export default class WalletOperations {
           }
 
           addressCache.internal[itr] = address;
-          addressPubs[address] = pubsToCache.join('/');
+          if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
         }
 
         internalAddresses[address] = itr;
