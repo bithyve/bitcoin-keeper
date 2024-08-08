@@ -508,13 +508,12 @@ export default class WalletUtilities {
 
   static getKeyPairByIndex = (
     xpriv: string,
-    internal: boolean,
-    index: number,
+    chainIndex: number,
+    childIndex: number,
     network: bitcoinJS.networks.Network
   ): BIP32Interface => {
     const node = bip32.fromBase58(xpriv, network);
-    const chain = internal ? 1 : 0;
-    const keyPair: BIP32Interface = node.derive(chain).derive(index);
+    const keyPair: BIP32Interface = node.derive(chainIndex).derive(childIndex);
     return keyPair;
   };
 
