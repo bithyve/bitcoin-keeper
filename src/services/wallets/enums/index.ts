@@ -108,6 +108,7 @@ export enum SignerType {
   INHERITANCEKEY = 'INHERITANCEKEY',
   UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
   SPECTER = 'SPECTER',
+  ADVISOR_KEY = 'ADVISOR_KEY',
 }
 
 export enum PaymentInfoKind {

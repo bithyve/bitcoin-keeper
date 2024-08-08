@@ -17,8 +17,10 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
+import { getDerivationPath } from 'src/utils/service-utilities/utils';
 import {
   EntityKind,
+  MultisigScriptType,
   NetworkType,
   ScriptTypes,
   SignerType,
@@ -26,6 +28,7 @@ import {
   VisibilityType,
 } from '../enums';
 import {
+  MiniscriptScheme,
   Signer,
   Vault,
   VaultPresentationData,
@@ -36,6 +39,12 @@ import {
 
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
+import {
+  DEFAULT_MINISCRIPT_POLICIES,
+  generateMiniscript,
+  enrichMiniscriptPolicy,
+  ADVISORY_VAULT_POLICY,
+} from '../operations/miniscript';
 
 const crypto = require('crypto');
 
@@ -88,14 +97,97 @@ export const generateVault = async ({
   const xpubs = signers.map((signer) => signer.xpub);
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
+
+  scheme.multisigScriptType = MultisigScriptType.ADVISOR_VAULT; // TODO: remove
+
+  if (scheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+    const policy = DEFAULT_MINISCRIPT_POLICIES.ADVISOR_VAULT;
+    // const { currentBlockHeight } = await this.fetchCurrentBlockHeight();
+    const currentBlockHeight = 2872597;
+    const T1 = currentBlockHeight + 2;
+    const T2 = currentBlockHeight + 5;
+    const timelocks = [T1, T2];
+
+    let user;
+    let advisor1;
+    let advisor2;
+    for (const signer of signers) {
+      const signerType = signerMap[signer.masterFingerprint].type;
+      console.log({ signerType });
+      if (signerType === SignerType.MY_KEEPER) user = signer;
+      else if (signerType === SignerType.LEDGER) advisor1 = signer;
+      else advisor2 = signer;
+    }
+    console.log({ user, advisor1, advisor2 });
+
+    const keysInfo = {
+      [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(
+        user.derivationPath
+      )}]${user.xpub}/<0;1>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1]: `[${advisor1.masterFingerprint}/${getDerivationPath(
+        advisor1.derivationPath
+      )}]${advisor1.xpub}/<0;1>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2]: `[${advisor1.masterFingerprint}/${getDerivationPath(
+        advisor1.derivationPath
+      )}]${advisor1.xpub}/<2;3>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1]: `[${advisor2.masterFingerprint}/${getDerivationPath(
+        advisor2.derivationPath
+      )}]${advisor2.xpub}/<0;1>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2]: `[${advisor2.masterFingerprint}/${getDerivationPath(
+        advisor2.derivationPath
+      )}]${advisor2.xpub}/<2;3>/*`,
+    };
+
+    // for (const signer of signers) {
+    //   const keyInfo = `[${signer.masterFingerprint}/${getDerivationPath(signer.derivationPath)}]${
+    //     signer.xpub
+    //   }`;
+
+    //   if (
+    //     signerMap[signer.masterFingerprint]?.type === SignerType.LEDGER || // SignerType.ADVISOR_KEY // TODO: use this
+    //     signerMap[signer.masterFingerprint]?.type === SignerType.JADE
+    //   ) {
+    //     // case: Advisor Key
+    //     const keyInfo1 = `${keyInfo}/<0;1>/*`;
+    //     const keyInfo2 = `${keyInfo}/<2;3>/*`;
+    //     keysInfo.push(keyInfo1, keyInfo2);
+    //   } else {
+    //     // case: User Key
+    //     const keyInfo1 = `${keyInfo}/<0;1>/*`;
+    //     keysInfo.push(keyInfo1);
+    //   }
+    // }
+    // const keyIdentifiers = []; // shortened key info for policy/miniscript compilation
+    // for (const keyInfo of keysInfo) {
+    //   const fragments = keyInfo.split('/');
+    //   const mfp = fragments[0].slice(1); // Note: a single signing device should not be used multiple times on a given path
+    //   const multipathIndex = fragments[5];
+    //   const keyIdentifier = mfp + multipathIndex;
+    //   keyIdentifiers.push(keyIdentifier);
+    // }
+
+    const miniscriptPolicy = enrichMiniscriptPolicy(scheme.multisigScriptType, policy, timelocks);
+
+    const { miniscript } = generateMiniscript(miniscriptPolicy);
+
+    const miniscriptScheme: MiniscriptScheme = {
+      miniscriptPolicy,
+      miniscript,
+      keysInfo,
+      timelocks: [T1, T2],
+    };
+    scheme.miniscriptScheme = miniscriptScheme;
+  } else {
+    if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
+  }
+
+  console.log({ scheme: JSON.stringify(scheme, null, 4) });
   const presentationData: VaultPresentationData = {
     name: vaultName,
     description: vaultDescription,
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
-
-  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
 
   const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
   const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH; // TODO: find ways to accomodate P2TR 1-of-1 multisig(derivationConfig is not available on Vaults)
@@ -132,7 +224,7 @@ export const generateVault = async ({
     scriptType,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
-
+  console.log({ rec: vault.specs.receivingAddress });
   // update cosigners map(if one of the signers is an assisted key)
   await updateCosignersMapForAssistedKeys(signers, signerMap);
 
