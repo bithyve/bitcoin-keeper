@@ -2,6 +2,7 @@ import { InheritanceKeyInfo, SignerPolicy } from 'src/models/interfaces/Assisted
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
   EntityKind,
+  MultisigScriptType,
   NetworkType,
   ScriptTypes,
   SignerStorage,
@@ -30,9 +31,18 @@ export interface VaultSpecs {
   lastSynched: number; // vault's last sync timestamp
 }
 
+export interface MiniscriptScheme {
+  miniscriptPolicy: string; // miniscript policy
+  miniscript: string; // miniscript
+  keysInfo: { [keyId: string]: string }; // descriptor keys
+  timelocks: number[]; // timelocks
+}
+
 export interface VaultScheme {
   m: number; // threshold number of signatures required
   n: number; // total number of xpubs
+  multisigScriptType?: MultisigScriptType; // multisig script type(allows for more complex and flexible vaults)
+  miniscriptScheme?: MiniscriptScheme;
 }
 
 export type XpubDetailsType = {
@@ -114,7 +124,9 @@ export interface Vault {
 }
 
 export interface MultisigConfig {
-  pubkeys: Buffer[];
+  multisigScriptType: MultisigScriptType;
+  childIndex: number;
+  internal: boolean;
   required?: number;
-  timelocks?: number[];
+  miniscriptScheme?: MiniscriptScheme;
 }

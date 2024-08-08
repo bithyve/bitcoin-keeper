@@ -22,6 +22,8 @@ export enum RealmSchema {
   HealthCheckDetails = 'HealthCheckDetails',
   KeySpecs = 'KeySpecs',
   VaultPresentationData = 'VaultPresentationData',
+  MiniscriptScheme = 'MiniscriptScheme',
+  VaultScheme = 'VaultScheme',
   SignerPolicy = 'SignerPolicy',
   InheritanceKeyInfo = 'InheritanceKeyInfo',
   InheritanceConfiguration = 'InheritanceConfiguration',
