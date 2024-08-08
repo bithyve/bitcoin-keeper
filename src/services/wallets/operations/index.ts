@@ -29,13 +29,13 @@ import {
   SigningPayload,
   Transaction,
   TransactionPrerequisite,
-  TransactionPrerequisiteElements,
   UTXO,
 } from '../interfaces';
 import {
   BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
+  MultisigScriptType,
   NetworkType,
   SignerType,
   TransactionType,
@@ -1080,28 +1080,46 @@ export default class WalletOperations {
 
   static internallySignVaultPSBT = (
     wallet: Vault,
-    inputs: any,
     serializedPSBT: string,
-    xpriv: string
+    signer: VaultSigner
   ): { signedSerializedPSBT: string } => {
     try {
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
       const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
 
       let vin = 0;
-      for (const input of inputs) {
-        let internal;
-        let index;
-        if (input.subPath) {
-          const [, j, k] = input.subPath.split('/');
-          internal = parseInt(j);
-          index = parseInt(k);
-        } else {
-          const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
-          [internal, index] = subPath;
+      for (const { bip32Derivation } of PSBT.data.inputs) {
+        if (!bip32Derivation) {
+          throw new Error('Failed to sign internally - missing bip32 derivation');
         }
+        let subPath;
 
-        const keyPair = WalletUtilities.getKeyPairByIndex(xpriv, !!internal, index, network);
+        for (let { masterFingerprint, path } of bip32Derivation) {
+          if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
+            const pathFragments = path.split('/');
+            const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
+            const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
+            subPath = [chainIndex, childIndex];
+            break;
+          }
+        }
+        if (!subPath) throw new Error('Failed to sign internally - missing subpath');
+
+        // if (input.subPath) {
+        //   const [, j, k] = input.subPath.split('/');
+        //   internal = parseInt(j);
+        //   index = parseInt(k);
+        // } else {
+        //   const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
+        //   [internal, index] = subPath;
+        // }
+
+        const keyPair = WalletUtilities.getKeyPairByIndex(
+          signer.xpriv,
+          subPath[0],
+          subPath[1],
+          network
+        );
         PSBT.signInput(vin, keyPair);
         vin++;
       }
@@ -1138,9 +1156,8 @@ export default class WalletOperations {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
       const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
         wallet,
-        inputs,
         PSBT.toBase64(),
-        vaultKey.xpriv
+        vaultKey
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
       isSigned = true;
@@ -1160,7 +1177,7 @@ export default class WalletOperations {
             wallet
           );
           publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
-          subPath = multisigAddress.subPath;
+          subPath = multisigAddress.subPaths[vaultKey.xpub];
         } else {
           const singlesigAddress = WalletUtilities.addressToPublicKey(
             inputs[inputIndex].address,
