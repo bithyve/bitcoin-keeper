@@ -17,14 +17,7 @@ export enum DEFAULT_MINISCRIPT_POLICIES {
 export const enrichMiniscriptPolicy = (multisigScriptType, policy: string, timelocks: number[]) => {
   switch (multisigScriptType) {
     case MultisigScriptType.ADVISOR_VAULT:
-      // // enrich key-identifiers
-      // const [UK, AK1_1, AK1_2, AK2_1, AK2_2] = keyIdentifiers;
-      // policy = policy
-      //   .replace(ADVISORY_VAULT_POLICY.USER_KEY, UK)
-      //   .replace(ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1, AK1_1)
-      //   .replace(ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1, AK2_1)
-      //   .replace(ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2, AK1_2)
-      //   .replace(ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2, AK2_2);
+      // enrich key-identifiers(if required)
 
       // enrich timelocks
       const [T1, T2] = timelocks;

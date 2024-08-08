@@ -113,12 +113,10 @@ export const generateVault = async ({
     let advisor2;
     for (const signer of signers) {
       const signerType = signerMap[signer.masterFingerprint].type;
-      console.log({ signerType });
       if (signerType === SignerType.MY_KEEPER) user = signer;
       else if (signerType === SignerType.LEDGER) advisor1 = signer;
       else advisor2 = signer;
     }
-    console.log({ user, advisor1, advisor2 });
 
     const keysInfo = {
       [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(
@@ -138,36 +136,7 @@ export const generateVault = async ({
       )}]${advisor2.xpub}/<2;3>/*`,
     };
 
-    // for (const signer of signers) {
-    //   const keyInfo = `[${signer.masterFingerprint}/${getDerivationPath(signer.derivationPath)}]${
-    //     signer.xpub
-    //   }`;
-
-    //   if (
-    //     signerMap[signer.masterFingerprint]?.type === SignerType.LEDGER || // SignerType.ADVISOR_KEY // TODO: use this
-    //     signerMap[signer.masterFingerprint]?.type === SignerType.JADE
-    //   ) {
-    //     // case: Advisor Key
-    //     const keyInfo1 = `${keyInfo}/<0;1>/*`;
-    //     const keyInfo2 = `${keyInfo}/<2;3>/*`;
-    //     keysInfo.push(keyInfo1, keyInfo2);
-    //   } else {
-    //     // case: User Key
-    //     const keyInfo1 = `${keyInfo}/<0;1>/*`;
-    //     keysInfo.push(keyInfo1);
-    //   }
-    // }
-    // const keyIdentifiers = []; // shortened key info for policy/miniscript compilation
-    // for (const keyInfo of keysInfo) {
-    //   const fragments = keyInfo.split('/');
-    //   const mfp = fragments[0].slice(1); // Note: a single signing device should not be used multiple times on a given path
-    //   const multipathIndex = fragments[5];
-    //   const keyIdentifier = mfp + multipathIndex;
-    //   keyIdentifiers.push(keyIdentifier);
-    // }
-
     const miniscriptPolicy = enrichMiniscriptPolicy(scheme.multisigScriptType, policy, timelocks);
-
     const { miniscript } = generateMiniscript(miniscriptPolicy);
 
     const miniscriptScheme: MiniscriptScheme = {
@@ -181,7 +150,6 @@ export const generateVault = async ({
     if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
   }
 
-  console.log({ scheme: JSON.stringify(scheme, null, 4) });
   const presentationData: VaultPresentationData = {
     name: vaultName,
     description: vaultDescription,
@@ -224,7 +192,7 @@ export const generateVault = async ({
     scriptType,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
-  console.log({ rec: vault.specs.receivingAddress });
+
   // update cosigners map(if one of the signers is an assisted key)
   await updateCosignersMapForAssistedKeys(signers, signerMap);
 

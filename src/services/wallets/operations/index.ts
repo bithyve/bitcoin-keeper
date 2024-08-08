@@ -1105,15 +1105,6 @@ export default class WalletOperations {
         }
         if (!subPath) throw new Error('Failed to sign internally - missing subpath');
 
-        // if (input.subPath) {
-        //   const [, j, k] = input.subPath.split('/');
-        //   internal = parseInt(j);
-        //   index = parseInt(k);
-        // } else {
-        //   const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
-        //   [internal, index] = subPath;
-        // }
-
         const keyPair = WalletUtilities.getKeyPairByIndex(
           signer.xpriv,
           subPath[0],
