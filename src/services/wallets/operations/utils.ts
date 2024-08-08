@@ -18,7 +18,7 @@ import config from 'src/utils/service-utilities/config';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import RestClient from 'src/services/rest/RestClient';
 import { AddressCache, AddressPubs, Wallet } from '../interfaces/wallet';
-import { MultisigConfig, Signer, Vault } from '../interfaces/vault';
+import { MiniscriptScheme, MultisigConfig, Signer, Vault } from '../interfaces/vault';
 import {
   BIP48ScriptTypes,
   MultisigScriptType,
@@ -33,7 +33,7 @@ import {
 import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
-import { generateBitcoinScript, generateMiniscript } from './miniscript';
+import { generateBitcoinScript, ADVISORY_VAULT_POLICY } from './miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -205,38 +205,95 @@ export default class WalletUtilities {
 
   static generateCustomScript = (
     type: MultisigScriptType,
-    pubkeys: Buffer[],
-    timelocks: number[]
-  ) => {
+    miniscriptScheme: MiniscriptScheme,
+    network: bitcoinJS.networks.Network
+  ): {
+    script: Buffer;
+    subPaths: {
+      [xpub: string]: number[];
+    };
+    signerPubkeyMap: Map<string, Buffer>;
+  } => {
+    const subPaths = {};
+    const signerPubkeyMap = new Map<string, Buffer>();
+
     switch (type) {
       case MultisigScriptType.ADVISOR_VAULT:
+        const { miniscript, keysInfo, timelocks } = miniscriptScheme;
+
+        // generate asm from miniscript
+        // eslint-disable-next-line prefer-const
+        let { asm, issane } = generateBitcoinScript(miniscript);
+        if (!issane) throw new Error('ASM is not sane - incorrect miniscript');
+
+        console.log({ asm });
+
+        // generate public keys to replace the key identifiers
+        const identifiersToPublicKey = {};
+        for (const keyIdentifier in keysInfo) {
+          // const mfp = fragments[0].slice(1);
+          // const keyIdentifier = mfp + multipathIndex;
+          const fragments = keysInfo[keyIdentifier].split('/');
+          const multipathIndex = fragments[5];
+          const [_, xpub] = fragments[4].split(']');
+
+          const isInternal = false;
+          const childIndex = 0;
+          const multipathFragments = multipathIndex.split(';');
+          const externalChainIndex = multipathFragments[0].slice(1);
+          const internalChainIndex = multipathFragments[1].slice(0, -1);
+          const subPath = [
+            parseInt(isInternal ? internalChainIndex : externalChainIndex, 10),
+            childIndex,
+          ];
+          const xKey = bip32.fromBase58(xpub, network);
+          const childXKey = xKey.derive(subPath[0]).derive(subPath[1]);
+          identifiersToPublicKey[keyIdentifier] = childXKey.publicKey.toString('hex');
+
+          subPaths[xpub + multipathIndex] = subPath;
+          signerPubkeyMap.set(xpub + multipathIndex, childXKey.publicKey);
+        }
+
+        console.log({ identifiersToPublicKey });
+
+        asm = asm
+          .replace(
+            `<${ADVISORY_VAULT_POLICY.USER_KEY}>`,
+            identifiersToPublicKey[ADVISORY_VAULT_POLICY.USER_KEY]
+          )
+          .replace(
+            `<HASH160(${ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1})>`,
+            bitcoinJS.crypto
+              .hash160(identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1])
+              .toString('hex')
+          )
+          .replace(
+            `<HASH160(${ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1})>`,
+            bitcoinJS.crypto
+              .hash160(identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1])
+              .toString('hex')
+          )
+          .replace(
+            `<${ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2}>`,
+            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2]
+          )
+          .replace(
+            `<${ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2}>`,
+            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2]
+          );
+
+        console.log({ asm });
+
+        // prepare and enrich the time locks
         const [T1, T2] = timelocks;
         const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
         const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
-
-        const [UK, AK1, AK2] = pubkeys; // where UK: User Key, AK1: Advisor Key 1 and AK2: Advisor Key 2
-
-        const policy = `or(and(pk(UK),or(or(pk(AK1),pk(AK2)),after(${T1}))),and(and(pk(N_AK1),pk(N_AK2)),after(${T2})))`;
-        // where N_AK1 is AK1 and N_AK2 is AK2, avoiding compilation error due to duplicate keys
-
-        let { miniscript } = generateMiniscript(policy);
-        miniscript = miniscript.replace('N_AK1', 'AK1').replace('N_AK2', 'AK2'); // replacing the substitutes with original keys
-        // results in an insane miniscript(issane:false while compiling the miniscript to bitcoin script)
-        // due to duplicate keys, but is doesn't mean that the miniscript and the resulting bitcoin script is is not valid
-
-        let { asm } = generateBitcoinScript(miniscript); // issane:false
-
-        asm = asm
-          .replace('<UK>', UK.toString('hex'))
-          .replace('<AK1>', AK1.toString('hex'))
-          .replace('<AK2>', AK2.toString('hex'))
-          .replace('<HASH160(AK1)>', bitcoinJS.crypto.hash160(AK1).toString('hex'))
-          .replace('<HASH160(AK2)>', bitcoinJS.crypto.hash160(AK2).toString('hex'))
-          .replace(`<${encodedT1}>`, encodedT1)
-          .replace(`<${encodedT2}>`, encodedT2);
+        asm = asm.replace(`<${encodedT1}>`, encodedT1).replace(`<${encodedT2}>`, encodedT2);
+        console.log({ asm });
 
         const script = bitcoinJS.script.fromASM(asm);
-        return script;
+        console.log({ subPaths, script: script.toString('hex') });
+        return { script, subPaths, signerPubkeyMap };
 
       default:
         throw new Error('Invalid custom script type');
