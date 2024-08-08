@@ -1318,6 +1318,9 @@ export default class WalletOperations {
       customTxPrerequisites
     );
 
+    // TODO: set locktime in accordance w/ the timelock of the path being used
+    // PSBT.setLocktime(2872597 + 2);
+
     if (wallet.entityKind === EntityKind.VAULT) {
       // case: vault(single/multi-sig)
       const { signers: vaultKeys } = wallet as Vault;
@@ -1413,7 +1416,17 @@ export default class WalletOperations {
       // if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
 
       // finalise and construct the txHex
-      const tx = combinedPSBT.finalizeAllInputs();
+      let tx;
+      if (wallet.entityKind === EntityKind.VAULT) {
+        const { multisigScriptType } = (wallet as Vault).scheme;
+        if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+          for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
+            combinedPSBT.finalizeInput(index, WalletUtilities.getFinalScriptsForMyCustomScript);
+          }
+          tx = combinedPSBT;
+        } else tx = combinedPSBT.finalizeAllInputs();
+      } else tx = combinedPSBT.finalizeAllInputs();
+
       finalOutputs = tx.txOutputs;
       txHex = tx.extractTransaction().toHex();
     }
