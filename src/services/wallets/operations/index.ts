@@ -841,20 +841,48 @@ export default class WalletOperations {
         }
       }
     } else {
-      const { p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
+      const { p2wsh, p2sh, subPaths, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
         wallet as Vault
       );
 
+      let hasTimelock = false;
       const bip32Derivation = [];
-      for (const signer of (wallet as Vault).signers) {
-        const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
-        const path = `${signer.derivationPath}/${subPath.join('/')}`;
-        bip32Derivation.push({
-          masterFingerprint,
-          path: path.replaceAll('h', "'"),
-          pubkey: signerPubkeyMap.get(signer.xpub),
-        });
+      const multisigScriptType =
+        (wallet as Vault).scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
+
+      if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+        for (const signer of (wallet as Vault).signers) {
+          const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
+          const path = `${signer.derivationPath}/${subPaths[signer.xpub].join('/')}`;
+          bip32Derivation.push({
+            masterFingerprint,
+            path: path.replaceAll('h', "'"),
+            pubkey: signerPubkeyMap.get(signer.xpub),
+          });
+        }
+      } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+        const { miniscriptScheme } = (wallet as Vault).scheme;
+        if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
+
+        if (miniscriptScheme.timelocks?.length) hasTimelock = true;
+
+        const { keysInfo } = miniscriptScheme;
+        for (let keyIdentifier in keysInfo) {
+          // TODO: needs additional input in order to determine which keyInfo needs to be used
+          const fragments = keysInfo[keyIdentifier].split('/');
+          const masterFingerprint = fragments[0].slice(1);
+          const multipathIndex = fragments[5];
+          const [script_type, xpub] = fragments[4].split(']');
+
+          const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+          const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+          bip32Derivation.push({
+            masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+            path: path.replaceAll('h', "'"),
+            pubkey: signerPubkeyMap.get(xpub + multipathIndex),
+          });
+        }
       }
 
       if (scriptType === BIP48ScriptTypes.NATIVE_SEGWIT) {
@@ -867,6 +895,7 @@ export default class WalletOperations {
             value: input.value,
           },
           witnessScript: p2wsh.redeem.output,
+          sequence: hasTimelock ? 4294967294 : null, // to enable nLockTime the value should be less than 4294967295
         });
       } else if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
         PSBT.addInput({
@@ -879,6 +908,7 @@ export default class WalletOperations {
           },
           redeemScript: p2wsh.output,
           witnessScript: p2wsh.redeem.output,
+          sequence: hasTimelock ? 4294967294 : null, // to enable nLockTime the value should be less than 4294967295
         });
       }
     }
@@ -891,7 +921,7 @@ export default class WalletOperations {
       p2sh: bitcoinJS.payments.Payment;
       pubkeys: Buffer[];
       address: string;
-      subPath: number[];
+      subPaths: { [xpub: string]: number[] };
       signerPubkeyMap: Map<string, Buffer>;
     }
   ): {
@@ -900,10 +930,10 @@ export default class WalletOperations {
     witnessScript: Buffer;
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
-    const { subPath, p2wsh, signerPubkeyMap } = changeMultiSig;
+    const { subPaths, p2wsh, signerPubkeyMap } = changeMultiSig;
     for (const signer of wallet.signers) {
       const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
-      const path = `${signer.derivationPath}/${subPath.join('/')}`;
+      const path = `${signer.derivationPath}/${subPaths[signer.xpub].join('/')}`;
       bip32Derivation.push({
         masterFingerprint,
         path,
