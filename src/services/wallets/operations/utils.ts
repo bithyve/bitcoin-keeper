@@ -759,87 +759,49 @@ export default class WalletUtilities {
   ): {
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
-    pubkeys: Buffer[];
-    orderPreservedPubkeys: string[];
     address: string;
-    subPath: number[];
+    subPaths: { [xpub: string]: number[] };
     signerPubkeyMap: Map<string, Buffer>;
+    orderPreservedPubkeys?: string[];
   } => {
-    const subPath = [internal ? 1 : 0, childIndex];
-    const signerPubkeyMap = new Map<string, Buffer>();
-
-    let orderPreservedPubkeys: string[] = []; // non-bip-67(original order)
-    let pubkeys: Buffer[] = []; // bip-67 ordered
-
+    let config: MultisigConfig;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const { xpubs } = wallet.specs;
+    const multisigScriptType =
+      wallet.scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
 
-    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
-    const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+    if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+      config = {
+        multisigScriptType,
+        required: wallet.scheme.m,
+        childIndex,
+        internal,
+      };
+    } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+      const { miniscriptScheme } = wallet.scheme;
+      if (!miniscriptScheme) throw new Error('Miniscript scheme missing');
+      config = {
+        multisigScriptType,
+        miniscriptScheme,
+        childIndex,
+        internal,
+      };
+    } else throw new Error('Unsupported multisig script type');
 
-    const correspondingAddress = internal
-      ? addressCache.internal[childIndex]
-      : addressCache.external[childIndex];
-
-    if (addressPubs[correspondingAddress]) {
-      // using cached pubkeys to prepare multisig assets
-      const cachedPubs = addressPubs[correspondingAddress].split('/'); // non bip-67 compatible(maintains xpub/signer order)
-      orderPreservedPubkeys = cachedPubs;
-      xpubs.forEach((xpub, i) => {
-        signerPubkeyMap.set(xpub, Buffer.from(cachedPubs[i], 'hex'));
-      });
-      pubkeys = cachedPubs.sort((a, b) => (a > b ? 1 : -1)).map((pub) => Buffer.from(pub, 'hex')); // bip-67 compatible(cached ones are in hex)
-    } else {
-      // generating pubkeys to prepare multisig assets
-      for (let i = 0; i < xpubs.length; i++) {
-        const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
-          xpubs[i],
-          network,
-          childIndex,
-          internal
-        );
-        const xKey = bip32.fromBase58(childExtendedKey, network);
-        orderPreservedPubkeys[i] = xKey.publicKey.toString('hex');
-        pubkeys[i] = xKey.publicKey;
-        signerPubkeyMap.set(xpubs[i], pubkeys[i]);
-      }
-      pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
-    }
-
-    const config: MultisigConfig = {
-      pubkeys,
-      required: wallet.scheme.m,
-    };
-    const { p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
-      MultisigScriptType.DEFAULT_MULTISIG,
-      config,
-      network,
-      scriptType
-    );
+    const { p2wsh, p2sh, subPaths, signerPubkeyMap, orderPreservedPubkeys } =
+      WalletUtilities.deriveMultiSig(wallet, config, network, scriptType);
     const address = p2sh ? p2sh.address : p2wsh.address;
 
     return {
       p2wsh,
       p2sh,
-      pubkeys,
-      orderPreservedPubkeys,
       address,
-      subPath,
+      subPaths,
       signerPubkeyMap,
+      orderPreservedPubkeys,
     };
   };
 
-  static addressToMultiSig = (
-    address: string,
-    wallet: Vault
-  ): {
-    p2wsh: bitcoinJS.payments.Payment;
-    p2sh: bitcoinJS.payments.Payment;
-    pubkeys: Buffer[];
-    address: string;
-    subPath: number[];
-    signerPubkeyMap: Map<string, Buffer>;
-  } => {
+  static addressToMultiSig = (address: string, wallet: Vault) => {
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
     const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
@@ -950,9 +912,10 @@ export default class WalletUtilities {
         changeMultisig: {
           p2wsh: bitcoinJS.payments.Payment;
           p2sh: bitcoinJS.payments.Payment;
-          pubkeys: Buffer[];
           address: string;
-          subPath: number[];
+          subPaths: {
+            [xpub: string]: number[];
+          };
           signerPubkeyMap: Map<string, Buffer>;
         };
         changeAddress?: string;
@@ -966,9 +929,8 @@ export default class WalletUtilities {
     let changeMultisig: {
       p2wsh: bitcoinJS.payments.Payment;
       p2sh: bitcoinJS.payments.Payment;
-      pubkeys: Buffer[];
       address: string;
-      subPath: number[];
+      subPaths: { [xpub: string]: number[] };
       signerPubkeyMap: Map<string, Buffer>;
     };
     if ((wallet as Vault).isMultiSig) {
