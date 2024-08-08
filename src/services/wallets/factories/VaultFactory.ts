@@ -98,54 +98,10 @@ export const generateVault = async ({
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
 
-  scheme.multisigScriptType = MultisigScriptType.ADVISOR_VAULT; // TODO: remove
-
   if (scheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-    const policy = DEFAULT_MINISCRIPT_POLICIES.ADVISOR_VAULT;
-    // const { currentBlockHeight } = await this.fetchCurrentBlockHeight();
-    const currentBlockHeight = 2872597;
-    const T1 = currentBlockHeight + 2;
-    const T2 = currentBlockHeight + 5;
-    const timelocks = [T1, T2];
-
-    let user;
-    let advisor1;
-    let advisor2;
-    for (const signer of signers) {
-      const signerType = signerMap[signer.masterFingerprint].type;
-      if (signerType === SignerType.MY_KEEPER) user = signer;
-      else if (signerType === SignerType.LEDGER) advisor1 = signer;
-      else advisor2 = signer;
+    if (!scheme.miniscriptScheme) {
+      throw new Error('miniscriptScheme is required for advisor vaults');
     }
-
-    const keysInfo = {
-      [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(
-        user.derivationPath
-      )}]${user.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1]: `[${advisor1.masterFingerprint}/${getDerivationPath(
-        advisor1.derivationPath
-      )}]${advisor1.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2]: `[${advisor1.masterFingerprint}/${getDerivationPath(
-        advisor1.derivationPath
-      )}]${advisor1.xpub}/<2;3>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1]: `[${advisor2.masterFingerprint}/${getDerivationPath(
-        advisor2.derivationPath
-      )}]${advisor2.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2]: `[${advisor2.masterFingerprint}/${getDerivationPath(
-        advisor2.derivationPath
-      )}]${advisor2.xpub}/<2;3>/*`,
-    };
-
-    const miniscriptPolicy = enrichMiniscriptPolicy(scheme.multisigScriptType, policy, timelocks);
-    const { miniscript } = generateMiniscript(miniscriptPolicy);
-
-    const miniscriptScheme: MiniscriptScheme = {
-      miniscriptPolicy,
-      miniscript,
-      keysInfo,
-      timelocks: [T1, T2],
-    };
-    scheme.miniscriptScheme = miniscriptScheme;
   } else {
     if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
   }
@@ -440,4 +396,54 @@ export const generateKeyFromXpub = (
     true
   );
   return generateEncryptionKey(child);
+};
+
+export const generateMiniscriptScheme = (
+  multisigScriptType: MultisigScriptType,
+  signers: VaultSigner[],
+  timelocks: number[],
+  signerMap: { [key: string]: Signer }
+): MiniscriptScheme => {
+  let miniscriptScheme: MiniscriptScheme;
+  if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+    let user;
+    let advisor1;
+    let advisor2;
+    for (const signer of signers) {
+      const signerType = signerMap[signer.masterFingerprint].type;
+      if (signerType === SignerType.MY_KEEPER) user = signer;
+      else if (signerType === SignerType.LEDGER) advisor1 = signer;
+      else advisor2 = signer;
+    }
+
+    const keysInfo = {
+      [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(
+        user.derivationPath
+      )}]${user.xpub}/<0;1>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1]: `[${advisor1.masterFingerprint}/${getDerivationPath(
+        advisor1.derivationPath
+      )}]${advisor1.xpub}/<0;1>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2]: `[${advisor1.masterFingerprint}/${getDerivationPath(
+        advisor1.derivationPath
+      )}]${advisor1.xpub}/<2;3>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1]: `[${advisor2.masterFingerprint}/${getDerivationPath(
+        advisor2.derivationPath
+      )}]${advisor2.xpub}/<0;1>/*`,
+      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2]: `[${advisor2.masterFingerprint}/${getDerivationPath(
+        advisor2.derivationPath
+      )}]${advisor2.xpub}/<2;3>/*`,
+    };
+
+    const policy = DEFAULT_MINISCRIPT_POLICIES.ADVISOR_VAULT;
+    const miniscriptPolicy = enrichMiniscriptPolicy(multisigScriptType, policy, timelocks);
+    const { miniscript } = generateMiniscript(miniscriptPolicy);
+
+    miniscriptScheme = {
+      miniscriptPolicy,
+      miniscript,
+      keysInfo,
+      timelocks,
+    };
+  } else throw new Error('Unsupported multisigScriptType');
+  return miniscriptScheme;
 };

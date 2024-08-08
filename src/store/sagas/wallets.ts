@@ -4,6 +4,7 @@
 import {
   DerivationPurpose,
   EntityKind,
+  MultisigScriptType,
   SignerType,
   VaultType,
   VisibilityType,
@@ -18,6 +19,7 @@ import {
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
+  MiniscriptScheme,
   Signer,
   Vault,
   VaultPresentationData,
@@ -53,7 +55,10 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
-import { generateVault } from 'src/services/wallets/factories/VaultFactory';
+import {
+  generateMiniscriptScheme,
+  generateVault,
+} from 'src/services/wallets/factories/VaultFactory';
 import {
   generateWallet,
   generateWalletSpecsFromMnemonic,
@@ -76,6 +81,7 @@ import ElectrumClient, {
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import idx from 'idx';
 import _ from 'lodash';
+import { getSignerDescription } from 'src/hardware';
 import { RootState } from '../store';
 import {
   initiateVaultMigration,
@@ -140,7 +146,6 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
-import { getSignerDescription } from 'src/hardware';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 
 export interface NewVaultDetails {
@@ -327,12 +332,12 @@ export function* addWhirlpoolWalletsWorker({
       ],
     };
 
-    //update whirlpool config in parent walletId
+    // update whirlpool config in parent walletId
     yield call(updateWalletsPropertyWorker, {
       payload: { walletId: depositWallet.id, key: 'whirlpoolConfig', value: whirlpoolConfig },
     });
 
-    //create premix,postmix,badbank wallets
+    // create premix,postmix,badbank wallets
     const newWalletsInfo: NewWalletInfo[] = [
       preMixWalletInfo,
       postMixWalletInfo,
@@ -548,6 +553,25 @@ export function* addNewVaultWorker({
         vaultDetails,
       } = newVaultInfo;
 
+      // TODO: multisigScriptType and timelocks to be provided by the user
+      vaultScheme.multisigScriptType = MultisigScriptType.ADVISOR_VAULT;
+
+      if (vaultScheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+        const { currentBlockHeight } = yield call(WalletUtilities.fetchCurrentBlockHeight);
+        const T1 = 2; // inputs from user
+        const T2 = 5;
+        const timelocks = [currentBlockHeight + T1, currentBlockHeight + T2];
+
+        const miniscriptScheme: MiniscriptScheme = yield call(
+          generateMiniscriptScheme,
+          vaultScheme.multisigScriptType,
+          vaultSigners,
+          timelocks,
+          signerMap
+        );
+        vaultScheme.miniscriptScheme = miniscriptScheme;
+      }
+
       if (vaultScheme.n !== vaultSigners.length) {
         throw new Error('Vault schema(n) and signers mismatch');
       }
@@ -588,7 +612,7 @@ export function* addNewVaultWorker({
       yield put(uaiChecks([uaiType.SECURE_VAULT]));
 
       if (isMigrated) {
-        let oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
+        const oldVault = dbManager.getObjectById(RealmSchema.Vault, oldVaultId).toJSON() as Vault;
         const updatedParams = {
           archived: true,
           archivedId: oldVault.archivedId ? oldVault.archivedId : oldVault.id,
@@ -748,7 +772,7 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
     if (signers.length) {
-      let signersToDeleteIds = [];
+      const signersToDeleteIds = [];
       for (const signer of signers) {
         signersToDeleteIds.push(signer.masterFingerprint);
       }
@@ -774,7 +798,7 @@ export const deleteSigningDeviceWatcher = createWatcher(
 
 function* archiveSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
-    let signersToArchiveIds = [];
+    const signersToArchiveIds = [];
     for (const signer of signers) {
       signersToArchiveIds.push(signer.masterFingerprint);
     }
