@@ -301,87 +301,154 @@ export default class WalletUtilities {
   };
 
   static getFinalScriptsForMyCustomScript(
-    inputIndex: number,
-    input: PsbtInput,
-    script: Buffer,
-    isSegwit: boolean,
-    isP2SH: boolean,
-    isP2WSH: boolean
-  ): {
-    finalScriptSig: Buffer | undefined;
-    finalScriptWitness: Buffer | undefined;
-  } {
-    // Step 1: Check to make sure the meaningful script matches what you expect.
-    const decompiled = bitcoinJS.script.decompile(script);
-    // Checking if first OP is OP_IF... should do better check in production!
-    // You may even want to check the public keys in the script against a
-    // whitelist depending on the circumstances!!!
-    // You also want to check the contents of the input to see if you have enough
-    // info to actually construct the scriptSig and Witnesses.
+    selectedWitness: {
+      asm: string;
+      nLockTime?: number;
+      nSequence?: number;
+    },
+    keysInfo: { [keyId: string]: string }
+  ): any {
+    const finalScriptsFunc = (
+      inputIndex: number,
+      input: PsbtInput,
+      script: Buffer,
+      isSegwit: boolean,
+      isP2SH: boolean,
+      isP2WSH: boolean
+    ): {
+      finalScriptSig: Buffer | undefined;
+      finalScriptWitness: Buffer | undefined;
+    } => {
+      // Step 1: Check to make sure the meaningful script matches what you expect.
+      const decompiled = bitcoinJS.script.decompile(script);
+      if (!decompiled) throw new Error(`Can not finalize input #${inputIndex}`);
 
-    if (!decompiled || decompiled[0] !== bitcoinJS.opcodes.OP_IF) {
-      throw new Error(`Can not finalize input #${inputIndex}`);
-    }
+      const isAdvisorScript =
+        decompiled[1] === bitcoinJS.opcodes.OP_CHECKSIG &&
+        decompiled[2] === bitcoinJS.opcodes.OP_NOTIF &&
+        decompiled[decompiled.length - 1] === bitcoinJS.opcodes.OP_ENDIF;
+      if (!isAdvisorScript) {
+        throw new Error(`Can not finalize input #${inputIndex}, invalid script`);
+      }
 
-    // Step 2: Create final scripts
-    const network = config.NETWORK;
-    let payment: bitcoinJS.Payment = {
-      network,
-      output: script,
-      // This logic should be more strict and make sure the pubkeys in the
-      // meaningful script are the ones signing in the PSBT etc.
-      input: bitcoinJS.script.compile([input.partialSig![0].signature]),
-    };
-    if (isP2WSH && isSegwit) {
-      payment = bitcoinJS.payments.p2wsh({
+      // Step 2: Map signatures and generate the witness stack for the given satisfier
+      const signatureInfo = {};
+      for (const partialSig of input.partialSig) {
+        const partialSigPubkey = partialSig.pubkey.toString('hex');
+        for (const bip32Derivation of input.bip32Derivation) {
+          if (partialSigPubkey === bip32Derivation.pubkey.toString('hex')) {
+            signatureInfo[partialSigPubkey] = {
+              ...bip32Derivation,
+              ...partialSig,
+            };
+            break;
+          }
+        }
+      }
+
+      const signatureIdentifier = {};
+      for (const keyIdentifier in keysInfo) {
+        const fragments = keysInfo[keyIdentifier].split('/');
+        const masterFingerprint = fragments[0].slice(1);
+        const multipathIndex = fragments[5]; // ex: <2;3>
+        const externalChainIndex = multipathIndex[1];
+        const internalChainIndex = multipathIndex[3];
+        /* Note: for a stricter check, we can also derive pubkey from xpub to match w/ partial sig pub
+         const [script_type, xpub] = fragments[4].split(']');
+         const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+         */
+
+        for (const key in signatureInfo) {
+          const info = signatureInfo[key];
+          if (info.masterFingerprint.toString('hex').toUpperCase() === masterFingerprint) {
+            // signer identified (note: a signer can have multiple keys(multipath))
+            const inputPath = info.path.split('/'); // external/internal chain index
+            const chainIndex = inputPath[inputPath.length - 2];
+            if (chainIndex === externalChainIndex || chainIndex === internalChainIndex) {
+              signatureIdentifier[`<sig(${keyIdentifier})>`] = info;
+              break;
+            }
+          }
+        }
+      }
+
+      const witnessScriptStack = [];
+      for (const fragment of selectedWitness.asm.split(' ')) {
+        switch (fragment) {
+          case '0':
+            witnessScriptStack.push(bitcoinJS.opcodes.OP_0);
+            break;
+          case '<sig(UK)>':
+            witnessScriptStack.push(signatureIdentifier['<sig(UK)>'].signature);
+            break;
+
+          default:
+            throw new Error(`Invalid asm fragment ${fragment}`);
+        }
+      }
+
+      // Step 3: Create final scripts
+      const network = config.NETWORK;
+      let payment: bitcoinJS.Payment = {
         network,
-        redeem: payment,
-      });
-    }
-    if (isP2SH) {
-      payment = bitcoinJS.payments.p2sh({
-        network,
-        redeem: payment,
-      });
-    }
-
-    function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
-      let buffer = Buffer.allocUnsafe(0);
-
-      function writeSlice(slice: Buffer): void {
-        buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+        output: script,
+        // This logic should be more strict and make sure the pubkeys in the
+        // meaningful script are the ones signing in the PSBT etc.
+        input: bitcoinJS.script.compile(witnessScriptStack),
+      };
+      if (isP2WSH && isSegwit) {
+        payment = bitcoinJS.payments.p2wsh({
+          network,
+          redeem: payment,
+        });
+      }
+      if (isP2SH) {
+        payment = bitcoinJS.payments.p2sh({
+          network,
+          redeem: payment,
+        });
       }
 
-      function writeVarInt(i: number): void {
-        const currentLen = buffer.length;
-        const varintLen = varuint.encodingLength(i);
+      function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
+        let buffer = Buffer.allocUnsafe(0);
 
-        buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
-        varuint.encode(i, buffer, currentLen);
+        function writeSlice(slice: Buffer): void {
+          buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+        }
+
+        function writeVarInt(i: number): void {
+          const currentLen = buffer.length;
+          const varintLen = varuint.encodingLength(i);
+
+          buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+          varuint.encode(i, buffer, currentLen);
+        }
+
+        function writeVarSlice(slice: Buffer): void {
+          writeVarInt(slice.length);
+          writeSlice(slice);
+        }
+
+        function writeVector(vector: Buffer[]): void {
+          writeVarInt(vector.length);
+          vector.forEach(writeVarSlice);
+        }
+
+        writeVector(witness);
+
+        return buffer;
       }
 
-      function writeVarSlice(slice: Buffer): void {
-        writeVarInt(slice.length);
-        writeSlice(slice);
-      }
-
-      function writeVector(vector: Buffer[]): void {
-        writeVarInt(vector.length);
-        vector.forEach(writeVarSlice);
-      }
-
-      writeVector(witness);
-
-      return buffer;
-    }
-
-    return {
-      finalScriptSig: payment.input,
-      finalScriptWitness:
-        payment.witness && payment.witness.length > 0
-          ? witnessStackToScriptWitness(payment.witness)
-          : undefined,
+      return {
+        finalScriptSig: payment.input,
+        finalScriptWitness:
+          payment.witness && payment.witness.length > 0
+            ? witnessStackToScriptWitness(payment.witness)
+            : undefined,
+      };
     };
+
+    return finalScriptsFunc;
   }
 
   static deriveMultiSig = (
