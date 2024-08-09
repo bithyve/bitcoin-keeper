@@ -44,6 +44,7 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
+import { generateScriptWitnesses } from './miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -1420,10 +1421,21 @@ export default class WalletOperations {
       // finalise and construct the txHex
       let tx;
       if (wallet.entityKind === EntityKind.VAULT) {
-        const { multisigScriptType } = (wallet as Vault).scheme;
+        const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
         if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+          if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
+
+          const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
+          const selectedWitness = scriptWitnesses[0];
+
           for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
-            combinedPSBT.finalizeInput(index, WalletUtilities.getFinalScriptsForMyCustomScript);
+            combinedPSBT.finalizeInput(
+              index,
+              WalletUtilities.getFinalScriptsForMyCustomScript(
+                selectedWitness,
+                miniscriptScheme.keysInfo
+              )
+            );
           }
           tx = combinedPSBT;
         } else tx = combinedPSBT.finalizeAllInputs();
