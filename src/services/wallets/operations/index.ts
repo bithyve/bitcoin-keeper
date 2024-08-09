@@ -1309,8 +1309,19 @@ export default class WalletOperations {
       customTxPrerequisites
     );
 
-    // TODO: set locktime in accordance w/ the timelock of the path being used
-    // PSBT.setLocktime(2872597 + 2);
+    // setting time lock(case: advisor vault)
+    if (wallet.entityKind === EntityKind.VAULT) {
+      const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
+      if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+        if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
+
+        const selectedTimelock = 0;
+        if (selectedTimelock != null) {
+          const locktime = miniscriptScheme.timelocks[selectedTimelock];
+          PSBT.setLocktime(locktime);
+        }
+      }
+    }
 
     if (wallet.entityKind === EntityKind.VAULT) {
       // case: vault(single/multi-sig)
