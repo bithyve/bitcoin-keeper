@@ -870,7 +870,6 @@ export default class WalletOperations {
 
         const { keysInfo } = miniscriptScheme;
         for (let keyIdentifier in keysInfo) {
-          // TODO: needs additional input in order to determine which keyInfo needs to be used
           const fragments = keysInfo[keyIdentifier].split('/');
           const masterFingerprint = fragments[0].slice(1);
           const multipathIndex = fragments[5];
@@ -932,15 +931,40 @@ export default class WalletOperations {
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
     const { subPaths, p2wsh, signerPubkeyMap } = changeMultiSig;
-    for (const signer of wallet.signers) {
-      const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
-      const path = `${signer.derivationPath}/${subPaths[signer.xpub].join('/')}`;
-      bip32Derivation.push({
-        masterFingerprint,
-        path,
-        pubkey: signerPubkeyMap.get(signer.xpub),
-      });
+
+    const multisigScriptType =
+      (wallet as Vault).scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
+    if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+      for (const signer of (wallet as Vault).signers) {
+        const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
+        const path = `${signer.derivationPath}/${subPaths[signer.xpub].join('/')}`;
+        bip32Derivation.push({
+          masterFingerprint,
+          path: path.replaceAll('h', "'"),
+          pubkey: signerPubkeyMap.get(signer.xpub),
+        });
+      }
+    } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+      const { miniscriptScheme } = (wallet as Vault).scheme;
+      if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
+
+      const { keysInfo } = miniscriptScheme;
+      for (let keyIdentifier in keysInfo) {
+        const fragments = keysInfo[keyIdentifier].split('/');
+        const masterFingerprint = fragments[0].slice(1);
+        const multipathIndex = fragments[5];
+        const [script_type, xpub] = fragments[4].split(']');
+
+        const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+        const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+        bip32Derivation.push({
+          masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+          path: path.replaceAll('h', "'"),
+          pubkey: signerPubkeyMap.get(xpub + multipathIndex),
+        });
+      }
     }
+
     return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2wsh.redeem.output };
   };
 
