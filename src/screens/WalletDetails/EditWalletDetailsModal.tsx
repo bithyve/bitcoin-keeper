@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Box } from 'native-base';
+import { View, Box, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
@@ -22,6 +22,7 @@ type Props = {
 
 function EditWalletDetailsModal({ wallet = {}, close }: Props) {
   const dispatch = useDispatch();
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletText, vault: vaultText } = translations;
 
@@ -79,6 +80,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         testID="walletName"
         maxLength={18}
         height={50}
+        placeholderTextColor={`${colorMode}.SlateGreen`}
       />
       <KeeperTextInput
         value={walletDescription}
@@ -87,6 +89,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         testID="walletDescription"
         maxLength={20}
         height={50}
+        placeholderTextColor={`${colorMode}.SlateGreen`}
       />
       <View style={styles.buttonWrapper}>
         <Buttons
