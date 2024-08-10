@@ -375,18 +375,41 @@ export default class WalletUtilities {
       const witnessScriptStack = [];
       for (const fragment of selectedWitness.asm.split(' ')) {
         switch (fragment) {
+          // OP_0 and OP_1(path selection)
           case '0':
             witnessScriptStack.push(bitcoinJS.opcodes.OP_0);
             break;
+          case '1':
+            witnessScriptStack.push(bitcoinJS.opcodes.OP_1);
+            break;
+
+          // UK: User Key
           case '<sig(UK)>':
             witnessScriptStack.push(signatureIdentifier['<sig(UK)>'].signature);
+            break;
+
+          // AK1: Advisor Key 1
+          case '<AK1_1>':
+            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].publickey);
+            break;
+          case '<sig(AK1_1)>':
+            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].signature);
             break;
           case '<sig(AK1_2)>':
             witnessScriptStack.push(signatureIdentifier['<sig(AK1_2)>'].signature);
             break;
+
+          // AK2: Advisor Key 2
+          case '<AK2_1>':
+            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].publickey);
+            break;
+          case '<sig(AK2_1)>':
+            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].signature);
+            break;
           case '<sig(AK2_2)>':
             witnessScriptStack.push(signatureIdentifier['<sig(AK2_2)>'].signature);
             break;
+
           default:
             throw new Error(`Invalid asm fragment ${fragment}`);
         }
