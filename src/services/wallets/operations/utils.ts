@@ -381,7 +381,12 @@ export default class WalletUtilities {
           case '<sig(UK)>':
             witnessScriptStack.push(signatureIdentifier['<sig(UK)>'].signature);
             break;
-
+          case '<sig(AK1_2)>':
+            witnessScriptStack.push(signatureIdentifier['<sig(AK1_2)>'].signature);
+            break;
+          case '<sig(AK2_2)>':
+            witnessScriptStack.push(signatureIdentifier['<sig(AK2_2)>'].signature);
+            break;
           default:
             throw new Error(`Invalid asm fragment ${fragment}`);
         }

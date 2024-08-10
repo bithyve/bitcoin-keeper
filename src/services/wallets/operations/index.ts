@@ -875,6 +875,11 @@ export default class WalletOperations {
           const multipathIndex = fragments[5];
           const [script_type, xpub] = fragments[4].split(']');
 
+          // TODO: add only selected satisfier's bip32Derv
+          if (fragments[3] === '123h' && multipathIndex[1] === '0') {
+            continue; // only add bip32Derivation based on the signing path
+          }
+
           const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
           const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
           bip32Derivation.push({
@@ -1340,10 +1345,10 @@ export default class WalletOperations {
       if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
         if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
 
-        const selectedTimelock = 0;
-        if (selectedTimelock != null) {
-          const locktime = miniscriptScheme.timelocks[selectedTimelock];
-          PSBT.setLocktime(locktime);
+        const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
+        const selectedScript = scriptWitnesses[1];
+        if (selectedScript.nLockTime) {
+          PSBT.setLocktime(selectedScript.nLockTime);
         }
       }
     }
@@ -1450,7 +1455,7 @@ export default class WalletOperations {
           if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
 
           const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
-          const selectedWitness = scriptWitnesses[0];
+          const selectedWitness = scriptWitnesses[1];
 
           for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
             combinedPSBT.finalizeInput(
