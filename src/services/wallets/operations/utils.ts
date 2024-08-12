@@ -385,7 +385,7 @@ export default class WalletUtilities {
 
           // AK1: Advisor Key 1
           case '<AK1_1>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].publickey);
+            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].pubkey);
             break;
           case '<sig(AK1_1)>':
             witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].signature);
@@ -396,7 +396,7 @@ export default class WalletUtilities {
 
           // AK2: Advisor Key 2
           case '<AK2_1>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].publickey);
+            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].pubkey);
             break;
           case '<sig(AK2_1)>':
             witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].signature);
