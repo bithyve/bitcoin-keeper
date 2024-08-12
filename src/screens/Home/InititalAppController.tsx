@@ -125,7 +125,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
       if (electrumClientConnectionStatus.success) {
-        showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
         if (electrumErrorVisible) setElectrumErrorVisible(false);
       } else if (electrumClientConnectionStatus.failed) {
         showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
