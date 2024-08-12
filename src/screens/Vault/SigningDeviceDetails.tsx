@@ -547,7 +547,7 @@ function SigningDeviceDetails({ route }) {
             setConfirmPassVisible(true);
           } else {
             setShowMobileKeyModal(false);
-            navigation.navigate('WalletBackHistory');
+            navigation.navigate('WalletBackHistory', { isUaiFlow: true });
           }
         }}
         secondaryButtonText={common.back}
