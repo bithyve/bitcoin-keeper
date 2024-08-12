@@ -32,6 +32,8 @@ import Colors from 'src/theme/Colors';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { setSignerPolicyError } from 'src/store/reducers/wallets';
+import useSigners from 'src/hooks/useSigners';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -43,13 +45,17 @@ function ChoosePolicyNew({ navigation, route }) {
   const [validationModal, showValidationModal] = useState(false);
   const [otp, setOtp] = useState('');
 
-  const { isUpdate, addSignerFlow, vaultId } = route.params;
-  const existingRestrictions: SignerRestriction = route.params.restrictions;
+  const { isUpdate, addSignerFlow, vaultId, signerId } = route.params;
+  const { signers } = useSigners();
+  const currentSigner = signers.find((signer) => signer.masterFingerprint === signerId);
+
+  const existingRestrictions = idx(currentSigner, (_) => _.signerPolicy.restrictions);
+  const existingExceptions = idx(currentSigner, (_) => _.signerPolicy.exceptions);
+
   const existingMaxTransactionRestriction = idx(
     existingRestrictions,
     (_) => _.maxTransactionAmount
   );
-  const existingExceptions: SignerException = route.params.exceptions;
   const existingMaxTransactionException = idx(existingExceptions, (_) => _.transactionAmount);
 
   const [maxTransaction, setMaxTransaction] = useState(
@@ -118,13 +124,15 @@ function ChoosePolicyNew({ navigation, route }) {
 
   useEffect(() => {
     if (validationModal) {
-      if (!policyError) {
+      if (policyError !== 'failure' && policyError !== 'idle') {
         setIsLoading(false);
+        dispatch(setSignerPolicyError('idle'));
         showToast('Policy updated successfully', <TickIcon />, IToastCategory.SIGNING_DEVICE);
-        navigation.goBack();
         showValidationModal(false);
+        navigation.goBack();
       } else {
         setIsLoading(false);
+        dispatch(setSignerPolicyError('idle'));
         showValidationModal(false);
         resetFields();
         showToast('2FA token is either invalid or has expired');

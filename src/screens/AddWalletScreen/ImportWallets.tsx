@@ -13,7 +13,7 @@ function ImportWallets({ navigation }) {
     <Box>
       <OptionCard
         title={importWallet.watchOnly}
-        description={importWallet.usingExternalZPub}
+        description={importWallet.usingExternalHardware}
         LeftIcon={<WatchOnlyIcon />}
         callback={() => navigation.navigate('ImportWallet')}
       />

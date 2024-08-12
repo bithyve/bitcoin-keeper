@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import AssistedKeysContentSlider from './components/AssistedKeysSliderContent';
 import { wp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
-const colorMode = useColorMode;
 
 function AssistedKeysSlider({ items }) {
   const onboardingSlideRef = useRef(null);
   const [currentPosition, setCurrentPosition] = useState(0);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     const backAction = () => true;
@@ -19,10 +18,23 @@ function AssistedKeysSlider({ items }) {
     return () => backHandler.remove();
   }, []);
 
-  const onViewRef = React.useRef((viewableItems) => {
-    setCurrentPosition(viewableItems.changed[0].index);
+  const handleScrollEnd = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const maxOffsetX = (items.length - 1) * width;
+
+    if (offsetX > maxOffsetX) {
+      onboardingSlideRef.current.scrollToOffset({ offset: maxOffsetX, animated: true });
+    }
+  };
+
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems && viewableItems.length > 0) {
+      setCurrentPosition(viewableItems[0].index);
+    }
   });
-  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
+
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 });
+
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
@@ -31,14 +43,16 @@ function AssistedKeysSlider({ items }) {
             ref={onboardingSlideRef}
             data={items}
             horizontal
+            pagingEnabled
             snapToInterval={width}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ flexWrap: 'wrap' }}
             disableIntervalMomentum
             decelerationRate="fast"
-            onViewableItemsChanged={onViewRef.current}
-            viewabilityConfig={viewConfigRef.current}
-            keyExtractor={(item) => item.id}
+            onViewableItemsChanged={onViewableItemsChanged.current}
+            viewabilityConfig={viewabilityConfig.current}
+            keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
+            onMomentumScrollEnd={handleScrollEnd}
             renderItem={({ item }) => (
               <AssistedKeysContentSlider
                 title={item.title}
@@ -73,6 +87,7 @@ export default AssistedKeysSlider;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
   marginLeft: {
     marginLeft: wp(5),

@@ -155,6 +155,7 @@ function* uaiChecksWorker({ payload }) {
         const uai = uaiCollectionVaultTransfer.find((uai) => uai.entityId === wallet.id);
         if (
           wallet.entityKind === EntityKind.WALLET &&
+          wallet?.transferPolicy?.threshold > 0 &&
           wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
         ) {
           if (!uai) {

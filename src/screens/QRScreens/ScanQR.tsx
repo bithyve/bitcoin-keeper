@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Input, ScrollView, VStack, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -9,7 +9,7 @@ import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
@@ -60,6 +60,16 @@ function ScanQR() {
   const isSmallDevice = useIsSmallDevices();
 
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
+
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
   // eslint-disable-next-line no-promise-executor-return
   const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const resetQR = async () => {
@@ -172,7 +182,7 @@ function ScanQR() {
           >
             <VStack style={globalStyles.centerColumn}>
               <Box style={styles.qrcontainer}>
-                {!nfcVisible ? (
+                {!nfcVisible && isFocused ? (
                   <RNCamera
                     autoFocus="on"
                     style={styles.cameraView}
