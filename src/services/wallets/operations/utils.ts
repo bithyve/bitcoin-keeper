@@ -226,8 +226,6 @@ export default class WalletUtilities {
         let { asm, issane } = generateBitcoinScript(miniscript);
         if (!issane) throw new Error('ASM is not sane - incorrect miniscript');
 
-        console.log({ asm });
-
         // generate public keys to replace the key identifiers
         const identifiersToPublicKey = {};
         for (const keyIdentifier in keysInfo) {
@@ -248,18 +246,15 @@ export default class WalletUtilities {
           ];
           const xKey = bip32.fromBase58(xpub, network);
           const childXKey = xKey.derive(subPath[0]).derive(subPath[1]);
-          identifiersToPublicKey[keyIdentifier] = childXKey.publicKey.toString('hex');
+          identifiersToPublicKey[keyIdentifier] = childXKey.publicKey;
 
           subPaths[xpub + multipathIndex] = subPath;
           signerPubkeyMap.set(xpub + multipathIndex, childXKey.publicKey);
         }
-
-        console.log({ identifiersToPublicKey });
-
         asm = asm
           .replace(
             `<${ADVISORY_VAULT_POLICY.USER_KEY}>`,
-            identifiersToPublicKey[ADVISORY_VAULT_POLICY.USER_KEY]
+            identifiersToPublicKey[ADVISORY_VAULT_POLICY.USER_KEY].toString('hex')
           )
           .replace(
             `<HASH160(${ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1})>`,
@@ -275,11 +270,11 @@ export default class WalletUtilities {
           )
           .replace(
             `<${ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2}>`,
-            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2]
+            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2].toString('hex')
           )
           .replace(
             `<${ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2}>`,
-            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2]
+            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2].toString('hex')
           );
 
         console.log({ asm });
