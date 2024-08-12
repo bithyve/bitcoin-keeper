@@ -8,6 +8,7 @@ export type AppStackParams = {
   AddTapsigner: undefined;
   SignWithTapsigner: undefined;
   AddColdCard: undefined;
+  PassportConfigRecovery: undefined;
   AppSettings: undefined;
   AppVersionHistory: undefined;
   TorSettings: undefined;
