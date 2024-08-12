@@ -608,6 +608,7 @@
     "vaultHiddenSuccessMessage": "Vault hidden successfully",
     "hideVaultModalDesc": "You can unhide this vault anytime from App Settings >Manage Wallets > Unhide",
     "vaultSettingsTitle": "Vault Settings",
+    "collabSettingsTitle": "Collaborative Wallet Settings",
     "vaultSettingsSubtitle": "Settings specific to the vault",
     "vaultDetailsTitle": "Vault Details",
     "vaultDetailsDesc": "Vault name & description",
