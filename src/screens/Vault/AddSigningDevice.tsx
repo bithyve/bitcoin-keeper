@@ -697,6 +697,7 @@ function AddSigningDevice() {
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);
   const { activeVault, allVaults } = useVault({ vaultId });
+  const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
@@ -933,7 +934,13 @@ function AddSigningDevice() {
         description={isSSAddition ? 'External signing device' : description}
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
-        vaultType={isSSAddition ? VaultType.SINGE_SIG : VaultType.DEFAULT}
+        vaultType={
+          isCollaborativeWallet
+            ? VaultType.COLLABORATIVE
+            : isSSAddition
+            ? VaultType.SINGE_SIG
+            : VaultType.DEFAULT
+        }
       />
       <Signers
         keyToRotate={keyToRotate}
