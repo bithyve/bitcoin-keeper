@@ -412,9 +412,11 @@ export const generateMiniscriptScheme = (
     for (const signer of signers) {
       const signerType = signerMap[signer.masterFingerprint].type;
       if (signerType === SignerType.MY_KEEPER) user = signer;
-      else if (signerType === SignerType.LEDGER) advisor1 = signer;
-      else advisor2 = signer;
+      else if (signerType === SignerType.SEED_WORDS) advisor1 = signer;
+      else if (signerType === SignerType.LEDGER) advisor2 = signer;
     }
+    if (!user || !advisor1 || !advisor2)
+      throw new Error('Failed to create advisor vautl - user/advisor missing');
 
     const keysInfo = {
       [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(

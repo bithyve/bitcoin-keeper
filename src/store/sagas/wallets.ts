@@ -553,13 +553,25 @@ export function* addNewVaultWorker({
         vaultDetails,
       } = newVaultInfo;
 
-      // TODO: multisigScriptType and timelocks to be provided by the user
-      vaultScheme.multisigScriptType = MultisigScriptType.ADVISOR_VAULT;
+      let advisorDummySignersCount = 0;
+      for (const signer of vaultSigners) {
+        const { type } = signerMap[signer.masterFingerprint];
+        if (
+          type === SignerType.MY_KEEPER ||
+          type === SignerType.SEED_WORDS ||
+          type === SignerType.LEDGER
+        ) {
+          advisorDummySignersCount += 1;
+        }
+      }
+      if (advisorDummySignersCount === 3) {
+        vaultScheme.multisigScriptType = MultisigScriptType.ADVISOR_VAULT;
+      }
 
       if (vaultScheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
         const { currentBlockHeight } = yield call(WalletUtilities.fetchCurrentBlockHeight);
-        const T1 = 2; // inputs from user
-        const T2 = 5;
+        const T1 = 7;
+        const T2 = 10;
         const timelocks = [currentBlockHeight + T1, currentBlockHeight + T2];
 
         const miniscriptScheme: MiniscriptScheme = yield call(
