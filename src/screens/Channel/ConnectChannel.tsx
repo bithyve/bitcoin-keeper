@@ -136,16 +136,20 @@ function ConnectChannel() {
         } else {
           dispatch(addSigningDevice([bitbox02]));
           const navigationState = addSignerFlow
-            ? { name: 'ManageSigners' }
+            ? {
+                name: 'ManageSigners',
+                params: { addedSigner: bitbox02, addSignerFlow, showModal: true },
+              }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
-
-        showToast(
-          `${bitbox02.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        if (!addSignerFlow) {
+          showToast(
+            `${bitbox02.signerName} added successfully`,
+            <TickIcon />,
+            IToastCategory.SIGNING_DEVICE
+          );
+        }
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />);
@@ -169,15 +173,20 @@ function ConnectChannel() {
         } else {
           dispatch(addSigningDevice([trezor]));
           const navigationState = addSignerFlow
-            ? { name: 'ManageSigners' }
+            ? {
+                name: 'ManageSigners',
+                params: { addedSigner: trezor, addSignerFlow, showModal: true },
+              }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
-        showToast(
-          `${trezor.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        if (!addSignerFlow) {
+          showToast(
+            `${trezor.signerName} added successfully`,
+            <TickIcon />,
+            IToastCategory.SIGNING_DEVICE
+          );
+        }
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />);
@@ -201,16 +210,21 @@ function ConnectChannel() {
         } else {
           dispatch(addSigningDevice([ledger]));
           const navigationState = addSignerFlow
-            ? { name: 'ManageSigners' }
+            ? {
+                name: 'ManageSigners',
+                params: { addedSigner: ledger, addSignerFlow, showModal: true },
+              }
             : { name: 'AddSigningDevice', merge: true, params: {} };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
-        showToast(
-          `${ledger.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        if (!addSignerFlow) {
+          showToast(
+            `${ledger.signerName} added successfully`,
+            <TickIcon />,
+            IToastCategory.SIGNING_DEVICE
+          );
+        }
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />);

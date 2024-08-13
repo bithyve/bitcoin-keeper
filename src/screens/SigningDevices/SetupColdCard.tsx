@@ -126,16 +126,21 @@ function SetupColdCard({ route }) {
       } else {
         dispatch(addSigningDevice([coldcard]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
+          ? {
+              name: 'ManageSigners',
+              params: { addedSigner: coldcard, addSignerFlow, showModal: true },
+            }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
 
-      showToast(
-        `${coldcard.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
+      if (!addSignerFlow) {
+        showToast(
+          `${coldcard.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+      }
     } catch (error) {
       handleNFCError(error);
     }

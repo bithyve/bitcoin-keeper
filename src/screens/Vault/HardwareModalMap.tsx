@@ -694,14 +694,19 @@ function PasswordEnter({
         const { signer } = await setupMobileKey({ primaryMnemonic, isMultisig });
         dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
+          ? {
+              name: 'ManageSigners',
+              params: { addedSigner: signer, addSignerFlow, showModal: true },
+            }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
-        showToast(
-          `${signer.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        if (!addSignerFlow) {
+          showToast(
+            `${signer.signerName} added successfully`,
+            <TickIcon />,
+            IToastCategory.SIGNING_DEVICE
+          );
+        }
         setInProgress(false);
         close();
       } else {
@@ -1049,14 +1054,19 @@ function HardwareModalMap({
       const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
       dispatch(addSigningDevice([signer]));
       const navigationState = addSignerFlow
-        ? { name: 'ManageSigners' }
+        ? {
+            name: 'ManageSigners',
+            params: { addedSigner: signer, addSignerFlow, showModal: true },
+          }
         : { name: 'AddSigningDevice', merge: true, params: {} };
       navigation.dispatch(CommonActions.navigate(navigationState));
-      showToast(
-        `${signer.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
+      if (!addSignerFlow) {
+        showToast(
+          `${signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+      }
     } catch (err) {
       Alert.alert(err?.message);
     }
@@ -1082,14 +1092,19 @@ function HardwareModalMap({
                 const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
                 dispatch(addSigningDevice([signer]));
                 const navigationState = addSignerFlow
-                  ? { name: 'ManageSigners' }
+                  ? {
+                      name: 'ManageSigners',
+                      params: { addedSigner: signer, addSignerFlow, showModal: true },
+                    }
                   : { name: 'AddSigningDevice', merge: true, params: {} };
                 navigation.dispatch(CommonActions.navigate(navigationState));
-                showToast(
-                  `${signer.signerName} added successfully`,
-                  <TickIcon />,
-                  IToastCategory.SIGNING_DEVICE
-                );
+                if (!addSignerFlow) {
+                  showToast(
+                    `${signer.signerName} added successfully`,
+                    <TickIcon />,
+                    IToastCategory.SIGNING_DEVICE
+                  );
+                }
               } catch (err) {
                 showToast(err?.message, <ToastErrorIcon />);
               }
@@ -1202,15 +1217,20 @@ function HardwareModalMap({
       } else {
         dispatch(addSigningDevice([hw.signer]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
+          ? {
+              name: 'ManageSigners',
+              params: { addedSigner: signer, addSignerFlow, showModal: true },
+            }
           : { name: 'AddSigningDevice', merge: true, params: {} };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(
-        `${hw.signer.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
+      if (!addSignerFlow) {
+        showToast(
+          `${hw.signer.signerName} added successfully`,
+          <TickIcon />,
+          IToastCategory.SIGNING_DEVICE
+        );
+      }
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);

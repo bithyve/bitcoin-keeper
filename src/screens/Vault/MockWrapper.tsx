@@ -2,14 +2,14 @@ import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/
 import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
-import { SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { SignerType } from 'src/services/wallets/enums';
 import { getMockSigner } from 'src/hardware';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { captureError } from 'src/services/sentry';
 import { View } from 'native-base';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from './HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
@@ -49,15 +49,19 @@ function MockWrapper({
         const { signer } = data;
         dispatch(addSigningDevice([signer]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
+          ? {
+              name: 'ManageSigners',
+              params: { addedSigner: signer, addSignerFlow, showModal: true },
+            }
           : { name: 'AddSigningDevice', merge: true, params: {} };
+        if (!addSignerFlow) {
+          showToast(
+            `${signer.signerName} added successfully`,
+            <TickIcon />,
+            IToastCategory.SIGNING_DEVICE
+          );
+        }
         nav.dispatch(CommonActions.navigate(navigationState));
-
-        showToast(
-          `${signer.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
       }
     } catch (error) {
       if (error.toString().includes("We don't support")) {
