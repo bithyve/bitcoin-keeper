@@ -101,12 +101,7 @@ function Footer({
           Icon: SettingIcon,
           text: common.settings,
           onPress: () => {
-            navigation.dispatch(
-              CommonActions.navigate(
-                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-                { vaultId: vault.id }
-              )
-            );
+            navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }));
           },
         },
       ];
