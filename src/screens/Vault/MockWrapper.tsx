@@ -58,13 +58,6 @@ function MockWrapper({
               merge: true,
               params: { addedSigner: signer, addSignerFlow, showModal: true },
             };
-        // if (!addSignerFlow) {
-        //   showToast(
-        //     `${signer.signerName} added successfully`,
-        //     <TickIcon />,
-        //     IToastCategory.SIGNING_DEVICE
-        //   );
-        // }
         nav.dispatch(CommonActions.navigate(navigationState));
       }
     } catch (error) {
