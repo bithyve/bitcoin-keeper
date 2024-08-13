@@ -61,6 +61,7 @@ import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import HWError from 'src/hardware/HWErrorState';
+import KeyAddedModal from 'src/components/KeyAddedModal';
 
 const { width } = Dimensions.get('screen');
 
@@ -671,6 +672,9 @@ function AddSigningDevice() {
       onGoBack?: any;
       coSigners?: any;
       isSSAddition?: boolean;
+      addedSigner?: Signer;
+      addSignerFlow?: boolean;
+      showModal?: boolean;
     };
   };
   const {
@@ -684,11 +688,15 @@ function AddSigningDevice() {
     onGoBack,
     coSigners,
     isSSAddition = false,
+    addedSigner,
+    addSignerFlow = false,
+    showModal = false,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common, signer } = translations;
+  const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
   const { signers } = useSigners();
   // filter out archived signers
@@ -722,6 +730,10 @@ function AddSigningDevice() {
   const { vaultSigners: keys } = useSigners(newVault?.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
 
+  const handleModalClose = () => {
+    setKeyAddedModalVisible(false);
+    navigation.dispatch(CommonActions.setParams({ showModal: false }));
+  };
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
       showToast(realySignersUpdateErrorMessage);
@@ -761,6 +773,12 @@ function AddSigningDevice() {
       keyToRotate
     );
   }, []);
+
+  useEffect(() => {
+    if (showModal) {
+      setKeyAddedModalVisible(true);
+    }
+  }, [showModal]);
 
   const subtitle = isSSAddition
     ? 'Choose a single sig key to create a wallet'
@@ -1006,6 +1024,7 @@ function AddSigningDevice() {
         subTitleWidth={wp(280)}
         showCloseIcon={false}
       />
+      <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
     </ScreenWrapper>
   );
 }

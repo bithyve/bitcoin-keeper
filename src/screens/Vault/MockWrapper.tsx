@@ -53,14 +53,18 @@ function MockWrapper({
               name: 'ManageSigners',
               params: { addedSigner: signer, addSignerFlow, showModal: true },
             }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
-        if (!addSignerFlow) {
-          showToast(
-            `${signer.signerName} added successfully`,
-            <TickIcon />,
-            IToastCategory.SIGNING_DEVICE
-          );
-        }
+          : {
+              name: 'AddSigningDevice',
+              merge: true,
+              params: { addedSigner: signer, addSignerFlow, showModal: true },
+            };
+        // if (!addSignerFlow) {
+        //   showToast(
+        //     `${signer.signerName} added successfully`,
+        //     <TickIcon />,
+        //     IToastCategory.SIGNING_DEVICE
+        //   );
+        // }
         nav.dispatch(CommonActions.navigate(navigationState));
       }
     } catch (error) {

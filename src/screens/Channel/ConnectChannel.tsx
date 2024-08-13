@@ -140,15 +140,12 @@ function ConnectChannel() {
                 name: 'ManageSigners',
                 params: { addedSigner: bitbox02, addSignerFlow, showModal: true },
               }
-            : { name: 'AddSigningDevice', merge: true, params: {} };
+            : {
+                name: 'AddSigningDevice',
+                merge: true,
+                params: { addedSigner: bitbox02, addSignerFlow, showModal: true },
+              };
           navigation.dispatch(CommonActions.navigate(navigationState));
-        }
-        if (!addSignerFlow) {
-          showToast(
-            `${bitbox02.signerName} added successfully`,
-            <TickIcon />,
-            IToastCategory.SIGNING_DEVICE
-          );
         }
       } catch (error) {
         if (error instanceof HWError) {
@@ -177,15 +174,12 @@ function ConnectChannel() {
                 name: 'ManageSigners',
                 params: { addedSigner: trezor, addSignerFlow, showModal: true },
               }
-            : { name: 'AddSigningDevice', merge: true, params: {} };
+            : {
+                name: 'AddSigningDevice',
+                merge: true,
+                params: { addedSigner: trezor, addSignerFlow, showModal: true },
+              };
           navigation.dispatch(CommonActions.navigate(navigationState));
-        }
-        if (!addSignerFlow) {
-          showToast(
-            `${trezor.signerName} added successfully`,
-            <TickIcon />,
-            IToastCategory.SIGNING_DEVICE
-          );
         }
       } catch (error) {
         if (error instanceof HWError) {
@@ -214,16 +208,12 @@ function ConnectChannel() {
                 name: 'ManageSigners',
                 params: { addedSigner: ledger, addSignerFlow, showModal: true },
               }
-            : { name: 'AddSigningDevice', merge: true, params: {} };
+            : {
+                name: 'AddSigningDevice',
+                merge: true,
+                params: { addedSigner: ledger, addSignerFlow, showModal: true },
+              };
           navigation.dispatch(CommonActions.navigate(navigationState));
-        }
-
-        if (!addSignerFlow) {
-          showToast(
-            `${ledger.signerName} added successfully`,
-            <TickIcon />,
-            IToastCategory.SIGNING_DEVICE
-          );
         }
       } catch (error) {
         if (error instanceof HWError) {

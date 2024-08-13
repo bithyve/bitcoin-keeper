@@ -130,16 +130,12 @@ function SetupColdCard({ route }) {
               name: 'ManageSigners',
               params: { addedSigner: coldcard, addSignerFlow, showModal: true },
             }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
+          : {
+              name: 'AddSigningDevice',
+              merge: true,
+              params: { addedSigner: coldcard, addSignerFlow, showModal: true },
+            };
         navigation.dispatch(CommonActions.navigate(navigationState));
-      }
-
-      if (!addSignerFlow) {
-        showToast(
-          `${coldcard.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
       }
     } catch (error) {
       handleNFCError(error);
