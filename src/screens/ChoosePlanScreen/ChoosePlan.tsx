@@ -31,8 +31,11 @@ import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import { useQuery } from '@realm/react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import TierUpgradeModal from './TierUpgradeModal';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
+import KeeperTextInput from 'src/components/KeeperTextInput';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import Colors from 'src/theme/Colors';
+import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan() {
   const route = useRoute();
@@ -57,6 +60,7 @@ function ChoosePlan() {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
   const [isServiceUnavailible, setIsServiceUnavailible] = useState(false);
+  const [showPromocodeModal, setShowPromocodeModal] = useState(false);
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -108,10 +112,12 @@ function ChoosePlan() {
             data[index].monthlyPlanDetails = {
               ...getPlanData(monthlyPlans),
               productId: subscription.productId,
+              offers: monthlyPlans,
             };
             data[index].yearlyPlanDetails = {
               ...getPlanData(yearlyPlans),
               productId: subscription.productId,
+              offers: yearlyPlans,
             };
           } else if (Platform.OS === 'ios') {
             const planDetails = {
@@ -358,6 +364,59 @@ function ChoosePlan() {
     );
   }
 
+  function PromocodeModalContent() {
+    const { colorMode } = useColorMode();
+    const [code, setcode] = useState('');
+    const [isInvalidCode, setIsInvalidCode] = useState(false);
+
+    const onPressRedeem = () => {
+      const plan = isMonthly
+        ? items[currentPosition].monthlyPlanDetails
+        : items[currentPosition].yearlyPlanDetails;
+      if (Platform.OS === 'android') {
+        const promoCode = code.trim().toLowerCase();
+        if (items[currentPosition].promoCodes || items[currentPosition].promoCodes[promoCode]) {
+          const offerId = items[currentPosition].promoCodes[promoCode];
+          const offer = plan.offers.find((offer) => offer.offerId === offerId);
+          if (offer) {
+            let purchaseTokenAndroid = null;
+            if (appSubscription.receipt) {
+              purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
+            }
+            setShowPromocodeModal(false);
+            requestSubscription({
+              sku: plan.productId,
+              subscriptionOffers: [{ sku: plan.productId, offerToken: offer.offerToken }],
+              purchaseTokenAndroid,
+            });
+          } else {
+            setIsInvalidCode(true);
+          }
+        } else {
+          setIsInvalidCode(true);
+        }
+      } else {
+      }
+    };
+
+    return (
+      <Box>
+        <Text>Enter Code</Text>
+        <KeeperTextInput
+          placeholder="*******"
+          value={code}
+          onChangeText={(value) => {
+            setcode(value);
+            setIsInvalidCode(false);
+          }}
+          testID="input_setcode"
+        />
+        {isInvalidCode && <Text color={Colors.CarmineRed}>Invalid promo code</Text>}
+        <CustomGreenButton value="Redeem" disabled={code.length < 3} onPress={onPressRedeem} />
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -384,7 +443,21 @@ function ChoosePlan() {
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
-
+      <KeeperModal
+        visible={showPromocodeModal}
+        close={() => setShowPromocodeModal(false)}
+        title="Subscribe with Promo Code"
+        subTitle="To redeem discount, please enter the Code"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
+        showCloseIcon={false}
+        buttonText={null}
+        buttonCallback={() => {}}
+        Content={PromocodeModalContent}
+        subTitleWidth={wp(210)}
+      />
       <TierUpgradeModal
         visible={showUpgradeModal}
         close={() => setShowUpgradeModal(false)}
@@ -407,6 +480,16 @@ function ChoosePlan() {
             requesting={requesting}
             currentPosition={currentPosition}
           />
+
+          <Text
+            onPress={() => setShowPromocodeModal(true)}
+            style={{ textAlign: 'center', marginTop: 10 }}
+            fontSize={16}
+            letterSpacing={0.16}
+          >
+            <Text>Have an offer code? </Text>
+            <Text color={`${colorMode}.headerText`}>Redeem Now</Text>
+          </Text>
 
           <Box
             opacity={0.1}
@@ -450,7 +533,6 @@ function ChoosePlan() {
           </Box>
         </ScrollView>
       )}
-
       <Box style={styles.noteWrapper}>
         <Box width="65%">
           <Note
