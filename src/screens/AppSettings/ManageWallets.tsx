@@ -334,6 +334,7 @@ function ManageWallets() {
               }}
               onDelete={() => {
                 if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
+                  setSelectedWallet(item);
                   setShowDeleteVaultBalanceAlert(true);
                 } else {
                   setSelectedWallet(item);
