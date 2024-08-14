@@ -52,9 +52,9 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       Content={() => (
         <Box style={{ gap: 20 }}>
           <ModalCard
-            title={signer.signerName}
-            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-            subTitle={`Added ${moment(signer.addedOn).calendar()}`}
+            title={signer?.signerName}
+            icon={SDIcons(signer?.type, colorMode !== 'dark').Icon}
+            subTitle={`Added ${moment(signer?.addedOn).calendar()}`}
           />
           <Text style={styles.descText}>{signerTranslations.signerAddedDesc}</Text>
         </Box>
@@ -65,7 +65,7 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       buttonCallback={() => {
         close();
         navigtaion.navigate('SigningDeviceDetails', {
-          signerId: signer.masterFingerprint,
+          signerId: signer?.masterFingerprint,
         });
       }}
     />

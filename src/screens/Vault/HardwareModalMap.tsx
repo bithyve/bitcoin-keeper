@@ -951,8 +951,15 @@ function HardwareModalMap({
         if (hw) {
           dispatch(addSigningDevice([hw.signer]));
           const navigationState = addSignerFlow
-            ? { name: 'ManageSigners' }
-            : { name: 'AddSigningDevice', merge: true, params: {} };
+            ? {
+                name: 'ManageSigners',
+                params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+              }
+            : {
+                name: 'AddSigningDevice',
+                merge: true,
+                params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
+              };
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
         setInProgress(false);
@@ -1210,12 +1217,12 @@ function HardwareModalMap({
         const navigationState = addSignerFlow
           ? {
               name: 'ManageSigners',
-              params: { addedSigner: signer, addSignerFlow, showModal: true },
+              params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
             }
           : {
               name: 'AddSigningDevice',
               merge: true,
-              params: { addedSigner: signer, addSignerFlow, showModal: true },
+              params: { addedSigner: hw.signer, addSignerFlow, showModal: true },
             };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
