@@ -208,14 +208,23 @@ function PrivacyAndDisplay() {
     if (inProgress) {
       return;
     }
-    if (!analyticsEnabled) {
-      await start(() => Sentry.init(sentryConfig));
-    } else {
-      await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
-    }
+
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       enableAnalytics: !analyticsEnabled,
     });
+
+    try {
+      if (!analyticsEnabled) {
+        await start(() => Sentry.init(sentryConfig));
+      } else {
+        await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+      }
+    } catch (error) {
+      dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+        enableAnalytics: analyticsEnabled,
+      });
+      console.error('Failed to toggle Sentry analytics:', error);
+    }
   };
 
   useEffect(() => {
@@ -238,8 +247,8 @@ function PrivacyAndDisplay() {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
