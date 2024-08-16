@@ -301,28 +301,6 @@ function ChoosePlan() {
     return `A ${name}`;
   };
 
-  const getPlanNote = (plan) => {
-    if (plan.name === 'Pleb') return '';
-    let trial = '';
-    let amount = '';
-    if (plan.monthlyPlanDetails || plan.yearlyPlanDetails) {
-      if (isMonthly) {
-        trial = plan.monthlyPlanDetails.trailPeriod;
-        amount = plan.monthlyPlanDetails.price;
-      } else {
-        trial = plan.yearlyPlanDetails.trailPeriod;
-        amount = plan.yearlyPlanDetails.price;
-      }
-    }
-    if (trial) {
-      return `Start your ${trial} FREE trial now! Then ${amount} per ${
-        isMonthly ? 'month' : 'year'
-      }, cancel anytime`;
-    } else {
-      return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
-    }
-  };
-
   const restorePurchases = async () => {
     try {
       setRequesting(true);
@@ -369,7 +347,7 @@ function ChoosePlan() {
     const [code, setcode] = useState('');
     const [isInvalidCode, setIsInvalidCode] = useState(false);
 
-    const onPressRedeem = () => {
+    const onPressRedeem = async () => {
       const plan = isMonthly
         ? items[currentPosition].monthlyPlanDetails
         : items[currentPosition].yearlyPlanDetails;
@@ -396,6 +374,17 @@ function ChoosePlan() {
           setIsInvalidCode(true);
         }
       } else {
+        const offer = await Relay.getOffer(plan.productId, code.trim().toLowerCase());
+        if (offer && offer.signature) {
+          setShowPromocodeModal(false);
+          requestSubscription({
+            sku: plan.productId,
+            subscriptionOffers: [{ sku: plan.productId, offerToken: offer.offerToken }],
+            withOffer: offer,
+          });
+        } else {
+          setIsInvalidCode(true);
+        }
       }
     };
 
@@ -403,10 +392,10 @@ function ChoosePlan() {
       <Box>
         <Text>Enter Code</Text>
         <KeeperTextInput
-          placeholder="*******"
+          placeholder="Promo Code"
           value={code}
           onChangeText={(value) => {
-            setcode(value);
+            setcode(value.trim());
             setIsInvalidCode(false);
           }}
           testID="input_setcode"
@@ -481,15 +470,17 @@ function ChoosePlan() {
             currentPosition={currentPosition}
           />
 
-          <Text
-            onPress={() => setShowPromocodeModal(true)}
-            style={{ textAlign: 'center', marginTop: 10 }}
-            fontSize={16}
-            letterSpacing={0.16}
-          >
-            <Text>Have an offer code? </Text>
-            <Text color={`${colorMode}.headerText`}>Redeem Now</Text>
-          </Text>
+          {currentPosition !== 0 && (
+            <Text
+              onPress={() => setShowPromocodeModal(true)}
+              style={{ textAlign: 'center', marginTop: 10 }}
+              fontSize={16}
+              letterSpacing={0.16}
+            >
+              <Text>Have an offer code? </Text>
+              <Text color={`${colorMode}.headerText`}>Redeem Now</Text>
+            </Text>
+          )}
 
           <Box
             opacity={0.1}
