@@ -380,6 +380,39 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
             secondary: skipBtnConfig(uai, true),
           },
         };
+      case uaiType.SIGN_TRANSACTION:
+        return {
+          heading: uai.uaiDetails.heading,
+          body: uai.uaiDetails.body,
+          btnConfig: {
+            primary: {
+              text: 'Decline',
+              cta: async () => {
+                try {
+                  setmodalActionLoader(true);
+                  if (uai.entityId) {
+                    const res = await InheritanceKeyServer.declineInheritanceKeyRequest(
+                      uai.entityId
+                    );
+                    if (res?.declined) {
+                      showToast('IKS request declined');
+                      uaiSetActionFalse();
+                      setShowModal(false);
+                    } else {
+                      Alert.alert('Something went Wrong!');
+                    }
+                  }
+                } catch (err) {
+                  Alert.alert('Something went Wrong!');
+                  console.log('Error in declining request');
+                }
+                setShowModal(false);
+                setmodalActionLoader(false);
+              },
+            },
+            secondary: skipBtnConfig(uai, true),
+          },
+        };
       default:
         return null;
     }
