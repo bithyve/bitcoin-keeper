@@ -44,7 +44,7 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import { generateScriptWitnesses } from './miniscript';
+import { ADVISORY_VAULT_POLICY, generateScriptWitnesses } from './miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -1192,21 +1192,50 @@ export default class WalletOperations {
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
         let publicKey;
         let subPath;
-        if (wallet.isMultiSig) {
+
+        const multisigScriptType =
+          (wallet as Vault).scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
+
+        if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+          if (wallet.isMultiSig) {
+            const multisigAddress = WalletUtilities.addressToMultiSig(
+              inputs[inputIndex].address,
+              wallet
+            );
+
+            publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
+            subPath = multisigAddress.subPaths[vaultKey.xpub];
+          } else {
+            const singlesigAddress = WalletUtilities.addressToPublicKey(
+              inputs[inputIndex].address,
+              wallet
+            );
+            publicKey = singlesigAddress.publicKey;
+            subPath = singlesigAddress.subPath;
+          }
+        } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+          const { miniscriptScheme } = (wallet as Vault).scheme;
+          if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
+
           const multisigAddress = WalletUtilities.addressToMultiSig(
             inputs[inputIndex].address,
             wallet
           );
-          publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
-          subPath = multisigAddress.subPaths[vaultKey.xpub];
-        } else {
-          const singlesigAddress = WalletUtilities.addressToPublicKey(
-            inputs[inputIndex].address,
-            wallet
-          );
-          publicKey = singlesigAddress.publicKey;
-          subPath = singlesigAddress.subPath;
+
+          const { keysInfo } = miniscriptScheme;
+          const selectedLedgerOrigin = ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1; // TODO: comes as an input
+          for (let keyIdentifier in keysInfo) {
+            if (keyIdentifier === selectedLedgerOrigin) {
+              const fragments = keysInfo[keyIdentifier].split('/');
+              const multipathIndex = fragments[5];
+              publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub + multipathIndex);
+              subPath = multisigAddress.subPaths[vaultKey.xpub + multipathIndex];
+            }
+          }
         }
+
+        if (!publicKey) throw new Error('Failed to generate payload, missing pubkey');
+
         const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
         inputsToSign.push({
           digest: hash.toString('hex'),
