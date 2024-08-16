@@ -77,8 +77,12 @@ function VaultConfigurationCreation() {
     };
   }, [qrData]);
 
-  const onBarCodeRead = (data) => {
-    if (!qrData) {
+  const onBarCodeRead = (data, fromImage = false) => {
+    if (
+      !qrData &&
+      data.data &&
+      (data.type === 'QR_CODE' || data.type === 'org.iso.QRCode' || fromImage)
+    ) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
@@ -129,7 +133,7 @@ function VaultConfigurationCreation() {
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
-            setData(data);
+            onBarCodeRead({ data }, true);
           })
           .catch((err) => {
             showToast('Invalid or No related QR code');
