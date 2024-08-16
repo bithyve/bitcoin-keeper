@@ -654,8 +654,7 @@ export default class Relay {
         return null;
       }
     } catch (error) {
-      captureError(error);
-      throw error;
+      return null;
     }
   };
 }
