@@ -124,7 +124,8 @@
     "confirmPassCode": "Confirm Passcode",
     "backupNow": "Backup Now",
     "dontShowAgain": "Don’t show me this message again",
-    "for": "For"
+    "for": "For",
+    "goToBackup": "Go to Backup"
   },
   "noInternet": {
     "no": "No Internet",
@@ -843,7 +844,12 @@
     "SingerSettingsTitle": "Advanced Options",
     "SingerSettingsSubtitle": "For all keys",
     "ManageWalletsEmptyTitle": "Hide Unhide Wallets",
-    "ManageWalletsEmptySubtitle": "Avoid clutter on the homescreen and keep wallets away from prying eyes."
+    "ManageWalletsEmptySubtitle": "Avoid clutter on the homescreen and keep wallets away from prying eyes.",
+    "RKHealthCheckTitle": "Health Check",
+    "RKHealthCheckSubtitle": "For the Recovery Phrase",
+    "RKHealthCheckDesc": "Please Back up your Recovery Key in order to change your current Passcode",
+    "RKBackupTitle": "Backup Recovery Key",
+    "RKBackupSubTitle": "Carefully write down the 12-word Recovery Key in a private place and ensure its security"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
