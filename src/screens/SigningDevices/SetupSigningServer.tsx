@@ -81,14 +81,16 @@ function SetupSigningServer({ route }: { route }) {
 
     dispatch(addSigningDevice([signingServerKey]));
     const navigationState = addSignerFlow
-      ? { name: 'ManageSigners' }
-      : { name: 'AddSigningDevice', merge: true, params: {} };
+      ? {
+          name: 'ManageSigners',
+          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+        }
+      : {
+          name: 'AddSigningDevice',
+          merge: true,
+          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+        };
     navigation.dispatch(CommonActions.navigate(navigationState));
-    showToast(
-      `${signingServerKey.signerName} added successfully`,
-      <TickIcon />,
-      IToastCategory.SIGNING_DEVICE
-    );
   };
 
   useEffect(() => {
