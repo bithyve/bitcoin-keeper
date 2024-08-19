@@ -843,7 +843,13 @@
     "SingerSettingsTitle": "Advanced Options",
     "SingerSettingsSubtitle": "For all keys",
     "ManageWalletsEmptyTitle": "Hide Unhide Wallets",
-    "ManageWalletsEmptySubtitle": "Avoid clutter on the homescreen and keep wallets away from prying eyes."
+    "ManageWalletsEmptySubtitle": "Avoid clutter on the homescreen and keep wallets away from prying eyes.",
+    "DeleteWalletModalTitle": "You have funds in your wallet",
+    "DeleteVaultModalTitle": "Delete vault with funds?",
+    "DeleteWalletModalSubTitle": "You have sats in your wallet. Are you sure you want to delete it?",
+    "DeleteVaultModalSubTitle": "You are about to delete a vault with sats in it. Please ensure that you have backed-up your keys and vault descriptor to retrieve the vault later.",
+    "DeleteWalletModalDesc": "To delete this wallet, please transfer your funds to another wallet or vault first.",
+    "DeleteVaultModalDesc": "This action is irreversible without the keys and descriptor backed-up. Proceed to delete vault?"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
