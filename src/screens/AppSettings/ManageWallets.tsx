@@ -46,8 +46,7 @@ enum PasswordMode {
   DEFAULT = 'DEFAULT',
   SHOWALL = 'SHOWALL',
 }
-
-function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, icon }) {
+function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, icon, type }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
@@ -77,7 +76,9 @@ function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDele
           </Text>
         </Box>
         <HStack>
-          {isHidden && <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />}
+          {isHidden && (type == 'VAULT' || (type == 'WALLET' && balance === 0)) && (
+            <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
+          )}
           <ActionChip
             text={isHidden ? 'Unhide' : 'Hide'}
             onPress={visibilityToggle}
@@ -324,6 +325,7 @@ function ManageWallets() {
           renderItem={({ item }) => (
             <ListItem
               icon={getWalletIcon(item)}
+              type={item.entityKind}
               title={item.presentationData.name}
               subtitle={item.presentationData.description}
               balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
