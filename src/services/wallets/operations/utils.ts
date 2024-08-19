@@ -206,6 +206,8 @@ export default class WalletUtilities {
   static generateCustomScript = (
     type: MultisigScriptType,
     miniscriptScheme: MiniscriptScheme,
+    isInternal: boolean,
+    childIndex: number,
     network: bitcoinJS.networks.Network
   ): {
     script: Buffer;
@@ -235,8 +237,6 @@ export default class WalletUtilities {
           const multipathIndex = fragments[5];
           const [_, xpub] = fragments[4].split(']');
 
-          const isInternal = false;
-          const childIndex = 0;
           const multipathFragments = multipathIndex.split(';');
           const externalChainIndex = multipathFragments[0].slice(1);
           const internalChainIndex = multipathFragments[1].slice(0, -1);
@@ -247,7 +247,7 @@ export default class WalletUtilities {
           const xKey = bip32.fromBase58(xpub, network);
           const childXKey = xKey.derive(subPath[0]).derive(subPath[1]);
           identifiersToPublicKey[keyIdentifier] = childXKey.publicKey;
-
+          console.log({ isInternal, childIndex, subPath });
           subPaths[xpub + multipathIndex] = subPath;
           signerPubkeyMap.set(xpub + multipathIndex, childXKey.publicKey);
         }
@@ -281,11 +281,11 @@ export default class WalletUtilities {
 
         // prepare and enrich the time locks
         const [T1, T2] = timelocks;
+        console.log({ T1, T2 });
         const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
         const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
         asm = asm.replace(`<${encodedT1}>`, encodedT1).replace(`<${encodedT2}>`, encodedT2);
-        console.log({ asm });
-
+        console.log({ timelockedASM: asm });
         const script = bitcoinJS.script.fromASM(asm);
         console.log({ subPaths, script: script.toString('hex') });
         return { script, subPaths, signerPubkeyMap };
@@ -561,9 +561,12 @@ export default class WalletUtilities {
         throw new Error('Invalid multisig config - miniscript scheme missing');
       }
 
+      const { internal, childIndex } = multisigConfig;
       const { script, subPaths, signerPubkeyMap } = this.generateCustomScript(
         multisigConfig.multisigScriptType,
         multisigConfig.miniscriptScheme,
+        internal,
+        childIndex,
         network
       );
 
