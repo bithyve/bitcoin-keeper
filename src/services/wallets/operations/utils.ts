@@ -612,15 +612,14 @@ export default class WalletUtilities {
 
   static getPublicKeyByIndex = (
     xpub: string,
-    internal: boolean,
-    index: number,
+    chainIndex: number,
+    childIndex: number,
     network: bitcoinJS.networks.Network
   ): { publicKey: Buffer; subPath: number[] } => {
     const node = bip32.fromBase58(xpub, network);
-    const chain = internal ? 1 : 0;
-    const keyPair = node.derive(chain).derive(index);
+    const keyPair: BIP32Interface = node.derive(chainIndex).derive(childIndex);
     const { publicKey } = keyPair;
-    return { publicKey, subPath: [chain, index] };
+    return { publicKey, subPath: [chainIndex, childIndex] };
   };
 
   static getAddressByIndex = (
@@ -766,7 +765,9 @@ export default class WalletUtilities {
 
   static addressToPublicKey = (
     address: string,
-    wallet: Wallet | Vault
+    wallet: Wallet | Vault,
+    externalChainIndex: number = 0,
+    internalChainIndex: number = 1
   ): {
     publicKey: Buffer;
     subPath: number[];
@@ -794,7 +795,7 @@ export default class WalletUtilities {
             publicKey: Buffer.from(addressPubs[address], 'hex'),
             subPath: [0, itr],
           };
-        } else return WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network);
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, externalChainIndex, itr, network);
       }
     }
 
@@ -806,7 +807,7 @@ export default class WalletUtilities {
             publicKey: Buffer.from(addressPubs[address], 'hex'),
             subPath: [1, itr],
           };
-        } else return WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network);
+        } else return WalletUtilities.getPublicKeyByIndex(xpub, internalChainIndex, itr, network);
       }
     }
 
@@ -815,7 +816,9 @@ export default class WalletUtilities {
 
   static addressToKeyPair = (
     address: string,
-    wallet: Wallet | Vault
+    wallet: Wallet | Vault,
+    externalChainIndex: number = 0,
+    internalChainIndex: number = 1
   ): {
     keyPair: BIP32Interface;
   } => {
@@ -829,14 +832,18 @@ export default class WalletUtilities {
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
-        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, false, itr, network) };
+        return {
+          keyPair: WalletUtilities.getKeyPairByIndex(xpriv, externalChainIndex, itr, network),
+        };
       }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (addressCache.internal[itr] === address) {
-        return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, true, itr, network) };
+        return {
+          keyPair: WalletUtilities.getKeyPairByIndex(xpriv, internalChainIndex, itr, network),
+        };
       }
     }
 
