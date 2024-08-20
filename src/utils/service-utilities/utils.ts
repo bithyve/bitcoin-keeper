@@ -1,4 +1,5 @@
 import idx from 'idx';
+import { DescriptorChecksum } from 'src/services/wallets/operations/descriptors/checksum';
 import { EntityKind } from '../../services/wallets/enums';
 import { Vault, VaultScheme, VaultSigner } from '../../services/wallets/interfaces/vault';
 import { Wallet } from '../../services/wallets/interfaces/wallet';
@@ -48,7 +49,8 @@ export const genrateOutputDescriptors = (
       for (const keyId in keysInfo) {
         walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keysInfo[keyId]);
       }
-      return `wsh(${walletPolicyDescriptor})`;
+      const desc = `wsh(${walletPolicyDescriptor})`;
+      return `${desc}#${DescriptorChecksum(desc)}`;
     }
 
     const { signers, scheme, isMultiSig } = wallet as Vault;
