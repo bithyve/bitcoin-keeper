@@ -6,7 +6,7 @@ import { wp, hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useWallets from 'src/hooks/useWallets';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
-import { EntityKind, VaultType } from 'src/services/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
@@ -68,6 +68,7 @@ const SelectWalletModal = ({
   subTitle = 'Please select vault to which you want to transfer your funds',
   buttonText = 'Transfer',
   secondaryButtonText = 'Skip',
+  hideHiddenVaults = false,
 }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -79,7 +80,13 @@ const SelectWalletModal = ({
 
   const walletsData = useMemo(() => {
     if (onlyWallets) return wallets;
-    if (onlyVaults) return allVaults;
+    if (onlyVaults) {
+      if (hideHiddenVaults)
+        return allVaults.filter(
+          (vault) => vault.presentationData.visibility !== VisibilityType.HIDDEN // To hide vaults which are hidden
+        );
+      return allVaults;
+    }
     return [...wallets, ...allVaults];
   }, [wallets, allVaults, onlyWallets, onlyVaults]);
 
