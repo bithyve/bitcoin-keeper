@@ -95,10 +95,19 @@ export const generateVault = async ({
     shell: defaultShell,
   };
 
-  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
+  if (scheme.n <= 1) throw new Error('Invalid multisig scheme, n must be greater than 1');
+  if (scheme.m > scheme.n) {
+    throw new Error(`Invalid multisig scheme: m:${scheme.m} > n:${scheme.n}`);
+  }
 
-  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
-  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH; // TODO: find ways to accomodate P2TR 1-of-1 multisig(derivationConfig is not available on Vaults)
+  /*
+    Note: deprecated support for single-sig vault (must: scheme.n > 1)
+    const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+    const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
+  */
+
+  const isMultiSig = true;
+  const scriptType = ScriptTypes.P2WSH;
 
   const specs: VaultSpecs = {
     xpubs,
