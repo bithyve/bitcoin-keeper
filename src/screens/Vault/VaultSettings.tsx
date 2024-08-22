@@ -23,6 +23,8 @@ import Text from 'src/components/KeeperText';
 import { Shadow } from 'react-native-shadow-2';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { VAULTSETTINGS } from 'src/navigation/contants';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import { trimCWDefaultName } from 'src/utils/utilities';
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -36,6 +38,7 @@ function VaultSettings({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultText } = translations;
   const isCanaryWalletType = vault.type === VaultType.CANARY;
+  const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
 
   const updateWalletVisibility = (checkBalance = true) => {
@@ -106,14 +109,14 @@ function VaultSettings({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={vaultText.vaultSettingsTitle}
+        title={isCollaborativeWallet ? vaultText.collabSettingsTitle : vaultText.vaultSettingsTitle}
         subtitle={vaultText.vaultSettingsSubtitle}
         icon={
           <HexagonIcon
             width={44}
             height={38}
             backgroundColor={Colors.pantoneGreen}
-            icon={<VaultIcon />}
+            icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
           />
         }
       />
@@ -172,7 +175,10 @@ function VaultSettings({ route }) {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         Content={() => (
-          <EditWalletDetailsModal wallet={vault} close={() => setVaultDetailVisible(false)} />
+          <EditWalletDetailsModal
+            wallet={isCollaborativeWallet ? trimCWDefaultName(vault) : vault}
+            close={() => setVaultDetailVisible(false)}
+          />
         )}
       />
       <KeeperModal

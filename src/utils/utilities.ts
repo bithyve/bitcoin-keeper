@@ -199,3 +199,16 @@ export const getWalletTags = (walletType) => {
     return ['SINGLE-KEY', walletKind];
   }
 };
+
+export const trimCWDefaultName = (wallet) => {
+  // To convert "Collaborative Wallet" to "Collab. Wallet" when editing
+  if (wallet.presentationData.name.length > 18) {
+    const tempWallet = JSON.parse(JSON.stringify(wallet));
+    tempWallet.presentationData.name = tempWallet.presentationData.name.replace(
+      'Collaborative Wallet',
+      'Collab. Wallet'
+    );
+    return tempWallet;
+  }
+  return wallet;
+};

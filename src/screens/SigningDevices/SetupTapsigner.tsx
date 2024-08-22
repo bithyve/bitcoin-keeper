@@ -175,15 +175,17 @@ function SetupTapsigner({ route }) {
       } else {
         dispatch(addSigningDevice([tapsigner]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
+          ? {
+              name: 'ManageSigners',
+              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+            }
+          : {
+              name: 'AddSigningDevice',
+              merge: true,
+              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+            };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(
-        `${tapsigner.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {
