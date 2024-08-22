@@ -7,7 +7,6 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ImportIcon from 'src/assets/images/import.svg';
-
 import { RNCamera } from 'react-native-camera';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
@@ -19,12 +18,7 @@ import Colors from 'src/theme/Colors';
 import UploadImage from 'src/components/UploadImage';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Text from 'src/components/KeeperText';
 import { QRreader } from 'react-native-qr-decode-image-camera';
-import KeeperModal from 'src/components/KeeperModal';
-import { useDispatch } from 'react-redux';
-import { goToConcierge } from 'src/store/sagaActions/concierge';
-import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { useFocusEffect } from '@react-navigation/native';
 
 function WrappedImportIcon() {
@@ -35,7 +29,7 @@ function WrappedImportIcon() {
   );
 }
 
-function VaultConfigurationCreation() {
+function PassportConfigRecovery() {
   const { colorMode } = useColorMode();
   const [inputText, setInputText] = useState('');
   const { recoveryLoading, initateRecovery } = useConfigRecovery();
@@ -46,8 +40,6 @@ function VaultConfigurationCreation() {
   const { showToast } = useToastMessage();
   let decoder = new URRegistryDecoder();
   const { common, importWallet } = translations;
-  const dispatch = useDispatch();
-  const [showModal, setShowModal] = useState(false);
 
   const [isFocused, setIsFocused] = useState(false);
   useFocusEffect(
@@ -77,12 +69,8 @@ function VaultConfigurationCreation() {
     };
   }, [qrData]);
 
-  const onBarCodeRead = (data, fromImage = false) => {
-    if (
-      !qrData &&
-      data.data &&
-      (data.type === 'QR_CODE' || data.type === 'org.iso.QRCode' || fromImage)
-    ) {
+  const onBarCodeRead = (data) => {
+    if (!qrData) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
@@ -133,7 +121,7 @@ function VaultConfigurationCreation() {
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
-            onBarCodeRead({ data }, true);
+            setData(data);
           })
           .catch((err) => {
             showToast('Invalid or No related QR code');
@@ -141,27 +129,6 @@ function VaultConfigurationCreation() {
       }
     });
   };
-
-  function ImportVaultContent() {
-    return (
-      <View marginY={5}>
-        <Text style={styles.desc}>
-          You can import a multisig wallet into Keeper if you have the BSMS file of that wallet.
-        </Text>
-        <Text style={styles.desc}>
-          Please note that we are calling a BSMS file (also known as Output Descriptor), as the
-          Wallet Configuration File within Keeper.
-        </Text>
-        <Text style={styles.desc}>
-          If you are importing a vault that you had created in Keeper previously, note that only a
-          specific vault will get imported. Not that complete Keeper app with all its wallets.
-        </Text>
-        <Text style={styles.descLast}>
-          To import a complete Keeper app, please use that app’s Recovery Key.
-        </Text>
-      </View>
-    );
-  }
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -172,11 +139,8 @@ function VaultConfigurationCreation() {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={importWallet.usingConfigFile}
+          title={'Recover Using Configuration'}
           subtitle={importWallet.insertTextfromFile}
-          learnMore
-          learnTextColor={`${colorMode}.white`}
-          learnMorePressed={() => setShowModal(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
@@ -233,31 +197,11 @@ function VaultConfigurationCreation() {
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
-      <KeeperModal
-        visible={showModal}
-        close={() => {
-          setShowModal(false);
-        }}
-        title="Import a wallet:"
-        modalBackground={`${colorMode}.modalGreenBackground`}
-        textColor={`${colorMode}.modalGreenContent`}
-        Content={ImportVaultContent}
-        DarkCloseIcon
-        learnMore
-        buttonText="Continue"
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={() => setShowModal(false)}
-        learnMoreCallback={() => {
-          setShowModal(false);
-          dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'));
-        }}
-      />
     </ScreenWrapper>
   );
 }
 
-export default VaultConfigurationCreation;
+export default PassportConfigRecovery;
 
 const styles = StyleSheet.create({
   container: {

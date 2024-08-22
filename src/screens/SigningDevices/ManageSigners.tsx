@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -31,13 +31,14 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import SignerCard from '../AddSigner/SignerCard';
+import KeyAddedModal from 'src/components/KeyAddedModal';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
 function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { vaultId = '' } = route.params || {};
+  const { vaultId = '', addedSigner, addSignerFlow, showModal } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
@@ -45,6 +46,7 @@ function ManageSigners({ route }: ScreenProps) {
   const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
+  const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
   const { signer: signerTranslation } = translations;
@@ -52,6 +54,12 @@ function ManageSigners({ route }: ScreenProps) {
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
   });
+
+  useEffect(() => {
+    if (showModal) {
+      setKeyAddedModalVisible(true);
+    }
+  }, [showModal]);
 
   useEffect(() => {
     if (realySignersUpdateErrorMessage) {
@@ -82,6 +90,11 @@ function ManageSigners({ route }: ScreenProps) {
 
   const navigateToSettings = () => {
     navigation.dispatch(CommonActions.navigate('SignerSettings'));
+  };
+
+  const handleModalClose = () => {
+    setKeyAddedModalVisible(false);
+    navigation.dispatch(CommonActions.setParams({ showModal: false }));
   };
 
   return (
@@ -122,6 +135,7 @@ function ManageSigners({ route }: ScreenProps) {
           typeBasedIndicator={typeBasedIndicator}
         />
       </Box>
+      <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
     </Box>
   );
 }

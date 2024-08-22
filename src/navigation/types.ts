@@ -8,6 +8,7 @@ export type AppStackParams = {
   AddTapsigner: undefined;
   SignWithTapsigner: undefined;
   AddColdCard: undefined;
+  PassportConfigRecovery: undefined;
   AppSettings: undefined;
   AppVersionHistory: undefined;
   TorSettings: undefined;
@@ -121,6 +122,9 @@ export type AppStackParams = {
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];
+    addedSigner: Signer;
+    addSignerFlow: boolean;
+    showModal?: boolean;
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;

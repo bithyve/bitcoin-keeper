@@ -33,6 +33,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
+import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -52,6 +53,8 @@ function ExportSeedScreen({ route, navigation }) {
     isInheritancePlaning = false,
     isIKS = false,
     isSS = false,
+    parentScreen,
+    oldPasscode,
   }: {
     vaultKey: string;
     vaultId: string;
@@ -64,6 +67,8 @@ function ExportSeedScreen({ route, navigation }) {
     isInheritancePlaning?: boolean;
     isIKS?: boolean;
     isSS?: boolean;
+    parentScreen?: string;
+    oldPasscode?: string;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -73,6 +78,7 @@ function ExportSeedScreen({ route, navigation }) {
   const [showQRVisible, setShowQRVisible] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
+  const isChangePassword = parentScreen === PRIVACYANDDISPLAY;
   useEffect(() => {
     if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
@@ -301,13 +307,21 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => {}}
+        close={
+          isChangePassword
+            ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
+            : () => {}
+        }
         title={BackupWallet.backupSuccessTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText={common.done}
-        buttonCallback={() => navigation.replace('WalletBackHistory')}
+        buttonCallback={
+          isChangePassword
+            ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
+            : () => navigation.replace('WalletBackHistory')
+        }
         Content={() => (
           <Box>
             <Box>
