@@ -113,8 +113,19 @@ export const generateVault = async ({
     shell: defaultShell,
   };
 
-  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
-  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH; // TODO: find ways to accomodate P2TR 1-of-1 multisig(derivationConfig is not available on Vaults)
+  if (scheme.n <= 1) throw new Error('Invalid multisig scheme, n must be greater than 1');
+  if (scheme.m > scheme.n) {
+    throw new Error(`Invalid multisig scheme: m:${scheme.m} > n:${scheme.n}`);
+  }
+
+  /*
+    Note: deprecated support for single-sig vault (must: scheme.n > 1)
+    const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+    const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
+  */
+
+  const isMultiSig = true;
+  const scriptType = ScriptTypes.P2WSH;
 
   const specs: VaultSpecs = {
     xpubs,
@@ -415,8 +426,9 @@ export const generateMiniscriptScheme = (
       else if (signerType === SignerType.SEED_WORDS) advisor1 = signer;
       else if (signerType === SignerType.LEDGER) advisor2 = signer;
     }
-    if (!user || !advisor1 || !advisor2)
+    if (!user || !advisor1 || !advisor2) {
       throw new Error('Failed to create advisor vautl - user/advisor missing');
+    }
 
     const keysInfo = {
       [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(

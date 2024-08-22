@@ -24,6 +24,7 @@ import {
 } from 'src/store/reducers/login';
 import Node from 'src/services/electrum/node';
 import AddNode from './AddNodeModal';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -125,7 +126,7 @@ function NodeSettings() {
       node.isConnected = connected;
       Node.update(node, { isConnected: connected });
       dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, connectedTo }));
-
+      showToast(`Connected to: ${connectedTo}`, <TickIcon />);
       nodes = nodes.map((item) => {
         if (item.id === node.id) return { ...node };
         return item;
@@ -146,7 +147,7 @@ function NodeSettings() {
     await Node.disconnect(node);
     node.isConnected = false;
     Node.update(node, { isConnected: node.isConnected });
-    // showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
+    showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
 
     nodes = nodes.map((item) => {
       if (item.id === node.id) return { ...node };

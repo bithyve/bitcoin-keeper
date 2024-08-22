@@ -155,7 +155,7 @@ export default function CreatePin(props) {
   }
   function CreatePassModalContent() {
     return (
-      <Box width={wp(60)}>
+      <Box>
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
@@ -168,7 +168,7 @@ export default function CreatePin(props) {
 
   function ShareAnalyticsModalContent() {
     return (
-      <Box width={wp(60)}>
+      <Box>
         <Box style={styles.passImg}>
           <AnalyticsIllustration />
         </Box>
@@ -282,7 +282,7 @@ export default function CreatePin(props) {
         }}
         Content={CreatePassModalContent}
         showButtons
-        subTitleWidth={wp(60)}
+        subTitleWidth={wp(80)}
       />
       <KeeperModal
         visible={shareAnalyticsModal}
@@ -303,7 +303,7 @@ export default function CreatePin(props) {
         }}
         Content={ShareAnalyticsModalContent}
         showButtons
-        subTitleWidth={wp(60)}
+        subTitleWidth={wp(80)}
       />
     </Box>
   );
