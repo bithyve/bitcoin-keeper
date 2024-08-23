@@ -98,6 +98,7 @@ interface uaiDefinationInterface {
         cta: any;
       };
     };
+    hideHiddenVaults?: boolean;
   };
 }
 
@@ -246,6 +247,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
                 cta: () => skipUaiHandler(uai),
               },
             },
+            hideHiddenVaults: true,
           },
         };
       case uaiType.IKS_REQUEST:
@@ -375,6 +377,39 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
               text: 'View',
               cta: () => {
                 navigtaion.navigate('VaultDetails', { vaultId: uai.entityId });
+              },
+            },
+            secondary: skipBtnConfig(uai, true),
+          },
+        };
+      case uaiType.SIGN_TRANSACTION:
+        return {
+          heading: uai.uaiDetails.heading,
+          body: uai.uaiDetails.body,
+          btnConfig: {
+            primary: {
+              text: 'Decline',
+              cta: async () => {
+                try {
+                  setmodalActionLoader(true);
+                  if (uai.entityId) {
+                    const res = await InheritanceKeyServer.declineInheritanceKeyRequest(
+                      uai.entityId
+                    );
+                    if (res?.declined) {
+                      showToast('IKS request declined');
+                      uaiSetActionFalse();
+                      setShowModal(false);
+                    } else {
+                      Alert.alert('Something went Wrong!');
+                    }
+                  }
+                } catch (err) {
+                  Alert.alert('Something went Wrong!');
+                  console.log('Error in declining request');
+                }
+                setShowModal(false);
+                setmodalActionLoader(false);
               },
             },
             secondary: skipBtnConfig(uai, true),
@@ -531,6 +566,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         setShowModal={setShowSelectVault}
         onlyVaults={true}
         onlyWallets={false}
+        hideHiddenVaults={uaiConfig?.modalDetails?.hideHiddenVaults}
         buttonCallback={(vault) => {
           const entityWallet = allWallets.find((wallet) => wallet.id === uai.entityId);
           navigtaion.navigate('AddSendAmount', {

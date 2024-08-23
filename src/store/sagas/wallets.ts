@@ -629,7 +629,11 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
+export function* addSigningDeviceWorker({
+  payload: { signers },
+}: {
+  payload: { signers: Signer[] };
+}) {
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {
     const signer = signers[i];

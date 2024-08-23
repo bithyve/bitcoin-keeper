@@ -122,6 +122,9 @@ export type AppStackParams = {
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];
+    addedSigner: Signer;
+    addSignerFlow: boolean;
+    showModal?: boolean;
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;

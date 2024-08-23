@@ -80,3 +80,4 @@ export const getSecurityTip = () => {
   const selected = Math.floor(cryptoRandom() * securityTips.length); // Comment for creating wallet modal WP
   return securityTips[selected];
 };
+export const RECOVERY_KEY_SIGNER_NAME = 'RECOVERY_KEY_SIGNER_NAME';

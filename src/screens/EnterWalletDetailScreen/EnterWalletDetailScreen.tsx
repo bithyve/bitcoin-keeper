@@ -268,41 +268,6 @@ function EnterWalletDetailScreen({ route }) {
               testID="input_wallet_description"
             />
           </Box>
-          <Box>
-            <Box style={styles.amountWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <Box>
-                {getCurrencyImageByRegion(
-                  currencyCode,
-                  'dark',
-                  CurrencyKind.BITCOIN,
-                  colorMode === 'light' ? BitcoinInput : BitcoinWhite
-                )}
-              </Box>
-              <Box width={0.5} backgroundColor={`${colorMode}.divider`} opacity={0.3} height={8} />
-              <Input
-                backgroundColor={`${colorMode}.seashellWhite`}
-                placeholder={importWallet.enterAmount}
-                placeholderTextColor={`${colorMode}.GreyText`}
-                width="85%"
-                fontSize={14}
-                fontWeight={500}
-                letterSpacing={1.04}
-                height={10}
-                borderWidth="0"
-                value={formatNumber(transferPolicy)}
-                onChangeText={(value) => {
-                  setTransferPolicy(value);
-                }}
-                variant="unstyled"
-                keyboardType="numeric"
-                InputRightElement={<KeeperText medium>{common.sats}</KeeperText>}
-                testID="input_transfer_policy"
-              />
-            </Box>
-            <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
-              {importWallet.walletBalance}
-            </Text>
-          </Box>
         </Box>
         <Box style={styles.footer}>
           <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />

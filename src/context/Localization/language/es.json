@@ -124,7 +124,8 @@
     "confirmPassCode": "Confirm Passcode",
     "backupNow": "Backup Now",
     "dontShowAgain": "Don’t show me this message again",
-    "for": "For"
+    "for": "For",
+    "goToBackup": "Go to Backup"
   },
   "noInternet": {
     "no": "No Internet",
@@ -833,7 +834,7 @@
     "shareAnalyticsDesc": "No personal or bitcoin data is shared",
     "analyticsDescription": "No personal or bitcoin data is shared",
     "changePasscode": "Change Passcode",
-    "changePasscodeDescription": "Easy to remember; hard to guess",
+    "changePasscodeDescription": "The PIN used when logging in",
     "deleteKeys": "Show and delete keys",
     "deleteKeysSubtitle": "for hidden keys",
     "currencyErrorTitle": "Currency Not Available",
@@ -850,6 +851,11 @@
     "DeleteVaultModalSubTitle": "You are about to delete a vault with sats in it. Please ensure that you have backed-up your keys and vault descriptor to retrieve the vault later.",
     "DeleteWalletModalDesc": "To delete this wallet, please transfer your funds to another wallet or vault first.",
     "DeleteVaultModalDesc": "This action is irreversible without the keys and descriptor backed-up. Proceed to delete vault?"
+    "RKHealthCheckTitle": "Health Check",
+    "RKHealthCheckSubtitle": "For the Recovery Phrase",
+    "RKHealthCheckDesc": "Please Back up your Recovery Key in order to change your current Passcode",
+    "RKBackupTitle": "Backup Recovery Key",
+    "RKBackupSubTitle": "Carefully write down the 12-word Recovery Key in a private place and ensure its security"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -983,7 +989,11 @@
     "MKHealthCheckNote": "Please backup the Recovery Key from home screen Settings. Your Mobile Key will be backed-up automatically.",
     "MKHealthCheckModalDesc": "Mobile Key is derived from the app’s master key using BIP-85",
     "hideSignerTitle": "Hide/Unhide Keys",
-    "hideSignerSubtitle": "Hiding keys ensures only the ones you frequently use are visible in Manage Keys while the others are readily available here."
+    "hideSignerSubtitle": "Hiding keys ensures only the ones you frequently use are visible in Manage Keys while the others are readily available here.",
+    "signerAddedSuccessMessage": "Signer added Successfully!",
+    "signerAvailableMessage": "The signer key is now available to use for creating vaults",
+    "signerDeatils": "Signer Details",
+    "signerAddedDesc": "Perform regular health checks on your signer key"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

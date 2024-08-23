@@ -15,10 +15,11 @@ import Relay from 'src/services/backend/Relay';
 import config from 'src/utils/service-utilities/config';
 import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
-import { addNewWalletsWorker, NewWalletInfo } from './wallets';
+import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wallets';
 import { setAppId } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
+import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 
 export const defaultTransferPolicyThreshold = null;
 export const maxTransferPolicyThreshold = 1e11;
@@ -83,7 +84,10 @@ export function* setupKeeperAppWorker({ payload }) {
           },
         },
       };
+
+      const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+      yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
       yield put(setAppId(appID));
       yield put(resetRealyWalletState());
     } else {
