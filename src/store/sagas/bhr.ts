@@ -77,6 +77,8 @@ import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState } from '../store';
+import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
+import { addSigningDeviceWorker } from './wallets';
 
 export function* updateAppImageWorker({
   payload,
@@ -390,6 +392,9 @@ function* getAppImageWorker({ payload }) {
         );
       }
     }
+
+    const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
+    yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
   } catch (err) {
     console.log(err);
     yield put(setAppImageError(true));

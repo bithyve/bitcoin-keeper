@@ -19,8 +19,7 @@ import { addNewWalletsWorker, NewWalletInfo, addSigningDeviceWorker } from './wa
 import { setAppId } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
-import { setupSeedWordsBasedKey } from 'src/hardware/signerSetup';
-import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
+import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 
 export const defaultTransferPolicyThreshold = null;
 export const maxTransferPolicyThreshold = 1e11;
@@ -86,10 +85,7 @@ export function* setupKeeperAppWorker({ payload }) {
         },
       };
 
-      const { signer: recoveryKeySigner } = setupSeedWordsBasedKey(primaryMnemonic, true);
-      recoveryKeySigner.hidden = true;
-      recoveryKeySigner.signerName = RECOVERY_KEY_SIGNER_NAME;
-
+      const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
       yield put(setAppId(appID));
