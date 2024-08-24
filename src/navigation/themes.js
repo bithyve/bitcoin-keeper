@@ -169,6 +169,8 @@ export const customTheme = extendTheme({
       disabledColor: Colors.disabledGrey,
       feeInfoTitleColor: Colors.SlateGrey,
       feeInfoColor: Colors.RichBlack,
+      greyBorder: Colors.SilverMist,
+      linkPreviewBackground: Colors.SeaShellBeige,
     },
     dark: {
       navButtonText: Colors.paleWhite,
@@ -292,6 +294,9 @@ export const customTheme = extendTheme({
       disabledColor: Colors.disabledGrey,
       feeInfoTitleColor: Colors.White,
       feeInfoColor: Colors.White,
+      greyBorder: Colors.SilverMist,
+      placeHolderTextColor: Colors.Graphite,
+      linkPreviewBackground: Colors.Graphite,
     },
   },
   config: {
