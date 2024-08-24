@@ -123,6 +123,8 @@ import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRec
 import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
+import AdditionalDetails from 'src/screens/Vault/components/AdditionalDetails';
+import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -267,6 +269,8 @@ function AppStack() {
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
+        <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
+        <Stack.Screen name="RemoteSharing" component={RemoteSharing} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
