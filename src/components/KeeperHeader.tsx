@@ -82,7 +82,7 @@ function KeeperHeader({
         <Box style={styles.headerInfo}>
           {icon && icon}
           <Box>
-            {title && (
+            {title ? (
               <Text
                 style={styles.addWalletText}
                 color={titleColor || `${colorMode}.headerText`}
@@ -91,8 +91,8 @@ function KeeperHeader({
               >
                 {title}
               </Text>
-            )}
-            {subtitle && (
+            ) : null}
+            {subtitle ? (
               <Text
                 style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
                 color={subTitleColor || `${colorMode}.black`}
@@ -100,7 +100,7 @@ function KeeperHeader({
               >
                 {subtitle}
               </Text>
-            )}
+            ) : null}
           </Box>
         </Box>
         <Box>{rightComponent}</Box>
@@ -169,4 +169,5 @@ const getStyles = (marginLeft: boolean) =>
       marginLeft: wp(68),
     },
   });
+
 export default KeeperHeader;
