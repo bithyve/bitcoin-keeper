@@ -32,6 +32,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import AssistedVaultIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
@@ -56,7 +57,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import VaultMigrationController from './VaultMigrationController';
 import SignerCard from '../AddSigner/SignerCard';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
-import { SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
+import { SETUPASSISTEDVAULT, SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
@@ -241,6 +242,7 @@ function Footer({
   colorMode,
   setCreating,
   isCollaborativeFlow,
+  isAssistedWalletFlow,
   vaultKeys,
   onGoBack,
   selectedSigners,
@@ -285,11 +287,12 @@ function Footer({
     navigation.goBack();
   };
 
-  const isProceedDisabled = isCollaborativeFlow && selectedSigners.size === 0;
+  const isProceedDisabled =
+    (isCollaborativeFlow || isAssistedWalletFlow) && selectedSigners.size === 0;
   return (
     <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
-      {!isCollaborativeFlow && renderNotes()}
-      {!isCollaborativeFlow ? (
+      {!(isCollaborativeFlow || isAssistedWalletFlow) && renderNotes()}
+      {!(isCollaborativeFlow || isAssistedWalletFlow) ? (
         <Buttons
           primaryDisable={!!areSignersValid}
           primaryLoading={relayVaultUpdateLoading}
@@ -326,6 +329,7 @@ function Signers({
   keyToRotate,
   setCreating,
   isCollaborativeFlow,
+  isAssistedWalletFlow,
   coSigners,
 }) {
   const { level } = useSubscriptionLevel();
@@ -582,7 +586,7 @@ function Signers({
                 : 'Choose from already added keys'}
             </Text>
             <Box style={styles.addedSigners}>
-              {!isCollaborativeFlow ? (
+              {!isCollaborativeFlow && !isAssistedWalletFlow ? (
                 <>
                   {renderSigners()}
                   {renderAssistedKeysShell()}
@@ -602,7 +606,7 @@ function Signers({
               name="Add a key"
               cardStyles={styles.addCard}
               callback={
-                !isCollaborativeFlow
+                !(isCollaborativeFlow || isAssistedWalletFlow)
                   ? () =>
                       navigation.dispatch(
                         CommonActions.navigate('SigningDeviceList', {
@@ -695,7 +699,7 @@ function AddSigningDevice() {
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, common, signer } = translations;
+  const { vault: vaultTranslation, common, signer, wallet: walletTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
   const { signers } = useSigners();
@@ -707,6 +711,8 @@ function AddSigningDevice() {
   const { activeVault, allVaults } = useVault({ vaultId });
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
+  const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
+  const isAssistedWalletFlow = parentScreen === SETUPASSISTEDVAULT;
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
@@ -933,13 +939,13 @@ function AddSigningDevice() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={signer.addKeys}
-        subtitle={subtitle}
+        subtitle={isAssistedWalletFlow ? walletTranslation.toAssistedWallet : subtitle}
         icon={
           <HexagonIcon
             width={44}
             height={38}
             backgroundColor={Colors.pantoneGreen}
-            icon={<VaultIcon />}
+            icon={isAssistedWalletFlow ? <AssistedVaultIcon /> : <VaultIcon />}
           />
         }
         // To-Do-Learn-More
@@ -976,6 +982,7 @@ function AddSigningDevice() {
         signerMap={signerMap}
         setCreating={setCreating}
         isCollaborativeFlow={isCollaborativeFlow}
+        isAssistedWalletFlow={isAssistedWalletFlow}
         coSigners={coSigners}
       />
       <Footer
@@ -989,6 +996,7 @@ function AddSigningDevice() {
         colorMode={colorMode}
         setCreating={setCreating}
         isCollaborativeFlow={isCollaborativeFlow}
+        isAssistedWalletFlow={isAssistedWalletFlow}
         onGoBack={onGoBack}
         vaultKeys={vaultKeys}
         selectedSigners={selectedSigners}

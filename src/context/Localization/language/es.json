@@ -125,7 +125,8 @@
     "backupNow": "Backup Now",
     "dontShowAgain": "Don’t show me this message again",
     "for": "For",
-    "goToBackup": "Go to Backup"
+    "goToBackup": "Go to Backup",
+    "Advisor": "Advisor"
   },
   "noInternet": {
     "no": "No Internet",
@@ -534,7 +535,9 @@
     "highCustom": "Network fee is more than 10% of the amount being sent. Consider using custom fee option.",
     "highWait": "Network fee is 10% higher than usual. If not urgent, consider waiting for the fee to go down.",
     "highUsual": "Network fee is within usual range or lower. A good time to broadcast transactions.",
-    "lowFee": "Network fee is less than 10% of the amount being sent."
+    "lowFee": "Network fee is less than 10% of the amount being sent.",
+    "toAssistedWallet": "To Assisted Wallet",
+    "assistedVaultHeaderSubtitle": "An Assisted Wallet will be created"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

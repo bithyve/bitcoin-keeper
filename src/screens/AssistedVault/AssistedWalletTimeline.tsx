@@ -11,9 +11,11 @@ import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 
 function AssistedWalletTimeline() {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
 
   const timelineData = [
     {
@@ -66,7 +68,11 @@ function AssistedWalletTimeline() {
           For FAQs please visit our website
         </Text>
         <Box style={styles.createWalletButton}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('SetupAssistedVault');
+            }}
+          >
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
               <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
                 Create Wallet
