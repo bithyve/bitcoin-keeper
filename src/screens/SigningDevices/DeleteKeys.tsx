@@ -29,6 +29,7 @@ import { archiveSigningDevice, deleteSigningDevice } from 'src/store/sagaActions
 import useArchivedVault from 'src/hooks/useArchivedVaults';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { SignerType } from 'src/services/wallets/enums';
+import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -53,7 +54,9 @@ function DeleteKeys({ route }) {
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const { signers } = useSigners();
-  const hiddenSigners = signers.filter((signer) => signer.hidden && !signer.archived);
+  const hiddenSigners = signers.filter(
+    (signer) => signer.signerName !== RECOVERY_KEY_SIGNER_NAME && signer.hidden && !signer.archived
+  );
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [unhidingMfp, setUnhidingMfp] = useState('');
