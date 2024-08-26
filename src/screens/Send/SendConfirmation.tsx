@@ -53,6 +53,7 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
+import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -823,6 +824,7 @@ function SendConfirmation({ route }) {
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
   const isMoveAllFunds =
@@ -1016,25 +1018,7 @@ function SendConfirmation({ route }) {
         const isValid = validateUTXOsForCachedTxn();
         if (!isValid) {
           // block and show discard alert
-          Alert.alert(
-            'Invalid UTXO set',
-            'Please discard this transaction',
-            [
-              {
-                text: 'Discard',
-                onPress: discardCachedTransaction,
-                style: 'destructive',
-              },
-              {
-                text: 'Cancel',
-                onPress: () => {
-                  setProgress(false);
-                },
-                style: 'cancel',
-              },
-            ],
-            { cancelable: true }
-          );
+          setDiscardUTXOVisible(true);
           return;
         }
       }
@@ -1151,6 +1135,19 @@ function SendConfirmation({ route }) {
     } else {
       setFeeInsightVisible(!feeInsightVisible);
     }
+  };
+
+  const discardUTXOModalContent = () => {
+    return (
+      <Box style={{ width: wp(280) }}>
+        <Box style={styles.imgCtr}>
+          <InvalidUTXO />
+        </Box>
+        <Text color={`${colorMode}.primaryText`} style={styles.highFeeNote}>
+          {walletTransactions.discardTnxDesc}
+        </Text>
+      </Box>
+    );
   };
   const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
@@ -1468,6 +1465,30 @@ function SendConfirmation({ route }) {
         buttonCallback={toogleFeesInsightModal}
         Content={() => <FeeInsights />}
       />
+      {/* Discard UTXO Modal */}
+      <KeeperModal
+        showCloseIcon={false}
+        visible={discardUTXOVisible}
+        close={() => {}}
+        dismissible={false}
+        title={walletTransactions.discardTnxTitle}
+        subTitle={walletTransactions.discardTnxSubTitle}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonText={'Discard'}
+        buttonCallback={discardCachedTransaction}
+        buttonTextColor={`${colorMode}.white`}
+        showButtons
+        secondaryButtonText={'Cancel'}
+        secondaryCallback={() => {
+          setProgress(false);
+          setDiscardUTXOVisible(false);
+        }}
+        Content={discardUTXOModalContent}
+        subTitleWidth={wp(280)}
+      />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
           visible={visibleCustomPriorityModal}
@@ -1742,5 +1763,9 @@ const styles = StyleSheet.create({
   dollarsStyle: {},
   marginBottom: {
     marginBottom: hp(20),
+  },
+  imgCtr: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
 });
