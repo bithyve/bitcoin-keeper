@@ -26,6 +26,7 @@ type Props = {
   contrastScreen?: boolean;
   marginLeft?: boolean;
   icon?: Element;
+  simple?: boolean;
 };
 function KeeperHeader({
   title = '',
@@ -44,12 +45,38 @@ function KeeperHeader({
   contrastScreen = false,
   marginLeft = true,
   icon = null,
+  simple = false,
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const styles = getStyles(marginLeft);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+
+  if (simple) {
+    return (
+      <Box style={styles.simpleContainer}>
+        {enableBack && (
+          <TouchableOpacity
+            testID="btn_back"
+            onPress={onPressHandler || navigation.goBack}
+            style={styles.simpleBackButton}
+          >
+            {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
+          </TouchableOpacity>
+        )}
+        <Text
+          style={styles.simpleTitleText}
+          medium
+          color={titleColor || `${colorMode}.headerText`}
+          testID="text_header_title"
+        >
+          {title}
+        </Text>
+        <Box style={styles.rightComponentContainer}>{rightComponent}</Box>
+      </Box>
+    );
+  }
   return (
     <Box style={styles.container}>
       {enableBack && (
@@ -114,6 +141,28 @@ const getStyles = (marginLeft: boolean) =>
   StyleSheet.create({
     container: {
       backgroundColor: 'transparent',
+    },
+    simpleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+    },
+    simpleTitleText: {
+      fontSize: 18,
+      lineHeight: 24,
+      textAlign: 'center',
+      flex: 1,
+    },
+    simpleBackButton: {
+      width: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 10,
+    },
+    rightComponentContainer: {
+      alignItems: 'flex-end',
     },
     addWalletText: {
       letterSpacing: 0.18,

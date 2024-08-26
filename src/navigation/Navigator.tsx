@@ -125,6 +125,7 @@ import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
 import AdditionalDetails from 'src/screens/Vault/components/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
+import AssistedWalletTimeline from 'src/screens/AssistedVault/AssistedWalletTimeline';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -295,6 +296,7 @@ function AppStack() {
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
+        <Stack.Screen name="AssistedWalletTimeline" component={AssistedWalletTimeline} />
       </Stack.Navigator>
     </RealmProvider>
   );

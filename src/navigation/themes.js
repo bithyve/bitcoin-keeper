@@ -171,6 +171,8 @@ export const customTheme = extendTheme({
       feeInfoColor: Colors.RichBlack,
       greyBorder: Colors.SilverMist,
       linkPreviewBackground: Colors.SeaShellBeige,
+      greyBorderTransparent: Colors.SilverMistTransparent,
+      limeText: Colors.LimeYellow,
     },
     dark: {
       navButtonText: Colors.paleWhite,
@@ -295,8 +297,10 @@ export const customTheme = extendTheme({
       feeInfoTitleColor: Colors.White,
       feeInfoColor: Colors.White,
       greyBorder: Colors.SilverMist,
+      greyBorderTransparent: Colors.SilverMistTransparent,
       placeHolderTextColor: Colors.Graphite,
       linkPreviewBackground: Colors.Graphite,
+      limeText: Colors.LimeYellow,
     },
   },
   config: {
