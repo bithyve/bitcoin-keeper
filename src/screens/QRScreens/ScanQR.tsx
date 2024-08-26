@@ -183,9 +183,13 @@ function ScanQR() {
             </VStack>
             {isPSBT && (
               <Box style={styles.inputContainer}>
-                <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+                <Box
+                  style={styles.inputWrapper}
+                  backgroundColor={`${colorMode}.seashellWhite`}
+                  borderColor={`${colorMode}.greyBorder`}
+                >
                   <Input
-                    placeholder="or enter paste PSBT text"
+                    placeholder="or paste PSBT text"
                     placeholderTextColor={`${colorMode}.primaryText`}
                     style={styles.textInput}
                     variant="unstyled"
@@ -275,6 +279,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
+    borderWidth: 0.5,
   },
   textInput: {
     alignSelf: 'center',
