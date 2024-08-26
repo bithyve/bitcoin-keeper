@@ -90,6 +90,8 @@ export type AppStackParams = {
   BroadcastPremix: undefined;
   WhirlpoolConfiguration: undefined;
   CosignerDetails: { signer: Signer };
+  AdditionalDetails: { signer: Signer };
+  RemoteSharing: { signer: Signer; signerData: string; isPSBTSharing?: boolean };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
