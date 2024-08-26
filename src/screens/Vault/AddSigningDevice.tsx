@@ -1048,9 +1048,8 @@ function AddSigningDevice() {
           setExternalKeyAddedModal(false);
           setKeyAddedModalVisible(false);
         }}
-        signer={addedKey}
+        signer={externalKeyAddedModal ? addedKey : addedSigner}
       />
-      <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
     </ScreenWrapper>
   );
 }
