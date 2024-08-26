@@ -331,6 +331,8 @@ function Signers({
   isCollaborativeFlow,
   isAssistedWalletFlow,
   coSigners,
+  setExternalKeyAddedModal,
+  setAddedKey,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -551,11 +553,8 @@ function Signers({
       hw = setupKeeperSigner(qrData);
       if (hw) {
         dispatch(addSigningDevice([hw.signer]));
-        showToast(
-          `${hw.signer.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        setAddedKey(hw.signer);
+        setExternalKeyAddedModal(true);
         navigation.dispatch(CommonActions.goBack());
       }
     } catch (error) {
@@ -713,6 +712,8 @@ function AddSigningDevice() {
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
   const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
   const isAssistedWalletFlow = parentScreen === SETUPASSISTEDVAULT;
+  const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
+  const [addedKey, setAddedKey] = useState(null);
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
@@ -984,6 +985,8 @@ function AddSigningDevice() {
         isCollaborativeFlow={isCollaborativeFlow}
         isAssistedWalletFlow={isAssistedWalletFlow}
         coSigners={coSigners}
+        setExternalKeyAddedModal={setExternalKeyAddedModal}
+        setAddedKey={setAddedKey}
       />
       <Footer
         amfSigners={amfSigners}
@@ -1038,6 +1041,14 @@ function AddSigningDevice() {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
+      />
+      <KeyAddedModal
+        visible={keyAddedModalVisible || externalKeyAddedModal}
+        close={() => {
+          setExternalKeyAddedModal(false);
+          setKeyAddedModalVisible(false);
+        }}
+        signer={addedKey}
       />
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
     </ScreenWrapper>
@@ -1165,6 +1176,15 @@ const styles = StyleSheet.create({
   },
   desc: {
     marginBottom: hp(18),
+  },
+  externalKeyModal: {
+    alignItems: 'center',
+  },
+  externalKeyIllustration: {
+    marginBottom: hp(20),
+  },
+  externalKeyText: {
+    marginBottom: hp(20),
   },
 });
 
