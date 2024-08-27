@@ -134,7 +134,13 @@ export type AppStackParams = {
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
-  AssistedWalletTimeline: undefined;
+  AssistedWalletTimeline: {
+    parentScreen: string;
+  };
+  AssociateContact: undefined;
+  AddContact: undefined;
+  ContactProfile: undefined;
+  EditContact: undefined;
 };
 
 // Usage:

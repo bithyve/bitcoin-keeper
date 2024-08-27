@@ -127,6 +127,10 @@ import AdditionalDetails from 'src/screens/Vault/components/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
 import AssistedWalletTimeline from 'src/screens/AssistedVault/AssistedWalletTimeline';
 import SetupAssistedVault from 'src/screens/SigningDevices/SetupAssistedVault';
+import AssociateContact from 'src/screens/Contact/AssociateContact';
+import AddContact from 'src/screens/Contact/AddContact';
+import ContactProfile from 'src/screens/Contact/ContactProfile';
+import EditContact from 'src/screens/Contact/EditContact';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -299,6 +303,10 @@ function AppStack() {
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
         <Stack.Screen name="AssistedWalletTimeline" component={AssistedWalletTimeline} />
         <Stack.Screen name="SetupAssistedVault" component={SetupAssistedVault} />
+        <Stack.Screen name="AssociateContact" component={AssociateContact} />
+        <Stack.Screen name="AddContact" component={AddContact} />
+        <Stack.Screen name="ContactProfile" component={ContactProfile} />
+        <Stack.Screen name="EditContact" component={EditContact} />
       </Stack.Navigator>
     </RealmProvider>
   );

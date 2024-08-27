@@ -150,7 +150,7 @@ const getStyles = (marginLeft: boolean) =>
       paddingHorizontal: 10,
     },
     simpleTitleText: {
-      fontSize: 18,
+      fontSize: 20,
       lineHeight: 24,
       textAlign: 'center',
       flex: 1,
