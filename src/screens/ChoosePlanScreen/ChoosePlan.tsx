@@ -1,6 +1,15 @@
-import { ActivityIndicator, Platform, ScrollView, Alert, Linking, StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  Alert,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode, Pressable } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
@@ -36,8 +45,12 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import Colors from 'src/theme/Colors';
 import TierUpgradeModal from './TierUpgradeModal';
+import PlanCheckMark from 'src/assets/images/planCheckMark.svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+const { width } = Dimensions.get('window');
 
 function ChoosePlan() {
+  const inset = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
   const initialPosition = route.params?.planPosition || 0;
@@ -83,6 +96,11 @@ function ChoosePlan() {
 
   useEffect(() => {
     init();
+  }, []);
+
+  useEffect(() => {
+    // To calculate same index as in ChoosePlanCarousel
+    setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
   async function init() {
@@ -406,6 +424,19 @@ function ChoosePlan() {
     );
   }
 
+  const getActionBtnTitle = () => {
+    const isSubscribed = items[currentPosition].productIds.includes(
+      subscription.productId.toLowerCase()
+    );
+    if (isSubscribed) return 'Subscribed';
+    return (
+      'Continue - ' +
+      (isMonthly
+        ? items[currentPosition]?.monthlyPlanDetails.price ?? 'Free'
+        : items[currentPosition]?.yearlyPlanDetails.price ?? 'Free')
+    );
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -470,31 +501,16 @@ function ChoosePlan() {
             currentPosition={currentPosition}
           />
 
-          {currentPosition !== 0 && (
-            <Text
-              onPress={() => setShowPromocodeModal(true)}
-              style={{ textAlign: 'center', marginTop: 10 }}
-              fontSize={16}
-              letterSpacing={0.16}
-            >
-              <Text>Have an offer code? </Text>
-              <Text color={`${colorMode}.headerText`}>Redeem Now</Text>
-            </Text>
-          )}
-
-          <Box
-            opacity={0.1}
-            backgroundColor={`${colorMode}.Border`}
-            width="100%"
-            height={0.5}
-            my={5}
-          />
-
-          <Box>
+          <Box mt={10}>
             <Box ml={5}>
               <Box>
-                <Text fontSize={16} color={`${colorMode}.headerText`} letterSpacing={0.16}>
-                  {getBenifitsTitle(items[currentPosition].name)}
+                <Text
+                  fontSize={15}
+                  medium={true}
+                  color={`${colorMode}.headerText`}
+                  letterSpacing={0.16}
+                >
+                  {`Included in ${items[currentPosition].name}`}
                 </Text>
               </Box>
               <Box mt={1}>
@@ -502,11 +518,11 @@ function ChoosePlan() {
                   (i) =>
                     i !== '*Coming soon' && (
                       <Box style={styles.benefitContainer} key={i}>
-                        <Box style={styles.dot} backgroundColor={`${colorMode}.primaryText`} />
+                        <PlanCheckMark />
                         <Text
                           fontSize={12}
                           color={`${colorMode}.GreyText`}
-                          ml={3}
+                          ml={2}
                           letterSpacing={0.65}
                         >
                           {` ${i}`}
@@ -524,7 +540,7 @@ function ChoosePlan() {
           </Box>
         </ScrollView>
       )}
-      <Box style={styles.noteWrapper}>
+      {/* <Box style={styles.noteWrapper}>
         <Box width="65%">
           <Note
             title={common.note}
@@ -548,18 +564,64 @@ function ChoosePlan() {
             {choosePlan.restorePurchases}
           </Text>
         </Pressable>
-      </Box>
+      </Box> */}
+      {/* BTM CTR */}
+      {!loading && items && (
+        <Box
+          style={[
+            styles.noteWrapper,
+            { paddingBottom: inset.bottom, backgroundColor: `${colorMode}.primaryBackground` },
+          ]}
+        >
+          <CustomGreenButton
+            onPress={() => processSubscription(items[currentPosition], currentPosition)}
+            value={getActionBtnTitle()}
+            fullWidth
+            disabled={items[currentPosition].productIds.includes(
+              subscription.productId.toLowerCase()
+            )}
+          />
+          <TextActionBtn
+            value="Subscribe with Promo Code"
+            onPress={() => setShowPromocodeModal(true)}
+            visible={
+              currentPosition != 0 &&
+              !items[currentPosition].productIds.includes(subscription.productId.toLowerCase())
+            }
+          />
+        </Box>
+      )}
     </ScreenWrapper>
   );
 }
+
+const TextActionBtn = ({ value, onPress, visible }) => {
+  return (
+    <TouchableOpacity
+      onPress={() => visible && onPress()}
+      style={{ alignSelf: 'center', opacity: visible ? 1 : 0, marginTop: 20 }}
+    >
+      <Box>
+        <Text style={styles.ctaText} color="light.headerText" medium>
+          {value}
+        </Text>
+      </Box>
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   noteWrapper: {
-    bottom: 1,
+    borderTopWidth: 1,
+    borderTopColor: Colors.GrayX11,
+    flexDirection: 'column',
+    bottom: 0,
     margin: 1,
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    width,
+    position: 'absolute',
+    paddingBottom: 30,
+    paddingTop: 26,
+    paddingHorizontal: 32,
   },
   restorePurchaseWrapper: {
     padding: 3,
@@ -588,6 +650,10 @@ const styles = StyleSheet.create({
   restorePurchase: {
     fontSize: 12,
     letterSpacing: 0.24,
+  },
+  ctaText: {
+    fontSize: 13,
+    letterSpacing: 1,
   },
 });
 export default ChoosePlan;

@@ -75,7 +75,7 @@ const Colors = {
   Teal: 'rgba(46,103,89,1)',
   SmokeGreen: 'rgba(154,164,159,1)',
   DeepOlive: 'rgba(35, 82, 71, 1)',
-  PaleKhaki: 'rgba(95,106,103,1)',
+  PaleKhaki: 'rgba(95,106,103,0.5)',
   PaleTurquoise: 'rgba(184,214,207,1)',
   Turquoise: 'rgba(177, 208, 201, 1)',
   darkGreen: 'rgb(46, 103, 89)',
