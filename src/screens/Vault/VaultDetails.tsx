@@ -12,6 +12,7 @@ import RecieveIcon from 'src/assets/images/icon_received_footer.svg';
 import SettingIcon from 'src/assets/images/settings_footer.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import AssitedWalletIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import { VaultType } from 'src/services/wallets/enums';
@@ -49,6 +50,7 @@ import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
+import { VAULTDETAILS } from 'src/navigation/contants';
 
 function Footer({
   vault,
@@ -228,6 +230,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { vaultSigners: keys } = useSigners(vault.id);
   const transactions = vault?.specs?.transactions || [];
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
+  const isAssistedWallet = vault.type === VaultType.ASSISTED;
   const isCanaryWallet = vault.type === VaultType.CANARY;
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -333,6 +336,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 icon={
                   isCollaborativeWallet ? (
                     <CollaborativeIcon />
+                  ) : isAssistedWallet ? (
+                    <AssitedWalletIcon />
                   ) : vault.type === VaultType.SINGE_SIG ? (
                     <WalletIcon />
                   ) : (
@@ -345,7 +350,11 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             learnMore
             learnTextColor={`${colorMode}.white`}
             learnBackgroundColor="rgba(0,0,0,.2)"
-            learnMorePressed={() => dispatch(setIntroModal(true))}
+            learnMorePressed={() => {
+              !isAssistedWallet
+                ? dispatch(setIntroModal(true))
+                : navigation.navigate('AssistedWalletTimeline', { parentScreen: VAULTDETAILS });
+            }}
             contrastScreen={true}
           />
           <VaultInfo vault={vault} />

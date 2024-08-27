@@ -12,10 +12,25 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { VAULTDETAILS } from 'src/navigation/contants';
 
-function AssistedWalletTimeline() {
+type RouteParams = {
+  parentScreen?: string;
+};
+
+type AssistedWalletTimelineProps = {
+  route: {
+    params: RouteParams;
+  };
+};
+
+function AssistedWalletTimeline({
+  route: { params: { parentScreen = '' } = {} },
+}: AssistedWalletTimelineProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+
+  const isVaultDetails = parentScreen === VAULTDETAILS;
 
   const timelineData = [
     {
@@ -64,22 +79,26 @@ function AssistedWalletTimeline() {
             isLast={index === timelineData.length - 1}
           />
         ))}
-        <Text style={styles.faqText} color={`${colorMode}.whiteText`}>
-          For FAQs please visit our website
-        </Text>
-        <Box style={styles.createWalletButton}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('SetupAssistedVault');
-            }}
-          >
-            <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
-              <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
-                Create Wallet
-              </Text>
+        {!isVaultDetails && (
+          <>
+            <Text style={styles.faqText} color={`${colorMode}.whiteText`}>
+              For FAQs please visit our website
+            </Text>
+            <Box style={styles.createWalletButton}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('SetupAssistedVault');
+                }}
+              >
+                <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
+                  <Text style={styles.ctaText} color={`${colorMode}.modalWhiteButtonText`} bold>
+                    Create Wallet
+                  </Text>
+                </Box>
+              </TouchableOpacity>
             </Box>
-          </TouchableOpacity>
-        </Box>
+          </>
+        )}
       </ScrollView>
     </ScreenWrapper>
   );

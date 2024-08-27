@@ -126,7 +126,8 @@
     "dontShowAgain": "Don’t show me this message again",
     "for": "For",
     "goToBackup": "Go to Backup",
-    "Advisor": "Advisor"
+    "Advisor": "Advisor",
+    "AssistedWallet": "Assisted Wallet"
   },
   "noInternet": {
     "no": "No Internet",

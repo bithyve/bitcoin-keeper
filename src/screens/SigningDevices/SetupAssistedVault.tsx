@@ -17,7 +17,6 @@ import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { useAppSelector } from 'src/store/hooks';
-import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import FloatingCTA from 'src/components/FloatingCTA';
@@ -36,6 +35,7 @@ import { SETUPASSISTEDVAULT } from 'src/navigation/contants';
 import AssistedVaultIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
+import useAssistedWallet from 'src/hooks/useAssistedWallet';
 
 function SignerItem({
   vaultKey,
@@ -121,7 +121,7 @@ function SetupAssistedVault() {
   const [walletName, setWalletName] = useState('');
   const [walletDescription, setWalletDescription] = useState('');
   const { showToast } = useToastMessage();
-  const { collaborativeWallets } = useCollaborativeWallet();
+  const { assistedWallets } = useAssistedWallet();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const cosignerModal = useAppSelector((state) => state.wallet.cosignerModal) || false;
@@ -242,12 +242,12 @@ function SetupAssistedVault() {
     try {
       setIsCreating(true);
       const vaultInfo: NewVaultInfo = {
-        vaultType: VaultType.COLLABORATIVE,
+        vaultType: VaultType.ASSISTED,
         vaultScheme: ASSISTED_WALLET_SCHEME,
         vaultSigners: coSigners,
         vaultDetails: {
-          name: `${common.collaborativeWallet} ${collaborativeWallets.length + 1}`,
-          description: wallet.Desc2of3,
+          name: `${common.AssistedWallet} ${assistedWallets.length + 1}`,
+          description: '',
         },
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
