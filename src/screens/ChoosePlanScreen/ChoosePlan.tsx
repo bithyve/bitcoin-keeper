@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
@@ -23,7 +24,6 @@ import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
@@ -312,13 +312,6 @@ function ChoosePlan() {
     setShowUpgradeModal(false);
   };
 
-  const getBenifitsTitle = (name) => {
-    if (name === 'Diamond Hands') {
-      return `${name}`;
-    }
-    return `A ${name}`;
-  };
-
   const restorePurchases = async () => {
     try {
       setRequesting(true);
@@ -364,25 +357,28 @@ function ChoosePlan() {
     const { colorMode } = useColorMode();
     const [code, setcode] = useState('');
     const [isInvalidCode, setIsInvalidCode] = useState(false);
+    const [activeOffer, setActiveOffer] = useState(null);
 
-    const onPressRedeem = async () => {
+    const validateOnFocusLost = async () => {
+      setActiveOffer(null);
       const plan = isMonthly
         ? items[currentPosition].monthlyPlanDetails
         : items[currentPosition].yearlyPlanDetails;
+
       if (Platform.OS === 'android') {
         const promoCode = code.trim().toLowerCase();
         if (items[currentPosition].promoCodes || items[currentPosition].promoCodes[promoCode]) {
           const offerId = items[currentPosition].promoCodes[promoCode];
-          const offer = plan.offers.find((offer) => offer.offerId === offerId);
+          const offer = plan.offers.find((offer) => {
+            return offer.offerId === offerId;
+          });
           if (offer) {
             let purchaseTokenAndroid = null;
             if (appSubscription.receipt) {
               purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
             }
-            setShowPromocodeModal(false);
-            requestSubscription({
-              sku: plan.productId,
-              subscriptionOffers: [{ sku: plan.productId, offerToken: offer.offerToken }],
+            setActiveOffer({
+              ...offer,
               purchaseTokenAndroid,
             });
           } else {
@@ -392,17 +388,34 @@ function ChoosePlan() {
           setIsInvalidCode(true);
         }
       } else {
+        // For iOS
         const offer = await Relay.getOffer(plan.productId, code.trim().toLowerCase());
         if (offer && offer.signature) {
-          setShowPromocodeModal(false);
-          requestSubscription({
-            sku: plan.productId,
-            subscriptionOffers: [{ sku: plan.productId, offerToken: offer.offerToken }],
-            withOffer: offer,
-          });
+          setActiveOffer(offer);
         } else {
           setIsInvalidCode(true);
         }
+      }
+    };
+
+    const onSubscribe = () => {
+      const plan = isMonthly
+        ? items[currentPosition].monthlyPlanDetails
+        : items[currentPosition].yearlyPlanDetails;
+      if (Platform.OS === 'android') {
+        setShowPromocodeModal(false);
+        requestSubscription({
+          sku: plan.productId,
+          subscriptionOffers: [{ sku: plan.productId, offerToken: activeOffer.offerToken }],
+          purchaseTokenAndroid: activeOffer.purchaseTokenAndroid,
+        });
+      } else {
+        setShowPromocodeModal(false);
+        requestSubscription({
+          sku: plan.productId,
+          subscriptionOffers: [{ sku: plan.productId, offerToken: activeOffer.offerToken }],
+          withOffer: activeOffer,
+        });
       }
     };
 
@@ -410,16 +423,20 @@ function ChoosePlan() {
       <Box>
         <Text>Enter Code</Text>
         <KeeperTextInput
+          onBlur={validateOnFocusLost}
           placeholder="Promo Code"
           value={code}
+          isError={isInvalidCode}
           onChangeText={(value) => {
             setcode(value.trim());
             setIsInvalidCode(false);
+            activeOffer(null);
           }}
           testID="input_setcode"
         />
-        {isInvalidCode && <Text color={Colors.CarmineRed}>Invalid promo code</Text>}
-        <CustomGreenButton value="Redeem" disabled={code.length < 3} onPress={onPressRedeem} />
+        <Box alignItems={'flex-end'}>
+          <CustomGreenButton value="Subscribe Now" disabled={!activeOffer} onPress={onSubscribe} />
+        </Box>
       </Box>
     );
   }
@@ -466,8 +483,8 @@ function ChoosePlan() {
       <KeeperModal
         visible={showPromocodeModal}
         close={() => setShowPromocodeModal(false)}
-        title="Subscribe with Promo Code"
-        subTitle="To redeem discount, please enter the Code"
+        title="Subscribe with Promo code"
+        subTitle={`Please enter the code to redeem discount`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -476,7 +493,7 @@ function ChoosePlan() {
         buttonText={null}
         buttonCallback={() => {}}
         Content={PromocodeModalContent}
-        subTitleWidth={wp(210)}
+        subTitleWidth={wp(250)}
       />
       <TierUpgradeModal
         visible={showUpgradeModal}
@@ -513,6 +530,17 @@ function ChoosePlan() {
                   {`Included in ${items[currentPosition].name}`}
                 </Text>
               </Box>
+
+              <Pressable
+                onPress={restorePurchases}
+                testID="btn_restorePurchases"
+                style={styles.restorePurchaseWrapper}
+              >
+                <Text style={styles.restorePurchase} medium color={`${colorMode}.brownColor`}>
+                  {choosePlan.restorePurchases}
+                </Text>
+              </Pressable>
+
               <Box mt={1}>
                 {items?.[currentPosition]?.benifits.map(
                   (i) =>
@@ -540,57 +568,42 @@ function ChoosePlan() {
           </Box>
         </ScrollView>
       )}
-      {/* <Box style={styles.noteWrapper}>
-        <Box width="65%">
-          <Note
-            title={common.note}
-            subtitle={formatString(choosePlan.noteSubTitle)}
-            subtitleColor="GreyText"
-          />
-        </Box>
-        <Pressable
-          activeOpacity={0.6}
-          onPress={restorePurchases}
-          testID="btn_restorePurchases"
-          borderColor={`${colorMode}.learnMoreBorder`}
-          backgroundColor={`${colorMode}.BrownNeedHelp`}
-          style={styles.restorePurchaseWrapper}
-        >
-          <Text
-            style={styles.restorePurchase}
-            medium
-            color={colorMode === 'light' ? 'light.white' : '#24312E'}
-          >
-            {choosePlan.restorePurchases}
-          </Text>
-        </Pressable>
-      </Box> */}
+
       {/* BTM CTR */}
-      {!loading && items && (
-        <Box
-          style={[
-            styles.noteWrapper,
-            { paddingBottom: inset.bottom, backgroundColor: `${colorMode}.primaryBackground` },
-          ]}
-        >
-          <CustomGreenButton
-            onPress={() => processSubscription(items[currentPosition], currentPosition)}
-            value={getActionBtnTitle()}
-            fullWidth
-            disabled={items[currentPosition].productIds.includes(
-              subscription.productId.toLowerCase()
-            )}
-          />
-          <TextActionBtn
-            value="Subscribe with Promo Code"
-            onPress={() => setShowPromocodeModal(true)}
-            visible={
-              currentPosition != 0 &&
-              !items[currentPosition].productIds.includes(subscription.productId.toLowerCase())
-            }
-          />
-        </Box>
-      )}
+
+      {!loading &&
+        items &&
+        !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) && (
+          <>
+            <Box style={[styles.noteWrapper, { paddingBottom: inset.bottom }]}>
+              <Text style={{ fontSize: 11, marginLeft: 20 }} color={`${colorMode}.GreyText`}>
+                {formatString(choosePlan.noteSubTitle)}
+              </Text>
+
+              <Box style={styles.divider} />
+              <Box
+                backgroundColor={`${colorMode}.ChampagneBliss`}
+                style={{ paddingBottom: 30, paddingTop: 26, paddingHorizontal: 32 }}
+              >
+                <CustomGreenButton
+                  onPress={() => processSubscription(items[currentPosition], currentPosition)}
+                  value={getActionBtnTitle()}
+                  fullWidth
+                />
+                <TextActionBtn
+                  value="Subscribe with Promo Code"
+                  onPress={() => setShowPromocodeModal(true)}
+                  visible={
+                    currentPosition != 0 &&
+                    !items[currentPosition].productIds.includes(
+                      subscription.productId.toLowerCase()
+                    )
+                  }
+                />
+              </Box>
+            </Box>
+          </>
+        )}
     </ScreenWrapper>
   );
 }
@@ -612,24 +625,15 @@ const TextActionBtn = ({ value, onPress, visible }) => {
 
 const styles = StyleSheet.create({
   noteWrapper: {
-    borderTopWidth: 1,
-    borderTopColor: Colors.GrayX11,
     flexDirection: 'column',
     bottom: 0,
     margin: 1,
     width,
     position: 'absolute',
-    paddingBottom: 30,
-    paddingTop: 26,
-    paddingHorizontal: 32,
   },
   restorePurchaseWrapper: {
-    padding: 3,
-    marginBottom: 5,
-    borderRadius: 5,
-    borderWidth: 0.7,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 5,
+    marginBottom: 15,
   },
   comingSoonText: {
     fontSize: 10,
@@ -648,12 +652,20 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   restorePurchase: {
-    fontSize: 12,
+    fontSize: 13,
     letterSpacing: 0.24,
+    textDecorationLine: 'underline',
   },
   ctaText: {
     fontSize: 13,
     letterSpacing: 1,
+  },
+  divider: {
+    height: 1,
+    width,
+    backgroundColor: Colors.GrayX11,
+    alignSelf: 'center',
+    marginTop: 20,
   },
 });
 export default ChoosePlan;
