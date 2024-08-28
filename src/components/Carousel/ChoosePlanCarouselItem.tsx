@@ -10,6 +10,7 @@ import HodlerIcon from 'src/assets/images/hodler.svg';
 import DiamondIcon from 'src/assets/images/diamond_hands.svg';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 import Colors from 'src/theme/Colors';
+import PlanCheckMarkSelected from 'src/assets/images/planCheckMarkSelected.svg';
 
 const styles = StyleSheet.create({
   wrapperView: {
@@ -106,6 +107,11 @@ function ChoosePlanCarouselItem({
 
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
+      {isSelected && (
+        <Box position={'absolute'} top={13} right={17} zIndex={1}>
+          <PlanCheckMarkSelected />
+        </Box>
+      )}
       <HStack
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.choosePlanCard`}
         style={[styles.wrapperView, { width: wp(itemWidth) }]}
