@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
 import { FlatList, Dimensions } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { hp } from 'src/constants/responsive';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -21,10 +21,17 @@ interface Props {
 
 function ChoosePlanCarousel(props: Props) {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const listRef = useRef<FlatList>();
 
   const [currentPosition, setCurrentPosition] = useState(
     props.currentPosition !== 0 ? props.currentPosition : subscription.level - 1
   );
+
+  useEffect(() => {
+    setTimeout(() => {
+      listRef?.current?.scrollToIndex({ animated: true, index: currentPosition });
+    }, 200);
+  }, []);
 
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
@@ -38,6 +45,8 @@ function ChoosePlanCarousel(props: Props) {
       }}
     >
       <FlatList
+        ref={listRef}
+        onScrollToIndexFailed={(val) => console.log('onScrollToIndexFailed', val)}
         data={props.data}
         horizontal
         showsHorizontalScrollIndicator={false}

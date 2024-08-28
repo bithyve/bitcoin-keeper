@@ -430,7 +430,7 @@ function ChoosePlan() {
           onChangeText={(value) => {
             setcode(value.trim());
             setIsInvalidCode(false);
-            activeOffer(null);
+            setActiveOffer(null);
           }}
           testID="input_setcode"
         />
