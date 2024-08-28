@@ -95,6 +95,7 @@ export const customTheme = extendTheme({
       textInputBackground: Colors.Isabelline,
       secondaryBackground: Colors.Isabelline,
       GreyText: Colors.Feldgrau,
+      DarkGreyText: Colors.FeldgrauDark,
       dateText: Colors.HookerGreen,
       Border: Colors.CastletonGreen,
       textColor: Colors.LightGray,
@@ -173,6 +174,8 @@ export const customTheme = extendTheme({
       linkPreviewBackground: Colors.SeaShellBeige,
       greyBorderTransparent: Colors.SilverMistTransparent,
       limeText: Colors.LimeYellow,
+      greenText: Colors.SeaweedGreen,
+      greenTextDisabled: Colors.SlateGreen,
     },
     dark: {
       navButtonText: Colors.paleWhite,
@@ -224,6 +227,7 @@ export const customTheme = extendTheme({
       textInputBackground: Colors.Isabelline,
       secondaryBackground: Colors.LightYellowDark,
       GreyText: Colors.RichBlackDark,
+      DarkGreyText: Colors.RichBlackDark,
       dateText: Colors.HookerGreen,
       Border: Colors.CastletonGreen,
       textColor: Colors.LightGray,
@@ -301,6 +305,8 @@ export const customTheme = extendTheme({
       placeHolderTextColor: Colors.Graphite,
       linkPreviewBackground: Colors.Graphite,
       limeText: Colors.LimeYellow,
+      greenText: Colors.SeaweedGreen,
+      greenTextDisabled: Colors.SlateGreen,
     },
   },
   config: {

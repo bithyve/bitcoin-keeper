@@ -15,6 +15,7 @@ const Colors = {
   DimGray: 'rgba(108,108,108,1)',
   GraniteGray: 'rgba(36,49,46,1)',
   Feldgrau: 'rgba(79,89,85,1)',
+  FeldgrauDark: 'rgba(79, 89, 85, 1)',
   DeepSpaceSparkle: 'rgba(78,92,106,1)',
   Black: 'rgba(0,0,0,1)',
   RichBlack: 'rgba(4,21,19,1)',
@@ -107,6 +108,7 @@ const Colors = {
   Graphite: 'rgba(135, 135, 135, 1)',
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
   LimeYellow: 'rgba(248, 241, 178, 1)',
+  SeaweedGreen: 'rgba(45, 103, 89, 1)',
   // ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;
