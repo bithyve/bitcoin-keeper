@@ -44,6 +44,7 @@ import {
   generateMiniscript,
   enrichMiniscriptPolicy,
   ADVISORY_VAULT_POLICY,
+  ADVISOR_VAULT_ENTITIES,
 } from '../operations/miniscript';
 
 const crypto = require('crypto');
@@ -412,22 +413,32 @@ export const generateKeyFromXpub = (
 export const generateMiniscriptScheme = (
   multisigScriptType: MultisigScriptType,
   signers: VaultSigner[],
-  timelocks: number[],
-  signerMap: { [key: string]: Signer }
+  miniscriptSignersMap: { [key: string]: string },
+  timelocks: number[]
 ): MiniscriptScheme => {
   let miniscriptScheme: MiniscriptScheme;
   if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
     let user;
     let advisor1;
     let advisor2;
-    for (const signer of signers) {
-      const signerType = signerMap[signer.masterFingerprint].type;
-      if (signerType === SignerType.MY_KEEPER) user = signer;
-      else if (signerType === SignerType.SEED_WORDS) advisor1 = signer;
-      else if (signerType === SignerType.LEDGER) advisor2 = signer;
+
+    for (const key in miniscriptSignersMap) {
+      let currentSigner;
+      for (const signer of signers) {
+        if (signer.masterFingerprint === miniscriptSignersMap[key]) {
+          currentSigner = signer;
+          break;
+        }
+      }
+
+      if (key === ADVISOR_VAULT_ENTITIES.USER_KEY) user = currentSigner;
+      else if (key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1) advisor1 = currentSigner;
+      else if (key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2) advisor2 = currentSigner;
+      else throw new Error('Invalid miniscript signers map');
     }
+
     if (!user || !advisor1 || !advisor2) {
-      throw new Error('Failed to create advisor vautl - user/advisor missing');
+      throw new Error('One or more advisor vault signers missing');
     }
 
     const keysInfo = {
@@ -457,6 +468,7 @@ export const generateMiniscriptScheme = (
       miniscript,
       keysInfo,
       timelocks,
+      miniscriptSignersMap,
     };
   } else throw new Error('Unsupported multisigScriptType');
   return miniscriptScheme;

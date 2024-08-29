@@ -2,6 +2,12 @@
 import { compilePolicy, compileMiniscript, satisfier } from '@bitcoinerlab/miniscript';
 import { MultisigScriptType } from '../enums';
 
+export enum ADVISOR_VAULT_ENTITIES {
+  USER_KEY = 'UK',
+  ADVISOR_KEY1 = 'ADVISOR_KEY1',
+  ADVISOR_KEY2 = 'ADVISOR_KEY2',
+}
+
 export enum ADVISORY_VAULT_POLICY {
   USER_KEY = 'UK',
   ADVISOR_KEY1_1 = 'AK1_1',
