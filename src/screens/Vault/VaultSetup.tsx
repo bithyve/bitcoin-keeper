@@ -48,7 +48,12 @@ function VaultSetup({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { isRecreation, scheme: preDefinedScheme, vaultId } = route.params || {};
+  const {
+    isRecreation,
+    scheme: preDefinedScheme,
+    vaultId,
+    isTimeLock = false,
+  } = route.params || {};
   const dispatch = useDispatch();
   const { activeVault } = useVault({ vaultId });
   const [vaultName, setVaultName] = useState(
@@ -116,7 +121,13 @@ function VaultSetup({ route }: ScreenProps) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={preDefinedScheme ? vault.SetupyourVault : vault.AddCustomMultiSig}
+        title={
+          isTimeLock
+            ? vault.timeLockSetupTitle
+            : preDefinedScheme
+            ? vault.SetupyourVault
+            : vault.AddCustomMultiSig
+        }
         subtitle={vault.configureScheme}
         // To-Do-Learn-More
       />
@@ -135,17 +146,19 @@ function VaultSetup({ route }: ScreenProps) {
             testID="vault_name"
             maxLength={18}
           />
-          <Box style={{ height: 20 }} />
+          <Box />
           <KeeperTextInput
             placeholder="Add a description (Optional)"
             value={vaultDescription}
             onChangeText={setVaultDescription}
             testID="vault_description"
             maxLength={20}
-            height={20}
           />
-          <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-          <Text style={{ fontSize: 14 }} color={`${colorMode}.primaryText`} testID="text_totalKeys">
+          <Text
+            style={{ fontSize: 14, marginTop: 30 }}
+            color={`${colorMode}.primaryText`}
+            testID="text_totalKeys"
+          >
             Total Keys for vault configuration
           </Text>
           <Text
