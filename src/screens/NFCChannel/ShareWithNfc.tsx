@@ -1,8 +1,9 @@
-import { Platform, Vibration } from 'react-native';
+import { Platform, StyleSheet, Vibration } from 'react-native';
 import React, { useContext, useEffect } from 'react';
 import OptionCTA from 'src/components/OptionCTA';
-import NFCIcon from 'src/assets/images/nfc.svg';
-import AirDropIcon from 'src/assets/images/airdrop.svg';
+import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
+import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
+import RemoteShareIcon from 'src/assets/images/remote-share-circle-icon.svg';
 import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
@@ -13,9 +14,22 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
 import { Box } from 'native-base';
+import { useNavigation } from '@react-navigation/native';
+import { Signer } from 'bitcoinjs-lib';
 
-function ShareWithNfc({ data }: { data: string }) {
+function ShareWithNfc({
+  data,
+  remoteShare = true,
+  signer,
+  isPSBTSharing = false,
+}: {
+  data: string;
+  signer?: Signer;
+  remoteShare?: boolean;
+  isPSBTSharing?: boolean;
+}) {
   const { session } = useContext(HCESessionContext);
+  const navigation = useNavigation();
   const [visible, setVisible] = React.useState(false);
 
   const { showToast } = useToastMessage();
@@ -98,24 +112,34 @@ function ShareWithNfc({ data }: { data: string }) {
     }
   };
   return (
-    <Box>
+    <Box style={styles.container}>
+      <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={shareWithNFC} />
       {isIos && (
         <OptionCTA
           icon={<AirDropIcon />}
-          title="or share via Airdrop"
-          subtitle="If the other device is on iOS"
+          title="Airdrop/ file export"
           callback={shareWithAirdrop}
         />
       )}
-      <OptionCTA
-        icon={<NFCIcon />}
-        title={`or share on Tap${isIos ? ' to Android' : ''}`}
-        subtitle="Bring devices close to use NFC"
-        callback={shareWithNFC}
-      />
+      {remoteShare && (
+        <OptionCTA
+          icon={<RemoteShareIcon />}
+          title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
+          callback={() => navigation.navigate('RemoteSharing', { isPSBTSharing, data })}
+        />
+      )}
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
     </Box>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    flex: 1,
+    margin: 20,
+    gap: 20,
+  },
+});
 
 export default ShareWithNfc;

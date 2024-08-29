@@ -1,29 +1,24 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
-import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { windowWidth } from 'src/constants/responsive';
+import { Box, Pressable, useColorMode } from 'native-base';
+import { wp, hp } from 'src/constants/responsive';
 import Text from './KeeperText';
 
-function OptionCTA({ icon, title, subtitle, callback }) {
+function OptionCTA({ icon, title, callback }) {
   const { colorMode } = useColorMode();
   return (
     <Pressable testID={`btn_${title}`} onPress={() => callback()}>
-      <Box style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
-        <HStack style={styles.main}>
-          <HStack style={styles.main}>
-            <Box>{icon}</Box>
-            <VStack style={styles.textContainer}>
-              <Text style={styles.title} bold>
-                {title}
-              </Text>
-              <Text style={styles.subtitle}>{subtitle}</Text>
-            </VStack>
-          </HStack>
-          <Box>
-            <RightArrowIcon />
-          </Box>
-        </HStack>
+      <Box style={styles.mainContainer}>
+        <Box
+          style={styles.container}
+          backgroundColor={`${colorMode}.seashellWhite`}
+          borderColor={`${colorMode}.greyBorder`}
+        >
+          <Box style={styles.iconContainer}>{icon}</Box>
+        </Box>
+        <Text style={styles.title} bold>
+          {title}
+        </Text>
       </Box>
     </Pressable>
   );
@@ -32,27 +27,30 @@ function OptionCTA({ icon, title, subtitle, callback }) {
 export default OptionCTA;
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 10,
-    padding: 15,
-    width: windowWidth * 0.85,
-    marginTop: 5,
-    minHeight: 60,
-  },
-  main: {
+  mainContainer: {
+    width: wp(90),
+    display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  textContainer: {
-    marginRight: '10%',
-    paddingVertical: '2%',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 14,
-    lineHeight: 14,
+  container: {
+    borderWidth: 0.5,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  subtitle: {
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: wp(26),
+    paddingRight: wp(25.2),
+    paddingTop: hp(16),
+    paddingBottom: hp(16.2),
+  },
+  title: {
+    marginTop: hp(10),
     fontSize: 13,
+    lineHeight: 20,
+    textAlign: 'center',
   },
 });
