@@ -36,6 +36,7 @@ export interface MiniscriptScheme {
   miniscript: string; // miniscript
   keysInfo: { [keyId: string]: string }; // descriptor keys
   timelocks: number[]; // timelocks
+  miniscriptSignersMap: { [key: string]: string }; // miniscript signers
 }
 
 export interface VaultScheme {

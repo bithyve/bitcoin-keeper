@@ -522,6 +522,7 @@ export interface NewVaultInfo {
   vaultType: VaultType;
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
+  miniscriptSignersMap?: { [key: string]: string };
   vaultDetails?: NewVaultDetails;
 }
 
@@ -543,43 +544,27 @@ export function* addNewVaultWorker({
     const signingDevices: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     signingDevices.forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
-    let isNewVault = false;
-    // When the vault is passed directly during upgrade/downgrade process
+    let isNewVault = false; // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
       const {
         vaultType = VaultType.DEFAULT,
         vaultScheme,
         vaultSigners,
+        miniscriptSignersMap,
         vaultDetails,
       } = newVaultInfo;
 
-      let advisorDummySignersCount = 0;
-      for (const signer of vaultSigners) {
-        const { type } = signerMap[signer.masterFingerprint];
-        if (
-          type === SignerType.MY_KEEPER ||
-          type === SignerType.SEED_WORDS ||
-          type === SignerType.LEDGER
-        ) {
-          advisorDummySignersCount += 1;
-        }
-      }
-      if (advisorDummySignersCount === 3) {
-        vaultScheme.multisigScriptType = MultisigScriptType.ADVISOR_VAULT;
-      }
-
       if (vaultScheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
         const { currentBlockHeight } = yield call(WalletUtilities.fetchCurrentBlockHeight);
-        const T1 = 7;
-        const T2 = 10;
+        const T1 = config.ADVISOR_VAULT_DEFAULT_T1;
+        const T2 = config.ADVISOR_VAULT_DEFAULT_T2;
         const timelocks = [currentBlockHeight + T1, currentBlockHeight + T2];
-
         const miniscriptScheme: MiniscriptScheme = yield call(
           generateMiniscriptScheme,
           vaultScheme.multisigScriptType,
           vaultSigners,
-          timelocks,
-          signerMap
+          miniscriptSignersMap,
+          timelocks
         );
         vaultScheme.miniscriptScheme = miniscriptScheme;
       }

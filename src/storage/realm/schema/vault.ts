@@ -175,6 +175,7 @@ export const MiniscriptSchemeSchema: ObjectSchema = {
     miniscript: 'string',
     keysInfo: '{}',
     timelocks: 'int[]',
+    miniscriptSignersMap: '{}',
   },
 };
 
