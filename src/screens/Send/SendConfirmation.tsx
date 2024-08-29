@@ -1,8 +1,8 @@
 import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, HStack } from 'native-base';
+import { Box, View, useColorMode, HStack, Pressable } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   calculateSendMaxFee,
   crossTransfer,
@@ -13,10 +13,9 @@ import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, TxPriority } from 'src/services/wallets/enums';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import { NetworkType, SignerType, TxPriority, VaultType } from 'src/services/wallets/enums';
+import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
 import AddressIcon from 'src/components/AddressIcon';
@@ -53,6 +52,8 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
+import InfoIcon from 'src/assets/images/info-icon.svg';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -70,6 +71,8 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import KeyDropdown from './KeyDropown';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -747,6 +750,24 @@ function AddLabel() {
   );
 }
 
+const SigningInfo = ({ onPress, infoText }) => {
+  const { colorMode } = useColorMode();
+  return (
+    <Pressable onPress={onPress} style={styles.signingInfoWrapper}>
+      <Box style={styles.signingInfoContainer} background={`${colorMode}.seashellWhite`}>
+        <HexagonIcon
+          width={37}
+          height={31}
+          icon={<InfoIcon />}
+          backgroundColor={Colors.pantoneGreen}
+        />
+        <Text style={styles.infoText}>{infoText}</Text>
+        <RightArrowIcon style={styles.arrowIcon} />
+      </Box>
+    </Pressable>
+  );
+};
+
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
   recipient: Wallet | Vault;
@@ -815,6 +836,7 @@ function SendConfirmation({ route }) {
 
   const isAutoTransferFlow = isAutoTransfer || false;
   const [visibleModal, setVisibleModal] = useState(false);
+  const [externalKeySelectionModal, setExternalKeySelectionModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Review the transaction setup');
@@ -825,6 +847,18 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const [selectedOption, setSelectedOption] = useState<Signer | null>(null);
+  const [externalKeys, setExternalKeys] = useState([]);
+  const { signerMap } = useSignerMap();
+
+  useEffect(() => {
+    if (sender.type === VaultType.ASSISTED) {
+      const signers = sender?.signers.map((signer) => signerMap[signer.masterFingerprint]);
+      const externalSigners = signers.filter((signer) => signer?.type === SignerType.KEEPER);
+      setExternalKeys(externalSigners);
+    }
+  }, []);
+
   const isMoveAllFunds =
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
@@ -931,6 +965,10 @@ function SendConfirmation({ route }) {
       setProgress(true);
     }
   };
+
+  const handleOptionSelect = useCallback((option: Signer) => {
+    setSelectedOption(option);
+  }, []);
 
   // useEffect(
   //   () => () => {
@@ -1300,9 +1338,17 @@ function SendConfirmation({ route }) {
           fontWeight="400"
         />
       </ScrollView>
-      {transferType === TransferType.VAULT_TO_VAULT ? (
-        <Note title={common.note} subtitle={vault.signingOldVault} />
-      ) : null}
+      {sender.type === VaultType.ASSISTED && (
+        <Box>
+          <Text medium style={styles.signingInfoText} color={`${colorMode}.primaryText`}>
+            Signing Info
+          </Text>
+          <SigningInfo
+            infoText={'Both Assisted Keys and User Key can sign.'}
+            onPress={() => setExternalKeySelectionModal(true)}
+          />
+        </Box>
+      )}
       {!isAutoTransferFlow ? (
         <Buttons
           primaryText={common.confirmProceed}
@@ -1360,6 +1406,29 @@ function SendConfirmation({ route }) {
             setVisibleTransVaultModal={setVisibleTransVaultModal}
             onTransferNow={onTransferNow}
           />
+        )}
+      />
+      <KeeperModal
+        visible={externalKeySelectionModal}
+        close={() => setExternalKeySelectionModal(false)}
+        title="External Key Selection"
+        subTitle="Whose key should be used to sign the transaction along with yours?"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        showCloseIcon={false}
+        buttonText={common.confirm}
+        secondaryButtonText={common.cancel}
+        Content={() => (
+          <Box style={styles.externalKeyModal}>
+            <KeyDropdown
+              label="Choose External key"
+              options={externalKeys}
+              selectedOption={selectedOption}
+              onOptionSelect={handleOptionSelect}
+            />
+          </Box>
         )}
       />
       <KeeperModal
@@ -1742,5 +1811,36 @@ const styles = StyleSheet.create({
   dollarsStyle: {},
   marginBottom: {
     marginBottom: hp(20),
+  },
+  externalKeyModal: {
+    width: '100%',
+  },
+  signingInfoWrapper: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    width: '85%',
+  },
+  signingInfoContainer: {
+    alignSelf: 'center',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingVertical: hp(20),
+    paddingHorizontal: wp(18),
+    marginTop: hp(5),
+    marginBottom: hp(20),
+  },
+  infoText: {
+    width: '68%',
+    fontSize: 14,
+  },
+  arrowIcon: {
+    marginRight: wp(10),
+  },
+  signingInfoText: {
+    marginTop: hp(5),
+    paddingHorizontal: wp(25),
   },
 });
