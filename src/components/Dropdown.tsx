@@ -1,32 +1,53 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode, Pressable } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from './KeeperText';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import TickIcon from 'src/assets/images/icon_check.svg';
 import { hp } from 'src/constants/responsive';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type Props = {
   label: string;
   options: string[];
-  onOptionSelect: any;
+  selectedOption: string | null;
+  onOptionSelect: (option: string) => void;
 };
 
-function Dropdown({ label, options, onOptionSelect }: Props) {
+function Dropdown({ label, options, selectedOption, onOptionSelect }: Props) {
   const { colorMode } = useColorMode();
-
   const [isOpen, setIsOpen] = useState(false);
+  const [internalSelectedOption, setInternalSelectedOption] = useState<string | null>(
+    selectedOption
+  );
 
   const handlePress = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleOptionSelect = (option: string) => {
+    setInternalSelectedOption(option);
+    onOptionSelect(option);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    if (selectedOption) {
+      setInternalSelectedOption(selectedOption);
+    }
+  }, [selectedOption]);
+
   return (
     <Box>
-      <TouchableOpacity onPress={handlePress}>
+      <Pressable onPress={handlePress}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.dropdownContainer}>
-          <Text color={`${colorMode}.primaryText`} style={styles.labelText}>
-            {label}
+          <Text
+            medium
+            color={isOpen ? `${colorMode}.greenTextDisabled` : `${colorMode}.greenText`}
+            style={styles.labelText}
+          >
+            {internalSelectedOption || label}
           </Text>
+
           <Box style={styles.arrowContainer}>
             <Box backgroundColor={`${colorMode}.dropdownSeparator`} style={styles.emptyView} />
             <Box
@@ -41,24 +62,31 @@ function Dropdown({ label, options, onOptionSelect }: Props) {
             </Box>
           </Box>
         </Box>
-      </TouchableOpacity>
-      <Box style={{ position: 'relative' }}>
-        {isOpen && (
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.optionsContainer}>
-            {options.map((option) => (
-              <TouchableOpacity
-                key={option}
-                onPress={() => {
-                  onOptionSelect(option);
-                  setIsOpen(false);
-                }}
+      </Pressable>
+      {isOpen && (
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.optionsContainer}>
+          {options.map((option, index) => (
+            <TouchableOpacity key={option} onPress={() => handleOptionSelect(option)}>
+              <Box
+                style={styles.optionContainer}
+                borderBottomWidth={index === options.length - 1 ? 0 : 1}
               >
-                <Text style={styles.labelText}>{option}</Text>
-              </TouchableOpacity>
-            ))}
-          </Box>
-        )}
-      </Box>
+                <Text
+                  color={
+                    internalSelectedOption === option
+                      ? `${colorMode}.greenText`
+                      : `${colorMode}.DarkGreyText`
+                  }
+                  style={styles.optionText}
+                >
+                  {option}
+                </Text>
+                {internalSelectedOption === option && <TickIcon />}
+              </Box>
+            </TouchableOpacity>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }
@@ -81,8 +109,15 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   labelText: {
+    fontSize: 14,
+    lineHeight: 24,
+    letterSpacing: 0.39,
+  },
+  optionText: {
     fontSize: 13,
     letterSpacing: 0.39,
+    paddingBottom: 10,
+    paddingTop: 5,
   },
   emptyView: {
     height: hp(23),
@@ -95,13 +130,19 @@ const styles = StyleSheet.create({
   },
   optionsContainer: {
     width: '95%',
-    position: 'absolute',
     alignSelf: 'center',
-    top: 10,
     zIndex: 999,
-    borderRadius: 10,
+    marginTop: 10,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
     gap: 10,
+  },
+  optionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
 });
