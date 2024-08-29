@@ -71,7 +71,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
-import KeyDropdown from './KeyDropown';
+import KeyDropdown from './KeyDropdown';
 import useSignerMap from 'src/hooks/useSignerMap';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
