@@ -63,6 +63,9 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import HWError from 'src/hardware/HWErrorState';
 import KeyAddedModal from 'src/components/KeyAddedModal';
+import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
+import Dropdown from 'src/components/Dropdown';
+import { TIMELOCK_DURATIONS } from './constants';
 
 const { width } = Dimensions.get('screen');
 
@@ -246,6 +249,8 @@ function Footer({
   vaultKeys,
   onGoBack,
   selectedSigners,
+  isTimeLock,
+  setTimelockCautionModal,
 }) {
   const navigation = useNavigation();
   const renderNotes = () => {
@@ -279,6 +284,8 @@ function Footer({
     return notes;
   };
 
+  console.log('isTimeLock footer', isTimeLock);
+
   const handleProceedButtonClick = () => {
     if (onGoBack) {
       onGoBack(vaultKeys);
@@ -297,7 +304,9 @@ function Footer({
           primaryDisable={!!areSignersValid}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
-          primaryCallback={() => setCreating(true)}
+          primaryCallback={
+            !isTimeLock ? () => setCreating(true) : () => setTimelockCautionModal(true)
+          }
           paddingHorizontal={wp(30)}
         />
       ) : (
@@ -678,6 +687,7 @@ function AddSigningDevice() {
       addedSigner?: Signer;
       addSignerFlow?: boolean;
       showModal?: boolean;
+      isTimeLock?: boolean;
     };
   };
   const {
@@ -694,12 +704,14 @@ function AddSigningDevice() {
     addedSigner,
     addSignerFlow = false,
     showModal = false,
+    isTimeLock = false,
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common, signer, wallet: walletTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
 
   const { signers } = useSigners();
   // filter out archived signers
@@ -713,6 +725,10 @@ function AddSigningDevice() {
   const isAssistedWallet = activeVault?.type == VaultType.ASSISTED;
   const isAssistedWalletFlow = parentScreen === SETUPASSISTEDVAULT;
   const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
+  const [timeLockCautionModal, setTimelockCautionModal] = useState(false);
+  const [selectDurationModal, setSelectDurationModal] = useState(false);
+  const [timeLockWalletCreatedModal, setTimeLockWalletCreatedModal] = useState(false);
+
   const [addedKey, setAddedKey] = useState(null);
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
@@ -737,6 +753,10 @@ function AddSigningDevice() {
 
   const { vaultSigners: keys } = useSigners(newVault?.id);
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
+
+  const handleOptionSelect = useCallback((option) => {
+    setSelectedOption(option);
+  }, []);
 
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
@@ -864,6 +884,48 @@ function AddSigningDevice() {
             {vaultTranslation.Vault3_5CreatedModalDesc3}
           </Text>
         </Box>
+      </Box>
+    );
+  }
+
+  function TimeLockWalletCreatedContent(vault: Vault) {
+    return (
+      <Box>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
+          <Box style={styles.walletVaultInfoWrapper}>
+            <Box style={styles.iconWrapper}>
+              <HexagonIcon
+                width={44}
+                height={38}
+                backgroundColor="rgba(45, 103, 89, 1)"
+                icon={<VaultIcon />}
+              />
+            </Box>
+            <Box>
+              {vault.presentationData.description ? (
+                <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+                  {vault.presentationData.description}
+                </Text>
+              ) : null}
+              <Text color={`${colorMode}.greenText`} medium style={styles.titleText}>
+                {vault.presentationData.name}
+              </Text>
+            </Box>
+          </Box>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.descText}>
+            {vaultTranslation.VaultCreatedModalDesc}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+  function TimeLockInfoModalContent() {
+    return (
+      <Box style={styles.timelockContent}>
+        <CautionIllustration style={styles.cautionIllustration} />
+        <Note title={common.note} subtitle={vaultTranslation.timeLockSetupNote} />
       </Box>
     );
   }
@@ -1003,6 +1065,8 @@ function AddSigningDevice() {
         onGoBack={onGoBack}
         vaultKeys={vaultKeys}
         selectedSigners={selectedSigners}
+        isTimeLock={isTimeLock}
+        setTimelockCautionModal={setTimelockCautionModal}
       />
       <KeeperModal
         dismissible
@@ -1041,6 +1105,87 @@ function AddSigningDevice() {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
+      />
+      <KeeperModal
+        closeOnOverlayClick
+        close={() => {
+          setTimeLockWalletCreatedModal(false);
+        }}
+        visible={timeLockWalletCreatedModal}
+        title={vaultTranslation.timeLockCreatedTitle}
+        subTitle={vaultTranslation.timeLockCreatedSubtitle}
+        buttonText={walletTranslation.ViewWallet}
+        showButtons
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(280)}
+        showCloseIcon={false}
+        Content={() => TimeLockWalletCreatedContent(newVault)}
+      />
+      <KeeperModal
+        closeOnOverlayClick
+        close={() => {
+          setTimelockCautionModal(false);
+        }}
+        visible={timeLockCautionModal}
+        title={vaultTranslation.timeLockCautionTitle}
+        subTitle={vaultTranslation.timeLockCautionSubtitle}
+        buttonText={common.continue}
+        secondaryButtonText={common.cancel}
+        buttonCallback={() => {
+          setTimelockCautionModal(false);
+          setSelectDurationModal(true);
+        }}
+        secondaryCallback={() => setTimelockCautionModal(false)}
+        showButtons
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(280)}
+        showCloseIcon={false}
+        Content={TimeLockInfoModalContent}
+      />
+      <KeeperModal
+        closeOnOverlayClick
+        close={() => {
+          setSelectDurationModal(false);
+        }}
+        visible={selectDurationModal}
+        title={vaultTranslation.timeLockDurationTitle}
+        subTitle={vaultTranslation.timeLockDurationSubtitle}
+        showButtons
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.buttonText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        secondaryCallback={() => setSelectDurationModal(false)}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(280)}
+        showCloseIcon={false}
+        Content={() => (
+          <Box>
+            <Dropdown
+              options={TIMELOCK_DURATIONS}
+              label="Choose unlock-time"
+              onOptionSelect={handleOptionSelect}
+              selectedOption={selectedOption}
+            />
+            <Box style={styles.buttonContainer}>
+              <Buttons
+                paddingHorizontal={wp(20)}
+                primaryText={walletTranslation.Createwallet}
+                secondaryText={common.cancel}
+                secondaryCallback={() => setSelectDurationModal(false)}
+                primaryDisable={!selectedOption}
+              />
+            </Box>
+          </Box>
+        )}
       />
       <KeyAddedModal
         visible={keyAddedModalVisible || externalKeyAddedModal}
@@ -1184,6 +1329,16 @@ const styles = StyleSheet.create({
   },
   externalKeyText: {
     marginBottom: hp(20),
+  },
+  cautionIllustration: {
+    alignSelf: 'center',
+    marginBottom: hp(30),
+  },
+  timelockContent: {
+    marginBottom: hp(10),
+  },
+  buttonContainer: {
+    marginTop: hp(30),
   },
 });
 

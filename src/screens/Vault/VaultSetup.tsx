@@ -17,7 +17,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import Note from 'src/components/Note/Note';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -108,6 +107,7 @@ function VaultSetup({ route }: ScreenProps) {
               name: vaultName,
               description: vaultDescription,
               vaultId,
+              isTimeLock,
             },
           })
         );
