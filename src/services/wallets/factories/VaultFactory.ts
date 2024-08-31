@@ -18,6 +18,7 @@ import {
 import SigningServer from 'src/services/backend/SigningServer';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { getDerivationPath } from 'src/utils/service-utilities/utils';
+import idx from 'idx';
 import {
   EntityKind,
   MultisigScriptType,
@@ -472,4 +473,42 @@ export const generateMiniscriptScheme = (
     };
   } else throw new Error('Unsupported multisigScriptType');
   return miniscriptScheme;
+};
+
+export const getAvailableMiniscriptSigners = (vault: Vault, currentBlockHeight: number) => {
+  const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
+  if (!miniscriptScheme) return {};
+
+  if (vault.scheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+    const { miniscriptSignersMap, timelocks } = miniscriptScheme;
+    const miniscriptSigners = {};
+
+    for (const key in miniscriptSignersMap) {
+      const miniscriptSignerMFP = miniscriptSignersMap[key];
+      for (const signer of vault.signers) {
+        if (miniscriptSignerMFP === signer.masterFingerprint) {
+          miniscriptSigners[key] = signer;
+          break;
+        }
+      }
+    }
+
+    const [T1, T2] = timelocks;
+    if (currentBlockHeight < T1) {
+      return miniscriptSigners;
+    } else if (currentBlockHeight >= T1 && currentBlockHeight < T2) {
+      return {
+        [ADVISOR_VAULT_ENTITIES.USER_KEY]: miniscriptSigners[ADVISOR_VAULT_ENTITIES.USER_KEY],
+      };
+    } else {
+      return {
+        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1]:
+          miniscriptSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1],
+        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]:
+          miniscriptSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2],
+      };
+    }
+  }
+
+  return {};
 };
