@@ -47,7 +47,9 @@ function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) 
             color={isOpen ? `${colorMode}.greenTextDisabled` : `${colorMode}.greenText`}
             style={styles.labelText}
           >
-            {selectedOption?.signerName || label}
+            {selectedOption
+              ? `${selectedOption.signerName} - ${selectedOption.masterFingerprint}`
+              : label}
           </Text>
 
           <Box style={styles.arrowContainer}>
@@ -84,7 +86,7 @@ function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) 
                   }
                   style={styles.optionText}
                 >
-                  {`${option.signerName}`}
+                  {`${`${option.signerName} - ${option.masterFingerprint}`}`}
                 </Text>
                 {internalSelectedOption?.masterFingerprint === option?.masterFingerprint && (
                   <TickIcon />
