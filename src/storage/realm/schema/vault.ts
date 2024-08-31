@@ -3,14 +3,6 @@ import { XpubTypes } from 'src/services/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
-const Scheme = {
-  type: '{}',
-  properties: {
-    m: 'int',
-    n: 'int',
-  },
-};
-
 export const SignerPolicy: ObjectSchema = {
   name: RealmSchema.SignerPolicy,
   embedded: true,
@@ -175,6 +167,29 @@ export const VaultPresentationDataSchema: ObjectSchema = {
   },
 };
 
+export const MiniscriptSchemeSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptScheme,
+  embedded: true,
+  properties: {
+    miniscriptPolicy: 'string',
+    miniscript: 'string',
+    keysInfo: '{}',
+    timelocks: 'int[]',
+    miniscriptSignersMap: '{}',
+  },
+};
+
+export const VaultSchemeSchema: ObjectSchema = {
+  name: RealmSchema.VaultScheme,
+  embedded: true,
+  properties: {
+    m: 'int',
+    n: 'int',
+    multisigScriptType: 'string?',
+    miniscriptScheme: `${RealmSchema.MiniscriptScheme}?`,
+  },
+};
+
 export const VaultSpecsSchema: ObjectSchema = {
   name: RealmSchema.VaultSpecs,
   embedded: true,
@@ -205,7 +220,7 @@ export const VaultSchema: ObjectSchema = {
     networkType: 'string',
     isUsable: 'bool',
     isMultiSig: 'bool',
-    scheme: Scheme,
+    scheme: `${RealmSchema.VaultScheme}`,
     signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,

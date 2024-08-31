@@ -109,6 +109,7 @@ export enum SignerType {
   INHERITANCEKEY = 'INHERITANCEKEY',
   UNKOWN_SIGNER = 'UNKNOWN_SIGNER',
   SPECTER = 'SPECTER',
+  ADVISOR_KEY = 'ADVISOR_KEY',
 }
 
 export enum PaymentInfoKind {
@@ -193,4 +194,9 @@ export enum SigningMode {
   NFC = 'NFC',
   FILE = 'FILE',
   QR = 'QR',
+}
+
+export enum MultisigScriptType {
+  DEFAULT_MULTISIG = 'DEFAULT_MULTISIG',
+  ADVISOR_VAULT = 'ADVISOR_VAULT',
 }

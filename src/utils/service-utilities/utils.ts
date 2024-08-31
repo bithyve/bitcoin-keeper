@@ -1,3 +1,5 @@
+import idx from 'idx';
+import { DescriptorChecksum } from 'src/services/wallets/operations/descriptors/checksum';
 import { EntityKind } from '../../services/wallets/enums';
 import { Vault, VaultScheme, VaultSigner } from '../../services/wallets/interfaces/vault';
 import { Wallet } from '../../services/wallets/interfaces/wallet';
@@ -39,21 +41,34 @@ export const genrateOutputDescriptors = (
       includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
     }`;
     return des;
-  }
-  const { signers, scheme, isMultiSig } = wallet as Vault;
-  if (!isMultiSig) {
-    const signer: VaultSigner = signers[0];
+  } else if (wallet.entityKind === EntityKind.VAULT) {
+    const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
+    if (miniscriptScheme) {
+      const { miniscript, keysInfo } = miniscriptScheme;
+      let walletPolicyDescriptor = miniscript;
+      for (const keyId in keysInfo) {
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keysInfo[keyId]);
+      }
+      const desc = `wsh(${walletPolicyDescriptor})`;
+      return `${desc}#${DescriptorChecksum(desc)}`;
+    }
 
-    const des = `wpkh(${getKeyExpression(
-      signer.masterFingerprint,
-      signer.derivationPath,
-      signer.xpub
-    )})${includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''}`;
-    return des;
+    const { signers, scheme, isMultiSig } = wallet as Vault;
+    if (isMultiSig) {
+      return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)}))${
+        includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
+      }`;
+    } else {
+      const signer: VaultSigner = signers[0];
+
+      const des = `wpkh(${getKeyExpression(
+        signer.masterFingerprint,
+        signer.derivationPath,
+        signer.xpub
+      )})${includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''}`;
+      return des;
+    }
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)}))${
-    includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
-  }`;
 };
 
 // PASRER
@@ -103,19 +118,17 @@ const parseKeyExpression = (keyExpression) => {
     console.log('here');
     const insideBracket = bracketMatch[1];
     masterFingerprint = insideBracket.substring(0, 8).toUpperCase();
-    path =
-      'm' +
-      insideBracket
-        .substring(8)
-        .replace(/(\d+)h/g, "$1'")
-        .replace(/'/g, "'");
+    path = `m${insideBracket
+      .substring(8)
+      .replace(/(\d+)h/g, "$1'")
+      .replace(/'/g, "'")}`;
     xpub = bracketMatch[2].replace(/[^\w\s]+$/, '').split(/[^\w]+/)[0];
     console.log({ xpub });
   } else {
     // Case 2: If the keyExpression is not enclosed in square brackets
     const parts = keyExpression.split("'");
     masterFingerprint = parts[0].substring(0, 8).toUpperCase();
-    path = 'm' + keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'");
+    path = `m${keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'")}`;
     xpub = keyExpression
       .substring(keyExpression.lastIndexOf("'") + 1)
       .replace(/[^\w\s]+$/, '')
