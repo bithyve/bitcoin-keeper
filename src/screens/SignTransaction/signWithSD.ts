@@ -32,9 +32,8 @@ export const signTransactionWithTapsigner = async ({
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
-      inputs,
       serializedPSBT,
-      xpriv
+      { ...signer, xpriv }
     );
     return { signedSerializedPSBT, signingPayload: null };
   }
@@ -79,9 +78,8 @@ export const signTransactionWithMobileKey = async ({
   const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
   const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
     defaultVault,
-    inputs,
     serializedPSBT,
-    signer.xpriv
+    signer
   );
   return { signedSerializedPSBT };
 };
@@ -163,9 +161,8 @@ export const signTransactionWithSeedWords = async ({
     if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
-      inputs,
       serializedPSBT,
-      xpriv
+      { ...signer, xpriv }
     );
     return { signedSerializedPSBT };
   } catch (err) {

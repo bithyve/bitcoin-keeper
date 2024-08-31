@@ -2,7 +2,12 @@ import { StyleSheet } from 'react-native';
 import { FlatList, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
+import {
+  Signer,
+  VaultScheme,
+  VaultSigner,
+  signerXpubs,
+} from 'src/services/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -10,7 +15,7 @@ import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/utils/utilities';
 import { getSignerNameFromType } from 'src/hardware';
-import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
+import { MultisigScriptType, SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -26,8 +31,6 @@ import useSigners from 'src/hooks/useSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import config from 'src/utils/service-utilities/config';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
-import SignerCard from '../AddSigner/SignerCard';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -36,6 +39,9 @@ import AssistedVaultIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import Colors from 'src/theme/Colors';
 import useAssistedWallet from 'src/hooks/useAssistedWallet';
+import { ADVISOR_VAULT_ENTITIES } from 'src/services/wallets/operations/miniscript';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
+import SignerCard from '../AddSigner/SignerCard';
 
 function SignerItem({
   vaultKey,
@@ -130,7 +136,7 @@ function SetupAssistedVault() {
 
   const handleSelectedSigners = (vaultKeys) => {
     setCoSigners((prevCoSigners) => {
-      let newSigners = [...prevCoSigners];
+      const newSigners = [...prevCoSigners];
       const newKey = vaultKeys[0];
       const existingIndex = newSigners.findIndex(
         (signer) => signer && signer.masterFingerprint === newKey.masterFingerprint
@@ -157,7 +163,7 @@ function SetupAssistedVault() {
   useEffect(() => {
     if (!coSigners[0]) {
       setTimeout(() => {
-        let updatedSigners = coSigners.map((item, index) => {
+        const updatedSigners = coSigners.map((item, index) => {
           if (index === 0 && myAppKeyCount > 0) {
             const signer = myAppKeys[myAppKeyCount - 1];
             const msXpub: signerXpubs[XpubTypes.P2WSH][0] = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -241,10 +247,24 @@ function SetupAssistedVault() {
   const createVault = useCallback(() => {
     try {
       setIsCreating(true);
+
+      const multisigScriptType = MultisigScriptType.ADVISOR_VAULT;
+      const miniscriptSignersMap = {
+        [ADVISOR_VAULT_ENTITIES.USER_KEY]: coSigners[0].masterFingerprint,
+        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1]: coSigners[1].masterFingerprint,
+        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]: coSigners[2].masterFingerprint,
+      };
+
+      const vaultScheme: VaultScheme = {
+        ...ASSISTED_WALLET_SCHEME,
+        multisigScriptType,
+      };
+
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.ASSISTED,
-        vaultScheme: ASSISTED_WALLET_SCHEME,
+        vaultScheme,
         vaultSigners: coSigners,
+        miniscriptSignersMap,
         vaultDetails: {
           name: `${common.AssistedWallet} ${assistedWallets.length + 1}`,
           description: '',
