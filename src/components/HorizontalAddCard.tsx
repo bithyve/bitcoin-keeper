@@ -11,6 +11,7 @@ import AddCardIcon from 'src/assets/images/add_white.svg';
 import Colors from 'src/theme/Colors';
 import Text from './KeeperText';
 import HexagonIcon from './HexagonIcon';
+import { hp, wp } from 'src/constants/responsive';
 
 type AddSignerCardProps = {
   name: string;
@@ -25,7 +26,7 @@ type AddSignerCardProps = {
   isAddWallet?: boolean;
 };
 
-function AddCard({
+function HorizontalAddCard({
   name,
   callback,
   cardStyles,
@@ -35,7 +36,7 @@ function AddCard({
   borderColor,
   nameColor,
   isAddWallet,
-  icon = <AddCardIcon />,
+  icon = <AddCardIcon width={wp(11)} height={hp(11)} />,
 }: AddSignerCardProps) {
   const { colorMode } = useColorMode();
   return (
@@ -45,21 +46,22 @@ function AddCard({
       onPress={() => callback(name)}
     >
       <Box
-        backgroundColor={`${colorMode}.pantoneGreenLight`}
+        backgroundColor={`${colorMode}.overlayGreen`}
         borderColor={borderColor ? borderColor : `${colorMode}.pantoneGreen`}
         style={[styles.AddCardContainer, cardStyles && cardStyles]}
       >
         <Box style={styles.detailContainer}>
+          <Text semiBold color={nameColor || `${colorMode}.black`} style={styles.nameStyle}>
+            {name}
+          </Text>
+          {loading ? <ActivityIndicator /> : null}
           <HexagonIcon
             width={iconWidth}
             height={iconHeight}
             backgroundColor={Colors.pantoneGreen}
             icon={icon}
+            style={styles.iconStyle}
           />
-          <Text semiBold color={nameColor} style={styles.nameStyle}>
-            {name}
-          </Text>
-          {loading ? <ActivityIndicator /> : null}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -68,33 +70,31 @@ function AddCard({
 
 const styles = StyleSheet.create({
   AddCardContainer: {
-    width: 114,
-    padding: 10,
-    height: 125,
+    width: '100%',
+    padding: 20,
+    paddingHorizontal: 30,
+    height: 60,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     borderRadius: 10,
     borderWidth: 1.5,
     borderStyle: 'dashed',
   },
   nameStyle: {
-    fontSize: 14,
+    fontSize: 16,
     lineHeight: 20,
-    textAlign: 'center',
+    textAlign: 'left',
   },
-
   detailContainer: {
-    gap: 8,
-    marginTop: 15,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
-  iconWrapper: {
-    width: 34,
-    height: 34,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+  iconStyle: {
+    marginLeft: 'auto',
   },
 });
 
-export default AddCard;
+export default HorizontalAddCard;
