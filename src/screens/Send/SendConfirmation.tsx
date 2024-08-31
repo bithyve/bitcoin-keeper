@@ -847,15 +847,30 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
-  const [selectedOption, setSelectedOption] = useState<Signer | null>(null);
-  const [externalKeys, setExternalKeys] = useState([]);
+  const [selectedExternalSigner, setSelectedExternalSigner] = useState<VaultSigner | null>(null);
+  const [availableSigners, setAvailableSigners] = useState({});
+  const [externalSigners, setExternalSigners] = useState([]);
   const { signerMap } = useSignerMap();
 
+  const initialiseAvailableSigners = () => {
+    const currentBlockHeight = 1; // TODO: sync and pipe the current block height
+    const availableSigners = getAvailableMiniscriptSigners(sender as Vault, currentBlockHeight);
+    const extSigners = [];
+    for (const key in availableSigners) {
+      if (
+        key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1 ||
+        key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2
+      ) {
+        extSigners.push(signerMap[availableSigners[key].masterFingerprint]);
+      }
+    }
+    setAvailableSigners(availableSigners);
+    setExternalSigners(extSigners);
+  };
+
   useEffect(() => {
-    if (sender.type === VaultType.ASSISTED) {
-      const signers = sender?.signers.map((signer) => signerMap[signer.masterFingerprint]);
-      const externalSigners = signers.filter((signer) => signer?.type === SignerType.KEEPER);
-      setExternalKeys(externalSigners);
+    if ((sender as Vault).type === VaultType.ASSISTED) {
+      initialiseAvailableSigners();
     }
   }, []);
 
@@ -966,8 +981,8 @@ function SendConfirmation({ route }) {
     }
   };
 
-  const handleOptionSelect = useCallback((option: Signer) => {
-    setSelectedOption(option);
+  const handleOptionSelect = useCallback((option: VaultSigner) => {
+    setSelectedExternalSigner(option);
   }, []);
 
   // useEffect(
@@ -1424,8 +1439,8 @@ function SendConfirmation({ route }) {
           <Box style={styles.externalKeyModal}>
             <KeyDropdown
               label="Choose External key"
-              options={externalKeys}
-              selectedOption={selectedOption}
+              options={externalSigners}
+              selectedOption={selectedExternalSigner}
               onOptionSelect={handleOptionSelect}
             />
           </Box>
