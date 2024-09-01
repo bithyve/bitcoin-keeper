@@ -1,12 +1,6 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  TextStyle,
-  TouchableOpacity,
-  ViewStyle,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
 import Colors from 'src/theme/Colors';
 import Text from './KeeperText';
@@ -72,8 +66,7 @@ const styles = StyleSheet.create({
   AddCardContainer: {
     width: '100%',
     padding: 20,
-    paddingHorizontal: 30,
-    height: 60,
+    paddingHorizontal: wp(30),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

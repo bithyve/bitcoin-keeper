@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'space-between',
     borderWidth: 1,
-    paddingVertical: 15,
-    paddingHorizontal: 15,
+    paddingVertical: hp(15),
+    paddingHorizontal: wp(15),
   },
   infoContainer: {
     gap: 5,
@@ -111,8 +111,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
-    marginBottom: 5,
+    marginRight: wp(10),
+    marginBottom: hp(5),
   },
   walletName: {
     fontSize: 14,
@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
     gap: hp(35),
   },
   changeKeyContainer: {
-    // backgroundColor: 'red',
     alignSelf: 'flex-end',
     flexDirection: 'row',
     gap: 5,
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
   },
   changeKeyText: {
     fontSize: 13,
-    marginRight: 5,
+    marginRight: wp(5),
   },
 });
 
