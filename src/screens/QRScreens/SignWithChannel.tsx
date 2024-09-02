@@ -10,6 +10,8 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
 import {
   BITBOX_SIGN,
+  CHANNEL_MESSAGE,
+  EMIT_MODES,
   JOIN_CHANNEL,
   LEDGER_SIGN,
   SIGNED_TX,
@@ -75,9 +77,14 @@ function ScanAndInstruct({ onBarCodeRead }) {
 function SignWithChannel() {
   const { colorMode } = useColorMode();
   const { params } = useRoute();
-  const { vaultKey, vaultId = '' } = params as {
+  const {
+    vaultKey,
+    vaultId = '',
+    signerType,
+  } = params as {
     vaultKey: VaultSigner;
     vaultId: string;
+    signerType: string;
   };
   const { signer } = useSignerFromKey(vaultKey);
   const { activeVault } = useVault({ vaultId });
@@ -94,49 +101,34 @@ function SignWithChannel() {
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
-  const onBarCodeRead = ({ data }) => {
+  const onBarCodeRead = async ({ data }) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
+    const psbt = await getPsbtForHwi(serializedPSBT, activeVault);
+    const requestBody = {
+      action: EMIT_MODES.SIGN_TX,
+      signerType,
+      psbt,
+    };
+    const requestData = createCipheriv(JSON.stringify(requestBody), decryptionKey.current);
+    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
   };
 
   useEffect(() => {
-    channel.on(BITBOX_SIGN, async ({ room }) => {
-      const data = await getPsbtForHwi(serializedPSBT, activeVault);
-      channel.emit(BITBOX_SIGN, {
-        data: createCipheriv(JSON.stringify(data), decryptionKey.current),
-        room,
-      });
-    });
-    channel.on(TREZOR_SIGN, async ({ room }) => {
+    channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
-        const data = await getPsbtForHwi(serializedPSBT, activeVault);
-        channel.emit(TREZOR_SIGN, {
-          data: createCipheriv(JSON.stringify(data), decryptionKey.current),
-          room,
-        });
-      } catch (err) {
-        captureError(err);
+        const { data: decrypted } = createDecipheriv(data, decryptionKey.current);
+        onSignedTnx(decrypted.responseData);
+      } catch (error) {
+        console.log('🚀 ~ channel.on ~ error:', error);
       }
     });
-    channel.on(LEDGER_SIGN, async ({ room }) => {
+    const onSignedTnx = (data) => {
       try {
-        const data = await getPsbtForHwi(serializedPSBT, activeVault);
-        channel.emit(LEDGER_SIGN, {
-          data: createCipheriv(JSON.stringify(data), decryptionKey.current),
-          room,
-        });
-      } catch (err) {
-        captureError(err);
-      }
-    });
-    channel.on(SIGNED_TX, ({ data }) => {
-      try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
         if (signer.type === SignerType.TREZOR) {
-          const { signedSerializedPSBT } = decrypted;
+          const signedSerializedPSBT = data.data.signedSerializedPSBT.psbt;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
@@ -144,13 +136,13 @@ function SignWithChannel() {
           dispatch(
             healthCheckStatusUpdate([
               {
-                signerId: data.signer.masterFingerprint,
+                signerId: signer.masterFingerprint,
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
           );
         } else if (signer.type === SignerType.BITBOX02) {
-          const { signedSerializedPSBT } = decrypted;
+          const signedSerializedPSBT = data.data.signedSerializedPSBT.psbt;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
@@ -158,13 +150,13 @@ function SignWithChannel() {
           dispatch(
             healthCheckStatusUpdate([
               {
-                signerId: data.signer.masterFingerprint,
+                signerId: signer.masterFingerprint,
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
           );
         } else if (signer.type === SignerType.LEDGER) {
-          const { signedSerializedPSBT } = decrypted;
+          const signedSerializedPSBT = data.data.signedSerializedPSBT;
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
@@ -172,7 +164,7 @@ function SignWithChannel() {
           dispatch(
             healthCheckStatusUpdate([
               {
-                signerId: data.signer.masterFingerprint,
+                signerId: signer.masterFingerprint,
                 status: hcStatusType.HEALTH_CHECK_SIGNING,
               },
             ])
@@ -181,7 +173,7 @@ function SignWithChannel() {
       } catch (error) {
         captureError(error);
       }
-    });
+    };
     return () => {
       channel.disconnect();
     };
