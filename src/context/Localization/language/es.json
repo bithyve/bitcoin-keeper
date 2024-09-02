@@ -538,7 +538,9 @@
     "highUsual": "Network fee is within usual range or lower. A good time to broadcast transactions.",
     "lowFee": "Network fee is less than 10% of the amount being sent.",
     "toAssistedWallet": "To Assisted Wallet",
-    "assistedVaultHeaderSubtitle": "An Assisted Wallet will be created"
+    "assistedVaultHeaderSubtitle": "Creating a time-locked Assisted Wallet",
+    "addUserKeyTitle": "Who will manage the funds?",
+    "addAdvisorKeyTitle": "Add two advisor keys to your wallet"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
