@@ -10,12 +10,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { io } from 'src/services/channel';
 import {
   BITBOX_HEALTHCHECK,
-  BITBOX_SETUP,
-  JOIN_CHANNEL,
+  CHANNEL_MESSAGE,
   LEDGER_HEALTHCHECK,
-  LEDGER_SETUP,
   TREZOR_HEALTHCHECK,
-  TREZOR_SETUP,
+  EMIT_MODES,
+  JOIN_CHANNEL,
 } from 'src/services/channel/constants';
 import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
@@ -35,7 +34,7 @@ import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createDecipheriv } from 'src/utils/service-utilities/utils';
+import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
@@ -88,6 +87,12 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
   );
 }
 
+const HEALTH_CHECK_TYPES = {
+  BITBOX: BITBOX_HEALTHCHECK,
+  LEDGER: LEDGER_HEALTHCHECK,
+  TREZOR: TREZOR_HEALTHCHECK,
+};
+
 function ConnectChannel() {
   const { colorMode } = useColorMode();
   const route = useRoute();
@@ -117,14 +122,35 @@ function ConnectChannel() {
     const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
+    const requestBody = {
+      action: mode == EMIT_MODES.HEALTH_CHECK ? EMIT_MODES.HEALTH_CHECK : EMIT_MODES.ADD_DEVICE,
+      signerType,
+    };
+    const requestData = createCipheriv(JSON.stringify(requestBody), decryptionKey.current);
+    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
   };
 
   useEffect(() => {
-    channel.on(BITBOX_SETUP, async (data) => {
+    channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { signer: bitbox02 } = setupBitbox(decrypted, isMultisig);
+        const { data: decrypted } = createDecipheriv(data, decryptionKey.current);
+        const responseData = decrypted.responseData.data;
+        if (mode == EMIT_MODES.HEALTH_CHECK) {
+          const type = HEALTH_CHECK_TYPES[signerType];
+          await handleVerification(responseData, type);
+        } else {
+          signerType == SignerType.LEDGER && ledgerSetup(responseData);
+          signerType == SignerType.BITBOX02 && bitBoxSetup(responseData);
+          signerType == SignerType.TREZOR && trezorSetup(responseData);
+        }
+      } catch (error) {
+        console.log('🚀 ~ channel.on ~ error:', error);
+      }
+    });
+
+    const bitBoxSetup = (signerData) => {
+      try {
+        const { signer: bitbox02 } = setupBitbox(signerData, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(bitbox02));
           navigation.dispatch(
@@ -154,45 +180,10 @@ function ConnectChannel() {
           // ignore if user cancels NFC interaction
         } else captureError(error);
       }
-    });
-    channel.on(TREZOR_SETUP, async (data) => {
+    };
+    const ledgerSetup = (signerData) => {
       try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { signer: trezor } = setupTrezor(decrypted, isMultisig);
-        if (mode === InteracationMode.RECOVERY) {
-          dispatch(setSigningDevices(trezor));
-          navigation.dispatch(
-            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
-          );
-        } else if (mode === InteracationMode.CANARY_ADDITION) {
-          dispatch(addSigningDevice([trezor]));
-          createCreateCanaryWallet(trezor);
-        } else {
-          dispatch(addSigningDevice([trezor]));
-          const navigationState = addSignerFlow
-            ? {
-                name: 'ManageSigners',
-                params: { addedSigner: trezor, addSignerFlow, showModal: true },
-              }
-            : {
-                name: 'AddSigningDevice',
-                merge: true,
-                params: { addedSigner: trezor, addSignerFlow, showModal: true },
-              };
-          navigation.dispatch(CommonActions.navigate(navigationState));
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
-    });
-    channel.on(LEDGER_SETUP, async (data) => {
-      try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { signer: ledger } = setupLedger(decrypted, isMultisig);
+        const { signer: ledger } = setupLedger(signerData, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(ledger));
           navigation.dispatch(
@@ -222,14 +213,47 @@ function ConnectChannel() {
           // ignore if user cancels NFC interaction
         } else captureError(error);
       }
-    });
+    };
+    const trezorSetup = (signerData) => {
+      try {
+        const { signer: trezor } = setupTrezor(signerData, isMultisig);
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(trezor));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([trezor]));
+          createCreateCanaryWallet(trezor);
+        } else {
+          dispatch(addSigningDevice([trezor]));
+          const navigationState = addSignerFlow
+            ? {
+                name: 'ManageSigners',
+                params: { addedSigner: trezor, addSignerFlow, showModal: true },
+              }
+            : {
+                name: 'AddSigningDevice',
+                merge: true,
+                params: { addedSigner: trezor, addSignerFlow, showModal: true },
+              };
+          navigation.dispatch(CommonActions.navigate(navigationState));
+        }
+      } catch (error) {
+        if (error instanceof HWError) {
+          showToast(error.message, <ToastErrorIcon />);
+        } else if (error.toString() === 'Error') {
+          // ignore if user cancels NFC interaction
+        } else captureError(error);
+      }
+    };
 
-    const handleVerification = async (data, deviceType) => {
+    const handleVerification = async (signerData, deviceType) => {
       const handleSuccess = () => {
         dispatch(
           healthCheckStatusUpdate([
             {
-              signerId: data.signer.masterFingerprint,
+              signerId: signerData.mfp,
               status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
             },
           ])
@@ -242,27 +266,25 @@ function ConnectChannel() {
         navigation.dispatch(CommonActions.goBack());
         dispatch(
           healthCheckStatusUpdate([
-            { signerId: data.signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_FAILED },
+            { signerId: signerData.mfp, status: hcStatusType.HEALTH_CHECK_FAILED },
           ])
         );
         showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
       };
 
       try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
         let masterFingerprint, signerType;
-
         switch (deviceType) {
           case LEDGER_HEALTHCHECK:
-            ({ masterFingerprint } = getLedgerDetailsFromChannel(decrypted, isMultisig));
+            ({ masterFingerprint } = getLedgerDetailsFromChannel(signerData, isMultisig));
             signerType = SignerType.LEDGER;
             break;
           case TREZOR_HEALTHCHECK:
-            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
+            ({ masterFingerprint } = getTrezorDetails(signerData, isMultisig));
             signerType = SignerType.TREZOR;
             break;
           case BITBOX_HEALTHCHECK:
-            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
+            ({ masterFingerprint } = getTrezorDetails(signerData, isMultisig));
             signerType = SignerType.BITBOX02;
             break;
           default:
@@ -293,18 +315,6 @@ function ConnectChannel() {
         }
       }
     };
-
-    channel.on(LEDGER_HEALTHCHECK, async (data) => {
-      await handleVerification(data, LEDGER_HEALTHCHECK);
-    });
-
-    channel.on(TREZOR_HEALTHCHECK, async (data) => {
-      await handleVerification(data, TREZOR_HEALTHCHECK);
-    });
-
-    channel.on(BITBOX_HEALTHCHECK, async (data) => {
-      await handleVerification(data, BITBOX_HEALTHCHECK);
-    });
 
     return () => {
       channel.disconnect();

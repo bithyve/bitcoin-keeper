@@ -651,7 +651,7 @@ function SignerModals({
     );
   };
 
-  const navigateToChannelSigning = (vaultKey: VaultSigner) => {
+  const navigateToChannelSigning = (vaultKey: VaultSigner, signerType: string) => {
     setTrezorModal(false);
     setBitbox02Modal(false);
     setLedgerModal(false);
@@ -660,6 +660,7 @@ function SignerModals({
         signTransaction,
         vaultKey,
         vaultId,
+        signerType,
       })
     );
   };
@@ -763,7 +764,7 @@ function SignerModals({
               textColor={`${colorMode}.primaryText`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(vaultKey)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
             />
           );
         }
@@ -958,7 +959,7 @@ function SignerModals({
               textColor={`${colorMode}.primaryText`}
               Content={() => <TrezorContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(vaultKey)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
             />
           );
         }
@@ -975,7 +976,7 @@ function SignerModals({
               textColor={`${colorMode}.primaryText`}
               Content={() => <BitBox02Content />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(vaultKey)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
             />
           );
         }
