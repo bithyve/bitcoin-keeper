@@ -34,7 +34,7 @@ import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
+import { createCipherGcm, createDecipherGcm } from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
@@ -126,14 +126,14 @@ function ConnectChannel() {
       action: mode == EMIT_MODES.HEALTH_CHECK ? EMIT_MODES.HEALTH_CHECK : EMIT_MODES.ADD_DEVICE,
       signerType,
     };
-    const requestData = createCipheriv(JSON.stringify(requestBody), decryptionKey.current);
+    const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
   };
 
   useEffect(() => {
     channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
-        const { data: decrypted } = createDecipheriv(data, decryptionKey.current);
+        const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
         const responseData = decrypted.responseData.data;
         if (mode == EMIT_MODES.HEALTH_CHECK) {
           const type = HEALTH_CHECK_TYPES[signerType];

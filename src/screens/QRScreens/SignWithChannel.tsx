@@ -8,15 +8,7 @@ import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/con
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
-import {
-  BITBOX_SIGN,
-  CHANNEL_MESSAGE,
-  EMIT_MODES,
-  JOIN_CHANNEL,
-  LEDGER_SIGN,
-  SIGNED_TX,
-  TREZOR_SIGN,
-} from 'src/services/channel/constants';
+import { CHANNEL_MESSAGE, EMIT_MODES, JOIN_CHANNEL } from 'src/services/channel/constants';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
@@ -28,7 +20,7 @@ import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createCipheriv, createDecipheriv } from 'src/utils/service-utilities/utils';
+import { createCipherGcm, createDecipherGcm } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { getPsbtForHwi } from 'src/hardware';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -112,14 +104,14 @@ function SignWithChannel() {
       signerType,
       psbt,
     };
-    const requestData = createCipheriv(JSON.stringify(requestBody), decryptionKey.current);
+    const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
   };
 
   useEffect(() => {
     channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
-        const { data: decrypted } = createDecipheriv(data, decryptionKey.current);
+        const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
         onSignedTnx(decrypted.responseData);
       } catch (error) {
         console.log('🚀 ~ channel.on ~ error:', error);
