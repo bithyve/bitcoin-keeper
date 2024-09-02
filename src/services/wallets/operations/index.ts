@@ -17,6 +17,7 @@ import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
@@ -28,13 +29,13 @@ import {
   SigningPayload,
   Transaction,
   TransactionPrerequisite,
-  TransactionPrerequisiteElements,
   UTXO,
 } from '../interfaces';
 import {
   BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
+  MultisigScriptType,
   NetworkType,
   SignerType,
   TransactionType,
@@ -43,7 +44,7 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import { hash256 } from 'src/utils/service-utilities/encryption';
+import { ADVISORY_VAULT_POLICY, generateScriptWitnesses } from './miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -289,7 +290,7 @@ export default class WalletOperations {
           if ((wallet as Vault).isMultiSig) {
             const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, false);
             address = multisig.address;
-            pubsToCache = multisig.orderPreservedPubkeys;
+            pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
           } else {
             let xpub = null;
             if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
@@ -307,7 +308,7 @@ export default class WalletOperations {
           }
 
           addressCache.external[itr] = address;
-          addressPubs[address] = pubsToCache.join('/');
+          if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
         }
 
         externalAddresses[address] = itr;
@@ -326,7 +327,7 @@ export default class WalletOperations {
           if ((wallet as Vault).isMultiSig) {
             const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, true);
             address = multisig.address;
-            pubsToCache = multisig.orderPreservedPubkeys;
+            pubsToCache = multisig.orderPreservedPubkeys; // optional(currently not available for miniscript based vaults)
           } else {
             let xpub = null;
             if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
@@ -344,7 +345,7 @@ export default class WalletOperations {
           }
 
           addressCache.internal[itr] = address;
-          addressPubs[address] = pubsToCache.join('/');
+          if (pubsToCache) addressPubs[address] = pubsToCache.join('/');
         }
 
         internalAddresses[address] = itr;
@@ -841,20 +842,52 @@ export default class WalletOperations {
         }
       }
     } else {
-      const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
+      const { p2wsh, p2sh, subPaths, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
         wallet as Vault
       );
 
+      let hasTimelock = false;
       const bip32Derivation = [];
-      for (const signer of (wallet as Vault).signers) {
-        const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
-        const path = `${signer.derivationPath}/${subPath.join('/')}`;
-        bip32Derivation.push({
-          masterFingerprint,
-          path: path.replaceAll('h', "'"),
-          pubkey: signerPubkeyMap.get(signer.xpub),
-        });
+      const multisigScriptType =
+        (wallet as Vault).scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
+
+      if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+        for (const signer of (wallet as Vault).signers) {
+          const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
+          const path = `${signer.derivationPath}/${subPaths[signer.xpub].join('/')}`;
+          bip32Derivation.push({
+            masterFingerprint,
+            path: path.replaceAll('h', "'"),
+            pubkey: signerPubkeyMap.get(signer.xpub),
+          });
+        }
+      } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+        const { miniscriptScheme } = (wallet as Vault).scheme;
+        if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
+
+        if (miniscriptScheme.timelocks?.length) hasTimelock = true;
+
+        const { keysInfo } = miniscriptScheme;
+        for (let keyIdentifier in keysInfo) {
+          const fragments = keysInfo[keyIdentifier].split('/');
+          const masterFingerprint = fragments[0].slice(1);
+          const multipathIndex = fragments[5];
+          const [script_type, xpub] = fragments[4].split(']');
+
+          // TODO: add only selected satisfier's bip32Dervs
+          if (multipathIndex[1] === '2') {
+            continue; // only add bip32Derivation based on the signing path
+          }
+
+          const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+          const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+          bip32Derivation.push({
+            masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+            path: path.replaceAll('h', "'"),
+            pubkey: signerPubkeyMap.get(xpub + multipathIndex),
+          });
+        }
       }
 
       if (scriptType === BIP48ScriptTypes.NATIVE_SEGWIT) {
@@ -866,7 +899,8 @@ export default class WalletOperations {
             script: p2wsh.output,
             value: input.value,
           },
-          witnessScript: p2ms.output,
+          witnessScript: p2wsh.redeem.output,
+          sequence: hasTimelock ? 4294967294 : null, // to enable nLockTime the value should be less than 4294967295
         });
       } else if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
         PSBT.addInput({
@@ -878,7 +912,8 @@ export default class WalletOperations {
             value: input.value,
           },
           redeemScript: p2wsh.output,
-          witnessScript: p2ms.output,
+          witnessScript: p2wsh.redeem.output,
+          sequence: hasTimelock ? 4294967294 : null, // to enable nLockTime the value should be less than 4294967295
         });
       }
     }
@@ -887,12 +922,11 @@ export default class WalletOperations {
   static getPSBTDataForChangeOutput = (
     wallet: Vault,
     changeMultiSig: {
-      p2ms: bitcoinJS.payments.Payment;
       p2wsh: bitcoinJS.payments.Payment;
       p2sh: bitcoinJS.payments.Payment;
       pubkeys: Buffer[];
       address: string;
-      subPath: number[];
+      subPaths: { [xpub: string]: number[] };
       signerPubkeyMap: Map<string, Buffer>;
     }
   ): {
@@ -901,17 +935,42 @@ export default class WalletOperations {
     witnessScript: Buffer;
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
-    const { subPath, p2wsh, p2ms, signerPubkeyMap } = changeMultiSig;
-    for (const signer of wallet.signers) {
-      const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
-      const path = `${signer.derivationPath}/${subPath.join('/')}`;
-      bip32Derivation.push({
-        masterFingerprint,
-        path,
-        pubkey: signerPubkeyMap.get(signer.xpub),
-      });
+    const { subPaths, p2wsh, signerPubkeyMap } = changeMultiSig;
+
+    const multisigScriptType =
+      (wallet as Vault).scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
+    if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+      for (const signer of (wallet as Vault).signers) {
+        const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
+        const path = `${signer.derivationPath}/${subPaths[signer.xpub].join('/')}`;
+        bip32Derivation.push({
+          masterFingerprint,
+          path: path.replaceAll('h', "'"),
+          pubkey: signerPubkeyMap.get(signer.xpub),
+        });
+      }
+    } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+      const { miniscriptScheme } = (wallet as Vault).scheme;
+      if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
+
+      const { keysInfo } = miniscriptScheme;
+      for (let keyIdentifier in keysInfo) {
+        const fragments = keysInfo[keyIdentifier].split('/');
+        const masterFingerprint = fragments[0].slice(1);
+        const multipathIndex = fragments[5];
+        const [script_type, xpub] = fragments[4].split(']');
+
+        const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+        const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+        bip32Derivation.push({
+          masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+          path: path.replaceAll('h', "'"),
+          pubkey: signerPubkeyMap.get(xpub + multipathIndex),
+        });
+      }
     }
-    return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2ms.output };
+
+    return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2wsh.redeem.output };
   };
 
   static createTransaction = async (
@@ -1051,28 +1110,37 @@ export default class WalletOperations {
 
   static internallySignVaultPSBT = (
     wallet: Vault,
-    inputs: any,
     serializedPSBT: string,
-    xpriv: string
+    signer: VaultSigner
   ): { signedSerializedPSBT: string } => {
     try {
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
       const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
 
       let vin = 0;
-      for (const input of inputs) {
-        let internal;
-        let index;
-        if (input.subPath) {
-          const [, j, k] = input.subPath.split('/');
-          internal = parseInt(j);
-          index = parseInt(k);
-        } else {
-          const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
-          [internal, index] = subPath;
+      for (const { bip32Derivation } of PSBT.data.inputs) {
+        if (!bip32Derivation) {
+          throw new Error('Failed to sign internally - missing bip32 derivation');
         }
+        let subPath;
 
-        const keyPair = WalletUtilities.getKeyPairByIndex(xpriv, !!internal, index, network);
+        for (let { masterFingerprint, path } of bip32Derivation) {
+          if (masterFingerprint.toString('hex').toUpperCase() === signer.masterFingerprint) {
+            const pathFragments = path.split('/');
+            const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
+            const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
+            subPath = [chainIndex, childIndex];
+            break;
+          }
+        }
+        if (!subPath) throw new Error('Failed to sign internally - missing subpath');
+
+        const keyPair = WalletUtilities.getKeyPairByIndex(
+          signer.xpriv,
+          subPath[0],
+          subPath[1],
+          network
+        );
         PSBT.signInput(vin, keyPair);
         vin++;
       }
@@ -1109,9 +1177,8 @@ export default class WalletOperations {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
       const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
         wallet,
-        inputs,
         PSBT.toBase64(),
-        vaultKey.xpriv
+        vaultKey
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
       isSigned = true;
@@ -1125,21 +1192,50 @@ export default class WalletOperations {
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
         let publicKey;
         let subPath;
-        if (wallet.isMultiSig) {
+
+        const multisigScriptType =
+          (wallet as Vault).scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
+
+        if (multisigScriptType === MultisigScriptType.DEFAULT_MULTISIG) {
+          if (wallet.isMultiSig) {
+            const multisigAddress = WalletUtilities.addressToMultiSig(
+              inputs[inputIndex].address,
+              wallet
+            );
+
+            publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
+            subPath = multisigAddress.subPaths[vaultKey.xpub];
+          } else {
+            const singlesigAddress = WalletUtilities.addressToPublicKey(
+              inputs[inputIndex].address,
+              wallet
+            );
+            publicKey = singlesigAddress.publicKey;
+            subPath = singlesigAddress.subPath;
+          }
+        } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+          const { miniscriptScheme } = (wallet as Vault).scheme;
+          if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
+
           const multisigAddress = WalletUtilities.addressToMultiSig(
             inputs[inputIndex].address,
             wallet
           );
-          publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
-          subPath = multisigAddress.subPath;
-        } else {
-          const singlesigAddress = WalletUtilities.addressToPublicKey(
-            inputs[inputIndex].address,
-            wallet
-          );
-          publicKey = singlesigAddress.publicKey;
-          subPath = singlesigAddress.subPath;
+
+          const { keysInfo } = miniscriptScheme;
+          const selectedLedgerOrigin = ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1; // TODO: comes as an input
+          for (let keyIdentifier in keysInfo) {
+            if (keyIdentifier === selectedLedgerOrigin) {
+              const fragments = keysInfo[keyIdentifier].split('/');
+              const multipathIndex = fragments[5];
+              publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub + multipathIndex);
+              subPath = multisigAddress.subPaths[vaultKey.xpub + multipathIndex];
+            }
+          }
         }
+
+        if (!publicKey) throw new Error('Failed to generate payload, missing pubkey');
+
         const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
         inputsToSign.push({
           digest: hash.toString('hex'),
@@ -1272,6 +1368,20 @@ export default class WalletOperations {
       customTxPrerequisites
     );
 
+    // setting time lock(case: advisor vault)
+    if (wallet.entityKind === EntityKind.VAULT) {
+      const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
+      if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+        if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
+
+        const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
+        const selectedWitness = scriptWitnesses[2];
+        if (selectedWitness.nLockTime) {
+          PSBT.setLocktime(selectedWitness.nLockTime);
+        }
+      }
+    }
+
     if (wallet.entityKind === EntityKind.VAULT) {
       // case: vault(single/multi-sig)
       const { signers: vaultKeys } = wallet as Vault;
@@ -1367,7 +1477,28 @@ export default class WalletOperations {
       // if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
 
       // finalise and construct the txHex
-      const tx = combinedPSBT.finalizeAllInputs();
+      let tx;
+      if (wallet.entityKind === EntityKind.VAULT) {
+        const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
+        if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+          if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
+
+          const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
+          const selectedWitness = scriptWitnesses[2];
+
+          for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
+            combinedPSBT.finalizeInput(
+              index,
+              WalletUtilities.getFinalScriptsForMyCustomScript(
+                selectedWitness,
+                miniscriptScheme.keysInfo
+              )
+            );
+          }
+          tx = combinedPSBT;
+        } else tx = combinedPSBT.finalizeAllInputs();
+      } else tx = combinedPSBT.finalizeAllInputs();
+
       finalOutputs = tx.txOutputs;
       txHex = tx.extractTransaction().toHex();
     }

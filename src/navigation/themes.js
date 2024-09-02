@@ -176,6 +176,7 @@ export const customTheme = extendTheme({
       limeText: Colors.LimeYellow,
       greenText: Colors.SeaweedGreen,
       greenTextDisabled: Colors.SlateGreen,
+      overlayGreen: Colors.pastelGreen,
     },
     dark: {
       navButtonText: Colors.paleWhite,
@@ -307,6 +308,7 @@ export const customTheme = extendTheme({
       limeText: Colors.LimeYellow,
       greenText: Colors.SeaweedGreen,
       greenTextDisabled: Colors.SlateGreen,
+      overlayGreen: Colors.SeashellDark,
     },
   },
   config: {

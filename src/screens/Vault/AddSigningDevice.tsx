@@ -284,8 +284,6 @@ function Footer({
     return notes;
   };
 
-  console.log('isTimeLock footer', isTimeLock);
-
   const handleProceedButtonClick = () => {
     if (onGoBack) {
       onGoBack(vaultKeys);
@@ -342,6 +340,7 @@ function Signers({
   coSigners,
   setExternalKeyAddedModal,
   setAddedKey,
+  signerFilters,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -479,80 +478,98 @@ function Signers({
     return signerCards;
   }, [signers]);
 
-  const renderCollaborativeSigners = useCallback(() => {
-    const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
-    const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
-    const validCoSigners = coSigners.filter((signer) => signer);
-    const coSignersMap = new Map(validCoSigners.map((signer) => [signer.masterFingerprint, true]));
+  const renderSignersByType = useCallback(
+    (signerTypes = null) => {
+      const typesArray = signerTypes
+        ? Array.isArray(signerTypes)
+          ? signerTypes
+          : [signerTypes]
+        : null;
 
-    const signerCards = signers
-      .filter((signer) => signer.type === SignerType.KEEPER && !signer.archived)
-      .map((signer) => {
-        const { isValid, err } = isSignerValidForScheme(signer, scheme, signerMap, selectedSigners);
-        const isCoSigner = coSignersMap.has(signer.masterFingerprint);
-        const disabled =
-          !isValid ||
-          (signer.type === SignerType.MY_KEEPER &&
-            myAppKeys.length >= 1 &&
-            myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
-          (anySignerSelected && !selectedSigners.get(signer.masterFingerprint)) ||
-          isCoSigner;
+      const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
+      const anySignerSelected = [...selectedSigners.values()].some((selected) => selected);
+      const validCoSigners = coSigners.filter((signer) => signer);
+      const coSignersMap = new Map(
+        validCoSigners.map((signer) => [signer.masterFingerprint, true])
+      );
 
-        const handleCardSelect = (selected) => {
-          if (disabled) return;
-
-          onSignerSelect(
-            selected,
+      const signerCards = signers
+        .filter(
+          (signer) => !signer.archived && (!typesArray || typesArray.includes(signer.type)) // If no typesArray, show all signers
+        )
+        .map((signer) => {
+          const { isValid, err } = isSignerValidForScheme(
             signer,
             scheme,
-            vaultKeys,
-            setVaultKeys,
-            selectedSigners,
-            setSelectedSigners,
-            showToast
+            signerMap,
+            selectedSigners
           );
-        };
+          const isCoSigner = coSignersMap.has(signer.masterFingerprint);
+          const disabled =
+            !isValid ||
+            (signer.type === SignerType.MY_KEEPER &&
+              myAppKeys.length >= 1 &&
+              myAppKeys[0].masterFingerprint !== signer.masterFingerprint) ||
+            (anySignerSelected && !selectedSigners.get(signer.masterFingerprint)) ||
+            isCoSigner;
 
-        return (
-          <SignerCard
-            showSelection={showSelection}
-            disabled={disabled}
-            isFromSiginingList={true}
-            key={signer.masterFingerprint}
-            name={
-              !signer.isBIP85
-                ? getSignerNameFromType(signer.type, signer.isMock)
-                : `${getSignerNameFromType(signer.type, signer.isMock)} +`
-            }
-            description={getSignerDescription(
-              signer.type,
-              signer.extraData?.instanceNumber,
-              signer
-            )}
-            icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
-            isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
-            onCardSelect={handleCardSelect}
-            colorMode={colorMode}
-          />
-        );
-      });
+          const handleCardSelect = (selected) => {
+            if (disabled) return;
 
-    return signerCards;
-  }, [
-    signers,
-    selectedSigners,
-    scheme,
-    signerMap,
-    vaultKeys,
-    keyToRotate,
-    showSelection,
-    colorMode,
-    setSelectedSigners,
-    setVaultKeys,
-    showToast,
-    setCreating,
-    coSigners,
-  ]);
+            onSignerSelect(
+              selected,
+              signer,
+              scheme,
+              vaultKeys,
+              setVaultKeys,
+              selectedSigners,
+              setSelectedSigners,
+              showToast
+            );
+          };
+
+          return (
+            <SignerCard
+              showSelection={showSelection}
+              disabled={disabled}
+              isFromSiginingList={true}
+              key={signer.masterFingerprint}
+              name={
+                !signer.isBIP85
+                  ? getSignerNameFromType(signer.type, signer.isMock)
+                  : `${getSignerNameFromType(signer.type, signer.isMock)} +`
+              }
+              description={getSignerDescription(
+                signer.type,
+                signer.extraData?.instanceNumber,
+                signer
+              )}
+              icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+              isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
+              onCardSelect={handleCardSelect}
+              colorMode={colorMode}
+            />
+          );
+        });
+
+      return signerCards;
+    },
+    [
+      signers,
+      selectedSigners,
+      scheme,
+      signerMap,
+      vaultKeys,
+      keyToRotate,
+      showSelection,
+      colorMode,
+      setSelectedSigners,
+      setVaultKeys,
+      showToast,
+      setCreating,
+      coSigners,
+    ]
+  );
 
   const signer: Signer = keyToRotate ? signerMap[keyToRotate.masterFingerprint] : null;
 
@@ -600,7 +617,7 @@ function Signers({
                   {renderAssistedKeysShell()}
                 </>
               ) : (
-                <>{renderCollaborativeSigners()}</>
+                <>{renderSignersByType(signerFilters)}</>
               )}
             </Box>
           </Box>
@@ -688,6 +705,7 @@ function AddSigningDevice() {
       addSignerFlow?: boolean;
       showModal?: boolean;
       isTimeLock?: boolean;
+      signerFilters?: SignerType | Array<SignerType>;
     };
   };
   const {
@@ -705,6 +723,7 @@ function AddSigningDevice() {
     addSignerFlow = false,
     showModal = false,
     isTimeLock = false,
+    signerFilters = '',
   } = route.params;
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
@@ -1049,6 +1068,7 @@ function AddSigningDevice() {
         coSigners={coSigners}
         setExternalKeyAddedModal={setExternalKeyAddedModal}
         setAddedKey={setAddedKey}
+        signerFilters={signerFilters}
       />
       <Footer
         amfSigners={amfSigners}

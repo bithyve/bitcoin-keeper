@@ -6,19 +6,19 @@ import { useEffect, useState } from 'react';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import TickIcon from 'src/assets/images/icon_check.svg';
-import { Signer } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 
 type Props = {
   label: string;
-  options: Signer[];
-  selectedOption: Signer | null;
-  onOptionSelect: (option: Signer) => void;
+  options: VaultSigner[];
+  selectedOption: VaultSigner | null;
+  onOptionSelect: (option: VaultSigner) => void;
 };
 
 function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) {
   const { colorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
-  const [internalSelectedOption, setInternalSelectedOption] = useState<Signer | null>(
+  const [internalSelectedOption, setInternalSelectedOption] = useState<VaultSigner | null>(
     selectedOption
   );
 
@@ -26,7 +26,7 @@ function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) 
     setIsOpen(!isOpen);
   };
 
-  const handleOptionSelect = (option: Signer) => {
+  const handleOptionSelect = (option: VaultSigner) => {
     setInternalSelectedOption(option);
     onOptionSelect(option);
     setIsOpen(false);
@@ -47,7 +47,9 @@ function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) 
             color={isOpen ? `${colorMode}.greenTextDisabled` : `${colorMode}.greenText`}
             style={styles.labelText}
           >
-            {selectedOption?.signerName || label}
+            {selectedOption
+              ? `${selectedOption.signerName} - ${selectedOption.masterFingerprint}`
+              : label}
           </Text>
 
           <Box style={styles.arrowContainer}>
@@ -84,7 +86,7 @@ function KeyDropdown({ label, options, selectedOption, onOptionSelect }: Props) 
                   }
                   style={styles.optionText}
                 >
-                  {`${option.signerName}`}
+                  {`${`${option.signerName} - ${option.masterFingerprint}`}`}
                 </Text>
                 {internalSelectedOption?.masterFingerprint === option?.masterFingerprint && (
                   <TickIcon />

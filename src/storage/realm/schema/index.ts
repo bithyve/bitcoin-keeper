@@ -31,6 +31,8 @@ import {
   InheritancePolicyNotificationSchema,
   InheritancePolicyAlertSchema,
   HealthCheckDetails,
+  MiniscriptSchemeSchema,
+  VaultSchemeSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
 import { UAIDetailsSchema, UAISchema } from './uai';
@@ -70,6 +72,8 @@ export default [
   InheritancePolicyAlertSchema,
   InheritancePolicySchema,
   InheritanceKeyInfoSchema,
+  MiniscriptSchemeSchema,
+  VaultSchemeSchema,
   VaultSpecsSchema,
   BackupSchema,
   UAISchema,

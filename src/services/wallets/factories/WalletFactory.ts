@@ -288,7 +288,7 @@ export const signCosignerPSBT = (xpriv: string, serializedPSBT: string) => {
     const { path } = input.bip32Derivation[0];
     const pathLevels = path.split('/');
 
-    const internal = parseInt(pathLevels[pathLevels.length - 2], 10) === 1;
+    const internal = parseInt(pathLevels[pathLevels.length - 2], 10);
     const childIndex = parseInt(pathLevels[pathLevels.length - 1], 10);
 
     const keyPair = WalletUtilities.getKeyPairByIndex(xpriv, internal, childIndex, config.NETWORK);

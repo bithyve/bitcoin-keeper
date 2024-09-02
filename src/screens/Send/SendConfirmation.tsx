@@ -14,15 +14,14 @@ import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, SignerType, TxPriority, VaultType } from 'src/services/wallets/enums';
-import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import { NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
+import { Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
 import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
-  crossTransferReset,
   customPrioritySendPhaseOneReset,
   sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
@@ -41,9 +40,7 @@ import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
-import CustomPriorityModal from './CustomPriorityModal';
 import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
 import FeerateStatement from 'src/screens/FeeInsights/FeerateStatement';
 import useOneDayInsight from 'src/hooks/useOneDayInsight';
@@ -54,6 +51,22 @@ import Fonts from 'src/constants/Fonts';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import InfoIcon from 'src/assets/images/info-icon.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import { RealmSchema } from 'src/storage/realm/enum';
+import HexagonIcon from 'src/components/HexagonIcon';
+import WalletsIcon from 'src/assets/images/daily_wallet.svg';
+import { resetVaultMigration } from 'src/store/reducers/vaults';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import KeeperFooter from 'src/components/KeeperFooter';
+import idx from 'idx';
+import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { getAvailableMiniscriptSigners } from 'src/services/wallets/factories/VaultFactory';
+import { ADVISOR_VAULT_ENTITIES } from 'src/services/wallets/operations/miniscript';
+import KeyDropdown from './KeyDropdown';
+import CurrencyInfo from '../Home/components/CurrencyInfo';
+import CustomPriorityModal from './CustomPriorityModal';
+import SignerCard from '../AddSigner/SignerCard';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -61,18 +74,6 @@ const customFeeOptionTransfers = [
   TransferType.WALLET_TO_WALLET,
   TransferType.WALLET_TO_ADDRESS,
 ];
-import { RealmSchema } from 'src/storage/realm/enum';
-import HexagonIcon from 'src/components/HexagonIcon';
-import WalletsIcon from 'src/assets/images/daily_wallet.svg';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
-import { resetVaultMigration } from 'src/store/reducers/vaults';
-import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
-import KeeperFooter from 'src/components/KeeperFooter';
-import idx from 'idx';
-import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
-import KeyDropdown from './KeyDropdown';
-import useSignerMap from 'src/hooks/useSignerMap';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -346,14 +347,16 @@ function SendingPriority({
                 if (
                   txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
                   txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
-                )
+                ) {
                   return;
+                }
               } else if (priority === TxPriority.MEDIUM) {
                 if (
                   txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
                   txFeeInfo[TxPriority.LOW.toLowerCase()].amount
-                )
+                ) {
                   return;
+                }
               }
             }
 
@@ -450,11 +453,7 @@ function SendSuccessfulContent({
           <Text>Sent To</Text>
           <Card
             isVault={
-              recipient?.entityKind === RealmSchema.Wallet.toUpperCase()
-                ? false
-                : isAddress
-                ? false
-                : true
+              recipient?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : !isAddress
             }
             title={isAddress ? address : recipient?.presentationData?.name}
             isAddress={isAddress}
@@ -464,7 +463,7 @@ function SendSuccessfulContent({
         <Box style={styles.sentFromContainer}>
           <Text>Sent From</Text>
           <Card
-            isVault={sender?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
+            isVault={sender?.entityKind !== RealmSchema.Wallet.toUpperCase()}
             title={sender?.presentationData?.name}
             subTitle={`${getCurrencyIcon()} ${getBalance(availableBalance)} ${getSatUnit()}`}
           />
@@ -487,7 +486,7 @@ function SendSuccessfulContent({
           amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount
         )} ${getSatUnit()}`}
         fontSize={17}
-        fontWeight={'400'}
+        fontWeight="400"
       />
       {/* TODO For Lableling */}
       {/* <AddLabel /> */}
@@ -593,15 +592,11 @@ function AmountDetails({ title, fontSize, fontWeight, fiatAmount, satsAmount }) 
   return (
     <Box style={styles.amountDetailsWrapper}>
       <Box style={styles.amtDetailsTitleWrapper}>
-        <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
-          {title}
-        </Text>
+        <Text style={[styles.amtDetailsText, { fontSize, fontWeight }]}>{title}</Text>
       </Box>
       <Box style={styles.amtFiatSatsTitleWrapper}>
         <Box>
-          <Text style={[styles.amtDetailsText, { fontSize: fontSize, fontWeight: fontWeight }]}>
-            {fiatAmount}
-          </Text>
+          <Text style={[styles.amtDetailsText, { fontSize, fontWeight }]}>{fiatAmount}</Text>
         </Box>
       </Box>
       {satsAmount && (
@@ -695,7 +690,7 @@ function HighFeeAlert({
         <>
           {renderFeeDetails()}
           {renderFeeStats()}
-          <Box width={'70%'}>
+          <Box width="70%">
             <Text style={styles.highFeeNote}>{bottomText}</Text>
           </Box>
         </>
@@ -703,7 +698,7 @@ function HighFeeAlert({
         <>
           {renderFeeDetails()}
           {renderFeeStats()}
-          <Box width={'70%'}>
+          <Box width="70%">
             <Text style={styles.highFeeNote}>{bottomText}</Text>
           </Box>
         </>
@@ -712,7 +707,7 @@ function HighFeeAlert({
           <>
             <Box style={styles.marginBottom}>{renderFeeStats()}</Box>
             {renderFeeDetails()}
-            <Box width={'70%'}>
+            <Box width="70%">
               <Text style={styles.highFeeNote}>{bottomText}</Text>
             </Box>
           </>
@@ -724,12 +719,12 @@ function HighFeeAlert({
 function AddLabel() {
   return (
     <Box
-      flexDirection={'row'}
-      alignItems={'center'}
+      flexDirection="row"
+      alignItems="center"
       backgroundColor={Colors.MintWhisper}
       padding={3}
       borderWidth={1}
-      borderStyle={'dashed'}
+      borderStyle="dashed"
       borderRadius={10}
       borderColor={Colors.GreenishBlue}
       marginTop={10}
@@ -750,10 +745,51 @@ function AddLabel() {
   );
 }
 
-const SigningInfo = ({ onPress, infoText }) => {
+const enum SigningPath {
+  UK_PLUS_AK1 = 1,
+  UK_PLUS_AK2 = 2,
+  UK_ONLY = 3,
+  AK_ONLY = 4,
+}
+
+const getSigningPathInfoText = (signingPath: SigningPath) => {
+  if (signingPath === SigningPath.UK_PLUS_AK1 || signingPath === SigningPath.UK_PLUS_AK2) {
+    return 'Both Assisted Keys and User Key can sign.';
+  } else if (signingPath === SigningPath.UK_ONLY) return 'User Key can sign.';
+  else if (signingPath === SigningPath.AK_ONLY) return 'Both Assisted Keys can sign.';
+  else return 'Invalid signing path.';
+};
+
+const getSigningPath = (availableSigners) => {
+  let signingPath;
+  if (availableSigners[ADVISOR_VAULT_ENTITIES.USER_KEY]) {
+    signingPath = SigningPath.UK_ONLY;
+    if (
+      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1] &&
+      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]
+    ) {
+      signingPath = SigningPath.UK_PLUS_AK1; // singing default w/ AK1
+    }
+  } else {
+    if (
+      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1] &&
+      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]
+    ) {
+      signingPath = SigningPath.AK_ONLY;
+    }
+  }
+
+  return signingPath;
+};
+
+function SigningInfo({ onPress, availableSigners }) {
   const { colorMode } = useColorMode();
+
+  const signingPath = getSigningPath(availableSigners);
+  const disableSelection =
+    signingPath === SigningPath.UK_ONLY || signingPath === SigningPath.AK_ONLY;
   return (
-    <Pressable onPress={onPress} style={styles.signingInfoWrapper}>
+    <Pressable disabled={disableSelection} onPress={onPress} style={styles.signingInfoWrapper}>
       <Box style={styles.signingInfoContainer} background={`${colorMode}.seashellWhite`}>
         <HexagonIcon
           width={37}
@@ -761,12 +797,12 @@ const SigningInfo = ({ onPress, infoText }) => {
           icon={<InfoIcon />}
           backgroundColor={Colors.pantoneGreen}
         />
-        <Text style={styles.infoText}>{infoText}</Text>
+        <Text style={styles.infoText}>{getSigningPathInfoText(signingPath)}</Text>
         <RightArrowIcon style={styles.arrowIcon} />
       </Box>
     </Pressable>
   );
-};
+}
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
@@ -847,15 +883,30 @@ function SendConfirmation({ route }) {
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
-  const [selectedOption, setSelectedOption] = useState<Signer | null>(null);
-  const [externalKeys, setExternalKeys] = useState([]);
+  const [selectedExternalSigner, setSelectedExternalSigner] = useState<VaultSigner | null>(null);
+  const [availableSigners, setAvailableSigners] = useState({});
+  const [externalSigners, setExternalSigners] = useState([]);
   const { signerMap } = useSignerMap();
 
+  const initialiseAvailableSigners = () => {
+    const currentBlockHeight = 1; // TODO: sync and pipe the current block height
+    const availableSigners = getAvailableMiniscriptSigners(sender as Vault, currentBlockHeight);
+    const extSigners = [];
+    for (const key in availableSigners) {
+      if (
+        key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1 ||
+        key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2
+      ) {
+        extSigners.push(signerMap[availableSigners[key].masterFingerprint]);
+      }
+    }
+    setAvailableSigners(availableSigners);
+    setExternalSigners(extSigners);
+  };
+
   useEffect(() => {
-    if (sender.type === VaultType.ASSISTED) {
-      const signers = sender?.signers.map((signer) => signerMap[signer.masterFingerprint]);
-      const externalSigners = signers.filter((signer) => signer?.type === SignerType.KEEPER);
-      setExternalKeys(externalSigners);
+    if ((sender as Vault).type === VaultType.ASSISTED) {
+      initialiseAvailableSigners();
     }
   }, []);
 
@@ -966,8 +1017,8 @@ function SendConfirmation({ route }) {
     }
   };
 
-  const handleOptionSelect = useCallback((option: Signer) => {
-    setSelectedOption(option);
+  const handleOptionSelect = useCallback((option: VaultSigner) => {
+    setSelectedExternalSigner(option);
   }, []);
 
   // useEffect(
@@ -1083,7 +1134,7 @@ function SendConfirmation({ route }) {
           note,
           label,
           vaultId: sender?.id,
-          sender: sender,
+          sender,
           sendConfirmationRouteParams: route.params,
         })
       );
@@ -1258,7 +1309,7 @@ function SendConfirmation({ route }) {
             <TransferCard
               transferFrom
               preTitle={sourceWallet?.presentationData?.name}
-              title={'Available:'}
+              title="Available:"
               subTitle={`${getBalance(sourceWallet?.specs?.balances?.confirmed)} ${getSatUnit()}`}
               currentCurrency={currentCurrency}
               currencyCode={currencyCode}
@@ -1266,7 +1317,7 @@ function SendConfirmation({ route }) {
             <TransferCard
               isVault
               preTitle={defaultVault?.presentationData?.name}
-              title={'Balance:'}
+              title="Balance:"
               subTitle={`${getBalance(defaultVault?.specs?.balances?.confirmed)} ${getSatUnit()}`}
               currentCurrency={currentCurrency}
               currencyCode={currencyCode}
@@ -1344,7 +1395,7 @@ function SendConfirmation({ route }) {
             Signing Info
           </Text>
           <SigningInfo
-            infoText={'Both Assisted Keys and User Key can sign.'}
+            availableSigners={availableSigners}
             onPress={() => setExternalKeySelectionModal(true)}
           />
         </Box>
@@ -1424,8 +1475,8 @@ function SendConfirmation({ route }) {
           <Box style={styles.externalKeyModal}>
             <KeyDropdown
               label="Choose External key"
-              options={externalKeys}
-              selectedOption={selectedOption}
+              options={externalSigners}
+              selectedOption={selectedExternalSigner}
               onOptionSelect={handleOptionSelect}
             />
           </Box>
@@ -1523,7 +1574,7 @@ function SendConfirmation({ route }) {
           />
         )}
       />
-      {/*Fee insight Modal */}
+      {/* Fee insight Modal */}
       <KeeperModal
         visible={feeInsightVisible}
         close={toogleFeesInsightModal}
