@@ -15,7 +15,6 @@ import { useDispatch } from 'react-redux';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import Text from 'src/components/KeeperText';
-import { SignerType } from 'src/services/wallets/enums';
 import crypto from 'crypto';
 import {
   createCipherGcm,
@@ -107,26 +106,22 @@ function RegisterWithChannel() {
       try {
         const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
         const resAdd = decrypted.responseData.data.address;
-        if (resAdd != firstExtAdd) {
-          return;
-        }
-        if (signerType == SignerType.LEDGER) {
-          dispatch(
-            updateKeyDetails(vaultKey, 'registered', {
-              registered: true,
-              vaultId: vault.id,
-            })
-          );
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_REGISTRATION,
-              },
-            ])
-          );
-          navigation.goBack();
-        }
+        if (resAdd != firstExtAdd) return;
+        dispatch(
+          updateKeyDetails(vaultKey, 'registered', {
+            registered: true,
+            vaultId: vault.id,
+          })
+        );
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+            },
+          ])
+        );
+        navigation.goBack();
       } catch (error) {
         captureError(error);
       }
