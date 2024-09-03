@@ -534,7 +534,10 @@
     "highCustom": "Network fee is more than 10% of the amount being sent. Consider using custom fee option.",
     "highWait": "Network fee is 10% higher than usual. If not urgent, consider waiting for the fee to go down.",
     "highUsual": "Network fee is within usual range or lower. A good time to broadcast transactions.",
-    "lowFee": "Network fee is less than 10% of the amount being sent."
+    "lowFee": "Network fee is less than 10% of the amount being sent.",
+    "discardTnxTitle": "Invalid UTXO set",
+    "discardTnxSubTitle": "This transaction's UTXO has already been used.",
+    "discardTnxDesc": "Please discard this transaction and initiate a new one"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
