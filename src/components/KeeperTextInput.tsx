@@ -14,14 +14,16 @@ function KeeperTextInput({
   maxLength = null,
   inputRef = null,
   height = 10,
-  isError = true,
+  isError = false,
   onBlur = () => {},
+  onFocus = () => {},
 }) {
   const { colorMode } = useColorMode();
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Input
         onBlur={onBlur}
+        onFocus={onFocus}
         defaultValue={defaultValue}
         ref={inputRef}
         placeholder={placeholder}

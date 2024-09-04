@@ -432,6 +432,7 @@ function ChoosePlan() {
             setIsInvalidCode(false);
             setActiveOffer(null);
           }}
+          onFocus={() => setIsInvalidCode(false)}
           testID="input_setcode"
         />
         <Box alignItems={'flex-end'}>
