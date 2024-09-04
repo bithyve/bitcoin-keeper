@@ -119,49 +119,17 @@ function SignWithChannel() {
     });
     const onSignedTnx = (data) => {
       try {
-        if (signer.type === SignerType.TREZOR) {
-          const signedSerializedPSBT = data.data.signedSerializedPSBT.psbt;
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
-          );
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
-        } else if (signer.type === SignerType.BITBOX02) {
-          const signedSerializedPSBT = data.data.signedSerializedPSBT.psbt;
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
-          );
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
-        } else if (signer.type === SignerType.LEDGER) {
-          const signedSerializedPSBT = data.data.signedSerializedPSBT;
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-          navgation.dispatch(
-            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
-          );
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
-        }
+        const signedSerializedPSBT = data.data.signedSerializedPSBT;
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+        navgation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
+        );
       } catch (error) {
         captureError(error);
       }
