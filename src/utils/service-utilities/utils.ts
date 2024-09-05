@@ -8,9 +8,15 @@ const crypto = require('crypto');
 export const getDerivationPath = (derivationPath: string) =>
   derivationPath.substring(2).split("'").join('h');
 
-export const getMultiKeyExpressions = (signers: VaultSigner[]) => {
+export const getMultiKeyExpressions = (signers: VaultSigner[], nextFreeAddressIndex?: number) => {
   const keyExpressions = signers.map((signer: VaultSigner) =>
-    getKeyExpression(signer.masterFingerprint, signer.derivationPath, signer.xpub)
+    getKeyExpression(
+      signer.masterFingerprint,
+      signer.derivationPath,
+      signer.xpub,
+      true,
+      nextFreeAddressIndex
+    )
   );
   return keyExpressions.join();
 };
@@ -19,11 +25,18 @@ export const getKeyExpression = (
   masterFingerprint: string,
   derivationPath: string,
   xpub: string,
-  withPathRestrictions: boolean = true
-) =>
-  `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
-    withPathRestrictions ? '/**' : ''
-  }`;
+  withPathRestrictions: boolean = true,
+  nextFreeAddressIndex?: number
+) => {
+  if (nextFreeAddressIndex != undefined)
+    return `[${masterFingerprint}/${getDerivationPath(
+      derivationPath
+    )}]${xpub}/0/${nextFreeAddressIndex}`;
+  else
+    return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
+      withPathRestrictions ? '/**' : ''
+    }`;
+};
 
 export const genrateOutputDescriptors = (
   wallet: Vault | Wallet,
@@ -54,6 +67,44 @@ export const genrateOutputDescriptors = (
   return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)}))${
     includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
   }`;
+};
+
+export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
+  const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
+  const { nextFreeAddressIndex } = wallet.specs;
+
+  if (wallet.entityKind === EntityKind.WALLET) {
+    const {
+      derivationDetails: { xDerivationPath },
+      specs: { xpub },
+    } = wallet as Wallet;
+    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub)})`;
+    return {
+      descriptorString: des,
+      receivingAddress,
+    };
+  }
+  const { signers, scheme, isMultiSig } = wallet as Vault;
+  if (!isMultiSig) {
+    const signer: VaultSigner = signers[0];
+    const des = `wpkh(${getKeyExpression(
+      signer.masterFingerprint,
+      signer.derivationPath,
+      signer.xpub
+    )})`;
+    return {
+      descriptorString: des,
+      receivingAddress,
+    };
+  }
+
+  return {
+    descriptorString: `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+      signers,
+      nextFreeAddressIndex
+    )}))`,
+    receivingAddress,
+  };
 };
 
 // PASRER
