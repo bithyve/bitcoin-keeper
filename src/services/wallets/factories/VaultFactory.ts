@@ -17,7 +17,6 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { getDerivationPath } from 'src/utils/service-utilities/utils';
 import idx from 'idx';
 import {
   EntityKind,
@@ -29,6 +28,7 @@ import {
   VisibilityType,
 } from '../enums';
 import {
+  MiniscriptElements,
   MiniscriptScheme,
   Signer,
   Vault,
@@ -40,13 +40,8 @@ import {
 
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
-import {
-  DEFAULT_MINISCRIPT_POLICIES,
-  generateMiniscript,
-  enrichMiniscriptPolicy,
-  ADVISORY_VAULT_POLICY,
-  ADVISOR_VAULT_ENTITIES,
-} from '../operations/miniscript';
+import { generateMiniscript, ADVISOR_VAULT_ENTITIES } from '../operations/miniscript/miniscript';
+import { generateMiniscriptPolicy } from '../operations/miniscript/policy-generator';
 
 const crypto = require('crypto');
 
@@ -100,10 +95,8 @@ export const generateVault = async ({
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
 
-  if (scheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-    if (!scheme.miniscriptScheme) {
-      throw new Error('miniscriptScheme is required for advisor vaults');
-    }
+  if (scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+    if (!scheme.miniscriptScheme) throw new Error('Input missing: miniscriptScheme');
   } else {
     if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
   }
@@ -412,66 +405,19 @@ export const generateKeyFromXpub = (
 };
 
 export const generateMiniscriptScheme = (
-  multisigScriptType: MultisigScriptType,
-  signers: VaultSigner[],
-  miniscriptSignersMap: { [key: string]: string },
-  timelocks: number[]
+  miniscriptElements: MiniscriptElements
 ): MiniscriptScheme => {
-  let miniscriptScheme: MiniscriptScheme;
-  if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-    let user;
-    let advisor1;
-    let advisor2;
+  const { policy: miniscriptPolicy, keyInfoMap } = generateMiniscriptPolicy(
+    miniscriptElements.phases
+  );
+  const { miniscript } = generateMiniscript(miniscriptPolicy);
+  const miniscriptScheme: MiniscriptScheme = {
+    miniscriptElements,
+    keyInfoMap,
+    miniscriptPolicy,
+    miniscript,
+  };
 
-    for (const key in miniscriptSignersMap) {
-      let currentSigner;
-      for (const signer of signers) {
-        if (signer.masterFingerprint === miniscriptSignersMap[key]) {
-          currentSigner = signer;
-          break;
-        }
-      }
-
-      if (key === ADVISOR_VAULT_ENTITIES.USER_KEY) user = currentSigner;
-      else if (key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1) advisor1 = currentSigner;
-      else if (key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2) advisor2 = currentSigner;
-      else throw new Error('Invalid miniscript signers map');
-    }
-
-    if (!user || !advisor1 || !advisor2) {
-      throw new Error('One or more advisor vault signers missing');
-    }
-
-    const keysInfo = {
-      [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(
-        user.derivationPath
-      )}]${user.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1]: `[${advisor1.masterFingerprint}/${getDerivationPath(
-        advisor1.derivationPath
-      )}]${advisor1.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2]: `[${advisor1.masterFingerprint}/${getDerivationPath(
-        advisor1.derivationPath
-      )}]${advisor1.xpub}/<2;3>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1]: `[${advisor2.masterFingerprint}/${getDerivationPath(
-        advisor2.derivationPath
-      )}]${advisor2.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2]: `[${advisor2.masterFingerprint}/${getDerivationPath(
-        advisor2.derivationPath
-      )}]${advisor2.xpub}/<2;3>/*`,
-    };
-
-    const policy = DEFAULT_MINISCRIPT_POLICIES.ADVISOR_VAULT;
-    const miniscriptPolicy = enrichMiniscriptPolicy(multisigScriptType, policy, timelocks);
-    const { miniscript } = generateMiniscript(miniscriptPolicy);
-
-    miniscriptScheme = {
-      miniscriptPolicy,
-      miniscript,
-      keysInfo,
-      timelocks,
-      miniscriptSignersMap,
-    };
-  } else throw new Error('Unsupported multisigScriptType');
   return miniscriptScheme;
 };
 
@@ -479,15 +425,16 @@ export const getAvailableMiniscriptSigners = (vault: Vault, currentBlockHeight: 
   const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
   if (!miniscriptScheme) return {};
 
-  if (vault.scheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-    const { miniscriptSignersMap, timelocks } = miniscriptScheme;
+  if (vault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+    const { miniscriptElements } = miniscriptScheme;
+    const { timelocks, signerFingerprints } = miniscriptElements;
     const miniscriptSigners = {};
 
-    for (const key in miniscriptSignersMap) {
-      const miniscriptSignerMFP = miniscriptSignersMap[key];
+    for (const id in signerFingerprints) {
+      const miniscriptSignerMFP = signerFingerprints[id];
       for (const signer of vault.signers) {
         if (miniscriptSignerMFP === signer.masterFingerprint) {
-          miniscriptSigners[key] = signer;
+          miniscriptSigners[id] = signer;
           break;
         }
       }
