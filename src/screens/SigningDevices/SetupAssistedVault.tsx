@@ -20,7 +20,6 @@ import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useVault from 'src/hooks/useVault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -32,8 +31,12 @@ import useAssistedWallet from 'src/hooks/useAssistedWallet';
 import HorizontalAddCard from 'src/components/HorizontalAddCard';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
+import {
+  ASSISTED_VAULT_TIMELOCKS,
+  generateAssistedVaultElements,
+} from 'src/services/wallets/operations/miniscript/default/AssistedVault';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
-import { ADVISOR_VAULT_ENTITIES } from 'src/services/wallets/operations/miniscript';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 function SignerItem({
   vaultKey,
@@ -179,7 +182,7 @@ function SetupAssistedVault() {
       }
     } else {
       setAdvisorKeys((prevAdvisorKeys) => {
-        let newSigners = [...prevAdvisorKeys];
+        const newSigners = [...prevAdvisorKeys];
         const newKey = vaultKeys[0];
         const existingIndex = newSigners.findIndex(
           (signer) => signer && signer.masterFingerprint === newKey.masterFingerprint
@@ -199,12 +202,17 @@ function SetupAssistedVault() {
     try {
       setIsCreating(true);
 
-      const multisigScriptType = MultisigScriptType.ADVISOR_VAULT;
-      const miniscriptSignersMap = {
-        [ADVISOR_VAULT_ENTITIES.USER_KEY]: userKey.masterFingerprint,
-        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1]: advisorKeys[0].masterFingerprint,
-        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]: advisorKeys[1].masterFingerprint,
-      };
+      const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
+      // const { currentBlockHeight } = yield call(WalletUtilities.fetchCurrentBlockHeight);
+      const currentBlockHeight = 1000;
+
+      const assistedVaultSigners = [userKey, advisorKeys[0], advisorKeys[1]];
+      const timelocks = [
+        currentBlockHeight + ASSISTED_VAULT_TIMELOCKS.T1,
+        currentBlockHeight + ASSISTED_VAULT_TIMELOCKS.T2,
+      ];
+
+      const miniscriptElements = generateAssistedVaultElements(assistedVaultSigners, timelocks);
 
       const vaultScheme: VaultScheme = {
         ...ASSISTED_WALLET_SCHEME,
@@ -214,13 +222,14 @@ function SetupAssistedVault() {
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.ASSISTED,
         vaultScheme,
-        vaultSigners: [userKey, ...advisorKeys],
-        miniscriptSignersMap,
+        vaultSigners: assistedVaultSigners,
+        miniscriptElements,
         vaultDetails: {
           name: `${common.AssistedWallet} ${assistedWallets.length + 1}`,
           description: '',
         },
       };
+
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       return vaultInfo;
     } catch (err) {
@@ -248,8 +257,7 @@ function SetupAssistedVault() {
   const navigateToNextScreen = () => {
     if (
       hasNewVaultGenerationSucceeded &&
-      [userKey ? userKey : null, ...advisorKeys.filter((item) => !!item)].length ===
-        ASSISTED_WALLET_SCHEME.n
+      [userKey || null, ...advisorKeys.filter((item) => !!item)].length === ASSISTED_WALLET_SCHEME.n
     ) {
       setIsCreating(false);
       const combinedSigners = [
