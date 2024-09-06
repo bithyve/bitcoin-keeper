@@ -12,6 +12,7 @@ import {
 } from '../enums';
 
 import { AddressCache, AddressPubs, WalletPresentationData } from './wallet';
+import { KeyInfo, KeyInfoMap, Phase } from '../operations/miniscript/policy-generator';
 
 export interface VaultPresentationData extends WalletPresentationData {}
 
@@ -31,12 +32,17 @@ export interface VaultSpecs {
   lastSynched: number; // vault's last sync timestamp
 }
 
+export interface MiniscriptElements {
+  keysInfo: KeyInfo[]; // identifier and key descriptor
+  timelocks: number[]; // timelocks
+  phases: Phase[]; // structure for generating miniscript policy
+  signerFingerprints: { [identifier: string]: string }; // miniscript signer key_identifier <> MFP
+}
 export interface MiniscriptScheme {
+  miniscriptElements: MiniscriptElements;
+  keyInfoMap: KeyInfoMap;
   miniscriptPolicy: string; // miniscript policy
   miniscript: string; // miniscript
-  keysInfo: { [keyId: string]: string }; // descriptor keys
-  timelocks: number[]; // timelocks
-  miniscriptSignersMap: { [key: string]: string }; // miniscript signers
 }
 
 export interface VaultScheme {
