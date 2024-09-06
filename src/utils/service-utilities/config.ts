@@ -82,10 +82,6 @@ class Configuration {
 
   public GAP_LIMIT: number = 5;
 
-  public ADVISOR_VAULT_DEFAULT_T1: number = 118080;
-
-  public ADVISOR_VAULT_DEFAULT_T2: number = this.ADVISOR_VAULT_DEFAULT_T1 + 4230;
-
   public RELAY_AXIOS: AxiosInstance = axios.create({
     baseURL: this.RELAY,
     timeout: this.REQUEST_TIMEOUT * 3,
