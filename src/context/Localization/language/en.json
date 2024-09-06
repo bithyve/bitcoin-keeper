@@ -633,7 +633,8 @@
     "archivedVaultsTitle": "Archived Vaults",
     "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining.",
     "archivedVaultEmptyTitle": "View Archived Vaults",
-    "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here."
+    "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here.",
+    "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

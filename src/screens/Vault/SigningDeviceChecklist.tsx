@@ -22,6 +22,8 @@ const getHealthCheckStatusText = (status) => {
       return 'Key used for signing';
     case hcStatusType.HEALTH_CHECK_REGISTRATION:
       return 'Signer used for vault registration';
+    case hcStatusType.HEALTH_CHECK_VERIFICATION:
+      return 'Signer used for vault address verification';
   }
 };
 

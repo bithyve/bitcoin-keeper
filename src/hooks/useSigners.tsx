@@ -10,8 +10,8 @@ const useSigners = (vaultId = ''): { vaultSigners: Signer[]; signers: Signer[] }
   const vaultSigners = [];
   if (vaultId) {
     currentVault = vaults.filtered(`id == "${vaultId}"`)[0];
-    const vaultKeys = (currentVault as Vault).signers;
-    vaultKeys.forEach((key) => {
+    const vaultKeys = (currentVault as Vault)?.signers;
+    vaultKeys?.forEach((key) => {
       const signer = signers.filtered(`masterFingerprint == "${key.masterFingerprint}"`)[0];
       vaultSigners.push(signer.toJSON());
     });

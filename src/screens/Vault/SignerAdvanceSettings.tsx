@@ -330,7 +330,13 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey, vaultId }));
+        navigation.dispatch(
+          CommonActions.navigate('RegisterWithChannel', {
+            vaultKey,
+            vaultId,
+            signerType: signer.type,
+          })
+        );
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
