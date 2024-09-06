@@ -123,6 +123,7 @@ import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRec
 import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
+import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -195,6 +196,10 @@ function AppStack() {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
+        <Stack.Screen
+          name="VerifyAddressSelectionScreen"
+          component={VerifyAddressSelectionScreen}
+        />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />

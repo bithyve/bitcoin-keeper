@@ -34,13 +34,19 @@ import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createCipherGcm, createDecipherGcm } from 'src/utils/service-utilities/utils';
+import {
+  createCipherGcm,
+  createDecipherGcm,
+  generateVaultAddressDescriptors,
+} from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import useVault from 'src/hooks/useVault';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 
 function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
@@ -104,6 +110,7 @@ function ConnectChannel() {
     mode,
     isMultisig,
     addSignerFlow = false,
+    vaultId,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -117,15 +124,48 @@ function ConnectChannel() {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
+  let descriptorString;
+  let receivingAddress;
+
+  if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+    const { activeVault: vault } = useVault({ vaultId });
+    const resp = generateVaultAddressDescriptors(vault);
+    descriptorString = resp.descriptorString;
+    receivingAddress = resp.receivingAddress;
+  }
+
+  const requestBody: RequestBody = {
+    action:
+      mode === InteracationMode.ADDRESS_VERIFICATION
+        ? EMIT_MODES.VERIFY_ADDRESS
+        : mode == EMIT_MODES.HEALTH_CHECK
+        ? EMIT_MODES.HEALTH_CHECK
+        : EMIT_MODES.ADD_DEVICE,
+    signerType,
+  };
+  if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+    requestBody.descriptorString = descriptorString ?? null;
+    requestBody.receivingAddress = receivingAddress ?? null;
+  }
+
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
-    const requestBody = {
-      action: mode == EMIT_MODES.HEALTH_CHECK ? EMIT_MODES.HEALTH_CHECK : EMIT_MODES.ADD_DEVICE,
+    const requestBody: RequestBody = {
+      action:
+        mode === InteracationMode.ADDRESS_VERIFICATION
+          ? EMIT_MODES.VERIFY_ADDRESS
+          : mode == EMIT_MODES.HEALTH_CHECK
+          ? EMIT_MODES.HEALTH_CHECK
+          : EMIT_MODES.ADD_DEVICE,
       signerType,
     };
+    if (InteracationMode.ADDRESS_VERIFICATION) {
+      requestBody.descriptorString = descriptorString;
+      requestBody.receivingAddress = receivingAddress;
+    }
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
   };
@@ -138,6 +178,25 @@ function ConnectChannel() {
         if (mode == EMIT_MODES.HEALTH_CHECK) {
           const type = HEALTH_CHECK_TYPES[signerType];
           await handleVerification(responseData, type);
+        } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
+          const resAdd = responseData.address;
+          if (resAdd != receivingAddress) return;
+          dispatch(
+            updateKeyDetails(signer, 'registered', {
+              registered: true,
+              vaultId,
+            })
+          );
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_VERIFICATION,
+              },
+            ])
+          );
+          navigation.goBack();
+          showToast(`Address verified successfully`, <TickIcon />);
         } else {
           signerType == SignerType.LEDGER && ledgerSetup(responseData);
           signerType == SignerType.BITBOX02 && bitBoxSetup(responseData);
@@ -346,6 +405,13 @@ function ConnectChannel() {
 }
 
 export default ConnectChannel;
+
+type RequestBody = {
+  action: string;
+  signerType: string;
+  descriptorString?: string;
+  receivingAddress?: string;
+};
 
 const styles = StyleSheet.create({
   container: {

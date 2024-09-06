@@ -22,6 +22,7 @@ export type AppStackParams = {
   Send: undefined;
   UTXOLabeling: undefined;
   Receive: undefined;
+  VerifyAddressSelectionScreen: undefined;
   ChangeLanguage: undefined;
   ChoosePlan: undefined;
   EnterWalletDetail: undefined;
