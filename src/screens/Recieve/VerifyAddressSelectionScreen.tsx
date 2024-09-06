@@ -1,6 +1,6 @@
 import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -11,19 +11,25 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
-import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSigners from 'src/hooks/useSigners';
 
 const { width } = Dimensions.get('screen');
 
 function VerifyAddressSelectionScreen() {
   const { params } = useRoute();
   const { colorMode } = useColorMode();
-  const { availableSigners, vaultId } = params as {
-    availableSigners: VaultSigner[];
+  const { vaultId, signersMFP } = params as {
     vaultId: string;
+    signersMFP: string[];
   };
+
+  const { vaultSigners } = useSigners(vaultId);
+  const [availableSigners] = useState(
+    vaultSigners.filter((signer) => signersMFP?.includes(signer.masterFingerprint))
+  );
+
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText } = translations;
@@ -35,7 +41,7 @@ function VerifyAddressSelectionScreen() {
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
         data={availableSigners}
-        keyExtractor={(item) => item.xfp}
+        keyExtractor={(item) => item.masterFingerprint}
         renderItem={({ item }) => (
           <SignerCard
             onPress={(signer, signerName) => {
@@ -95,12 +101,7 @@ const SignerCard = ({ onPress, signer }) => {
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>
-              <Text
-                color={`${colorMode}.textBlack`}
-                fontSize={14}
-                letterSpacing={1.12}
-                maxWidth={width * 0.6}
-              >
+              <Text fontSize={14} letterSpacing={1.12} maxWidth={width * 0.6}>
                 {`${signerName}`}
               </Text>
               <Text

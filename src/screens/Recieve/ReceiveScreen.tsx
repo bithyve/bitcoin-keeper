@@ -121,9 +121,10 @@ function ReceiveScreen({ route }: { route }) {
   }
 
   const onVerifyAddress = () => {
+    const signersMFP = addVerifiableSigners.map((signer) => signer.masterFingerprint);
     navigation.dispatch(
       CommonActions.navigate('VerifyAddressSelectionScreen', {
-        availableSigners: addVerifiableSigners,
+        signersMFP,
         vaultId: wallet.id,
       })
     );
