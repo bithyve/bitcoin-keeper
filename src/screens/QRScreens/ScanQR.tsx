@@ -292,7 +292,6 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     position: 'absolute',
-    left: wp(90),
     zIndex: 999,
     justifyContent: 'center',
   },
