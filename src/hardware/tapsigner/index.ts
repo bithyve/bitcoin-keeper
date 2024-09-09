@@ -66,6 +66,15 @@ export const unlockRateLimit = async (card: CKTapCard) => {
     }
   }
 };
+export const changePin = async (card: CKTapCard, oldCVC: string, newCVC: string) => {
+  const status = await card.first_look();
+  console.log('🚀 ~ changePin ~ status:', status);
+  const isLegit = await card.certificate_check();
+  console.log('🚀 ~ changePin ~ isLegit:', isLegit);
+  const res = await card.change_cvc(oldCVC, newCVC);
+  console.log('🚀 ~ changePin ~ res:', res);
+  return res;
+};
 
 export const signWithTapsigner = async (
   card: CKTapCard,

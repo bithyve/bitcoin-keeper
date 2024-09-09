@@ -495,6 +495,16 @@ function SignerAdvanceSettings({ route }: any) {
       })
     );
   };
+  const onChangeTapsignerPin = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChangeTapsignerPin',
+        params: {
+          signer: signer,
+        },
+      })
+    );
+  };
 
   const signPSBT = async (serializedPSBT, resetQR) => {
     try {
@@ -878,6 +888,13 @@ function SignerAdvanceSettings({ route }: any) {
             title="Unlock Card"
             description="Run the unlock card process if it's rate-limited"
             callback={navigateToUnlockTapsigner}
+          />
+        )}
+        {isTapsigner && (
+          <OptionCard
+            title="Pin Reset"
+            description="Change the pin"
+            callback={onChangeTapsignerPin}
           />
         )}
         {(isAppKey || isMyAppKey) && (

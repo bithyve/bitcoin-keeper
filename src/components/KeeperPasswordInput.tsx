@@ -7,16 +7,29 @@ import EyeClose from 'src/assets/images/eye_close.svg';
 type KeeperPasswordInputType = {
   onPress: () => void;
   value: string;
+  isActive: boolean;
+  placeholder: string;
 };
 
-export const KeeperPasswordInput = ({ value, onPress }: KeeperPasswordInputType) => {
+export const KeeperPasswordInput = ({
+  value,
+  onPress,
+  isActive,
+  placeholder,
+}: KeeperPasswordInputType) => {
   const { colorMode } = useColorMode();
   const [passwordVisible, setPasswordVisible] = useState(false);
   return (
     <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
-      <Box height={10} backgroundColor={`${colorMode}.seashellWhite`} style={styles.ctr}>
-        <Text style={styles.txt} color={`${colorMode}.primaryText`}>
-          {value ? (passwordVisible ? value : '*'.repeat(value.length)) : '*'.repeat(8)}
+      <Box
+        height={10}
+        backgroundColor={`${colorMode}.seashellWhite`}
+        borderWidth={1}
+        borderColor={isActive ? `${colorMode}.textColor` : 'transparent'}
+        style={styles.ctr}
+      >
+        <Text style={styles.txt} color={value ? `${colorMode}.primaryText` : 'grey'}>
+          {value ? (passwordVisible ? value : '*'.repeat(value.length)) : placeholder}
         </Text>
         <Pressable style={styles.eyeCtr} onPress={() => setPasswordVisible(!passwordVisible)}>
           {passwordVisible ? <EyeOpen /> : <EyeClose />}
@@ -29,7 +42,7 @@ export const KeeperPasswordInput = ({ value, onPress }: KeeperPasswordInputType)
 const styles = StyleSheet.create({
   ctr: {
     borderRadius: 10,
-    marginVertical: 10,
+    marginTop: 5,
     paddingLeft: 12,
     flexDirection: 'row',
   },

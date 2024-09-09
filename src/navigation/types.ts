@@ -95,6 +95,7 @@ export type AppStackParams = {
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
   UnlockTapsigner: undefined;
+  ChangeTapsignerPin: undefined;
   UTXOSelection: { sender: Wallet | Vault; amount: string; address: string };
   VaultCreationOptions: undefined;
   VaultConfigurationCreation: undefined;

@@ -83,6 +83,7 @@ import SetupOtherSDScreen from 'src/screens/SigningDevices/SetupOtherSDScreen';
 import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
+import ChangeTapsignerPin from 'src/screens/SigningDevices/ChangeTapsignerPin';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
@@ -276,6 +277,7 @@ function AppStack() {
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
+        <Stack.Screen name="ChangeTapsignerPin" component={ChangeTapsignerPin} />
         <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
         <Stack.Screen name="VaultCreationOptions" component={VaultCreationOptions} />
         <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
