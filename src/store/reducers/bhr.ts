@@ -41,6 +41,9 @@ const initialState: {
   isCloudBsmsBackupRequired: boolean;
   lastBsmsBackup?: number;
   encPassword?: string;
+
+  deletingKeyModalVisible: boolean;
+  keyDeletedSuccessModalVisible: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -76,6 +79,8 @@ const initialState: {
   isCloudBsmsBackupRequired: false,
   lastBsmsBackup: null,
   encPassword: '',
+  deletingKeyModalVisible: false,
+  keyDeletedSuccessModalVisible: false,
 };
 
 const bhrSlice = createSlice({
@@ -208,6 +213,18 @@ const bhrSlice = createSlice({
     setEncPassword: (state, action: PayloadAction<string>) => {
       state.encPassword = action.payload;
     },
+    showDeletingKeyModal: (state) => {
+      state.deletingKeyModalVisible = true;
+    },
+    hideDeletingKeyModal: (state) => {
+      state.deletingKeyModalVisible = false;
+    },
+    showKeyDeletedSuccessModal: (state) => {
+      state.keyDeletedSuccessModalVisible = true;
+    },
+    hideKeyDeletedSuccessModal: (state) => {
+      state.keyDeletedSuccessModalVisible = false;
+    },
   },
 });
 
@@ -249,6 +266,11 @@ export const {
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
   setEncPassword,
+
+  showDeletingKeyModal,
+  hideDeletingKeyModal,
+  showKeyDeletedSuccessModal,
+  hideKeyDeletedSuccessModal,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
