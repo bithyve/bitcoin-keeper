@@ -180,11 +180,12 @@ function ImportWalletScreen() {
             Content={ImportWalletContent}
             DarkCloseIcon
             learnMore
+            learnMoreTitle={common.needHelp}
             learnMoreCallback={() => {
               setIntroModal(false);
               dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet'));
             }}
-            buttonText="Continue"
+            buttonText={common.ok}
             buttonTextColor={`${colorMode}.modalWhiteButtonText`}
             buttonBackground={`${colorMode}.modalWhiteButton`}
             buttonCallback={() => setIntroModal(false)}

@@ -71,7 +71,7 @@ function SigningDeviceList() {
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
-  const { vault } = translations;
+  const { vault, common } = translations;
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
@@ -264,7 +264,7 @@ function SigningDeviceList() {
         modalBackground={`${colorMode}.modalGreenBackground`}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText="Add Now"
+        buttonText={common.ok}
         buttonCallback={() => {
           dispatch(setSdIntroModal(false));
         }}
@@ -272,6 +272,7 @@ function SigningDeviceList() {
         Content={VaultSetupContent}
         DarkCloseIcon
         learnMore
+        learnMoreTitle={common.needHelp}
         learnMoreCallback={() => {
           dispatch(setSdIntroModal(false));
           reduxDispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'));
