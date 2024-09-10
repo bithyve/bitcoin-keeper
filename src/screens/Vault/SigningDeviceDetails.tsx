@@ -526,12 +526,13 @@ function SigningDeviceDetails({ route }) {
         }}
         Content={SignerContent}
         subTitleWidth={wp(280)}
-        buttonText={common.proceed}
+        buttonText={common.ok}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => setDetailModal(false)}
         DarkCloseIcon
         learnMore
+        learnMoreTitle={common.needHelp}
       />
       <KeeperModal
         visible={showMobileKeyModal}

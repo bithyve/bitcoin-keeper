@@ -246,7 +246,8 @@ function VaultConfigurationCreation() {
         Content={ImportVaultContent}
         DarkCloseIcon
         learnMore
-        buttonText="Continue"
+        learnMoreTitle={common.needHelp}
+        buttonText={common.ok}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => setShowModal(false)}

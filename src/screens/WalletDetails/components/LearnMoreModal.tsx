@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
@@ -8,6 +8,7 @@ import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function LinkedWalletContent() {
   return (
@@ -26,6 +27,8 @@ function LinkedWalletContent() {
 function LearnMoreModal({ introModal, setIntroModal }) {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <KeeperModal
       visible={introModal}
@@ -39,12 +42,13 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       Content={LinkedWalletContent}
       DarkCloseIcon
       learnMore
+      learnMoreTitle={common.needHelp}
       showCloseIcon={false}
       learnMoreCallback={() => {
         dispatch(setIntroModal(false));
         dispatch(goToConcierge([ConciergeTag.WALLET], 'wallet-details'));
       }}
-      buttonText="Back to Wallet"
+      buttonText={common.ok}
       buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => dispatch(setIntroModal(false))}
