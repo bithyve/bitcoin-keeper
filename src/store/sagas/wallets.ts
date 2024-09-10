@@ -19,6 +19,7 @@ import {
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
+  MiniscriptElements,
   MiniscriptScheme,
   Signer,
   Vault,
@@ -522,7 +523,7 @@ export interface NewVaultInfo {
   vaultType: VaultType;
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
-  miniscriptSignersMap?: { [key: string]: string };
+  miniscriptElements?: MiniscriptElements;
   vaultDetails?: NewVaultDetails;
 }
 
@@ -550,21 +551,15 @@ export function* addNewVaultWorker({
         vaultType = VaultType.DEFAULT,
         vaultScheme,
         vaultSigners,
-        miniscriptSignersMap,
+        miniscriptElements,
         vaultDetails,
       } = newVaultInfo;
 
-      if (vaultScheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-        const { currentBlockHeight } = yield call(WalletUtilities.fetchCurrentBlockHeight);
-        const T1 = config.ADVISOR_VAULT_DEFAULT_T1;
-        const T2 = config.ADVISOR_VAULT_DEFAULT_T2;
-        const timelocks = [currentBlockHeight + T1, currentBlockHeight + T2];
+      if (vaultScheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+        if (!miniscriptElements) throw new Error('Miniscript elements missing');
         const miniscriptScheme: MiniscriptScheme = yield call(
           generateMiniscriptScheme,
-          vaultScheme.multisigScriptType,
-          vaultSigners,
-          miniscriptSignersMap,
-          timelocks
+          miniscriptElements
         );
         vaultScheme.miniscriptScheme = miniscriptScheme;
       }
@@ -600,10 +595,8 @@ export function* addNewVaultWorker({
         yield call(finaliseIKSetupWorker, { payload: { ikSigner, ikVaultKey, vault } });
       }
     }
-
     yield put(setRelayVaultUpdateLoading(true));
     const newVaultResponse = yield call(updateVaultImageWorker, { payload: { vault } });
-
     if (newVaultResponse.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
       yield put(uaiChecks([uaiType.SECURE_VAULT]));

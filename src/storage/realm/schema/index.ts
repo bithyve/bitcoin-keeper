@@ -31,8 +31,12 @@ import {
   InheritancePolicyNotificationSchema,
   InheritancePolicyAlertSchema,
   HealthCheckDetails,
+  MiniscriptElementsSchema,
   MiniscriptSchemeSchema,
   VaultSchemeSchema,
+  MiniscriptKeyInfoSchema,
+  MiniscriptPathSchema,
+  MiniscriptPhaseSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
 import { UAIDetailsSchema, UAISchema } from './uai';
@@ -72,6 +76,10 @@ export default [
   InheritancePolicyAlertSchema,
   InheritancePolicySchema,
   InheritanceKeyInfoSchema,
+  MiniscriptKeyInfoSchema,
+  MiniscriptPathSchema,
+  MiniscriptPhaseSchema,
+  MiniscriptElementsSchema,
   MiniscriptSchemeSchema,
   VaultSchemeSchema,
   VaultSpecsSchema,

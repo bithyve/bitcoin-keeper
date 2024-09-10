@@ -44,7 +44,7 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import { ADVISORY_VAULT_POLICY, generateScriptWitnesses } from './miniscript';
+import { ADVISORY_VAULT_POLICY, generateScriptWitnesses } from './miniscript/miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -862,7 +862,7 @@ export default class WalletOperations {
             pubkey: signerPubkeyMap.get(signer.xpub),
           });
         }
-      } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+      } else if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
         const { miniscriptScheme } = (wallet as Vault).scheme;
         if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
@@ -949,7 +949,7 @@ export default class WalletOperations {
           pubkey: signerPubkeyMap.get(signer.xpub),
         });
       }
-    } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+    } else if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
       const { miniscriptScheme } = (wallet as Vault).scheme;
       if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
@@ -1213,7 +1213,7 @@ export default class WalletOperations {
             publicKey = singlesigAddress.publicKey;
             subPath = singlesigAddress.subPath;
           }
-        } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+        } else if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
           const { miniscriptScheme } = (wallet as Vault).scheme;
           if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
@@ -1371,7 +1371,7 @@ export default class WalletOperations {
     // setting time lock(case: advisor vault)
     if (wallet.entityKind === EntityKind.VAULT) {
       const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
-      if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+      if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
         if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
 
         const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
@@ -1480,7 +1480,7 @@ export default class WalletOperations {
       let tx;
       if (wallet.entityKind === EntityKind.VAULT) {
         const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
-        if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+        if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
           if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
 
           const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
