@@ -28,7 +28,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
-import { wp } from 'src/constants/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import Relay from 'src/services/backend/Relay';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
@@ -47,6 +47,7 @@ import Colors from 'src/theme/Colors';
 import TierUpgradeModal from './TierUpgradeModal';
 import PlanCheckMark from 'src/assets/images/planCheckMark.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Buttons from 'src/components/Buttons';
 const { width } = Dimensions.get('window');
 
 function ChoosePlan() {
@@ -435,8 +436,15 @@ function ChoosePlan() {
           onFocus={() => setIsInvalidCode(false)}
           testID="input_setcode"
         />
-        <Box alignItems={'flex-end'}>
-          <CustomGreenButton value="Subscribe Now" disabled={!activeOffer} onPress={onSubscribe} />
+        <Box alignItems={'flex-end'} mt={hp(20)}>
+          <Buttons
+            primaryText="Subscribe Now"
+            primaryDisable={!activeOffer}
+            primaryCallback={onSubscribe}
+            paddingHorizontal={wp(20)}
+            secondaryText="Cancel"
+            secondaryCallback={() => setShowPromocodeModal(false)}
+          />
         </Box>
       </Box>
     );
