@@ -997,7 +997,9 @@
     "signerAddedSuccessMessage": "Signer added Successfully!",
     "signerAvailableMessage": "The signer key is now available to use for creating vaults",
     "signerDeatils": "Signer Details",
-    "signerAddedDesc": "Perform regular health checks on your signer key"
+    "signerAddedDesc": "Perform regular health checks on your signer key",
+    "forgot2FA": "Forgot 2FA",
+    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
