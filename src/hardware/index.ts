@@ -419,7 +419,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Passport signers from Foundation Devices';
     }
     case SignerType.BITBOX02: {
-      return 'Swiss Made signer from BitBox';
+      return 'Swiss made signer from BitBox';
     }
     case SignerType.SPECTER: {
       return 'A DIY signer from Spector Solutions';
@@ -428,7 +428,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Open Source signer from keyst.one';
     }
     case SignerType.JADE: {
-      return 'Great signer from Blockstream';
+      return 'Simple and open source bitcoin wallet';
     }
     case SignerType.MY_KEEPER: {
       return 'Use Mobile Key as signer';

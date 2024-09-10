@@ -66,7 +66,7 @@ export const securityTips = [
     subTitle: 'Unlock inheritance planning at the Diamond Hands tier.',
     assert: <LoadingAnimation />,
     message:
-      'You can change your subscription at anytime from within the app or from the subscription details in your profile.',
+      'You can change your subscription at any time within the app or through your App Store/Play Store subscription details.',
   },
   {
     title: 'Keep your signing devices safe',
