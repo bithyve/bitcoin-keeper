@@ -1518,7 +1518,7 @@ function HardwareModalMap({
 
   function SigningServerOTPModal() {
     const { translations } = useContext(LocalizationContext);
-    const { vault: vaultTranslation, common } = translations;
+    const { vault: vaultTranslation, common, signer: signerTranslation } = translations;
 
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
@@ -1557,8 +1557,8 @@ function HardwareModalMap({
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
-              <CustomGreenButton
-                onPress={() => {
+              <Buttons
+                primaryCallback={() => {
                   if (mode === InteracationMode.HEALTH_CHECK) {
                     checkSigningServerHealth();
                     setSigningServerHealthCheckOTPModal(false);
@@ -1576,7 +1576,14 @@ function HardwareModalMap({
                     }
                   }
                 }}
-                value={common.confirm}
+                primaryText={common.confirm}
+                secondaryText={
+                  mode === InteracationMode.HEALTH_CHECK && signerTranslation.forgot2FA
+                }
+                secondaryCallback={() => {
+                  setSigningServerHealthCheckOTPModal(false);
+                  showToast(signerTranslation.forgot2FANote, null, IToastCategory.DEFAULT, 5000);
+                }}
               />
             </Box>
           </Box>
