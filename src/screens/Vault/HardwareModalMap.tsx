@@ -32,7 +32,7 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
+import SeedSignerSetupImage from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';

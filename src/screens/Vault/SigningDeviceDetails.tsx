@@ -10,7 +10,7 @@ import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
+import SeedSigner from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
 import Keystone from 'src/assets/images/keystone_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
