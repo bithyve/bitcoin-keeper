@@ -115,6 +115,7 @@ export const customTheme = extendTheme({
       inActiveMsg: Colors.RichBlack,
       vaultCardText: Colors.Bisque,
       walletTypePillBack: Colors.Bisque,
+      pillPlaceholderBack: Colors.LightKhaki,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.RichGreen, // linearGradient
@@ -241,6 +242,7 @@ export const customTheme = extendTheme({
       inActiveMsg: Colors.SpanishGray,
       vaultCardText: Colors.Bisque,
       walletTypePillBack: Colors.BisqueDark,
+      pillPlaceholderBack: Colors.BisqueDark,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.DeepAquamarine, // linearGradient
