@@ -8,7 +8,7 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
 import SettingsIcon from 'src/assets/images/settings_white.svg';
-import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import WalletIcon from 'src/assets/images/manage-wallet-icon.svg';
 import CloudIcon from 'src/assets/images/cloud-white.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import TwitterDark from 'src/assets/images/Twitter-white.svg';
