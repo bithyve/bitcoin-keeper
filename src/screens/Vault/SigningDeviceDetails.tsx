@@ -73,17 +73,17 @@ const getSignerContent = (type: SignerType) => {
           'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
         assert: <ColdCardSetupImage />,
         description:
-          '\u2022 Coldcard provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signer (hardware wallet) with the option to avoid ever being connected to a computer.',
+          '\u2022 Coldcard provides the best physical security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.',
         FAQ: 'https://coldcard.com/docs/faq',
       };
     case SignerType.TAPSIGNER:
       return {
         title: 'TAPSIGNER',
         subTitle:
-          'TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone',
+          'TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone.',
         assert: <TapsignerSetupImage />,
         description:
-          '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s) \n\u2022 The card form factor makes it easy to carry and easy to conceal',
+          '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s). \n\u2022 The card form factor makes it easy to carry and easy to conceal.',
         FAQ: 'https://tapsigner.com/faq',
       };
     case SignerType.LEDGER:
@@ -140,7 +140,7 @@ const getSignerContent = (type: SignerType) => {
         subTitle: 'You could use a newly generated seed (12 words) as one of the signing keys',
         assert: <SeedWordsIllustration />,
         description:
-          '\u2022Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
+          '\u2022 Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
         FAQ: '',
       };
     case SignerType.MY_KEEPER:
@@ -150,7 +150,7 @@ const getSignerContent = (type: SignerType) => {
         subTitle: 'You can use a specific BIP-85 wallet on Keeper as a signer',
         assert: <KeeperSetupImage />,
         description:
-          '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
+          '\u2022 Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used.',
         FAQ: KEEPER_KNOWLEDGEBASE,
       };
     case SignerType.POLICY_SERVER:
@@ -160,7 +160,7 @@ const getSignerContent = (type: SignerType) => {
           'The key on the signer will sign a transaction depending on the policy and authentication',
         assert: <SigningServerIllustration />,
         description:
-          '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
+          '\u2022 An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
         FAQ: '',
       };
     case SignerType.BITBOX02:
