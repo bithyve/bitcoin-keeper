@@ -56,7 +56,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
         {'\u2022 Please resigter the vault from the Keeper Desktop App'}
       </Text>
-      <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+      <Text numberOfLines={4} color={`${colorMode}.greenText`} style={styles.instructions}>
         {
           '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
         }
