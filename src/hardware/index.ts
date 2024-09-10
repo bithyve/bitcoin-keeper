@@ -128,7 +128,7 @@ export const getSignerDescription = (
     } else if (signerType === SignerType.KEEPER) {
       return 'External';
     } else {
-      return `Added ${moment(signer.addedOn).calendar()}`;
+      return `Added ${moment(signer.addedOn).calendar().toLowerCase()}`;
     }
   }
   if (signerType === SignerType.MY_KEEPER) {
