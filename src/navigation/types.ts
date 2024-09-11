@@ -8,6 +8,7 @@ export type AppStackParams = {
   AddTapsigner: undefined;
   SignWithTapsigner: undefined;
   AddColdCard: undefined;
+  PassportConfigRecovery: undefined;
   AppSettings: undefined;
   AppVersionHistory: undefined;
   TorSettings: undefined;
@@ -21,6 +22,7 @@ export type AppStackParams = {
   Send: undefined;
   UTXOLabeling: undefined;
   Receive: undefined;
+  VerifyAddressSelectionScreen: undefined;
   ChangeLanguage: undefined;
   ChoosePlan: undefined;
   EnterWalletDetail: undefined;
@@ -63,7 +65,6 @@ export type AppStackParams = {
   AddSigningDevice: undefined;
   SetupSigningServer: undefined;
   SetupSeedWordSigner: undefined;
-  InputSeedWordSigner: undefined;
   ArchivedVault: undefined;
   VaultSettings: undefined;
   SignWithColdCard: undefined;
@@ -122,6 +123,9 @@ export type AppStackParams = {
   ManageSigners: {
     vaultId: string;
     vaultKeys: VaultSigner[];
+    addedSigner: Signer;
+    addSignerFlow: boolean;
+    showModal?: boolean;
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;

@@ -20,7 +20,7 @@ import HWError from 'src/hardware/HWErrorState';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { Signer } from 'src/services/wallets/interfaces/vault';
@@ -28,6 +28,7 @@ import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const getTitle = (mode) => {
   switch (mode) {
@@ -125,16 +126,17 @@ function SetupColdCard({ route }) {
       } else {
         dispatch(addSigningDevice([coldcard]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
+          ? {
+              name: 'ManageSigners',
+              params: { addedSigner: coldcard, addSignerFlow, showModal: true },
+            }
+          : {
+              name: 'AddSigningDevice',
+              merge: true,
+              params: { addedSigner: coldcard, addSignerFlow, showModal: true },
+            };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-
-      showToast(
-        `${coldcard.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
     } catch (error) {
       handleNFCError(error);
     }
@@ -144,11 +146,26 @@ function SetupColdCard({ route }) {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { masterFingerprint } = ccDetails;
       const ColdCardVerified = () => {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         navigation.dispatch(CommonActions.goBack());
         showToast('ColdCard verified successfully', <TickIcon />);
       };
       const showVerificationError = () => {
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_FAILED,
+            },
+          ])
+        );
         showToast('Something went wrong!', <ToastErrorIcon />);
       };
       if (mode === InteracationMode.IDENTIFICATION) {
@@ -175,7 +192,7 @@ function SetupColdCard({ route }) {
   };
 
   const instructions = isConfigRecovery
-    ? 'Export the Vault config by going to Setting > Multisig > Then select the wallet > Export'
+    ? 'Export the Vault config by going to Settings > Multisig Wallets > <Your Wallet> > Descriptors > Export > Press 3 to share via NFC'
     : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).\n';
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>

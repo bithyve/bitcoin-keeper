@@ -100,9 +100,9 @@ function CustomPriorityModal(props) {
   useEffect(() => {
     if (customSendPhaseOneResults.failedErrorMessage) {
       showToast(customSendPhaseOneResults.failedErrorMessage);
-      buttonCallback(false);
+      buttonCallback(false, '');
     } else if (customSendPhaseOneResults.isSuccessful) {
-      buttonCallback(true);
+      buttonCallback(true, customPriorityFee);
     }
   }, [customSendPhaseOneResults]);
 

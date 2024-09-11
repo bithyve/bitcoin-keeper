@@ -119,23 +119,25 @@ export const signTransactionWithInheritanceKey = async ({
   signingPayload,
   serializedPSBT,
   xfp,
-  thresholdDescriptors,
+  requestId,
+  inheritanceConfiguration,
+  showToast,
 }) => {
   try {
     const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     if (!childIndexArray) throw new Error('Invalid signing payload');
 
-    const { signedPSBT } = await InheritanceKeyServer.signPSBT(
+    const { requestStatus, signedPSBT } = await InheritanceKeyServer.signPSBT(
       xfp,
+      requestId,
       serializedPSBT,
-      childIndexArray
-      // thresholdDescriptors
+      childIndexArray,
+      inheritanceConfiguration
     );
-    if (!signedPSBT) throw new Error('inheritance key server: failed to sign');
-    return { signedSerializedPSBT: signedPSBT };
+    return { requestStatus, signedSerializedPSBT: signedPSBT };
   } catch (error) {
     captureError(error);
-    Alert.alert(error.message);
+    showToast(`${error.message}`);
   }
 };
 

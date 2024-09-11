@@ -10,11 +10,11 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
+import { uaiType } from 'src/models/interfaces/Uai';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import WalletInfoCard from './WalletInfoCard';
 import BalanceComponent from './BalanceComponent';
 import WalletInfoEmptyState from './WalletInfoEmptyState';
-import { uaiType } from 'src/models/interfaces/Uai';
-import WalletUtilities from 'src/services/wallets/operations/utils';
 
 export function WalletsList({
   allWallets,
@@ -25,7 +25,7 @@ export function WalletsList({
   typeBasedIndicator,
 }) {
   return (
-    <Box style={styles.valueWrapper} testID='wallet_list'>
+    <Box style={styles.valueWrapper} testID="wallet_list">
       <BalanceComponent
         setIsShowAmount={setIsShowAmount}
         isShowAmount={isShowAmount}
@@ -71,18 +71,21 @@ export function WalletsList({
 
 const handleWalletPress = (wallet, navigation) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    navigation.navigate('VaultDetails', { vaultId: wallet.id });
+    navigation.navigate('VaultDetails', { vaultId: wallet.id, autoRefresh: true });
   } else {
-    navigation.navigate('WalletDetails', { walletId: wallet.id });
+    navigation.navigate('WalletDetails', { walletId: wallet.id, autoRefresh: true });
   }
 };
 
 const getWalletTags = (wallet) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    return [
-      `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
-      `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
-    ];
+    if (wallet.type === VaultType.SINGE_SIG) {
+      return ['Single-key', 'Cold'];
+    } else
+      return [
+        `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
+        `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
+      ];
   } else {
     let walletKind;
     if (wallet.type === WalletType.DEFAULT) walletKind = 'HOT WALLET';
@@ -93,8 +96,9 @@ const getWalletTags = (wallet) => {
     }
     let isTaprootWallet = false;
     const derivationPath = idx(wallet, (_) => _.derivationDetails.xDerivationPath);
-    if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86)
+    if (derivationPath && WalletUtilities.getPurpose(derivationPath) === DerivationPurpose.BIP86) {
       isTaprootWallet = true;
+    }
     if (isTaprootWallet) return ['TAPROOT', walletKind];
     else return ['SINGLE-KEY', walletKind];
   }
@@ -102,7 +106,8 @@ const getWalletTags = (wallet) => {
 
 const getWalletIcon = (wallet) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
+    else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
   } else {
     return <WalletIcon />;
   }

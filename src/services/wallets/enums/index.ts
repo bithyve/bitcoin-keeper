@@ -80,6 +80,7 @@ export enum VaultType {
   DEFAULT = 'DEFAULT',
   COLLABORATIVE = 'COLLABORATIVE',
   CANARY = 'CANARY',
+  SINGE_SIG = 'SINGE_SIG',
 }
 
 export enum VaultMigrationType {

@@ -231,6 +231,7 @@ export default class InheritanceKeyServer {
 
   static signPSBT = async (
     id: string,
+    requestId: string,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -239,35 +240,43 @@ export default class InheritanceKeyServer {
         vout: number;
         value: number;
       };
-    }>
-    // thresholdDescriptors: string[]
+    }>,
+    inheritanceConfiguration: InheritanceConfiguration
   ): Promise<{
-    signedPSBT: string;
+    requestStatus: {
+      approvesIn: number;
+      isApproved: boolean;
+      isDeclined: boolean;
+    };
+    signedPSBT?: string;
   }> => {
     let res: AxiosResponse;
 
-    // const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
-    //   inheritanceConfiguration,
-    //   id
-    // );
+    const thresholdDescriptors = InheritanceKeyServer.getThresholdDescriptors(
+      inheritanceConfiguration,
+      id
+    );
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/signTransactionViaInheritanceKey`, {
         HEXA_ID,
         id,
+        requestId,
         serializedPSBT,
         childIndexArray,
-        // thresholdDescriptors,
+        thresholdDescriptors,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
 
-    const { signedPSBT } = res.data;
-    return {
-      signedPSBT,
-    };
+    const { requestStatus, signedPSBT } = res.data;
+    if (requestStatus.isApproved) {
+      return { requestStatus, signedPSBT };
+    } else {
+      return { requestStatus };
+    }
   };
 
   static checkIKSHealth = async (
@@ -341,6 +350,7 @@ export default class InheritanceKeyServer {
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/declineInheritanceKeyRequest`, {
         HEXA_ID,
+        isKeeper: true, //For iks to return the
         requestId,
       });
     } catch (err) {

@@ -32,11 +32,12 @@ import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/inter
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -174,15 +175,17 @@ function SetupTapsigner({ route }) {
       } else {
         dispatch(addSigningDevice([tapsigner]));
         const navigationState = addSignerFlow
-          ? { name: 'ManageSigners' }
-          : { name: 'AddSigningDevice', merge: true, params: {} };
+          ? {
+              name: 'ManageSigners',
+              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+            }
+          : {
+              name: 'AddSigningDevice',
+              merge: true,
+              params: { addedSigner: tapsigner, addSignerFlow, showModal: true },
+            };
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
-      showToast(
-        `${tapsigner.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {
@@ -208,7 +211,14 @@ function SetupTapsigner({ route }) {
         getTapsignerDetails(card, cvc, isMultisig)
       )();
       const handleSuccess = () => {
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
         navigation.dispatch(CommonActions.goBack());
         showToast('Tapsigner verified successfully', <TickIcon />);
       };

@@ -31,7 +31,7 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import AddressIcon from 'src/components/AddressIcon';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
-import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
+import { EntityKind, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
@@ -40,7 +40,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletSendInfo from './WalletSendInfo';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import { MANAGEWALLETS } from 'src/navigation/contants';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -56,6 +56,7 @@ function AddSendAmount({ route }) {
     transferType,
     selectedUTXOs = [],
     parentScreen,
+    isSendMax = true,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -64,6 +65,7 @@ function AddSendAmount({ route }) {
     transferType: TransferType;
     selectedUTXOs: UTXO[];
     parentScreen?: string;
+    isSendMax?: boolean;
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
@@ -88,7 +90,10 @@ function AddSendAmount({ route }) {
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
-  const isFromManageWallets = parentScreen === MANAGEWALLETS;
+  const isMoveAllFunds =
+    parentScreen === MANAGEWALLETS ||
+    parentScreen === VAULTSETTINGS ||
+    parentScreen === WALLETSETTINGS;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -119,7 +124,12 @@ function AddSendAmount({ route }) {
 
   useEffect(() => {
     // error handler
-    let availableToSpend = idx(sender, (_) => _.specs.balances.confirmed);
+    const balance = idx(sender, (_) => _.specs.balances);
+    let availableToSpend =
+      sender.networkType === NetworkType.MAINNET
+        ? balance.confirmed
+        : balance.confirmed + balance.unconfirmed;
+
     const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
     if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
@@ -141,7 +151,12 @@ function AddSendAmount({ route }) {
     // send max handler
     if (!sendMaxFee) return;
 
-    let availableToSpend = idx(sender, (_) => _.specs.balances.confirmed);
+    const balance = idx(sender, (_) => _.specs.balances);
+    let availableToSpend =
+      sender.networkType === NetworkType.MAINNET
+        ? balance.confirmed
+        : balance.confirmed + balance.unconfirmed;
+
     const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
     if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
@@ -159,7 +174,12 @@ function AddSendAmount({ route }) {
   }, [sendMaxFee, selectedUTXOs.length]);
 
   useEffect(() => {
-    if (isFromManageWallets) {
+    console.log(isSendMax);
+    if (isSendMax) handleSendMax();
+  }, []);
+
+  useEffect(() => {
+    if (isMoveAllFunds) {
       if (sendMaxFee) {
         onSendMax(sendMaxFee, selectedUTXOs);
       } else {
@@ -172,7 +192,7 @@ function AddSendAmount({ route }) {
         );
       }
     }
-  }, [isFromManageWallets, sendMaxFee, selectedUTXOs]);
+  }, [isMoveAllFunds, sendMaxFee, selectedUTXOs]);
 
   const navigateToNext = () => {
     navigation.dispatch(
@@ -184,13 +204,36 @@ function AddSendAmount({ route }) {
         transferType,
         note,
         selectedUTXOs,
+        parentScreen,
         label: labelsToAdd.filter(
           (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
+        date: new Date(),
       })
     );
   };
   const { showToast } = useToastMessage();
+
+  const handleSendMax = () => {
+    const availableBalance =
+      sender.networkType === NetworkType.MAINNET
+        ? sender.specs.balances.confirmed
+        : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
+    if (availableBalance) {
+      if (sendMaxFee) {
+        onSendMax(sendMaxFee, selectedUTXOs);
+        return;
+      }
+      dispatch(
+        calculateSendMaxFee({
+          numberOfRecipients: recipientCount,
+          wallet: sender,
+          selectedUTXOs,
+        })
+      );
+    }
+  };
 
   const executeSendPhaseOne = () => {
     const recipients = [];
@@ -265,6 +308,11 @@ function AddSendAmount({ route }) {
     }
   };
 
+  const availableBalance =
+    sender.networkType === NetworkType.MAINNET
+      ? sender.specs.balances.confirmed
+      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -289,7 +337,7 @@ function AddSendAmount({ route }) {
           availableBalance={
             <CurrencyInfo
               hideAmounts={false}
-              amount={sender?.specs.balances.confirmed}
+              amount={availableBalance}
               fontSize={14}
               color={`${colorMode}.primaryText`}
               variation={colorMode === 'light' ? 'dark' : 'light'}
@@ -363,7 +411,7 @@ function AddSendAmount({ route }) {
                   letterSpacing={1.04}
                   borderWidth="0"
                   value={amount}
-                  isDisabled={isFromManageWallets}
+                  isDisabled={isMoveAllFunds}
                   onChangeText={(value) => {
                     if (!isNaN(Number(value))) {
                       setAmount(
@@ -383,22 +431,7 @@ function AddSendAmount({ route }) {
                 </Text>
 
                 <Pressable
-                  onPress={() => {
-                    const confirmBalance = sender.specs.balances.confirmed;
-                    if (confirmBalance) {
-                      if (sendMaxFee) {
-                        onSendMax(sendMaxFee, selectedUTXOs);
-                        return;
-                      }
-                      dispatch(
-                        calculateSendMaxFee({
-                          numberOfRecipients: recipientCount,
-                          wallet: sender,
-                          selectedUTXOs,
-                        })
-                      );
-                    }
-                  }}
+                  onPress={handleSendMax}
                   borderColor={`${colorMode}.BrownNeedHelp`}
                   backgroundColor={`${colorMode}.BrownNeedHelp`}
                   style={styles.sendMaxWrapper}

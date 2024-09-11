@@ -34,4 +34,7 @@ export type SubScriptionPlan = {
     currency?: string;
     trailPeriod?: string;
   };
+  promoCodes?: {
+    [code: string]: string;
+  };
 };

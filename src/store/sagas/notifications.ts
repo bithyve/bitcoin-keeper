@@ -2,7 +2,7 @@ import { call, put, select } from 'redux-saga/effects';
 import Relay from 'src/services/backend/Relay';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { UAI, uaiType } from 'src/models/interfaces/Uai';
+import { IKSType, UAI, uaiType } from 'src/models/interfaces/Uai';
 import { RootState } from '../store';
 import {
   notificationsFetched,
@@ -59,35 +59,24 @@ export const fetchNotificationsWatcher = createWatcher(
 export function* notficationsToUAI(messages) {
   for (const message of messages) {
     if (message.additionalInfo !== null && typeof message.additionalInfo === 'object') {
+      const { reqId, type } = message.additionalInfo;
+      const { info, title } = message;
+
+      console.log(reqId, type, info, title);
       if (
-        message.additionalInfo.type === uaiType.IKS_REQUEST &&
-        message.additionalInfo.reqId !== null
+        reqId !== null &&
+        [IKSType.IKS_REQUEST, IKSType.SIGN_TRANSACTION, IKSType.ONE_TIME_BACKUP].includes(type)
       ) {
-        const uais = dbManager.getObjectByField(
-          RealmSchema.UAI,
-          message.additionalInfo.reqId,
-          'entityId'
-        );
+        const uais = dbManager.getObjectByField(RealmSchema.UAI, reqId, 'entityId');
+
         if (!uais.length) {
           yield put(
             addToUaiStack({
-              title: 'There is a request for your Inheritance Key. Please review',
-              isDisplay: true,
-              uaiType: uaiType.IKS_REQUEST,
-              prirority: 100,
-              entityId: message.additionalInfo.reqId,
-              displayText:
-                'There is a request by someone for accessing the Inheritance Key you have set up using this app',
+              uaiType: type,
+              entityId: reqId,
+              uaiDetails: { heading: title, body: info },
             })
           );
-        } else {
-          const uai = uais[0];
-          let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); // Need to get a better way
-          updatedUai = {
-            ...updatedUai,
-            isActioned: false,
-          };
-          yield call(dbManager.updateObjectById, RealmSchema.UAI, updatedUai.id, updatedUai);
         }
         yield put(setRefreshUai());
       }
@@ -108,31 +97,7 @@ export function* getMessageWorker() {
       ({ notificationId }) => !storedMessages.find((f) => f.notificationId === notificationId)
     )
   );
-  // TO--DO: NOTIFICATION_UAI_BINDING without the notifaction schema
-  // for (let i = 0; i < messages.length; i++) {
-  //   yield call(dbManager.createObject, RealmSchema.Notification, {
-  //     ...messages[i],
-  //     additionalInfo: {
-  //       notes: Platform.select({
-  //         ios: messages[i].additionalInfo.notes.ios,
-  //         android: messages[i].additionalInfo.notes.android,
-  //       }),
-  //     },
-  //   });
-  // }
-
-  // for (let i = 0; i < storedNotifications.length; i++) {
-  //   yield put(
-  //     addToUaiStack({
-  //       title: storedNotifications[i].title,
-  //       isDisplay: true,
-  //       uaiType: storedNotifications[i].type,
-  //       prirority: 20,
-  //       displayText: storedNotifications[i].additionalInfo.notes,
-  //     })
-  //   );
-  // }
-  yield call(notficationsToUAI, messages);
+  yield call(notficationsToUAI, newMessageArray);
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
   yield put(fetchNotificationStarted(false));

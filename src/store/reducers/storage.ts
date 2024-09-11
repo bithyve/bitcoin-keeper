@@ -31,6 +31,7 @@ const initialState: {
   appVersion: string;
   inheritanceRequestId: string;
   inheritanceOTBRequestId: string;
+  inheritanceKeyExistingEmailCount: number;
   recoveryAppCreated: boolean;
   inheritanceToolVisitedHistory: InheritanceToolVisitedHistoryType;
   dontShowConceirgeOnboarding: boolean;
@@ -46,6 +47,7 @@ const initialState: {
   appVersion: '',
   inheritanceRequestId: '',
   inheritanceOTBRequestId: '',
+  inheritanceKeyExistingEmailCount: 0,
   recoveryAppCreated: null,
   inheritanceToolVisitedHistory: {
     BUY_NEW_HARDWARE_SIGNER: null,
@@ -113,6 +115,9 @@ const storageSlice = createSlice({
     setInheritanceOTBRequestId: (state, action: PayloadAction<string>) => {
       state.inheritanceOTBRequestId = action.payload;
     },
+    setInheritanceKeyExistingEmailCount: (state, action: PayloadAction<any>) => {
+      state.inheritanceKeyExistingEmailCount = action.payload;
+    },
     setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
       state.recoveryAppCreated = action.payload;
     },
@@ -131,6 +136,7 @@ export const {
   setAppVersion,
   setInheritanceRequestId,
   setInheritanceOTBRequestId,
+  setInheritanceKeyExistingEmailCount,
   setRecoveryCreatedApp,
   updateLastVisitedTimestamp,
   setDontShowConceirgeOnboarding,

@@ -20,6 +20,8 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { emailCheck } from 'src/utils/utilities';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useAppSelector } from 'src/store/hooks';
+import idx from 'idx';
 
 function IKSAddEmailPhone({ route }) {
   const [email, setEmail] = useState('');
@@ -36,6 +38,7 @@ function IKSAddEmailPhone({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultTranslation } = translations;
+  const { inheritanceKeyExistingEmailCount } = useAppSelector((state) => state.storage);
 
   const updateIKSPolicy = async (email: string) => {
     try {
@@ -45,10 +48,15 @@ function IKSAddEmailPhone({ route }) {
       }
 
       const existingPolicy: InheritancePolicy = IKSigner.inheritanceKeyInfo.policy;
+      const existingEmails = idx(existingPolicy, (_) => _.alert.emails) || [];
+
+      const latestEmailIndex = inheritanceKeyExistingEmailCount || 0; // || 0 for backward compatibility: inheritanceKeyExistingEmailCount might be undefined for upgraded apps
+      existingEmails[latestEmailIndex] = email; // only update email for the latest inheritor(for source app, inheritanceKeyExistingEmailCount is 0)
+
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
         alert: {
-          emails: [email],
+          emails: existingEmails,
         },
       };
 

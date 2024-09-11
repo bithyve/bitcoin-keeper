@@ -16,9 +16,12 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import Passwordlock from 'src/assets/images/passwordlock.svg';
+import AnalyticsIllustration from 'src/assets/images/analytics-illustration.svg';
 
 import { storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
+import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
+import { setIsInitialLogin } from 'src/store/reducers/login';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -29,6 +32,7 @@ export default function CreatePin(props) {
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [createPassword, setCreatePassword] = useState(false);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
+  const [shareAnalyticsModal, setShareAnalyticsModal] = useState(false);
   const { oldPasscode } = props.route.params || {};
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
@@ -36,6 +40,7 @@ export default function CreatePin(props) {
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
+  const analyticsEnabled = useAppSelector((state) => state.settings.enableAnalytics);
 
   useEffect(() => {
     if (hasCreds) {
@@ -150,7 +155,7 @@ export default function CreatePin(props) {
   }
   function CreatePassModalContent() {
     return (
-      <Box width={wp(60)}>
+      <Box>
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
@@ -161,8 +166,32 @@ export default function CreatePin(props) {
     );
   }
 
+  function ShareAnalyticsModalContent() {
+    return (
+      <Box>
+        <Box style={styles.passImg}>
+          <AnalyticsIllustration />
+        </Box>
+        <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
+          {login.shareAnalyticsDesc}
+        </Text>
+      </Box>
+    );
+  }
+
+  const handleShareAnalytics = (enable) => {
+    dispatch(setIsInitialLogin(true));
+    dispatch(setEnableAnalyticsLogin(enable));
+    dispatch(storeCreds(passcode));
+    setShareAnalyticsModal(false);
+  };
+
   return (
-    <Box testID="main" style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+    <Box
+      testID="main"
+      style={styles.container}
+      backgroundColor={`${colorMode}.primaryGreenBackground`}
+    >
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -234,7 +263,7 @@ export default function CreatePin(props) {
       </Box>
       <KeeperModal
         visible={createPassword}
-        close={() => { }}
+        close={() => {}}
         title="Remember your passcode"
         subTitle="Please remember your passcode and backup your app by writing down the 12-word Recovery
         Key"
@@ -245,13 +274,34 @@ export default function CreatePin(props) {
         buttonText="Continue"
         secondaryButtonText="Back"
         buttonCallback={() => {
-          dispatch(storeCreds(passcode));
           setCreatePassword(false);
+          setShareAnalyticsModal(true);
         }}
         secondaryCallback={() => {
           setCreatePassword(false);
         }}
         Content={CreatePassModalContent}
+        showButtons
+        subTitleWidth={wp(80)}
+      />
+      <KeeperModal
+        visible={shareAnalyticsModal}
+        close={() => {}}
+        title={login.shareAnalyticsTitle}
+        subTitle={login.shareAnalyticsSubTitle}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText={common.share}
+        secondaryButtonText={common.dontShare}
+        buttonCallback={() => {
+          handleShareAnalytics(true);
+        }}
+        secondaryCallback={() => {
+          handleShareAnalytics(false);
+        }}
+        Content={ShareAnalyticsModalContent}
         showButtons
         subTitleWidth={wp(80)}
       />

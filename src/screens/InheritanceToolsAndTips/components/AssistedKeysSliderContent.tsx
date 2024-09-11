@@ -2,7 +2,7 @@ import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { Dimensions, StyleSheet } from 'react-native';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import DashedButton from 'src/components/DashedButton';
 
 const { width } = Dimensions.get('window');
@@ -22,7 +22,6 @@ function AssistedKeysContentSlider(props) {
           {props.title}
         </Text>
         <Text
-          semiBold
           width={'80%'}
           fontSize={14}
           mb={hp(15)}
@@ -31,14 +30,16 @@ function AssistedKeysContentSlider(props) {
         >
           {props.description}
         </Text>
-        <Box width={'90%'}>
-          <Text color={`${colorMode}.modalGreenContent`}>{props.paragraph}</Text>
+        <Box width={'80%'}>
+          <Text fontSize={14} color={`${colorMode}.modalGreenContent`}>
+            {props.paragraph}
+          </Text>
         </Box>
         <Box style={styles.icon}>{props.icon}</Box>
-        <Box width={'90%'}>
+        <Box width={'80%'}>
           <Text color={`${colorMode}.modalGreenContent`}>{props.paragraph2}</Text>
         </Box>
-        <Box width={'90%'} mt={hp(15)}>
+        <Box width={'90%'} marginTop={hp(30)} marginBottom={hp(5)} mt={hp(15)}>
           <DashedButton
             name={props.buttonTitle}
             description={props.buttonDescription}
@@ -67,6 +68,7 @@ const styles = StyleSheet.create({
   icon: {
     marginVertical: hp(20),
     alignItems: 'center',
+    paddingRight: wp(45),
   },
 });
 export default AssistedKeysContentSlider;

@@ -17,6 +17,8 @@ import networkReducer from './reducers/network';
 import uaiReducer from './reducers/uai';
 import utxoReducer from './reducers/utxos';
 import conciergeReducer from './reducers/concierge';
+import cachedTxnReducer from './reducers/cachedTxn';
+
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 import reduxPersistMigrations from './migrations';
 
@@ -33,6 +35,7 @@ const appReducer = combineReducers({
   uai: uaiReducer,
   utxos: utxoReducer,
   concierge: conciergeReducer,
+  cachedTxn: cachedTxnReducer,
 });
 
 const rootReducer = (state, action) => {
@@ -62,8 +65,8 @@ const sagaMiddleware = createSagaMiddleware();
 const middlewars = [sagaMiddleware];
 
 if (__DEV__) {
-  const createDebugger = require('redux-flipper').default;
-  middlewars.push(createDebugger());
+  // const createDebugger = require('redux-flipper').default;
+  // middlewars.push(createDebugger());
 }
 
 export const store = configureStore({

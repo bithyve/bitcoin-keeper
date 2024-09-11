@@ -9,7 +9,11 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
+import {
+  healthCheckSigner,
+  healthCheckStatusUpdate,
+  seedBackedUp,
+} from 'src/store/sagaActions/bhr';
 import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -27,6 +31,9 @@ import Note from 'src/components/Note/Note';
 import { refillMobileKey } from 'src/store/sagaActions/vaults';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
+import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -35,6 +42,8 @@ function ExportSeedScreen({ route, navigation }) {
   const { BackupWallet, common, seed: seedTranslation, vault: vaultTranslation } = translations;
   const { login } = translations;
   const {
+    vaultKey,
+    vaultId,
     seed,
     wallet,
     isHealthCheck,
@@ -42,7 +51,13 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey = false,
     derivationPath,
     isInheritancePlaning = false,
+    isIKS = false,
+    isSS = false,
+    parentScreen,
+    oldPasscode,
   }: {
+    vaultKey: string;
+    vaultId: string;
     seed: string;
     wallet: Wallet;
     isHealthCheck: boolean;
@@ -50,6 +65,10 @@ function ExportSeedScreen({ route, navigation }) {
     isFromAssistedKey: boolean;
     derivationPath: string;
     isInheritancePlaning?: boolean;
+    isIKS?: boolean;
+    isSS?: boolean;
+    parentScreen?: string;
+    oldPasscode?: string;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -59,7 +78,7 @@ function ExportSeedScreen({ route, navigation }) {
   const [showQRVisible, setShowQRVisible] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
-  const seedText = translations.seed;
+  const isChangePassword = parentScreen === PRIVACYANDDISPLAY;
   useEffect(() => {
     if (backupMethod !== null && next && !isHealthCheck && !isInheritancePlaning) {
       setBackupSuccessModal(true);
@@ -110,15 +129,15 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperHeader
         title={
           isFromAssistedKey
-            ? vaultTranslation.backingUpMnemonicTitle
-            : next
-            ? 'Recovery Key'
-            : seedText.walletSeedWords
+            ? `${BackupWallet.backingUp} ${signer.signerName}`
+            : seedTranslation.walletSeedWords
         }
-        subtitle={isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedText.SeedDesc}
+        subtitle={
+          isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedTranslation.SeedDesc
+        }
       />
 
-      <Box style={{ flex: 1 }}>
+      <Box style={{ flex: 1, marginTop: 20 }}>
         <FlatList
           data={words}
           numColumns={2}
@@ -133,8 +152,12 @@ function ExportSeedScreen({ route, navigation }) {
         </Box>
       )}
       {isFromAssistedKey ? (
-        <Box m={2}>
-          <Note title="" subtitle={BackupWallet.skipHealthCheckPara01} subtitleColor="GreyText" />
+        <Box m={4}>
+          <Note
+            title={common.note}
+            subtitle={`${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`}
+            subtitleColor="GreyText"
+          />
         </Box>
       ) : (
         <Box m={2}>
@@ -192,7 +215,7 @@ function ExportSeedScreen({ route, navigation }) {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                navigation.goBack();
+                setConfirmSeedModal(true);
               }}
               value={common.proceed}
             />
@@ -215,17 +238,38 @@ function ExportSeedScreen({ route, navigation }) {
               setConfirmSeedModal(false);
               if (isHealthCheck) {
                 if (signer.type === SignerType.MOBILE_KEY) {
-                  dispatch(healthCheckSigner([signer]));
+                  dispatch(
+                    healthCheckStatusUpdate([
+                      {
+                        signerId: signer.masterFingerprint,
+                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                      },
+                    ])
+                  );
                   navigation.dispatch(CommonActions.goBack());
                   showToast(seedTranslation.mobileKeyVerified, <TickIcon />);
                 }
                 if (signer.type === SignerType.SEED_WORDS) {
-                  dispatch(healthCheckSigner([signer]));
+                  dispatch(
+                    healthCheckStatusUpdate([
+                      {
+                        signerId: signer.masterFingerprint,
+                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                      },
+                    ])
+                  );
                   navigation.dispatch(CommonActions.goBack());
                   showToast(seedTranslation.seedWordVerified, <TickIcon />);
                 }
                 if (signer.type === SignerType.MY_KEEPER) {
-                  dispatch(healthCheckSigner([signer]));
+                  dispatch(
+                    healthCheckStatusUpdate([
+                      {
+                        signerId: signer.masterFingerprint,
+                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                      },
+                    ])
+                  );
                   const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
                   const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
                   const vaultSigner = WalletUtilities.getKeyForScheme(
@@ -237,8 +281,22 @@ function ExportSeedScreen({ route, navigation }) {
                   );
                   dispatch(refillMobileKey(vaultSigner));
                   navigation.dispatch(CommonActions.goBack());
-                  showToast('Keeper Verified Successfully', <TickIcon />);
+                  showToast(seedTranslation.keeperVerified, <TickIcon />);
                 }
+              } else if (isFromAssistedKey) {
+                if (isIKS) {
+                  dispatch(setOTBStatusIKS(true));
+                } else if (isSS) {
+                  dispatch(setOTBStatusSS(true));
+                }
+                showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceDetails', {
+                    signerId: signer.masterFingerprint,
+                    vaultId,
+                    vaultKey,
+                  })
+                );
               } else {
                 dispatch(seedBackedUp());
               }
@@ -249,13 +307,21 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={backupSuccessModal}
         dismissible={false}
-        close={() => {}}
+        close={
+          isChangePassword
+            ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
+            : () => {}
+        }
         title={BackupWallet.backupSuccessTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        buttonText="Done"
-        buttonCallback={() => navigation.replace('WalletBackHistory')}
+        buttonText={common.done}
+        buttonCallback={
+          isChangePassword
+            ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
+            : () => navigation.replace('WalletBackHistory')
+        }
         Content={() => (
           <Box>
             <Box>
@@ -346,7 +412,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 10,
     marginHorizontal: 8,
-    marginVertical: 10,
+    marginTop: 10,
     alignSelf: 'center',
     width: wp(150),
   },

@@ -362,7 +362,8 @@ export default class ElectrumClient {
   public static async getTransactionsById(
     txids: string[],
     verbose: boolean = true,
-    batchsize: number = 40
+    batchsize: number = 40,
+    includeHex: boolean = false
   ): Promise<{ [txid: string]: ElectrumTransaction }> {
     ElectrumClient.checkConnection();
 
@@ -383,7 +384,7 @@ export default class ElectrumClient {
         }
 
         res[txdata.param] = txdata.result;
-        if (res[txdata.param]) delete res[txdata.param].hex;
+        if (res[txdata.param] && !includeHex) delete res[txdata.param].hex;
 
         // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
         for (const vout of res[txdata.param]?.vout || []) {

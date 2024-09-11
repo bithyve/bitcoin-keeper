@@ -15,6 +15,7 @@ import config from 'src/utils/service-utilities/config';
 import { customTheme } from './src/navigation/themes';
 import Navigator from './src/navigation/Navigator';
 import { persistor, store } from './src/store/store';
+import NotificationHandler from 'src/hooks/useNotificationHandler';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -47,6 +48,7 @@ function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NativeBaseProvider theme={customTheme}>
+        <NotificationHandler />
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
         <LocalizationProvider>
           <AppContextProvider>

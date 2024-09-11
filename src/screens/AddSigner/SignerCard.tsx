@@ -7,6 +7,7 @@ import Checked from 'src/assets/images/tick_icon.svg';
 
 type SignerCardProps = {
   name: string;
+  subtitle?: string;
   description?: string;
   icon: Element;
   isSelected?: boolean;
@@ -21,11 +22,13 @@ type SignerCardProps = {
   StaticIcon?: any;
   titleComp?: any;
   colorMode: string;
-  isFromSiginingList?: boolean;
+  isFeePriority?: boolean;
+  boldDesc?: boolean;
 };
 
 function SignerCard({
   name,
+  subtitle = '',
   description = '',
   icon,
   isSelected,
@@ -40,16 +43,20 @@ function SignerCard({
   numberOfLines = 1,
   customStyle,
   colorMode,
-  isFromSiginingList = true,
+  isFeePriority = false,
+  boldDesc = false,
 }: SignerCardProps) {
   const backgroundColor =
-    colorVarient === 'brown' ? `${colorMode}.BrownNeedHelp` : `${colorMode}.pantoneGreen`;
+    colorVarient === 'brown'
+      ? `${colorMode}.BrownNeedHelp`
+      : colorVarient === 'transparent'
+      ? 'transparent'
+      : `${colorMode}.pantoneGreen`;
+
   return (
     <Pressable
-      disabled={isFromSiginingList ? false : disabled}
-      backgroundColor={
-        isFromSiginingList && disabled ? `${colorMode}.disabledColor` : `${colorMode}.seashellWhite`
-      }
+      disabled={disabled}
+      backgroundColor={`${colorMode}.seashellWhite`}
       style={[styles.walletContainer, disabled ? { opacity: 0.5 } : null, { ...customStyle }]}
       onPress={() => {
         if (onCardSelect) onCardSelect(isSelected);
@@ -62,10 +69,15 @@ function SignerCard({
       </Box>
 
       <Box style={styles.detailContainer}>
-        <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
-          {icon}
-          {showDot ? <Box style={styles.redDot} /> : null}
-        </Box>
+        {!isFeePriority ? (
+          <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
+            {icon}
+            {showDot ? <Box style={styles.redDot} /> : null}
+          </Box>
+        ) : (
+          <Box style={styles.feeIconWrapper}></Box>
+        )}
+        {titleComp}
         <Text
           color={`${colorMode}.primaryText`}
           style={styles.walletName}
@@ -74,8 +86,17 @@ function SignerCard({
         >
           {name}
         </Text>
+        {subtitle ? (
+          <Text
+            style={[styles.walletSubtTitle, { marginBottom: isFeePriority ? -7 : 0 }]}
+            color={`${colorMode}.secondaryText`}
+            numberOfLines={numberOfLines}
+          >
+            {subtitle}
+          </Text>
+        ) : null}
         <Text
-          style={styles.walletDescription}
+          style={[styles.walletDescription, { fontWeight: boldDesc ? '500' : 'normal' }]}
           color={`${colorMode}.secondaryText`}
           numberOfLines={numberOfLines}
         >
@@ -101,9 +122,16 @@ const styles = StyleSheet.create({
     letterSpacing: 0.12,
     opacity: 0.8,
   },
+  walletSubtTitle: {
+    fontSize: 11,
+    letterSpacing: 0.11,
+  },
   walletDescription: {
     fontSize: 11,
     letterSpacing: 0.11,
+  },
+  feeText: {
+    fontSize: 16,
   },
   circle: {
     width: 20,
@@ -119,6 +147,13 @@ const styles = StyleSheet.create({
   iconWrapper: {
     width: 34,
     height: 34,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  feeIconWrapper: {
+    width: 15,
+    height: 15,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',

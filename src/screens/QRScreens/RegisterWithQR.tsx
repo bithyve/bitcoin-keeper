@@ -14,6 +14,8 @@ import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import QRCode from 'react-native-qrcode-svg';
 import DisplayQR from './DisplayQR';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const { width } = Dimensions.get('window');
 
@@ -38,6 +40,14 @@ function RegisterWithQR({ route, navigation }: any) {
         registered: true,
         vaultId: activeVault.id,
       })
+    );
+    dispatch(
+      healthCheckStatusUpdate([
+        {
+          signerId: signer.masterFingerprint,
+          status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+        },
+      ])
     );
     navigation.goBack();
   };

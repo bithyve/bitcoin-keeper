@@ -23,7 +23,7 @@ import { SignerType, SigningMode } from 'src/services/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/utils/service-utilities/encryption';
-import config from 'src/utils/service-utilities/config';
+import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
@@ -454,7 +454,7 @@ function OtpContent({ signTransaction }) {
   };
 
   return (
-    <Box width={hp(280)}>
+    <Box width={'100%'}>
       <Box>
         <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
         <Text
@@ -651,7 +651,7 @@ function SignerModals({
     );
   };
 
-  const navigateToChannelSigning = (vaultKey: VaultSigner) => {
+  const navigateToChannelSigning = (vaultKey: VaultSigner, signerType: string) => {
     setTrezorModal(false);
     setBitbox02Modal(false);
     setLedgerModal(false);
@@ -660,6 +660,7 @@ function SignerModals({
         signTransaction,
         vaultKey,
         vaultId,
+        signerType,
       })
     );
   };
@@ -759,11 +760,11 @@ function SignerModals({
                 setLedgerModal(false);
               }}
               title="Keep Nano X Ready"
-              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Trezor.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <LedgerContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(vaultKey)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
             />
           );
         }
@@ -954,11 +955,11 @@ function SignerModals({
                 setTrezorModal(false);
               }}
               title="Keep Trezor Ready"
-              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Trezor.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <TrezorContent />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(vaultKey)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
             />
           );
         }
@@ -971,11 +972,11 @@ function SignerModals({
                 setBitbox02Modal(false);
               }}
               title="Keep BitBox02 Ready"
-              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02.`}
+              subTitle={`Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with BitBox02.`}
               textColor={`${colorMode}.primaryText`}
               Content={() => <BitBox02Content />}
               buttonText="Proceed"
-              buttonCallback={() => navigateToChannelSigning(vaultKey)}
+              buttonCallback={() => navigateToChannelSigning(vaultKey, signer.type)}
             />
           );
         }

@@ -11,6 +11,7 @@ import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enum
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import ShowIcon from 'src/assets/images/show.svg';
@@ -45,8 +46,7 @@ enum PasswordMode {
   DEFAULT = 'DEFAULT',
   SHOWALL = 'SHOWALL',
 }
-
-function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, icon }) {
+function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, icon, type }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
@@ -76,7 +76,9 @@ function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDele
           </Text>
         </Box>
         <HStack>
-          {isHidden && <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />}
+          {isHidden && (type == 'VAULT' || (type == 'WALLET' && balance === 0)) && (
+            <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
+          )}
           <ActionChip
             text={isHidden ? 'Unhide' : 'Hide'}
             onPress={visibilityToggle}
@@ -253,21 +255,26 @@ function ManageWallets() {
     return (
       <Box style={styles.modalContainer}>
         <Text color={`${colorMode}.secondaryText`} style={styles.unhideText}>
-          {`To delete this ${
-            isWallet ? 'wallet' : 'vault'
-          }, please transfer your funds to another wallet or vault first.`}
+          {isWallet ? settings.DeleteWalletModalDesc : settings.DeleteVaultModalDesc}
         </Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
             onPress={() => {
-              updateWalletVisibility(selectedWallet, true, false);
-              setShowDeleteVaultBalanceAlert(false);
+              if (isWallet) {
+                // Cancel action
+                updateWalletVisibility(selectedWallet, true, false);
+                setShowDeleteVaultBalanceAlert(false);
+              } else {
+                // Delete Vault action
+                setShowDeleteVaultBalanceAlert(false);
+                setConfirmPasscodeVisible(true);
+              }
             }}
             activeOpacity={0.5}
           >
             <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              Cancel
+              {isWallet ? 'Cancel' : 'Continue'}
             </Text>
           </TouchableOpacity>
 
@@ -302,39 +309,51 @@ function ManageWallets() {
         subtitle={settings.ManageWalletsSub}
         rightComponent={<CurrencyTypeSwitch />}
       />
-      <FlatList
-        data={showAll ? [...visibleWallets, ...hiddenWallets] : [...visibleWallets]}
-        extraData={[visibleWallets, hiddenWallets]}
-        contentContainerStyle={styles.walletsContainer}
-        renderItem={({ item }) => (
-          <ListItem
-            icon={getWalletIcon(item)}
-            title={item.presentationData.name}
-            subtitle={item.presentationData.description}
-            balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
-            isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
-            visibilityToggle={() => {
-              setSelectedWallet(item);
-              if (item.presentationData.visibility === VisibilityType.HIDDEN) {
-                setPasswordMode(PasswordMode.DEFAULT);
-                setConfirmPassVisible(true);
-              } else {
-                updateWalletVisibility(item, true);
-              }
-            }}
-            onDelete={() => {
-              if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
-                setShowDeleteVaultBalanceAlert(true);
-              } else {
+      {!showAll && visibleWallets.length === 0 ? (
+        <Box style={styles.emptyWrapper}>
+          <Text style={styles.emptyText} semiBold>
+            {settings.ManageWalletsEmptyTitle}
+          </Text>
+          <Text style={styles.emptySubText}>{settings.ManageWalletsEmptySubtitle}</Text>
+          <EmptyState />
+        </Box>
+      ) : (
+        <FlatList
+          data={showAll ? [...visibleWallets, ...hiddenWallets] : [...visibleWallets]}
+          extraData={[visibleWallets, hiddenWallets]}
+          contentContainerStyle={styles.walletsContainer}
+          renderItem={({ item }) => (
+            <ListItem
+              icon={getWalletIcon(item)}
+              type={item.entityKind}
+              title={item.presentationData.name}
+              subtitle={item.presentationData.description}
+              balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
+              isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
+              visibilityToggle={() => {
                 setSelectedWallet(item);
-                setConfirmPasscodeVisible(true);
-              }
-            }}
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-      />
+                if (item.presentationData.visibility === VisibilityType.HIDDEN) {
+                  setPasswordMode(PasswordMode.DEFAULT);
+                  setConfirmPassVisible(true);
+                } else {
+                  updateWalletVisibility(item, true);
+                }
+              }}
+              onDelete={() => {
+                if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
+                  setSelectedWallet(item);
+                  setShowDeleteVaultBalanceAlert(true);
+                } else {
+                  setSelectedWallet(item);
+                  setConfirmPasscodeVisible(true);
+                }
+              }}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
+        />
+      )}
 
       <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <Pressable
@@ -368,7 +387,10 @@ function ManageWallets() {
         subTitle={`You have sats in your ${
           isWallet ? 'wallet' : 'vault'
         }. Are you sure you want to hide it?`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
         Content={WalletBalanceAlertModalContent}
+        buttonTextColor={`${colorMode}.white`}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={false}
@@ -379,16 +401,18 @@ function ManageWallets() {
         dismissible
         close={() => {
           setShowDeleteVaultBalanceAlert(false);
+          !isWallet && updateWalletVisibility(selectedWallet, true, false);
         }}
         visible={showDeleteVaultBalanceAlert}
-        title={`You have funds in your ${isWallet ? 'wallet' : 'vault'}`}
-        subTitle={`You have sats in your ${
-          isWallet ? 'wallet' : 'vault'
-        }. Are you sure you want to delete it?`}
+        title={isWallet ? settings.DeleteWalletModalTitle : settings.DeleteVaultModalTitle}
+        subTitle={isWallet ? settings.DeleteWalletModalSubTitle : settings.DeleteVaultModalSubTitle}
+        textColor={`${colorMode}.primaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
+        buttonTextColor={`${colorMode}.white`}
         subTitleWidth={wp(240)}
-        closeOnOverlayClick={false}
+        closeOnOverlayClick={isWallet ? false : true}
         showButtons
         showCloseIcon={false}
       />
@@ -517,5 +541,18 @@ const styles = StyleSheet.create({
   unhideText: {
     fontSize: 13,
     width: wp(200),
+  },
+  emptyWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  emptyText: {
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    width: wp(250),
+    textAlign: 'center',
+    marginBottom: hp(30),
   },
 });

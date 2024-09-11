@@ -15,14 +15,27 @@ function TransactionItem({ item, wallet, navigation, index }) {
     <TransactionElement
       transaction={item}
       index={index}
-      onPress={() => {
-        navigation.dispatch(
-          CommonActions.navigate('TransactionDetails', {
-            transaction: item,
-            wallet,
-          })
-        );
-      }}
+      isCached={item?.isCached}
+      onPress={
+        !item?.isCached
+          ? () => {
+              navigation.dispatch(
+                CommonActions.navigate('TransactionDetails', {
+                  transaction: item,
+                  wallet,
+                })
+              );
+            }
+          : () => {
+              //TODO: For Parsh - To naviagate with original data
+              // navigation.dispatch(
+              //   CommonActions.navigate('TransactionDetails', {
+              //     transaction: item,
+              //     wallet,
+              //   })
+              // );
+            }
+      }
     />
   );
 }
@@ -46,9 +59,16 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
       testID="list_transactions"
       refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
       data={transactions}
-      renderItem={({ item, index }) => (
-        <TransactionItem item={item} navigation={navigation} wallet={currentWallet} index={index} />
-      )}
+      renderItem={({ item, index }) => {
+        return (
+          <TransactionItem
+            item={item}
+            navigation={navigation}
+            wallet={currentWallet}
+            index={index}
+          />
+        );
+      }}
       refreshing={syncing}
       keyExtractor={(item: Transaction) => `${item.txid}${item.transactionType}`}
       showsVerticalScrollIndicator={false}

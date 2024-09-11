@@ -12,6 +12,12 @@ const { HEXA_ID, RELAY } = config;
 const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
 const MEMPOOL_ENDPOINT = 'https://mempool.space';
 
+interface SignerChange {
+  oldSignerId: string;
+  newSignerId: string;
+  newSignerDetails: string;
+}
+
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -318,6 +324,7 @@ export default class Relay {
       throw new Error('Failed to fetch App Image');
     }
   };
+
   public static updateAppImage = async (
     appImage
   ): Promise<{
@@ -333,6 +340,23 @@ export default class Relay {
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
+    }
+  };
+
+  public static migrateXfp = async (
+    appId: string,
+    signerChanges: SignerChange[]
+  ): Promise<{
+    updated: boolean;
+    err?: string;
+  }> => {
+    try {
+      const res = await RestClient.post(`${RELAY}migrateXfps`, { appId, signerChanges });
+      const data = res.data || res.json;
+      return data;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed to do migrate the xfp');
     }
   };
 
@@ -452,8 +476,9 @@ export default class Relay {
     txid: any;
     funded: any;
   }> => {
-    if (network === NetworkType.MAINNET)
+    if (network === NetworkType.MAINNET) {
       throw new Error('Invalid network: failed to fund via testnet');
+    }
 
     try {
       const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
@@ -616,6 +641,20 @@ export default class Relay {
     } catch (error) {
       captureError(error);
       throw error;
+    }
+  };
+
+  public static getOffer = async (productId: string, promoCode: string): Promise<any> => {
+    try {
+      const response = await RestClient.post(`${RELAY}offer`, { productId, promoCode });
+      const data = (response as AxiosResponse).data || (response as any).json;
+      if (data) {
+        return data;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
     }
   };
 }

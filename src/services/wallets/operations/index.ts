@@ -43,6 +43,7 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
@@ -410,13 +411,22 @@ export default class WalletOperations {
     });
 
     // update primary utxo set and balance
-    const updatedUTXOSet = [];
-
+    const updatedConfirmedUTXOSet = [];
     wallet.specs.confirmedUTXOs.forEach((confirmedUTXO) => {
-      if (!consumedUTXOs[confirmedUTXO.txId]) updatedUTXOSet.push(confirmedUTXO);
+      if (!consumedUTXOs[confirmedUTXO.txId]) updatedConfirmedUTXOSet.push(confirmedUTXO);
     });
+    wallet.specs.confirmedUTXOs = updatedConfirmedUTXOSet;
 
-    wallet.specs.confirmedUTXOs = updatedUTXOSet;
+    if (wallet.networkType === NetworkType.TESTNET) {
+      // uncofirmed balance spend on testnet is activated
+      const updatedUnconfirmedUTXOSet = [];
+      wallet.specs.unconfirmedUTXOs.forEach((unconfirmedUTXO) => {
+        if (!consumedUTXOs[unconfirmedUTXO.txId]) {
+          updatedUnconfirmedUTXOSet.push(unconfirmedUTXO);
+        }
+      });
+      wallet.specs.unconfirmedUTXOs = updatedUnconfirmedUTXOSet;
+    }
   };
 
   static mockFeeRates = () => {
@@ -572,12 +582,15 @@ export default class WalletOperations {
     network: bitcoinJS.networks.Network,
     selectedUTXOs?: UTXO[]
   ): { fee: number } => {
-    const inputUTXOs =
-      selectedUTXOs && selectedUTXOs.length ? selectedUTXOs : wallet.specs.confirmedUTXOs;
-    let confirmedBalance = 0;
-    inputUTXOs.forEach((utxo) => {
-      confirmedBalance += utxo.value;
-    });
+    let inputUTXOs;
+    if (selectedUTXOs && selectedUTXOs.length) {
+      inputUTXOs = selectedUTXOs;
+    } else {
+      inputUTXOs =
+        wallet.networkType === NetworkType.MAINNET
+          ? wallet.specs.confirmedUTXOs
+          : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+    }
 
     const outputUTXOs = [];
     for (let index = 0; index < numberOfRecipients; index++) {
@@ -622,11 +635,19 @@ export default class WalletOperations {
         fee?;
         balance?;
       } => {
-    const inputUTXOs =
-      selectedUTXOs && selectedUTXOs.length ? selectedUTXOs : wallet.specs.confirmedUTXOs;
-    let confirmedBalance = 0;
+    let inputUTXOs;
+    if (selectedUTXOs && selectedUTXOs.length) {
+      inputUTXOs = selectedUTXOs;
+    } else {
+      inputUTXOs =
+        wallet.networkType === NetworkType.MAINNET
+          ? wallet.specs.confirmedUTXOs
+          : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+    }
+
+    let availableBalance = 0;
     inputUTXOs.forEach((utxo) => {
-      confirmedBalance += utxo.value;
+      availableBalance += utxo.value;
     });
 
     const outputUTXOs = [];
@@ -655,18 +676,18 @@ export default class WalletOperations {
       netAmount += recipient.amount;
     });
     const defaultDebitedAmount = netAmount + defaultPriorityFee;
-    if (!defaultPriorityInputs || defaultDebitedAmount > confirmedBalance) {
+    if (!defaultPriorityInputs || defaultDebitedAmount > availableBalance) {
       // insufficient input utxos to compensate for output utxos + lowest priority fee
       return {
         fee: defaultPriorityFee,
-        balance: confirmedBalance,
+        balance: availableBalance,
       };
     }
 
     const txPrerequisites: TransactionPrerequisite = {};
 
     for (const priority of [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH]) {
-      if (priority === defaultTxPriority || defaultDebitedAmount === confirmedBalance) {
+      if (priority === defaultTxPriority || defaultDebitedAmount === availableBalance) {
         txPrerequisites[priority] = {
           inputs: defaultPriorityInputs,
           outputs: defaultPriorityOutputs,
@@ -681,7 +702,7 @@ export default class WalletOperations {
           averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
         );
         const debitedAmount = netAmount + fee;
-        if (!inputs || debitedAmount > confirmedBalance) {
+        if (!inputs || debitedAmount > availableBalance) {
           // to previous priority assets
           if (priority === TxPriority.MEDIUM) {
             txPrerequisites[priority] = txPrerequisites[TxPriority.LOW];
@@ -714,8 +735,16 @@ export default class WalletOperations {
     customTxFeePerByte: number,
     selectedUTXOs?: UTXO[]
   ): TransactionPrerequisite => {
-    const inputUTXOs =
-      selectedUTXOs && selectedUTXOs.length ? selectedUTXOs : wallet.specs.confirmedUTXOs;
+    let inputUTXOs;
+    if (selectedUTXOs && selectedUTXOs.length) {
+      inputUTXOs = selectedUTXOs;
+    } else {
+      inputUTXOs =
+        wallet.networkType === NetworkType.MAINNET
+          ? wallet.specs.confirmedUTXOs
+          : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+    }
+
     const { inputs, outputs, fee } = coinselect(
       inputUTXOs,
       outputUTXOs,
@@ -1225,11 +1254,13 @@ export default class WalletOperations {
   ): Promise<
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
+        cachedTxid: string;
         txid?;
         finalOutputs?: bitcoinJS.TxOutput[];
       }
     | {
         serializedPSBTEnvelop?;
+        cachedTxid?;
         txid: string;
         finalOutputs: bitcoinJS.TxOutput[];
       }
@@ -1264,7 +1295,7 @@ export default class WalletOperations {
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
 
-      return { serializedPSBTEnvelops };
+      return { serializedPSBTEnvelops, cachedTxid: hash256(PSBT.toBase64()) };
     } else {
       // case: wallet(single-sig)
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);

@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import {
   decrypt,
@@ -13,7 +13,12 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
-import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import {
+  HealthCheckDetails,
+  Signer,
+  Vault,
+  VaultSigner,
+} from 'src/services/wallets/interfaces/vault';
 import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -26,6 +31,11 @@ import { BackupAction, BackupHistory, BackupType, CloudBackupAction } from 'src/
 import { getSignerNameFromType } from 'src/hardware';
 import { NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
+import { Platform } from 'react-native';
+import CloudBackupModule from 'src/nativemodules/CloudBackup';
+import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
   refreshWallets,
   updateSignerDetails,
@@ -40,6 +50,7 @@ import {
   setBackupLoading,
   setBackupType,
   setBackupWarning,
+  setEncPassword,
   setInvalidPassword,
   setIsCloudBsmsBackupRequired,
   setLastBsmsBackup,
@@ -50,6 +61,7 @@ import {
   BSMS_CLOUD_HEALTH_CHECK,
   DELETE_APP_IMAGE_ENTITY,
   GET_APP_IMAGE,
+  HEALTH_CHECK_STATUS_UPDATE,
   RECOVER_BACKUP,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
@@ -58,14 +70,15 @@ import {
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
   getAppImage,
+  healthCheckSigner,
 } from '../sagaActions/bhr';
 import { uaiActioned } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { KEY_MANAGEMENT_VERSION } from './upgrade';
-import { Platform } from 'react-native';
-import CloudBackupModule from 'src/nativemodules/CloudBackup';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { RootState } from '../store';
+import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
+import { addSigningDeviceWorker } from './wallets';
 
 export function* updateAppImageWorker({
   payload,
@@ -90,8 +103,8 @@ export function* updateAppImageWorker({
     }
   } else if (signers) {
     for (const signer of signers) {
-      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(signer));
-      signersObjects[signer.masterFingerprint] = encrytedWallet;
+      const encrytedSigner = encrypt(encryptionKey, JSON.stringify(signer));
+      signersObjects[signer.masterFingerprint] = encrytedSigner;
     }
   } else {
     // update all wallets and signers
@@ -225,17 +238,26 @@ export function* deleteAppImageEntityWorker({
     const response = yield call(Relay.deleteAppImageEntity, {
       appId: id,
       signers: signerIds,
-      walletIds: walletIds,
+      walletIds,
     });
-    if (walletIds.length > 0) {
+    if (walletIds?.length > 0) {
       for (const walletId of walletIds) {
         yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
+      }
+    }
+    if (signerIds?.length > 0) {
+      for (const signerId of signerIds) {
+        yield call(
+          dbManager.deleteObjectByPrimaryKey,
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signerId
+        );
       }
     }
     return response;
   } catch (err) {
     captureError(err);
-    return;
   }
 }
 
@@ -256,7 +278,6 @@ export function* deleteVaultImageWorker({
     return response;
   } catch (err) {
     captureError(err);
-    return;
   }
 }
 
@@ -371,6 +392,9 @@ function* getAppImageWorker({ payload }) {
         );
       }
     }
+
+    const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
+    yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
   } catch (err) {
     console.log(err);
     yield put(setAppImageError(true));
@@ -571,6 +595,56 @@ function* recoverBackupWorker({
   }
 }
 
+function* healthCheckSatutsUpdateWorker({
+  payload,
+}: {
+  payload: {
+    signerUpdates: { signerId: string; status: hcStatusType }[];
+  };
+}) {
+  try {
+    const HcSuccessTypes = [
+      hcStatusType.HEALTH_CHECK_MANAUAL,
+      hcStatusType.HEALTH_CHECK_SD_ADDITION,
+      hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+      hcStatusType.HEALTH_CHECK_SIGNING,
+    ];
+    const { signerUpdates } = payload;
+    for (const signerUpdate of signerUpdates) {
+      const signerRealm: Signer = dbManager.getObjectByPrimaryId(
+        RealmSchema.Signer,
+        'masterFingerprint',
+        signerUpdate.signerId
+      );
+      const signer: Signer = getJSONFromRealmObject(signerRealm);
+      if (signer) {
+        const date = new Date();
+        const newHealthCheckDetails: HealthCheckDetails = {
+          type: signerUpdate.status,
+          actionDate: date,
+        };
+
+        const oldDetialsArray = [...signer.healthCheckDetails];
+        const oldDetails = oldDetialsArray.map((details) => {
+          return { ...details, date: new Date(details.actionDate) };
+        });
+
+        const updatedDetailsArray: HealthCheckDetails[] = [...oldDetails, newHealthCheckDetails];
+
+        yield put(updateSignerDetails(signer, 'healthCheckDetails', updatedDetailsArray));
+        if (HcSuccessTypes.includes(signerUpdate.status)) yield put(healthCheckSigner([signer]));
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const healthCheckSatutsUpdateWatcher = createWatcher(
+  healthCheckSatutsUpdateWorker,
+  HEALTH_CHECK_STATUS_UPDATE
+);
+
 function* healthCheckSignerWorker({
   payload,
 }: {
@@ -621,20 +695,25 @@ function* isBackedUP({
 function* backupBsmsOnCloudWorker({
   payload,
 }: {
-  payload: {
+  payload?: {
     password: string;
   };
 }) {
+  const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
+  if (!lastBsmsBackup) return;
   const { password } = payload;
+  if (password || password === '') yield put(setEncPassword(password));
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
     const bsmsToBackup = [];
-    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const vaultsCollection = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const vaults = vaultsCollection.filter((vault) => vault.archived === false);
     if (vaults.length === 0) {
       yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
         title: CloudBackupAction.CLOUD_BACKUP_FAILED,
         confirmed: false,
         subtitle: 'No vaults found.',
+        date: Date.now(),
       });
       return;
     }
@@ -647,6 +726,7 @@ function* backupBsmsOnCloudWorker({
         });
       }
     });
+    const { encPassword } = yield select((state: RootState) => state.bhr);
 
     if (Platform.OS === 'android') {
       yield put(setBackupLoading(true));
@@ -657,13 +737,14 @@ function* backupBsmsOnCloudWorker({
           const response = yield call(
             CloudBackupModule.backupBsms,
             JSON.stringify(bsmsToBackup),
-            password
+            password || encPassword || ''
           );
           if (response.status) {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
               title: CloudBackupAction.CLOUD_BACKUP_CREATED,
               confirmed: true,
               subtitle: response.data,
+              date: Date.now(),
             });
             yield put(setIsCloudBsmsBackupRequired(false));
             yield put(setLastBsmsBackup(Date.now()));
@@ -672,6 +753,7 @@ function* backupBsmsOnCloudWorker({
               title: CloudBackupAction.CLOUD_BACKUP_FAILED,
               confirmed: false,
               subtitle: response.error,
+              date: Date.now(),
             });
           }
         } else {
@@ -679,6 +761,7 @@ function* backupBsmsOnCloudWorker({
             title: CloudBackupAction.CLOUD_BACKUP_FAILED,
             confirmed: false,
             subtitle: login.error,
+            date: Date.now(),
           });
         }
       } else {
@@ -686,6 +769,7 @@ function* backupBsmsOnCloudWorker({
           title: CloudBackupAction.CLOUD_BACKUP_FAILED,
           confirmed: false,
           subtitle: 'Unable to initialize Google Drive',
+          date: Date.now(),
         });
       }
     } else {
@@ -693,14 +777,14 @@ function* backupBsmsOnCloudWorker({
       const response = yield call(
         CloudBackupModule.backupBsms,
         JSON.stringify(bsmsToBackup),
-        password
+        password || encPassword || ''
       );
-      console.log('response', response);
       if (response.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
           title: CloudBackupAction.CLOUD_BACKUP_CREATED,
           confirmed: true,
           subtitle: response.data,
+          date: Date.now(),
         });
         yield put(setIsCloudBsmsBackupRequired(false));
         yield put(setLastBsmsBackup(Date.now()));
@@ -709,6 +793,7 @@ function* backupBsmsOnCloudWorker({
           title: CloudBackupAction.CLOUD_BACKUP_FAILED,
           confirmed: false,
           subtitle: response.error,
+          date: Date.now(),
         });
       }
     }
@@ -718,6 +803,7 @@ function* backupBsmsOnCloudWorker({
       title: CloudBackupAction.CLOUD_BACKUP_FAILED,
       confirmed: false,
       subtitle: `${error}`,
+      date: Date.now(),
     });
   }
 }
@@ -735,6 +821,7 @@ function* bsmsCloudHealthCheckWorker() {
             title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
             confirmed: true,
             subtitle: response.data,
+            date: Date.now(),
           });
           yield put(setIsCloudBsmsBackupRequired(false));
         } else {
@@ -742,6 +829,7 @@ function* bsmsCloudHealthCheckWorker() {
             title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
             confirmed: false,
             subtitle: response.error,
+            date: Date.now(),
           });
         }
       } else {
@@ -749,6 +837,7 @@ function* bsmsCloudHealthCheckWorker() {
           title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
           confirmed: false,
           subtitle: login.error,
+          date: Date.now(),
         });
       }
     } else {
@@ -756,6 +845,7 @@ function* bsmsCloudHealthCheckWorker() {
         title: CloudBackupAction.CLOUD_BACKUP_HEALTH_FAILED,
         confirmed: false,
         subtitle: 'Unable to initialize Google Drive',
+        date: Date.now(),
       });
     }
   } else {
@@ -763,6 +853,7 @@ function* bsmsCloudHealthCheckWorker() {
       title: CloudBackupAction.CLOUD_BACKUP_HEALTH,
       confirmed: true,
       subtitle: '',
+      date: Date.now(),
     });
     yield put(setIsCloudBsmsBackupRequired(false));
   }

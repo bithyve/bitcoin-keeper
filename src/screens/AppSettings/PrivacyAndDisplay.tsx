@@ -14,7 +14,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { sentryConfig } from 'src/services/sentry';
@@ -33,6 +33,10 @@ import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import BackupModalContent from './BackupModal';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
+import Text from 'src/components/KeeperText';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -52,7 +56,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
   useEffect(() => {
     if (credsChanged === 'changed') {
       setConfirmPasscodeModal(false);
-      showToast('Password Successfully updated!');
+      showToast('Passcode updated successfully');
     }
   }, [credsChanged]);
 
@@ -182,16 +186,27 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
   );
 }
 
-function PrivacyAndDisplay() {
+function PrivacyAndDisplay({ route }) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
+  const navigation = useNavigation();
+
+  const {
+    RKBackedUp = false,
+    oldPasscode,
+  }: {
+    RKBackedUp?: boolean;
+    oldPasscode?: string;
+  } = route?.params || {};
 
   const [sensorType, setSensorType] = useState('Biometrics');
   const [visiblePasscode, setVisiblePassCode] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const [confirmPasscode, setConfirmPasscode] = useState(false);
-  const [oldPassword, setOldPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const [RKHealthCheckModal, setRKHealthCheckModal] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common } = translations;
@@ -201,26 +216,47 @@ function PrivacyAndDisplay() {
   )[0];
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const { inProgress, start } = useAsync();
+  const data = useQuery(RealmSchema.BackupHistory);
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const analyticsEnabled = app.enableAnalytics;
+  const [isToggling, setIsToggling] = useState(false);
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(app.enableAnalytics);
 
   const toggleSentryReports = async () => {
-    if (inProgress) {
-      return;
-    }
-    if (!analyticsEnabled) {
-      await start(() => Sentry.init(sentryConfig));
-    } else {
-      await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
-    }
+    if (inProgress || isToggling) return;
+    setIsToggling(true);
+
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       enableAnalytics: !analyticsEnabled,
     });
+
+    try {
+      InteractionManager.runAfterInteractions(async () => {
+        if (!analyticsEnabled) {
+          await start(() => Sentry.init(sentryConfig));
+        } else {
+          await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+        }
+      });
+    } catch (error) {
+      dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+        enableAnalytics: analyticsEnabled,
+      });
+      console.error('Failed to toggle Sentry analytics:', error);
+    } finally {
+      setIsToggling(false);
+    }
   };
 
   useEffect(() => {
     init();
   }, []);
+
+  useEffect(() => {
+    if (RKBackedUp) {
+      setConfirmPasscode(true);
+      setOldPassword(oldPasscode);
+    }
+  }, [route?.params]);
 
   useEffect(() => {
     if (colorMode === 'dark') {
@@ -238,8 +274,8 @@ function PrivacyAndDisplay() {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -328,7 +364,7 @@ function PrivacyAndDisplay() {
         visible={visiblePasscode}
         closeOnOverlayClick={false}
         close={() => setVisiblePassCode(false)}
-        title="Change passcode"
+        title={settings.changePasscode}
         subTitleWidth={wp(240)}
         subTitle="Enter your existing passcode"
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -342,8 +378,13 @@ function PrivacyAndDisplay() {
               setVisiblePassCode(false);
             }}
             onSuccess={(password) => {
-              setOldPassword(password);
-              setShowConfirmSeedModal(true);
+              if (data.length === 0) {
+                setRKHealthCheckModal(true);
+                setOldPassword(password);
+              } else {
+                setOldPassword(password);
+                setShowConfirmSeedModal(true);
+              }
             }}
           />
         )}
@@ -376,7 +417,9 @@ function PrivacyAndDisplay() {
       <KeeperModal
         visible={confirmPasscode}
         closeOnOverlayClick={false}
-        close={() => setConfirmPasscode(false)}
+        close={() => {
+          setConfirmPasscode(false);
+        }}
         title="Change passcode"
         subTitleWidth={wp(240)}
         modalBackground={`${colorMode}.learMoreTextcolor`}
@@ -385,6 +428,53 @@ function PrivacyAndDisplay() {
         Content={() => (
           <ConfirmPasscode setConfirmPasscodeModal={setConfirmPasscode} oldPassword={oldPassword} />
         )}
+      />
+      <KeeperModal
+        visible={RKHealthCheckModal}
+        close={() => setRKHealthCheckModal(false)}
+        title={settings.RKHealthCheckTitle}
+        subTitle={settings.RKHealthCheckSubtitle}
+        subTitleWidth={wp(300)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText={common.goToBackup}
+        buttonCallback={() => {
+          setBackupModalVisible(true);
+          setRKHealthCheckModal(false);
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setRKHealthCheckModal(false)}
+        Content={() => (
+          <Box style={styles.RKContentCotainer}>
+            <Text color={`${colorMode}.primaryText`}>{settings.RKHealthCheckDesc}</Text>
+          </Box>
+        )}
+      />
+      <KeeperModal
+        visible={backupModalVisible}
+        close={() => setBackupModalVisible(false)}
+        title={settings.RKBackupTitle}
+        subTitle={settings.RKBackupSubTitle}
+        subTitleWidth={wp(300)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText={common.backupNow}
+        buttonCallback={() => {
+          setBackupModalVisible(false);
+          navigation.dispatch(
+            CommonActions.navigate('ExportSeed', {
+              seed: primaryMnemonic,
+              next: true,
+              parentScreen: PRIVACYANDDISPLAY,
+              oldPasscode: oldPassword,
+            })
+          );
+        }}
+        Content={BackupModalContent}
       />
     </ScreenWrapper>
   );
@@ -417,6 +507,9 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'right',
     fontStyle: 'italic',
+  },
+  RKContentCotainer: {
+    marginBottom: hp(10),
   },
 });
 export default PrivacyAndDisplay;

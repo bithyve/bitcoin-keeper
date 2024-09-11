@@ -271,16 +271,18 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
+    paddingLeft: 5,
   },
   inputLabelBox: {
-    width: '90%',
+    width: '88%',
   },
   inputLabel: {
     fontSize: 13,
     fontWeight: '900',
   },
   addBtnWrapper: {
-    width: '10%',
+    width: '12%',
+    alignItems: 'center',
   },
   unitText: {
     letterSpacing: 0.6,

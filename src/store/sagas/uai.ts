@@ -155,6 +155,7 @@ function* uaiChecksWorker({ payload }) {
         const uai = uaiCollectionVaultTransfer.find((uai) => uai.entityId === wallet.id);
         if (
           wallet.entityKind === EntityKind.WALLET &&
+          wallet?.transferPolicy?.threshold > 0 &&
           wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
         ) {
           if (!uai) {
@@ -177,7 +178,9 @@ function* uaiChecksWorker({ payload }) {
     }
     if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {
       // check for each signer if health check uai is needed
-      const signers: Signer[] = dbManager.getCollection(RealmSchema.Signer);
+      const signers: Signer[] = dbManager
+        .getCollection(RealmSchema.Signer)
+        .filter((signer) => !signer.hidden);
       if (signers.length > 0) {
         for (const signer of signers) {
           const lastHealthCheck = isTestnet()

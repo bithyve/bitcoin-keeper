@@ -47,14 +47,16 @@ function NFCScanner({ route }) {
 
       dispatch(addSigningDevice([signer]));
       const navigationState = addSignerFlow
-        ? { name: 'ManageSigners' }
-        : { name: 'AddSigningDevice', merge: true, params: {} };
+        ? {
+            name: 'ManageSigners',
+            params: { addedSigner: signer, addSignerFlow, showModal: true },
+          }
+        : {
+            name: 'AddSigningDevice',
+            merge: true,
+            params: { addedSigner: signer, addSignerFlow, showModal: true },
+          };
       navigation.dispatch(CommonActions.navigate(navigationState));
-      showToast(
-        `${signer.signerName} added successfully`,
-        <TickIcon />,
-        IToastCategory.SIGNING_DEVICE
-      );
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />);

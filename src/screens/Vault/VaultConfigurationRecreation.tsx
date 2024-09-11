@@ -25,11 +25,13 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import { useFocusEffect } from '@react-navigation/native';
+import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 function WrappedImportIcon() {
   return (
     <View style={styles.iconWrapper}>
-      <ImportIcon width={20} height={20} fill={Colors.pantoneGreen} />
+      <ImportIcon width={15} height={15} />
     </View>
   );
 }
@@ -44,9 +46,19 @@ function VaultConfigurationCreation() {
   const { translations } = useContext(LocalizationContext);
   const { showToast } = useToastMessage();
   let decoder = new URRegistryDecoder();
-  const { common } = translations;
+  const { common, importWallet } = translations;
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
+
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
 
   // eslint-disable-next-line no-promise-executor-return
   const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -66,8 +78,12 @@ function VaultConfigurationCreation() {
     };
   }, [qrData]);
 
-  const onBarCodeRead = (data) => {
-    if (!qrData) {
+  const onBarCodeRead = (data, fromImage = false) => {
+    if (
+      !qrData &&
+      data.data &&
+      (data.type === 'QR_CODE' || data.type === 'org.iso.QRCode' || fromImage)
+    ) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
@@ -118,7 +134,7 @@ function VaultConfigurationCreation() {
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
-            setData(data);
+            onBarCodeRead({ data }, true);
           })
           .catch((err) => {
             showToast('Invalid or No related QR code');
@@ -157,8 +173,8 @@ function VaultConfigurationCreation() {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title="Import a Wallet"
-          subtitle="Using wallet configuration file"
+          title={importWallet.usingConfigFile}
+          subtitle={importWallet.insertTextfromFile}
           learnMore
           learnTextColor={`${colorMode}.white`}
           learnMorePressed={() => setShowModal(true)}
@@ -166,12 +182,15 @@ function VaultConfigurationCreation() {
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
-              <RNCamera
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={onBarCodeRead}
-                useNativeZoom
-              />
+              {isFocused && (
+                <RNCamera
+                  style={styles.cameraView}
+                  captureAudio={false}
+                  onBarCodeRead={onBarCodeRead}
+                  useNativeZoom
+                  notAuthorizedView={<CameraUnauthorized />}
+                />
+              )}
             </Box>
             <Box style={styles.qrStatus}>
               <UploadImage
@@ -227,9 +246,15 @@ function VaultConfigurationCreation() {
         Content={ImportVaultContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() =>
-          dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'))
-        }
+        learnMoreTitle={common.needHelp}
+        buttonText={common.ok}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonCallback={() => setShowModal(false)}
+        learnMoreCallback={() => {
+          setShowModal(false);
+          dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'));
+        }}
       />
     </ScreenWrapper>
   );
@@ -273,8 +298,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginVertical: 15,
     alignItems: 'center',
-    height: hp(285),
-    width: wp(330),
+    alignSelf: 'center',
   },
   cameraView: {
     height: hp(285),
@@ -304,11 +328,11 @@ const styles = StyleSheet.create({
   },
   qrStatus: {
     position: 'absolute',
-    top: hp(255),
-    left: wp(90),
     zIndex: 999,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
+    transform: [{ translateY: hp(235) }],
   },
   scrollViewWrapper: {
     flex: 1,
@@ -328,8 +352,9 @@ const styles = StyleSheet.create({
     marginTop: hp(60),
   },
   iconWrapper: {
-    width: 40,
-    height: 40,
+    width: wp(35),
+    height: wp(35),
+    marginLeft: -7,
     borderRadius: 20,
     backgroundColor: Colors.pantoneGreen,
     justifyContent: 'center',

@@ -75,12 +75,10 @@ import UpdateWalletDetails from 'src/screens/WalletDetails/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import CosignerDetails from 'src/screens/WalletDetails/CosignerDetails';
 import WalletDetailsSettings from 'src/screens/WalletDetails/WalletDetailsSettings';
-import CollabrativeWalletSettings from 'src/screens/WalletDetails/CollabrativeWalletSettings';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
 import { AppContext } from 'src/context/AppContext';
 import SetupTapsigner from 'src/screens/SigningDevices/SetupTapsigner';
 import SetupSeedWordSigner from 'src/screens/SigningDevices/SetupSeedWordSigner';
-import InputSeedWordSigner from 'src/screens/SigningDevices/InputSeedWordSigner';
 import SetupOtherSDScreen from 'src/screens/SigningDevices/SetupOtherSDScreen';
 import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
@@ -121,9 +119,11 @@ import TrustedContactTemplates from 'src/screens/InheritanceToolsAndTips/compone
 import AdditionalSignerDetailsTemplate from 'src/screens/InheritanceToolsAndTips/components/AdditionalSignerDetailsTemplate';
 import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
 import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
+import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRecovery';
 import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
+import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -182,6 +182,7 @@ function AppStack() {
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
+        <Stack.Screen name="PassportConfigRecovery" component={PassportConfigRecovery} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
@@ -195,13 +196,16 @@ function AppStack() {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
+        <Stack.Screen
+          name="VerifyAddressSelectionScreen"
+          component={VerifyAddressSelectionScreen}
+        />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="EnterWalletPath" component={WalletPathScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
-        <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
@@ -242,7 +246,6 @@ function AppStack() {
 
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
-        <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />

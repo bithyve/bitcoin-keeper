@@ -1,7 +1,7 @@
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import { Box, HStack, Input, ScrollView, VStack, useColorMode } from 'native-base';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -9,13 +9,13 @@ import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/services/qr';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -27,6 +27,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 let decoder = new URRegistryDecoder();
 
@@ -49,13 +50,26 @@ function ScanQR() {
     addSignerFlow = false,
     learnMore = false,
     learnMoreContent = {},
+    isPSBT = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const dispatch = useDispatch();
+  const [inputText, setInputText] = useState('');
+  const isSmallDevice = useIsSmallDevices();
 
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
+
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
   // eslint-disable-next-line no-promise-executor-return
   const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const resetQR = async () => {
@@ -77,8 +91,12 @@ function ScanQR() {
     };
   }, [qrData]);
 
-  const onBarCodeRead = (data) => {
-    if (!qrData && data.data) {
+  const onBarCodeRead = (data, fromImage = false) => {
+    if (
+      !qrData &&
+      data.data &&
+      (data.type === 'QR_CODE' || data.type === 'org.iso.QRCode' || fromImage)
+    ) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
@@ -113,7 +131,7 @@ function ScanQR() {
           showToast(response.errorMessage);
         } else {
           const data = await QRreader(response.assets[0].uri);
-          onBarCodeRead({ data });
+          onBarCodeRead({ data }, true);
         }
       } catch (_) {
         showToast('Invalid or No related QR code');
@@ -138,84 +156,122 @@ function ScanQR() {
   };
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper
-        signerType={type}
-        enable={setup && type && !disableMockFlow}
-        addSignerFlow={addSignerFlow}
-        signerXfp={signer?.masterFingerprint}
-        mode={mode}
-      >
-        <KeeperHeader
-          title={title}
-          subtitle={subtitle}
-          learnMore={learnMore}
-          learnMorePressed={() => {
-            setVisibleModal(true);
-          }}
-          learnTextColor={`${colorMode}.white`}
-        />
-        <VStack style={globalStyles.centerColumn}>
-          <Box style={styles.qrcontainer}>
-            {!nfcVisible ? (
-              <RNCamera
-                autoFocus="on"
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={onBarCodeRead}
-                useNativeZoom
-                notAuthorizedView={<CameraUnauthorized />}
-              />
-            ) : (
-              <Box style={styles.cameraView} />
-            )}
-          </Box>
-          <UploadImage onPress={handleChooseImage} />
-          <HStack>
-            {qrPercent !== 100 && <ActivityIndicator />}
-            <Text>{`Scanned ${getPercentageStep(qrPercent)}%`}</Text>
-          </HStack>
-        </VStack>
-
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContainer}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+        <MockWrapper
+          signerType={type}
+          enable={setup && type && !disableMockFlow}
+          addSignerFlow={addSignerFlow}
+          signerXfp={signer?.masterFingerprint}
+          mode={mode}
         >
-          <NFCOption
-            signerType={type}
-            nfcVisible={nfcVisible}
-            closeNfc={closeNfc}
-            withNfcModal={withNfcModal}
-            setData={setData}
+          <KeeperHeader
+            title={title}
+            subtitle={subtitle}
+            learnMore={learnMore}
+            learnMorePressed={() => {
+              setVisibleModal(true);
+            }}
+            learnTextColor={`${colorMode}.white`}
           />
-        </ScrollView>
-        <Box style={styles.noteWrapper}>
-          <Note
-            title={common.note}
-            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-            subtitleColor="GreyText"
+          <ScrollView
+            automaticallyAdjustKeyboardInsets={true}
+            contentContainerStyle={{
+              flex: 1,
+            }}
+          >
+            <VStack style={globalStyles.centerColumn}>
+              <Box style={styles.qrcontainer}>
+                {!nfcVisible && isFocused ? (
+                  <RNCamera
+                    autoFocus="on"
+                    style={styles.cameraView}
+                    captureAudio={false}
+                    onBarCodeRead={onBarCodeRead}
+                    useNativeZoom
+                    notAuthorizedView={<CameraUnauthorized />}
+                  />
+                ) : (
+                  <Box style={styles.cameraView} />
+                )}
+              </Box>
+              <Box style={[styles.uploadButton, { top: isSmallDevice ? hp(295) : hp(240) }]}>
+                <UploadImage
+                  backgroundColor={`${colorMode}.brownColor`}
+                  onPress={handleChooseImage}
+                />
+              </Box>
+              <HStack style={styles.scanPercentage}>
+                {qrPercent !== 100 && <ActivityIndicator />}
+                <Text>{` Scanned ${getPercentageStep(qrPercent)}%`}</Text>
+              </HStack>
+            </VStack>
+            {isPSBT && (
+              <Box style={styles.inputContainer}>
+                <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+                  <Input
+                    placeholder="or enter paste PSBT text"
+                    placeholderTextColor={`${colorMode}.primaryText`}
+                    style={styles.textInput}
+                    variant="unstyled"
+                    value={inputText}
+                    onChangeText={(text) => {
+                      setInputText(text);
+                    }}
+                    onSubmitEditing={() => {
+                      onBarCodeRead({ data: inputText }, true);
+                    }}
+                    textAlignVertical="top"
+                    textAlign="left"
+                    multiline
+                    blurOnSubmit={false}
+                    onKeyPress={({ nativeEvent }) => {
+                      if (nativeEvent.key === 'Enter') {
+                        onBarCodeRead({ data: inputText }, true);
+                      }
+                    }}
+                  />
+                </Box>
+              </Box>
+            )}
+            <NFCOption
+              signerType={type}
+              nfcVisible={nfcVisible}
+              closeNfc={closeNfc}
+              withNfcModal={withNfcModal}
+              setData={setData}
+            />
+          </ScrollView>
+          <Box style={styles.noteWrapper}>
+            <Note
+              title={common.note}
+              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+              subtitleColor="GreyText"
+            />
+          </Box>
+          <KeeperModal
+            visible={visibleModal}
+            close={() => {
+              setVisibleModal(false);
+            }}
+            title={'Add a co-signer'}
+            subTitle={''}
+            modalBackground={`${colorMode}.modalGreenBackground`}
+            textColor={`${colorMode}.modalGreenContent`}
+            Content={learnMoreContent}
+            learnMore
+            learnMoreCallback={() => {
+              setVisibleModal(false);
+              dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'));
+            }}
+            learnMoreTitle={common.needHelp}
+            buttonCallback={() => setVisibleModal(false)}
+            buttonText={common.ok}
+            buttonBackground={`${colorMode}.modalWhiteButton`}
           />
-        </Box>
-        <KeeperModal
-          visible={visibleModal}
-          close={() => {
-            setVisibleModal(false);
-          }}
-          title={'Add a co-signer'}
-          subTitle={''}
-          modalBackground={`${colorMode}.modalGreenBackground`}
-          textColor={`${colorMode}.modalGreenContent`}
-          Content={learnMoreContent}
-          learnMore
-          learnMoreCallback={() =>
-            dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'))
-          }
-          learnMoreTitle={common.needMoreHelp}
-          buttonCallback={() => setVisibleModal(false)}
-          buttonBackground={`${colorMode}.modalWhiteButton`}
-        />
-      </MockWrapper>
-    </ScreenWrapper>
+        </MockWrapper>
+      </ScreenWrapper>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -235,7 +291,33 @@ const styles = StyleSheet.create({
   noteWrapper: {
     marginHorizontal: '5%',
   },
-  scrollContainer: {
+  uploadButton: {
+    position: 'absolute',
+    zIndex: 999,
+    justifyContent: 'center',
+  },
+  scanPercentage: {
+    marginBottom: hp(20),
+  },
+  inputContainer: {
+    marginHorizontal: hp(10),
+  },
+  inputWrapper: {
+    flexDirection: 'column',
+    height: hp(100),
+    marginBottom: hp(20),
+    width: '100%',
     alignItems: 'center',
+    borderRadius: 10,
+  },
+  textInput: {
+    width: '100%',
+    alignSelf: 'center',
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+    padding: 20,
+    opacity: 0.5,
+    fontSize: 13,
+    height: hp(60),
   },
 });

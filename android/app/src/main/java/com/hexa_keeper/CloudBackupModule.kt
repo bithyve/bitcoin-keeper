@@ -2,6 +2,8 @@ package com.hexa_keeper
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Promise
@@ -22,20 +24,31 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.gson.JsonObject
+import com.itextpdf.text.BaseColor
+import com.itextpdf.text.Chunk
 import com.itextpdf.text.Document
 import com.itextpdf.text.Element
+import com.itextpdf.text.Font
+import com.itextpdf.text.FontFactory
 import com.itextpdf.text.Image
 import com.itextpdf.text.PageSize
 import com.itextpdf.text.Paragraph
 import com.itextpdf.text.pdf.BarcodeQRCode
+import com.itextpdf.text.pdf.BaseFont
 import com.itextpdf.text.pdf.PdfContentByte
 import com.itextpdf.text.pdf.PdfGState
 import com.itextpdf.text.pdf.PdfWriter
+import com.itextpdf.text.pdf.draw.DottedLineSeparator
+import com.itextpdf.text.pdf.draw.LineSeparator
+import io.hexawallet.keeper.R
 import org.json.JSONArray
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Base64
 import java.util.Collections
 
 
@@ -46,7 +59,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
     private val FOLDER_NAME = "Bitcoin-Keeper"
     private var apiClient: GoogleSignInClient? = null
     private lateinit var tokenPromise: Promise
-    private val qrImageSize = 350f
+    private val qrImageSize = 250f
 
     init {
         reactContext.addActivityEventListener(this)
@@ -138,28 +151,85 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
             val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy, hh:mm:ss a")
             val formattedDateTime = currentDateTime.format(formatter)
             var gFileIds = arrayOf<String>()
+            val file = File(
+                reactApplicationContext.filesDir,
+                "Your-Wallet-Configurations-${formattedDateTime}.pdf"
+            )
+
+            val assetManager = reactApplicationContext.assets
+            val fontStream = assetManager.open("fonts/FiraSans-Regular.ttf")
+
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            fontStream.use { input ->
+                byteArrayOutputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+            val fontBytes = byteArrayOutputStream.toByteArray()
+            val firaSansRegular =  BaseFont.createFont("FiraSans-Regular.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, fontBytes, null)
+
+            val defaultFont = Font(firaSansRegular, 13f, Font.NORMAL)
+            val document = Document(PageSize.A4)
+            val pdfWriter = PdfWriter.getInstance(document, FileOutputStream(File(file.path)))
+            pdfWriter.setEncryption(
+                password.toByteArray(),
+                password.toByteArray(),
+                PdfWriter.ALLOW_COPY or PdfWriter.ALLOW_PRINTING,
+                PdfWriter.STANDARD_ENCRYPTION_128
+            )
+            document.open()
+
+            val padding = 36f // 0.5 inch padding on all sides
+            val bitmap = BitmapFactory.decodeResource(reactApplicationContext.resources, R.drawable.bgkeeper)
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            val byteArray = stream.toByteArray()
+            val image = Image.getInstance(byteArray)
+            image.scaleAbsolute(320F, 150F)
+
+            // Align image to center
+            image.alignment = Element.ALIGN_CENTER
+            document.add(image)
+            val header = Paragraph("Your Wallet Configurations",  Font(firaSansRegular, 24f, Font.NORMAL))
+            header.alignment = Element.ALIGN_CENTER
+            header.spacingBefore = padding
+            header.spacingAfter = padding
+            val paragraph1 = Paragraph("Dear Recipient,", defaultFont)
+            val paragraph2 = Paragraph("This document includes all your Wallet Configurations (aka Output Descriptors or BSMS files)*. To recreate your wallet on a multisig app like Keeper or Sparrow**, copy the text between the dotted lines in the Wallet Configuration Text section, and paste it in the appropriate area of the app. You can also scan the QR code of the desired vault to recreate it. ", defaultFont)
+            paragraph1.spacingBefore = 10f
+            paragraph1.spacingAfter = 10f
+            paragraph2.spacingBefore = 10f
+            paragraph2.spacingAfter = 10f
+            document.add(header)
+            document.add(paragraph1)
+            document.add(paragraph2)
+
+            val footer = Paragraph("This document is generated by the Bitcoin Keeper app. Need help? Reach out to us via the in-app chat support called Keeper Concierge. For more details visit: www.bitcoinkeeper.app.   \n" +
+                    "\n" +
+                    "* Wallet configuration files standardize multi-signature setups, ensuring secure and interoperable configurations with public keys and derivation paths. This ensures that you do not have to rely on a single bitcoin wallet to create and use a multisig wallet. \n" +
+                    "** Keeper and Sparrow are bitcoin wallets that allow you to create wallets called multisig wallets (In Keeper these are called Vaults). Multisig wallets, as the name suggests require multiple signatures to sign a single bitcoin transaction.", defaultFont)
+            footer.spacingBefore = padding
+            footer.spacingAfter = padding
+            document.add(footer)
             for (i in 0 until jsonArray.length()) {
+                document.newPage()
                 val jsonObject = jsonArray.getJSONObject(i)
                 val content = jsonObject.getString("bsms")
                 val vaultName = jsonObject.getString("name")
-                val file = File(
-                    reactApplicationContext.filesDir,
-                    "${vaultName}-${formattedDateTime}.pdf"
-                )
-                val document = Document(PageSize.A4)
-                val pdfWriter = PdfWriter.getInstance(document, FileOutputStream(File(file.path)))
-                pdfWriter.setEncryption(
-                    password.toByteArray(),
-                    password.toByteArray(),
-                    PdfWriter.ALLOW_COPY or PdfWriter.ALLOW_PRINTING,
-                    PdfWriter.STANDARD_ENCRYPTION_128
-                )
-                document.open()
 
                 val preface = Paragraph()
-                preface.add(Paragraph("Vault Name: $vaultName"))
+                preface.alignment = Element.ALIGN_CENTER
+                preface.spacingBefore = padding
+                preface.spacingAfter = padding
+                preface.add(Paragraph("Vault Name: $vaultName", defaultFont))
                 preface.add(Paragraph(" "));
-                preface.add(Paragraph(content))
+                preface.add(Paragraph("Wallet Configuration Text:",  defaultFont))
+                preface.add(Paragraph("----------------------------------------------------------------------------------------------------------------------"));
+                preface.add(Paragraph(content, defaultFont))
+                preface.add(Paragraph("----------------------------------------------------------------------------------------------------------------------"));
+                preface.add(Paragraph("File Details: File created on: $formattedDateTime",  Font(firaSansRegular, 13f, Font.NORMAL)));
+                preface.add(Paragraph(" "));
+                preface.add(Paragraph("Wallet Configuration QR: ",  defaultFont));
                 preface.add(Paragraph(" "));
                 val barcodeQRCode = BarcodeQRCode(
                     content,
@@ -169,21 +239,25 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
                 )
                 val codeQrImage = barcodeQRCode.image
                 codeQrImage.scaleAbsolute(qrImageSize, qrImageSize)
+                codeQrImage.alignment = Element.ALIGN_CENTER
                 document.add(preface)
+                document.add(Chunk.NEWLINE)
                 document.add(codeQrImage)
-                document.close()
-                val driveClient =
-                    Drive.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance(), credential)
-                        .setApplicationName("Keeper")
-                        .build()
-                val folder = createFolder(driveClient)
-                val gFile = com.google.api.services.drive.model.File()
-                gFile.parents = Collections.singletonList(folder)
-                gFile.name = file.name
-                val newFileID =
-                    driveClient.files().create(gFile, FileContent("application/pdf", file)).execute().id
-                gFileIds += newFileID
+                document.add(Chunk.NEWLINE)
+
             }
+            document.close()
+            val driveClient =
+                Drive.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance(), credential)
+                    .setApplicationName("Keeper")
+                    .build()
+            val folder = createFolder(driveClient)
+            val gFile = com.google.api.services.drive.model.File()
+            gFile.parents = Collections.singletonList(folder)
+            gFile.name = file.name
+            val newFileID =
+                driveClient.files().create(gFile, FileContent("application/pdf", file)).execute().id
+            gFileIds += newFileID
             val jsonObject = JsonObject()
             jsonObject.addProperty("status", true)
             jsonObject.addProperty("error", "")

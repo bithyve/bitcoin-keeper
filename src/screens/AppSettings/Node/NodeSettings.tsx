@@ -2,7 +2,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { hp, windowHeight } from 'src/constants/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
@@ -24,6 +24,7 @@ import {
 } from 'src/store/reducers/login';
 import Node from 'src/services/electrum/node';
 import AddNode from './AddNodeModal';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -125,7 +126,7 @@ function NodeSettings() {
       node.isConnected = connected;
       Node.update(node, { isConnected: connected });
       dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, connectedTo }));
-
+      showToast(`Connected to: ${connectedTo}`, <TickIcon />);
       nodes = nodes.map((item) => {
         if (item.id === node.id) return { ...node };
         return item;
@@ -146,7 +147,7 @@ function NodeSettings() {
     await Node.disconnect(node);
     node.isConnected = false;
     Node.update(node, { isConnected: node.isConnected });
-    // showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
+    showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
 
     nodes = nodes.map((item) => {
       if (item.id === node.id) return { ...node };
@@ -177,7 +178,7 @@ function NodeSettings() {
                 >
                   <Box backgroundColor={`${colorMode}.seashellWhite`} style={[styles.nodeList]}>
                     <Box style={styles.nodeDetail} backgroundColor={`${colorMode}.seashellWhite`}>
-                      <Box style={{ width: '60%' }}>
+                      <Box style={{ width: '53%' }}>
                         <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.host}
                         </Text>
@@ -185,7 +186,7 @@ function NodeSettings() {
                           {item.host}
                         </Text>
                       </Box>
-                      <Box>
+                      <Box style={styles.portContainer}>
                         <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.portNumber}
                         </Text>
@@ -203,7 +204,7 @@ function NodeSettings() {
                         <Box
                           style={[
                             styles.actionArea,
-                            { width: 70, paddingTop: isConnected ? 4 : 5 },
+                            { width: 60, paddingTop: isConnected ? 4 : 5, marginRight: 8 },
                           ]}
                         >
                           {isConnected ? <DisconnectIcon /> : <ConnectIcon />}
@@ -257,7 +258,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -327,6 +328,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
   },
   nodeDetail: {
+    overflow: 'hidden',
     width: '64%',
     flexDirection: 'row',
     paddingHorizontal: 3,
@@ -334,14 +336,14 @@ const styles = StyleSheet.create({
   },
   nodeList: {
     flexDirection: 'row',
-    width: '99%',
+    width: '100%',
     marginBottom: 4,
     alignItems: 'center',
     borderRadius: 5,
+    paddingHorizontal: 10,
   },
   nodeButtons: {
     flexDirection: 'row',
-    width: '36%',
   },
   selectedItem: {
     borderRadius: 5,
@@ -366,14 +368,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   nodeTextHeader: {
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     fontSize: 11,
     letterSpacing: 0.6,
   },
   nodeTextValue: {
     fontSize: 12,
     letterSpacing: 1.56,
-    marginLeft: 20,
+    marginLeft: 10,
     paddingBottom: 2,
   },
   activityIndicator: {
@@ -392,6 +394,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '400',
     letterSpacing: 0.6,
+  },
+  portContainer: {
+    // marginLeft: wp(-5),
   },
 });
 

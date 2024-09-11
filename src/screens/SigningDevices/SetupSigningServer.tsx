@@ -81,14 +81,16 @@ function SetupSigningServer({ route }: { route }) {
 
     dispatch(addSigningDevice([signingServerKey]));
     const navigationState = addSignerFlow
-      ? { name: 'ManageSigners' }
-      : { name: 'AddSigningDevice', merge: true, params: {} };
+      ? {
+          name: 'ManageSigners',
+          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+        }
+      : {
+          name: 'AddSigningDevice',
+          merge: true,
+          params: { addedSigner: signingServerKey, addSignerFlow, showModal: true },
+        };
     navigation.dispatch(CommonActions.navigate(navigationState));
-    showToast(
-      `${signingServerKey.signerName} added successfully`,
-      <TickIcon />,
-      IToastCategory.SIGNING_DEVICE
-    );
   };
 
   useEffect(() => {
@@ -120,7 +122,7 @@ function SetupSigningServer({ route }: { route }) {
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box style={styles.otpContainer}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -285,6 +287,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  otpContainer: {
+    width: '100%',
   },
 });
 export default SetupSigningServer;

@@ -111,6 +111,14 @@ export const getPlaceholder = (index: number) => {
   return `${mainIndex}th`;
 };
 
+export const getPlaceholderSuperScripted = (index: number) => {
+  const mainIndex = index + 1;
+  if (mainIndex === 1) return `${mainIndex}ˢᵗ`;
+  if (mainIndex === 2) return `${mainIndex}ⁿᵈ`;
+  if (mainIndex === 3) return `${mainIndex}ʳᵈ`;
+  return `${mainIndex}ᵗʰ`;
+};
+
 /**
  * handles inter-Keeper interactions
  * @param  {} error
@@ -190,4 +198,17 @@ export const getWalletTags = (walletType) => {
 
     return ['SINGLE-KEY', walletKind];
   }
+};
+
+export const trimCWDefaultName = (wallet) => {
+  // To convert "Collaborative Wallet" to "Collab. Wallet" when editing
+  if (wallet.presentationData.name.length > 18) {
+    const tempWallet = JSON.parse(JSON.stringify(wallet));
+    tempWallet.presentationData.name = tempWallet.presentationData.name.replace(
+      'Collaborative Wallet',
+      'Collab. Wallet'
+    );
+    return tempWallet;
+  }
+  return wallet;
 };

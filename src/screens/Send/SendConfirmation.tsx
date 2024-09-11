@@ -1,6 +1,6 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode, ScrollView, HStack } from 'native-base';
+import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -8,7 +8,6 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import moment from 'moment';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
@@ -16,7 +15,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { TxPriority } from 'src/services/wallets/enums';
+import { NetworkType, TxPriority } from 'src/services/wallets/enums';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
@@ -34,7 +33,6 @@ import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/models/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
@@ -42,8 +40,7 @@ import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/services/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-
-import { UTXO } from 'src/services/wallets/interfaces';
+import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import SignerCard from '../AddSigner/SignerCard';
 import AddCard from 'src/components/AddCard';
@@ -55,7 +52,8 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
-import TickIcon from 'src/assets/images/tick_icon.svg';
+import SendIcon from 'src/assets/images/icon_sent_footer.svg';
+import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -67,8 +65,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import HexagonIcon from 'src/components/HexagonIcon';
 import WalletsIcon from 'src/assets/images/daily_wallet.svg';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import usePlan from 'src/hooks/usePlan';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import KeeperFooter from 'src/components/KeeperFooter';
+import idx from 'idx';
+import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -141,13 +143,18 @@ function SendingCard({
   };
 
   const getCardDetails = () => {
+    const availableBalance =
+      sender.networkType === NetworkType.MAINNET
+        ? sender.specs.balances.confirmed
+        : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
     switch (transferType) {
       case TransferType.VAULT_TO_VAULT:
         return isSend ? (
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
+              availableBalance
             )} ${getSatUnit()}`}
             isVault
           />
@@ -163,7 +170,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
+              availableBalance
             )} ${getSatUnit()}`}
             isVault
           />
@@ -178,7 +185,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
             isVault
           />
@@ -195,7 +202,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
           />
         ) : (
@@ -209,7 +216,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
           />
         ) : (
@@ -224,7 +231,7 @@ function SendingCard({
           <Card
             title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs?.balances?.confirmed || 0
+              availableBalance || 0
             )} ${getSatUnit()}`}
           />
         ) : (
@@ -247,6 +254,50 @@ function SendingCard({
   );
 }
 
+function TransferCard({
+  transferFrom = false,
+  preTitle = '',
+  title,
+  subTitle = '',
+  isVault = false,
+  currentCurrency,
+  currencyCode,
+}) {
+  const getCurrencyIcon = () => {
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      return '₿';
+    }
+    return currencyCode;
+  };
+  const { colorMode } = useColorMode();
+
+  return (
+    <Box style={styles.sendingCardContainer}>
+      <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>
+        {transferFrom ? 'Transfer From' : 'Transfer To'}
+      </Text>
+      <Card
+        title={preTitle}
+        subTitle={`${title} ${getCurrencyIcon()} ${subTitle}`}
+        isVault={isVault}
+      />
+    </Box>
+  );
+}
+
+function Footer({ setConfirmPassVisible }: { setConfirmPassVisible: (value: boolean) => void }) {
+  const footerItems = [
+    {
+      Icon: SendIcon,
+      text: 'Send',
+      onPress: () => {
+        setConfirmPassVisible(true);
+      },
+    },
+  ];
+  return <KeeperFooter items={footerItems} wrappedScreen={true} />;
+}
+
 function TextValue({ amt, getValueIcon, inverted = false }) {
   return (
     <Text
@@ -254,26 +305,61 @@ function TextValue({ amt, getValueIcon, inverted = false }) {
         ...styles.priorityTableText,
       }}
     >
-      {amt} {getValueIcon() === 'sats' ? 'sats' : '$'}
+      {getValueIcon() === 'sats' ? `${amt} sats` : `$ ${amt}`}
     </Text>
   );
 }
 
 function SendingPriority({
   txFeeInfo,
+  averageTxFees,
   transactionPriority,
+  isCachedTransaction,
   setTransactionPriority,
   availableTransactionPriorities,
+  customFeePerByte,
   setVisibleCustomPriorityModal,
   getBalance,
   getSatUnit,
+  networkType,
 }) {
   const { colorMode } = useColorMode();
+  const reorderedPriorities = [
+    ...availableTransactionPriorities.filter((priority) => priority === TxPriority.CUSTOM),
+    ...availableTransactionPriorities.filter((priority) => priority !== TxPriority.CUSTOM),
+  ];
+
   return (
     <Box>
-      <Box style={styles.fdRow}>
-        {availableTransactionPriorities?.map((priority) => {
+      <Text style={styles.sendingPriorityText}>Select an option</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.fdRow}>
+        {reorderedPriorities?.map((priority) => {
+          if (isCachedTransaction) if (priority !== transactionPriority) return; // cached tx has priority locked in(the one set during creation of the cached tx)
+
           if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0) {
+            if (!isCachedTransaction) {
+              // for fresh transactions: chip out higher priorities w/ similar fee(reason: insufficient funds to support high sats/vByte)
+              // for cached transactions: only one priority exists(lock-in), hence we don't need to chip out anything
+              if (priority === TxPriority.HIGH) {
+                if (
+                  txFeeInfo[TxPriority.HIGH.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount
+                )
+                  return;
+              } else if (priority === TxPriority.MEDIUM) {
+                if (
+                  txFeeInfo[TxPriority.MEDIUM.toLowerCase()].amount ===
+                  txFeeInfo[TxPriority.LOW.toLowerCase()].amount
+                )
+                  return;
+              }
+            }
+
+            const satvByte =
+              priority === TxPriority.CUSTOM
+                ? customFeePerByte
+                : averageTxFees[networkType]?.[priority]?.feePerByte;
+
             return (
               <TouchableOpacity
                 key={priority}
@@ -282,24 +368,28 @@ function SendingPriority({
                 }}
               >
                 <SignerCard
+                  isFeePriority
                   titleComp={
                     <TextValue
                       amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
                       getValueIcon={getSatUnit}
                     />
                   }
+                  icon={{}}
                   isSelected={transactionPriority === priority}
                   key={priority}
                   name={String(priority)}
-                  description={`~${
+                  subtitle={`${satvByte} sats/vbyte`}
+                  description={`≈${
                     txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10
                   } mins`}
+                  boldDesc
                   numberOfLines={2}
                   onCardSelect={() => setTransactionPriority(priority)}
                   customStyle={{
-                    width: windowWidth / 3.4 - windowWidth * 0.05,
-                    height: 135,
+                    width: wp(96.5),
                     opacity: transactionPriority === priority ? 1 : 0.5,
+                    height: getSatUnit() === 'sats' ? 150 : 135,
                   }}
                   colorMode={colorMode}
                 />
@@ -307,12 +397,17 @@ function SendingPriority({
             );
           }
         })}
-      </Box>
-      <AddCard
-        cardStyles={styles.customPriorityCard}
-        name="Custom Priority"
-        callback={setVisibleCustomPriorityModal}
-      />
+      </ScrollView>
+      {isCachedTransaction ? null : (
+        <Box style={styles.customPriorityCardContainer}>
+          <Text style={styles.customPriorityText}>or choose custom fee</Text>
+          <AddCard
+            cardStyles={styles.customPriorityCard}
+            name="Custom Priority"
+            callback={setVisibleCustomPriorityModal}
+          />
+        </Box>
+      )}
     </Box>
   );
 }
@@ -341,6 +436,11 @@ function SendSuccessfulContent({
     return currencyCode;
   };
 
+  const availableBalance =
+    sender.networkType === NetworkType.MAINNET
+      ? sender.specs.balances.confirmed
+      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+
   return (
     <View>
       <Box style={styles.fdRow}>
@@ -364,21 +464,26 @@ function SendSuccessfulContent({
           <Card
             isVault={sender?.entityKind === RealmSchema.Wallet.toUpperCase() ? false : true}
             title={sender?.presentationData?.name}
-            subTitle={`${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
-            )} ${getSatUnit()}`}
+            subTitle={`${getCurrencyIcon()} ${getBalance(availableBalance)} ${getSatUnit()}`}
           />
         </Box>
       </Box>
-      <AmountDetails title={walletTransactions.totalAmount} satsAmount={getBalance(amount)} />
+      <AmountDetails
+        title={walletTransactions.totalAmount}
+        satsAmount={`${getBalance(amount)} ${getSatUnit()}`}
+      />
       <AmountDetails
         title={walletTransactions.totalFees}
-        satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
       />
       <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
       <AmountDetails
         title={walletTransactions.total}
-        satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        satsAmount={`${getBalance(
+          amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+        )} ${getSatUnit()}`}
         fontSize={17}
         fontWeight={'400'}
       />
@@ -424,6 +529,10 @@ function TransactionPriorityDetails({
   txFeeInfo,
   getBalance,
   getCurrencyIcon,
+  getSatUnit,
+  isAutoTransfer,
+  sendMaxFee,
+  sendMaxFeeEstimatedBlocks,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -447,8 +556,10 @@ function TransactionPriorityDetails({
             <Text style={styles.transLabelText}>{transactionPriority.toUpperCase()}</Text>
             <Text style={styles.transLabelText}>
               ~{' '}
-              {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
-                10}{' '}
+              {(isAutoTransfer
+                ? sendMaxFeeEstimatedBlocks
+                : txFeeInfo[transactionPriority?.toLowerCase()]
+                    ?.estimatedBlocksBeforeConfirmation) * 10}{' '}
               mins
             </Text>
             <Box>
@@ -456,7 +567,11 @@ function TransactionPriorityDetails({
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
                 <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
-                  {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+                  {isAutoTransfer
+                    ? sendMaxFee
+                    : `${getBalance(
+                        txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                      )} ${getSatUnit()}`}
                 </Text>
               </Box>
             </Box>
@@ -504,42 +619,62 @@ function HighFeeAlert({
   transactionPriority,
   txFeeInfo,
   amountToSend,
-  getBalance,
   showFeesInsightModal,
   OneDayHistoricalFee,
+  isFeeHigh,
+  isUsualFeeHigh,
+  setTopText,
 }) {
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions } = translations;
+  const {
+    translations: { wallet: walletTransactions },
+  } = useContext(LocalizationContext);
 
-  const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
-  return (
+  const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()]?.amount;
+  const [bottomText, setBottomText] = useState('');
+
+  useEffect(() => {
+    const topText = isFeeHigh ? walletTransactions.highCustom : walletTransactions.highWait;
+    const bottomText = isFeeHigh
+      ? isUsualFeeHigh
+        ? walletTransactions.highWait
+        : walletTransactions.highUsual
+      : walletTransactions.lowFee;
+
+    setTopText(topText);
+    setBottomText(bottomText);
+  }, [isFeeHigh, isUsualFeeHigh, setTopText]);
+
+  const renderFeeDetails = () => (
+    <View style={styles.boxWrapper}>
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+        <CurrencyInfo
+          amount={selectedFee}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
+        />
+      </Box>
+      <View style={styles.divider} />
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+        <CurrencyInfo
+          amount={amountToSend}
+          hideAmounts={false}
+          fontSize={16}
+          bold
+          color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
+          variation={colorMode === 'light' ? 'dark' : 'light'}
+        />
+      </Box>
+    </View>
+  );
+
+  const renderFeeStats = () => (
     <>
-      <View style={styles.boxWrapper}>
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-          <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
-          <CurrencyInfo
-            amount={selectedFee}
-            hideAmounts={false}
-            fontSize={16}
-            bold
-            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
-          />
-        </Box>
-        <View style={styles.divider} />
-        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
-          <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
-          <CurrencyInfo
-            amount={amountToSend}
-            hideAmounts={false}
-            fontSize={16}
-            bold
-            color={colorMode === 'light' ? Colors.RichBlack : Colors.White}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
-          />
-        </Box>
-      </View>
       <Text style={styles.statsTitle}>Fee Stats</Text>
       {OneDayHistoricalFee.length > 0 && (
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementContainer}>
@@ -549,15 +684,41 @@ function HighFeeAlert({
           />
         </Box>
       )}
-      <Box width={'70%'}>
-        <Text style={styles.highFeeNote}>
-          If not urgent, you could consider waiting for the fees to reduce
-        </Text>
-      </Box>
+    </>
+  );
+
+  return (
+    <>
+      {isFeeHigh && isUsualFeeHigh ? (
+        <>
+          {renderFeeDetails()}
+          {renderFeeStats()}
+          <Box width={'70%'}>
+            <Text style={styles.highFeeNote}>{bottomText}</Text>
+          </Box>
+        </>
+      ) : isFeeHigh ? (
+        <>
+          {renderFeeDetails()}
+          {renderFeeStats()}
+          <Box width={'70%'}>
+            <Text style={styles.highFeeNote}>{bottomText}</Text>
+          </Box>
+        </>
+      ) : (
+        isUsualFeeHigh && (
+          <>
+            <Box style={styles.marginBottom}>{renderFeeStats()}</Box>
+            {renderFeeDetails()}
+            <Box width={'70%'}>
+              <Text style={styles.highFeeNote}>{bottomText}</Text>
+            </Box>
+          </>
+        )
+      )}
     </>
   );
 }
-
 function AddLabel() {
   return (
     <Box
@@ -587,6 +748,26 @@ function AddLabel() {
   );
 }
 
+export interface SendConfirmationRouteParams {
+  sender: Wallet | Vault;
+  recipient: Wallet | Vault;
+  address: string;
+  amount: number;
+  walletId: string;
+  uiMetaData: any;
+  transferType: TransferType;
+  uaiSetActionFalse: any;
+  note: string;
+  isAutoTransfer: boolean;
+  label: {
+    name: string;
+    isSystem: boolean;
+  }[];
+  selectedUTXOs: UTXO[];
+  date: Date;
+  parentScreen: string;
+}
+
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -603,35 +784,24 @@ function SendConfirmation({ route }) {
     label,
     selectedUTXOs,
     isAutoTransfer,
-  }: {
-    sender: Wallet | Vault;
-    recipient: Wallet | Vault;
-    address: string;
-    amount: number;
-    walletId: string;
-    uiMetaData: any;
-    transferType: TransferType;
-    uaiSetActionFalse: any;
-    note: string;
-    isAutoTransfer: boolean;
-    label: {
-      name: string;
-      isSystem: boolean;
-    }[];
-    selectedUTXOs: UTXO[];
-  } = route.params;
+    parentScreen,
+  }: SendConfirmationRouteParams = route.params;
 
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const sendMaxFeeEstimatedBlocks = useAppSelector(
+    (state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks
+  );
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
+  const [customFeePerByte, setCustomFeePerByte] = useState('');
   const { wallets } = useWallets({ getAll: true });
-  const sourceWallet = wallets.find((item) => item.id === walletId);
+  const sourceWallet = wallets.find((item) => item?.id === walletId);
   const sourceWalletAmount = sourceWallet?.specs.balances.confirmed - sendMaxFee;
 
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
@@ -654,11 +824,65 @@ function SendConfirmation({ route }) {
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
+  const isMoveAllFunds =
+    parentScreen === MANAGEWALLETS ||
+    parentScreen === VAULTSETTINGS ||
+    parentScreen === WALLETSETTINGS;
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+
+  const {
+    txid: walletSendSuccessful,
+    hasFailed: sendPhaseTwoFailed,
+    cachedTxid, // generated for new transactions as well(in case they get cached)
+    cachedTxPriority,
+  } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
+  const cachedTxn = useAppSelector((state) => state.cachedTxn);
+  const snapshot: cachedTxSnapshot = cachedTxn.snapshots[cachedTxid];
+  const isCachedTransaction = !!snapshot;
+  const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
+  const [transactionPriority, setTransactionPriority] = useState(
+    isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
+  );
+  const [usualFee, setUsualFee] = useState(0);
+  const [topText, setTopText] = useState('');
+  const [isFeeHigh, setIsFeeHigh] = useState(false);
+  const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
+
+  const navigation = useNavigation();
+  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
+    (state) => state.settings
+  );
+
+  function checkUsualFee(data: any[]) {
+    if (data.length === 0) {
+      return;
+    }
+
+    const total = data.reduce((sum, record) => sum + record.avgFee_75, 0);
+    const historicalAverage = total / data.length;
+    const recentFee = data[data.length - 1].avgFee_75;
+
+    const difference = recentFee - historicalAverage;
+    const percentageDifference = (difference / historicalAverage) * 100;
+    setUsualFee(Math.abs(Number(percentageDifference.toFixed(2))));
+    setIsUsualFeeHigh(usualFee > 10);
+  }
 
   useEffect(() => {
-    if (vaultTransfers.includes(transferType)) {
+    if (OneDayHistoricalFee.length > 0) {
+      checkUsualFee(OneDayHistoricalFee);
+    }
+  }, [OneDayHistoricalFee]);
+
+  useEffect(() => {
+    if (isAutoTransfer) {
+      setSubTitle('Review auto-transfer transaction details');
+    } else if (vaultTransfers.includes(transferType)) {
       setTitle('Sending to vault');
     } else if (walletTransfers.includes(transferType)) {
       setTitle('Sending to wallet');
@@ -681,8 +905,10 @@ function SendConfirmation({ route }) {
 
     setFeePercentage(Math.trunc((selectedFee / amount) * 100));
 
-    if (hasHighFee) setHighFeeAlertVisible(true);
-    else setHighFeeAlertVisible(false);
+    if (hasHighFee) {
+      setIsFeeHigh(true);
+      setHighFeeAlertVisible(true);
+    } else setHighFeeAlertVisible(false);
   }, [transactionPriority, amount]);
 
   const onTransferNow = () => {
@@ -698,23 +924,6 @@ function SendConfirmation({ route }) {
 
   const [inProgress, setProgress] = useState(false);
 
-  useEffect(() => {
-    if (inProgress) {
-      setTimeout(() => {
-        dispatch(sendPhaseTwoReset());
-        dispatch(
-          sendPhaseTwo({
-            wallet: sender,
-            txnPriority: transactionPriority,
-            note,
-            label,
-            transferType,
-          })
-        );
-      }, 200);
-    }
-  }, [inProgress]);
-
   const onProceed = () => {
     if (isAutoTransferFlow) {
       if (defaultVault) {
@@ -725,42 +934,115 @@ function SendConfirmation({ route }) {
     }
   };
 
+  // useEffect(
+  //   () => () => {
+  //     dispatch(sendPhaseTwoReset());
+  //     dispatch(crossTransferReset());
+  //   },
+  //   []
+  // );
+
+  useEffect(() => {
+    if (isCachedTransaction) {
+      // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
+    } else {
+      // case: new transaction
+      if (inProgress) {
+        setTimeout(() => {
+          dispatch(sendPhaseTwoReset());
+          dispatch(
+            sendPhaseTwo({
+              wallet: sender,
+              txnPriority: transactionPriority,
+              note,
+              label,
+              transferType,
+            })
+          );
+        }, 200);
+      }
+    }
+  }, [inProgress]);
+
+  const { activeVault: currentSender } = useVault({ vaultId: sender?.id }); // current state of vault
+
+  const validateUTXOsForCachedTxn = () => {
+    // perform UTXO validation for cached transaction
+
+    if (!cachedTxPrerequisites) return false;
+
+    const cachedInputUTXOs: InputUTXOs[] = idx(
+      cachedTxPrerequisites,
+      (_) => _[transactionPriority].inputs
+    );
+    if (!cachedInputUTXOs) return false;
+
+    const confirmedUTXOs: InputUTXOs[] = idx(currentSender, (_) => _.specs.confirmedUTXOs) || [];
+    const unconfirmedUTXOs: InputUTXOs[] =
+      idx(currentSender, (_) => _.specs.unconfirmedUTXOs) || [];
+
+    const currentUTXOSet =
+      currentSender.networkType === NetworkType.MAINNET
+        ? confirmedUTXOs
+        : [...confirmedUTXOs, ...unconfirmedUTXOs];
+
+    for (const cachedUTXO of cachedInputUTXOs) {
+      let found = false;
+      for (const currentUTXO of currentUTXOSet) {
+        if (cachedUTXO.txId === currentUTXO.txId && cachedUTXO.vout === currentUTXO.vout) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) return false;
+    }
+
+    return true;
+  };
+
+  const discardCachedTransaction = () => {
+    dispatch(dropTransactionSnapshot({ cachedTxid }));
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length && inProgress) {
+      if (isCachedTransaction) {
+        // perform UTXO validation for cached transaction
+        const isValid = validateUTXOsForCachedTxn();
+        if (!isValid) {
+          // block and show discard alert
+          setDiscardUTXOVisible(true);
+          return;
+        }
+      }
+
+      navigation.dispatch(
+        CommonActions.navigate('SignTransactionScreen', {
+          isMoveAllFunds,
+          note,
+          label,
+          vaultId: sender?.id,
+          sender: sender,
+          sendConfirmationRouteParams: route.params,
+        })
+      );
+      setProgress(false);
+    }
+  }, [serializedPSBTEnvelops, inProgress]);
+
   useEffect(
     () => () => {
-      dispatch(sendPhaseTwoReset());
-      dispatch(crossTransferReset());
+      dispatch(resetVaultMigration());
     },
     []
   );
-
-  const serializedPSBTEnvelops = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-
-  const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo
-  );
-  const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
-    (state) => state.settings
-  );
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
-      setProgress(false);
-      navigation.dispatch(
-        CommonActions.navigate('SignTransactionScreen', {
-          note,
-          label,
-          vaultId: sender.id,
-        })
-      );
-    }
-  }, [serializedPSBTEnvelops]);
-
-  useEffect(() => {
-    dispatch(resetVaultMigration());
-  }, []);
 
   const viewDetails = () => {
     setVisibleModal(false);
@@ -773,7 +1055,7 @@ function SendConfirmation({ route }) {
             name: 'VaultDetails',
             params: {
               autoRefresh: true,
-              vaultId: isAutoTransferFlow ? defaultVault.id : recipient.id,
+              vaultId: isAutoTransferFlow ? defaultVault?.id : recipient.id,
             },
           },
         ],
@@ -787,11 +1069,39 @@ function SendConfirmation({ route }) {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender.id } },
+          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender?.id } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     }
+  };
+
+  const viewManageWallets = () => {
+    new Promise((resolve, reject) => {
+      try {
+        const result = dispatch(refreshWallets([sender], { hardRefresh: true }));
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    })
+      .then(() => {
+        setVisibleModal(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              {
+                name: 'ManageWallets',
+              },
+            ],
+          })
+        );
+      })
+      .catch((error) => {
+        console.error('Error refreshing wallets:', error);
+      });
   };
 
   useEffect(() => {
@@ -826,6 +1136,19 @@ function SendConfirmation({ route }) {
       setFeeInsightVisible(!feeInsightVisible);
     }
   };
+
+  const discardUTXOModalContent = () => {
+    return (
+      <Box style={{ width: wp(280) }}>
+        <Box style={styles.imgCtr}>
+          <InvalidUTXO />
+        </Box>
+        <Text color={`${colorMode}.primaryText`} style={styles.highFeeNote}>
+          {walletTransactions.discardTnxDesc}
+        </Text>
+      </Box>
+    );
+  };
   const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
@@ -855,64 +1178,106 @@ function SendConfirmation({ route }) {
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
       />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <SendingCard
-          isSend
-          currentCurrency={currentCurrency}
-          currencyCode={currencyCode}
-          sender={sender || sourceWallet}
-          recipient={recipient}
-          address={address}
-          amount={amount}
-          transferType={transferType}
-          getBalance={getBalance}
-          getSatUnit={getSatUnit}
-        />
-        <SendingCard
-          isSend={false}
-          currentCurrency={currentCurrency}
-          currencyCode={currencyCode}
-          sender={sender}
-          recipient={recipient}
-          address={address}
-          amount={amount}
-          transferType={transferType}
-          getBalance={getBalance}
-          getSatUnit={getSatUnit}
-          isAddress={isAddress}
-        />
-        {/* Custom priority diabled for auto transfer  */}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {!isAutoTransferFlow ? (
-          <TouchableOpacity
-            testID="btn_transactionPriority"
-            onPress={() => setTransPriorityModalVisible(true)}
-          >
-            <TransactionPriorityDetails
-              transactionPriority={transactionPriority}
-              txFeeInfo={txFeeInfo}
+          <>
+            <SendingCard
+              isSend
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+              sender={sender || sourceWallet}
+              recipient={recipient}
+              address={address}
+              amount={amount}
+              transferType={transferType}
               getBalance={getBalance}
-              getCurrencyIcon={getCurrencyIcon}
+              getSatUnit={getSatUnit}
+              isAddress={isAddress}
             />
-          </TouchableOpacity>
-        ) : null}
+            <SendingCard
+              isSend={false}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+              sender={sender}
+              recipient={recipient}
+              address={address}
+              amount={amount}
+              transferType={transferType}
+              getBalance={getBalance}
+              getSatUnit={getSatUnit}
+              isAddress={isAddress}
+            />
+          </>
+        ) : (
+          <>
+            <TransferCard
+              transferFrom
+              preTitle={sourceWallet?.presentationData?.name}
+              title={'Available:'}
+              subTitle={`${getBalance(sourceWallet?.specs?.balances?.confirmed)} ${getSatUnit()}`}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+            />
+            <TransferCard
+              isVault
+              preTitle={defaultVault?.presentationData?.name}
+              title={'Balance:'}
+              subTitle={`${getBalance(defaultVault?.specs?.balances?.confirmed)} ${getSatUnit()}`}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+            />
+          </>
+        )}
+        {/* Custom priority diabled for auto transfer  */}
+
+        <TouchableOpacity
+          testID="btn_transactionPriority"
+          onPress={() => setTransPriorityModalVisible(true)}
+          disabled={isAutoTransfer} // disable change priority for AutoTransfers
+        >
+          <TransactionPriorityDetails
+            isAutoTransfer={isAutoTransfer}
+            sendMaxFee={`${getBalance(sendMaxFee)} ${getSatUnit()}`}
+            sendMaxFeeEstimatedBlocks={sendMaxFeeEstimatedBlocks}
+            transactionPriority={transactionPriority}
+            txFeeInfo={txFeeInfo}
+            getBalance={getBalance}
+            getCurrencyIcon={getCurrencyIcon}
+            getSatUnit={getSatUnit}
+          />
+        </TouchableOpacity>
+
         {OneDayHistoricalFee.length > 0 && (
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
-            <FeerateStatement
-              showFeesInsightModal={toogleFeesInsightModal}
-              feeInsightData={OneDayHistoricalFee}
-            />
+          <Box style={styles.feeStatContainer}>
+            <Text style={styles.feeStatText}>Fee stats</Text>
+            <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.feeStatementWrapper}>
+              <FeerateStatement
+                showFeesInsightModal={toogleFeesInsightModal}
+                feeInsightData={OneDayHistoricalFee}
+              />
+            </Box>
           </Box>
         )}
         <AmountDetails
           title={walletTransactions.totalAmount}
-          satsAmount={isAutoTransferFlow ? getBalance(sourceWalletAmount) : getBalance(amount)}
+          satsAmount={
+            isAutoTransferFlow
+              ? `${getBalance(sourceWalletAmount)} ${getSatUnit()}`
+              : ` ${getBalance(amount)} ${getSatUnit()}`
+          }
         />
         <AmountDetails
           title={walletTransactions.totalFees}
           satsAmount={
             isAutoTransferFlow
-              ? getBalance(sendMaxFee)
-              : getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)
+              ? `${getBalance(sendMaxFee)} ${getSatUnit()}`
+              : `${getBalance(
+                  txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                )} ${getSatUnit()}`
           }
         />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
@@ -920,13 +1285,13 @@ function SendConfirmation({ route }) {
           title={walletTransactions.total}
           satsAmount={
             isAutoTransferFlow
-              ? addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
+              ? `${addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
                   satsEnabled ? 2 : 8
-                )
-              : addNumbers(
+                )} ${getSatUnit()}`
+              : `${addNumbers(
                   getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount),
                   getBalance(amount)
-                ).toFixed(satsEnabled ? 2 : 8)
+                ).toFixed(satsEnabled ? 2 : 8)} ${getSatUnit()}`
           }
           fontSize={17}
           fontWeight="400"
@@ -935,22 +1300,35 @@ function SendConfirmation({ route }) {
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note title={common.note} subtitle={vault.signingOldVault} />
       ) : null}
-      <Buttons
-        primaryText={common.confirmProceed}
-        secondaryText={common.cancel}
-        secondaryCallback={() => {
-          navigation.goBack();
-        }}
-        primaryCallback={() => setConfirmPassVisible(true)}
-        primaryLoading={inProgress}
-      />
+      {!isAutoTransferFlow ? (
+        <Buttons
+          primaryText={common.confirmProceed}
+          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
+          secondaryCallback={() => {
+            if (isCachedTransaction) discardCachedTransaction();
+            else navigation.goBack();
+          }}
+          primaryCallback={() => setConfirmPassVisible(true)}
+          primaryLoading={inProgress}
+        />
+      ) : (
+        <Buttons
+          primaryText={common.confirmProceed}
+          secondaryText={common.cancel}
+          secondaryCallback={() => navigation.goBack()}
+          primaryCallback={() => setConfirmPassVisible(true)}
+          primaryLoading={inProgress}
+        />
+      )}
       <KeeperModal
         visible={visibleModal}
-        close={viewDetails}
+        close={!isMoveAllFunds ? viewDetails : viewManageWallets}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
-        buttonText={walletTransactions.ViewWallets}
-        buttonCallback={viewDetails}
+        buttonText={
+          !isMoveAllFunds ? walletTransactions.ViewWallets : walletTransactions.ManageWallets
+        }
+        buttonCallback={!isMoveAllFunds ? viewDetails : viewManageWallets}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1022,11 +1400,15 @@ function SendConfirmation({ route }) {
         Content={() => (
           <SendingPriority
             txFeeInfo={txFeeInfo}
+            averageTxFees={averageTxFees}
+            networkType={sender?.networkType || sourceWallet?.networkType}
             transactionPriority={transactionPriority}
+            isCachedTransaction={isCachedTransaction}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
             getSatUnit={getSatUnit}
+            customFeePerByte={customFeePerByte}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
               dispatch(customPrioritySendPhaseOneReset());
@@ -1042,11 +1424,13 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={'Network fee is higher than 10% of the amount being sent'}
+        subTitle={topText}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.proceed}
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setHighFeeAlertVisible(false)}
@@ -1061,6 +1445,9 @@ function SendConfirmation({ route }) {
             getBalance={getBalance}
             showFeesInsightModal={toogleFeesInsightModal}
             OneDayHistoricalFee={OneDayHistoricalFee}
+            isFeeHigh={isFeeHigh}
+            isUsualFeeHigh={isUsualFeeHigh}
+            setTopText={setTopText}
           />
         )}
       />
@@ -1073,9 +1460,34 @@ function SendConfirmation({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
         Content={() => <FeeInsights />}
+      />
+      {/* Discard UTXO Modal */}
+      <KeeperModal
+        showCloseIcon={false}
+        visible={discardUTXOVisible}
+        close={() => {}}
+        dismissible={false}
+        title={walletTransactions.discardTnxTitle}
+        subTitle={walletTransactions.discardTnxSubTitle}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonText={'Discard'}
+        buttonCallback={discardCachedTransaction}
+        buttonTextColor={`${colorMode}.white`}
+        showButtons
+        secondaryButtonText={'Cancel'}
+        secondaryCallback={() => {
+          setProgress(false);
+          setDiscardUTXOVisible(false);
+        }}
+        Content={discardUTXOModalContent}
+        subTitleWidth={wp(280)}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
@@ -1084,14 +1496,17 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter amount in sats"
+          subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender || sourceWallet}
           selectedUTXOs={selectedUTXOs}
-          buttonCallback={(setCustomTxPriority) => {
+          buttonCallback={(setCustomTxPriority, customFeePerByte) => {
             setVisibleCustomPriorityModal(false);
-            if (setCustomTxPriority) setTransactionPriority(TxPriority.CUSTOM);
+            if (setCustomTxPriority) {
+              setTransactionPriority(TxPriority.CUSTOM);
+              setCustomFeePerByte(customFeePerByte);
+            }
           }}
         />
       )}
@@ -1121,6 +1536,7 @@ const styles = StyleSheet.create({
   transTitleText: {
     fontSize: 14,
     letterSpacing: 1.12,
+    fontWeight: '500',
   },
   transLabelText: {
     fontSize: 12,
@@ -1188,6 +1604,12 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 10,
   },
+  feeStatContainer: {
+    marginTop: 10,
+  },
+  feeStatText: {
+    fontWeight: '500',
+  },
   feeStatementWrapper: {
     width: '100%',
     padding: 10,
@@ -1244,9 +1666,17 @@ const styles = StyleSheet.create({
   fdRow: {
     flexDirection: 'row',
   },
+  customPriorityCardContainer: {
+    marginTop: hp(50),
+    marginBottom: hp(20),
+  },
   customPriorityCard: {
     width: windowWidth / 3.4 - windowWidth * 0.05,
     marginTop: 5,
+  },
+  customPriorityText: {
+    fontSize: 15,
+    marginBottom: hp(5),
   },
   sentToContainer: {
     width: '50%',
@@ -1271,7 +1701,71 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: wp(25),
   },
+  contentContainer: {
+    paddingBottom: hp(30),
+  },
   sendSuccessfullNote: {
     marginTop: hp(5),
+  },
+  TransferCardPreTitle: {
+    marginLeft: wp(5),
+    fontSize: 14,
+    letterSpacing: 0.14,
+  },
+  transferCardTitle: {
+    fontSize: 11,
+    letterSpacing: 0.14,
+  },
+  transferCardSubtitle: {
+    fontSize: 14,
+    letterSpacing: 0.72,
+  },
+  transferCardContainer: {
+    alignItems: 'center',
+    borderRadius: 10,
+
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    minHeight: hp(70),
+  },
+  preTitleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginLeft: 10,
+  },
+  transferText: {
+    fontWeight: 500,
+    fontSize: 12,
+    marginBottom: 5,
+    marginLeft: 3,
+    marginTop: 15,
+  },
+  cardTransferPreTitle: {
+    marginLeft: wp(5),
+    fontSize: 14,
+    letterSpacing: 0.14,
+  },
+  subTitleContainer: {
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 10,
+    marginLeft: 10,
+  },
+  sendingPriorityText: {
+    fontSize: 15,
+    letterSpacing: 0.15,
+    marginBottom: hp(5),
+  },
+  satsStyle: {
+    height: hp(500),
+  },
+  dollarsStyle: {},
+  marginBottom: {
+    marginBottom: hp(20),
+  },
+  imgCtr: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
 });

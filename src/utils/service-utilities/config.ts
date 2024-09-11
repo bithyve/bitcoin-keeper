@@ -20,6 +20,9 @@ export enum BITCOIN_NETWORK {
 export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/hc/en-us/';
 export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/';
 
+export const PENDING_HEALTH_CHECK_TIME_DEV = 3 * 60 * 60 * 1000;
+export const PENDING_HEALTH_CHECK_TIME_PROD = 90 * 24 * 60 * 60 * 1000;
+
 // defaults to development environment
 const DEFAULT_CONFIG = {
   BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
@@ -29,8 +32,7 @@ const DEFAULT_CONFIG = {
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
-  CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
-  KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
+  CHANNEL_URL: 'https://keeper-channel-dev-8d01fa5233d0.herokuapp.com/',
   RAMP_BASE_URL: 'https://app.ramp.network/',
   RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
   SIGNING_SERVER_RSA_PUBKEY:
@@ -109,10 +111,6 @@ class Configuration {
   public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
     ? config.CHANNEL_URL.trim()
     : DEFAULT_CONFIG.CHANNEL_URL.trim();
-
-  public KEEPER_HWI: string = config.KEEPER_HWI?.trim()
-    ? config.KEEPER_HWI.trim()
-    : DEFAULT_CONFIG.KEEPER_HWI.trim();
 
   public ZENDESK_CHANNEL_ID = Platform.select({
     ios: config.ZENDESK_IOS_CHANNEL_ID?.trim(),

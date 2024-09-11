@@ -18,6 +18,7 @@ import { extractColdCardExport } from './coldcard';
 import { getLedgerDetailsFromChannel } from './ledger';
 import { getTrezorDetails } from './trezor';
 import { getBitbox02Details } from './bitbox';
+import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 
 const setupPassport = (qrData, isMultisig) => {
   const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
@@ -226,6 +227,13 @@ const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
   return { signer: softSigner, key };
 };
 
+const setupRecoveryKeySigningKey = (primaryMnemonic: string) => {
+  const { signer: recoveryKeySigner } = setupSeedWordsBasedKey(primaryMnemonic, true);
+  recoveryKeySigner.hidden = true;
+  recoveryKeySigner.signerName = RECOVERY_KEY_SIGNER_NAME;
+  return recoveryKeySigner;
+};
+
 const setupColdcard = (data, isMultisig) => {
   const { xpub, derivationPath, masterFingerprint, xpubDetails } = extractColdCardExport(
     data,
@@ -307,4 +315,5 @@ export {
   setupLedger,
   setupTrezor,
   setupBitbox,
+  setupRecoveryKeySigningKey,
 };

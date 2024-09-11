@@ -5,12 +5,14 @@ import { NewVaultInfo } from '../sagas/wallets';
 export const ADD_NEW_VAULT = 'ADD_NEW_VAULT';
 export const ADD_SIGINING_DEVICE = 'ADD_SIGINING_DEVICE';
 export const DELETE_SIGINING_DEVICE = 'DELETE_SIGINING_DEVICE';
+export const ARCHIVE_SIGINING_DEVICE = 'ARCHIVE_SIGINING_DEVICE';
 export const MIGRATE_VAULT = 'MIGRATE_VAULT';
 export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
 export const DELETE_VAULT = 'DELETE_VAULT';
 export const REINSTATE_VAULT = 'REINSTATE_VAULT';
 export const REFILL_MOBILEKEY = 'REFILL_MOBILEKEY';
 export const REFRESH_CANARY_VAULT = 'REFRESH_CANARY_VAULT';
+export const MERGER_SIMILAR_KEYS = 'MERGER_SIMILAR_KEYS';
 
 export const addNewVault = (payload: {
   newVaultInfo: NewVaultInfo;
@@ -30,6 +32,11 @@ export const addSigningDevice = (signers: Signer[]) => ({
 
 export const deleteSigningDevice = (signers: Signer[]) => ({
   type: DELETE_SIGINING_DEVICE,
+  payload: { signers },
+});
+
+export const archiveSigningDevice = (signers: Signer[]) => ({
+  type: ARCHIVE_SIGINING_DEVICE,
   payload: { signers },
 });
 
@@ -60,4 +67,9 @@ export const refillMobileKey = (payload: VaultSigner) => ({
 
 export const refreshCanaryWallets = () => ({
   type: REFRESH_CANARY_VAULT,
+});
+
+export const mergeSimilarKeys = (signer: Signer) => ({
+  type: MERGER_SIMILAR_KEYS,
+  payload: { signer },
 });

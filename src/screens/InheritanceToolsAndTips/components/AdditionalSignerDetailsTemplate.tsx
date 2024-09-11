@@ -41,7 +41,6 @@ function AdditionalSignerDetailsTemplate({}) {
         <Box mt={5}>
           <DashedButton
             icon={<DownArrow />}
-            description={inheritancePlanning.additionalKeysCtaDescp}
             callback={() => {
               GenerateAdditionalKeyDetailsTemplate().then((res) => {
                 if (res) {
@@ -80,6 +79,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 18,
+    fontWeight: '500',
     color: Colors.white,
   },
   description: {

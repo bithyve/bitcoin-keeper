@@ -18,9 +18,11 @@ import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import useNfcModal from 'src/hooks/useNfcModal';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { useNavigation } from '@react-navigation/native';
 
 function Card({ message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -62,6 +64,7 @@ function Card({ message, buttonText, buttonCallBack }) {
 }
 
 function SignWithColdCard({ route }: { route }) {
+  const navigation = useNavigation();
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
   const { vaultKey, signTransaction, isMultisig, vaultId } = route.params as {
@@ -82,7 +85,14 @@ function SignWithColdCard({ route }: { route }) {
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
         dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
+        );
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
@@ -92,7 +102,15 @@ function SignWithColdCard({ route }: { route }) {
             vaultId: activeVault.id,
           })
         );
-        dispatch(healthCheckSigner([signer]));
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
+        );
+        navigation.goBack();
       }
     });
 

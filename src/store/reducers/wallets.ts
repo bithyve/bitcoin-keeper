@@ -33,11 +33,13 @@ export type WalletsState = {
   walletSyncing: {};
   whirlpoolWalletCreated: boolean;
   walletPoolMap: any;
+  signerPolicyError?: string;
 };
 
 const initialState: WalletsState = {
   walletsSynched: false,
   netBalance: 0,
+  signerPolicyError: 'idle',
   isGeneratingNewWallet: false,
   hasNewWalletsGenerationSucceeded: false,
   hasNewWalletsGenerationFailed: false,
@@ -140,6 +142,9 @@ const walletSlice = createSlice({
       const prev = state.walletPoolMap;
       state.walletPoolMap = { ...prev, [walletId]: pool };
     },
+    setSignerPolicyError: (state, action: PayloadAction<string>) => {
+      state.signerPolicyError = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -169,6 +174,7 @@ export const {
   setSyncing,
   setWhirlpoolCreated,
   setWalletPoolMap,
+  setSignerPolicyError,
 } = walletSlice.actions;
 
 const walletPersistConfig = {
@@ -183,6 +189,7 @@ const walletPersistConfig = {
     'whirlpoolWallets',
     'whirlpoolWalletCreated',
     'walletSyncing',
+    'setSignerPolicyError',
   ],
 };
 export default persistReducer(walletPersistConfig, walletSlice.reducer);

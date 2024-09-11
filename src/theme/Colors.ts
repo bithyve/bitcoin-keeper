@@ -1,6 +1,7 @@
 const Colors = {
   // Light
   White: 'rgba(255,255,255,1)',
+  paleWhite: 'rgba(248, 255, 254, 1)',
   disabledGrey: 'rgba(248,242,234,1)',
   // Glass: 'rgba(255,255,255,2)',
   LightYellow: 'rgba(242,237,230,1)',
@@ -17,6 +18,7 @@ const Colors = {
   DeepSpaceSparkle: 'rgba(78,92,106,1)',
   Black: 'rgba(0,0,0,1)',
   RichBlack: 'rgba(4,21,19,1)',
+  MidNightBlack: 'rgba(14, 20, 40, 1)',
   PineTree: 'rgba(37,44,35,1)',
   DarkGreen: 'rgba(9,44,39,1)',
   MediumJungleGreen: 'rgba(17,56,52,1)',
@@ -30,6 +32,7 @@ const Colors = {
   DeepSpaceGreen: 'rgba(72,101,96,1)',
   Menthol: 'rgba(198,236,174,1)',
   Bisque: 'rgba(255,229,198,1)',
+  BisqueDark: 'rgba(207, 204, 166, 1)',
   GoldCrayola: 'rgba(150,130,111,1)',
   MacaroniAndCheese: 'rgba(250,196,139,1)',
   Coffee: 'rgba(114,84,54,1)',
@@ -67,13 +70,14 @@ const Colors = {
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',
   SlateGrey: 'rgba(36,49,46,1)',
-  // LightKhaki: 'rgba(217,209,169,1)',
+  LightKhaki: 'rgba(217,209,169,1)',
   Eggshell: 'rgba(238,227,216,1)',
   Teal: 'rgba(46,103,89,1)',
   SmokeGreen: 'rgba(154,164,159,1)',
   DeepOlive: 'rgba(35, 82, 71, 1)',
-  PaleKhaki: 'rgba(95,106,103,1)',
+  PaleKhaki: 'rgba(95,106,103,0.5)',
   PaleTurquoise: 'rgba(184,214,207,1)',
+  Turquoise: 'rgba(177, 208, 201, 1)',
   darkGreen: 'rgb(46, 103, 89)',
   // PearlWhite: 'rgba(252, 252, 252, 1)',
   deepTeal: 'rgba(28,73,64,1)',
@@ -98,6 +102,6 @@ const Colors = {
   CoffeeDark: 'rgba(150,130,111, 1)',
   Periwinkle: 'rgba(184, 182, 208, 1)',
   Purple: 'rgba(204, 184, 214, 1)',
-  // ChampagneBliss: 'rgba(253, 247, 240, 1)',
+  ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Box } from 'native-base';
+import { View, Box, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
@@ -22,9 +22,9 @@ type Props = {
 
 function EditWalletDetailsModal({ wallet = {}, close }: Props) {
   const dispatch = useDispatch();
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const walletText = translations.wallet;
-  const { common } = translations;
+  const { common, wallet: walletText, vault: vaultText } = translations;
 
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
@@ -54,7 +54,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
     }
     if (relayWalletUpdate) {
       close();
-      showToast('Wallet details updated', <TickIcon />);
+      showToast(walletText.walletDeatilsUpdated, <TickIcon />);
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
@@ -66,7 +66,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
     }
     if (relayVaultUpdate) {
       close();
-      showToast('Vault details updated', <TickIcon />);
+      showToast(vaultText.vaultDetailsUpdated, <TickIcon />);
       dispatch(resetRealyVaultState());
     }
   }, [relayVaultUpdate, relayVaultError, realyVaultErrorMessage]);
@@ -80,6 +80,7 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         testID="walletName"
         maxLength={18}
         height={50}
+        placeholderTextColor={`${colorMode}.SlateGreen`}
       />
       <KeeperTextInput
         value={walletDescription}
@@ -88,12 +89,13 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         testID="walletDescription"
         maxLength={20}
         height={50}
+        placeholderTextColor={`${colorMode}.SlateGreen`}
       />
       <View style={styles.buttonWrapper}>
         <Buttons
           secondaryText={common.cancel}
           secondaryCallback={close}
-          primaryText="Save Changes"
+          primaryText={common.save}
           primaryCallback={editWallet}
           primaryLoading={
             relayWalletUpdateLoading ||

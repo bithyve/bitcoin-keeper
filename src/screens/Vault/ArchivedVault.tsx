@@ -1,15 +1,20 @@
-import React from 'react';
-import Text from 'src/components/KeeperText';
-import { Pressable, FlatList, Box, useColorMode } from 'native-base';
-import { Vault } from 'src/services/wallets/interfaces/vault';
+import React, { useContext } from 'react';
+import { FlatList, Box, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
-import BTC from 'src/assets/images/btc_black.svg';
-import useBalance from 'src/hooks/useBalance';
+import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import { StyleSheet } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
+import ActionCard from 'src/components/ActionCard';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
+import Note from 'src/components/Note/Note';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import Text from 'src/components/KeeperText';
 
 function ArchivedVault({ navigation, route }) {
   const { colorMode } = useColorMode();
@@ -21,115 +26,79 @@ function ArchivedVault({ navigation, route }) {
       : allVaults.filter(
           (v) =>
             v.archived &&
+            // include vaults that have the same parent archived id or the parent vault itself which is archived but does not have an archived id
             (v.archivedId === currentVault.archivedId || v.id === currentVault.archivedId)
         );
 
-  const { getBalance } = useBalance();
+  const { translations } = useContext(LocalizationContext);
+  const { common, vault: vaultText } = translations;
+  const isSmallDevice = useIsSmallDevices();
 
-  function VaultItem({ vaultItem }: { vaultItem: Vault }) {
-    return (
-      <Pressable
-        onPress={() =>
+  const renderArchiveVaults = ({ item }) => (
+    <Box style={styles.cardContainer}>
+      <ActionCard
+        cardName={item.presentationData.name}
+        description={item.presentationData.description}
+        icon={<VaultIcon />}
+        customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
+        callback={() =>
           navigation.dispatch(
             CommonActions.navigate({
               name: 'VaultDetails',
-              params: { vaultId: vaultItem.id },
+              params: { vaultId: item?.id },
               merge: true,
             })
           )
         }
-        backgroundColor={`${colorMode}.primaryBackground`}
-        height={hp(135)}
-        width={wp(300)}
-        flexDirection="row"
-        justifyContent="space-between"
-        alignItems="center"
-        style={{
-          paddingHorizontal: 20,
-          borderRadius: hp(10),
-          marginBottom: hp(16),
-        }}
-      >
-        <Box>
-          <Box
-            flexDirection="row"
-            alignItems="center"
-            style={{
-              marginBottom: hp(10),
-            }}
-          >
-            <Text color={`${colorMode}.headerText`} fontSize={16} bold>
-              {vaultItem?.specs?.transactions?.length}
-            </Text>
-            <Text
-              color={`${colorMode}.textBlack`}
-              fontSize={12}
-              marginLeft={1}
-              letterSpacing={0.72}
-            >
-              Transactions
-            </Text>
-          </Box>
-          <Box
-            flexDirection="row"
-            style={{
-              marginBottom: hp(10),
-            }}
-          >
-            <Box justifyContent="center" marginTop={2}>
-              <BTC />
-            </Box>
-            <Text
-              color={`${colorMode}.textBlack`}
-              fontSize={24}
-              letterSpacing={1.12}
-              style={{
-                marginLeft: wp(4),
-              }}
-            >
-              {getBalance(
-                vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed
-              )}
-            </Text>
-          </Box>
-          <Box flexDirection="row">
-            <Text color={`${colorMode}.textBlack`} fontSize={12} light letterSpacing={0.02}>
-              Archived On
-            </Text>
-            <Text
-              style={styles.date}
-              color={`${colorMode}.textBlack`}
-              fontSize={12}
-              bold
-              letterSpacing={0.02}
-            >
-              {` ${'12 December, 2021'}`}
-            </Text>
-          </Box>
-        </Box>
-      </Pressable>
-    );
-  }
+      />
+    </Box>
+  );
 
-  const renderArchiveVaults = ({ item }) => <VaultItem vaultItem={item} />;
+  const numColumns = 3;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Archived Vaults"
-        subtitle="Previously used vaults"
-        headerTitleColor={`${colorMode}.headerText`}
+        title={vaultText.archivedVaultsTitle}
+        subtitle={`${common.for} ${currentVault?.presentationData?.name}`}
+        icon={
+          <HexagonIcon
+            width={58}
+            height={50}
+            backgroundColor={Colors.pantoneGreen}
+            icon={<VaultIcon />}
+          />
+        }
       />
-      <Box alignItems="center">
-        <FlatList
-          data={vaults}
-          keyExtractor={(item, index) => item.id}
-          renderItem={renderArchiveVaults}
-          showsVerticalScrollIndicator={false}
-          style={{
-            marginTop: hp(44),
-            marginBottom: hp(100),
-          }}
+      {vaults.length === 0 ? (
+        <Box style={styles.emptyWrapper}>
+          <Text style={styles.emptyText} semiBold>
+            {vaultText.archivedVaultEmptyTitle}
+          </Text>
+          <Text style={styles.emptySubText}>{vaultText.archivedVaultEmptySubtitle}</Text>
+          <EmptyState />
+        </Box>
+      ) : (
+        <Box style={styles.container}>
+          <FlatList
+            key={`flatlist-${numColumns}`}
+            data={vaults}
+            keyExtractor={(item, index) => item?.id}
+            renderItem={renderArchiveVaults}
+            showsVerticalScrollIndicator={false}
+            numColumns={numColumns}
+            contentContainerStyle={{
+              marginTop: hp(30),
+              marginBottom: hp(100),
+            }}
+          />
+        </Box>
+      )}
+      <Box style={styles.noteWrapper}>
+        <Note
+          title={common.note}
+          subtitle={vaultText.archivedVaultsNote}
+          subtitleColor="GreyText"
         />
       </Box>
     </ScreenWrapper>
@@ -137,8 +106,31 @@ function ArchivedVault({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   date: {
     fontStyle: 'italic',
+  },
+  emptyWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  emptyText: {
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    textAlign: 'center',
+    width: wp(250),
+    marginBottom: hp(30),
+  },
+  cardContainer: {
+    marginLeft: wp(8),
+    marginBottom: hp(8),
+  },
+  noteWrapper: {
+    marginHorizontal: '5%',
   },
 });
 

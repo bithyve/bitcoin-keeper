@@ -39,8 +39,12 @@ function DashedButton({
           icon={icon}
         />
         <Box>
-          <Text color={`${colorMode}.dashedButtonContent`}>{name}</Text>
-          <Text color={`${colorMode}.dashedButtonContent`}>{description}</Text>
+          {name && (
+            <Text semiBold color={`${colorMode}.dashedButtonContent`}>
+              {name}
+            </Text>
+          )}
+          {description && <Text color={`${colorMode}.dashedButtonContent`}>{description}</Text>}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -53,7 +57,7 @@ const styles = StyleSheet.create({
     padding: 10,
     height: hp(70),
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: 2,
     borderStyle: 'dashed',
     borderColor: Colors.White,
     flexDirection: 'row',

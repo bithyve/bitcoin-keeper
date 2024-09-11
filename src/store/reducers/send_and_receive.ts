@@ -39,6 +39,8 @@ export interface CustomFeeCalculatedPayload {
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
   serializedPSBTEnvelops?: SerializedPSBTEnvelop[];
+  cachedTxid?: string;
+  cachedTxPriority?: TxPriority;
   txid?: string;
   err?: string;
 }
@@ -58,7 +60,7 @@ export interface SendPhaseThreeExecutedPayload {
 
 export type TransactionFeeInfo = Record<TxPriority, TransactionFeeSnapshot>;
 
-const initialState: {
+export interface SendAndReceiveState {
   sendPhaseOne: {
     inProgress: boolean;
     hasFailed: boolean;
@@ -85,6 +87,8 @@ const initialState: {
     failedErrorMessage: string | null;
     isSuccessful: boolean;
     serializedPSBTEnvelops: SerializedPSBTEnvelop[];
+    cachedTxid: string;
+    cachedTxPriority: TxPriority;
     txid: string | null;
   };
   sendPhaseThree: {
@@ -99,9 +103,13 @@ const initialState: {
     isSuccessful: boolean;
   };
   sendMaxFee: number;
+  setSendMaxFeeEstimatedBlocks: number;
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
-} = {
+  inheritanceSigningRequestId: string;
+}
+
+const initialState: SendAndReceiveState = {
   sendPhaseOne: {
     inProgress: false,
     hasFailed: false,
@@ -122,6 +130,8 @@ const initialState: {
     failedErrorMessage: null,
     isSuccessful: false,
     serializedPSBTEnvelops: null,
+    cachedTxid: null,
+    cachedTxPriority: null,
     txid: null,
   },
   sendPhaseThree: {
@@ -136,6 +146,7 @@ const initialState: {
     isSuccessful: false,
   },
   sendMaxFee: 0,
+  setSendMaxFeeEstimatedBlocks: 0,
   feeIntelMissing: false,
   transactionFeeInfo: {
     [TxPriority.LOW]: {
@@ -155,6 +166,7 @@ const initialState: {
       estimatedBlocksBeforeConfirmation: 0,
     },
   },
+  inheritanceSigningRequestId: '',
 };
 
 const sendAndReceiveSlice = createSlice({
@@ -163,6 +175,9 @@ const sendAndReceiveSlice = createSlice({
   reducers: {
     setSendMaxFee: (state, action: PayloadAction<Satoshis>) => {
       state.sendMaxFee = action.payload;
+    },
+    setSendMaxFeeEstimatedBlocks: (state, action: PayloadAction<Satoshis>) => {
+      state.setSendMaxFeeEstimatedBlocks = action.payload;
     },
 
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
@@ -222,13 +237,16 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
-      const { successful, txid, serializedPSBTEnvelops, err } = action.payload;
+      const { successful, txid, serializedPSBTEnvelops, cachedTxid, cachedTxPriority, err } =
+        action.payload;
       state.sendPhaseTwo = {
         inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
         serializedPSBTEnvelops: successful ? serializedPSBTEnvelops : null,
+        cachedTxid: serializedPSBTEnvelops ? cachedTxid : null,
+        cachedTxPriority: serializedPSBTEnvelops ? cachedTxPriority : null,
         txid: successful ? txid : null,
       };
     },
@@ -273,12 +291,8 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhasesReset: (state) => {
-      state.sendMaxFee = 0;
-      state.sendPhaseOne = initialState.sendPhaseOne;
-      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
-      state.sendPhaseTwo = initialState.sendPhaseTwo;
-      state.sendPhaseThree = initialState.sendPhaseThree;
-      state.transactionFeeInfo = initialState.transactionFeeInfo;
+      state = initialState;
+      return state;
     },
     sendPhaseOneReset: (state) => {
       state.sendPhaseOne = initialState.sendPhaseOne;
@@ -312,11 +326,19 @@ const sendAndReceiveSlice = createSlice({
     sendPhaseTwoStarted: (state) => {
       state.sendPhaseTwo = { ...state.sendPhaseTwo, inProgress: true };
     },
+    setStateFromSnapshot: (state, action: PayloadAction<SendAndReceiveState>) => {
+      state = action.payload;
+      return state;
+    },
+    setInheritanceSigningRequestId: (state, action: PayloadAction<string>) => {
+      state.inheritanceSigningRequestId = action.payload;
+    },
   },
 });
 
 export const {
   setSendMaxFee,
+  setSendMaxFeeEstimatedBlocks,
   sendPhaseOneExecuted,
   customFeeCalculated,
   sendPhaseTwoExecuted,
@@ -331,5 +353,7 @@ export const {
   sendPhaseThreeReset,
   updatePSBTEnvelops,
   sendPhaseTwoStarted,
+  setStateFromSnapshot,
+  setInheritanceSigningRequestId,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

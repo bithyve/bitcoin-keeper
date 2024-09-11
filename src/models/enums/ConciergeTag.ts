@@ -10,4 +10,5 @@ export enum ConciergeTag {
   NODE = 'node',
   RECOVERY = 'recovery',
   KEYS = 'keys',
+  SETTINGS = 'settings',
 }

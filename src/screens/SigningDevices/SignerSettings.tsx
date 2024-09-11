@@ -20,7 +20,11 @@ function SignerSettings({ navigation, route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={`Advanced Options`} mediumTitle subtitle={'For all keys'} />
+      <KeeperHeader
+        title={settings.SingerSettingsTitle}
+        mediumTitle
+        subtitle={settings.SingerSettingsSubtitle}
+      />
       <Box style={{ paddingVertical: '10%', paddingLeft: 20 }}>
         <OptionCard
           title={settings.deleteKeys}
@@ -31,10 +35,11 @@ function SignerSettings({ navigation, route }) {
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
+        DarkCloseIcon={colorMode === 'dark'}
         close={() => setConfirmPassVisible(false)}
-        title="Enter Passcode"
+        title={settings.EnterPasscodeTitle}
         subTitleWidth={wp(240)}
-        subTitle="Confirm passcode to show all hidden keys"
+        subTitle={settings.EnterPasscodeSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

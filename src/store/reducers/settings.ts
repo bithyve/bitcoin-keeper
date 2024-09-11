@@ -15,11 +15,13 @@ const initialState: {
   whirlpoolSwiperModal: boolean;
   keySecurityTips: string;
   letterToAttorny: string;
+  enableAnalyticsLogin: boolean;
   recoveryInstruction: string;
   oneTimeBackupStatus: {
     signingServer: boolean;
     inheritanceKey: boolean;
   };
+  backupModal: boolean;
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -32,11 +34,13 @@ const initialState: {
   whirlpoolSwiperModal: true,
   keySecurityTips: '',
   letterToAttorny: '',
+  enableAnalyticsLogin: true,
   recoveryInstruction: '',
   oneTimeBackupStatus: {
     signingServer: false,
     inheritanceKey: false,
   },
+  backupModal: true,
 };
 
 const settingsSlice = createSlice({
@@ -76,6 +80,9 @@ const settingsSlice = createSlice({
     setLetterToAttornyPath: (state, action: PayloadAction<string>) => {
       state.letterToAttorny = action.payload;
     },
+    setEnableAnalyticsLogin: (state, action: PayloadAction<boolean>) => {
+      state.enableAnalyticsLogin = action.payload;
+    },
     // setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
     //   state.recoveryInstruction = action.payload;
     // },
@@ -84,6 +91,9 @@ const settingsSlice = createSlice({
     },
     setOTBStatusIKS: (state, action: PayloadAction<boolean>) => {
       state.oneTimeBackupStatus.inheritanceKey = action.payload;
+    },
+    setBackupModal: (state, action: PayloadAction<boolean>) => {
+      state.backupModal = action.payload;
     },
   },
 });
@@ -100,9 +110,11 @@ export const {
   setWhirlpoolSwiperModal,
   setKeySecurityTipsPath,
   setLetterToAttornyPath,
+  setEnableAnalyticsLogin,
   // setRecoveryInstructionPath,
   setOTBStatusSS,
   setOTBStatusIKS,
+  setBackupModal,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

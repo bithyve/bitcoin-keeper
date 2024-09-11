@@ -62,6 +62,7 @@ function LoginScreen({ navigation, route }) {
   const [incorrectPassword, setIncorrectPassword] = useState(false);
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+  const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
 
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector(
@@ -102,20 +103,31 @@ function LoginScreen({ navigation, route }) {
   }, []);
 
   useEffect(() => {
+    const remainingTime = PasswordTimeout(failedAttempts) - retryTime;
     if (failedAttempts >= 1) {
-      const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
       if (retryTime > PasswordTimeout(failedAttempts)) {
         setCanLogin(true);
         return;
       }
+
       setTimeout(() => {
         setLoginError(true);
         setErrMessage(`Please try after ${PasswordTimeout(failedAttempts) / TIMEOUT} minutes`);
         setCanLogin(false);
       }, 100);
-      return;
+
+      setTimeout(() => {
+        setCanLogin(false);
+      }, 1000);
+
+      setTimeout(() => {
+        setCanLogin(true);
+        setErrMessage('');
+        setLoginError(false);
+      }, remainingTime * 1000);
+    } else {
+      setCanLogin(true);
     }
-    setCanLogin(true);
   }, [failedAttempts, lastLoginFailedAt]);
 
   useEffect(() => {
@@ -171,17 +183,23 @@ function LoginScreen({ navigation, route }) {
     if (attempts >= 3) {
       setAttempts(1);
       dispatch(increasePinFailAttempts());
+      setIncorrectPassword(true);
     }
   }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
       setLoginModal(false);
-      setLoginError(true);
-      setErrMessage('Incorrect passcode');
       setPasscode('');
       setAttempts(attempts + 1);
-      setIncorrectPassword(true);
+
+      if (attempts + 1 >= 3) {
+        setLoginError(false);
+      } else {
+        setLoginError(true);
+        setErrMessage('Incorrect passcode');
+      }
+
       setLogging(false);
     } else {
       setLoginError(false);

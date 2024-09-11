@@ -18,7 +18,7 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
-import useDeletedVault from 'src/hooks/useDeletedVaults';
+import useArchivedVaults from 'src/hooks/useArchivedVaults';
 
 function VaultMigrationController({
   vaultCreating,
@@ -28,6 +28,7 @@ function VaultMigrationController({
   description,
   vaultId,
   setGeneratedVaultId,
+  vaultType = VaultType.DEFAULT,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ function VaultMigrationController({
     unconfirmed: 0,
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
-  const { deletedVaults } = useDeletedVault();
+  const { archivedVaults } = useArchivedVaults();
 
   const [recipients, setRecepients] = useState<any[]>();
 
@@ -62,10 +63,13 @@ function VaultMigrationController({
     if (vaultId && temporaryVault) {
       createNewVault();
     }
+  }, [temporaryVault]);
+
+  useEffect(() => {
     return () => {
       dispatch(sendPhasesReset());
     };
-  }, [temporaryVault]);
+  }, []);
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful && temporaryVault) {
@@ -122,10 +126,10 @@ function VaultMigrationController({
     }
   };
 
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
+  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme, vaultType) => {
     try {
       const vaultInfo: NewVaultInfo = {
-        vaultType: VaultType.DEFAULT,
+        vaultType,
         vaultScheme: scheme,
         vaultSigners: signers,
         vaultDetails: {
@@ -135,8 +139,8 @@ function VaultMigrationController({
       };
       const allVaultIds = allVaults.map((vault) => vault.id);
       const generatedVaultId = generateVaultId(signers, scheme);
-      const deletedVaultIds = deletedVaults.map((vault) => vault.id);
-      if (allVaultIds.includes(generatedVaultId) && deletedVaultIds.includes(generatedVaultId)) {
+      const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+      if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
         Alert.alert('Vault with this configuration already exists');
         navigation.goBack();
       } else {
@@ -173,7 +177,7 @@ function VaultMigrationController({
       }
 
       const vaultInfo: NewVaultInfo = {
-        vaultType: VaultType.DEFAULT,
+        vaultType: vaultType,
         vaultScheme: scheme,
         vaultSigners: vaultKeys,
         vaultDetails: {
@@ -183,9 +187,10 @@ function VaultMigrationController({
       };
       dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(vaultKeys, scheme);
+      createVault(vaultKeys, scheme, vaultType);
     }
   };
+
   return null;
 }
 

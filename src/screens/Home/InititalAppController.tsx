@@ -1,8 +1,9 @@
+import * as Sentry from '@sentry/react-native';
 import { InteractionManager, Linking } from 'react-native';
 import React, { useEffect } from 'react';
 import { SignerStorage, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { resetElectrumNotConnectedErr } from 'src/store/reducers/login';
+import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
 import { urlParamsToObj } from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -16,6 +17,10 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { addSigningDevice, refreshCanaryWallets } from 'src/store/sagaActions/vaults';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import dbManager from 'src/storage/realm/dbManager';
+import useAsync from 'src/hooks/useAsync';
+import { sentryConfig } from 'src/services/sentry';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -23,6 +28,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   );
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
+  const { isInitialLogin } = useAppSelector((state) => state.login);
+  const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
+  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   function handleDeepLinkEvent({ url }) {
     if (url) {
@@ -49,6 +57,29 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       }
     }
   }
+
+  const { inProgress, start } = useAsync();
+
+  const toggleSentryReports = async () => {
+    if (inProgress) {
+      return;
+    }
+    if (enableAnalyticsLogin) {
+      await start(() => Sentry.init(sentryConfig));
+    } else {
+      await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+    }
+    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+      enableAnalytics: enableAnalyticsLogin,
+    });
+  };
+
+  useEffect(() => {
+    if (isInitialLogin) {
+      toggleSentryReports();
+    }
+    dispatch(setIsInitialLogin(false));
+  }, []);
 
   async function handleDeepLinking() {
     try {
@@ -94,7 +125,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
       if (electrumClientConnectionStatus.success) {
-        showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
         if (electrumErrorVisible) setElectrumErrorVisible(false);
       } else if (electrumClientConnectionStatus.failed) {
         showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);

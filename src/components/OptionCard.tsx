@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import React from 'react';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { windowWidth } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 
 type OptionProps = {
@@ -15,6 +15,7 @@ type OptionProps = {
   Icon?: Element;
   LeftIcon?: Element;
   disabled?: boolean;
+  visible?: boolean;
   CardPill?: Element;
 };
 
@@ -29,12 +30,13 @@ export function OptionCard({
   LeftIcon,
   disabled = false,
   CardPill,
+  visible = true,
 }: OptionProps) {
   const { colorMode } = useColorMode();
   const containerOpacity = disabled ? 0.8 : 1;
   const preTitleOpacity = colorMode === 'light' ? 1 : 0.7;
   const descriptionOpacity = colorMode === 'light' ? 1 : 0.8;
-
+  if (!visible) return null;
   return (
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack
@@ -46,7 +48,7 @@ export function OptionCard({
         testID={`view_${title.replace(/ /g, '_')}`}
       >
         <HStack style={[styles.iconContainer, { opacity: containerOpacity }]}>
-          {LeftIcon && LeftIcon}
+          {LeftIcon && <Box style={styles.iconWrapper}>{LeftIcon}</Box>}
           <VStack>
             {preTitle && (
               <Text
@@ -111,6 +113,9 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     letterSpacing: 0.12,
+  },
+  iconWrapper: {
+    width: wp(25),
   },
 });
 

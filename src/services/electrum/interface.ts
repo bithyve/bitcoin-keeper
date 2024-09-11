@@ -38,4 +38,5 @@ export type ElectrumTransaction = {
   confirmations?: number;
   time: number;
   blocktime: number;
+  hex?: string;
 };

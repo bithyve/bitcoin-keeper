@@ -15,7 +15,6 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import InheritanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import SigningServerIcon from 'src/assets/images/server_light.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { registerToColcard } from 'src/hardware/coldcard';
@@ -68,14 +67,18 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
-import { resetKeyHealthState } from 'src/store/reducers/vaults';
-import moment from 'moment';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
-import { setOTBStatusSS, setOTBStatusIKS } from '../../store/reducers/settings';
+import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
+import { resetKeyHealthState } from 'src/store/reducers/vaults';
+import moment from 'moment';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import Note from 'src/components/Note/Note';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const { width } = Dimensions.get('screen');
 
@@ -105,10 +108,12 @@ function SignerAdvanceSettings({ route }: any) {
     vaultKey,
     vaultId,
     signer: signerFromParam,
+    signerId,
   }: {
     signer: Signer;
     vaultKey: VaultSigner;
     vaultId: string;
+    signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
@@ -121,20 +126,29 @@ function SignerAdvanceSettings({ route }: any) {
   const [warningEnabled, setHideWarning] = React.useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
+  const [OTBLoading, setOTBLoading] = useState(false);
   const [backupModal, setBackupModal] = useState(false);
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
   const [otp, setOtp] = useState('');
   const [showOTPModal, setShowOTPModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, common } = translations;
+  const { vault: vaultTranslation, common, signer: signerTranslation, BackupWallet } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const isSmallDevice = useIsSmallDevices();
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
   const { isOnL2Above } = usePlan();
 
-  const currentEmail = idx(signer, (_) => _.inheritanceKeyInfo.policy.alert.emails[0]) || '';
+  const inheritanceKeyExistingEmailCount =
+    useAppSelector((state) => state.storage.inheritanceKeyExistingEmailCount) || 0; // || 0 for backward compatibility: inheritanceKeyExistingEmailCount might be undefined for upgraded apps
+
+  const currentEmail =
+    idx(
+      signer,
+      (_) => _.inheritanceKeyInfo.policy.alert.emails[inheritanceKeyExistingEmailCount]
+    ) || '';
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
@@ -170,7 +184,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const hideKey = () => {
     dispatch(updateSignerDetails(signer, 'hidden', true));
-    showToast('Keys hidden successfully', <TickIcon />);
+    showToast('Key hidden successfully', <TickIcon />);
     const popAction = StackActions.pop(2);
     navigation.dispatch(popAction);
   };
@@ -247,18 +261,16 @@ function SignerAdvanceSettings({ route }: any) {
       const existingEmails = existingAlert.emails || [];
 
       // remove the previous email
-      const index = existingEmails.indexOf(removeEmail);
-      if (index !== -1) existingEmails.splice(index, 1);
+      existingEmails[inheritanceKeyExistingEmailCount] = '';
 
       // add the new email(if provided)
-      const updatedEmails = [...existingEmails];
-      if (newEmail) updatedEmails.push(newEmail);
+      if (newEmail) existingEmails[inheritanceKeyExistingEmailCount] = newEmail; // only update email for the latest inheritor(for source app, inheritanceKeyExistingEmailCount is 0)
 
       const updatedPolicy: InheritancePolicy = {
         ...existingPolicy,
         alert: {
           ...existingAlert,
-          emails: updatedEmails,
+          emails: existingEmails,
         },
       };
 
@@ -307,10 +319,24 @@ function SignerAdvanceSettings({ route }: any) {
             vaultId: activeVault.id,
           })
         );
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_REGISTRATION,
+            },
+          ])
+        );
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey, vaultId }));
+        navigation.dispatch(
+          CommonActions.navigate('RegisterWithChannel', {
+            vaultKey,
+            vaultId,
+            signerType: signer.type,
+          })
+        );
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
@@ -327,16 +353,13 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const navigateToPolicyChange = () => {
-    const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
-    const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ChoosePolicyNew',
         params: {
-          restrictions,
-          exceptions,
           isUpdate: true,
           signer,
+          signerId,
           vaultId,
           vaultKey,
         },
@@ -380,24 +403,26 @@ function SignerAdvanceSettings({ route }: any) {
               Email is not correct
             </Text>
           )}
-          <TouchableOpacity
-            onPress={() => {
-              setEditEmailModal(false);
-              setDeleteEmailModal(true);
-            }}
-          >
-            <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
-              <Box>
-                <DeleteIcon />
+          {currentEmail && (
+            <TouchableOpacity
+              onPress={() => {
+                setEditEmailModal(false);
+                setDeleteEmailModal(true);
+              }}
+            >
+              <Box style={styles.deleteContentWrapper} backgroundColor={`${colorMode}.LightBrown`}>
+                <Box>
+                  <DeleteIcon />
+                </Box>
+                <Box>
+                  <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
+                    Delete Email
+                  </Text>
+                  <Box fontSize={12}>This is a irreversible action</Box>
+                </Box>
               </Box>
-              <Box>
-                <Text style={styles.fw800} color={`${colorMode}.BrownNeedHelp`} fontSize={13}>
-                  Delete Email
-                </Text>
-                <Box fontSize={12}>This is a irreversible action</Box>
-              </Box>
-            </Box>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
           <Box style={styles.warningIconWrapper}>
             <WarningIllustration />
           </Box>
@@ -509,6 +534,7 @@ function SignerAdvanceSettings({ route }: any) {
           isHealthcheck: true,
           signer,
           disableMockFlow: true,
+          isPSBT: true,
         },
       })
     );
@@ -573,11 +599,25 @@ function SignerAdvanceSettings({ route }: any) {
     );
   }
 
+  useEffect(() => {
+    if (!showOTPModal) {
+      setOtp('');
+    }
+  }, [showOTPModal]);
+
   const backupModalContent = ({ title = '', subTitle = '', icon = null }) => {
     return (
       <Box>
-        <Card title={title} subTitle={subTitle} icon={icon} />
-        <Text style={styles.textDesc}>You will only be shown the words once.</Text>
+        <Box style={styles.cardWrapper}>
+          <Card title={title} subTitle={subTitle} icon={icon} />
+        </Box>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle={signerTranslation.OTBModalNote}
+            subtitleColor="GreyText"
+          />
+        </Box>
       </Box>
     );
   };
@@ -598,17 +638,23 @@ function SignerAdvanceSettings({ route }: any) {
 
     const onPressConfirm = async () => {
       try {
+        setOTBLoading(true);
         const { mnemonic, derivationPath } = await SigningServer.fetchBackup(
           vaultKey.xfp,
           Number(otp)
         );
+        setOTBLoading(false);
         navigation.navigate('ExportSeed', {
+          vaultKey,
+          vaultId,
           seed: mnemonic,
           derivationPath,
+          signer,
           isFromAssistedKey: true,
+          isSS: true,
         });
-        dispatch(setOTBStatusSS(true));
       } catch (err) {
+        setOTBLoading(false);
         showToast(`${err}`);
       }
       setShowOTPModal(false);
@@ -619,7 +665,7 @@ function SignerAdvanceSettings({ route }: any) {
     };
 
     return (
-      <Box width={hp(300)}>
+      <Box style={styles.otpModal}>
         <Box>
           <TouchableOpacity
             onPress={async () => {
@@ -646,7 +692,6 @@ function SignerAdvanceSettings({ route }: any) {
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
           keyColor={`${colorMode}.primaryText`}
-          ClearIcon={<DeleteIcon />}
         />
       </Box>
     );
@@ -691,6 +736,7 @@ function SignerAdvanceSettings({ route }: any) {
       setBackupModal(false);
     } else if (isInheritanceKey) {
       try {
+        setOTBLoading(true);
         let configurationForVault: InheritanceConfiguration = null;
         const iksConfigs = idx(signer, (_) => _.inheritanceKeyInfo.configurations) || [];
         for (const config of iksConfigs) {
@@ -716,6 +762,7 @@ function SignerAdvanceSettings({ route }: any) {
           requestId,
           configurationForVault
         );
+        setOTBLoading(false);
 
         if (requestStatus && isNewRequest) dispatch(setInheritanceOTBRequestId(requestId));
 
@@ -730,11 +777,14 @@ function SignerAdvanceSettings({ route }: any) {
           // dispatch(setInheritanceOTBRequestId('')); // clear existing request
         } else if (requestStatus.isApproved && backup) {
           navigation.navigate('ExportSeed', {
+            vaultKey,
+            vaultId,
             seed: backup.mnemonic,
             derivationPath: backup.derivationPath,
+            signer,
             isFromAssistedKey: true,
+            isIKS: true,
           });
-          dispatch(setOTBStatusIKS(true));
         } else showToast('Unknown request status, please try again');
       } catch (err) {
         showToast(`${err}`);
@@ -748,7 +798,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <ActivityIndicatorView visible={canaryVaultLoading} showLoader={true} />
+      <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
       <KeeperHeader
         title="Settings"
         subtitle={
@@ -793,27 +843,16 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToPolicyChange}
           />
         )}
-        {isPolicyServer && vaultId && (
-          <OptionCard
-            title="Forgot 2FA"
-            description="Lost access to the 2FA app"
-            callback={() => {
-              showToast(
-                'If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again',
-                null,
-                IToastCategory.DEFAULT,
-                7000
-              );
-            }}
-          />
-        )}
         {showOneTimeBackup && (
           <OptionCard
-            disabled={disableOneTimeBackup}
             title={vaultTranslation.oneTimeBackupTitle}
-            description={vaultTranslation.oneTimeBackupDesc}
+            description={
+              disableOneTimeBackup
+                ? BackupWallet.viewBackupHistory
+                : vaultTranslation.oneTimeBackupDesc
+            }
             callback={() => {
-              setBackupModal(true);
+              disableOneTimeBackup ? navigation.goBack() : setBackupModal(true);
             }}
           />
         )}
@@ -826,8 +865,8 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {(isAppKey || isMyAppKey) && (
           <OptionCard
-            title="Key Details"
-            description="xPub for adding to another vault"
+            title={signerTranslation.keyDetails}
+            description={signerTranslation.keyDetailsSubtitle}
             callback={navigateToCosignerDetails}
           />
         )}
@@ -845,7 +884,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
           />
         )}
-        {isAssistedKey || vaultId ? null : (
+        {vaultId ? null : (
           <OptionCard
             title="Hide key"
             description="Hide this key from the list"
@@ -882,6 +921,7 @@ function SignerAdvanceSettings({ route }: any) {
               cardName={vault.presentationData.name}
               icon={<WalletVault />}
               callback={() => {}}
+              customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
             />
           ))}
         </ScrollView>
@@ -951,7 +991,11 @@ function SignerAdvanceSettings({ route }: any) {
         buttonText="View Vault"
         secondaryButtonText="Back"
         secondaryCallback={() => setHideWarning(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => {
           setHideWarning(false);
           navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
@@ -984,28 +1028,33 @@ function SignerAdvanceSettings({ route }: any) {
         closeOnOverlayClick={true}
         close={() => setBackupModal(false)}
         showCloseIcon={false}
-        title={vaultTranslation.backingUpMnemonicTitle}
-        subTitle={vaultTranslation.backingUpMnemonicSubtitle}
+        title={`${signerTranslation.backingUp} ${signer.signerName}`}
+        subTitle={`${signerTranslation.writeBackupSeed} ${signer.signerName}. ${signerTranslation.doItPrivately}`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() =>
           backupModalContent({
             title: signer.signerName,
-            subTitle: `Added ${moment(signer.addedOn).calendar()}`,
-            icon: <SigningServerIcon />,
+            subTitle: `${common.added} ${moment(signer.addedOn).calendar().toLowerCase()}`,
+            icon:
+              signer.type === SignerType.INHERITANCEKEY ? (
+                <InhertanceKeyIcon />
+              ) : (
+                <SigningServerIcon />
+              ),
           })
         }
         buttonText={common.proceed}
         buttonCallback={initiateOneTimeBackup}
-        secondaryButtonText="Cancel"
+        secondaryButtonText={common.cancel}
         secondaryCallback={() => setBackupModal(false)}
       />
       <KeeperModal
         visible={showOTPModal}
         close={() => setShowOTPModal(false)}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         title={vaultTranslation.oneTimeBackupTitle}
-        subTitle={vaultTranslation.oneTimeBackupDesc}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={SigningServerOTPModal}
@@ -1204,6 +1253,7 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     paddingTop: hp(10),
+    paddingHorizontal: wp(10),
   },
   signerVaults: {
     gap: 5,
@@ -1242,5 +1292,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  otpModal: {
+    width: '100%',
+  },
+  cardWrapper: {
+    marginBottom: hp(50),
+  },
+  noteWrapper: {
+    marginBottom: hp(15),
   },
 });

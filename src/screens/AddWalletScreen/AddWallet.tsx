@@ -108,8 +108,8 @@ function AddWallet({ navigation }) {
       <HStack style={[styles.container, { paddingBottom: setPadding }]}>
         <WalletCard
           id={1}
-          walletName="Create New"
-          walletDescription="Single or multi-key"
+          walletName={wallet.CreateNew}
+          walletDescription={wallet.singleMultiKey}
           icon={<WalletActiveIcon />}
           selectedIcon={<WalletGreenIcon />}
           selectedCard={selectedCard}
@@ -118,8 +118,8 @@ function AddWallet({ navigation }) {
         />
         <WalletCard
           id={2}
-          walletName="Import"
-          walletDescription="Recover or recreate"
+          walletName={wallet.import}
+          walletDescription={wallet.recoverRecreate}
           icon={<ImportIcon />}
           selectedIcon={<ImportGreenIcon />}
           selectedCard={selectedCard}
@@ -128,8 +128,8 @@ function AddWallet({ navigation }) {
         />
         <WalletCard
           id={3}
-          walletName="Advanced"
-          walletDescription="For professionals"
+          walletName={wallet.advanced}
+          walletDescription={wallet.CustomMultiKey}
           icon={<AdvancedIcon />}
           selectedIcon={<AdvancedGreenIcon />}
           selectedCard={selectedCard}
@@ -152,9 +152,12 @@ function AddWallet({ navigation }) {
         Content={AddWalletContent}
         showCloseIcon={false}
         learnMore
-        learnMoreTitle={common.needMoreHelp}
-        learnMoreCallback={() => dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet'))}
-        buttonText={common.continue}
+        learnMoreTitle={common.needHelp}
+        learnMoreCallback={() => {
+          setVisibleModal(false);
+          dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet'));
+        }}
+        buttonText={common.ok}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => setVisibleModal(false)}

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
@@ -9,11 +9,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useWallets from 'src/hooks/useWallets';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import WalletFingerprint from 'src/components/WalletFingerPrint';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
@@ -22,6 +21,9 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType } from 'src/services/wallets/enums';
 import { WalletType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
+import Text from 'src/components/KeeperText';
+import { Shadow } from 'react-native-shadow-2';
+import { WALLETSETTINGS } from 'src/navigation/contants';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -37,12 +39,16 @@ function WalletSettings({ route }) {
   const walletMnemonic = idx(wallet, (_) => _.derivationDetails.mnemonic);
 
   const { translations } = useContext(LocalizationContext);
-  const walletTranslation = translations.wallet;
-  const { settings } = translations;
+  const { settings, common, wallet: walletTranslation, vault: vaultText } = translations;
   const TestSatsComponent = useTestSats({ wallet });
   const isImported = wallet.type === WalletType.IMPORTED;
+  const [showWalletBalanceAlert, setShowWalletBalanceAlert] = useState(false);
 
-  const updateWalletVisibility = () => {
+  const updateWalletVisibility = (checkBalance = true) => {
+    if (checkBalance && wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed > 0) {
+      setShowWalletBalanceAlert(true);
+      return;
+    }
     try {
       const updatedPresentationData = {
         ...wallet.presentationData,
@@ -51,13 +57,56 @@ function WalletSettings({ route }) {
       dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
         presentationData: updatedPresentationData,
       });
-      showToast('Wallet hidden successfully');
+      showToast(walletTranslation.walletHiddenSuccessMessage, <TickIcon />);
       navigation.navigate('Home');
     } catch (error) {
       captureError(error);
-      showToast('Something went wrong!');
+      showToast(walletTranslation.somethingWentWrong);
     }
   };
+  function WalletBalanceAlertModalContent() {
+    return (
+      <Box style={styles.modalContainer}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.unhideText}>
+          {walletTranslation.hideWalletModalDesc}
+        </Text>
+        <Box style={styles.BalanceModalContainer}>
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={() => {
+              updateWalletVisibility(false);
+              setShowWalletBalanceAlert(false);
+            }}
+            activeOpacity={0.5}
+          >
+            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
+              {common.continueToHide}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setShowWalletBalanceAlert(false);
+              navigation.dispatch(
+                CommonActions.navigate('Send', {
+                  sender: wallet,
+                  parentScreen: WALLETSETTINGS,
+                })
+              );
+            }}
+          >
+            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+              <Box style={styles.createBtn} backgroundColor={`${colorMode}.greenButtonBackground`}>
+                <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
+                  {common.MoveFunds}
+                </Text>
+              </Box>
+            </Shadow>
+          </TouchableOpacity>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -98,10 +147,6 @@ function WalletSettings({ route }) {
         )}
         {TestSatsComponent}
       </ScrollView>
-      <Box style={styles.fingerprint}>
-        <WalletFingerprint fingerprint={wallet.id} title="Wallet Fingerprint" />
-      </Box>
-
       <KeeperModal
         visible={transferPolicyVisible}
         close={() => {
@@ -153,7 +198,7 @@ function WalletSettings({ route }) {
                   next: false,
                   wallet,
                 });
-              } else showToast("Mnemonic doesn't exists");
+              } else showToast(walletTranslation.mnemonicDoesNotExist);
             }}
           />
         )}
@@ -180,6 +225,21 @@ function WalletSettings({ route }) {
             noteSubText={walletTranslation?.AccountXpubNote}
           />
         )}
+      />
+      <KeeperModal
+        dismissible
+        close={() => {
+          setShowWalletBalanceAlert(false);
+        }}
+        visible={showWalletBalanceAlert}
+        title={walletTranslation.walletFundsTitle}
+        subTitle={walletTranslation.walletFundsSubtitle}
+        Content={WalletBalanceAlertModalContent}
+        subTitleColor={`${colorMode}.secondaryText`}
+        subTitleWidth={wp(240)}
+        closeOnOverlayClick={true}
+        showButtons
+        showCloseIcon={false}
       />
     </ScreenWrapper>
   );
@@ -242,6 +302,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.6,
     width: '90%',
+  },
+  cancelBtn: {
+    marginRight: wp(20),
+    borderRadius: 10,
+  },
+  btnText: {
+    fontSize: 12,
+    letterSpacing: 0.84,
+  },
+  createBtn: {
+    paddingVertical: hp(15),
+    borderRadius: 10,
+    paddingHorizontal: 20,
+  },
+  BalanceModalContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  modalContainer: {
+    gap: 40,
+  },
+  unhideText: {
+    fontSize: 13,
+    width: wp(200),
   },
 });
 export default WalletSettings;
