@@ -64,7 +64,7 @@ const FeeDataStats = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>
-        24 hours statistics
+        24 Hours Statistics
       </Text>
       <View style={styles.cardWrapper}>
         <FeeInsightCard
@@ -79,18 +79,22 @@ const FeeDataStats = () => {
           suffix={''}
           stats={feeInsight.btc_data.btc_price_change_percent.toFixed(2) + '%'}
         />
-        {currencyKind === 'BITCOIN' && <FeeInsightCard
-          line1={'Suggested'}
-          line2={'txn fee (fast)'}
-          suffix={' sats/vByte'}
-          stats={feeInsight.suggested_fee}
-        />}
-        {currencyKind === 'FIAT' && <FeeInsightCard
-          line1={'Suggested'}
-          line2={'txn fee (fast)'}
-          suffix={''}
-          stats={`$ ${convertSatsToFiat(feeInsight.suggested_fee).toFixed(5)}`}
-        />}
+        {currencyKind === 'BITCOIN' && (
+          <FeeInsightCard
+            line1={'Suggested'}
+            line2={'txn fee (fast)'}
+            suffix={' sats/vByte'}
+            stats={feeInsight.suggested_fee}
+          />
+        )}
+        {currencyKind === 'FIAT' && (
+          <FeeInsightCard
+            line1={'Suggested'}
+            line2={'txn fee (fast)'}
+            suffix={''}
+            stats={`$ ${convertSatsToFiat(feeInsight.suggested_fee).toFixed(5)}`}
+          />
+        )}
       </View>
     </View>
   );
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
   titleLabel: {
     fontSize: 18,
     letterSpacing: 1,
-    fontFamily:Fonts.FiraSansRegular
+    fontFamily: Fonts.FiraSansRegular,
   },
   cardWrapper: {
     flexDirection: 'row',

@@ -1036,7 +1036,7 @@ function SignerAdvanceSettings({ route }: any) {
         Content={() =>
           backupModalContent({
             title: signer.signerName,
-            subTitle: `${common.added} ${moment(signer.addedOn).calendar()}`,
+            subTitle: `${common.added} ${moment(signer.addedOn).calendar().toLowerCase()}`,
             icon:
               signer.type === SignerType.INHERITANCEKEY ? (
                 <InhertanceKeyIcon />
