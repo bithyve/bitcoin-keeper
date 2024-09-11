@@ -72,10 +72,12 @@ function ArchivedVault({ navigation, route }) {
       />
       {vaults.length === 0 ? (
         <Box style={styles.emptyWrapper}>
-          <Text style={styles.emptyText} semiBold>
+          <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
             {vaultText.archivedVaultEmptyTitle}
           </Text>
-          <Text style={styles.emptySubText}>{vaultText.archivedVaultEmptySubtitle}</Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+            {vaultText.archivedVaultEmptySubtitle}
+          </Text>
           <EmptyState />
         </Box>
       ) : (
@@ -118,11 +120,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   emptyText: {
+    fontSize: 15,
+    lineHeight: 20,
     marginBottom: hp(3),
   },
   emptySubText: {
-    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
     width: wp(250),
+    textAlign: 'center',
     marginBottom: hp(30),
   },
   cardContainer: {

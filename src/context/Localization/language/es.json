@@ -1002,7 +1002,7 @@
     "signerDetails": "Signer Details",
     "signerAddedDesc": "Perform regular health checks on your signer key",
     "hiddenKeys": "Hidden Keys",
-    "showingHiddenKeys": "Only showing hidden keys",
+    "showingHiddenKeys": "Unhide or delete keys",
     "delete": "Delete",
     "unhide": "Unhide",
     "deletingKey": "Deleting Key",
