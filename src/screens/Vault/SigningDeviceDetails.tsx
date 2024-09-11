@@ -29,7 +29,8 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg';
+import InhertanceKeyIcon from 'src/assets/images/illustration-inheritance-key.svg';
+import EmptyState from 'src/assets/images/key-empty-state-illustration.svg';
 import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
@@ -63,6 +64,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import DotView from 'src/components/DotView';
 import Note from 'src/components/Note/Note';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -122,7 +124,7 @@ const getSignerContent = (type: SignerType) => {
           'Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering',
         assert: <PassportSVG />,
         description:
-          '\u2022Foundation products are beautiful, and intuitive, and remove the steep learning curve typically associated with Bitcoin and decentralized tech.\n\u2022 Foundation reflects our optimism about the future. Our products feel positive, aspirational, and a bit sci-fi.',
+          '\u2022 Passport has no direct connection with the outside world – meaning your keys are never directly exposed online. It uses a camera and QR codes for communication. This provides hardcore, air-gapped security while offering a seamless user experience.\n\u2022 Passport’s software and hardware are both fully open source. No walled gardens, no closed source engineering. Connect Passport to their Envoy mobile app for a seamless experience.',
         FAQ: 'https://docs.foundationdevices.com',
       };
     case SignerType.MOBILE_KEY:
@@ -169,7 +171,7 @@ const getSignerContent = (type: SignerType) => {
         subTitle: 'Easy backup and restore with a microSD card',
         assert: <BitboxImage />,
         description:
-          'Minimalist and discreet design. The BitBox02 features a dual-chip design with a secure chip Limited firmware that only supports Bitcoin',
+          '\u2022 BitBox02 is known for its ease of use, open-source firmware, and security features like backup recovery via microSD card, USB-C connectivity, and integration with the BitBoxApp.\n\u2022 The wallet prioritizes privacy and security with advanced encryption and verification protocols, making it ideal for users who value high security in managing their bitcoin.',
         FAQ: 'https://shiftcrypto.ch/support/',
       };
     case SignerType.TREZOR:
@@ -195,10 +197,11 @@ const getSignerContent = (type: SignerType) => {
     case SignerType.INHERITANCEKEY:
       return {
         title: 'Inheritance Key',
-        subTitle: 'Secure your legacy with the Inheritance Key feature in Keeper.',
+        subTitle:
+          'An additional key setup with special conditions to help transfer bitcoin to the beneficiary.',
         assert: <InhertanceKeyIcon />,
         description:
-          '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
+          '\u2022 Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
         FAQ: `${KEEPER_KNOWLEDGEBASE}sections/17238611956253-Inheritance`,
       };
     case SignerType.SPECTER:
@@ -248,6 +251,7 @@ function SigningDeviceDetails({ route }) {
   const [showMobileKeyModal, setShowMobileKeyModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
   const data = useQuery(RealmSchema.BackupHistory);
   const history = useMemo(() => data.sorted('date', true), [data]);
 
@@ -269,6 +273,7 @@ function SigningDeviceDetails({ route }) {
   useEffect(() => {
     if (signer) {
       setHealthCheckArray(signer.healthCheckDetails);
+      setShowLoader(false);
     }
   }, [signer.healthCheckDetails.length]);
 
@@ -414,42 +419,58 @@ function SigningDeviceDetails({ route }) {
       </Box>
       <ScrollView contentContainerStyle={styles.flex1}>
         <Box style={styles.healthCheckContainer}>
-          {healthCheckArray.map((item, index) => {
-            return currentSigner.type !== SignerType.MY_KEEPER ? (
-              <SigningDeviceChecklist
-                status={item.type}
-                key={index.toString()}
-                date={item.actionDate}
-              />
-            ) : (
-              <Box style={styles.healthCheckListContainer}>
-                <FlatList
-                  data={history}
-                  contentContainerStyle={styles.healthCheckList}
-                  renderItem={({ item, index }) => (
-                    <Box
-                      style={styles.itemBox}
-                      borderLeftColor={`${colorMode}.RecoveryBorderColor`}
-                      key={index}
-                    >
-                      <Box
-                        style={styles.dotContainer}
-                        backgroundColor={`${colorMode}.RecoveryBorderColor`}
-                      >
-                        <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
-                      </Box>
-                      <Text style={styles.title} color={`${colorMode}.secondaryText`}>
-                        {strings[item?.title]}
-                      </Text>
-                      <Text color={`${colorMode}.GreyText`} style={styles.date}>
-                        {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
-                      </Text>
-                    </Box>
-                  )}
-                />
+          {showLoader ? (
+            <ActivityIndicatorView visible={showLoader} showLoader />
+          ) : healthCheckArray.length === 0 ? (
+            <Box style={styles.emptyWrapper}>
+              <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
+                {'Key History'}
+              </Text>
+              <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+                {'The history of your key health checks would be visible here.'}
+              </Text>
+              <Box style={styles.emptyStateContainer}>
+                <EmptyState />
               </Box>
-            );
-          })}
+            </Box>
+          ) : (
+            healthCheckArray.map((item, index) => {
+              return currentSigner.type !== SignerType.MY_KEEPER ? (
+                <SigningDeviceChecklist
+                  status={item.type}
+                  key={index.toString()}
+                  date={item.actionDate}
+                />
+              ) : (
+                <Box style={styles.healthCheckListContainer}>
+                  <FlatList
+                    data={history}
+                    contentContainerStyle={styles.healthCheckList}
+                    renderItem={({ item, index }) => (
+                      <Box
+                        style={styles.itemBox}
+                        borderLeftColor={`${colorMode}.RecoveryBorderColor`}
+                        key={index}
+                      >
+                        <Box
+                          style={styles.dotContainer}
+                          backgroundColor={`${colorMode}.RecoveryBorderColor`}
+                        >
+                          <DotView height={2} width={2} color={`${colorMode}.BrownNeedHelp`} />
+                        </Box>
+                        <Text style={styles.title} color={`${colorMode}.secondaryText`}>
+                          {strings[item?.title]}
+                        </Text>
+                        <Text color={`${colorMode}.GreyText`} style={styles.date}>
+                          {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
+                        </Text>
+                      </Box>
+                    )}
+                  />
+                </Box>
+              );
+            })
+          )}
         </Box>
       </ScrollView>
       {currentSigner.type === SignerType.MY_KEEPER && (
@@ -483,22 +504,10 @@ function SigningDeviceDetails({ route }) {
         close={() => setSkipHealthCheckModalVisible(false)}
         title="Skipping Health Check"
         subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
-        buttonText="Do Later"
-        secondaryButtonText="Confirm Access"
+        buttonText="Confirm Access"
+        secondaryButtonText="Confirm Later"
         buttonTextColor={`${colorMode}.white`}
         buttonCallback={() => {
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SKIPPED,
-              },
-            ])
-          );
-          setSkipHealthCheckModalVisible(false);
-          showToast('Device healhcheck skipped!');
-        }}
-        secondaryCallback={() => {
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -510,9 +519,22 @@ function SigningDeviceDetails({ route }) {
           showToast('Device verified manually!');
           setSkipHealthCheckModalVisible(false);
         }}
+        secondaryCallback={() => {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SKIPPED,
+              },
+            ])
+          );
+          showToast('Device health check skipped!');
+          setSkipHealthCheckModalVisible(false);
+        }}
         textColor={`${colorMode}.primaryText`}
         Content={HealthCheckSkipContent}
       />
+
       <KeeperModal
         visible={detailModal}
         close={() => setDetailModal(false)}
@@ -611,6 +633,7 @@ function SigningDeviceDetails({ route }) {
         }}
         vaultId={vaultId}
       />
+      <ActivityIndicatorView visible={showLoader} showLoader />
     </ScreenWrapper>
   );
 }
@@ -718,6 +741,26 @@ const styles = StyleSheet.create({
   healthCheckList: {
     flexGrow: 1,
     paddingBottom: hp(220),
+  },
+  emptyWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '90%',
+  },
+  emptyStateContainer: {
+    marginLeft: wp(20),
+  },
+  emptyText: {
+    fontSize: 15,
+    lineHeight: 20,
+    marginBottom: hp(3),
+  },
+  emptySubText: {
+    fontSize: 14,
+    lineHeight: 20,
+    width: wp(250),
+    textAlign: 'center',
+    marginBottom: hp(30),
   },
 });
 

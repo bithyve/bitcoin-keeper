@@ -173,14 +173,15 @@ function DeleteKeys({ route }) {
           />
         }
       />
-      <Box paddingY={5} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {hiddenSigners.length === 0 ? (
           <Box style={styles.emptyWrapper}>
-            <Text style={styles.emptyText} semiBold>
+            <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
               {signerText.hideSignerTitle}
             </Text>
-            <Text style={styles.emptySubText}>{signerText.hideSignerSubtitle}</Text>
+            <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+              {signerText.hideSignerSubtitle}
+            </Text>
             <EmptyState />
           </Box>
         ) : (
@@ -326,14 +327,18 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   emptyWrapper: {
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 0.8,
   },
   emptyText: {
+    fontSize: 15,
+    lineHeight: 20,
     marginBottom: hp(3),
   },
   emptySubText: {
+    fontSize: 14,
+    lineHeight: 20,
     width: wp(250),
     textAlign: 'center',
     marginBottom: hp(30),
