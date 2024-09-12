@@ -1126,17 +1126,18 @@ function SendConfirmation({ route }) {
       // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
     } else {
       // case: new transaction
-      if (
-        sender.entityKind === EntityKind.VAULT &&
-        (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
-      ) {
-        if (!selectedPhase || !selectedPaths) {
-          showToast('Invalid phase/path selection');
-          return;
-        }
-      }
 
       if (inProgress) {
+        if (
+          sender.entityKind === EntityKind.VAULT &&
+          (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
+        ) {
+          if (!selectedPhase || !selectedPaths) {
+            showToast('Invalid phase/path selection');
+            return;
+          }
+        }
+
         setTimeout(() => {
           dispatch(sendPhaseTwoReset());
           dispatch(
