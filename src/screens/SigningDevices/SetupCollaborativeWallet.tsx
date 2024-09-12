@@ -327,12 +327,12 @@ function SetupCollaborativeWallet() {
           dispatch(setCosginerModal(false));
           dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'));
         }}
-        learnMoreTitle={common.needMoreHelp}
+        learnMoreTitle={common.needHelp}
         buttonCallback={() => {
           dispatch(setCosginerModal(false));
         }}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText="Continue"
+        buttonText={common.ok}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
       />
     </ScreenWrapper>

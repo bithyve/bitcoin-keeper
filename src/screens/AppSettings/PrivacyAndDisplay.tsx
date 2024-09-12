@@ -14,7 +14,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { sentryConfig } from 'src/services/sentry';
@@ -56,7 +56,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
   useEffect(() => {
     if (credsChanged === 'changed') {
       setConfirmPasscodeModal(false);
-      showToast('Password Successfully updated!');
+      showToast('Passcode updated successfully');
     }
   }, [credsChanged]);
 
@@ -218,28 +218,32 @@ function PrivacyAndDisplay({ route }) {
   const { inProgress, start } = useAsync();
   const data = useQuery(RealmSchema.BackupHistory);
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const analyticsEnabled = app.enableAnalytics;
+  const [isToggling, setIsToggling] = useState(false);
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(app.enableAnalytics);
 
   const toggleSentryReports = async () => {
-    if (inProgress) {
-      return;
-    }
+    if (inProgress || isToggling) return;
+    setIsToggling(true);
 
     dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
       enableAnalytics: !analyticsEnabled,
     });
 
     try {
-      if (!analyticsEnabled) {
-        await start(() => Sentry.init(sentryConfig));
-      } else {
-        await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
-      }
+      InteractionManager.runAfterInteractions(async () => {
+        if (!analyticsEnabled) {
+          await start(() => Sentry.init(sentryConfig));
+        } else {
+          await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+        }
+      });
     } catch (error) {
       dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
         enableAnalytics: analyticsEnabled,
       });
       console.error('Failed to toggle Sentry analytics:', error);
+    } finally {
+      setIsToggling(false);
     }
   };
 
@@ -360,7 +364,7 @@ function PrivacyAndDisplay({ route }) {
         visible={visiblePasscode}
         closeOnOverlayClick={false}
         close={() => setVisiblePassCode(false)}
-        title="Change passcode"
+        title={settings.changePasscode}
         subTitleWidth={wp(240)}
         subTitle="Enter your existing passcode"
         modalBackground={`${colorMode}.modalWhiteBackground`}

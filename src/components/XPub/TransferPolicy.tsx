@@ -57,7 +57,7 @@ function TransferPolicy({
   const onPressNumber = (digit) => {
     let temp = policyText;
     if (digit !== 'x') {
-      temp += digit;
+      temp == null ? (temp = digit) : (temp += digit);
       setPolicyText(temp);
     }
   };
@@ -74,6 +74,7 @@ function TransferPolicy({
   }
 
   useEffect(() => {
+    if (storedPolicy == '0' && !policyText) return;
     if (!policyText) {
       !isBitcoin
         ? setPolicyText(convertSatsToFiat(parseFloat(storedPolicy)).toFixed(0).toString())

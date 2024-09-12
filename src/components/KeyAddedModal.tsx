@@ -8,7 +8,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import Text from './KeeperText';
 
-const KeyAddedModal = ({ visible, close, signer }) => {
+function KeyAddedModal({ visible, close, signer }) {
   const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -24,6 +24,17 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       DarkCloseIcon={colorMode === 'dark'}
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.modalWhiteContent`}
+      Content={() => (
+        <Box style={{ gap: 20 }}>
+          <ModalCard
+            title={signer?.signerName}
+            icon={SDIcons(signer?.type, colorMode !== 'dark').Icon}
+            subTitle={`Added ${moment(signer?.addedOn).calendar().toLowerCase()}`}
+          />
+          <Text style={styles.descText}>{signerTranslations.signerAddedDesc}</Text>
+        </Box>
+      )}
+      buttonText={signerTranslations.signerDeatils}
       buttonTextColor={`${colorMode}.buttonText`}
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonText="Add Contact"
@@ -43,7 +54,7 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       )}
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
   externalKeyModal: {

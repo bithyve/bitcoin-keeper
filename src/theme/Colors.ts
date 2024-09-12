@@ -72,12 +72,12 @@ const Colors = {
   OffWhite: 'rgba(230,230,223,1)',
   SageGreen: 'rgba(141,157,150,1)',
   SlateGrey: 'rgba(36,49,46,1)',
-  // LightKhaki: 'rgba(217,209,169,1)',
+  LightKhaki: 'rgba(217,209,169,1)',
   Eggshell: 'rgba(238,227,216,1)',
   Teal: 'rgba(46,103,89,1)',
   SmokeGreen: 'rgba(154,164,159,1)',
   DeepOlive: 'rgba(35, 82, 71, 1)',
-  PaleKhaki: 'rgba(95,106,103,1)',
+  PaleKhaki: 'rgba(95,106,103,0.5)',
   PaleTurquoise: 'rgba(184,214,207,1)',
   Turquoise: 'rgba(177, 208, 201, 1)',
   darkGreen: 'rgb(46, 103, 89)',
@@ -111,5 +111,6 @@ const Colors = {
   LimeYellow: 'rgba(248, 241, 178, 1)',
   SeaweedGreen: 'rgba(45, 103, 89, 1)',
   // ChampagneBliss: 'rgba(253, 247, 240, 1)',
+  ChampagneBliss: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;

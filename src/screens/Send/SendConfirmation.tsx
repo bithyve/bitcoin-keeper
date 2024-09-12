@@ -68,6 +68,7 @@ import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getAvailableMiniscriptSigners } from 'src/services/wallets/factories/VaultFactory';
+import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 import KeyDropdown from './KeyDropown';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
@@ -893,6 +894,7 @@ function SendConfirmation({ route }) {
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
   const [selectedExternalSigner, setSelectedExternalSigner] = useState<VaultSigner | null>(null);
@@ -1209,25 +1211,7 @@ function SendConfirmation({ route }) {
         const isValid = validateUTXOsForCachedTxn();
         if (!isValid) {
           // block and show discard alert
-          Alert.alert(
-            'Invalid UTXO set',
-            'Please discard this transaction',
-            [
-              {
-                text: 'Discard',
-                onPress: discardCachedTransaction,
-                style: 'destructive',
-              },
-              {
-                text: 'Cancel',
-                onPress: () => {
-                  setProgress(false);
-                },
-                style: 'cancel',
-              },
-            ],
-            { cancelable: true }
-          );
+          setDiscardUTXOVisible(true);
           return;
         }
       }
@@ -1348,6 +1332,19 @@ function SendConfirmation({ route }) {
     } else {
       setFeeInsightVisible(!feeInsightVisible);
     }
+  };
+
+  const discardUTXOModalContent = () => {
+    return (
+      <Box style={{ width: wp(280) }}>
+        <Box style={styles.imgCtr}>
+          <InvalidUTXO />
+        </Box>
+        <Text color={`${colorMode}.primaryText`} style={styles.highFeeNote}>
+          {walletTransactions.discardTnxDesc}
+        </Text>
+      </Box>
+    );
   };
   const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
@@ -1697,6 +1694,30 @@ function SendConfirmation({ route }) {
         buttonCallback={toogleFeesInsightModal}
         Content={() => <FeeInsights />}
       />
+      {/* Discard UTXO Modal */}
+      <KeeperModal
+        showCloseIcon={false}
+        visible={discardUTXOVisible}
+        close={() => {}}
+        dismissible={false}
+        title={walletTransactions.discardTnxTitle}
+        subTitle={walletTransactions.discardTnxSubTitle}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonText="Discard"
+        buttonCallback={discardCachedTransaction}
+        buttonTextColor={`${colorMode}.white`}
+        showButtons
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => {
+          setProgress(false);
+          setDiscardUTXOVisible(false);
+        }}
+        Content={discardUTXOModalContent}
+        subTitleWidth={wp(280)}
+      />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
           visible={visibleCustomPriorityModal}
@@ -2002,5 +2023,9 @@ const styles = StyleSheet.create({
   signingInfoText: {
     marginTop: hp(5),
     paddingHorizontal: wp(25),
+  },
+  imgCtr: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
 });

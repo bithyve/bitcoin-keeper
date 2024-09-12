@@ -10,9 +10,15 @@ const crypto = require('crypto');
 export const getDerivationPath = (derivationPath: string) =>
   derivationPath.substring(2).split("'").join('h');
 
-export const getMultiKeyExpressions = (signers: VaultSigner[]) => {
+export const getMultiKeyExpressions = (signers: VaultSigner[], nextFreeAddressIndex?: number) => {
   const keyExpressions = signers.map((signer: VaultSigner) =>
-    getKeyExpression(signer.masterFingerprint, signer.derivationPath, signer.xpub)
+    getKeyExpression(
+      signer.masterFingerprint,
+      signer.derivationPath,
+      signer.xpub,
+      true,
+      nextFreeAddressIndex
+    )
   );
   return keyExpressions.join();
 };
@@ -21,11 +27,18 @@ export const getKeyExpression = (
   masterFingerprint: string,
   derivationPath: string,
   xpub: string,
-  withPathRestrictions: boolean = true
-) =>
-  `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
-    withPathRestrictions ? '/**' : ''
-  }`;
+  withPathRestrictions: boolean = true,
+  nextFreeAddressIndex?: number
+) => {
+  if (nextFreeAddressIndex != undefined)
+    return `[${masterFingerprint}/${getDerivationPath(
+      derivationPath
+    )}]${xpub}/0/${nextFreeAddressIndex}`;
+  else
+    return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
+      withPathRestrictions ? '/**' : ''
+    }`;
+};
 
 export const genrateOutputDescriptors = (
   wallet: Vault | Wallet,
@@ -69,6 +82,44 @@ export const genrateOutputDescriptors = (
       return des;
     }
   }
+};
+
+export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
+  const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
+  const { nextFreeAddressIndex } = wallet.specs;
+
+  if (wallet.entityKind === EntityKind.WALLET) {
+    const {
+      derivationDetails: { xDerivationPath },
+      specs: { xpub },
+    } = wallet as Wallet;
+    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub)})`;
+    return {
+      descriptorString: des,
+      receivingAddress,
+    };
+  }
+  const { signers, scheme, isMultiSig } = wallet as Vault;
+  if (!isMultiSig) {
+    const signer: VaultSigner = signers[0];
+    const des = `wpkh(${getKeyExpression(
+      signer.masterFingerprint,
+      signer.derivationPath,
+      signer.xpub
+    )})`;
+    return {
+      descriptorString: des,
+      receivingAddress,
+    };
+  }
+
+  return {
+    descriptorString: `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
+      signers,
+      nextFreeAddressIndex
+    )}))`,
+    receivingAddress,
+  };
 };
 
 // PASRER
@@ -287,4 +338,43 @@ export const createDecipheriv = (data: { iv: string; encryptedData: string }, pa
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   // Returning iv and encrypted data
   return JSON.parse(decrypted.toString());
+};
+
+
+
+export const createCipherGcm = (data: string, password: string) => {
+  const algorithm = 'aes-256-gcm';
+  const key = Buffer.from(password, 'hex');
+  const iv = crypto.randomBytes(12); // 12 bytes for GCM
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  const encrypted = Buffer.concat([cipher.update(data, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return {
+    iv: iv.toString('hex'),
+    encryptedData: encrypted.toString('hex'),
+    authTag: authTag.toString('hex'),
+  };
+};
+
+interface DecryptData {
+  iv: string;
+  encryptedData: string;
+  authTag: string;
+}
+export const createDecipherGcm = (data: DecryptData, password: string) => {
+  const algorithm = 'aes-256-gcm';
+  const key = Buffer.from(password, 'hex');
+  const iv = Buffer.from(data.iv, 'hex');
+  const encryptedText = Buffer.from(data.encryptedData, 'hex');
+  const authTag = Buffer.from(data.authTag, 'hex');
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  decipher.setAuthTag(authTag);
+  let decrypted: Buffer;
+
+  try {
+    decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+  } catch (err) {
+    throw new Error('Failed to decrypt data: ' + err.message);
+  }
+  return JSON.parse(decrypted.toString('utf-8'));
 };

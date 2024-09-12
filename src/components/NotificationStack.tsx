@@ -385,7 +385,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
       case uaiType.SIGN_TRANSACTION:
         return {
           heading: uai.uaiDetails.heading,
-          body: uai.uaiDetails.body,
+          body: 'Transaction would be signed automatically if not declined',
           btnConfig: {
             primary: {
               text: 'Decline',

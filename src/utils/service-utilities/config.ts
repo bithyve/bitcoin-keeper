@@ -32,7 +32,7 @@ const DEFAULT_CONFIG = {
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
-  CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
+  CHANNEL_URL: 'https://keeper-channel-dev-8d01fa5233d0.herokuapp.com/',
   RAMP_BASE_URL: 'https://app.ramp.network/',
   RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
   SIGNING_SERVER_RSA_PUBKEY:
