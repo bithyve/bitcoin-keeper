@@ -1322,11 +1322,11 @@ export default class WalletOperations {
             wallet
           );
 
-          const { keysInfo } = miniscriptScheme;
-          const selectedLedgerOrigin = ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1; // TODO: comes as an input
-          for (let keyIdentifier in keysInfo) {
-            if (keyIdentifier === selectedLedgerOrigin) {
-              const fragments = keysInfo[keyIdentifier].split('/');
+          const { keyInfoMap } = miniscriptScheme;
+          const uniqueKeyForTheDevice = 'AK1'; // TODO: implement the mapping once miniscript hardware integration begins
+          for (let keyIdentifier in keyInfoMap) {
+            if (keyIdentifier === uniqueKeyForTheDevice) {
+              const fragments = keyInfoMap[keyIdentifier].split('/');
               const multipathIndex = fragments[5];
               publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub + multipathIndex);
               subPath = multisigAddress.subPaths[vaultKey.xpub + multipathIndex];
@@ -1377,6 +1377,7 @@ export default class WalletOperations {
 
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
+      mfp: vaultKey.masterFingerprint,
       xfp: vaultKey.xfp,
       signerType: signer.type,
       serializedPSBT,
@@ -1484,6 +1485,31 @@ export default class WalletOperations {
       });
 
       for (const vaultKey of vaultKeys) {
+        // generate signing payload
+
+        if (
+          (wallet as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
+          miniscriptSelectedSatisfier
+        ) {
+          // only generate signing payload for the signers in the selected path
+          const { selectedPaths } = miniscriptSelectedSatisfier;
+          const { miniscriptElements } = (wallet as Vault).scheme.miniscriptScheme;
+          const { signerFingerprints } = miniscriptElements;
+
+          let pathSigner = false;
+          for (let path of selectedPaths) {
+            for (let key of path.keys) {
+              if (vaultKey.masterFingerprint === signerFingerprints[key.identifier]) {
+                pathSigner = true;
+                break;
+              }
+            }
+            if (pathSigner) break;
+          }
+
+          if (!pathSigner) continue; // skip generating payload for this signer
+        }
+
         const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
           wallet as Vault,
           inputs,
