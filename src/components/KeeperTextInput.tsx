@@ -17,6 +17,7 @@ function KeeperTextInput({
   isError = false,
   onBlur = () => {},
   onFocus = () => {},
+  ...props
 }) {
   const { colorMode } = useColorMode();
   return (
@@ -45,6 +46,7 @@ function KeeperTextInput({
           ) : null
         }
         backgroundColor={`${colorMode}.seashellWhite`}
+        {...props}
       />
     </Box>
   );
