@@ -56,6 +56,7 @@ import { Phase } from './miniscript/policy-generator';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
+const TESTNET_FEE_CUTOFF = 10;
 
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);
@@ -444,21 +445,21 @@ export default class WalletOperations {
     // high fee: 10 minutes
     const highFeeBlockEstimate = 1;
     const high = {
-      feePerByte: 50,
+      feePerByte: 5,
       estimatedBlocks: highFeeBlockEstimate,
     };
 
     // medium fee: 30 mins
     const mediumFeeBlockEstimate = 3;
     const medium = {
-      feePerByte: 25,
+      feePerByte: 3,
       estimatedBlocks: mediumFeeBlockEstimate,
     };
 
     // low fee: 60 mins
     const lowFeeBlockEstimate = 6;
     const low = {
-      feePerByte: 12,
+      feePerByte: 1,
       estimatedBlocks: lowFeeBlockEstimate,
     };
     const feeRatesByPriority = { high, medium, low };
@@ -487,6 +488,11 @@ export default class WalletOperations {
         feePerByte: Math.round(await ElectrumClient.estimateFee(lowFeeBlockEstimate)),
         estimatedBlocks: lowFeeBlockEstimate,
       };
+
+      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > TESTNET_FEE_CUTOFF) {
+        // working around testnet fee spikes
+        return WalletOperations.mockFeeRates();
+      }
 
       const feeRatesByPriority = { high, medium, low };
       return feeRatesByPriority;
@@ -538,6 +544,11 @@ export default class WalletOperations {
         feePerByte: mempoolFee.hourFee,
         estimatedBlocks: lowFeeBlockEstimate,
       };
+
+      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > TESTNET_FEE_CUTOFF) {
+        // working around testnet fee spikes
+        return WalletOperations.mockFeeRates();
+      }
 
       const feeRatesByPriority = { high, medium, low };
       return feeRatesByPriority;
