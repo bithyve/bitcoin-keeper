@@ -173,6 +173,7 @@ export const MiniscriptKeyInfoSchema: ObjectSchema = {
   properties: {
     identifier: 'string',
     descriptor: 'string',
+    uniqueKeyIdentifier: 'string?',
   },
 };
 
@@ -180,8 +181,9 @@ export const MiniscriptPathSchema: ObjectSchema = {
   name: RealmSchema.MiniscriptPath,
   embedded: true,
   properties: {
-    threshold: 'int',
+    id: 'int',
     keys: `${RealmSchema.MiniscriptKeyInfo}[]`,
+    threshold: 'int',
   },
 };
 
@@ -189,6 +191,7 @@ export const MiniscriptPhaseSchema: ObjectSchema = {
   name: RealmSchema.MiniscriptPhase,
   embedded: true,
   properties: {
+    id: 'int',
     timelock: 'int',
     paths: `${RealmSchema.MiniscriptPath}[]`,
     requiredPaths: 'int',

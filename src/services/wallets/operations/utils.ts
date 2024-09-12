@@ -228,8 +228,6 @@ export default class WalletUtilities {
     // generate public keys to replace the key identifiers
     const identifiersToPublicKey = {};
     for (const keyIdentifier in keyInfoMap) {
-      // const mfp = fragments[0].slice(1);
-      // const keyIdentifier = mfp + multipathIndex;
       const fragments = keyInfoMap[keyIdentifier].split('/');
       const multipathIndex = fragments[5];
       const [_, xpub] = fragments[4].split(']');
@@ -257,8 +255,6 @@ export default class WalletUtilities {
       );
     }
 
-    console.log({ asm });
-
     // prepare and enrich the time locks
     const [T1, T2] = timelocks;
     const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
@@ -274,7 +270,7 @@ export default class WalletUtilities {
       nLockTime?: number;
       nSequence?: number;
     },
-    keysInfo: { [keyId: string]: string }
+    keysInfoMap: { [uniqueIdentifier: string]: string }
   ): any {
     const finalScriptsFunc = (
       inputIndex: number,
@@ -291,13 +287,13 @@ export default class WalletUtilities {
       const decompiled = bitcoinJS.script.decompile(script);
       if (!decompiled) throw new Error(`Can not finalize input #${inputIndex}`);
 
-      const isAdvisorScript =
-        decompiled[1] === bitcoinJS.opcodes.OP_CHECKSIG &&
-        decompiled[2] === bitcoinJS.opcodes.OP_NOTIF &&
-        decompiled[decompiled.length - 1] === bitcoinJS.opcodes.OP_ENDIF;
-      if (!isAdvisorScript) {
-        throw new Error(`Can not finalize input #${inputIndex}, invalid script`);
-      }
+      // const isMiniscriptBasedScript =
+      //   decompiled[1] === bitcoinJS.opcodes.OP_CHECKSIG &&
+      //   decompiled[2] === bitcoinJS.opcodes.OP_NOTIF &&
+      //   decompiled[decompiled.length - 1] === bitcoinJS.opcodes.OP_ENDIF;
+      // if (!isMiniscriptBasedScript) {
+      //   throw new Error(`Can not finalize input #${inputIndex}, invalid script`);
+      // }
 
       // Step 2: Map signatures and generate the witness stack for the given satisfier
       const signatureInfo = {};
@@ -315,8 +311,8 @@ export default class WalletUtilities {
       }
 
       const signatureIdentifier = {};
-      for (const keyIdentifier in keysInfo) {
-        const fragments = keysInfo[keyIdentifier].split('/');
+      for (const keyIdentifier in keysInfoMap) {
+        const fragments = keysInfoMap[keyIdentifier].split('/');
         const masterFingerprint = fragments[0].slice(1);
         const multipathIndex = fragments[5]; // ex: <2;3>
         const externalChainIndex = multipathIndex[1];
@@ -342,44 +338,25 @@ export default class WalletUtilities {
 
       const witnessScriptStack = [];
       for (const fragment of selectedWitness.asm.split(' ')) {
-        switch (fragment) {
-          // OP_0 and OP_1(path selection)
-          case '0':
-            witnessScriptStack.push(bitcoinJS.opcodes.OP_0);
-            break;
-          case '1':
-            witnessScriptStack.push(bitcoinJS.opcodes.OP_1);
-            break;
+        if (fragment === '0') witnessScriptStack.push(bitcoinJS.opcodes.OP_0);
+        else if (fragment === '1') witnessScriptStack.push(bitcoinJS.opcodes.OP_1);
+        else {
+          let found = false;
+          for (const identifier in keysInfoMap) {
+            if (fragment === `<sig(${identifier})>`) {
+              witnessScriptStack.push(signatureIdentifier[`<sig(${identifier})>`].signature);
+              found = true;
+              break;
+            }
 
-          // UK: User Key
-          case '<sig(UK)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(UK)>'].signature);
-            break;
+            if (fragment === `<${identifier}>`) {
+              witnessScriptStack.push(signatureIdentifier[`<sig(${identifier})>`].pubkey);
+              found = true;
+              break;
+            }
+          }
 
-          // AK1: Advisor Key 1
-          case '<AK1_1>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].pubkey);
-            break;
-          case '<sig(AK1_1)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].signature);
-            break;
-          case '<sig(AK1_2)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK1_2)>'].signature);
-            break;
-
-          // AK2: Advisor Key 2
-          case '<AK2_1>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].pubkey);
-            break;
-          case '<sig(AK2_1)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].signature);
-            break;
-          case '<sig(AK2_2)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK2_2)>'].signature);
-            break;
-
-          default:
-            throw new Error(`Invalid asm fragment ${fragment}`);
+          if (!found) throw new Error(`Invalid asm fragment ${fragment}`);
         }
       }
 

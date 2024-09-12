@@ -1,19 +1,5 @@
 import { compilePolicy, compileMiniscript, satisfier } from '@bitcoinerlab/miniscript';
 
-export enum ADVISOR_VAULT_ENTITIES {
-  USER_KEY = 'UK',
-  ADVISOR_KEY1 = 'ADVISOR_KEY1',
-  ADVISOR_KEY2 = 'ADVISOR_KEY2',
-}
-
-export enum ADVISORY_VAULT_POLICY {
-  USER_KEY = 'UK',
-  ADVISOR_KEY1_1 = 'AK1_1',
-  ADVISOR_KEY2_1 = 'AK2_1',
-  ADVISOR_KEY1_2 = 'AK1_2',
-  ADVISOR_KEY2_2 = 'AK2_2',
-}
-
 export const generateMiniscript = (policy: string) => {
   const { miniscript, asm, issane } = compilePolicy(policy);
   if (!issane) throw new Error('Miniscript is not sane');

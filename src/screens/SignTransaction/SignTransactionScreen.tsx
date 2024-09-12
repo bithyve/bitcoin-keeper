@@ -1,7 +1,7 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { SignerType, TxPriority } from 'src/services/wallets/enums';
+import { MultisigScriptType, SignerType, TxPriority } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
@@ -16,7 +16,12 @@ import { finaliseVaultMigration, refillMobileKey } from 'src/store/sagaActions/v
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import idx from 'idx';
-import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+import {
+  sendPhaseThreeReset,
+  updatePSBTEnvelops,
+  setInheritanceSigningRequestId,
+  sendPhaseTwoReset,
+} from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -31,16 +36,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import {
-  signTransactionWithColdCard,
-  signTransactionWithInheritanceKey,
-  signTransactionWithMobileKey,
-  signTransactionWithSeedWords,
-  signTransactionWithSigningServer,
-  signTransactionWithTapsigner,
-} from './signWithSD';
-import SignerList from './SignerList';
-import SignerModals from './SignerModals';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
@@ -48,8 +43,6 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import { InheritanceConfiguration } from 'src/models/interfaces/AssistedKeys';
 import { generateKey } from 'src/utils/service-utilities/encryption';
-import { formatDuration } from '../Vault/HardwareModalMap';
-import { setInheritanceSigningRequestId } from 'src/store/reducers/send_and_receive';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -58,20 +51,39 @@ import {
   dropTransactionSnapshot,
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
-import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
+import { formatDuration } from '../Vault/HardwareModalMap';
+import SignerModals from './SignerModals';
+import SignerList from './SignerList';
+import {
+  signTransactionWithColdCard,
+  signTransactionWithInheritanceKey,
+  signTransactionWithMobileKey,
+  signTransactionWithSeedWords,
+  signTransactionWithSigningServer,
+  signTransactionWithTapsigner,
+} from './signWithSD';
+import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds } = (route.params || {
+  const {
+    note,
+    label,
+    vaultId,
+    sendConfirmationRouteParams,
+    isMoveAllFunds,
+    miniscriptTxElements,
+  } = (route.params || {
     note: '',
     label: [],
     vaultId: '',
     sendConfirmationRouteParams: null,
     isMoveAllFunds: false,
     sender: {},
+    miniscriptTxElements: null,
   }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
@@ -79,6 +91,10 @@ function SignTransactionScreen() {
     isMoveAllFunds: boolean;
     sender: Vault;
     sendConfirmationRouteParams: SendConfirmationRouteParams;
+    miniscriptTxElements: {
+      selectedPhase: number;
+      selectedPaths: number[];
+    };
   };
 
   const { activeVault: defaultVault } = useVault({
@@ -251,14 +267,15 @@ function SignTransactionScreen() {
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
     serializedPSBTEnvelops.forEach((envelop) => {
-      if (envelop.isSigned) {
-        signedTxCount += 1;
-      }
+      if (envelop.isSigned) signedTxCount += 1;
     });
-    // modify this in dev builds for mock signers
-    if (signedTxCount >= defaultVault.scheme.m) {
-      return true;
+
+    if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+      if (signedTxCount === serializedPSBTEnvelops.length) return true;
+    } else {
+      if (signedTxCount >= defaultVault.scheme.m) return true;
     }
+
     return false;
   };
 
@@ -638,18 +655,30 @@ function SignTransactionScreen() {
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
         data={vaultKeys}
+        extraData={serializedPSBTEnvelops}
         keyExtractor={(item) => item.xfp}
-        renderItem={({ item }) => (
-          <SignerList
-            isIKSClicked={isIKSClicked}
-            isIKSDeclined={isIKSDeclined}
-            IKSSignTime={IKSSignTime}
-            vaultKey={item}
-            callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
-            envelops={serializedPSBTEnvelops}
-            signerMap={signerMap}
-          />
-        )}
+        renderItem={({ item }) => {
+          let isPayloadAvailable = false; // case: payloads are only available for signers on the redeem path of a given miniscript vault
+          for (const psbtEnvelop of serializedPSBTEnvelops) {
+            if (item.masterFingerprint === psbtEnvelop.mfp) {
+              isPayloadAvailable = true;
+              break;
+            }
+          }
+          if (isPayloadAvailable) {
+            return (
+              <SignerList
+                isIKSClicked={isIKSClicked}
+                isIKSDeclined={isIKSDeclined}
+                IKSSignTime={IKSSignTime}
+                vaultKey={item}
+                callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
+                envelops={serializedPSBTEnvelops}
+                signerMap={signerMap}
+              />
+            );
+          }
+        }}
       />
       <Box alignItems="flex-end" marginY={5}>
         <Buttons
@@ -663,6 +692,7 @@ function SignTransactionScreen() {
                 sendPhaseThree({
                   wallet: defaultVault,
                   txnPriority: TxPriority.LOW,
+                  miniscriptTxElements,
                   note,
                   label,
                 })
@@ -740,7 +770,7 @@ function SignTransactionScreen() {
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
         title="Enter Passcode"
-        subTitle={'Confirm passcode to sign with mobile key'}
+        subTitle="Confirm passcode to sign with mobile key"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
