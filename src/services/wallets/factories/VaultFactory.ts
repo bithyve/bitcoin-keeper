@@ -51,7 +51,7 @@ const STANDARD_VAULT_SCHEME = [
   { m: 3, n: 5 },
 ];
 
-export const generateVaultId = (signers: VaultSigner[], scheme) => {
+export const generateVaultId = (signers: VaultSigner[], scheme: VaultScheme) => {
   const xpubs = signers.map((signer) => signer.xpub).sort();
   const xpubMap = {};
   signers.forEach((signer) => {
@@ -61,11 +61,17 @@ export const generateVaultId = (signers: VaultSigner[], scheme) => {
     const signer = xpubMap[xpub];
     return signer.xfp;
   });
-  STANDARD_VAULT_SCHEME.forEach((s) => {
-    if (s.m !== scheme.m || s.n !== scheme.n) {
-      fingerprints.push(JSON.stringify(scheme));
-    }
-  });
+
+  if (scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+    fingerprints.push(JSON.stringify(scheme));
+  } else {
+    STANDARD_VAULT_SCHEME.forEach((s) => {
+      if (s.m !== scheme.m || s.n !== scheme.n) {
+        fingerprints.push(JSON.stringify(scheme));
+      }
+    });
+  }
+
   const hashedFingerprints = hash256(fingerprints.join(''));
   const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
   return id;
