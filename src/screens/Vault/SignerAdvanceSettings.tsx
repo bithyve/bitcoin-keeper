@@ -69,15 +69,15 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
-import { SDIcons } from './SigningDeviceIcons';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -487,12 +487,16 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const signPSBT = async (serializedPSBT, resetQR) => {
+  const signPSBTForExternalKeeperKey = async (serializedPSBT, resetQR) => {
     try {
       let signedSerialisedPSBT;
       try {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+        signedSerialisedPSBT = signCosignerPSBT(
+          signer.masterFingerprint,
+          key.xpriv,
+          serializedPSBT
+        );
       } catch (e) {
         showToast(e.message);
         captureError(e);
@@ -524,7 +528,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           title: 'Scan a PSBT file',
           subtitle: 'Please scan until all the QR data has been retrieved',
-          onQrScan: signPSBT,
+          onQrScan: signPSBTForExternalKeeperKey,
           setup: true,
           type: SignerType.KEEPER,
           isHealthcheck: true,

@@ -278,20 +278,35 @@ export const getCosignerDetails = async (
   };
 };
 
-export const signCosignerPSBT = (xpriv: string, serializedPSBT: string) => {
+export const signCosignerPSBT = (fingerprint: string, xpriv: string, serializedPSBT: string) => {
+  // utilized by SignerType.MY_KEEPER and SignerType.KEEPER(External Keeper App)
   const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
   let vin = 0;
+
+  // w/ input.bip32Derivation[0] the sub-path(incorrect especially in case of miniscript-multipath),
+  // from whatever was the first key, was getting consumed
 
   PSBT.data.inputs.forEach((input) => {
     if (!input.bip32Derivation) return 'signing failed: bip32Derivation missing';
 
-    const { path } = input.bip32Derivation[0];
-    const pathLevels = path.split('/');
+    let subPath;
+    for (const { masterFingerprint, path } of input.bip32Derivation) {
+      if (masterFingerprint.toString('hex').toUpperCase() === fingerprint) {
+        const pathFragments = path.split('/');
+        const chainIndex = parseInt(pathFragments[pathFragments.length - 2], 10); // multipath external/internal chain index
+        const childIndex = parseInt(pathFragments[pathFragments.length - 1], 10);
+        subPath = [chainIndex, childIndex];
+        break;
+      }
+    }
+    if (!subPath) throw new Error('Failed to sign internally - missing subpath');
 
-    const internal = parseInt(pathLevels[pathLevels.length - 2], 10);
-    const childIndex = parseInt(pathLevels[pathLevels.length - 1], 10);
-
-    const keyPair = WalletUtilities.getKeyPairByIndex(xpriv, internal, childIndex, config.NETWORK);
+    const keyPair = WalletUtilities.getKeyPairByIndex(
+      xpriv,
+      subPath[0],
+      subPath[1],
+      config.NETWORK
+    );
     PSBT.signInput(vin, keyPair);
     vin += 1;
   });

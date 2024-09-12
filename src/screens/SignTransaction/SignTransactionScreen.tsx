@@ -440,7 +440,11 @@ function SignTransactionScreen() {
             ])
           );
         } else if (SignerType.MY_KEEPER === signerType) {
-          const signedSerializedPSBT = signCosignerPSBT(currentKey.xpriv, serializedPSBT);
+          const signedSerializedPSBT = signCosignerPSBT(
+            currentKey.masterFingerprint,
+            currentKey.xpriv,
+            serializedPSBT
+          );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(
             healthCheckStatusUpdate([
