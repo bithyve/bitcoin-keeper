@@ -9,7 +9,7 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { getSignerNameFromType } from 'src/hardware';
-import { MultisigScriptType, SignerType, VaultType } from 'src/services/wallets/enums';
+import { MultisigScriptType, NetworkType, SignerType, VaultType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -33,8 +33,11 @@ import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
 import {
   ASSISTED_VAULT_TIMELOCKS,
+  ASSISTED_VAULT_TIMELOCKS_TESTNET,
   generateAssistedVaultElements,
 } from 'src/services/wallets/operations/miniscript/default/AssistedVault';
+import config from 'src/utils/service-utilities/config';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import HorizontalSignerCard from '../AddSigner/HorizontalSignerCard';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
@@ -43,14 +46,14 @@ function SignerItem({
   index,
   signerMap,
   setSelectedSigner,
-  ASSISTED_WALLET_SCHEME,
+  assistedVaultScheme,
   coSigners,
 }: {
   vaultKey: VaultSigner | undefined;
   index: number;
   signerMap: { [key: string]: Signer };
   setSelectedSigner: (vaultKeys: VaultSigner[], index: number) => void;
-  ASSISTED_WALLET_SCHEME: object;
+  assistedVaultScheme: object;
   coSigners: any;
 }) {
   const { colorMode } = useColorMode();
@@ -66,7 +69,7 @@ function SignerItem({
         name: 'AddSigningDevice',
         params: {
           parentScreen: SETUPASSISTEDVAULT,
-          scheme: ASSISTED_WALLET_SCHEME,
+          scheme: assistedVaultScheme,
           signerFilters: [SignerType.KEEPER],
           coSigners,
           onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys, index),
@@ -81,7 +84,7 @@ function SignerItem({
         name: 'AddSigningDevice',
         params: {
           parentScreen: SETUPASSISTEDVAULT,
-          scheme: ASSISTED_WALLET_SCHEME,
+          scheme: assistedVaultScheme,
           signerFilters: [SignerType.MY_KEEPER],
           coSigners,
           onGoBack: (vaultKeys) => setSelectedSigner(vaultKeys, index),
@@ -156,16 +159,20 @@ function SetupAssistedVault() {
     (state) => state.vault
   );
 
-  const ASSISTED_WALLET_SCHEME = { m: 2, n: 3 };
+  const [assistedVaultScheme, setAssistedVaultScheme] = useState<VaultScheme>({
+    m: 2,
+    n: 3,
+  });
   const [userKey, setUserKey] = useState<VaultSigner | null>(null);
   const [advisorKeys, setAdvisorKeys] = useState<VaultSigner[]>(
-    new Array(ASSISTED_WALLET_SCHEME.n - 1).fill(null)
+    new Array(assistedVaultScheme.n - 1).fill(null)
   );
   const [isCreating, setIsCreating] = useState(false);
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
   const [walletType, setWalletType] = useState('');
   const [walletName, setWalletName] = useState('');
   const [walletDescription, setWalletDescription] = useState('');
+  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
   const { showToast } = useToastMessage();
   const { assistedWallets } = useAssistedWallet();
   const { signerMap } = useSignerMap();
@@ -198,24 +205,38 @@ function SetupAssistedVault() {
     }
   };
 
+  useEffect(() => {
+    // should bind with a refresher in case the auto fetch for block-height fails
+    WalletUtilities.fetchCurrentBlockHeight()
+      .then(({ currentBlockHeight }) => {
+        setCurrentBlockHeight(currentBlockHeight);
+      })
+      .catch((err) => showToast(err));
+  }, []);
+
   const createVault = useCallback(() => {
     try {
       setIsCreating(true);
 
       const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-      // const { currentBlockHeight } = yield call(WalletUtilities.fetchCurrentBlockHeight);
-      const currentBlockHeight = 1000;
-
+      if (!currentBlockHeight) {
+        showToast('Failed to sync current block height');
+        return;
+      }
       const assistedVaultSigners = [userKey, advisorKeys[0], advisorKeys[1]];
-      const timelocks = [
-        currentBlockHeight + ASSISTED_VAULT_TIMELOCKS.T1,
-        currentBlockHeight + ASSISTED_VAULT_TIMELOCKS.T2,
-      ];
 
+      const T1 =
+        config.NETWORK_TYPE === NetworkType.MAINNET
+          ? ASSISTED_VAULT_TIMELOCKS.T1
+          : ASSISTED_VAULT_TIMELOCKS_TESTNET.T1;
+      const T2 =
+        config.NETWORK_TYPE === NetworkType.MAINNET
+          ? ASSISTED_VAULT_TIMELOCKS.T2
+          : ASSISTED_VAULT_TIMELOCKS_TESTNET.T2;
+      const timelocks = [currentBlockHeight + T1, currentBlockHeight + T2];
       const miniscriptElements = generateAssistedVaultElements(assistedVaultSigners, timelocks);
-
       const vaultScheme: VaultScheme = {
-        ...ASSISTED_WALLET_SCHEME,
+        ...assistedVaultScheme,
         multisigScriptType,
       };
 
@@ -231,40 +252,48 @@ function SetupAssistedVault() {
       };
 
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+      setAssistedVaultScheme(vaultScheme);
+
       return vaultInfo;
     } catch (err) {
       captureError(err);
       return false;
     }
-  }, [userKey, advisorKeys]);
+  }, [userKey, advisorKeys, currentBlockHeight]);
 
   useEffect(() => {
     if (
       hasNewVaultGenerationSucceeded &&
-      [userKey, ...advisorKeys.filter((item) => !!item)].length === ASSISTED_WALLET_SCHEME.n &&
+      [userKey, ...advisorKeys.filter((item) => !!item)].length === assistedVaultScheme.n &&
       advisorKeys.filter((item) => item)?.length > 1
     ) {
       const combinedSigners = [userKey, ...advisorKeys.filter((item) => !!item)];
-      const generatedVaultId = generateVaultId(combinedSigners, ASSISTED_WALLET_SCHEME);
+      const generatedVaultId = generateVaultId(combinedSigners, assistedVaultScheme);
       const collabWallet = allVaults.find((vault) => vault.id === generatedVaultId);
       setWalletType(collabWallet && collabWallet.type);
       setWalletName(collabWallet && collabWallet.presentationData.name);
       setWalletDescription(collabWallet && collabWallet.presentationData.description);
       setWalletCreatedModal(true);
     }
-  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, userKey, advisorKeys]);
+  }, [
+    hasNewVaultGenerationSucceeded,
+    hasNewVaultGenerationFailed,
+    userKey,
+    advisorKeys,
+    assistedVaultScheme,
+  ]);
 
   const navigateToNextScreen = () => {
     if (
       hasNewVaultGenerationSucceeded &&
-      [userKey || null, ...advisorKeys.filter((item) => !!item)].length === ASSISTED_WALLET_SCHEME.n
+      [userKey || null, ...advisorKeys.filter((item) => !!item)].length === assistedVaultScheme.n
     ) {
       setIsCreating(false);
       const combinedSigners = [
         ...(userKey ? [userKey] : []),
         ...advisorKeys.filter((item) => !!item),
       ];
-      const generatedVaultId = generateVaultId(combinedSigners, ASSISTED_WALLET_SCHEME);
+      const generatedVaultId = generateVaultId(combinedSigners, assistedVaultScheme);
       const navigationState = generatedVaultId
         ? {
             index: 1,
@@ -293,7 +322,7 @@ function SetupAssistedVault() {
     <SignerItem
       vaultKey={item}
       index={index}
-      ASSISTED_WALLET_SCHEME={ASSISTED_WALLET_SCHEME}
+      assistedVaultScheme={assistedVaultScheme}
       signerMap={signerMap}
       setSelectedSigner={handleSignerSelected}
       coSigners={index === 0 ? (userKey ? [userKey] : []) : advisorKeys}
