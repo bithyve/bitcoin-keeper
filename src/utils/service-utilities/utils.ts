@@ -30,14 +30,15 @@ export const getKeyExpression = (
   withPathRestrictions: boolean = true,
   nextFreeAddressIndex?: number
 ) => {
-  if (nextFreeAddressIndex != undefined)
+  if (nextFreeAddressIndex != undefined) {
     return `[${masterFingerprint}/${getDerivationPath(
       derivationPath
     )}]${xpub}/0/${nextFreeAddressIndex}`;
-  else
+  } else {
     return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}${
       withPathRestrictions ? '/**' : ''
     }`;
+  }
 };
 
 export const genrateOutputDescriptors = (
@@ -57,10 +58,10 @@ export const genrateOutputDescriptors = (
   } else if (wallet.entityKind === EntityKind.VAULT) {
     const miniscriptScheme = idx(wallet as Vault, (_) => _.scheme.miniscriptScheme);
     if (miniscriptScheme) {
-      const { miniscript, keysInfo } = miniscriptScheme;
+      const { miniscript, keyInfoMap } = miniscriptScheme;
       let walletPolicyDescriptor = miniscript;
-      for (const keyId in keysInfo) {
-        walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keysInfo[keyId]);
+      for (const keyId in keyInfoMap) {
+        walletPolicyDescriptor = walletPolicyDescriptor.replace(keyId, keyInfoMap[keyId]);
       }
       const desc = `wsh(${walletPolicyDescriptor})`;
       return `${desc}#${DescriptorChecksum(desc)}`;
@@ -340,8 +341,6 @@ export const createDecipheriv = (data: { iv: string; encryptedData: string }, pa
   return JSON.parse(decrypted.toString());
 };
 
-
-
 export const createCipherGcm = (data: string, password: string) => {
   const algorithm = 'aes-256-gcm';
   const key = Buffer.from(password, 'hex');
@@ -374,7 +373,7 @@ export const createDecipherGcm = (data: DecryptData, password: string) => {
   try {
     decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
   } catch (err) {
-    throw new Error('Failed to decrypt data: ' + err.message);
+    throw new Error(`Failed to decrypt data: ${err.message}`);
   }
   return JSON.parse(decrypted.toString('utf-8'));
 };
