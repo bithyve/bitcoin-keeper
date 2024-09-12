@@ -1,18 +1,21 @@
 export interface KeyInfo {
   identifier: string;
   descriptor: string;
+  uniqueKeyIdentifier?: string;
 }
 
 export interface KeyInfoMap {
   [uniqueIdentifier: string]: string; // maps unique key identifiers to unique descriptors
 }
 
-interface Path {
-  threshold: number;
+export interface Path {
+  id: number;
   keys: KeyInfo[];
+  threshold: number;
 }
 
 export interface Phase {
+  id: number;
   timelock: number;
   paths: Path[];
   requiredPaths: number; // Number of paths required to satisfy the phase's threshold
@@ -29,23 +32,30 @@ function generateUniqueKeyIdentifier(
   const externalIndex = (keyUsageCounts[key.identifier] - 1) * 2;
   const changeIndex = externalIndex + 1;
   const suffix = `${externalIndex};${changeIndex}`;
-  const uniqueIdentifier = `${key.identifier}_${suffix}`;
+  const uniqueIdentifier = `${key.identifier}<${suffix}>`;
   keyInfoMap[uniqueIdentifier] = `${key.descriptor}/<${suffix}>/*`;
   return uniqueIdentifier;
 }
 
 // a thresh fragment based, flexible but not optimal, miniscript policy generator
 export const generateMiniscriptPolicy = (
-  miniscriptStruct: Phase[]
-): { policy: string; keyInfoMap: KeyInfoMap } => {
+  miniscriptPhases: Phase[]
+): { miniscriptPhases: Phase[]; policy: string; keyInfoMap: KeyInfoMap } => {
   const keyUsageCounts: Record<string, number> = {};
   const keyInfoMap: KeyInfoMap = {};
 
-  const policyParts: string[] = miniscriptStruct.map((phase, phaseIndex) => {
+  const policyParts: string[] = miniscriptPhases.map((phase, phaseIndex) => {
     const pathPolicies: string[] = phase.paths.map((path) => {
       const uniqueKeys = path.keys.map((key) =>
         generateUniqueKeyIdentifier(key, keyUsageCounts, keyInfoMap)
       );
+
+      for (let index = 0; index < path.keys.length; index++) {
+        path.keys[index] = {
+          ...path.keys[index],
+          uniqueKeyIdentifier: uniqueKeys[index],
+        };
+      }
       return path.keys.length > 1
         ? `thresh(${path.threshold}, ${uniqueKeys.map((key) => `pk(${key})`).join(', ')})`
         : `pk(${uniqueKeys[0]})`;
@@ -67,5 +77,5 @@ export const generateMiniscriptPolicy = (
 
   // combine all phases, starting with the first one
   const policy = policyParts.length > 1 ? `thresh(1, ${policyParts.join(', ')})` : policyParts[0];
-  return { policy, keyInfoMap };
+  return { miniscriptPhases, policy, keyInfoMap }; // miniscriptPhases w/ unique key identifier
 };
