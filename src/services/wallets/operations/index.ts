@@ -836,6 +836,7 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     input: InputUTXOs,
     network: bitcoinJS.networks.Network,
+    miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier,
     derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ) => {
@@ -933,28 +934,29 @@ export default class WalletOperations {
       } else if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
         const { miniscriptScheme } = (wallet as Vault).scheme;
         if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
+        if (!miniscriptSelectedSatisfier) throw new Error('Miniscript satisfier missing');
 
-        if (miniscriptScheme.timelocks?.length) hasTimelock = true;
+        const { keyInfoMap } = miniscriptScheme;
+        const { selectedPhase, selectedPaths } = miniscriptSelectedSatisfier;
+        hasTimelock = !!selectedPhase;
 
-        const { keysInfo } = miniscriptScheme;
-        for (let keyIdentifier in keysInfo) {
-          const fragments = keysInfo[keyIdentifier].split('/');
-          const masterFingerprint = fragments[0].slice(1);
-          const multipathIndex = fragments[5];
-          const [script_type, xpub] = fragments[4].split(']');
+        for (const path of selectedPaths) {
+          for (const key of path.keys) {
+            const keyDescriptor = keyInfoMap[key.uniqueKeyIdentifier];
 
-          // TODO: add only selected satisfier's bip32Dervs
-          if (multipathIndex[1] === '2') {
-            continue; // only add bip32Derivation based on the signing path
+            const fragments = keyDescriptor.split('/');
+            const masterFingerprint = fragments[0].slice(1);
+            const multipathIndex = fragments[5];
+            const [script_type, xpub] = fragments[4].split(']');
+
+            const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
+            const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
+            bip32Derivation.push({
+              masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+              path: path.replaceAll('h', "'"),
+              pubkey: signerPubkeyMap.get(xpub + multipathIndex),
+            });
           }
-
-          const xpubPath = `m/${fragments[1]}/${fragments[2]}/${fragments[3]}/${script_type}`;
-          const path = `${xpubPath}/${subPaths[xpub + multipathIndex].join('/')}`;
-          bip32Derivation.push({
-            masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
-            path: path.replaceAll('h', "'"),
-            pubkey: signerPubkeyMap.get(xpub + multipathIndex),
-          });
         }
       }
 
@@ -1021,9 +1023,10 @@ export default class WalletOperations {
       const { miniscriptScheme } = (wallet as Vault).scheme;
       if (!miniscriptScheme) throw new Error('Miniscript scheme is missing');
 
-      const { keysInfo } = miniscriptScheme;
-      for (let keyIdentifier in keysInfo) {
-        const fragments = keysInfo[keyIdentifier].split('/');
+      const { keyInfoMap } = miniscriptScheme;
+
+      for (let keyIdentifier in keyInfoMap) {
+        const fragments = keyInfoMap[keyIdentifier].split('/');
         const masterFingerprint = fragments[0].slice(1);
         const multipathIndex = fragments[5];
         const [script_type, xpub] = fragments[4].split(']');
@@ -1443,7 +1446,11 @@ export default class WalletOperations {
       amount: number;
     }[],
     customTxPrerequisites?: TransactionPrerequisite,
-    signerMap?: { [key: string]: Signer }
+    signerMap?: { [key: string]: Signer },
+    miniscriptTxElements?: {
+      selectedPhase: number;
+      selectedPaths: number[];
+    }
   ): Promise<
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
@@ -1458,26 +1465,14 @@ export default class WalletOperations {
         finalOutputs: bitcoinJS.TxOutput[];
       }
   > => {
-    const { PSBT, inputs, outputs, change } = await WalletOperations.createTransaction(
-      wallet,
-      txPrerequisites,
-      txnPriority,
-      customTxPrerequisites
-    );
-
-    // setting time lock(case: advisor vault)
-    if (wallet.entityKind === EntityKind.VAULT) {
-      const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
-      if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-        if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
-
-        const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
-        const selectedWitness = scriptWitnesses[2];
-        if (selectedWitness.nLockTime) {
-          PSBT.setLocktime(selectedWitness.nLockTime);
-        }
-      }
-    }
+    const { PSBT, inputs, outputs, change, miniscriptSelectedSatisfier } =
+      await WalletOperations.createTransaction(
+        wallet,
+        txPrerequisites,
+        txnPriority,
+        customTxPrerequisites,
+        miniscriptTxElements
+      );
 
     if (wallet.entityKind === EntityKind.VAULT) {
       // case: vault(single/multi-sig)
@@ -1531,7 +1526,11 @@ export default class WalletOperations {
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
     customTxPrerequisites?: TransactionPrerequisite,
-    txHex?: string
+    txHex?: string,
+    miniscriptTxElements?: {
+      selectedPhase: number;
+      selectedPaths: number[];
+    }
   ): Promise<{
     txid: string;
     finalOutputs: bitcoinJS.TxOutput[];
@@ -1579,16 +1578,19 @@ export default class WalletOperations {
         const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
         if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
           if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
+          const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+            miniscriptScheme,
+            miniscriptTxElements
+          );
 
-          const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
-          const selectedWitness = scriptWitnesses[2];
+          const { selectedScriptWitness } = miniscriptSelectedSatisfier;
 
           for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
             combinedPSBT.finalizeInput(
               index,
               WalletUtilities.getFinalScriptsForMyCustomScript(
-                selectedWitness,
-                miniscriptScheme.keysInfo
+                selectedScriptWitness,
+                miniscriptScheme.keyInfoMap
               )
             );
           }
