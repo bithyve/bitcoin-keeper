@@ -52,6 +52,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSContactsUsageDescription</key>
+	<string>ContactsList needs your permission to access your contacts</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>

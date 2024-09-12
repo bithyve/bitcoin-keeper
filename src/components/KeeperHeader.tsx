@@ -73,7 +73,11 @@ function KeeperHeader({
         >
           {title}
         </Text>
-        <Box style={styles.rightComponentContainer}>{rightComponent}</Box>
+        {rightComponent ? (
+          <Box style={styles.rightComponentContainer}>{rightComponent}</Box>
+        ) : (
+          <Box style={styles.placeholder}></Box>
+        )}
       </Box>
     );
   }
@@ -216,6 +220,9 @@ const getStyles = (marginLeft: boolean) =>
     },
     availableBalance: {
       marginLeft: wp(68),
+    },
+    placeholder: {
+      width: 20,
     },
   });
 
