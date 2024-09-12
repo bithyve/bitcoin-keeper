@@ -816,17 +816,18 @@ export default class WalletOperations {
       .map((pathId) => selectedPhase.paths.find((path) => path.id === pathId))
       .filter((path) => path !== undefined);
 
-    // Generate selectedPathWitnesses array
-    const selectedScriptWitness = selectedPaths
-      .map((path) =>
-        witnessesInSelectedPhase.find((witness) => {
-          // Check if all keys in the path are present in the witness.asm
-          return path.keys.every((key) => {
-            return witness.asm.includes(key.uniqueKeyIdentifier);
-          });
-        })
-      )
-      .filter((witness) => witness !== undefined)[0];
+    // Generate the script witness based on all selected paths
+    const selectedScriptWitness = witnessesInSelectedPhase.find((witness) => {
+      return selectedPaths.every((path) => {
+        return path.keys.every((key) => {
+          return witness.asm.includes(key.uniqueKeyIdentifier);
+        });
+      });
+    });
+
+    if (!selectedScriptWitness) {
+      throw new Error('No matching script witness found for the selected paths');
+    }
 
     return { selectedPhase, selectedPaths, selectedScriptWitness };
   };

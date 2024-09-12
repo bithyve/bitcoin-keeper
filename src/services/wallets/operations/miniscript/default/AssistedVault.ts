@@ -4,7 +4,7 @@ import { KeyInfo, Phase } from '../policy-generator';
 
 export const ASSISTED_VAULT_TIMELOCKS_TESTNET = {
   T1: 15,
-  T2: 25,
+  T2: 15 + 10,
 };
 
 export const ASSISTED_VAULT_TIMELOCKS = {
@@ -83,7 +83,7 @@ export function generateAssistedVaultElements(signers, timelocks: number[]): Min
       requiredPaths: 1,
     },
     // {
-    //   id: 1,                                     // phase1: alternate(optimized) arrangement
+    //   id: 1,                     // phase1: alternate(optimized) arrangement, to be tested post generalized flow
     //   timelock: 0,
     //   paths: [
     //     { id: 1, threshold: 1, keys: [userKey] },
