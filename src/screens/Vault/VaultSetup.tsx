@@ -135,14 +135,12 @@ function VaultSetup({ route }: ScreenProps) {
             testID="vault_name"
             maxLength={18}
           />
-          <Box style={{ height: 20 }} />
           <KeeperTextInput
             placeholder="Add a description (Optional)"
             value={vaultDescription}
             onChangeText={setVaultDescription}
             testID="vault_description"
             maxLength={20}
-            height={20}
           />
           <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
           <Text style={{ fontSize: 14 }} color={`${colorMode}.primaryText`} testID="text_totalKeys">

@@ -235,7 +235,7 @@ function EnterWalletDetailScreen({ route }) {
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
+          <Box style={styles.inputFieldWrapper}>
             <KeeperTextInput
               placeholder={wallet.WalletNamePlaceHolder}
               value={walletName}
@@ -250,7 +250,7 @@ function EnterWalletDetailScreen({ route }) {
               testID="input_wallet_name"
             />
           </Box>
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
+          <Box style={styles.inputFieldWrapper}>
             <KeeperTextInput
               placeholder={wallet.WalletDescriptionPlaceholder}
               value={walletDescription}
