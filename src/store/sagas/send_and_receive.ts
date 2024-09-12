@@ -151,7 +151,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.customPrioritySendPhaseOne
   );
 
-  const { wallet, txnPriority, note, label, transferType } = payload;
+  const { wallet, txnPriority, miniscriptTxElements, note, label, transferType } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const customTxPrerequisites = _.cloneDeep(
     idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
@@ -172,7 +172,8 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       txnPriority,
       recipients,
       customTxPrerequisites,
-      signerMap
+      signerMap,
+      miniscriptTxElements
     );
 
     switch (wallet.entityKind) {
@@ -268,23 +269,13 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   );
 
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
-  const { wallet, txnPriority, note, label } = payload;
+  const { wallet, txnPriority, miniscriptTxElements, note, label } = payload;
   try {
-    const threshold = (wallet as Vault).scheme.m;
-    let availableSignatures = 0;
     let txHex;
     for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
-      if (serializedPSBTEnvelop.isSigned) {
-        availableSignatures++;
-      }
       if (serializedPSBTEnvelop.txHex) {
         txHex = serializedPSBTEnvelop.txHex; // txHex is given out by COLDCARD, KEYSTONE and TREZOR post signing
       }
-    }
-    if (availableSignatures < threshold) {
-      throw new Error(
-        `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
-      );
     }
 
     const { txid, finalOutputs } = yield call(
@@ -294,7 +285,8 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       txPrerequisites,
       txnPriority,
       customTxPrerequisites,
-      txHex
+      txHex,
+      miniscriptTxElements
     );
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
     yield put(

@@ -12,7 +12,7 @@ import {
 } from '../enums';
 
 import { AddressCache, AddressPubs, WalletPresentationData } from './wallet';
-import { KeyInfo, KeyInfoMap, Phase } from '../operations/miniscript/policy-generator';
+import { KeyInfo, KeyInfoMap, Path, Phase } from '../operations/miniscript/policy-generator';
 
 export interface VaultPresentationData extends WalletPresentationData {}
 
@@ -38,6 +38,17 @@ export interface MiniscriptElements {
   phases: Phase[]; // structure for generating miniscript policy
   signerFingerprints: { [identifier: string]: string }; // miniscript signer key_identifier <> MFP
 }
+
+export interface MiniscriptTxSelectedSatisfier {
+  selectedPhase: Phase;
+  selectedPaths: Path[];
+  selectedScriptWitness: {
+    asm: string;
+    nLockTime?: number;
+    nSequence?: number;
+  };
+}
+
 export interface MiniscriptScheme {
   miniscriptElements: MiniscriptElements;
   keyInfoMap: KeyInfoMap;

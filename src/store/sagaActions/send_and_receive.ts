@@ -114,7 +114,6 @@ export const fetchOneDayInsight = () => ({
   type: ONE_DAY_INSIGHT,
 });
 
-
 export const fetchFeeRates = () => ({
   type: FETCH_FEE_RATES,
 });
@@ -169,6 +168,10 @@ export interface SendPhaseTwoAction extends Action {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
     transferType: TransferType;
+    miniscriptTxElements?: {
+      selectedPhase: number;
+      selectedPaths: number[];
+    };
     note?: string;
     label?: { name: string; isSystem: boolean }[];
   };
@@ -178,6 +181,10 @@ export const sendPhaseTwo = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
   transferType: TransferType;
+  miniscriptTxElements?: {
+    selectedPhase: number;
+    selectedPaths: number[];
+  };
   token?: number;
   note?: string;
   label?: { name: string; isSystem: boolean }[];
@@ -191,6 +198,10 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
+    miniscriptTxElements?: {
+      selectedPhase: number;
+      selectedPaths: number[];
+    };
     note?: string;
     label?: { name: string; isSystem: boolean }[];
   };
@@ -199,6 +210,10 @@ export interface SendPhaseThreeAction extends Action {
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
+  miniscriptTxElements?: {
+    selectedPhase: number;
+    selectedPaths: number[];
+  };
   note: string;
   label: { name: string; isSystem: boolean }[];
 }): SendPhaseThreeAction => ({
