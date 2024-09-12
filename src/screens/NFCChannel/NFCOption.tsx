@@ -1,6 +1,5 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import OptionCTA from 'src/components/OptionCTA';
-import NFCIcon from 'src/assets/images/nfc.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -9,14 +8,22 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NFC from 'src/services/nfc';
 import { SignerType } from 'src/services/wallets/enums';
 import { HCESession, HCESessionContext } from 'react-native-hce';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import idx from 'idx';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
-import AirDropIcon from 'src/assets/images/airdrop.svg';
+import NFCIcon from 'src/assets/images/nfc-circle-icon.svg';
+import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
+import RemoteShareIcon from 'src/assets/images/remote-share-circle-icon.svg';
+import RemoteShareIllustraion from 'src/assets/images/remote-share-illustration.svg';
+import { Box, useColorMode } from 'native-base';
+import KeeperModal from 'src/components/KeeperModal';
+import { hp, wp } from 'src/constants/responsive';
 
-function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) {
+function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, isPSBT }) {
   const { showToast } = useToastMessage();
+  const { colorMode } = useColorMode();
+  const [remoteShareModal, setRemoteShareModal] = useState(false);
   const readFromNFC = async () => {
     try {
       await withNfcModal(async () => {
@@ -111,23 +118,56 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
   }
   return (
     <>
-      <OptionCTA
-        icon={<NFCIcon />}
-        title="or scan via NFC"
-        subtitle="Bring device close to use NFC"
-        callback={readFromNFC}
-      />
-      {isIos && (
+      <Box style={styles.container}>
+        <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={readFromNFC} />
+        {isIos && (
+          <OptionCTA icon={<AirDropIcon />} title="Airdrop/ file import" callback={selectFile} />
+        )}
+        <NfcPrompt visible={nfcVisible} close={closeNfc} />
         <OptionCTA
-          icon={<AirDropIcon />}
-          title="or receive via Airdrop"
-          subtitle="If the other device is on iOS"
-          callback={selectFile}
+          icon={<RemoteShareIcon />}
+          title={isPSBT ? 'Share PSBT Link' : 'Remote Share'}
+          callback={() => setRemoteShareModal(true)}
         />
-      )}
-      <NfcPrompt visible={nfcVisible} close={closeNfc} />
+      </Box>
+      <KeeperModal
+        close={() => setRemoteShareModal(false)}
+        showCloseIcon={false}
+        visible={remoteShareModal}
+        title={isPSBT ? 'Remote PSBT Sharing' : 'Remote Key Sharing'}
+        subTitle={
+          isPSBT
+            ? 'Please ask the sender to send you PSBT signing link so you can sign the transaction using it'
+            : 'Ask the key holder to send a link from the Key Details sections of the settings of the key to be shared. Clicking on the link will allow you to add the key on this app.'
+        }
+        buttonText="Close"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonCallback={() => setRemoteShareModal(false)}
+        subTitleWidth={wp(280)}
+        Content={() => (
+          <Box style={styles.illustrationContainer}>
+            <RemoteShareIllustraion />
+          </Box>
+        )}
+      />
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+  illustrationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(20),
+  },
+});
 
 export default NFCOption;

@@ -42,6 +42,7 @@ import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
+import ExternalKeySetupImage from 'src/assets/images/illustration-external-key.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
@@ -204,7 +205,7 @@ const getSignerContent = (
     case SignerType.KEEPER:
       return {
         type: SignerType.KEEPER,
-        Illustration: <KeeperSetupImage />,
+        Illustration: <ExternalKeySetupImage />,
         Instructions: [
           'Choose a Mobile Key from another Keeper app',
           'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
@@ -213,8 +214,8 @@ const getSignerContent = (
           ? `Verify  ${getSignerNameFromType(type)}`
           : isCanaryAddition
           ? 'Setting up for Canary'
-          : 'Keep your Device Ready',
-        subTitle: `Importing ${getSignerNameFromType(type)}`,
+          : `Setting up ${getSignerNameFromType(type)}`,
+        subTitle: `Importing ${getSignerNameFromType(type)} and Contacts`,
         options: [],
       };
     case SignerType.MY_KEEPER:
@@ -877,6 +878,7 @@ function HardwareModalMap({
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
   const isIdentification = mode === InteracationMode.IDENTIFICATION;
   const isCanaryAddition = mode === InteracationMode.CANARY_ADDITION;
+  const isExternalKey = type === SignerType.KEEPER;
   const [otp, setOtp] = useState('');
   const [signingServerHealthCheckOTPModal, setSigningServerHealthCheckOTPModal] = useState(false);
   const [signingServerRecoverOTPModal, setSigningServerRecoverOTPModal] = useState(false);
@@ -934,9 +936,17 @@ function HardwareModalMap({
         name: 'ScanQR',
         params: {
           title: `${
-            isHealthcheck ? 'Verify' : isCanaryAddition ? 'Setting up for Canary ' : 'Setting up'
+            isHealthcheck
+              ? 'Verify'
+              : isCanaryAddition
+              ? 'Setting up for Canary '
+              : isExternalKey
+              ? `Add`
+              : 'Setting up'
           } ${getSignerNameFromType(type)}`,
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          subtitle: isExternalKey
+            ? 'Please scan a QR or use alternate methods listed below'
+            : 'Please scan until all the QR data has been retrieved',
           onQrScan: isHealthcheck ? onQRScanHealthCheck : onQRScan,
           setup: true,
           type,

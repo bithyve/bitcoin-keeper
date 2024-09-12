@@ -70,7 +70,6 @@ import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
-import DescriptionModal from './components/EditDescriptionModal';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
@@ -119,7 +118,6 @@ function SignerAdvanceSettings({ route }: any) {
   const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
 
   const { showToast } = useToastMessage();
-  const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
@@ -152,8 +150,6 @@ function SignerAdvanceSettings({ route }: any) {
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const openDescriptionModal = () => setVisible(true);
-  const closeDescriptionModal = () => setVisible(false);
 
   const { activeVault, allVaults } = useVault({ vaultId, includeArchived: false });
   const allUnhiddenVaults = allVaults.filter((vault) => {
@@ -583,6 +579,15 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const navigateToAdditionalDetails = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AdditionalDetails',
+        params: { signer },
+      })
+    );
+  };
+
   function Card({ title = '', subTitle = '', icon = null }) {
     const { colorMode } = useColorMode();
 
@@ -814,11 +819,6 @@ function SignerAdvanceSettings({ route }: any) {
         }
       />
       <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-        <OptionCard
-          title="Edit Description"
-          description="Short description to help you remember"
-          callback={openDescriptionModal}
-        />
         {isInheritanceKey && vaultId && (
           <OptionCard
             title="Registered Email"
@@ -863,13 +863,18 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToUnlockTapsigner}
           />
         )}
-        {(isAppKey || isMyAppKey) && (
+        {!isAssistedKey && (
           <OptionCard
             title={signerTranslation.keyDetails}
             description={signerTranslation.keyDetailsSubtitle}
             callback={navigateToCosignerDetails}
           />
         )}
+        <OptionCard
+          title="Additional Info"
+          description="Associate contact or Edit description"
+          callback={navigateToAdditionalDetails}
+        />
         {isMyAppKey && (
           <OptionCard
             title="Sign a transaction"
@@ -930,15 +935,6 @@ function SignerAdvanceSettings({ route }: any) {
         <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
-      <DescriptionModal
-        visible={visible}
-        close={closeDescriptionModal}
-        signer={signer}
-        callback={(value: any) => {
-          navigation.setParams({ signer: { ...signer, signerDescription: value } });
-          dispatch(updateSignerDetails(signer, 'signerDescription', value));
-        }}
-      />
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}

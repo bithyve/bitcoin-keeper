@@ -68,23 +68,28 @@ function CosignerDetails({ route }: ScreenProps) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Co-signer Details"
-        subtitle="Scan the co-signer details from another app in order to add this as a signer"
+        title="Share Key Details"
+        subtitle="Scan the key details from another app to add on that app"
       />
-      <Box style={styles.center}>
-        <ShowXPub
-          data={details}
-          copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
-          subText="Co-signer Details"
-          copyable={false}
-        />
-      </Box>
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-        {details ? <ShareWithNfc data={details} /> : null}
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Box style={styles.container}>
+          <Box style={styles.center}>
+            <ShowXPub
+              data={details}
+              copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
+              subText="Co-signer Details"
+              copyable
+            />
+          </Box>
+          {details ? <ShareWithNfc data={details} signer={signer} /> : null}
+          <Box style={styles.bottom}>
+            <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
+          </Box>
+        </Box>
       </ScrollView>
-      <Box style={styles.bottom}>
-        <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
-      </Box>
     </ScreenWrapper>
   );
 }
@@ -92,7 +97,17 @@ function CosignerDetails({ route }: ScreenProps) {
 export default CosignerDetails;
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+    marginHorizontal: '5%',
+  },
   center: {
+    marginHorizontal: '5%',
+    justifyContent: 'center',
     alignItems: 'center',
     marginTop: '10%',
   },

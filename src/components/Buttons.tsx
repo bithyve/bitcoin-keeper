@@ -49,6 +49,7 @@ function Buttons({
             styles.cancelBtn,
             {
               opacity: secondaryDisable ? 0.5 : 1,
+              marginRight: primaryText ? wp(20) : 0,
             },
           ]}
           onPress={secondaryCallback}
@@ -77,7 +78,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   cancelBtn: {
-    marginRight: wp(20),
     borderRadius: 10,
   },
   btnText: {

@@ -27,7 +27,7 @@ function ShowQR() {
       </Box>
       {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(type) ? (
         <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-          <ShareWithNfc data={data} />
+          <ShareWithNfc data={data} isPSBTSharing />
         </ScrollView>
       ) : null}
     </ScreenWrapper>
