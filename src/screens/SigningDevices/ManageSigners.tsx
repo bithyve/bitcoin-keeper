@@ -4,7 +4,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -32,6 +32,10 @@ import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import SignerCard from '../AddSigner/SignerCard';
 import KeyAddedModal from 'src/components/KeyAddedModal';
+import KeeperModal from 'src/components/KeeperModal';
+import Note from 'src/components/Note/Note';
+import CountdownTimer from 'src/components/Timer/CountDownTimer';
+import Buttons from 'src/components/Buttons';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -47,6 +51,9 @@ function ManageSigners({ route }: ScreenProps) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
+  const [timerModal, setTimerModal] = useState(false);
+  const [timerExpiredModal, setTimerExpiredModal] = useState(false);
+  const [isTimerActive, setIsTimerActive] = useState(true);
 
   const { translations } = useContext(LocalizationContext);
   const { signer: signerTranslation } = translations;
@@ -70,6 +77,10 @@ function ManageSigners({ route }: ScreenProps) {
       dispatch(resetSignersUpdateState());
     };
   }, [realySignersUpdateErrorMessage]);
+
+  const handleTimerEnd = () => {
+    setIsTimerActive(false);
+  };
 
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
@@ -135,6 +146,48 @@ function ManageSigners({ route }: ScreenProps) {
           typeBasedIndicator={typeBasedIndicator}
         />
       </Box>
+      <KeeperModal
+        title={signerTranslation.keyReceived}
+        subTitle={signerTranslation.keyReceiveMessage}
+        DarkCloseIcon={colorMode === 'dark'}
+        close={() => setTimerModal(false)}
+        visible={timerModal}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.modalGreenButton`}
+        secButtonTextColor={`${colorMode}.modalGreenButton`}
+        buttonText={signerTranslation.addKey}
+        secondaryButtonText={signerTranslation.reject}
+        Content={() => (
+          <Box style={styles.modalContent}>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer initialTime={30} onTimerEnd={handleTimerEnd} />
+            </Box>
+            <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
+          </Box>
+        )}
+      />
+      <KeeperModal
+        title={signerTranslation.keyExpired}
+        subTitle={signerTranslation.keyExpireMessage}
+        DarkCloseIcon={colorMode === 'dark'}
+        close={() => setTimerExpiredModal(false)}
+        visible={timerExpiredModal}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonTextColor={`${colorMode}.white`}
+        Content={() => (
+          <Box>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer initialTime={0} />
+            </Box>
+            <Buttons primaryText={signerTranslation.acceptKey} primaryDisable />
+          </Box>
+        )}
+      />
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
     </Box>
   );
@@ -340,6 +393,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     padding: 1,
     letterSpacing: 0.65,
+  },
+  modalContent: {
+    marginBottom: hp(40),
+  },
+  timerWrapper: {
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: hp(30),
   },
 });
 

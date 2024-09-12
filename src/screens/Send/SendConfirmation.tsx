@@ -71,6 +71,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import CountdownTimer from 'src/components/Timer/CountDownTimer';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -766,6 +767,7 @@ export interface SendConfirmationRouteParams {
   selectedUTXOs: UTXO[];
   date: Date;
   parentScreen: string;
+  isRemoteFlow?: boolean;
 }
 
 function SendConfirmation({ route }) {
@@ -785,6 +787,7 @@ function SendConfirmation({ route }) {
     selectedUTXOs,
     isAutoTransfer,
     parentScreen,
+    isRemoteFlow = false,
   }: SendConfirmationRouteParams = route.params;
 
   const isAddress =
@@ -825,6 +828,7 @@ function SendConfirmation({ route }) {
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
+  const [isTimerActive, setIsTimerActive] = useState(true);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
   const isMoveAllFunds =
@@ -857,6 +861,10 @@ function SendConfirmation({ route }) {
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+
+  const handleTimerEnd = () => {
+    setIsTimerActive(false);
+  };
 
   function checkUsualFee(data: any[]) {
     if (data.length === 0) {
@@ -1173,16 +1181,48 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title="Send Confirmation"
-        subtitle={subTitle}
-        rightComponent={<CurrencyTypeSwitch />}
-      />
+      {!isRemoteFlow && (
+        <KeeperHeader
+          title="Send Confirmation"
+          subtitle={subTitle}
+          rightComponent={<CurrencyTypeSwitch />}
+        />
+      )}
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {isRemoteFlow && (
+          <Box style={styles.timerContainer}>
+            <Box style={styles.timerTextContainer}>
+              <Text fontSize={20} color={`${colorMode}.greenText`}>
+                {walletTransactions.transactionDetailsTitle}
+              </Text>
+              <Text fontSize={14} color={`${colorMode}.primaryText`}>
+                {walletTransactions.remoteSigningMessage}
+              </Text>
+            </Box>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer initialTime={30} onTimerEnd={handleTimerEnd} />
+            </Box>
+          </Box>
+        )}
+        {isRemoteFlow && (
+          <Box style={styles.remoteFlowHeading}>
+            <Box style={styles.remoteTextContainer}>
+              <Text fontSize={20} color={`${colorMode}.greenText`}>
+                {common.Receipt}
+              </Text>
+              <Text fontSize={14} color={`${colorMode}.primaryText`}>
+                {walletTransactions.ReviewTransaction}
+              </Text>
+            </Box>
+            <Box style={styles.switchContainer}>
+              <CurrencyTypeSwitch />
+            </Box>
+          </Box>
+        )}
         {!isAutoTransferFlow ? (
           <>
             <SendingCard
@@ -1300,25 +1340,32 @@ function SendConfirmation({ route }) {
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note title={common.note} subtitle={vault.signingOldVault} />
       ) : null}
-      {!isAutoTransferFlow ? (
-        <Buttons
-          primaryText={common.confirmProceed}
-          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
-          secondaryCallback={() => {
-            if (isCachedTransaction) discardCachedTransaction();
-            else navigation.goBack();
-          }}
-          primaryCallback={() => setConfirmPassVisible(true)}
-          primaryLoading={inProgress}
-        />
-      ) : (
-        <Buttons
-          primaryText={common.confirmProceed}
-          secondaryText={common.cancel}
-          secondaryCallback={() => navigation.goBack()}
-          primaryCallback={() => setConfirmPassVisible(true)}
-          primaryLoading={inProgress}
-        />
+      {!isRemoteFlow &&
+        (!isAutoTransferFlow ? (
+          <Buttons
+            primaryText={common.confirmProceed}
+            secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
+            secondaryCallback={() => {
+              if (isCachedTransaction) discardCachedTransaction();
+              else navigation.goBack();
+            }}
+            primaryCallback={() => setConfirmPassVisible(true)}
+            primaryLoading={inProgress}
+          />
+        ) : (
+          <Buttons
+            primaryText={common.confirmProceed}
+            secondaryText={common.cancel}
+            secondaryCallback={() => navigation.goBack()}
+            primaryCallback={() => setConfirmPassVisible(true)}
+            primaryLoading={inProgress}
+          />
+        ))}
+      {isRemoteFlow && (
+        <Box style={styles.buttonsContainer}>
+          <Buttons width={wp(285)} primaryText={walletTransactions.SignTransaction} />
+          <Buttons secondaryText={walletTransactions.DenyTransaction} />
+        </Box>
       )}
       <KeeperModal
         visible={visibleModal}
@@ -1767,5 +1814,37 @@ const styles = StyleSheet.create({
   imgCtr: {
     alignItems: 'center',
     paddingVertical: 20,
+  },
+  timerWrapper: {
+    width: '100%',
+    borderRadius: 10,
+    marginTop: hp(20),
+    marginBottom: hp(10),
+  },
+  timerContainer: {
+    width: '100%',
+  },
+  timerTextContainer: {
+    marginTop: hp(20),
+    gap: 5,
+  },
+  remoteFlowHeading: {
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: hp(20),
+    marginTop: hp(20),
+  },
+  remoteTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  switchContainer: {
+    marginBottom: hp(10),
+  },
+  buttonsContainer: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 20,
   },
 });

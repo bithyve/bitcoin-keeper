@@ -104,7 +104,13 @@ const Colors = {
   Purple: 'rgba(204, 184, 214, 1)',
   ChampagneBliss: 'rgba(253, 247, 240, 1)',
   SilverMist: 'rgba(212, 212, 212, 1)',
+  SilverMistTransparent: 'rgba(212, 212, 212, 0.1)',
   Graphite: 'rgba(135, 135, 135, 1)',
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
+  LimeYellow: 'rgba(248, 241, 178, 1)',
+  SeaweedGreen: 'rgba(45, 103, 89, 1)',
+  LightCrimson: 'rgba(229, 69, 69, 1)',
+  CoralRed: 'rgba(248, 107, 80, 1)',
+  MediumGrey: 'rgba(142, 142, 142, 1)',
 };
 export default Colors;

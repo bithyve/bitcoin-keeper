@@ -5,8 +5,6 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Buttons from 'src/components/Buttons';
-import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import { XpubTypes } from 'src/services/wallets/enums';
@@ -22,7 +20,6 @@ function CosignerDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
-  const navgation = useNavigation();
   const { signer } = route.params;
 
   const fetchKeyExpression = (type: XpubTypes) => {
@@ -85,9 +82,6 @@ function CosignerDetails({ route }: ScreenProps) {
             />
           </Box>
           {details ? <ShareWithNfc data={details} signer={signer} /> : null}
-          <Box style={styles.bottom}>
-            <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
-          </Box>
         </Box>
       </ScrollView>
     </ScreenWrapper>

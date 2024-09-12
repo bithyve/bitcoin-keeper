@@ -146,6 +146,7 @@ function ScanQR() {
           <KeeperHeader
             title={title}
             subtitle={subtitle}
+            subTitleWidth={windowWidth * 0.7}
             learnMore={learnMore}
             learnMorePressed={() => {
               setVisibleModal(true);

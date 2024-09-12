@@ -15,6 +15,7 @@ type Props = {
   mediumTitle?: boolean;
   subtitle?: string;
   subTitleColor?: string;
+  subTitleWidth?: number;
   onPressHandler?: () => void;
   enableBack?: boolean;
   learnMore?: boolean;
@@ -33,6 +34,7 @@ function KeeperHeader({
   subtitle = '',
   titleColor,
   subTitleColor,
+  subTitleWidth = windowWidth * 0.8,
   mediumTitle = false,
   onPressHandler,
   enableBack = true,
@@ -49,7 +51,7 @@ function KeeperHeader({
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const styles = getStyles(marginLeft);
+  const styles = getStyles(marginLeft, subTitleWidth);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
 
@@ -141,7 +143,7 @@ function KeeperHeader({
   );
 }
 
-const getStyles = (marginLeft: boolean) =>
+const getStyles = (marginLeft: boolean, subTitleWidth?: number) =>
   StyleSheet.create({
     container: {
       backgroundColor: 'transparent',
@@ -175,7 +177,8 @@ const getStyles = (marginLeft: boolean) =>
     addWalletDescription: {
       fontSize: 14,
       lineHeight: 18,
-      width: windowWidth * 0.8,
+      backgroundColor: 'transparent',
+      width: subTitleWidth,
     },
     backContainer: {
       justifyContent: 'space-between',
