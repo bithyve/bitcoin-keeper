@@ -40,7 +40,7 @@ import {
 
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
-import { generateMiniscript, ADVISOR_VAULT_ENTITIES } from '../operations/miniscript/miniscript';
+import { generateMiniscript } from '../operations/miniscript/miniscript';
 import { generateMiniscriptPolicy } from '../operations/miniscript/policy-generator';
 
 const crypto = require('crypto');
@@ -407,12 +407,17 @@ export const generateKeyFromXpub = (
 export const generateMiniscriptScheme = (
   miniscriptElements: MiniscriptElements
 ): MiniscriptScheme => {
-  const { policy: miniscriptPolicy, keyInfoMap } = generateMiniscriptPolicy(
-    miniscriptElements.phases
-  );
+  const {
+    miniscriptPhases,
+    policy: miniscriptPolicy,
+    keyInfoMap,
+  } = generateMiniscriptPolicy(miniscriptElements.phases);
   const { miniscript } = generateMiniscript(miniscriptPolicy);
   const miniscriptScheme: MiniscriptScheme = {
-    miniscriptElements,
+    miniscriptElements: {
+      ...miniscriptElements,
+      phases: miniscriptPhases, // w/ unique key identifiers
+    },
     keyInfoMap,
     miniscriptPolicy,
     miniscript,
@@ -425,37 +430,31 @@ export const getAvailableMiniscriptSigners = (vault: Vault, currentBlockHeight: 
   const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
   if (!miniscriptScheme) return {};
 
-  if (vault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-    const { miniscriptElements } = miniscriptScheme;
-    const { timelocks, signerFingerprints } = miniscriptElements;
-    const miniscriptSigners = {};
+  const { miniscriptElements } = miniscriptScheme;
+  const { signerFingerprints, phases } = miniscriptElements;
 
-    for (const id in signerFingerprints) {
-      const miniscriptSignerMFP = signerFingerprints[id];
-      for (const signer of vault.signers) {
-        if (miniscriptSignerMFP === signer.masterFingerprint) {
-          miniscriptSigners[id] = signer;
-          break;
-        }
-      }
-    }
+  const availablePhases = [];
+  const availableSignerFingerprints = {};
 
-    const [T1, T2] = timelocks;
-    if (currentBlockHeight < T1) {
-      return miniscriptSigners;
-    } else if (currentBlockHeight >= T1 && currentBlockHeight < T2) {
-      return {
-        [ADVISOR_VAULT_ENTITIES.USER_KEY]: miniscriptSigners[ADVISOR_VAULT_ENTITIES.USER_KEY],
-      };
-    } else {
-      return {
-        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1]:
-          miniscriptSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1],
-        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]:
-          miniscriptSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2],
-      };
+  for (const phase of phases) {
+    if (phase.timelock <= currentBlockHeight) {
+      availablePhases.push(phase);
+      phase.paths.forEach((path) => {
+        path.keys.forEach((key) => {
+          availableSignerFingerprints[key.identifier] = signerFingerprints[key.identifier];
+        });
+      });
     }
   }
 
-  return {};
+  const availableSigners = {};
+  for (const [id, fingerprint] of Object.entries(availableSignerFingerprints)) {
+    const signer = vault.signers.find((s) => s.masterFingerprint === fingerprint);
+    if (signer) availableSigners[id] = signer;
+  }
+
+  return {
+    phases: availablePhases,
+    signers: availableSigners,
+  };
 };
