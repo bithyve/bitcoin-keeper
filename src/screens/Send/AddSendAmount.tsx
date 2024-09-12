@@ -31,16 +31,23 @@ import VaultIcon from 'src/assets/images/vault_icon.svg';
 import AddressIcon from 'src/components/AddressIcon';
 import { UTXO } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
-import { EntityKind, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  MultisigScriptType,
+  NetworkType,
+  TxPriority,
+  VaultType,
+} from 'src/services/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 // import LabelItem from '../UTXOManagement/components/LabelItem';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HexagonIcon from 'src/components/HexagonIcon';
+import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import WalletSendInfo from './WalletSendInfo';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
-import { MANAGEWALLETS, VAULTSETTINGS, WALLETSETTINGS } from 'src/navigation/contants';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
@@ -79,6 +86,7 @@ function AddSendAmount({ route }) {
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { averageTxFees } = useAppSelector((state) => state.network);
+  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -174,7 +182,6 @@ function AddSendAmount({ route }) {
   }, [sendMaxFee, selectedUTXOs.length]);
 
   useEffect(() => {
-    console.log(isSendMax);
     if (isSendMax) handleSendMax();
   }, []);
 
@@ -194,7 +201,29 @@ function AddSendAmount({ route }) {
     }
   }, [isMoveAllFunds, sendMaxFee, selectedUTXOs]);
 
+  useEffect(() => {
+    // should bind with a refresher in case the auto fetch for block-height fails
+    if (sender.entityKind === EntityKind.VAULT) {
+      if (sender.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setCurrentBlockHeight(currentBlockHeight);
+          })
+          .catch((err) => showToast(err));
+      }
+    }
+  }, []);
+
   const navigateToNext = () => {
+    if (sender.entityKind === EntityKind.VAULT) {
+      if (sender.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+        if (!currentBlockHeight) {
+          showToast('Unable to sync current block height');
+          return;
+        }
+      }
+    }
+
     navigation.dispatch(
       CommonActions.navigate('SendConfirmation', {
         sender,
@@ -202,6 +231,7 @@ function AddSendAmount({ route }) {
         address,
         amount: parseInt(amountToSend, 10), // in sats
         transferType,
+        currentBlockHeight,
         note,
         selectedUTXOs,
         parentScreen,
