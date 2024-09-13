@@ -222,7 +222,10 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
           },
           modalDetails: {
             heading: notification.vaultTransferHeading,
-            subTitle: notification.vaultTransferSubTitle,
+            subTitle: notification.vaultTransferSubTitle.replace(
+              '$wallet',
+              wallet.presentationData.name
+            ),
             body: notification.vaultTransferBody,
             sender: wallet,
             recipient: activeVault,
