@@ -8,6 +8,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Buttons from 'src/components/Buttons';
 import { cryptoRandom } from 'src/utils/service-utilities/encryption';
+import KeeperTextInput from '../KeeperTextInput';
 
 function HealthCheckComponent(props) {
   const navigation = useNavigation();
@@ -80,7 +81,7 @@ function HealthCheckComponent(props) {
   };
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
-      if (seedWord.toLocaleLowerCase() === words[index]) {
+      if (seedWord.toLocaleLowerCase() === words[index].toLocaleLowerCase()) {
         props.onConfirmed('');
       } else {
         setInvalid(true);
@@ -109,21 +110,12 @@ function HealthCheckComponent(props) {
             ? `Enter the ${getSeedNumber(index)} word`
             : `Hint: ${props.hint}`}
         </Text>
-        <Input
+        <KeeperTextInput
           placeholder={type === BackupType.SEED ? `Enter ${getHint(index)} word` : 'Enter Password'}
-          placeholderTextColor={`${colorMode}.secondaryText`}
-          backgroundColor={`${colorMode}.seashellWhite`}
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
-            type === BackupType.SEED
-              ? setSeedWord(value?.toLocaleLowerCase())
-              : setStrongPassword(value)
+            type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)
           }
-          style={styles.inputContainer}
-          borderRadius={10}
-          autoCapitalize="none"
-          marginY={2}
-          borderWidth="0"
         />
       </Box>
       {invalid && (
