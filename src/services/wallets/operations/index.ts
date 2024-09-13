@@ -827,12 +827,13 @@ export default class WalletOperations {
       .map((pathId) => selectedPhase.paths.find((path) => path.id === pathId))
       .filter((path) => path !== undefined);
 
-    // Generate the script witness based on all selected paths
+    // Generate the script witness based on selected paths
     const selectedScriptWitness = witnessesInSelectedPhase.find((witness) => {
       return selectedPaths.every((path) => {
-        return path.keys.every((key) => {
-          return witness.asm.includes(key.uniqueKeyIdentifier);
-        });
+        const presentKeys = path.keys.filter((key) =>
+          witness.asm.includes(key.uniqueKeyIdentifier)
+        );
+        return presentKeys.length >= path.threshold;
       });
     });
 
