@@ -1,3 +1,5 @@
+import { generateScriptWitnesses } from './miniscript';
+
 export interface KeyInfo {
   identifier: string;
   descriptor: string;
@@ -21,6 +23,17 @@ export interface Phase {
   requiredPaths: number; // Number of paths required to satisfy the phase's threshold
 }
 
+function combinations<T>(array: T[], r: number): T[][] {
+  if (r > array.length) return [];
+  if (r === array.length) return [array];
+  if (r === 1) return array.map((el) => [el]);
+
+  return array.reduce((acc, el, i) => {
+    const subarrays = combinations(array.slice(i + 1), r - 1);
+    return acc.concat(subarrays.map((subarray) => [el, ...subarray]));
+  }, [] as T[][]);
+}
+
 // generates a unique identifier based on frequency of the keys
 // miniscript policy restriction: no two paths can have the same public key(and therefore the identifiers need to be distinct for successful policy compilation)
 function generateUniqueKeyIdentifier(
@@ -36,6 +49,36 @@ function generateUniqueKeyIdentifier(
   keyInfoMap[uniqueIdentifier] = `${key.descriptor}/<${suffix}>/*`;
   return uniqueIdentifier;
 }
+
+const isGeneratedPolicyValid = (policy: string, miniscriptPhases: Phase[]): boolean => {
+  const { scriptWitnesses } = generateScriptWitnesses(policy);
+
+  for (const phase of miniscriptPhases) {
+    if (phase.paths.length < phase.requiredPaths) {
+      throw new Error('Invalid path to threshold ratio');
+    }
+
+    const witnessesInPhase = scriptWitnesses.filter((witness) =>
+      phase.timelock ? witness.nLockTime === phase.timelock : !witness.nLockTime
+    );
+
+    const pathCombinations = combinations(phase.paths, phase.requiredPaths);
+
+    const allCombinationsValid = pathCombinations.every((pathCombination) => {
+      return witnessesInPhase.some((witness) =>
+        pathCombination.every((path) => {
+          const presentKeys = path.keys.filter((key) =>
+            witness.asm.includes(key.uniqueKeyIdentifier)
+          );
+          return presentKeys.length >= path.threshold;
+        })
+      );
+    });
+
+    if (!allCombinationsValid) return false;
+  }
+  return true;
+};
 
 // a thresh fragment based, flexible but not optimal, miniscript policy generator
 export const generateMiniscriptPolicy = (
@@ -77,5 +120,9 @@ export const generateMiniscriptPolicy = (
 
   // combine all phases, starting with the first one
   const policy = policyParts.length > 1 ? `thresh(1, ${policyParts.join(', ')})` : policyParts[0];
+  if (!isGeneratedPolicyValid(policy, miniscriptPhases)) {
+    throw new Error('All paths of the generated policy are not valid');
+  }
+
   return { miniscriptPhases, policy, keyInfoMap }; // miniscriptPhases w/ unique key identifier
 };
