@@ -8,6 +8,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
+  EntityKind,
   NetworkType,
   SignerType,
   VaultType,
@@ -27,7 +28,10 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
-import WalletVault from 'src/assets/images/wallet_vault.svg';
+import WalletVault from 'src/assets/images/vault-hexa-green.svg';
+import WalletIcon from 'src/assets/images/wallet-white.svg';
+import VaultIcon from 'src/assets/images/vault-white.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import DeleteIcon from 'src/assets/images/delete_phone.svg';
 
 import { hp, wp } from 'src/constants/responsive';
@@ -79,6 +83,7 @@ import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareMo
 import Note from 'src/components/Note/Note';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import SignerCard from '../AddSigner/SignerCard';
 
 const { width } = Dimensions.get('screen');
 
@@ -796,6 +801,15 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
+      else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else {
+      return <WalletIcon />;
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
@@ -813,7 +827,10 @@ function SignerAdvanceSettings({ route }: any) {
           />
         }
       />
-      <ScrollView contentContainerStyle={styles.contentContainerStyle}>
+      <ScrollView
+        contentContainerStyle={styles.contentContainerStyle}
+        showsVerticalScrollIndicator={false}
+      >
         <OptionCard
           title="Edit Description"
           description="Short description to help you remember"
@@ -913,15 +930,35 @@ function SignerAdvanceSettings({ route }: any) {
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
-        <ScrollView horizontal contentContainerStyle={styles.signerVaults}>
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.signerVaults}
+          showsHorizontalScrollIndicator={false}
+        >
           {signerVaults.map((vault) => (
-            <ActionCard
-              key={vault.id}
-              description={vault.presentationData?.description}
-              cardName={vault.presentationData.name}
-              icon={<WalletVault />}
-              callback={() => {}}
-              customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
+            <SignerCard
+              key={vault?.id}
+              name={vault?.presentationData.name}
+              description={vault?.presentationData?.description}
+              icon={
+                <HexagonIcon
+                  width={38}
+                  height={34}
+                  backgroundColor={
+                    colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen
+                  }
+                  icon={getWalletIcon(vault)}
+                />
+              }
+              showSelection={false}
+              colorVarient="transparent"
+              customStyle={{
+                borderWidth: 1,
+                borderColor: Colors.SilverMist,
+                height: hp(120),
+                width: wp(110),
+              }}
+              colorMode={colorMode}
             />
           ))}
         </ScrollView>
@@ -1256,7 +1293,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(10),
   },
   signerVaults: {
-    gap: 5,
+    gap: 8,
   },
   textDesc: {
     fontSize: 13,
