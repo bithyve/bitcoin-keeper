@@ -952,12 +952,7 @@ function SignerAdvanceSettings({ route }: any) {
               }
               showSelection={false}
               colorVarient="transparent"
-              customStyle={{
-                borderWidth: 1,
-                borderColor: Colors.SilverMist,
-                height: hp(120),
-                width: wp(110),
-              }}
+              customStyle={styles.signerCard}
               colorMode={colorMode}
             />
           ))}
@@ -1264,6 +1259,14 @@ const styles = StyleSheet.create({
   signerText: {
     marginVertical: hp(15),
     marginHorizontal: 10,
+  },
+  signerCard: {
+    borderWidth: 1,
+    borderColor: Colors.SilverMist,
+    height: 120,
+    width: wp(105),
+    paddingTop: 5,
+    paddingLeft: 14,
   },
   deleteEmailContent: {
     gap: 60,
