@@ -1296,7 +1296,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(10),
   },
   signerVaults: {
-    gap: 8,
+    gap: 5,
   },
   textDesc: {
     fontSize: 13,

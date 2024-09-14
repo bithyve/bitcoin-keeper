@@ -979,7 +979,7 @@
     "keyDetails": "Key Details",
     "keyDetailsSubtitle": "xPub for adding to another vault",
     "ManageKeys": "Manage Keys",
-    "ViewAndChangeKeyDetails": "View and change key details",
+    "ViewAndChangeKeyDetails": "View key details or add new",
     "changeSignerTitle": "Change Signer",
     "changeSignerSubtitle": "Select a signer to replace the current one",
     "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault",
@@ -1019,7 +1019,9 @@
     "confirmPasscodeToDeleteKey": "Confirm passcode to delete key",
     "thisStepTakesTime": "This step will take a few seconds.",
     "forgot2FA": "Forgot 2FA",
-    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again"
+    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again",
+    "manageKeysModalSubtitle": "All your keys would be visible in this section.",
+    "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change signer type, all from this central location for keys."
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
