@@ -69,15 +69,15 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
-import { SDIcons } from './SigningDeviceIcons';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
-import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
 import Note from 'src/components/Note/Note';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareModalMap';
+import { SDIcons } from './SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -326,7 +326,13 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey, vaultId }));
+        navigation.dispatch(
+          CommonActions.navigate('RegisterWithChannel', {
+            vaultKey,
+            vaultId,
+            signerType: signer.type,
+          })
+        );
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
@@ -481,12 +487,16 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
-  const signPSBT = async (serializedPSBT, resetQR) => {
+  const signPSBTForExternalKeeperKey = async (serializedPSBT, resetQR) => {
     try {
       let signedSerialisedPSBT;
       try {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
-        signedSerialisedPSBT = signCosignerPSBT(key.xpriv, serializedPSBT);
+        signedSerialisedPSBT = signCosignerPSBT(
+          signer.masterFingerprint,
+          key.xpriv,
+          serializedPSBT
+        );
       } catch (e) {
         showToast(e.message);
         captureError(e);
@@ -518,7 +528,7 @@ function SignerAdvanceSettings({ route }: any) {
         params: {
           title: 'Scan a PSBT file',
           subtitle: 'Please scan until all the QR data has been retrieved',
-          onQrScan: signPSBT,
+          onQrScan: signPSBTForExternalKeeperKey,
           setup: true,
           type: SignerType.KEEPER,
           isHealthcheck: true,
@@ -837,20 +847,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToPolicyChange}
           />
         )}
-        {isPolicyServer && vaultId && (
-          <OptionCard
-            title="Forgot 2FA"
-            description="Lost access to the 2FA app"
-            callback={() => {
-              showToast(
-                'If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again',
-                null,
-                IToastCategory.DEFAULT,
-                7000
-              );
-            }}
-          />
-        )}
         {showOneTimeBackup && (
           <OptionCard
             title={vaultTranslation.oneTimeBackupTitle}
@@ -1040,7 +1036,7 @@ function SignerAdvanceSettings({ route }: any) {
         Content={() =>
           backupModalContent({
             title: signer.signerName,
-            subTitle: `${common.added} ${moment(signer.addedOn).calendar()}`,
+            subTitle: `${common.added} ${moment(signer.addedOn).calendar().toLowerCase()}`,
             icon:
               signer.type === SignerType.INHERITANCEKEY ? (
                 <InhertanceKeyIcon />

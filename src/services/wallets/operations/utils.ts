@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 /* eslint-disable prefer-destructuring */
 
 import * as bip39 from 'bip39';
@@ -33,7 +32,7 @@ import {
 import { OutputUTXOs } from '../interfaces';
 import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 import ecc from './taproot-utils/noble_ecc';
-import { generateBitcoinScript, ADVISORY_VAULT_POLICY } from './miniscript';
+import { generateBitcoinScript } from './miniscript/miniscript';
 
 bitcoinJS.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -204,7 +203,6 @@ export default class WalletUtilities {
   };
 
   static generateCustomScript = (
-    type: MultisigScriptType,
     miniscriptScheme: MiniscriptScheme,
     isInternal: boolean,
     childIndex: number,
@@ -219,80 +217,51 @@ export default class WalletUtilities {
     const subPaths = {};
     const signerPubkeyMap = new Map<string, Buffer>();
 
-    switch (type) {
-      case MultisigScriptType.ADVISOR_VAULT:
-        const { miniscript, keysInfo, timelocks } = miniscriptScheme;
+    const { miniscript, miniscriptElements, keyInfoMap } = miniscriptScheme;
+    const { timelocks } = miniscriptElements;
 
-        // generate asm from miniscript
-        // eslint-disable-next-line prefer-const
-        let { asm, issane } = generateBitcoinScript(miniscript);
-        if (!issane) throw new Error('ASM is not sane - incorrect miniscript');
+    // generate asm from miniscript
+    // eslint-disable-next-line prefer-const
+    let { asm, issane } = generateBitcoinScript(miniscript);
+    if (!issane) throw new Error('ASM is not sane - incorrect miniscript');
 
-        // generate public keys to replace the key identifiers
-        const identifiersToPublicKey = {};
-        for (const keyIdentifier in keysInfo) {
-          // const mfp = fragments[0].slice(1);
-          // const keyIdentifier = mfp + multipathIndex;
-          const fragments = keysInfo[keyIdentifier].split('/');
-          const multipathIndex = fragments[5];
-          const [_, xpub] = fragments[4].split(']');
-
-          const multipathFragments = multipathIndex.split(';');
-          const externalChainIndex = multipathFragments[0].slice(1);
-          const internalChainIndex = multipathFragments[1].slice(0, -1);
-          const subPath = [
-            parseInt(isInternal ? internalChainIndex : externalChainIndex, 10),
-            childIndex,
-          ];
-          const xKey = bip32.fromBase58(xpub, network);
-          const childXKey = xKey.derive(subPath[0]).derive(subPath[1]);
-          identifiersToPublicKey[keyIdentifier] = childXKey.publicKey;
-          console.log({ isInternal, childIndex, subPath });
-          subPaths[xpub + multipathIndex] = subPath;
-          signerPubkeyMap.set(xpub + multipathIndex, childXKey.publicKey);
-        }
-        asm = asm
-          .replace(
-            `<${ADVISORY_VAULT_POLICY.USER_KEY}>`,
-            identifiersToPublicKey[ADVISORY_VAULT_POLICY.USER_KEY].toString('hex')
-          )
-          .replace(
-            `<HASH160(${ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1})>`,
-            bitcoinJS.crypto
-              .hash160(identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1])
-              .toString('hex')
-          )
-          .replace(
-            `<HASH160(${ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1})>`,
-            bitcoinJS.crypto
-              .hash160(identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1])
-              .toString('hex')
-          )
-          .replace(
-            `<${ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2}>`,
-            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2].toString('hex')
-          )
-          .replace(
-            `<${ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2}>`,
-            identifiersToPublicKey[ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2].toString('hex')
-          );
-
-        console.log({ asm });
-
-        // prepare and enrich the time locks
-        const [T1, T2] = timelocks;
-        console.log({ T1, T2 });
-        const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
-        const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
-        asm = asm.replace(`<${encodedT1}>`, encodedT1).replace(`<${encodedT2}>`, encodedT2);
-        console.log({ timelockedASM: asm });
-        const script = bitcoinJS.script.fromASM(asm);
-        console.log({ subPaths, script: script.toString('hex') });
-        return { script, subPaths, signerPubkeyMap };
-
-      default:
-        throw new Error('Invalid custom script type');
+    // generate public keys to replace the key identifiers
+    const identifiersToPublicKey = {};
+    for (const keyIdentifier in keyInfoMap) {
+      const fragments = keyInfoMap[keyIdentifier].split('/');
+      const multipathIndex = fragments[5];
+      const [_, xpub] = fragments[4].split(']');
+      const multipathFragments = multipathIndex.split(';');
+      const externalChainIndex = multipathFragments[0].slice(1);
+      const internalChainIndex = multipathFragments[1].slice(0, -1);
+      const subPath = [
+        parseInt(isInternal ? internalChainIndex : externalChainIndex, 10),
+        childIndex,
+      ];
+      const xKey = bip32.fromBase58(xpub, network);
+      const childXKey = xKey.derive(subPath[0]).derive(subPath[1]);
+      identifiersToPublicKey[keyIdentifier] = childXKey.publicKey;
+      subPaths[xpub + multipathIndex] = subPath;
+      signerPubkeyMap.set(xpub + multipathIndex, childXKey.publicKey);
     }
+
+    // replace identifiers in the asm with actual public keys
+    for (const keyIdentifier in identifiersToPublicKey) {
+      const publicKey = identifiersToPublicKey[keyIdentifier];
+      asm = asm.replace(`<${keyIdentifier}>`, publicKey.toString('hex'));
+      asm = asm.replace(
+        `<HASH160(${keyIdentifier})>`,
+        bitcoinJS.crypto.hash160(publicKey).toString('hex')
+      );
+    }
+
+    // prepare and enrich the time locks
+    const [T1, T2] = timelocks;
+    const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
+    const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
+    asm = asm.replace(`<${encodedT1}>`, encodedT1).replace(`<${encodedT2}>`, encodedT2);
+    const script = bitcoinJS.script.fromASM(asm);
+    return { script, subPaths, signerPubkeyMap };
   };
 
   static getFinalScriptsForMyCustomScript(
@@ -301,7 +270,7 @@ export default class WalletUtilities {
       nLockTime?: number;
       nSequence?: number;
     },
-    keysInfo: { [keyId: string]: string }
+    keysInfoMap: { [uniqueIdentifier: string]: string }
   ): any {
     const finalScriptsFunc = (
       inputIndex: number,
@@ -318,13 +287,13 @@ export default class WalletUtilities {
       const decompiled = bitcoinJS.script.decompile(script);
       if (!decompiled) throw new Error(`Can not finalize input #${inputIndex}`);
 
-      const isAdvisorScript =
-        decompiled[1] === bitcoinJS.opcodes.OP_CHECKSIG &&
-        decompiled[2] === bitcoinJS.opcodes.OP_NOTIF &&
-        decompiled[decompiled.length - 1] === bitcoinJS.opcodes.OP_ENDIF;
-      if (!isAdvisorScript) {
-        throw new Error(`Can not finalize input #${inputIndex}, invalid script`);
-      }
+      // const isMiniscriptBasedScript =
+      //   decompiled[1] === bitcoinJS.opcodes.OP_CHECKSIG &&
+      //   decompiled[2] === bitcoinJS.opcodes.OP_NOTIF &&
+      //   decompiled[decompiled.length - 1] === bitcoinJS.opcodes.OP_ENDIF;
+      // if (!isMiniscriptBasedScript) {
+      //   throw new Error(`Can not finalize input #${inputIndex}, invalid script`);
+      // }
 
       // Step 2: Map signatures and generate the witness stack for the given satisfier
       const signatureInfo = {};
@@ -342,8 +311,8 @@ export default class WalletUtilities {
       }
 
       const signatureIdentifier = {};
-      for (const keyIdentifier in keysInfo) {
-        const fragments = keysInfo[keyIdentifier].split('/');
+      for (const keyIdentifier in keysInfoMap) {
+        const fragments = keysInfoMap[keyIdentifier].split('/');
         const masterFingerprint = fragments[0].slice(1);
         const multipathIndex = fragments[5]; // ex: <2;3>
         const externalChainIndex = multipathIndex[1];
@@ -369,44 +338,25 @@ export default class WalletUtilities {
 
       const witnessScriptStack = [];
       for (const fragment of selectedWitness.asm.split(' ')) {
-        switch (fragment) {
-          // OP_0 and OP_1(path selection)
-          case '0':
-            witnessScriptStack.push(bitcoinJS.opcodes.OP_0);
-            break;
-          case '1':
-            witnessScriptStack.push(bitcoinJS.opcodes.OP_1);
-            break;
+        if (fragment === '0') witnessScriptStack.push(bitcoinJS.opcodes.OP_0);
+        else if (fragment === '1') witnessScriptStack.push(bitcoinJS.opcodes.OP_1);
+        else {
+          let found = false;
+          for (const identifier in keysInfoMap) {
+            if (fragment === `<sig(${identifier})>`) {
+              witnessScriptStack.push(signatureIdentifier[`<sig(${identifier})>`].signature);
+              found = true;
+              break;
+            }
 
-          // UK: User Key
-          case '<sig(UK)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(UK)>'].signature);
-            break;
+            if (fragment === `<${identifier}>`) {
+              witnessScriptStack.push(signatureIdentifier[`<sig(${identifier})>`].pubkey);
+              found = true;
+              break;
+            }
+          }
 
-          // AK1: Advisor Key 1
-          case '<AK1_1>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].pubkey);
-            break;
-          case '<sig(AK1_1)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK1_1)>'].signature);
-            break;
-          case '<sig(AK1_2)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK1_2)>'].signature);
-            break;
-
-          // AK2: Advisor Key 2
-          case '<AK2_1>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].pubkey);
-            break;
-          case '<sig(AK2_1)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK2_1)>'].signature);
-            break;
-          case '<sig(AK2_2)>':
-            witnessScriptStack.push(signatureIdentifier['<sig(AK2_2)>'].signature);
-            break;
-
-          default:
-            throw new Error(`Invalid asm fragment ${fragment}`);
+          if (!found) throw new Error(`Invalid asm fragment ${fragment}`);
         }
       }
 
@@ -556,14 +506,13 @@ export default class WalletUtilities {
       }
 
       return { p2wsh, p2sh, subPaths, signerPubkeyMap, orderPreservedPubkeys };
-    } else if (multisigConfig.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+    } else if (multisigConfig.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
       if (!multisigConfig.miniscriptScheme) {
         throw new Error('Invalid multisig config - miniscript scheme missing');
       }
 
       const { internal, childIndex } = multisigConfig;
       const { script, subPaths, signerPubkeyMap } = this.generateCustomScript(
-        multisigConfig.multisigScriptType,
         multisigConfig.miniscriptScheme,
         internal,
         childIndex,
@@ -875,7 +824,7 @@ export default class WalletUtilities {
         childIndex,
         internal,
       };
-    } else if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
+    } else if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
       const { miniscriptScheme } = wallet.scheme;
       if (!miniscriptScheme) throw new Error('Miniscript scheme missing');
       config = {

@@ -358,13 +358,17 @@ function EnterWalletDetailScreen({ route }) {
         Content={TapRootContent}
         showCloseIcon={true}
         DarkCloseIcon
+        buttonText={common.ok}
+        buttonCallback={() => setVisibleModal(false)}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         learnMore
         learnMoreCallback={() => {
           setAdvancedSettingsVisible(false);
           setVisibleModal(false);
           dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet-advanced-settings'));
         }}
-        learnMoreTitle={common.needMoreHelp}
+        learnMoreTitle={common.needHelp}
       />
     </ScreenWrapper>
   );

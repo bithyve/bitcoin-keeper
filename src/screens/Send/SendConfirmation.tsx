@@ -14,7 +14,13 @@ import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  MultisigScriptType,
+  NetworkType,
+  TxPriority,
+  VaultType,
+} from 'src/services/wallets/enums';
 import { Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import VaultIcon from 'src/assets/images/wallet_vault.svg';
@@ -63,7 +69,8 @@ import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/ca
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getAvailableMiniscriptSigners } from 'src/services/wallets/factories/VaultFactory';
 import { ADVISOR_VAULT_ENTITIES } from 'src/services/wallets/operations/miniscript';
-import KeyDropdown from './KeyDropdown';
+import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
+import KeyDropdown from './KeyDropown';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import SignerCard from '../AddSigner/SignerCard';
@@ -745,6 +752,12 @@ function AddLabel() {
   );
 }
 
+export enum ASSISTED_VAULT_ENTITIES {
+  UK = 'UK',
+  AK1 = 'AK1',
+  AK2 = 'AK2',
+}
+
 const enum SigningPath {
   UK_PLUS_AK1 = 1,
   UK_PLUS_AK2 = 2,
@@ -762,18 +775,18 @@ const getSigningPathInfoText = (signingPath: SigningPath) => {
 
 const getSigningPath = (availableSigners) => {
   let signingPath;
-  if (availableSigners[ADVISOR_VAULT_ENTITIES.USER_KEY]) {
+  if (availableSigners[ASSISTED_VAULT_ENTITIES.UK]) {
     signingPath = SigningPath.UK_ONLY;
     if (
-      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1] &&
-      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK1] &&
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK2]
     ) {
       signingPath = SigningPath.UK_PLUS_AK1; // singing default w/ AK1
     }
   } else {
     if (
-      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1] &&
-      availableSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK1] &&
+      availableSigners[ASSISTED_VAULT_ENTITIES.AK2]
     ) {
       signingPath = SigningPath.AK_ONLY;
     }
@@ -841,6 +854,7 @@ function SendConfirmation({ route }) {
     selectedUTXOs,
     isAutoTransfer,
     parentScreen,
+    currentBlockHeight,
   }: SendConfirmationRouteParams = route.params;
 
   const isAddress =
@@ -881,34 +895,103 @@ function SendConfirmation({ route }) {
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
   const [selectedExternalSigner, setSelectedExternalSigner] = useState<VaultSigner | null>(null);
+  const [availablePaths, setAvailablePaths] = useState(null);
+  const [selectedPhase, setSelectedPhase] = useState(null);
+  const [selectedPaths, setSelectedPaths] = useState(null);
   const [availableSigners, setAvailableSigners] = useState({});
   const [externalSigners, setExternalSigners] = useState([]);
   const { signerMap } = useSignerMap();
 
-  const initialiseAvailableSigners = () => {
-    const currentBlockHeight = 1; // TODO: sync and pipe the current block height
-    const availableSigners = getAvailableMiniscriptSigners(sender as Vault, currentBlockHeight);
-    const extSigners = [];
-    for (const key in availableSigners) {
-      if (
-        key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1 ||
-        key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2
-      ) {
-        extSigners.push(signerMap[availableSigners[key].masterFingerprint]);
+  const initialiseAvailableSignersForAssistedVault = () => {
+    // specifically initialises signers for the Assisted Vault(to be generalised w/ the UI)
+    if (!currentBlockHeight) {
+      showToast('Failed to sync current block height');
+      navigation.goBack();
+      return;
+    }
+
+    const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptSigners(
+      sender as Vault,
+      currentBlockHeight
+    ); // provides available phases/signers(generic)
+
+    // upon generalisation of the UI we should be able to show/set paths
+    // in the available phases as the options which are available for the user to choose from
+
+    // currently for Advisor Vault only the latest phase and path are considered and the signers from
+    // the latest phase are only available for signing
+    const latestPhase = availablePhases[availablePhases.length - 1];
+    const latestSigners = {};
+
+    const pathsAvailable = [];
+    latestPhase.paths.forEach((path) => {
+      pathsAvailable.push(path);
+      path.keys.forEach((key) => {
+        latestSigners[key.identifier] = availableSigners[key.identifier];
+      });
+    });
+
+    const latestExtSigners = [];
+    for (const key in latestSigners) {
+      if (key === ASSISTED_VAULT_ENTITIES.AK1 || key === ASSISTED_VAULT_ENTITIES.AK2) {
+        latestExtSigners.push(signerMap[availableSigners[key].masterFingerprint]);
       }
     }
-    setAvailableSigners(availableSigners);
-    setExternalSigners(extSigners);
+    if (latestExtSigners.length === 2) {
+      // case: UK + AK1/AK2
+      // set: AK1 as default option
+      if (!selectedExternalSigner) setSelectedExternalSigner(latestExtSigners[0]);
+    }
+
+    setSelectedPhase(latestPhase.id);
+    setAvailablePaths(pathsAvailable);
+    setAvailableSigners(latestSigners);
+    setExternalSigners(latestExtSigners);
   };
 
   useEffect(() => {
-    if ((sender as Vault).type === VaultType.ASSISTED) {
-      initialiseAvailableSigners();
+    if (
+      sender.entityKind === EntityKind.VAULT &&
+      (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
+    ) {
+      // to be generalised once the generic UI is available
+      initialiseAvailableSignersForAssistedVault();
     }
   }, []);
+
+  useEffect(() => {
+    // Assisted Vault: remapping selected path based on selected signer
+    // upon generalising the UI, user should be able to directly select the path from available paths
+    // and the additional steps of mapping the available paths to external signers and
+    // then remapping the selected signer to the available paths in order to get the selected path can be avoided
+
+    if (!availablePaths) return;
+
+    if (!selectedExternalSigner) {
+      if (availablePaths.length === 1) {
+        // case: UK only or AK1 + AK2 only
+        setSelectedPaths([availablePaths[0].id]);
+      } else setSelectedPaths(null); // error case: path is not selected b/w 1.UK + AK1 and 2.UK + AK2
+    } else {
+      // case: UK + AK1/AK2
+      const pathSelected = [];
+      availablePaths.forEach((path) => {
+        path.keys.forEach((key) => {
+          if (
+            availableSigners[key.identifier].masterFingerprint ===
+            selectedExternalSigner.masterFingerprint
+          ) {
+            pathSelected.push(path.id);
+          }
+        });
+      });
+      setSelectedPaths(pathSelected);
+    }
+  }, [selectedExternalSigner, availablePaths]);
 
   const isMoveAllFunds =
     parentScreen === MANAGEWALLETS ||
@@ -1017,9 +1100,19 @@ function SendConfirmation({ route }) {
     }
   };
 
-  const handleOptionSelect = useCallback((option: VaultSigner) => {
-    setSelectedExternalSigner(option);
-  }, []);
+  const handleOptionSelect = useCallback(
+    (option: VaultSigner) => {
+      if (
+        selectedExternalSigner &&
+        selectedExternalSigner.masterFingerprint !== option.masterFingerprint
+      ) {
+        if (serializedPSBTEnvelops) dispatch(sendPhaseTwoReset()); // reset, existing send phase two vars, upon change of signer
+      }
+      setSelectedExternalSigner(option);
+      setExternalKeySelectionModal(false);
+    },
+    [selectedExternalSigner, serializedPSBTEnvelops]
+  );
 
   // useEffect(
   //   () => () => {
@@ -1034,13 +1127,28 @@ function SendConfirmation({ route }) {
       // case: cached transaction; do not reset sendPhase as we already have phase two set via cache
     } else {
       // case: new transaction
+
       if (inProgress) {
+        if (
+          sender.entityKind === EntityKind.VAULT &&
+          (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
+        ) {
+          if (!selectedPhase || !selectedPaths) {
+            showToast('Invalid phase/path selection');
+            return;
+          }
+        }
+
         setTimeout(() => {
           dispatch(sendPhaseTwoReset());
           dispatch(
             sendPhaseTwo({
               wallet: sender,
               txnPriority: transactionPriority,
+              miniscriptTxElements: {
+                selectedPhase,
+                selectedPaths,
+              },
               note,
               label,
               transferType,
@@ -1049,7 +1157,7 @@ function SendConfirmation({ route }) {
         }, 200);
       }
     }
-  }, [inProgress]);
+  }, [inProgress, selectedPhase, selectedPaths]);
 
   const { activeVault: currentSender } = useVault({ vaultId: sender?.id }); // current state of vault
 
@@ -1105,25 +1213,7 @@ function SendConfirmation({ route }) {
         const isValid = validateUTXOsForCachedTxn();
         if (!isValid) {
           // block and show discard alert
-          Alert.alert(
-            'Invalid UTXO set',
-            'Please discard this transaction',
-            [
-              {
-                text: 'Discard',
-                onPress: discardCachedTransaction,
-                style: 'destructive',
-              },
-              {
-                text: 'Cancel',
-                onPress: () => {
-                  setProgress(false);
-                },
-                style: 'cancel',
-              },
-            ],
-            { cancelable: true }
-          );
+          setDiscardUTXOVisible(true);
           return;
         }
       }
@@ -1136,11 +1226,15 @@ function SendConfirmation({ route }) {
           vaultId: sender?.id,
           sender,
           sendConfirmationRouteParams: route.params,
+          miniscriptTxElements: {
+            selectedPhase,
+            selectedPaths,
+          },
         })
       );
       setProgress(false);
     }
-  }, [serializedPSBTEnvelops, inProgress]);
+  }, [serializedPSBTEnvelops, selectedPhase, selectedPaths, inProgress]);
 
   useEffect(
     () => () => {
@@ -1240,6 +1334,19 @@ function SendConfirmation({ route }) {
     } else {
       setFeeInsightVisible(!feeInsightVisible);
     }
+  };
+
+  const discardUTXOModalContent = () => {
+    return (
+      <Box style={{ width: wp(280) }}>
+        <Box style={styles.imgCtr}>
+          <InvalidUTXO />
+        </Box>
+        <Text color={`${colorMode}.primaryText`} style={styles.highFeeNote}>
+          {walletTransactions.discardTnxDesc}
+        </Text>
+      </Box>
+    );
   };
   const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
@@ -1389,17 +1496,18 @@ function SendConfirmation({ route }) {
           fontWeight="400"
         />
       </ScrollView>
-      {sender.type === VaultType.ASSISTED && (
-        <Box>
-          <Text medium style={styles.signingInfoText} color={`${colorMode}.primaryText`}>
-            Signing Info
-          </Text>
-          <SigningInfo
-            availableSigners={availableSigners}
-            onPress={() => setExternalKeySelectionModal(true)}
-          />
-        </Box>
-      )}
+      {sender.entityKind === EntityKind.VAULT &&
+        (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG && (
+          <Box>
+            <Text medium style={styles.signingInfoText} color={`${colorMode}.primaryText`}>
+              Signing Info
+            </Text>
+            <SigningInfo
+              availableSigners={availableSigners}
+              onPress={() => setExternalKeySelectionModal(true)}
+            />
+          </Box>
+        )}
       {!isAutoTransferFlow ? (
         <Buttons
           primaryText={common.confirmProceed}
@@ -1587,6 +1695,30 @@ function SendConfirmation({ route }) {
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
         Content={() => <FeeInsights />}
+      />
+      {/* Discard UTXO Modal */}
+      <KeeperModal
+        showCloseIcon={false}
+        visible={discardUTXOVisible}
+        close={() => {}}
+        dismissible={false}
+        title={walletTransactions.discardTnxTitle}
+        subTitle={walletTransactions.discardTnxSubTitle}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonText="Discard"
+        buttonCallback={discardCachedTransaction}
+        buttonTextColor={`${colorMode}.white`}
+        showButtons
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => {
+          setProgress(false);
+          setDiscardUTXOVisible(false);
+        }}
+        Content={discardUTXOModalContent}
+        subTitleWidth={wp(280)}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
@@ -1893,5 +2025,9 @@ const styles = StyleSheet.create({
   signingInfoText: {
     marginTop: hp(5),
     paddingHorizontal: wp(25),
+  },
+  imgCtr: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
 });

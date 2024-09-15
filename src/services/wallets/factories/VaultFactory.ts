@@ -17,7 +17,6 @@ import {
 } from 'src/models/interfaces/AssistedKeys';
 import SigningServer from 'src/services/backend/SigningServer';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
-import { getDerivationPath } from 'src/utils/service-utilities/utils';
 import idx from 'idx';
 import {
   EntityKind,
@@ -29,6 +28,7 @@ import {
   VisibilityType,
 } from '../enums';
 import {
+  MiniscriptElements,
   MiniscriptScheme,
   Signer,
   Vault,
@@ -40,13 +40,8 @@ import {
 
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
-import {
-  DEFAULT_MINISCRIPT_POLICIES,
-  generateMiniscript,
-  enrichMiniscriptPolicy,
-  ADVISORY_VAULT_POLICY,
-  ADVISOR_VAULT_ENTITIES,
-} from '../operations/miniscript';
+import { generateMiniscript } from '../operations/miniscript/miniscript';
+import { generateMiniscriptPolicy } from '../operations/miniscript/policy-generator';
 
 const crypto = require('crypto');
 
@@ -56,7 +51,7 @@ const STANDARD_VAULT_SCHEME = [
   { m: 3, n: 5 },
 ];
 
-export const generateVaultId = (signers: VaultSigner[], scheme) => {
+export const generateVaultId = (signers: VaultSigner[], scheme: VaultScheme) => {
   const xpubs = signers.map((signer) => signer.xpub).sort();
   const xpubMap = {};
   signers.forEach((signer) => {
@@ -66,11 +61,17 @@ export const generateVaultId = (signers: VaultSigner[], scheme) => {
     const signer = xpubMap[xpub];
     return signer.xfp;
   });
-  STANDARD_VAULT_SCHEME.forEach((s) => {
-    if (s.m !== scheme.m || s.n !== scheme.n) {
-      fingerprints.push(JSON.stringify(scheme));
-    }
-  });
+
+  if (scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+    fingerprints.push(JSON.stringify(scheme));
+  } else {
+    STANDARD_VAULT_SCHEME.forEach((s) => {
+      if (s.m !== scheme.m || s.n !== scheme.n) {
+        fingerprints.push(JSON.stringify(scheme));
+      }
+    });
+  }
+
   const hashedFingerprints = hash256(fingerprints.join(''));
   const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
   return id;
@@ -100,10 +101,8 @@ export const generateVault = async ({
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
 
-  if (scheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-    if (!scheme.miniscriptScheme) {
-      throw new Error('miniscriptScheme is required for advisor vaults');
-    }
+  if (scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+    if (!scheme.miniscriptScheme) throw new Error('Input missing: miniscriptScheme');
   } else {
     if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
   }
@@ -115,19 +114,10 @@ export const generateVault = async ({
     shell: defaultShell,
   };
 
-  if (scheme.n <= 1) throw new Error('Invalid multisig scheme, n must be greater than 1');
-  if (scheme.m > scheme.n) {
-    throw new Error(`Invalid multisig scheme: m:${scheme.m} > n:${scheme.n}`);
-  }
+  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
 
-  /*
-    Note: deprecated support for single-sig vault (must: scheme.n > 1)
-    const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
-    const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
-  */
-
-  const isMultiSig = true;
-  const scriptType = ScriptTypes.P2WSH;
+  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH; // TODO: find ways to accomodate P2TR 1-of-1 multisig(derivationConfig is not available on Vaults)
 
   const specs: VaultSpecs = {
     xpubs,
@@ -412,66 +402,24 @@ export const generateKeyFromXpub = (
 };
 
 export const generateMiniscriptScheme = (
-  multisigScriptType: MultisigScriptType,
-  signers: VaultSigner[],
-  miniscriptSignersMap: { [key: string]: string },
-  timelocks: number[]
+  miniscriptElements: MiniscriptElements
 ): MiniscriptScheme => {
-  let miniscriptScheme: MiniscriptScheme;
-  if (multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-    let user;
-    let advisor1;
-    let advisor2;
+  const {
+    miniscriptPhases,
+    policy: miniscriptPolicy,
+    keyInfoMap,
+  } = generateMiniscriptPolicy(miniscriptElements.phases);
+  const { miniscript } = generateMiniscript(miniscriptPolicy);
+  const miniscriptScheme: MiniscriptScheme = {
+    miniscriptElements: {
+      ...miniscriptElements,
+      phases: miniscriptPhases, // w/ unique key identifiers
+    },
+    keyInfoMap,
+    miniscriptPolicy,
+    miniscript,
+  };
 
-    for (const key in miniscriptSignersMap) {
-      let currentSigner;
-      for (const signer of signers) {
-        if (signer.masterFingerprint === miniscriptSignersMap[key]) {
-          currentSigner = signer;
-          break;
-        }
-      }
-
-      if (key === ADVISOR_VAULT_ENTITIES.USER_KEY) user = currentSigner;
-      else if (key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1) advisor1 = currentSigner;
-      else if (key === ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2) advisor2 = currentSigner;
-      else throw new Error('Invalid miniscript signers map');
-    }
-
-    if (!user || !advisor1 || !advisor2) {
-      throw new Error('One or more advisor vault signers missing');
-    }
-
-    const keysInfo = {
-      [ADVISORY_VAULT_POLICY.USER_KEY]: `[${user.masterFingerprint}/${getDerivationPath(
-        user.derivationPath
-      )}]${user.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_1]: `[${advisor1.masterFingerprint}/${getDerivationPath(
-        advisor1.derivationPath
-      )}]${advisor1.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY1_2]: `[${advisor1.masterFingerprint}/${getDerivationPath(
-        advisor1.derivationPath
-      )}]${advisor1.xpub}/<2;3>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_1]: `[${advisor2.masterFingerprint}/${getDerivationPath(
-        advisor2.derivationPath
-      )}]${advisor2.xpub}/<0;1>/*`,
-      [ADVISORY_VAULT_POLICY.ADVISOR_KEY2_2]: `[${advisor2.masterFingerprint}/${getDerivationPath(
-        advisor2.derivationPath
-      )}]${advisor2.xpub}/<2;3>/*`,
-    };
-
-    const policy = DEFAULT_MINISCRIPT_POLICIES.ADVISOR_VAULT;
-    const miniscriptPolicy = enrichMiniscriptPolicy(multisigScriptType, policy, timelocks);
-    const { miniscript } = generateMiniscript(miniscriptPolicy);
-
-    miniscriptScheme = {
-      miniscriptPolicy,
-      miniscript,
-      keysInfo,
-      timelocks,
-      miniscriptSignersMap,
-    };
-  } else throw new Error('Unsupported multisigScriptType');
   return miniscriptScheme;
 };
 
@@ -479,36 +427,31 @@ export const getAvailableMiniscriptSigners = (vault: Vault, currentBlockHeight: 
   const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
   if (!miniscriptScheme) return {};
 
-  if (vault.scheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-    const { miniscriptSignersMap, timelocks } = miniscriptScheme;
-    const miniscriptSigners = {};
+  const { miniscriptElements } = miniscriptScheme;
+  const { signerFingerprints, phases } = miniscriptElements;
 
-    for (const key in miniscriptSignersMap) {
-      const miniscriptSignerMFP = miniscriptSignersMap[key];
-      for (const signer of vault.signers) {
-        if (miniscriptSignerMFP === signer.masterFingerprint) {
-          miniscriptSigners[key] = signer;
-          break;
-        }
-      }
-    }
+  const availablePhases = [];
+  const availableSignerFingerprints = {};
 
-    const [T1, T2] = timelocks;
-    if (currentBlockHeight < T1) {
-      return miniscriptSigners;
-    } else if (currentBlockHeight >= T1 && currentBlockHeight < T2) {
-      return {
-        [ADVISOR_VAULT_ENTITIES.USER_KEY]: miniscriptSigners[ADVISOR_VAULT_ENTITIES.USER_KEY],
-      };
-    } else {
-      return {
-        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1]:
-          miniscriptSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY1],
-        [ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2]:
-          miniscriptSigners[ADVISOR_VAULT_ENTITIES.ADVISOR_KEY2],
-      };
+  for (const phase of phases) {
+    if (phase.timelock <= currentBlockHeight) {
+      availablePhases.push(phase);
+      phase.paths.forEach((path) => {
+        path.keys.forEach((key) => {
+          availableSignerFingerprints[key.identifier] = signerFingerprints[key.identifier];
+        });
+      });
     }
   }
 
-  return {};
+  const availableSigners = {};
+  for (const [id, fingerprint] of Object.entries(availableSignerFingerprints)) {
+    const signer = vault.signers.find((s) => s.masterFingerprint === fingerprint);
+    if (signer) availableSigners[id] = signer;
+  }
+
+  return {
+    phases: availablePhases,
+    signers: availableSigners,
+  };
 };

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import SettingsIcon from 'src/assets/images/SignerShow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -8,16 +8,13 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSigners from 'src/hooks/useSigners';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import Text from 'src/components/KeeperText';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
-import ActionChip from 'src/components/ActionChip';
 import DeleteIcon from 'src/assets/images/delete_bin.svg';
 import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import ShowIcon from 'src/assets/images/show.svg';
-import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
@@ -30,27 +27,19 @@ import useArchivedVault from 'src/hooks/useArchivedVaults';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { SignerType } from 'src/services/wallets/enums';
 import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
-
-function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
-  return (
-    <Box>
-      <ActionCard
-        description={vaultUsed.presentationData?.description}
-        cardName={vaultUsed.presentationData.name}
-        icon={<WalletVault />}
-        callback={() => {}}
-      />
-      <Box style={{ paddingVertical: 20 }}>
-        <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
-          Please delete the vault to perform this operation.
-        </Text>
-      </Box>
-    </Box>
-  );
-}
+import KeyCard from 'src/components/SigningDevices/KeyCard';
+import HexagonIcon from 'src/components/HexagonIcon';
+import Colors from 'src/theme/Colors';
+import { useAppSelector } from 'src/store/hooks';
+import { hideDeletingKeyModal, hideKeyDeletedSuccessModal } from 'src/store/reducers/bhr';
+import BounceLoader from 'src/components/BounceLoader';
+import TorAsset from 'src/components/Loader';
+import moment from 'moment';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText } = translations;
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
   const { signers } = useSigners();
@@ -62,11 +51,14 @@ function DeleteKeys({ route }) {
   const [unhidingMfp, setUnhidingMfp] = useState('');
   const { allVaults } = useVault({ includeArchived: true });
   const { archivedVaults } = useArchivedVault();
-  const [warningEnabled, setHideWarning] = React.useState(false);
-  const [vaultUsed, setVaultUsed] = React.useState<Vault>();
-  const [signerToDelete, setSignerToDelete] = React.useState<Signer>();
-  const { translations } = useContext(LocalizationContext);
-  const { signer: signerText } = translations;
+  const [warningEnabled, setHideWarning] = useState(false);
+  const [vaultUsed, setVaultUsed] = useState<Vault>();
+  const [signerToDelete, setSignerToDelete] = useState<Signer>();
+  const [deletedSigner, setDeletedSigner] = useState<Signer>();
+  const deletingKeyModalVisible = useAppSelector((state) => state.bhr.deletingKeyModalVisible);
+  const keyDeletedSuccessModalVisible = useAppSelector(
+    (state) => state.bhr.keyDeletedSuccessModalVisible
+  );
 
   const onSuccess = () => {
     if (signerToDelete) {
@@ -78,6 +70,7 @@ function DeleteKeys({ route }) {
       } else {
         dispatch(deleteSigningDevice([signerToDelete]));
       }
+      setDeletedSigner(signerToDelete);
       setSignerToDelete(null);
     }
   };
@@ -87,18 +80,92 @@ function DeleteKeys({ route }) {
     dispatch(updateSignerDetails(signer, 'hidden', false));
   };
 
+  const handleDelete = (signer: Signer) => {
+    const vaultsInvolved = allVaults.filter(
+      (vault) =>
+        !vault.archived &&
+        vault.signers.find((s) => s.masterFingerprint === signer.masterFingerprint)
+    );
+    if (vaultsInvolved.length > 0) {
+      setVaultUsed(vaultsInvolved[0]);
+      setConfirmPassVisible(false);
+      return;
+    }
+    setConfirmPassVisible(true);
+    setSignerToDelete(signer);
+  };
+
   useEffect(() => {
     if (unhidingMfp && !hiddenSigners.find((signer) => signer.masterFingerprint === unhidingMfp)) {
       setUnhidingMfp('');
     }
   }, [hiddenSigners]);
 
+  function DeleteLoadingContent() {
+    return (
+      <Box style={styles.loadingModalContainer}>
+        <Box style={styles.loadingIcon}>
+          <TorAsset />
+        </Box>
+        <Box style={styles.loadingText}>
+          <Text color={`${colorMode}.primaryText`}>{signerText.thisStepTakesTime}</Text>
+          <BounceLoader />
+        </Box>
+      </Box>
+    );
+  }
+
+  function DeletedSuccessContent() {
+    return (
+      <Box style={styles.successModalContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+        <Box style={styles.signerContentContainer}>
+          <HexagonIcon
+            width={43}
+            height={38}
+            backgroundColor={Colors.pantoneGreen}
+            icon={SDIcons(deletedSigner?.type, true).Icon}
+          />
+          <Box>
+            <Text numberOfLines={1} fontSize={14} color={`${colorMode}.greenText`}>
+              {getSignerNameFromType(deletedSigner?.type)}
+            </Text>
+            <Text numberOfLines={1} fontSize={12} color={`${colorMode}.secondaryText`}>
+              {getSignerDescription(
+                deletedSigner?.type,
+                deletedSigner?.extraData?.instanceNumber,
+                deletedSigner
+              )}
+            </Text>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
+  function Content({ colorMode, vaultUsed }) {
+    return (
+      <Box>
+        <ActionCard
+          description={vaultUsed.presentationData?.description}
+          cardName={vaultUsed.presentationData.name}
+          icon={<WalletVault />}
+          callback={() => {}}
+        />
+        <Box style={{ paddingVertical: 20 }}>
+          <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
+            {signerText.deleteVaultInstruction}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={'Hidden Keys'}
+        title={signerText.hiddenKeys}
         mediumTitle
-        subtitle={'Only showing hidden keys'}
+        subtitle={signerText.showingHiddenKeys}
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
@@ -106,119 +173,137 @@ function DeleteKeys({ route }) {
           />
         }
       />
-      <Box paddingY={'5'} />
-      {hiddenSigners.length === 0 ? (
-        <Box style={styles.emptyWrapper}>
-          <Text style={styles.emptyText} semiBold>
-            {signerText.hideSignerTitle}
-          </Text>
-          <Text style={styles.emptySubText}>{signerText.hideSignerSubtitle}</Text>
-          <EmptyState />
-        </Box>
-      ) : (
-        hiddenSigners.map((signer) => {
-          return (
-            <Box
-              key={signer.masterFingerprint}
-              backgroundColor={`${colorMode}.seashellWhite`}
-              style={styles.signerContainer}
-            >
-              <VStack>
-                <Box alignItems={'flex-start'}>
-                  <HexagonIcon
-                    width={40}
-                    height={40}
-                    backgroundColor={Colors.pantoneGreen}
-                    icon={SDIcons(signer.type, true).Icon}
-                  />
-                </Box>
-                <Text fontSize={12}>{getSignerNameFromType(signer.type)}</Text>
-                <Text fontSize={11} color={`${colorMode}.secondaryText`}>
-                  {getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
-                </Text>
-              </VStack>
-              <HStack>
-                {signer.type !== SignerType.INHERITANCEKEY &&
-                  signer.type !== SignerType.POLICY_SERVER && (
-                    <ActionChip
-                      text="Delete"
-                      onPress={() => {
-                        // check if signer is a part of any of the vaults
-                        const vaultsInvolved = allVaults.filter(
-                          (vault) =>
-                            !vault.archived &&
-                            vault.signers.find(
-                              (s) => s.masterFingerprint === signer.masterFingerprint
-                            )
-                        );
-                        if (vaultsInvolved.length > 0) {
-                          setVaultUsed(vaultsInvolved[0]);
-                          setHideWarning(true);
-                          return;
-                        }
-                        setConfirmPassVisible(true);
-                        setSignerToDelete(signer);
-                      }}
-                      Icon={<DeleteIcon />}
-                    />
-                  )}
-                <ActionChip
-                  text="Unhide"
-                  onPress={() => unhide(signer)}
-                  Icon={
-                    signer.masterFingerprint === unhidingMfp ? (
-                      <ActivityIndicator color={'white'} />
-                    ) : (
-                      <ShowIcon />
-                    )
-                  }
-                />
-              </HStack>
-              <KeeperModal
-                visible={warningEnabled && !!vaultUsed}
-                close={() => setHideWarning(false)}
-                title="Key is being used for Vault"
-                subTitle="The Key you are trying to hide is used in one of the visible vaults."
-                buttonText="View Vault"
-                secondaryButtonText="Back"
-                secondaryCallback={() => setHideWarning(false)}
-                secButtonTextColor={`${colorMode}.greenText`}
-                modalBackground={`${colorMode}.modalWhiteBackground`}
-                buttonBackground={`${colorMode}.greenButtonBackground`}
-                buttonTextColor={`${colorMode}.white`}
-                DarkCloseIcon={colorMode === 'dark'}
-                buttonCallback={() => {
-                  setHideWarning(false);
-                  navigation.dispatch(
-                    CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id })
-                  );
-                }}
-                textColor={`${colorMode}.primaryText`}
-                Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
+      <ScrollView contentContainerStyle={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        {hiddenSigners.length === 0 ? (
+          <Box style={styles.emptyWrapper}>
+            <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
+              {signerText.hideSignerTitle}
+            </Text>
+            <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+              {signerText.hideSignerSubtitle}
+            </Text>
+            <EmptyState />
+          </Box>
+        ) : (
+          hiddenSigners.map((signer) => {
+            const showDelete =
+              signer.type !== SignerType.INHERITANCEKEY && signer.type !== SignerType.POLICY_SERVER;
+
+            return (
+              <KeyCard
+                key={signer.masterFingerprint}
+                isLoading={signer.masterFingerprint === unhidingMfp}
+                primaryAction={showDelete ? () => handleDelete(signer) : null}
+                secondaryAction={() => unhide(signer)}
+                primaryText={showDelete ? signerText.delete : null}
+                secondaryText={signerText.unhide}
+                primaryIcon={showDelete ? <DeleteIcon /> : null}
+                secondaryIcon={<ShowIcon />}
+                icon={{ element: SDIcons(signer.type, true).Icon, backgroundColor: 'pantoneGreen' }}
+                name={getSignerNameFromType(signer.type)}
+                description={getSignerDescription(
+                  signer.type,
+                  signer.extraData?.instanceNumber,
+                  signer
+                )}
+                descriptionTitle={'Description'}
+                dateAdded={`Added ${moment(signer?.addedOn).calendar()}`}
               />
-            </Box>
-          );
-        })
-      )}
+            );
+          })
+        )}
+      </ScrollView>
+      <KeeperModal
+        visible={warningEnabled && !!vaultUsed}
+        close={() => setHideWarning(false)}
+        title={signerText.deleteVaultWarning}
+        subTitle={signerText.vaultWarningSubtitle}
+        buttonText={signerText.viewVault}
+        secondaryButtonText={signerText.back}
+        secondaryCallback={() => setHideWarning(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
+        buttonCallback={() => {
+          setHideWarning(false);
+          navigation.dispatch(CommonActions.navigate('VaultDetails', { vaultId: vaultUsed.id }));
+        }}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => <Content vaultUsed={vaultUsed} colorMode={colorMode} />}
+      />
+      <KeeperModal
+        visible={deletingKeyModalVisible}
+        close={() => dispatch(hideDeletingKeyModal())}
+        showCloseIcon={false}
+        title={signerText.deletingKey}
+        subTitle={signerText.keyWillBeDeleted}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        Content={DeleteLoadingContent}
+      />
+      <KeeperModal
+        visible={keyDeletedSuccessModalVisible}
+        close={() => dispatch(hideKeyDeletedSuccessModal())}
+        closeOnOverlayClick
+        showCloseIcon={false}
+        title={signerText.keyDeletedSuccessfully}
+        subTitle={signerText.keyDeletedSuccessMessage}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonText={signerText.manageKeys}
+        buttonCallback={() => {
+          dispatch(hideKeyDeletedSuccessModal());
+          navigation.dispatch(CommonActions.navigate('ManageSigners'));
+        }}
+        Content={DeletedSuccessContent}
+      />
 
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Enter Passcode"
+        title={signerText.enterPasscode}
         subTitleWidth={wp(240)}
-        subTitle={'Confirm passcode to delete key'}
+        subTitle={signerText.confirmPasscodeToDeleteKey}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics={false}
-            close={() => {
-              setConfirmPassVisible(false);
-            }}
-            onSuccess={onSuccess}
-          />
+          <Box>
+            {signerToDelete && (
+              <Box style={styles.signerContentContainer} marginBottom={hp(20)}>
+                <HexagonIcon
+                  width={43}
+                  height={38}
+                  backgroundColor={Colors.pantoneGreen}
+                  icon={SDIcons(signerToDelete.type, true).Icon}
+                />
+                <Box>
+                  <Text numberOfLines={1} fontSize={14} color={`${colorMode}.greenText`}>
+                    {getSignerNameFromType(signerToDelete.type)}
+                  </Text>
+                  <Text numberOfLines={1} fontSize={12} color={`${colorMode}.secondaryText`}>
+                    {getSignerDescription(
+                      signerToDelete?.type,
+                      signerToDelete?.extraData?.instanceNumber,
+                      signerToDelete
+                    )}
+                  </Text>
+                </Box>
+              </Box>
+            )}
+            <PasscodeVerifyModal
+              useBiometrics={false}
+              close={() => setConfirmPassVisible(false)}
+              onSuccess={onSuccess}
+            />
+          </Box>
         )}
       />
     </ScreenWrapper>
@@ -242,17 +327,47 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   emptyWrapper: {
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 0.8,
   },
   emptyText: {
+    fontSize: 15,
+    lineHeight: 20,
     marginBottom: hp(3),
   },
   emptySubText: {
+    fontSize: 14,
+    lineHeight: 20,
     width: wp(250),
     textAlign: 'center',
     marginBottom: hp(30),
+  },
+  signerContentContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: wp(12),
+  },
+  loadingModalContainer: {
+    marginBottom: hp(20),
+  },
+  loadingIcon: {
+    width: windowWidth * 0.85,
+    marginTop: hp(30),
+    marginBottom: hp(50),
+  },
+  loadingText: {
+    width: windowWidth * 0.8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  successModalContainer: {
+    paddingHorizontal: wp(25),
+    justifyContent: 'center',
+    height: hp(108),
+    marginBottom: hp(20),
+    borderRadius: 10,
   },
 });
 

@@ -167,15 +167,56 @@ export const VaultPresentationDataSchema: ObjectSchema = {
   },
 };
 
+export const MiniscriptKeyInfoSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptKeyInfo,
+  embedded: true,
+  properties: {
+    identifier: 'string',
+    descriptor: 'string',
+    uniqueKeyIdentifier: 'string?',
+  },
+};
+
+export const MiniscriptPathSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptPath,
+  embedded: true,
+  properties: {
+    id: 'int',
+    keys: `${RealmSchema.MiniscriptKeyInfo}[]`,
+    threshold: 'int',
+  },
+};
+
+export const MiniscriptPhaseSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptPhase,
+  embedded: true,
+  properties: {
+    id: 'int',
+    timelock: 'int',
+    paths: `${RealmSchema.MiniscriptPath}[]`,
+    requiredPaths: 'int',
+  },
+};
+
+export const MiniscriptElementsSchema: ObjectSchema = {
+  name: RealmSchema.MiniscriptElements,
+  embedded: true,
+  properties: {
+    keysInfo: `${RealmSchema.MiniscriptKeyInfo}[]`,
+    timelocks: 'int[]',
+    phases: `${RealmSchema.MiniscriptPhase}[]`,
+    signerFingerprints: '{}',
+  },
+};
+
 export const MiniscriptSchemeSchema: ObjectSchema = {
   name: RealmSchema.MiniscriptScheme,
   embedded: true,
   properties: {
+    miniscriptElements: RealmSchema.MiniscriptElements,
+    keyInfoMap: '{}',
     miniscriptPolicy: 'string',
     miniscript: 'string',
-    keysInfo: '{}',
-    timelocks: 'int[]',
-    miniscriptSignersMap: '{}',
   },
 };
 

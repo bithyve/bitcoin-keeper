@@ -36,6 +36,7 @@ import Dropdown from 'src/components/Dropdown';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import RecoverySuccessModalContent from './RecoverySuccessModalContent';
 
 type seedWordItem = {
   id: number;
@@ -123,7 +124,6 @@ function EnterSeedScreen({ route, navigation }) {
     if (appId && recoveryLoading) {
       setRecoveryLoading(false);
       setRecoverySuccessModal(true);
-      navigation.replace('App', { screen: 'Home' });
     }
   }, [appId]);
 
@@ -622,14 +622,23 @@ function EnterSeedScreen({ route, navigation }) {
         />
         <KeeperModal
           visible={recoverySuccessModal}
-          title="App Recovered"
-          subTitle="Your Keeper App has successfully been recovered"
-          buttonText="Ok"
-          Content={SuccessModalContent}
-          close={() => {}}
+          title="App Recovered Successfully!"
+          subTitle="All your wallets and data about your vault has been recovered"
+          buttonText="Continue"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor={`${colorMode}.white`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
+          Content={RecoverySuccessModalContent}
+          close={() => {
+            setRecoverySuccessModal(false);
+            navigation.replace('App', { screen: 'Home' });
+          }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
+            navigation.replace('App', { screen: 'Home' });
           }}
         />
       </KeyboardAvoidingView>

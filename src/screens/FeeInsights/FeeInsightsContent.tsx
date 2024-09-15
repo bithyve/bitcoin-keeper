@@ -53,7 +53,7 @@ const FeeInsightsContent = () => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ minHeight: 400 }}>
         <View style={[styles.headerWrapper, { backgroundColor: `${colorMode}.seashellWhite` }]}>
           <Text style={styles.titleLabel} color={`${colorMode}.modalGreenTitle`}>
-            BTC transaction fee insights
+            BTC Transaction Fee Insights
           </Text>
         </View>
         {isLoading ? (

@@ -7,19 +7,27 @@ export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
+  fullWidth?: boolean;
 }
 function CustomGreenButton(props: Props) {
   const { colorMode } = useColorMode();
   return (
     <TouchableHighlight
-      style={styles.button}
+      style={[styles.button, props?.fullWidth && styles.fullWidth]}
       underlayColor="none"
       disabled={props.disabled}
       onPress={() => {
         props.onPress();
       }}
     >
-      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.greenButtonBackground`}>
+      <Box
+        style={[
+          styles.buttonContent,
+          props?.fullWidth && styles.fullWidth,
+          props.disabled && styles.disabledBtnOpacity,
+        ]}
+        backgroundColor={`${colorMode}.greenButtonBackground`}
+      >
         <Text color={`${colorMode}.white`} fontSize={13} bold letterSpacing={0.78}>
           {props.value}
         </Text>
@@ -42,6 +50,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  fullWidth: {
+    flex: 1,
+    width: '100%',
+  },
+  disabledBtnOpacity: {
+    opacity: 0.5,
   },
 });
 

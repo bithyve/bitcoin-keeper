@@ -19,6 +19,7 @@ import {
   SignerRestriction,
 } from 'src/models/interfaces/AssistedKeys';
 import {
+  MiniscriptElements,
   MiniscriptScheme,
   Signer,
   Vault,
@@ -143,6 +144,9 @@ import {
   setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
+  showDeletingKeyModal,
+  hideDeletingKeyModal,
+  showKeyDeletedSuccessModal,
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
@@ -522,7 +526,7 @@ export interface NewVaultInfo {
   vaultType: VaultType;
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
-  miniscriptSignersMap?: { [key: string]: string };
+  miniscriptElements?: MiniscriptElements;
   vaultDetails?: NewVaultDetails;
 }
 
@@ -550,21 +554,15 @@ export function* addNewVaultWorker({
         vaultType = VaultType.DEFAULT,
         vaultScheme,
         vaultSigners,
-        miniscriptSignersMap,
+        miniscriptElements,
         vaultDetails,
       } = newVaultInfo;
 
-      if (vaultScheme.multisigScriptType === MultisigScriptType.ADVISOR_VAULT) {
-        const { currentBlockHeight } = yield call(WalletUtilities.fetchCurrentBlockHeight);
-        const T1 = config.ADVISOR_VAULT_DEFAULT_T1;
-        const T2 = config.ADVISOR_VAULT_DEFAULT_T2;
-        const timelocks = [currentBlockHeight + T1, currentBlockHeight + T2];
+      if (vaultScheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
+        if (!miniscriptElements) throw new Error('Miniscript elements missing');
         const miniscriptScheme: MiniscriptScheme = yield call(
           generateMiniscriptScheme,
-          vaultScheme.multisigScriptType,
-          vaultSigners,
-          miniscriptSignersMap,
-          timelocks
+          miniscriptElements
         );
         vaultScheme.miniscriptScheme = miniscriptScheme;
       }
@@ -600,10 +598,8 @@ export function* addNewVaultWorker({
         yield call(finaliseIKSetupWorker, { payload: { ikSigner, ikVaultKey, vault } });
       }
     }
-
     yield put(setRelayVaultUpdateLoading(true));
     const newVaultResponse = yield call(updateVaultImageWorker, { payload: { vault } });
-
     if (newVaultResponse.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
       yield put(uaiChecks([uaiType.SECURE_VAULT]));
@@ -773,6 +769,7 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
     if (signers.length) {
+      yield put(showDeletingKeyModal());
       const signersToDeleteIds = [];
       for (const signer of signers) {
         signersToDeleteIds.push(signer.masterFingerprint);
@@ -785,9 +782,12 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
         });
       }
       yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
+      yield put(hideDeletingKeyModal());
+      yield put(showKeyDeletedSuccessModal());
     }
   } catch (error) {
     captureError(error);
+    yield put(hideDeletingKeyModal());
     yield put(relaySignersUpdateFail('An error occurred while deleting signers.'));
   }
 }

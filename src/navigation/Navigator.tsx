@@ -121,8 +121,6 @@ import HandleFileScreen from 'src/screens/SigningDevices/HandleFileScreen';
 import ZendeskOnboardingModal from 'src/components/Modal/ConciergeOnboardingModal';
 import PassportConfigRecovery from 'src/screens/SigningDevices/PassportConfigRecovery';
 import { useAppSelector } from 'src/store/hooks';
-import { AppStackParams } from './types';
-import Login from '../screens/LoginScreen/Login';
 import AdditionalDetails from 'src/screens/Vault/components/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
 import AssistedWalletTimeline from 'src/screens/AssistedVault/AssistedWalletTimeline';
@@ -131,6 +129,9 @@ import AssociateContact from 'src/screens/Contact/AssociateContact';
 import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
+import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
+import Login from '../screens/LoginScreen/Login';
+import { AppStackParams } from './types';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -203,6 +204,10 @@ function AppStack() {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
+        <Stack.Screen
+          name="VerifyAddressSelectionScreen"
+          component={VerifyAddressSelectionScreen}
+        />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
