@@ -101,7 +101,12 @@ export type AppStackParams = {
   VaultCreationOptions: undefined;
   VaultConfigurationCreation: undefined;
   ScanQRFileRecovery: undefined;
-  VaultSetup: { isRecreation: Boolean; scheme: VaultScheme; vaultId?: string };
+  VaultSetup: {
+    isRecreation: Boolean;
+    scheme: VaultScheme;
+    vaultId?: string;
+    isTimeLock?: boolean;
+  };
   SigningDeviceConfigRecovery: undefined;
   MixProgress: undefined;
   AssignSignerType: undefined;

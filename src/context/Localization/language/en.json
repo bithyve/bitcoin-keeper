@@ -640,6 +640,14 @@
     "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining.",
     "archivedVaultEmptyTitle": "View Archived Vaults",
     "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here.",
+    "timeLockSetupTitle": "Setup a Time-Lock Wallet",
+    "timeLockSetupNote": "Once the Wallet is created, it cannot be reversed back",
+    "timeLockCreatedTitle": "Time-lock Wallet Created Successfully!",
+    "timeLockCreatedSubtitle": "Degrading multi-key wallet for long term stacking",
+    "timeLockCautionTitle": "Caution: Time-Lock Wallet",
+    "timeLockCautionSubtitle": "Wallet will automatically lowers the amount of signatures required if you don’t spend from your wallet",
+    "timeLockDurationTitle": "Select Recovery Path",
+    "timeLockDurationSubtitle": "A recovery path provides even more protection against losing coins. It automatically lowers the amount of signatures required if you don’t spend from your wallet for a long time.",
     "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect"
   },
   "seed": {

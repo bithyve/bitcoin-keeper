@@ -68,6 +68,7 @@ import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getAvailableMiniscriptSigners } from 'src/services/wallets/factories/VaultFactory';
+import { ADVISOR_VAULT_ENTITIES } from 'src/services/wallets/operations/miniscript';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 import KeyDropdown from './KeyDropown';
 import CurrencyInfo from '../Home/components/CurrencyInfo';
