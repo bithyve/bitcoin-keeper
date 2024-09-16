@@ -264,8 +264,9 @@ function ScanQR() {
               setVisibleModal(false);
               dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'));
             }}
-            learnMoreTitle={common.needMoreHelp}
+            learnMoreTitle={common.needHelp}
             buttonCallback={() => setVisibleModal(false)}
+            buttonText={common.ok}
             buttonBackground={`${colorMode}.modalWhiteButton`}
           />
         </MockWrapper>
@@ -292,7 +293,6 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     position: 'absolute',
-    left: wp(90),
     zIndex: 999,
     justifyContent: 'center',
   },

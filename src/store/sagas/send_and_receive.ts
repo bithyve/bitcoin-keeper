@@ -23,6 +23,7 @@ import {
   sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setSendMaxFee,
+  setSendMaxFeeEstimatedBlocks,
   crossTransferExecuted,
   crossTransferFailed,
   sendPhaseTwoStarted,
@@ -408,7 +409,7 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     (state) => state.network.averageTxFees
   );
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
-  const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
+  const { feePerByte, estimatedBlocks } = averageTxFeeByNetwork[TxPriority.LOW];
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   const { fee } = WalletOperations.calculateSendMaxFee(
@@ -420,6 +421,7 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   );
 
   yield put(setSendMaxFee(fee));
+  yield put(setSendMaxFeeEstimatedBlocks(estimatedBlocks));
 }
 
 export const calculateSendMaxFeeWatcher = createWatcher(

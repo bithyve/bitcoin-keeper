@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, Input, useColorMode } from 'native-base';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Box, Input, useColorMode, Pressable } from 'native-base';
+import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
@@ -23,6 +23,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 import useBalance from 'src/hooks/useBalance';
 import ReceiveAddress from './ReceiveAddress';
+import useSigners from 'src/hooks/useSigners';
+import { SignerType } from 'src/services/wallets/enums';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import ReceiveGreen from 'src/assets/images/receive-green.svg';
+const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -38,6 +43,11 @@ function ReceiveScreen({ route }: { route }) {
   const { translations } = useContext(LocalizationContext);
   const { common, home, wallet: walletTranslation } = translations;
 
+  const [btmCtrHeight, setBtmCtrHeight] = useState(0);
+  const navigation = useNavigation();
+  const { vaultSigners } = useSigners(wallet.id);
+  const [addVerifiableSigners, setAddVerifiableSigners] = useState([]);
+
   useEffect(() => {
     const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
     setReceivingAddress(receivingAddress);
@@ -51,6 +61,13 @@ function ReceiveScreen({ route }: { route }) {
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);
   }, [amount]);
+
+  useEffect(() => {
+    const avSigner = vaultSigners.filter((signer) =>
+      AddressVerifiableSigners.includes(signer?.type)
+    );
+    setAddVerifiableSigners(avSigner);
+  }, []);
 
   function AddAmountContent() {
     return (
@@ -102,41 +119,80 @@ function ReceiveScreen({ route }: { route }) {
       </View>
     );
   }
+
+  const onVerifyAddress = () => {
+    const signersMFP = addVerifiableSigners.map((signer) => signer.masterFingerprint);
+    navigation.dispatch(
+      CommonActions.navigate('VerifyAddressSelectionScreen', {
+        signersMFP,
+        vaultId: wallet.id,
+      })
+    );
+  };
+
+  const VerifyAddressBtn = () => {
+    return (
+      <Pressable
+        backgroundColor={`${colorMode}.seashellWhite`}
+        style={styles.verifyAddCtr}
+        mb={btmCtrHeight + hp(60)}
+        onPress={onVerifyAddress}
+      >
+        <ReceiveGreen />
+        <Box>
+          <Text fontSize={13}>Receive</Text>
+          <Text fontSize={12} color={`${colorMode}.GreyText`}>
+            {'Verify the address'}
+          </Text>
+        </Box>
+      </Pressable>
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={common.receive} subtitle={walletTranslation.receiveSubTitle} />
-      <Box
-        testID="view_recieveAddressQR"
-        style={styles.qrWrapper}
-        borderColor={`${colorMode}.qrBorderColor`}
-      >
-        <QRCode
-          value={paymentURI || receivingAddress || 'address'}
-          logoBackgroundColor="transparent"
-          size={hp(200)}
-        />
-        <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
-          <Text
-            bold
-            style={styles.receiveAddressText}
-            color={`${colorMode}.recieverAddress`}
-            numberOfLines={1}
-          >
-            {walletTranslation.receiveAddress}
-          </Text>
+      <Box height={hp(10)} />
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        <Box
+          testID="view_recieveAddressQR"
+          style={styles.qrWrapper}
+          borderColor={`${colorMode}.qrBorderColor`}
+        >
+          <QRCode
+            value={paymentURI || receivingAddress || 'address'}
+            logoBackgroundColor="transparent"
+            size={hp(200)}
+          />
+          <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
+            <Text
+              bold
+              style={styles.receiveAddressText}
+              color={`${colorMode}.recieverAddress`}
+              numberOfLines={1}
+            >
+              {walletTranslation.receiveAddress}
+            </Text>
+          </Box>
         </Box>
-      </Box>
-      <Box style={styles.addressContainer}>
-        <ReceiveAddress address={paymentURI || receivingAddress} />
-        <MenuItemButton
-          onPress={() => setModalVisible(true)}
-          icon={<BtcGreen />}
-          title={home.AddAmount}
-          subTitle={walletTranslation.addSpecificInvoiceAmt}
-        />
-      </Box>
-
-      <Box style={styles.Note}>
+        <Box style={styles.addressContainer}>
+          <ReceiveAddress address={paymentURI || receivingAddress} />
+          <MenuItemButton
+            onPress={() => setModalVisible(true)}
+            icon={<BtcGreen />}
+            title={home.AddAmount}
+            subTitle={walletTranslation.addSpecificInvoiceAmt}
+          />
+          {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 && (
+            <VerifyAddressBtn />
+          )}
+        </Box>
+      </ScrollView>
+      <Box
+        style={styles.Note}
+        backgroundColor={`${colorMode}.primaryBackground`}
+        onLayout={(event) => setBtmCtrHeight(event.nativeEvent.layout.height)}
+      >
         <Note
           title={'Note'}
           subtitle={
@@ -166,11 +222,12 @@ const styles = StyleSheet.create({
   Note: {
     position: 'absolute',
     bottom: hp(20),
-    width: '90%',
-    marginLeft: 30,
+    width: '100%',
+    paddingHorizontal: 30,
+    zIndex: 1,
   },
   qrWrapper: {
-    marginTop: windowHeight > 600 ? hp(35) : 0,
+    marginTop: 0,
     alignItems: 'center',
     alignSelf: 'center',
     width: hp(250),
@@ -218,6 +275,16 @@ const styles = StyleSheet.create({
   },
   addressContainer: {
     marginHorizontal: wp(20),
+  },
+  verifyAddCtr: {
+    marginTop: hp(15),
+    width: '100%',
+    paddingVertical: 16,
+    paddingHorizontal: 23,
+    gap: 11,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

@@ -26,6 +26,7 @@ import { useDispatch } from 'react-redux';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { useFocusEffect } from '@react-navigation/native';
+import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 function WrappedImportIcon() {
   return (
@@ -187,6 +188,7 @@ function VaultConfigurationCreation() {
                   captureAudio={false}
                   onBarCodeRead={onBarCodeRead}
                   useNativeZoom
+                  notAuthorizedView={<CameraUnauthorized />}
                 />
               )}
             </Box>
@@ -244,7 +246,8 @@ function VaultConfigurationCreation() {
         Content={ImportVaultContent}
         DarkCloseIcon
         learnMore
-        buttonText="Continue"
+        learnMoreTitle={common.needHelp}
+        buttonText={common.ok}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => setShowModal(false)}
@@ -295,8 +298,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginVertical: 15,
     alignItems: 'center',
-    height: hp(285),
-    width: wp(330),
     alignSelf: 'center',
   },
   cameraView: {
@@ -327,11 +328,11 @@ const styles = StyleSheet.create({
   },
   qrStatus: {
     position: 'absolute',
-    top: hp(255),
-    left: wp(90),
     zIndex: 999,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
+    transform: [{ translateY: hp(235) }],
   },
   scrollViewWrapper: {
     flex: 1,

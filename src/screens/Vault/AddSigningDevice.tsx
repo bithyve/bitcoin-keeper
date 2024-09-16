@@ -699,8 +699,8 @@ function AddSigningDevice() {
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
   const { signers } = useSigners();
-  // filter out archived signers
-  const activeSigners = signers.filter((signer) => !signer.archived);
+  // filter out archived & hidden signers
+  const activeSigners = signers.filter((signer) => !signer.archived && !signer.hidden);
   const { signerMap } = useSignerMap();
   const [selectedSigners, setSelectedSigners] = useState(new Map());
   const [vaultKeys, setVaultKeys] = useState<VaultSigner[]>([]);

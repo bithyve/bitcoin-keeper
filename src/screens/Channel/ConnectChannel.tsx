@@ -10,12 +10,11 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { io } from 'src/services/channel';
 import {
   BITBOX_HEALTHCHECK,
-  BITBOX_SETUP,
-  JOIN_CHANNEL,
+  CHANNEL_MESSAGE,
   LEDGER_HEALTHCHECK,
-  LEDGER_SETUP,
   TREZOR_HEALTHCHECK,
-  TREZOR_SETUP,
+  EMIT_MODES,
+  JOIN_CHANNEL,
 } from 'src/services/channel/constants';
 import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
@@ -35,13 +34,19 @@ import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
-import { createDecipheriv } from 'src/utils/service-utilities/utils';
+import {
+  createCipherGcm,
+  createDecipherGcm,
+  generateVaultAddressDescriptors,
+} from 'src/utils/service-utilities/utils';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setupBitbox, setupLedger, setupTrezor } from 'src/hardware/signerSetup';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import useVault from 'src/hooks/useVault';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 
 function ScanAndInstruct({ onBarCodeRead, mode }) {
   const { colorMode } = useColorMode();
@@ -78,7 +83,7 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
           mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
         } from the Keeper Desktop App`}
       </Text>
-      <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+      <Text numberOfLines={4} color={`${colorMode}.greenText`} style={styles.instructions}>
         {
           '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
         }
@@ -87,6 +92,12 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
     </VStack>
   );
 }
+
+const HEALTH_CHECK_TYPES = {
+  BITBOX02: BITBOX_HEALTHCHECK,
+  LEDGER: LEDGER_HEALTHCHECK,
+  TREZOR: TREZOR_HEALTHCHECK,
+};
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
@@ -99,6 +110,7 @@ function ConnectChannel() {
     mode,
     isMultisig,
     addSignerFlow = false,
+    vaultId,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -112,19 +124,92 @@ function ConnectChannel() {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
+  let descriptorString;
+  let receivingAddress;
+
+  if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+    const { activeVault: vault } = useVault({ vaultId });
+    const resp = generateVaultAddressDescriptors(vault);
+    descriptorString = resp.descriptorString;
+    receivingAddress = resp.receivingAddress;
+  }
+
+  const requestBody: RequestBody = {
+    action:
+      mode === InteracationMode.ADDRESS_VERIFICATION
+        ? EMIT_MODES.VERIFY_ADDRESS
+        : mode == EMIT_MODES.HEALTH_CHECK
+        ? EMIT_MODES.HEALTH_CHECK
+        : EMIT_MODES.ADD_DEVICE,
+    signerType,
+  };
+  if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+    requestBody.descriptorString = descriptorString ?? null;
+    requestBody.receivingAddress = receivingAddress ?? null;
+  }
+
   const onBarCodeRead = ({ data }) => {
     decryptionKey.current = data;
     const sha = crypto.createHash('sha256');
     sha.update(data);
     const room = sha.digest().toString('hex');
-    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
+    const requestBody: RequestBody = {
+      action:
+        mode === InteracationMode.ADDRESS_VERIFICATION
+          ? EMIT_MODES.VERIFY_ADDRESS
+          : mode == EMIT_MODES.HEALTH_CHECK
+          ? EMIT_MODES.HEALTH_CHECK
+          : EMIT_MODES.ADD_DEVICE,
+      signerType,
+    };
+    if (InteracationMode.ADDRESS_VERIFICATION) {
+      requestBody.descriptorString = descriptorString;
+      requestBody.receivingAddress = receivingAddress;
+    }
+    const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
+    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
   };
 
   useEffect(() => {
-    channel.on(BITBOX_SETUP, async (data) => {
+    channel.on(CHANNEL_MESSAGE, async ({ data }) => {
       try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { signer: bitbox02 } = setupBitbox(decrypted, isMultisig);
+        const { data: decrypted } = createDecipherGcm(data, decryptionKey.current);
+        const responseData = decrypted.responseData.data;
+        if (mode == EMIT_MODES.HEALTH_CHECK) {
+          const type = HEALTH_CHECK_TYPES[signerType];
+          await handleVerification(responseData, type);
+        } else if (mode == InteracationMode.ADDRESS_VERIFICATION) {
+          const resAdd = responseData.address;
+          if (resAdd != receivingAddress) return;
+          dispatch(
+            updateKeyDetails(signer, 'registered', {
+              registered: true,
+              vaultId,
+            })
+          );
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_VERIFICATION,
+              },
+            ])
+          );
+          navigation.goBack();
+          showToast(`Address verified successfully`, <TickIcon />);
+        } else {
+          signerType == SignerType.LEDGER && ledgerSetup(responseData);
+          signerType == SignerType.BITBOX02 && bitBoxSetup(responseData);
+          signerType == SignerType.TREZOR && trezorSetup(responseData);
+        }
+      } catch (error) {
+        console.log('🚀 ~ channel.on ~ error:', error);
+      }
+    });
+
+    const bitBoxSetup = (signerData) => {
+      try {
+        const { signer: bitbox02 } = setupBitbox(signerData, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(bitbox02));
           navigation.dispatch(
@@ -154,45 +239,10 @@ function ConnectChannel() {
           // ignore if user cancels NFC interaction
         } else captureError(error);
       }
-    });
-    channel.on(TREZOR_SETUP, async (data) => {
+    };
+    const ledgerSetup = (signerData) => {
       try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { signer: trezor } = setupTrezor(decrypted, isMultisig);
-        if (mode === InteracationMode.RECOVERY) {
-          dispatch(setSigningDevices(trezor));
-          navigation.dispatch(
-            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
-          );
-        } else if (mode === InteracationMode.CANARY_ADDITION) {
-          dispatch(addSigningDevice([trezor]));
-          createCreateCanaryWallet(trezor);
-        } else {
-          dispatch(addSigningDevice([trezor]));
-          const navigationState = addSignerFlow
-            ? {
-                name: 'ManageSigners',
-                params: { addedSigner: trezor, addSignerFlow, showModal: true },
-              }
-            : {
-                name: 'AddSigningDevice',
-                merge: true,
-                params: { addedSigner: trezor, addSignerFlow, showModal: true },
-              };
-          navigation.dispatch(CommonActions.navigate(navigationState));
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
-    });
-    channel.on(LEDGER_SETUP, async (data) => {
-      try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { signer: ledger } = setupLedger(decrypted, isMultisig);
+        const { signer: ledger } = setupLedger(signerData, isMultisig);
         if (mode === InteracationMode.RECOVERY) {
           dispatch(setSigningDevices(ledger));
           navigation.dispatch(
@@ -222,14 +272,47 @@ function ConnectChannel() {
           // ignore if user cancels NFC interaction
         } else captureError(error);
       }
-    });
+    };
+    const trezorSetup = (signerData) => {
+      try {
+        const { signer: trezor } = setupTrezor(signerData, isMultisig);
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(trezor));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else if (mode === InteracationMode.CANARY_ADDITION) {
+          dispatch(addSigningDevice([trezor]));
+          createCreateCanaryWallet(trezor);
+        } else {
+          dispatch(addSigningDevice([trezor]));
+          const navigationState = addSignerFlow
+            ? {
+                name: 'ManageSigners',
+                params: { addedSigner: trezor, addSignerFlow, showModal: true },
+              }
+            : {
+                name: 'AddSigningDevice',
+                merge: true,
+                params: { addedSigner: trezor, addSignerFlow, showModal: true },
+              };
+          navigation.dispatch(CommonActions.navigate(navigationState));
+        }
+      } catch (error) {
+        if (error instanceof HWError) {
+          showToast(error.message, <ToastErrorIcon />);
+        } else if (error.toString() === 'Error') {
+          // ignore if user cancels NFC interaction
+        } else captureError(error);
+      }
+    };
 
-    const handleVerification = async (data, deviceType) => {
+    const handleVerification = async (signerData, deviceType) => {
       const handleSuccess = () => {
         dispatch(
           healthCheckStatusUpdate([
             {
-              signerId: data.signer.masterFingerprint,
+              signerId: signerData.mfp,
               status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
             },
           ])
@@ -242,27 +325,25 @@ function ConnectChannel() {
         navigation.dispatch(CommonActions.goBack());
         dispatch(
           healthCheckStatusUpdate([
-            { signerId: data.signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_FAILED },
+            { signerId: signerData.mfp, status: hcStatusType.HEALTH_CHECK_FAILED },
           ])
         );
         showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
       };
 
       try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
         let masterFingerprint, signerType;
-
         switch (deviceType) {
           case LEDGER_HEALTHCHECK:
-            ({ masterFingerprint } = getLedgerDetailsFromChannel(decrypted, isMultisig));
+            ({ masterFingerprint } = getLedgerDetailsFromChannel(signerData, isMultisig));
             signerType = SignerType.LEDGER;
             break;
           case TREZOR_HEALTHCHECK:
-            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
+            ({ masterFingerprint } = getTrezorDetails(signerData, isMultisig));
             signerType = SignerType.TREZOR;
             break;
           case BITBOX_HEALTHCHECK:
-            ({ masterFingerprint } = getTrezorDetails(decrypted, isMultisig));
+            ({ masterFingerprint } = getTrezorDetails(signerData, isMultisig));
             signerType = SignerType.BITBOX02;
             break;
           default:
@@ -294,18 +375,6 @@ function ConnectChannel() {
       }
     };
 
-    channel.on(LEDGER_HEALTHCHECK, async (data) => {
-      await handleVerification(data, LEDGER_HEALTHCHECK);
-    });
-
-    channel.on(TREZOR_HEALTHCHECK, async (data) => {
-      await handleVerification(data, TREZOR_HEALTHCHECK);
-    });
-
-    channel.on(BITBOX_HEALTHCHECK, async (data) => {
-      await handleVerification(data, BITBOX_HEALTHCHECK);
-    });
-
     return () => {
       channel.disconnect();
     };
@@ -336,6 +405,13 @@ function ConnectChannel() {
 }
 
 export default ConnectChannel;
+
+type RequestBody = {
+  action: string;
+  signerType: string;
+  descriptorString?: string;
+  receivingAddress?: string;
+};
 
 const styles = StyleSheet.create({
   container: {

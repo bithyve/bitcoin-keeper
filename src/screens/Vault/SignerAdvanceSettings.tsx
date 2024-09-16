@@ -330,7 +330,13 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey, vaultId }));
+        navigation.dispatch(
+          CommonActions.navigate('RegisterWithChannel', {
+            vaultKey,
+            vaultId,
+            signerType: signer.type,
+          })
+        );
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
@@ -837,20 +843,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={navigateToPolicyChange}
           />
         )}
-        {isPolicyServer && vaultId && (
-          <OptionCard
-            title="Forgot 2FA"
-            description="Lost access to the 2FA app"
-            callback={() => {
-              showToast(
-                'If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again',
-                null,
-                IToastCategory.DEFAULT,
-                7000
-              );
-            }}
-          />
-        )}
         {showOneTimeBackup && (
           <OptionCard
             title={vaultTranslation.oneTimeBackupTitle}
@@ -1044,7 +1036,7 @@ function SignerAdvanceSettings({ route }: any) {
         Content={() =>
           backupModalContent({
             title: signer.signerName,
-            subTitle: `${common.added} ${moment(signer.addedOn).calendar()}`,
+            subTitle: `${common.added} ${moment(signer.addedOn).calendar().toLowerCase()}`,
             icon:
               signer.type === SignerType.INHERITANCEKEY ? (
                 <InhertanceKeyIcon />

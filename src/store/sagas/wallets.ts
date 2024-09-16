@@ -137,6 +137,9 @@ import {
   setRelaySignersUpdateLoading,
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
+  showDeletingKeyModal,
+  hideDeletingKeyModal,
+  showKeyDeletedSuccessModal,
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
@@ -629,7 +632,11 @@ export function* addNewVaultWorker({
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
-function* addSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
+export function* addSigningDeviceWorker({
+  payload: { signers },
+}: {
+  payload: { signers: Signer[] };
+}) {
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {
     const signer = signers[i];
@@ -748,6 +755,7 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signers: Signer[] } }) {
   try {
     if (signers.length) {
+      yield put(showDeletingKeyModal());
       let signersToDeleteIds = [];
       for (const signer of signers) {
         signersToDeleteIds.push(signer.masterFingerprint);
@@ -760,9 +768,12 @@ function* deleteSigningDeviceWorker({ payload: { signers } }: { payload: { signe
         });
       }
       yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK]));
+      yield put(hideDeletingKeyModal());
+      yield put(showKeyDeletedSuccessModal());
     }
   } catch (error) {
     captureError(error);
+    yield put(hideDeletingKeyModal());
     yield put(relaySignersUpdateFail('An error occurred while deleting signers.'));
   }
 }
