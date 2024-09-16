@@ -483,7 +483,7 @@ function SigningDeviceDetails({ route }) {
         </Box>
       )}
       <KeeperFooter
-        marginX={35}
+        marginX={!vaultKey ? 35 : 10}
         wrappedScreen={Platform.OS === 'ios' ? true : false}
         items={footerItems}
       />
