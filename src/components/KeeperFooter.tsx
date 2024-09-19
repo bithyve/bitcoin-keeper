@@ -22,22 +22,25 @@ export function KeeperFooter({
 }) {
   const { colorMode } = useColorMode();
   const footerItemsToRender = items.filter((item) => !item.hideItem);
+  const itemWidth = windowWidth / footerItemsToRender.length - marginX * 2; // Ensure each item fits within the screen width
+
   return (
     <Box bottom={wrappedScreen ? -10 : undefined}>
       <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
       <Box
         flexDirection="row"
-        justifyContent={footerItemsToRender.length > 2 ? 'space-between' : 'space-around'}
+        justifyContent="center"
+        alignItems="center"
         marginX={marginX}
         marginTop={3}
-        alignItems="flex-start"
+        flexWrap="nowrap"
       >
         {footerItemsToRender.map((item) => {
           return (
             <TouchableOpacity
               testID={`btn_${item.text}`}
               key={item.text}
-              style={styles.IconWrapper}
+              style={[styles.IconWrapper, { width: itemWidth }]}
               onPress={item.onPress}
               disabled={item.disabled}
             >
@@ -70,7 +73,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   IconWrapper: {
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
   },

@@ -439,16 +439,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
+        secondaryButtonText={common.ok}
+        buttonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText={common.ok}
-        buttonCallback={() => {
-          dispatch(setIntroModal(false));
-        }}
-        DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
-        learnMoreCallback={
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonCallback={
           isCollaborativeWallet
             ? () => {
                 dispatch(setIntroModal(false));
@@ -459,6 +455,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'));
               }
         }
+        secondaryCallback={() => dispatch(setIntroModal(false))}
+        DarkCloseIcon
       />
       <PendingHealthCheckModal
         selectedItem={vault}
