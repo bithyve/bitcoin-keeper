@@ -4,14 +4,15 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth } from 'src/constants/responsive';
 import AddCard from 'src/components/AddCard';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
-import SignerIcon from 'src/assets/images/signer_brown.svg';
+import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
+import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -24,7 +25,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import SettingIcon from 'src/assets/images/settings.svg';
+import SettingIcon from 'src/assets/images/settings-gear.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -32,6 +33,9 @@ import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import SignerCard from '../AddSigner/SignerCard';
 import KeyAddedModal from 'src/components/KeyAddedModal';
+import KeeperModal from 'src/components/KeeperModal';
+import Text from 'src/components/KeeperText';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -47,9 +51,10 @@ function ManageSigners({ route }: ScreenProps) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation } = translations;
+  const { signer: signerTranslation, common } = translations;
 
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
@@ -107,6 +112,9 @@ function ManageSigners({ route }: ScreenProps) {
           title={signerTranslation.ManageKeys}
           subtitle={signerTranslation.ViewAndChangeKeyDetails}
           mediumTitle
+          learnMore
+          learnMorePressed={() => setShowLearnMoreModal(true)}
+          learnTextColor={`${colorMode}.white`}
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           rightComponent={
@@ -136,6 +144,36 @@ function ManageSigners({ route }: ScreenProps) {
         />
       </Box>
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
+      <KeeperModal
+        close={() => {
+          setShowLearnMoreModal(false);
+        }}
+        visible={showLearnMoreModal}
+        title={signerTranslation.ManageKeys}
+        subTitle={signerTranslation.manageKeysModalSubtitle}
+        subTitleColor={`${colorMode}.modalGreenContent`}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        DarkCloseIcon={colorMode === 'dark' ? true : false}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenContent`}
+        buttonText={common.needHelp}
+        buttonCallback={() => {
+          setShowLearnMoreModal(false);
+          dispatch(goToConcierge([ConciergeTag.KEYS], 'manage-keys'));
+        }}
+        secondaryButtonText={common.ok}
+        secondaryCallback={() => setShowLearnMoreModal(false)}
+        Content={() => (
+          <Box style={styles.modalContent}>
+            <HardwareIllustration />
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+              {signerTranslation.manageKeysModalDesc}
+            </Text>
+          </Box>
+        )}
+      />
     </Box>
   );
 }
@@ -311,7 +349,7 @@ const styles = StyleSheet.create({
   },
   topSection: {
     height: '35%',
-    paddingLeft: 10,
+    paddingHorizontal: 20,
     paddingTop: 20,
   },
   signersContainer: {
@@ -340,6 +378,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     padding: 1,
     letterSpacing: 0.65,
+  },
+  modalContent: {
+    marginTop: hp(5),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    gap: 30,
+  },
+  modalDesc: {
+    width: '95%',
   },
 });
 

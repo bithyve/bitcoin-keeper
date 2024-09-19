@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import SettingsIcon from 'src/assets/images/SignerShow.svg';
+import HiddenKeyIcon from 'src/assets/images/hidden-key.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import useSigners from 'src/hooks/useSigners';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -167,9 +166,11 @@ function DeleteKeys({ route }) {
         mediumTitle
         subtitle={signerText.showingHiddenKeys}
         icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={<SettingsIcon />}
+          <HexagonIcon
+            width={49}
+            height={44}
+            backgroundColor={colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen}
+            icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
           />
         }
       />
