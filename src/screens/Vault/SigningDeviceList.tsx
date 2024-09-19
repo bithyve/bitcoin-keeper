@@ -262,20 +262,20 @@ function SigningDeviceList() {
         title="Signers"
         subTitle="A signer is a hardware or software that stores one of the private keys needed for your vaults"
         modalBackground={`${colorMode}.modalGreenBackground`}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText={common.ok}
-        buttonCallback={() => {
-          dispatch(setSdIntroModal(false));
-        }}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultSetupContent}
         DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
-        learnMoreCallback={() => {
+        secondaryButtonText={common.ok}
+        buttonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonCallback={() => {
           dispatch(setSdIntroModal(false));
           reduxDispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'));
+        }}
+        secondaryCallback={() => {
+          dispatch(setSdIntroModal(false));
         }}
       />
     </ScreenWrapper>

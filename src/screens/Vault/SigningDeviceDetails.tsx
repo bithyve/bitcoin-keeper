@@ -546,19 +546,19 @@ function SigningDeviceDetails({ route }) {
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        learnMoreCallback={() => {
+        Content={SignerContent}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        secondaryButtonText={common.ok}
+        buttonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonCallback={() => {
           setDetailModal(false);
           dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
         }}
-        Content={SignerContent}
-        subTitleWidth={wp(280)}
-        buttonText={common.ok}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={() => setDetailModal(false)}
-        DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
+        secondaryCallback={() => setDetailModal(false)}
       />
       <KeeperModal
         visible={showMobileKeyModal}
