@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, Platform, StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -482,7 +482,11 @@ function SigningDeviceDetails({ route }) {
           />
         </Box>
       )}
-      <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
+      <KeeperFooter
+        marginX={!vaultKey ? 35 : 10}
+        wrappedScreen={Platform.OS === 'ios' ? true : false}
+        items={footerItems}
+      />
       <HardwareModalMap
         type={signer?.type}
         visible={visible}
