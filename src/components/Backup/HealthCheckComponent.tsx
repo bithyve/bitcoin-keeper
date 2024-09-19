@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { Box, Input, useColorMode } from 'native-base';
-
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { BackupType } from 'src/models/enums/BHR';
@@ -78,9 +77,10 @@ function HealthCheckComponent(props) {
         return 'twelfth';
     }
   };
+
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
-      if (seedWord.toLocaleLowerCase() === words[index]) {
+      if (seedWord.toLocaleLowerCase() === words[index].toLocaleLowerCase()) {
         props.onConfirmed('');
       } else {
         setInvalid(true);
@@ -91,6 +91,7 @@ function HealthCheckComponent(props) {
       setInvalid(true);
     }
   };
+
   const { colorMode } = useColorMode();
 
   return (
@@ -115,9 +116,7 @@ function HealthCheckComponent(props) {
           backgroundColor={`${colorMode}.seashellWhite`}
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
-            type === BackupType.SEED
-              ? setSeedWord(value?.toLocaleLowerCase())
-              : setStrongPassword(value)
+            type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)
           }
           style={styles.inputContainer}
           borderRadius={10}
@@ -145,6 +144,7 @@ function HealthCheckComponent(props) {
     </Box>
   );
 }
+
 const styles = StyleSheet.create({
   wrapper: {
     padding: 25,
@@ -156,4 +156,5 @@ const styles = StyleSheet.create({
     height: 50,
   },
 });
+
 export default HealthCheckComponent;
