@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    marginTop: hp(),
+    marginTop: hp(20),
   },
 });
 export default ChoosePlan;
