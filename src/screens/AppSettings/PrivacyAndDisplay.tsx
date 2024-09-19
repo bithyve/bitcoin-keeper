@@ -223,25 +223,38 @@ function PrivacyAndDisplay({ route }) {
   const [isToggling, setIsToggling] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(app.enableAnalytics);
 
-  const toggleSentryReports = async () => {
-    if (inProgress || isToggling) return;
+  const toggleSentryReports = (newValue) => {
+    setAnalyticsEnabled(newValue);
+    runAsyncAnalyticsToggle(newValue);
+  };
+
+  const runAsyncAnalyticsToggle = async (newValue) => {
+    const lastAction = newValue;
+
+    if (isToggling) return;
     setIsToggling(true);
 
-    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-      enableAnalytics: !analyticsEnabled,
-    });
-
     try {
-      InteractionManager.runAfterInteractions(async () => {
-        if (!analyticsEnabled) {
-          await start(() => Sentry.init(sentryConfig));
-        } else {
-          await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
-        }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      if (lastAction !== newValue) {
+        setIsToggling(false);
+        return;
+      }
+
+      await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+        enableAnalytics: newValue,
       });
+
+      if (newValue) {
+        await start(() => Sentry.init(sentryConfig));
+      } else {
+        await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+      }
     } catch (error) {
+      setAnalyticsEnabled(!newValue);
       dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-        enableAnalytics: analyticsEnabled,
+        enableAnalytics: !newValue,
       });
       console.error('Failed to toggle Sentry analytics:', error);
     } finally {
@@ -338,8 +351,8 @@ function PrivacyAndDisplay({ route }) {
               description={settings.shareAnalyticsDesc}
               Icon={
                 <Switch
-                  onValueChange={async () => await toggleSentryReports()}
-                  value={app.enableAnalytics}
+                  onValueChange={(value) => toggleSentryReports(value)}
+                  value={analyticsEnabled}
                   testID="switch_darkmode"
                 />
               }
