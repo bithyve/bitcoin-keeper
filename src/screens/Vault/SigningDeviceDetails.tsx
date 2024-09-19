@@ -409,7 +409,7 @@ function SigningDeviceDetails({ route }) {
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={SDIcons(signer.type, true).Icon}
+            icon={SDIcons(signer.type, true, 26, 26).Icon}
           />
         }
         rightComponent={<CurrencyTypeSwitch />}
