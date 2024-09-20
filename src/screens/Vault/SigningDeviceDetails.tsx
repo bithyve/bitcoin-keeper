@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, Platform, StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -409,7 +409,7 @@ function SigningDeviceDetails({ route }) {
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={SDIcons(signer.type, true).Icon}
+            icon={SDIcons(signer.type, true, 26, 26).Icon}
           />
         }
         rightComponent={<CurrencyTypeSwitch />}
@@ -482,7 +482,11 @@ function SigningDeviceDetails({ route }) {
           />
         </Box>
       )}
-      <KeeperFooter marginX={5} wrappedScreen={false} items={footerItems} />
+      <KeeperFooter
+        marginX={!vaultKey ? 35 : 10}
+        wrappedScreen={Platform.OS === 'ios' ? true : false}
+        items={footerItems}
+      />
       <HardwareModalMap
         type={signer?.type}
         visible={visible}
@@ -542,19 +546,19 @@ function SigningDeviceDetails({ route }) {
         subTitle={subTitle}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
-        learnMoreCallback={() => {
+        Content={SignerContent}
+        subTitleWidth={wp(280)}
+        DarkCloseIcon
+        secondaryButtonText={common.ok}
+        buttonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        buttonCallback={() => {
           setDetailModal(false);
           dispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-details'));
         }}
-        Content={SignerContent}
-        subTitleWidth={wp(280)}
-        buttonText={common.ok}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={() => setDetailModal(false)}
-        DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
+        secondaryCallback={() => setDetailModal(false)}
       />
       <KeeperModal
         visible={showMobileKeyModal}

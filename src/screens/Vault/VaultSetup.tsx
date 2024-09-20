@@ -17,7 +17,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import Note from 'src/components/Note/Note';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -135,14 +134,12 @@ function VaultSetup({ route }: ScreenProps) {
             testID="vault_name"
             maxLength={18}
           />
-          <Box style={{ height: 20 }} />
           <KeeperTextInput
             placeholder="Add a description (Optional)"
             value={vaultDescription}
             onChangeText={setVaultDescription}
             testID="vault_description"
             maxLength={20}
-            height={20}
           />
           <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
           <Text style={{ fontSize: 14 }} color={`${colorMode}.primaryText`} testID="text_totalKeys">

@@ -375,11 +375,28 @@ const getSignerContent = (
             ],
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = (
+        <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
+          {`Make sure the seed is loaded (`}
+          <Text
+            medium
+            style={styles.learnHow}
+            color={`${colorMode}.greenText`}
+            onPress={() =>
+              Linking.openURL(
+                'https://econoalchemist.github.io/SeedSigner/04_Generate-Seed.html#generate-a-new-seed'
+              )
+            }
+          >
+            Learn how
+          </Text>
+          {`) and export the xPub by going to Seeds > Select your master fingerprint > Export xPub > ${
+            isMultisig ? 'Multisig' : 'Singlesig'
+          } > Native Segwit > Keeper.`}
+        </Text>
+      );
 
-      const setupGuideLink = (
+      const setupGuideLink = !isHealthcheck && (
         <Text
           color={`${colorMode}.secondaryText`}
           style={styles.infoText}
@@ -400,10 +417,10 @@ const getSignerContent = (
         Instructions: isTestnet()
           ? [
               seedSignerInstructions,
-              'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
+              'Make sure you enable Testnet mode on the SeedSigner if you are running the app in Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
               setupGuideLink,
-            ]
-          : [seedSignerInstructions, setupGuideLink],
+            ].filter(Boolean)
+          : [seedSignerInstructions, setupGuideLink].filter(Boolean),
         title: isHealthcheck
           ? 'Verify SeedSigner'
           : isCanaryAddition
@@ -412,6 +429,7 @@ const getSignerContent = (
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
         options: [],
       };
+
     case SignerType.SPECTER:
       const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
         isMultisig ? 'Multisig' : 'Singlesig'
@@ -2130,6 +2148,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '400',
     width: wp(285),
+  },
+  learnHow: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
   },
 });
 export default HardwareModalMap;

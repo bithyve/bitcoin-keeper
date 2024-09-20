@@ -347,7 +347,7 @@ function ChoosePlan() {
     return (
       <Box>
         <LoadingAnimation />
-        <Text color={`${colorMode}.greenText`} fontSize={13}>
+        <Text color={`${colorMode}.greenText`} style={styles.infoText}>
           {choosePlan.youCanChange}
         </Text>
       </Box>
@@ -678,6 +678,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.GrayX11,
     alignSelf: 'center',
     marginTop: 20,
+  },
+  infoText: {
+    fontSize: 13,
+    marginTop: hp(20),
   },
 });
 export default ChoosePlan;

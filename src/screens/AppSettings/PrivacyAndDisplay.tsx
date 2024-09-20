@@ -33,6 +33,7 @@ import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import PasscodeLockIllustration from 'src/assets/images/passwordlock.svg';
 import BackupModalContent from './BackupModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
@@ -207,6 +208,7 @@ function PrivacyAndDisplay({ route }) {
   const [oldPassword, setOldPassword] = useState('');
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [RKHealthCheckModal, setRKHealthCheckModal] = useState(false);
+  const [passcodeHCModal, setPasscodeHCModal] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common } = translations;
@@ -221,25 +223,38 @@ function PrivacyAndDisplay({ route }) {
   const [isToggling, setIsToggling] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(app.enableAnalytics);
 
-  const toggleSentryReports = async () => {
-    if (inProgress || isToggling) return;
+  const toggleSentryReports = (newValue) => {
+    setAnalyticsEnabled(newValue);
+    runAsyncAnalyticsToggle(newValue);
+  };
+
+  const runAsyncAnalyticsToggle = async (newValue) => {
+    const lastAction = newValue;
+
+    if (isToggling) return;
     setIsToggling(true);
 
-    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-      enableAnalytics: !analyticsEnabled,
-    });
-
     try {
-      InteractionManager.runAfterInteractions(async () => {
-        if (!analyticsEnabled) {
-          await start(() => Sentry.init(sentryConfig));
-        } else {
-          await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
-        }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      if (lastAction !== newValue) {
+        setIsToggling(false);
+        return;
+      }
+
+      await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+        enableAnalytics: newValue,
       });
+
+      if (newValue) {
+        await start(() => Sentry.init(sentryConfig));
+      } else {
+        await start(() => Sentry.init({ ...sentryConfig, enabled: false }));
+      }
     } catch (error) {
+      setAnalyticsEnabled(!newValue);
       dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-        enableAnalytics: analyticsEnabled,
+        enableAnalytics: !newValue,
       });
       console.error('Failed to toggle Sentry analytics:', error);
     } finally {
@@ -336,8 +351,8 @@ function PrivacyAndDisplay({ route }) {
               description={settings.shareAnalyticsDesc}
               Icon={
                 <Switch
-                  onValueChange={async () => await toggleSentryReports()}
-                  value={app.enableAnalytics}
+                  onValueChange={(value) => toggleSentryReports(value)}
+                  value={analyticsEnabled}
                   testID="switch_darkmode"
                 />
               }
@@ -383,10 +398,33 @@ function PrivacyAndDisplay({ route }) {
                 setOldPassword(password);
               } else {
                 setOldPassword(password);
-                setShowConfirmSeedModal(true);
+                setPasscodeHCModal(true);
               }
             }}
           />
+        )}
+      />
+      <KeeperModal
+        visible={passcodeHCModal}
+        close={() => setPasscodeHCModal(false)}
+        title={settings.passcodeHCModalTitle}
+        subTitle={settings.passcodeHCModalSubTitle}
+        buttonText={common.continue}
+        buttonCallback={() => {
+          setPasscodeHCModal(false);
+          setShowConfirmSeedModal(true);
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setPasscodeHCModal(false)}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
+        Content={() => (
+          <Box style={styles.PasscodeHCModal}>
+            <PasscodeLockIllustration width={wp(160)} height={hp(125)} />
+            <Text color={`${colorMode}.secondaryText`}>{settings.passcodeHCModalDesc}</Text>
+          </Box>
         )}
       />
       <ModalWrapper
@@ -420,7 +458,7 @@ function PrivacyAndDisplay({ route }) {
         close={() => {
           setConfirmPasscode(false);
         }}
-        title="Change passcode"
+        title={settings.changePasscode}
         subTitleWidth={wp(240)}
         modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}
@@ -510,6 +548,11 @@ const styles = StyleSheet.create({
   },
   RKContentCotainer: {
     marginBottom: hp(10),
+  },
+  PasscodeHCModal: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 30,
   },
 });
 export default PrivacyAndDisplay;

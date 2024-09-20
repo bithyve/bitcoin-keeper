@@ -222,7 +222,10 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
           },
           modalDetails: {
             heading: notification.vaultTransferHeading,
-            subTitle: notification.vaultTransferSubTitle,
+            subTitle: notification.vaultTransferSubTitle.replace(
+              '$wallet',
+              wallet.presentationData.name
+            ),
             body: notification.vaultTransferBody,
             sender: wallet,
             recipient: activeVault,
@@ -588,7 +591,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
 
 export default function NotificationStack() {
   const { colorMode } = useColorMode();
-  const { uaiStack } = useUaiStack();
+  const { uaiStack, isLoading } = useUaiStack();
   const activeIndex = useSharedValue(0);
   const dispatch = useDispatch();
 
@@ -630,7 +633,7 @@ export default function NotificationStack() {
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={Gesture.Exclusive(flingUp)}>
         <View style={styles.viewWrapper}>
-          {uaiStack.length < 1 ? (
+          {isLoading ? null : uaiStack.length === 0 ? (
             <UAIEmptyState />
           ) : (
             uaiStack.map((uai, index) => {
