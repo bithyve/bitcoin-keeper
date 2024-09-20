@@ -28,7 +28,9 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonText="Add Contact"
       buttonCallback={() => {
-        navigtaion.navigate('AssociateContact');
+        navigtaion.navigate('AssociateContact', {
+          signer,
+        });
         close();
       }}
       secondaryButtonText="Skip"

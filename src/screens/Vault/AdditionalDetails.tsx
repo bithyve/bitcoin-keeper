@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -33,6 +33,7 @@ function AdditionalDetails({ route }: ScreenProps) {
   const signer = signerMap[signerFromParam?.masterFingerprint];
   const [description, setDescription] = useState(signer?.signerDescription || '');
   const [editContactModal, setEditContactModal] = useState(false);
+  const { thumbnailPath, givenName, familyName } = signer.extraData;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -59,9 +60,14 @@ function AdditionalDetails({ route }: ScreenProps) {
         <OptionTile
           title="Associate a Contact"
           callback={() => {
-            navigation.navigate('AssociateContact');
+            signer.extraData.givenName
+              ? setEditContactModal(true)
+              : navigation.navigate('AssociateContact', {
+                  signer,
+                });
           }}
           icon={<PhoneBookIcon />}
+          image={signer?.extraData?.thumbnailPath}
         />
       </VStack>
       <KeeperModal
@@ -78,6 +84,12 @@ function AdditionalDetails({ route }: ScreenProps) {
         buttonBackground={`${colorMode}.greenButtonBackground`}
         secButtonTextColor={`${colorMode}.greenButtonBackground`}
         secondaryCallback={() => setEditContactModal(false)}
+        buttonCallback={() => {
+          setEditContactModal(false);
+          navigation.navigate('EditContact', {
+            signer,
+          });
+        }}
         Content={() => (
           <Box
             style={styles.contactInfoCard}
@@ -85,9 +97,18 @@ function AdditionalDetails({ route }: ScreenProps) {
             borderColor={`${colorMode}.greyBorder`}
           >
             <Box style={styles.iconContainer}>
-              <ImagePlaceHolder style={styles.modalAvatar} />
+              {thumbnailPath ? (
+                <Image
+                  source={{ uri: thumbnailPath || 'default-avatar-url' }}
+                  style={styles.modalAvatar}
+                />
+              ) : (
+                <ImagePlaceHolder style={styles.modalAvatar} />
+              )}
             </Box>
-            <Text medium style={styles.buttonText}></Text>
+            <Text medium style={styles.buttonText}>
+              {givenName} {familyName}
+            </Text>
           </Box>
         )}
       />
@@ -135,5 +156,17 @@ const styles = StyleSheet.create({
   buttonText: {
     flex: 1,
     fontSize: 16,
+  },
+  //
+  modalContainer: {
+    marginTop: hp(20),
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginBottom: hp(5),
+  },
+  modalText: {
+    width: wp(300),
+    fontSize: 14,
   },
 });

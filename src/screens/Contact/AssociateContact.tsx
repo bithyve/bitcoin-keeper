@@ -23,14 +23,19 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
+import { Signer } from 'src/services/wallets/interfaces/vault';
+import { useDispatch } from 'react-redux';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
-const AssociateContact = () => {
+const AssociateContact = ({ route }) => {
+  const { signer }: { signer: Signer } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -85,6 +90,23 @@ const AssociateContact = () => {
     />
   );
 
+  const onAddAssociateContact = () => {
+    try {
+      const extraData = {
+        ...signer.extraData,
+        givenName: selectedContact.givenName,
+        familyName: selectedContact.familyName,
+        recordID: selectedContact.recordID,
+        thumbnailPath: selectedContact.thumbnailPath,
+      };
+      dispatch(updateSignerDetails(signer, 'extraData', extraData));
+      setShowModal(false);
+      navigation.goBack();
+    } catch (error) {
+      console.log('🚀 ~ onAddAssociateContact ~ error:', error);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader simple title="Associate Contact" />
@@ -107,7 +129,7 @@ const AssociateContact = () => {
             underlineColorAndroid="transparent"
           />
         </Box>
-        <Pressable onPress={() => navigation.navigate('AddContact')}>
+        <Pressable onPress={() => navigation.navigate('AddContact', { signer })}>
           <Box
             style={styles.addContactButton}
             backgroundColor={`${colorMode}.seashellWhite`}
@@ -147,6 +169,7 @@ const AssociateContact = () => {
           buttonBackground={`${colorMode}.greenButtonBackground`}
           secButtonTextColor={`${colorMode}.greenButtonBackground`}
           buttonText="Continue"
+          buttonCallback={onAddAssociateContact}
           Content={() => (
             <Box
               style={styles.contactInfoCard}

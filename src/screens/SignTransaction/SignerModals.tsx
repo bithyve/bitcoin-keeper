@@ -89,6 +89,7 @@ function ColdCardContent({
               isFullText={true}
               name={option.title}
               icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
@@ -134,6 +135,7 @@ function PassportContent({
               isFullText={true}
               name={option.title}
               icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
@@ -223,6 +225,7 @@ function KeystoneContent({
               isFullText={true}
               name={option.title}
               icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}

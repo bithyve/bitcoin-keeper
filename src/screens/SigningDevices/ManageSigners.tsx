@@ -328,6 +328,7 @@ function SignersList({
                   signer
                 )}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
                 isFullText

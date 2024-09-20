@@ -78,6 +78,7 @@ import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareMo
 import Note from 'src/components/Note/Note';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import useSigners from 'src/hooks/useSigners';
 
 const { width } = Dimensions.get('screen');
 
@@ -115,7 +116,11 @@ function SignerAdvanceSettings({ route }: any) {
     signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
-  const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
+  const { signers } = useSigners();
+
+  const signer: Signer = signerFromParam
+    ? signers.find((signer) => signer.masterFingerprint === signerFromParam.masterFingerprint) // to reflect associated contact image in real time
+    : signerMap[vaultKey.masterFingerprint];
 
   const { showToast } = useToastMessage();
   const [editEmailModal, setEditEmailModal] = useState(false);
@@ -815,6 +820,7 @@ function SignerAdvanceSettings({ route }: any) {
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
             icon={SDIcons(signer.type, true).Icon}
+            image={signer?.extraData?.thumbnailPath}
           />
         }
       />

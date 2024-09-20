@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -12,12 +12,46 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import ContactImagePlaceholder from 'src/assets/images/contact-image-placeholder.svg';
 import PlusIcon from 'src/assets/images/add-icon-brown.svg';
 import Buttons from 'src/components/Buttons';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import TickIcon from 'src/assets/images/tick_icon.svg';
+import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
 
-const AddContact = () => {
+const AddContact = ({ route }) => {
+  const { signer } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+  const [disableSave, setDisableSave] = useState(true);
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+
+  const saveContactDetails = () => {
+    if (validateData()) {
+      const fullNameSplit = name.split(' ');
+      const extraData = {
+        ...signer.extraData,
+        givenName: fullNameSplit[0],
+        familyName: fullNameSplit[1],
+        thumbnailPath: selectedImage,
+      };
+      dispatch(updateSignerDetails(signer, 'extraData', extraData));
+      showToast('Contact Updated Successfully', <TickIcon />);
+      navigation.goBack();
+    }
+  };
+
+  const validateData = () => {
+    if (selectedImage || name.trim()) {
+      return true;
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    setDisableSave(!validateData());
+  }, [name, selectedImage]);
 
   const openImagePicker = () => {
     const options = {
@@ -31,8 +65,7 @@ const AddContact = () => {
       } else if (response.errorCode) {
         console.log('ImagePicker Error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        const source = { uri: response.assets[0].uri };
-        setSelectedImage(source);
+        setSelectedImage(response.assets[0].uri);
       }
     });
   };
@@ -45,7 +78,7 @@ const AddContact = () => {
         <Box style={styles.contentContainer}>
           <Box style={styles.iconContainer}>
             {selectedImage ? (
-              <Image source={selectedImage} style={styles.selectedImage} />
+              <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
             ) : (
               <ContactImagePlaceholder width={wp(161)} height={hp(161)} />
             )}
@@ -64,7 +97,12 @@ const AddContact = () => {
         </Box>
 
         <Box style={styles.saveButtonContainer}>
-          <Buttons primaryText="Save Contact" paddingHorizontal={wp(105)} />
+          <Buttons
+            primaryText="Save Contact"
+            paddingHorizontal={wp(105)}
+            primaryDisable={disableSave}
+            primaryCallback={saveContactDetails}
+          />
         </Box>
       </Box>
     </ScreenWrapper>

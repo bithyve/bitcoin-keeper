@@ -442,6 +442,7 @@ function Signers({
           }
           description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+          image={signer?.extraData?.thumbnailPath}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) => {
             onSignerSelect(
@@ -517,6 +518,7 @@ function Signers({
               signer
             )}
             icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+            image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
             onCardSelect={handleCardSelect}
             colorMode={colorMode}

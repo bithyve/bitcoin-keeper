@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Pressable } from 'native-base';
-import { StyleSheet, ViewStyle } from 'react-native';
+import { Image, StyleSheet, ViewStyle } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
@@ -24,6 +24,7 @@ type SignerCardProps = {
   colorMode: string;
   isFeePriority?: boolean;
   boldDesc?: boolean;
+  image?: string;
 };
 
 function SignerCard({
@@ -45,6 +46,7 @@ function SignerCard({
   colorMode,
   isFeePriority = false,
   boldDesc = false,
+  image = null,
 }: SignerCardProps) {
   const backgroundColor =
     colorVarient === 'brown'
@@ -71,7 +73,7 @@ function SignerCard({
       <Box style={styles.detailContainer}>
         {!isFeePriority ? (
           <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
-            {icon}
+            {image ? <Image src={image} style={styles.associatedContactImage} /> : icon}
             {showDot ? <Box style={styles.redDot} /> : null}
           </Box>
         ) : (
@@ -174,6 +176,13 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     alignSelf: 'flex-end',
+  },
+  associatedContactImage: {
+    width: '60%',
+    height: '60%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
 });
 

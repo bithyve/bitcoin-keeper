@@ -116,6 +116,7 @@ function SignerItem({
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
       description={`${common.added} ${moment(signer.addedOn).calendar()}`}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+      image={signer?.extraData?.thumbnailPath}
       isSelected={false}
       showSelection={false}
       colorVarient="green"

@@ -100,6 +100,7 @@ const PendingHealthCheckModal = ({
               )}
               customStyle={styles.signerCard}
               icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+              image={signer?.extraData?.thumbnailPath}
               showSelection={false}
               showDot={true}
               isFullText
