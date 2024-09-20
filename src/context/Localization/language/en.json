@@ -1181,7 +1181,7 @@
     "Balance": "Balance",
     "availableToSpend": "Available to spend",
     "vaultTransferHeading": "Sats ready to be auto-transferred\n",
-    "vaultTransferSubTitle": "Amount of sats in your wallet have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
+    "vaultTransferSubTitle": "Amount of sats in your wallet ($wallet) have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
     "vaultTransferBody": "\nYou can always change the transfer threshold from Wallet Settings.\n"
   }
 }
