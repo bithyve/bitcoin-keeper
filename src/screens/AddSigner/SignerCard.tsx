@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   detailContainer: {
+    width: '100%',
     gap: 2,
     marginTop: 15,
   },
