@@ -144,7 +144,7 @@
     "EnterNew": "Enter New",
     "Passcode": "Passcode",
     "ReEnter": "Re Enter",
-    "newPasscode": "Enter a New passcode",
+    "newPasscode": "Enter a new passcode",
     "confirmNewPasscode": "Confirm the new passcode",
     "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
@@ -534,7 +534,10 @@
     "highCustom": "Network fee is more than 10% of the amount being sent. Consider using custom fee option.",
     "highWait": "Network fee is 10% higher than usual. If not urgent, consider waiting for the fee to go down.",
     "highUsual": "Network fee is within usual range or lower. A good time to broadcast transactions.",
-    "lowFee": "Network fee is less than 10% of the amount being sent."
+    "lowFee": "Network fee is less than 10% of the amount being sent.",
+    "discardTnxTitle": "Invalid UTXO set",
+    "discardTnxSubTitle": "This transaction's UTXO has already been used.",
+    "discardTnxDesc": "Please discard this transaction and initiate a new one"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -630,7 +633,8 @@
     "archivedVaultsTitle": "Archived Vaults",
     "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining.",
     "archivedVaultEmptyTitle": "View Archived Vaults",
-    "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here."
+    "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here.",
+    "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -656,7 +660,10 @@
     "mobileKeyVerified": "Mobile Key verified successfully",
     "seedWordVerified": "Seed Words verified successfully",
     "keeperVerified": "Keeper Verified Successfully",
-    "SeedErrorToast": "Please enter correct seed word"
+    "SeedErrorToast": "Please enter correct seed word",
+    "appRecoveredSuccessfulTitle": "App Recovered Successfully!",
+    "appRecoveredSuccessfulSubTitle": "All your wallets and data about your vault has been recovered",
+    "appRecoveredSuccessfulDesc": "The vault keys always stay within the signing devices and therefore do not have to be recovered"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signer",
@@ -850,6 +857,12 @@
     "SingerSettingsSubtitle": "For all keys",
     "ManageWalletsEmptyTitle": "Hide Unhide Wallets",
     "ManageWalletsEmptySubtitle": "Avoid clutter on the homescreen and keep wallets away from prying eyes.",
+    "DeleteWalletModalTitle": "You have funds in your wallet",
+    "DeleteVaultModalTitle": "Delete vault with funds?",
+    "DeleteWalletModalSubTitle": "You have sats in your wallet. Are you sure you want to delete it?",
+    "DeleteVaultModalSubTitle": "You are about to delete a vault with sats in it. Please ensure that you have backed-up your keys and vault descriptor to retrieve the vault later.",
+    "DeleteWalletModalDesc": "To delete this wallet, please transfer your funds to another wallet or vault first.",
+    "DeleteVaultModalDesc": "This action is irreversible without the keys and descriptor backed-up. Proceed to delete vault?",
     "RKHealthCheckTitle": "Health Check",
     "RKHealthCheckSubtitle": "For the Recovery Phrase",
     "RKHealthCheckDesc": "Please Back up your Recovery Key in order to change your current Passcode",
@@ -882,7 +895,7 @@
     "choosePlantitle": "Manage Subscription",
     "choosePlanSubTitle": "You are currently on the basic plan",
     "choosePlanSubtitle": "Upgrade or downgrade",
-    "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise",
+    "noteSubTitle": "Restore Purchases defaults to your previous plans if issue arises*",
     "confirming": "Confirming your subscription",
     "pleaseStay": "Please stay on this screen as it may take a little while...",
     "youCanChange": "You can change your subscription at anytime from within the app or from your subscription details in your profile",
@@ -989,10 +1002,29 @@
     "MKHealthCheckModalDesc": "Mobile Key is derived from the app’s master key using BIP-85",
     "hideSignerTitle": "Hide/Unhide Keys",
     "hideSignerSubtitle": "Hiding keys ensures only the ones you frequently use are visible in Manage Keys while the others are readily available here.",
-    "signerAddedSuccessMessage": "Signer added Successfully!",
+    "signerAddedSuccessMessage": "Signer Added Successfully!",
     "signerAvailableMessage": "The signer key is now available to use for creating vaults",
-    "signerDeatils": "Signer Details",
-    "signerAddedDesc": "Perform regular health checks on your signer key"
+    "signerDetails": "Signer Details",
+    "signerAddedDesc": "Perform regular health checks on your signer key",
+    "hiddenKeys": "Hidden Keys",
+    "showingHiddenKeys": "Unhide or delete keys",
+    "delete": "Delete",
+    "unhide": "Unhide",
+    "deletingKey": "Deleting Key",
+    "keyWillBeDeleted": "Your Key will be deleted, to use the key again you will have to make a new Key",
+    "keyDeletedSuccessfully": "Key Deleted Successfully",
+    "keyDeletedSuccessMessage": "Your Key has been deleted successfully. You will have to add the Key again",
+    "manageKeys": "Manage Keys",
+    "deleteVaultWarning": "Key is being used for Vault",
+    "vaultWarningSubtitle": "The Key you are trying to hide is used in one of the visible vaults.",
+    "deleteVaultInstruction": "Please delete the vault to perform this operation.",
+    "viewVault": "View Vault",
+    "back": "Back",
+    "enterPasscode": "Enter Passcode",
+    "confirmPasscodeToDeleteKey": "Confirm passcode to delete key",
+    "thisStepTakesTime": "This step will take a few seconds.",
+    "forgot2FA": "Forgot 2FA",
+    "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

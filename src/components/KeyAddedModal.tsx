@@ -54,7 +54,7 @@ const KeyAddedModal = ({ visible, close, signer }) => {
           <ModalCard
             title={signer?.signerName}
             icon={SDIcons(signer?.type, colorMode !== 'dark').Icon}
-            subTitle={`Added ${moment(signer?.addedOn).calendar()}`}
+            subTitle={`Added ${moment(signer?.addedOn).calendar().toLowerCase()}`}
           />
           <Text style={styles.descText}>{signerTranslations.signerAddedDesc}</Text>
         </Box>

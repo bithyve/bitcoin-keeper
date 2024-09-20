@@ -46,8 +46,7 @@ enum PasswordMode {
   DEFAULT = 'DEFAULT',
   SHOWALL = 'SHOWALL',
 }
-
-function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, icon }) {
+function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDelete, icon, type }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
@@ -77,7 +76,9 @@ function ListItem({ title, subtitle, balance, visibilityToggle, isHidden, onDele
           </Text>
         </Box>
         <HStack>
-          {isHidden && <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />}
+          {isHidden && (type == 'VAULT' || (type == 'WALLET' && balance === 0)) && (
+            <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
+          )}
           <ActionChip
             text={isHidden ? 'Unhide' : 'Hide'}
             onPress={visibilityToggle}
@@ -254,21 +255,26 @@ function ManageWallets() {
     return (
       <Box style={styles.modalContainer}>
         <Text color={`${colorMode}.secondaryText`} style={styles.unhideText}>
-          {`To delete this ${
-            isWallet ? 'wallet' : 'vault'
-          }, please transfer your funds to another wallet or vault first.`}
+          {isWallet ? settings.DeleteWalletModalDesc : settings.DeleteVaultModalDesc}
         </Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
             onPress={() => {
-              updateWalletVisibility(selectedWallet, true, false);
-              setShowDeleteVaultBalanceAlert(false);
+              if (isWallet) {
+                // Cancel action
+                updateWalletVisibility(selectedWallet, true, false);
+                setShowDeleteVaultBalanceAlert(false);
+              } else {
+                // Delete Vault action
+                setShowDeleteVaultBalanceAlert(false);
+                setConfirmPasscodeVisible(true);
+              }
             }}
             activeOpacity={0.5}
           >
             <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              Cancel
+              {isWallet ? 'Cancel' : 'Continue'}
             </Text>
           </TouchableOpacity>
 
@@ -305,10 +311,12 @@ function ManageWallets() {
       />
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
-          <Text style={styles.emptyText} semiBold>
+          <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
             {settings.ManageWalletsEmptyTitle}
           </Text>
-          <Text style={styles.emptySubText}>{settings.ManageWalletsEmptySubtitle}</Text>
+          <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
+            {settings.ManageWalletsEmptySubtitle}
+          </Text>
           <EmptyState />
         </Box>
       ) : (
@@ -319,6 +327,7 @@ function ManageWallets() {
           renderItem={({ item }) => (
             <ListItem
               icon={getWalletIcon(item)}
+              type={item.entityKind}
               title={item.presentationData.name}
               subtitle={item.presentationData.description}
               balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
@@ -334,6 +343,7 @@ function ManageWallets() {
               }}
               onDelete={() => {
                 if (item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0) {
+                  setSelectedWallet(item);
                   setShowDeleteVaultBalanceAlert(true);
                 } else {
                   setSelectedWallet(item);
@@ -393,19 +403,18 @@ function ManageWallets() {
         dismissible
         close={() => {
           setShowDeleteVaultBalanceAlert(false);
+          !isWallet && updateWalletVisibility(selectedWallet, true, false);
         }}
         visible={showDeleteVaultBalanceAlert}
-        title={`You have funds in your ${isWallet ? 'wallet' : 'vault'}`}
-        subTitle={`You have sats in your ${
-          isWallet ? 'wallet' : 'vault'
-        }. Are you sure you want to delete it?`}
+        title={isWallet ? settings.DeleteWalletModalTitle : settings.DeleteVaultModalTitle}
+        subTitle={isWallet ? settings.DeleteWalletModalSubTitle : settings.DeleteVaultModalSubTitle}
         textColor={`${colorMode}.primaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
         subTitleColor={`${colorMode}.secondaryText`}
         buttonTextColor={`${colorMode}.white`}
         subTitleWidth={wp(240)}
-        closeOnOverlayClick={false}
+        closeOnOverlayClick={isWallet ? false : true}
         showButtons
         showCloseIcon={false}
       />
@@ -541,9 +550,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   emptyText: {
+    fontSize: 15,
+    lineHeight: 20,
     marginBottom: hp(3),
   },
   emptySubText: {
+    fontSize: 14,
+    lineHeight: 20,
     width: wp(250),
     textAlign: 'center',
     marginBottom: hp(30),

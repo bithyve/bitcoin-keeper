@@ -441,12 +441,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         Content={VaultContent}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText={common.continue}
+        buttonText={common.ok}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}
         DarkCloseIcon
         learnMore
+        learnMoreTitle={common.needHelp}
         learnMoreCallback={
           isCollaborativeWallet
             ? () => {

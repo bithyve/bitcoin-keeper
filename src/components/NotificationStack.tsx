@@ -98,6 +98,7 @@ interface uaiDefinationInterface {
         cta: any;
       };
     };
+    hideHiddenVaults?: boolean;
   };
 }
 
@@ -246,6 +247,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
                 cta: () => skipUaiHandler(uai),
               },
             },
+            hideHiddenVaults: true,
           },
         };
       case uaiType.IKS_REQUEST:
@@ -383,7 +385,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
       case uaiType.SIGN_TRANSACTION:
         return {
           heading: uai.uaiDetails.heading,
-          body: uai.uaiDetails.body,
+          body: 'Transaction would be signed automatically if not declined',
           btnConfig: {
             primary: {
               text: 'Decline',
@@ -564,6 +566,7 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         setShowModal={setShowSelectVault}
         onlyVaults={true}
         onlyWallets={false}
+        hideHiddenVaults={uaiConfig?.modalDetails?.hideHiddenVaults}
         buttonCallback={(vault) => {
           const entityWallet = allWallets.find((wallet) => wallet.id === uai.entityId);
           navigtaion.navigate('AddSendAmount', {

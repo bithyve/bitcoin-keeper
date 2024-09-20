@@ -53,6 +53,7 @@ import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
+import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -253,37 +254,33 @@ function SendingCard({
   );
 }
 
-function TransferCard({ preTitle = '', title, subTitle = '', isVault = false, icon = null }) {
+function TransferCard({
+  transferFrom = false,
+  preTitle = '',
+  title,
+  subTitle = '',
+  isVault = false,
+  currentCurrency,
+  currencyCode,
+}) {
+  const getCurrencyIcon = () => {
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      return '₿';
+    }
+    return currencyCode;
+  };
   const { colorMode } = useColorMode();
 
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.transferCardContainer}>
-      <Box style={styles.preTitleContainer}>
-        {isVault ? (
-          <VaultIcon width={34} height={30} />
-        ) : (
-          <HexagonIcon
-            width={34}
-            height={30}
-            backgroundColor={Colors.pantoneGreen}
-            icon={<WalletsIcon />}
-          />
-        )}
-        <Text style={styles.cardTransferPreTitle}>{preTitle}</Text>
-      </Box>
-
-      <Box style={styles.subTitleContainer}>
-        <Text numberOfLines={1} style={styles.transferCardTitle} color={`${colorMode}.balanceText`}>
-          {title}
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={styles.transferCardSubtitle}
-          color={`${colorMode}.balanceText`}
-        >
-          {icon} {subTitle}
-        </Text>
-      </Box>
+    <Box style={styles.sendingCardContainer}>
+      <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>
+        {transferFrom ? 'Transfer From' : 'Transfer To'}
+      </Text>
+      <Card
+        title={preTitle}
+        subTitle={`${title} ${getCurrencyIcon()} ${subTitle}`}
+        isVault={isVault}
+      />
     </Box>
   );
 }
@@ -533,6 +530,9 @@ function TransactionPriorityDetails({
   getBalance,
   getCurrencyIcon,
   getSatUnit,
+  isAutoTransfer,
+  sendMaxFee,
+  sendMaxFeeEstimatedBlocks,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -556,8 +556,10 @@ function TransactionPriorityDetails({
             <Text style={styles.transLabelText}>{transactionPriority.toUpperCase()}</Text>
             <Text style={styles.transLabelText}>
               ~{' '}
-              {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation *
-                10}{' '}
+              {(isAutoTransfer
+                ? sendMaxFeeEstimatedBlocks
+                : txFeeInfo[transactionPriority?.toLowerCase()]
+                    ?.estimatedBlocksBeforeConfirmation) * 10}{' '}
               mins
             </Text>
             <Box>
@@ -565,9 +567,11 @@ function TransactionPriorityDetails({
                 {getCurrencyIcon(BTC, 'dark')}
                 &nbsp;
                 <Text color={`${colorMode}.secondaryText`} style={styles.transSatsFeeText}>
-                  {`${getBalance(
-                    txFeeInfo[transactionPriority?.toLowerCase()]?.amount
-                  )} ${getSatUnit()}`}
+                  {isAutoTransfer
+                    ? sendMaxFee
+                    : `${getBalance(
+                        txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+                      )} ${getSatUnit()}`}
                 </Text>
               </Box>
             </Box>
@@ -788,6 +792,9 @@ function SendConfirmation({ route }) {
     transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const sendMaxFeeEstimatedBlocks = useAppSelector(
+    (state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks
+  );
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
@@ -817,6 +824,7 @@ function SendConfirmation({ route }) {
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
   const isMoveAllFunds =
@@ -1010,25 +1018,7 @@ function SendConfirmation({ route }) {
         const isValid = validateUTXOsForCachedTxn();
         if (!isValid) {
           // block and show discard alert
-          Alert.alert(
-            'Invalid UTXO set',
-            'Please discard this transaction',
-            [
-              {
-                text: 'Discard',
-                onPress: discardCachedTransaction,
-                style: 'destructive',
-              },
-              {
-                text: 'Cancel',
-                onPress: () => {
-                  setProgress(false);
-                },
-                style: 'cancel',
-              },
-            ],
-            { cancelable: true }
-          );
+          setDiscardUTXOVisible(true);
           return;
         }
       }
@@ -1146,6 +1136,19 @@ function SendConfirmation({ route }) {
       setFeeInsightVisible(!feeInsightVisible);
     }
   };
+
+  const discardUTXOModalContent = () => {
+    return (
+      <Box style={{ width: wp(280) }}>
+        <Box style={styles.imgCtr}>
+          <InvalidUTXO />
+        </Box>
+        <Text color={`${colorMode}.primaryText`} style={styles.highFeeNote}>
+          {walletTransactions.discardTnxDesc}
+        </Text>
+      </Box>
+    );
+  };
   const addNumbers = (str1, str2) => {
     if (typeof str1 === 'string' && typeof str2 === 'string') {
       // Convert strings to numbers
@@ -1210,51 +1213,44 @@ function SendConfirmation({ route }) {
             />
           </>
         ) : (
-          <Box style={styles.fdRow}>
-            <Box style={styles.transferSentFromContainer}>
-              <Text style={styles.transferText}>Transfer From</Text>
-              <TransferCard
-                preTitle={sourceWallet?.presentationData?.name}
-                title={'Available to Spend'}
-                subTitle={`${getBalance(sourceWallet?.specs?.balances?.confirmed)} ${getSatUnit()}`}
-                icon={
-                  colorMode === 'light'
-                    ? getCurrencyIcon(BTC, 'dark')
-                    : getCurrencyIcon(BTC, 'light')
-                }
-              />
-            </Box>
-            <Box style={styles.transferSentToContainer}>
-              <Text style={styles.transferText}>Transfer To</Text>
-              <TransferCard
-                preTitle={defaultVault?.presentationData?.name}
-                title={'Balance'}
-                subTitle={`${getBalance(defaultVault?.specs?.balances?.confirmed)} ${getSatUnit()}`}
-                icon={
-                  colorMode === 'light'
-                    ? getCurrencyIcon(BTC, 'dark')
-                    : getCurrencyIcon(BTC, 'light')
-                }
-                isVault
-              />
-            </Box>
-          </Box>
+          <>
+            <TransferCard
+              transferFrom
+              preTitle={sourceWallet?.presentationData?.name}
+              title={'Available:'}
+              subTitle={`${getBalance(sourceWallet?.specs?.balances?.confirmed)} ${getSatUnit()}`}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+            />
+            <TransferCard
+              isVault
+              preTitle={defaultVault?.presentationData?.name}
+              title={'Balance:'}
+              subTitle={`${getBalance(defaultVault?.specs?.balances?.confirmed)} ${getSatUnit()}`}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+            />
+          </>
         )}
         {/* Custom priority diabled for auto transfer  */}
-        {!isAutoTransferFlow ? (
-          <TouchableOpacity
-            testID="btn_transactionPriority"
-            onPress={() => setTransPriorityModalVisible(true)}
-          >
-            <TransactionPriorityDetails
-              transactionPriority={transactionPriority}
-              txFeeInfo={txFeeInfo}
-              getBalance={getBalance}
-              getCurrencyIcon={getCurrencyIcon}
-              getSatUnit={getSatUnit}
-            />
-          </TouchableOpacity>
-        ) : null}
+
+        <TouchableOpacity
+          testID="btn_transactionPriority"
+          onPress={() => setTransPriorityModalVisible(true)}
+          disabled={isAutoTransfer} // disable change priority for AutoTransfers
+        >
+          <TransactionPriorityDetails
+            isAutoTransfer={isAutoTransfer}
+            sendMaxFee={`${getBalance(sendMaxFee)} ${getSatUnit()}`}
+            sendMaxFeeEstimatedBlocks={sendMaxFeeEstimatedBlocks}
+            transactionPriority={transactionPriority}
+            txFeeInfo={txFeeInfo}
+            getBalance={getBalance}
+            getCurrencyIcon={getCurrencyIcon}
+            getSatUnit={getSatUnit}
+          />
+        </TouchableOpacity>
+
         {OneDayHistoricalFee.length > 0 && (
           <Box style={styles.feeStatContainer}>
             <Text style={styles.feeStatText}>Fee stats</Text>
@@ -1316,7 +1312,13 @@ function SendConfirmation({ route }) {
           primaryLoading={inProgress}
         />
       ) : (
-        <Footer setConfirmPassVisible={setConfirmPassVisible} />
+        <Buttons
+          primaryText={common.confirmProceed}
+          secondaryText={common.cancel}
+          secondaryCallback={() => navigation.goBack()}
+          primaryCallback={() => setConfirmPassVisible(true)}
+          primaryLoading={inProgress}
+        />
       )}
       <KeeperModal
         visible={visibleModal}
@@ -1462,6 +1464,30 @@ function SendConfirmation({ route }) {
         buttonText={common.proceed}
         buttonCallback={toogleFeesInsightModal}
         Content={() => <FeeInsights />}
+      />
+      {/* Discard UTXO Modal */}
+      <KeeperModal
+        showCloseIcon={false}
+        visible={discardUTXOVisible}
+        close={() => {}}
+        dismissible={false}
+        title={walletTransactions.discardTnxTitle}
+        subTitle={walletTransactions.discardTnxSubTitle}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        buttonText={'Discard'}
+        buttonCallback={discardCachedTransaction}
+        buttonTextColor={`${colorMode}.white`}
+        showButtons
+        secondaryButtonText={'Cancel'}
+        secondaryCallback={() => {
+          setProgress(false);
+          setDiscardUTXOVisible(false);
+        }}
+        Content={discardUTXOModalContent}
+        subTitleWidth={wp(280)}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
@@ -1726,13 +1752,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 10,
   },
-  transferSentToContainer: {
-    width: '48%',
-    marginLeft: 10,
-  },
-  transferSentFromContainer: {
-    width: '48%',
-  },
   sendingPriorityText: {
     fontSize: 15,
     letterSpacing: 0.15,
@@ -1744,5 +1763,9 @@ const styles = StyleSheet.create({
   dollarsStyle: {},
   marginBottom: {
     marginBottom: hp(20),
+  },
+  imgCtr: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
 });

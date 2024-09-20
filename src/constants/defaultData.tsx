@@ -66,7 +66,7 @@ export const securityTips = [
     subTitle: 'Unlock inheritance planning at the Diamond Hands tier.',
     assert: <LoadingAnimation />,
     message:
-      'You can change your subscription at anytime from within the app or from the subscription details in your profile.',
+      'You can change your subscription at any time within the app or through your App Store/Play Store subscription details.',
   },
   {
     title: 'Keep your signing devices safe',
@@ -80,3 +80,4 @@ export const getSecurityTip = () => {
   const selected = Math.floor(cryptoRandom() * securityTips.length); // Comment for creating wallet modal WP
   return securityTips[selected];
 };
+export const RECOVERY_KEY_SIGNER_NAME = 'RECOVERY_KEY_SIGNER_NAME';

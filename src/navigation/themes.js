@@ -72,7 +72,8 @@ export const customTheme = extendTheme({
       dashedButtonBackground: Colors.lightGreen,
       dashedButtonContent: Colors.White,
       choosePlanHome: Colors.White,
-      choosePlanCard: Colors.SmokeGreen,
+      choosePlanCard: Colors.Seashell,
+      choosePlanInactiveText: Colors.Black,
       choosePlanIconBackSelected: Colors.DeepOlive,
       choosePlanIconBack: Colors.PaleKhaki,
       hexagonIconBackColor: Colors.deepTeal,
@@ -114,6 +115,7 @@ export const customTheme = extendTheme({
       inActiveMsg: Colors.RichBlack,
       vaultCardText: Colors.Bisque,
       walletTypePillBack: Colors.Bisque,
+      pillPlaceholderBack: Colors.LightKhaki,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.RichGreen, // linearGradient
@@ -157,7 +159,7 @@ export const customTheme = extendTheme({
       DarkSage: Colors.DarkSage,
       // Smoke: Colors.Smoke,
       // deepTeal: Colors.deepTeal,
-      // ChampagneBliss: Colors.ChampagneBliss,
+      ChampagneBliss: Colors.ChampagneBliss,
       // PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,
@@ -197,7 +199,8 @@ export const customTheme = extendTheme({
       dashedButtonBackground: Colors.ForestGreenDark,
       dashedButtonContent: Colors.Black,
       choosePlanHome: Colors.White,
-      choosePlanCard: Colors.SmokeGreen,
+      choosePlanCard: Colors.Seashell,
+      choosePlanInactiveText: Colors.Black,
       choosePlanIconBackSelected: Colors.DeepOlive,
       choosePlanIconBack: Colors.PaleKhaki,
       hexagonIconBackColor: Colors.deepTeal,
@@ -239,6 +242,7 @@ export const customTheme = extendTheme({
       inActiveMsg: Colors.SpanishGray,
       vaultCardText: Colors.Bisque,
       walletTypePillBack: Colors.BisqueDark,
+      pillPlaceholderBack: Colors.BisqueDark,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.DeepAquamarine, // linearGradient
@@ -283,7 +287,7 @@ export const customTheme = extendTheme({
       // deepTeal: Colors.deepTeal,
       // Champagne: Colors.Champagne,
       // Ivory: Colors.Ivory,
-      // ChampagneBliss: Colors.ChampagneBliss,
+      ChampagneBliss: Colors.pantoneGreenLight,
       // PearlGrey: Colors.PearlGrey,
       // Taupe: Colors.Taupe,
       // Crayola: Colors.Crayola,

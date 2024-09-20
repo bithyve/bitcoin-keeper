@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode, HStack } from 'native-base';
 import { Pressable, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
@@ -9,21 +9,28 @@ import PlebIcon from 'src/assets/images/pleb_white.svg';
 import HodlerIcon from 'src/assets/images/hodler.svg';
 import DiamondIcon from 'src/assets/images/diamond_hands.svg';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
+import Colors from 'src/theme/Colors';
+import PlanCheckMarkSelected from 'src/assets/images/planCheckMarkSelected.svg';
 
 const styles = StyleSheet.create({
   wrapperView: {
     borderRadius: 10,
     marginHorizontal: wp(4),
     position: 'relative',
-    paddingBottom: 20,
+    paddingVertical: 20,
+    borderWidth: 1,
+    borderColor: Colors.GrayX11,
+    height: 135,
   },
+
   circle: {
     width: 40,
     height: 40,
     borderRadius: 40 / 2,
-    marginTop: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 13,
+    marginRight: 15,
   },
 });
 
@@ -100,35 +107,17 @@ function ChoosePlanCarouselItem({
 
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
-      <Box
+      {isSelected && (
+        <Box position={'absolute'} top={13} right={17} zIndex={1}>
+          <PlanCheckMarkSelected />
+        </Box>
+      )}
+      <HStack
         backgroundColor={isSelected ? `${colorMode}.pantoneGreen` : `${colorMode}.choosePlanCard`}
-        style={[
-          styles.wrapperView,
-          {
-            width: wp(itemWidth),
-            height: isSelected ? 260 : 230,
-          },
-        ]}
+        style={[styles.wrapperView, { width: wp(itemWidth) }]}
       >
-        <Box py={2} alignItems="center" justifyContent="center">
-          {item.productIds.includes(subscription.productId.toLowerCase()) ? (
-            <Box
-              alignSelf="flex-start"
-              backgroundColor={`${colorMode}.primaryBackground`}
-              borderRadius={10}
-              mx={2}
-              py={0.5}
-              px={2}
-            >
-              <Text fontSize={8} letterSpacing={0.56} bold color={`${colorMode}.pantoneGreen`}>
-                CURRENT
-              </Text>
-            </Box>
-          ) : (
-            <Box alignSelf="flex-start" borderRadius={10} mx={2} py={0.5} px={2}>
-              <Text fontSize={8} letterSpacing={0.64} bold />
-            </Box>
-          )}
+        {/* Icon */}
+        <Box>
           <Box
             backgroundColor={
               isSelected
@@ -141,53 +130,45 @@ function ChoosePlanCarouselItem({
             {item.name === 'Hodler' && <HodlerIcon />}
             {item.name === 'Diamond Hands' && <DiamondIcon />}
           </Box>
+        </Box>
+        {/* Details */}
+        <Box>
           <Text
-            fontSize={12}
-            bold={isSelected}
-            medium={!isSelected}
-            color={`${colorMode}.white`}
-            mt={2}
+            fontSize={15}
+            bold={true}
+            color={isSelected ? `${colorMode}.white` : `${colorMode}.choosePlanInactiveText`}
           >
             {item.name}
           </Text>
-          <Text fontSize={10} color={`${colorMode}.white`} mb={4}>
-            {item.subTitle}
+          <Text
+            fontSize={15}
+            color={isSelected ? `${colorMode}.white` : `${colorMode}.choosePlanInactiveText`}
+            mb={1.5}
+          >
+            {`(${item.subTitle})`}
           </Text>
           <Text
-            textAlign="center"
-            bold={item.productType !== 'free'}
-            fontSize={18}
-            lineHeight={18}
-            color={`${colorMode}.white`}
+            fontSize={14}
+            lineHeight={20}
+            color={isSelected ? `${colorMode}.white` : `${colorMode}.pantoneGreen`}
           >
-            {getAmt}
+            {getAmt +
+              (item.productType !== 'free' && item.isActive
+                ? isMonthly
+                  ? '/month'
+                  : '/year'
+                : '')}
           </Text>
-          <Text fontSize={10} color={`${colorMode}.white`}>
-            {item.productType !== 'free' && item.isActive ? (isMonthly ? '/month' : '/year') : ''}
+
+          <Text
+            bold={true}
+            fontSize={14}
+            color={isSelected ? `${colorMode}.white` : `${colorMode}.pantoneGreen`}
+          >
+            {getFreeTrail ? '- ' + getFreeTrail : ''}
           </Text>
-          <Text bold fontSize={10} color={`${colorMode}.white`} my={2}>
-            {getFreeTrail}
-          </Text>
-          {canSelectPlan === true &&
-          !item.productIds.includes(subscription.productId.toLowerCase()) ? (
-            <Box
-              style={{
-                marginTop: hp(10),
-                marginBottom: hp(20),
-              }}
-            >
-              <CustomYellowButton
-                onPress={() => onSelect(item, index)}
-                value={getBtnTitle}
-                disabled={!item.isActive || requesting}
-                titleColor={`${colorMode}.pantoneGreen`}
-                backgroundColor={`${colorMode}.seashellWhite`}
-                boldTitle
-              />
-            </Box>
-          ) : null}
         </Box>
-      </Box>
+      </HStack>
     </Pressable>
   );
 }

@@ -164,6 +164,7 @@ function CloudBackupScreen() {
         textColor={`${colorMode}.modalGreenContent`}
         DarkCloseIcon={colorMode === 'dark'}
         learnMore
+        learnMoreTitle={common.needHelp}
         showCloseIcon={true}
         learnMoreCallback={() => {
           setShowModal(false);
@@ -172,7 +173,7 @@ function CloudBackupScreen() {
           }
           dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'));
         }}
-        buttonText={common.continue}
+        buttonText={common.ok}
         Content={() => modalContent()}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}

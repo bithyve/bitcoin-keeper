@@ -4,7 +4,14 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import * as bip39 from 'bip39';
 import moment from 'moment';
-import { ActivityIndicator, Alert, Clipboard, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Clipboard,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
@@ -32,7 +39,7 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
+import SeedSignerSetupImage from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
@@ -119,6 +126,7 @@ export const enum InteracationMode {
   IDENTIFICATION = 'IDENTIFICATION',
   APP_ADDITION = 'APP_ADDITION',
   CANARY_ADDITION = 'CANARY_ADDITION',
+  ADDRESS_VERIFICATION = 'ADDRESS_VERIFICATION',
 }
 
 const getSignerContent = (
@@ -370,6 +378,22 @@ const getSignerContent = (
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
         isMultisig ? 'Multisig' : 'Singlesig'
       } > Native Segwit > Keeper.\n`;
+
+      const setupGuideLink = (
+        <Text
+          color={`${colorMode}.secondaryText`}
+          style={styles.infoText}
+          onPress={() =>
+            Linking.openURL(
+              'https://bitcoinmagazine.com/guides/how-to-use-seedsigner-for-secure-bitcoin'
+            )
+          }
+        >
+          Setting Up a SeedSigner -
+          https://bitcoinmagazine.com/guides/how-to-use-seedsigner-for-secure-bitcoin
+        </Text>
+      );
+
       return {
         type: SignerType.SEEDSIGNER,
         Illustration: <SeedSignerSetupImage />,
@@ -377,8 +401,9 @@ const getSignerContent = (
           ? [
               seedSignerInstructions,
               'Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.',
+              setupGuideLink,
             ]
-          : [seedSignerInstructions],
+          : [seedSignerInstructions, setupGuideLink],
         title: isHealthcheck
           ? 'Verify SeedSigner'
           : isCanaryAddition
@@ -1517,7 +1542,7 @@ function HardwareModalMap({
 
   function SigningServerOTPModal() {
     const { translations } = useContext(LocalizationContext);
-    const { vault: vaultTranslation, common } = translations;
+    const { vault: vaultTranslation, common, signer: signerTranslation } = translations;
 
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
@@ -1556,8 +1581,8 @@ function HardwareModalMap({
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
-              <CustomGreenButton
-                onPress={() => {
+              <Buttons
+                primaryCallback={() => {
                   if (mode === InteracationMode.HEALTH_CHECK) {
                     checkSigningServerHealth();
                     setSigningServerHealthCheckOTPModal(false);
@@ -1575,7 +1600,14 @@ function HardwareModalMap({
                     }
                   }
                 }}
-                value={common.confirm}
+                primaryText={common.confirm}
+                secondaryText={
+                  mode === InteracationMode.HEALTH_CHECK && signerTranslation.forgot2FA
+                }
+                secondaryCallback={() => {
+                  setSigningServerHealthCheckOTPModal(false);
+                  showToast(signerTranslation.forgot2FANote, null, IToastCategory.DEFAULT, 5000);
+                }}
               />
             </Box>
           </Box>
@@ -2091,6 +2123,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
+  },
+  infoText: {
+    letterSpacing: 0.65,
+    padding: 3,
+    fontSize: 13,
+    fontWeight: '400',
+    width: wp(285),
   },
 });
 export default HardwareModalMap;
