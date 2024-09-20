@@ -445,7 +445,7 @@ function PrivacyAndDisplay({ route }) {
         close={() => {
           setConfirmPasscode(false);
         }}
-        title="Change passcode"
+        title={settings.changePasscode}
         subTitleWidth={wp(240)}
         modalBackground={`${colorMode}.learMoreTextcolor`}
         subTitleColor={`${colorMode}.secondaryText`}
