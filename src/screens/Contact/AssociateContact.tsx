@@ -260,8 +260,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: hp(85),
     borderWidth: 1,
-    borderColor: Colors.SilverMist,
-    backgroundColor: Colors.Seashell,
     borderRadius: 10,
     paddingTop: hp(23),
     paddingBottom: hp(22),
