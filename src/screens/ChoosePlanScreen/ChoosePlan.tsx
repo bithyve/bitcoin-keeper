@@ -425,11 +425,14 @@ function ChoosePlan() {
         <Text>Enter Code</Text>
         <KeeperTextInput
           onBlur={validateOnFocusLost}
+          autoCapitalize="characters"
+          keyboardType={Platform.OS == 'android' ? 'visible-password' : "'ascii-capable'"} // To fix duplicate issue with toUpperCase()
           placeholder="Promo Code"
           value={code}
           isError={isInvalidCode}
           onChangeText={(value) => {
-            setcode(value.trim());
+            const filteredInput = value.trim().toUpperCase();
+            setcode(filteredInput);
             setIsInvalidCode(false);
             setActiveOffer(null);
           }}

@@ -13,6 +13,9 @@ function KeeperTextInput({
   maxLength = null,
   inputRef = null,
   height = 55,
+  isError = false,
+  onBlur = () => {},
+  onFocus = () => {},
   ...props
 }) {
   const { colorMode } = useColorMode();
@@ -44,6 +47,7 @@ function KeeperTextInput({
           ) : null
         }
         backgroundColor={`${colorMode}.ChampagneBliss`}
+        {...props}
       />
     </Box>
   );

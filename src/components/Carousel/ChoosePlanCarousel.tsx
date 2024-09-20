@@ -1,5 +1,5 @@
 import { Box } from 'native-base';
-import { FlatList, Dimensions } from 'react-native';
+import { FlatList } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { hp } from 'src/constants/responsive';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -8,8 +8,7 @@ import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { useQuery } from '@realm/react';
 import ChoosePlanCarouselItem from './ChoosePlanCarouselItem';
 
-const { width } = Dimensions.get('window');
-const itemWidth = width * 0.6 - 10;
+const itemWidth = 210 ;
 interface Props {
   data: SubScriptionPlan[];
   onPress?: any;
