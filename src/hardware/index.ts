@@ -434,7 +434,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Use Mobile Key as signer';
     }
     case SignerType.KEEPER: {
-      return 'Another Keeper App';
+      return `From a friend or advisor's Keeper app`;
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot key on this app';
