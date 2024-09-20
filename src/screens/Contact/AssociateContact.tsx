@@ -138,30 +138,34 @@ const AssociateContact = () => {
           visible={showModal}
           close={() => setShowModal(false)}
           showCloseIcon={false}
+          title="Associated Contact"
+          subTitle="The contact you associated with the Key will be displayed here"
+          secondaryButtonText="Cancel"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.modalWhiteContent`}
+          buttonTextColor={`${colorMode}.white`}
+          buttonBackground={`${colorMode}.greenButtonBackground`}
+          secButtonTextColor={`${colorMode}.greenButtonBackground`}
           buttonText="Continue"
           Content={() => (
-            <Box style={styles.modalContainer}>
-              <Text style={styles.modalTitle} medium>
-                Associate Contact
-              </Text>
-              <Text style={styles.modalText}>
-                Are you sure you want to associate this contact to your wallet?
-              </Text>
-              <Box style={styles.contactInfoCard}>
-                <Box style={styles.iconContainer}>
-                  {selectedContact.thumbnailPath !== '' ? (
-                    <Image
-                      source={{ uri: selectedContact.thumbnailPath || 'default-avatar-url' }}
-                      style={styles.modalAvatar}
-                    />
-                  ) : (
-                    <ImagePlaceHolder style={styles.modalAvatar} />
-                  )}
-                </Box>
-                <Text medium style={styles.buttonText}>
-                  {selectedContact.givenName} {selectedContact.familyName}
-                </Text>
+            <Box
+              style={styles.contactInfoCard}
+              backgroundColor={`${colorMode}.seashellWhite`}
+              borderColor={`${colorMode}.greyBorder`}
+            >
+              <Box style={styles.iconContainer}>
+                {selectedContact.thumbnailPath !== '' ? (
+                  <Image
+                    source={{ uri: selectedContact.thumbnailPath || 'default-avatar-url' }}
+                    style={styles.modalAvatar}
+                  />
+                ) : (
+                  <ImagePlaceHolder style={styles.modalAvatar} />
+                )}
               </Box>
+              <Text medium style={styles.buttonText}>
+                {selectedContact.givenName} {selectedContact.familyName}
+              </Text>
             </Box>
           )}
         />
@@ -262,7 +266,6 @@ const styles = StyleSheet.create({
     paddingTop: hp(23),
     paddingBottom: hp(22),
     paddingHorizontal: wp(18),
-    marginTop: hp(26),
     marginBottom: hp(10),
   },
   modalContainer: {
