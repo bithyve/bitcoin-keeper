@@ -1,7 +1,7 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { MultisigScriptType, SignerType, TxPriority } from 'src/services/wallets/enums';
+import { MultisigScriptType, SignerType, TxPriority, VaultType } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
@@ -272,6 +272,7 @@ function SignTransactionScreen() {
 
     if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
       if (signedTxCount === serializedPSBTEnvelops.length) return true;
+      // TODO: path/signers selection needs to be present for timelocked vault(streamlines and keep the signing flow consistent for miniscript vaults) or alternatively based on collected signatures we figure out the scriptwitness for the timelocked vault(more user-friendly)
     } else {
       if (signedTxCount >= defaultVault.scheme.m) return true;
     }
