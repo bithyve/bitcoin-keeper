@@ -16,6 +16,7 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { persistDocument } from 'src/services/documents';
 
 const AddContact = ({ route }) => {
   const { signer } = route.params;
@@ -59,13 +60,13 @@ const AddContact = ({ route }) => {
       quality: 1,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
         console.log('ImagePicker Error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        setSelectedImage(response.assets[0].uri);
+        setSelectedImage(await persistDocument(response.assets[0].uri));
       }
     });
   };

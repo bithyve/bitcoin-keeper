@@ -26,6 +26,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { persistDocument } from 'src/services/documents';
 
 const AssociateContact = ({ route }) => {
   const { signer }: { signer: Signer } = route.params;
@@ -90,14 +91,15 @@ const AssociateContact = ({ route }) => {
     />
   );
 
-  const onAddAssociateContact = () => {
+  const onAddAssociateContact = async () => {
     try {
+      const persistedImage = await persistDocument(selectedContact.thumbnailPath);
       const extraData = {
         ...signer.extraData,
         givenName: selectedContact.givenName,
         familyName: selectedContact.familyName,
         recordID: selectedContact.recordID,
-        thumbnailPath: selectedContact.thumbnailPath,
+        thumbnailPath: persistedImage,
       };
       dispatch(updateSignerDetails(signer, 'extraData', extraData));
       setShowModal(false);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
-import { TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { TextInput, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -16,6 +16,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { persistDocument } from 'src/services/documents';
 
 const EditContact = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -35,13 +36,13 @@ const EditContact = ({ route }) => {
       quality: 1,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
         console.log('ImagePicker Error: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        setSelectedImage(response.assets[0].uri);
+        setSelectedImage(await persistDocument(response.assets[0].uri));
       }
     });
   };
