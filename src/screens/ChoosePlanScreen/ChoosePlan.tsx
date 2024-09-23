@@ -48,12 +48,14 @@ import TierUpgradeModal from './TierUpgradeModal';
 import PlanCheckMark from 'src/assets/images/planCheckMark.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Buttons from 'src/components/Buttons';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 const { width } = Dimensions.get('window');
 
 function ChoosePlan() {
   const inset = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
+  const isSmallDevices = useIsSmallDevices();
   const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
@@ -297,10 +299,13 @@ function ChoosePlan() {
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
-        requestSubscription({
-          sku,
-          subscriptionOffers: [{ sku, offerToken }],
-          purchaseTokenAndroid,
+        processPurchase({
+          productId: sku,
+          transactionReceipt: 'keeper-dev-mock-purchase',
+          autoRenewingAndroid: true,
+          isCanceledAmazon: false,
+          transactionDate: Date.now(),
+          transactionId: `keeper-dev-mock-purchase-${Date.now()}`,
         });
       }
     } catch (err) {
@@ -519,7 +524,8 @@ function ChoosePlan() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ height: '100%', marginVertical: 0 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: isSmallDevices ? hp(220) : 0 }}
+          style={{ flex: 1 }}
         >
           <ChoosePlanCarousel
             data={items}
@@ -587,7 +593,10 @@ function ChoosePlan() {
         items &&
         !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) && (
           <>
-            <Box style={[styles.noteWrapper, { paddingBottom: inset.bottom }]}>
+            <Box
+              backgroundColor={`${colorMode}.primaryBackground`}
+              style={[styles.noteWrapper, { paddingBottom: inset.bottom }]}
+            >
               <Text style={{ fontSize: 11, marginLeft: 20 }} color={`${colorMode}.GreyText`}>
                 {formatString(choosePlan.noteSubTitle)}
               </Text>
