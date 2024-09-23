@@ -1,6 +1,6 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { TxPriority, VaultType } from 'src/services/wallets/enums';
+import { MultisigScriptType, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
 import { VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
@@ -19,11 +19,21 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
 import { Alert } from 'react-native';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
+import {
+  TIMELOCKED_VAULT_TIMELOCKS_MAINNET,
+  TIMELOCKED_VAULT_TIMELOCKS_TESTNET,
+  generateTimelockedVaultElements,
+} from 'src/services/wallets/operations/miniscript/default/TimelockedVault';
+import config from 'src/utils/service-utilities/config';
+import { MONTHS_12, MONTHS_3, MONTHS_6 } from './constants';
 
 function VaultMigrationController({
   vaultCreating,
   vaultKeys,
   scheme,
+  isTimeLock,
+  currentBlockHeight,
+  selectedDuration,
   name,
   description,
   vaultId,
@@ -126,33 +136,77 @@ function VaultMigrationController({
     }
   };
 
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme, vaultType) => {
-    try {
-      const vaultInfo: NewVaultInfo = {
-        vaultType,
-        vaultScheme: scheme,
-        vaultSigners: signers,
-        vaultDetails: {
-          name,
-          description,
-        },
-      };
-      const allVaultIds = allVaults.map((vault) => vault.id);
-      const generatedVaultId = generateVaultId(signers, scheme);
-      const deletedVaultIds = archivedVaults.map((vault) => vault.id);
-      if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
-        Alert.alert('Vault with this configuration already exists');
-        navigation.goBack();
-      } else {
-        setGeneratedVaultId(generatedVaultId);
-        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
-        return vaultInfo;
+  const createVault = useCallback(
+    (signers: VaultSigner[], scheme: VaultScheme, vaultType) => {
+      try {
+        const vaultInfo: NewVaultInfo = {
+          vaultType,
+          vaultScheme: scheme,
+          vaultSigners: signers,
+          vaultDetails: {
+            name,
+            description,
+          },
+        };
+
+        if (isTimeLock) {
+          if (vaultInfo.vaultType !== VaultType.TIMELOCKED) {
+            throw new Error('Invalid vault type');
+          }
+
+          const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
+          if (!currentBlockHeight) {
+            showToast('Failed to sync current block height');
+            return;
+          }
+
+          if (!selectedDuration) {
+            showToast('Please select the duration for timelock');
+            return;
+          }
+
+          const durationIdentifier =
+            selectedDuration === MONTHS_3
+              ? 'MONTHS_3'
+              : selectedDuration === MONTHS_6
+              ? 'MONTHS_6'
+              : 'MONTHS_12';
+
+          const timelockDuration =
+            config.NETWORK_TYPE === NetworkType.MAINNET
+              ? TIMELOCKED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
+              : TIMELOCKED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+
+          const timelocks = [currentBlockHeight + timelockDuration];
+
+          const miniscriptElements = generateTimelockedVaultElements(signers, scheme, timelocks);
+          const vaultScheme: VaultScheme = {
+            ...scheme,
+            multisigScriptType,
+          };
+
+          vaultInfo.vaultScheme = vaultScheme;
+          vaultInfo.miniscriptElements = miniscriptElements;
+        }
+
+        const allVaultIds = allVaults.map((vault) => vault.id);
+        const generatedVaultId = generateVaultId(signers, scheme);
+        const deletedVaultIds = archivedVaults.map((vault) => vault.id);
+        if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
+          Alert.alert('Vault with this configuration already exists');
+          navigation.goBack();
+        } else {
+          setGeneratedVaultId(generatedVaultId);
+          dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+          return vaultInfo;
+        }
+      } catch (err) {
+        captureError(err);
+        return false;
       }
-    } catch (err) {
-      captureError(err);
-      return false;
-    }
-  }, []);
+    },
+    [isTimeLock, selectedDuration, currentBlockHeight]
+  );
 
   const initiateNewVault = () => {
     if (activeVault) {
@@ -177,7 +231,7 @@ function VaultMigrationController({
       }
 
       const vaultInfo: NewVaultInfo = {
-        vaultType: vaultType,
+        vaultType,
         vaultScheme: scheme,
         vaultSigners: vaultKeys,
         vaultDetails: {
