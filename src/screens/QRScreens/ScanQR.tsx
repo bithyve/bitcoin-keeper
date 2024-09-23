@@ -259,12 +259,15 @@ function ScanQR() {
             modalBackground={`${colorMode}.modalGreenBackground`}
             textColor={`${colorMode}.modalGreenContent`}
             Content={learnMoreContent}
-            secondaryButtonText={common.ok}
-            buttonText={common.needHelp}
+            buttonText={common.Okay}
+            secondaryButtonText={common.needHelp}
             buttonTextColor={`${colorMode}.modalWhiteButtonText`}
             buttonBackground={`${colorMode}.modalWhiteButton`}
             secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
             buttonCallback={() => {
+              setVisibleModal(false);
+            }}
+            secondaryCallback={() => {
               setVisibleModal(false);
               dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'));
             }}

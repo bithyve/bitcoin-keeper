@@ -351,17 +351,17 @@ function EnterWalletDetailScreen({ route }) {
         Content={TapRootContent}
         showCloseIcon={true}
         DarkCloseIcon
-        secondaryButtonText={common.ok}
-        buttonText={common.needHelp}
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        buttonCallback={() => {
+        secondaryCallback={() => {
           setAdvancedSettingsVisible(false);
           setVisibleModal(false);
           dispatch(goToConcierge([ConciergeTag.WALLET], 'add-wallet-advanced-settings'));
         }}
-        secondaryCallback={() => setVisibleModal(false)}
+        buttonCallback={() => setVisibleModal(false)}
       />
     </ScreenWrapper>
   );

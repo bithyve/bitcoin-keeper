@@ -265,16 +265,16 @@ function SigningDeviceList() {
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultSetupContent}
         DarkCloseIcon
-        secondaryButtonText={common.ok}
-        buttonText={common.needHelp}
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        buttonCallback={() => {
+        secondaryCallback={() => {
           dispatch(setSdIntroModal(false));
           reduxDispatch(goToConcierge([ConciergeTag.KEYS], 'signing-device-list'));
         }}
-        secondaryCallback={() => {
+        buttonCallback={() => {
           dispatch(setSdIntroModal(false));
         }}
       />

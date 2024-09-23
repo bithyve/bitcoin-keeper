@@ -158,13 +158,13 @@ function ManageSigners({ route }: ScreenProps) {
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         secButtonTextColor={`${colorMode}.modalGreenContent`}
-        buttonText={common.needHelp}
-        buttonCallback={() => {
+        secondaryButtonText={common.needHelp}
+        secondaryCallback={() => {
           setShowLearnMoreModal(false);
           dispatch(goToConcierge([ConciergeTag.KEYS], 'manage-keys'));
         }}
-        secondaryButtonText={common.ok}
-        secondaryCallback={() => setShowLearnMoreModal(false)}
+        buttonText={common.Okay}
+        buttonCallback={() => setShowLearnMoreModal(false)}
         Content={() => (
           <Box style={styles.modalContent}>
             <HardwareIllustration />

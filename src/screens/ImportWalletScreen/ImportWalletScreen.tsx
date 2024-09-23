@@ -179,16 +179,16 @@ function ImportWalletScreen() {
             textColor={`${colorMode}.modalGreenContent`}
             Content={ImportWalletContent}
             DarkCloseIcon
-            secondaryButtonText={common.ok}
-            buttonText={common.needHelp}
+            buttonText={common.Okay}
+            secondaryButtonText={common.needHelp}
             buttonTextColor={`${colorMode}.modalWhiteButtonText`}
             buttonBackground={`${colorMode}.modalWhiteButton`}
             secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-            buttonCallback={() => {
+            secondaryCallback={() => {
               setIntroModal(false);
               dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet'));
             }}
-            secondaryCallback={() => setIntroModal(false)}
+            buttonCallback={() => setIntroModal(false)}
           />
         </ScrollView>
       </KeyboardAvoidingView>
