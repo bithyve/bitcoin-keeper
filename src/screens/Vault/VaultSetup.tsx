@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, HStack, ScrollView, VStack, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
@@ -17,6 +17,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -66,6 +67,18 @@ function VaultSetup({ route }: ScreenProps) {
   const [scheme, setScheme] = useState(activeVault?.scheme || preDefinedScheme || { m: 3, n: 4 });
   const { translations } = useContext(LocalizationContext);
   const { vault } = translations;
+  const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
+
+  useEffect(() => {
+    // should bind with a refresher in case the auto fetch for block-height fails
+    if (isTimeLock) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => showToast(err));
+    }
+  }, [isTimeLock]);
 
   const onDecreaseM = () => {
     if (scheme.m > 1) {
@@ -99,6 +112,11 @@ function VaultSetup({ route }: ScreenProps) {
         );
         navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       } else {
+        if (isTimeLock && !currentBlockHeight) {
+          showToast('Block height not synched');
+          return;
+        }
+
         navigation.dispatch(
           CommonActions.navigate({
             name: 'AddSigningDevice',
@@ -108,6 +126,7 @@ function VaultSetup({ route }: ScreenProps) {
               description: vaultDescription,
               vaultId,
               isTimeLock,
+              currentBlockHeight,
             },
           })
         );
