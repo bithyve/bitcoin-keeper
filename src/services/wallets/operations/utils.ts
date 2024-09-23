@@ -256,10 +256,23 @@ export default class WalletUtilities {
     }
 
     // prepare and enrich the time locks
-    const [T1, T2] = timelocks;
-    const encodedT1 = bitcoinJS.script.number.encode(T1).toString('hex');
-    const encodedT2 = bitcoinJS.script.number.encode(T2).toString('hex');
-    asm = asm.replace(`<${encodedT1}>`, encodedT1).replace(`<${encodedT2}>`, encodedT2);
+    for (const tl of timelocks) {
+      const encodedTL = bitcoinJS.script.number.encode(tl).toString('hex');
+      asm = asm.replace(`<${encodedTL}>`, encodedTL);
+    }
+
+    // Convert small integers to OP codes
+    asm = asm
+      .split(' ')
+      .map((token) => {
+        const num = parseInt(token);
+        if (Number.isNaN(num) === false && num >= 0 && num <= 16) {
+          return `OP_${num}`;
+        }
+        return token;
+      })
+      .join(' ');
+
     const script = bitcoinJS.script.fromASM(asm);
     return { script, subPaths, signerPubkeyMap };
   };
