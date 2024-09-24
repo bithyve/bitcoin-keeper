@@ -332,16 +332,16 @@ function SetupCollaborativeWallet() {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={AddCoSignerContent}
-        secondaryButtonText={common.ok}
-        buttonText={common.needHelp}
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
-        buttonCallback={() => {
+        secondaryCallback={() => {
           dispatch(setCosginerModal(false));
           dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-signers'));
         }}
-        secondaryCallback={() => {
+        buttonCallback={() => {
           dispatch(setCosginerModal(false));
         }}
       />
