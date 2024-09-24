@@ -88,6 +88,9 @@ const loginSlice = createSlice({
     credsChanged: (state, action: PayloadAction<string>) => {
       state.credsChanged = action.payload;
     },
+    resetCredsChanged: (state) => {
+      state.credsChanged = '';
+    },
     pinChangedFailed: (state, action: PayloadAction<boolean>) => {
       state.pinChangedFailed = action.payload;
     },
@@ -146,6 +149,7 @@ const loginSlice = createSlice({
 export const {
   credsAuthenticated,
   credsChanged,
+  resetCredsChanged,
   pinChangedFailed,
   setCredStored,
   setupLoading,

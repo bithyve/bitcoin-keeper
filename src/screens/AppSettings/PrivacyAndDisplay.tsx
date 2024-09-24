@@ -38,10 +38,11 @@ import BackupModalContent from './BackupModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import Text from 'src/components/KeeperText';
+import { resetCredsChanged } from 'src/store/reducers/login';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
+function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
@@ -52,12 +53,11 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal }) {
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { credsChanged } = useAppSelector((state) => state.login);
-  const { showToast } = useToastMessage();
 
   useEffect(() => {
     if (credsChanged === 'changed') {
+      onCredsChange();
       setConfirmPasscodeModal(false);
-      showToast('Passcode updated successfully');
     }
   }, [credsChanged]);
 
@@ -222,6 +222,15 @@ function PrivacyAndDisplay({ route }) {
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [isToggling, setIsToggling] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(app.enableAnalytics);
+  const [credsChanged, setCredsChanged] = useState('');
+
+  useEffect(() => {
+    if (credsChanged === 'changed') {
+      showToast('Passcode updated successfully');
+      dispatch(resetCredsChanged());
+      setCredsChanged('');
+    }
+  }, [credsChanged]);
 
   const toggleSentryReports = (newValue) => {
     setAnalyticsEnabled(newValue);
@@ -464,7 +473,11 @@ function PrivacyAndDisplay({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
-          <ConfirmPasscode setConfirmPasscodeModal={setConfirmPasscode} oldPassword={oldPassword} />
+          <ConfirmPasscode
+            setConfirmPasscodeModal={setConfirmPasscode}
+            oldPassword={oldPassword}
+            onCredsChange={() => setCredsChanged('changed')}
+          />
         )}
       />
       <KeeperModal
