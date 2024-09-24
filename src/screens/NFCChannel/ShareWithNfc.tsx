@@ -22,12 +22,15 @@ function ShareWithNfc({
   remoteShare = true,
   signer,
   isPSBTSharing = false,
+  psbt,
 }: {
   data: string;
   signer?: Signer;
   remoteShare?: boolean;
   isPSBTSharing?: boolean;
+  psbt?: string;
 }) {
+  console.log('🚀 ~ signer:', signer);
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation();
   const [visible, setVisible] = React.useState(false);
@@ -125,7 +128,9 @@ function ShareWithNfc({
         <OptionCTA
           icon={<RemoteShareIcon />}
           title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
-          callback={() => navigation.navigate('RemoteSharing', { isPSBTSharing, data })}
+          callback={() =>
+            navigation.navigate('RemoteSharing', { isPSBTSharing, signerData: data, signer, psbt })
+          }
         />
       )}
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />

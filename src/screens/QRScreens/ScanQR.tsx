@@ -97,6 +97,7 @@ function ScanQR() {
         setData(data.data);
       } else {
         const { data: qrInfo } = decodeURBytes(decoder, data.data);
+        console.log('🚀 ~ onBarCodeRead ~ qrInfo:', qrInfo);
         if (qrInfo) {
           setData(qrInfo);
         }

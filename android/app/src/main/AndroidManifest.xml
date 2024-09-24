@@ -55,6 +55,7 @@
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
              <data android:scheme="@string/backup_with_keeper_scheme" android:host="backup" />
+             <data android:scheme="@string/remote_key_scheme"/>
         </intent-filter>
       </activity>
       <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />

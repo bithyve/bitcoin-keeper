@@ -21,6 +21,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import dbManager from 'src/storage/realm/dbManager';
 import useAsync from 'src/hooks/useAsync';
 import { sentryConfig } from 'src/services/sentry';
+import Relay from 'src/services/backend/Relay';
+import { calculateTimeLeft } from 'src/utils/utilities';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -32,7 +34,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { enableAnalyticsLogin } = useAppSelector((state) => state.settings);
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
-  function handleDeepLinkEvent({ url }) {
+  function handleDeepLinkEvent(event) {
+    console.log('🚀 ~ handleDeepLinkEvent ~ event:', event);
+    const { url } = event;
+    console.log('handleDeepLinkEvent', url);
     if (url) {
       if (url.includes('backup')) {
         const splits = url.split('backup/');
@@ -82,8 +87,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   }, []);
 
   async function handleDeepLinking() {
+    console.log('handleDeepLinking');
     try {
       const initialUrl = await Linking.getInitialURL();
+      console.log('🚀 ~ handleDeepLinking ~ initialUrl:', initialUrl);
       if (initialUrl) {
         if (initialUrl.includes('backup')) {
           const splits = initialUrl.split('backup/');
@@ -107,6 +114,19 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
             showToast('Invalid deeplink');
           }
         } else if (initialUrl.includes('create/')) {
+        } else if (initialUrl.includes('shareKey/')) {
+          const externalKeyId = initialUrl.split('shareKey/')[1];
+          if (externalKeyId) {
+            const { createdAt, data: tempData } = await Relay.getRemoteKey(externalKeyId);
+            console.log('🚀 ~ handleDeepLinking ~ createdAt, data:', { createdAt, tempData });
+            // TODO: send this to the validation screen | send notification for accept /reject
+            navigation.navigate('ManageSigners', {
+              receivedExternalSigner: {
+                timeLeft: calculateTimeLeft(createdAt),
+                data: tempData,
+              },
+            });
+          }
         }
       }
     } catch (error) {

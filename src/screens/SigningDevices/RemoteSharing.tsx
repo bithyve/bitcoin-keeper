@@ -12,35 +12,60 @@ import Buttons from 'src/components/Buttons';
 import { hp, wp } from 'src/constants/responsive';
 import MessagePreview from 'src/components/MessagePreview';
 import { useNavigation } from '@react-navigation/native';
+import { useAppSelector } from 'src/store/hooks';
+import { SignerType } from 'src/services/wallets/enums';
+import Relay from 'src/services/backend/Relay';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
+const RemoteKeyAction = {
+  SHARE_REMOTE_KEY: 'SHARE_REMOTE_KEY',
+  SIGN_PSBT: 'SIGN_PSBT',
+};
 
 function RemoteSharing({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-
-  const { signer: signerFromParam, isPSBTSharing = false } = route.params;
+  const fcmToken = useAppSelector((state) => state.notifications.fcmToken);
+  const { signer: signerFromParam, isPSBTSharing = false, psbt, signerData } = route.params;
   const { signerMap } = useSignerMap();
   const signer = signerMap[signerFromParam?.masterFingerprint];
 
   const handleShare = async () => {
+    // TODO: Encryption
     try {
-      const result = await Share.share({
-        message:
-          'Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.\nwww.sadaigiddfcbr...',
-        title: 'Remote Key Sharing',
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // Add any specific logic if needed for the activity type
-        } else {
-          // Shared successfully
+      const data = {
+        fcmToken,
+        signer: {
+          masterFingerprint: signer?.masterFingerprint,
+          signerName: 'External Key',
+          type: SignerType.KEEPER,
+          storageType: signer?.storageType,
+          signerXpubs: signer?.signerXpubs,
+          signerData,
+        },
+        psbt: psbt,
+        type: isPSBTSharing ? RemoteKeyAction.SIGN_PSBT : RemoteKeyAction.SHARE_REMOTE_KEY,
+        // DATA to share actionType:[shareRemoteKey, SignPsbt]  fcmToken, signerDetails, psbt
+      };
+
+      const res = await Relay.createRemoteKey(JSON.stringify(data));
+      if (res?.id) {
+        const result = await Share.share({
+          message: `Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.\nkeeperdev://shareKey/${res.id}`,
+          title: 'Remote Key Sharing',
+        });
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            // Add any specific logic if needed for the activity type
+          } else {
+            // Shared successfully
+          }
+        } else if (result.action === Share.dismissedAction) {
+          // Dismissed by user
         }
-      } else if (result.action === Share.dismissedAction) {
-        // Dismissed by user
       }
     } catch (error) {
-      console.log(error.message);
+      console.log('🚀 ~ handleShare ~ error:', error);
     }
   };
 

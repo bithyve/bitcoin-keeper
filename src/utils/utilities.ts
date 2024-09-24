@@ -212,3 +212,10 @@ export const trimCWDefaultName = (wallet) => {
   }
   return wallet;
 };
+
+export const calculateTimeLeft = (createdAt: string) => {
+  const targetTime = new Date(new Date(createdAt).getTime() + 5 * 60000); // Add 5 minutes
+  const currentTime = new Date();
+  // @ts-ignore
+  return Math.max(0, Math.floor((targetTime - currentTime) / 1000));
+};

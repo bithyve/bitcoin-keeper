@@ -162,7 +162,12 @@ function SignWithQR() {
           <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
           <Box style={styles.fingerprint}>{<WalletFingerprint fingerprint={details} />}</Box>
           {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
-            <ShareWithNfc data={serializedPSBT} isPSBTSharing />
+            <ShareWithNfc
+              data={serializedPSBT}
+              isPSBTSharing
+              psbt={serializedPSBT}
+              signer={signer}
+            />
           ) : null}
         </Box>
         <Box style={styles.bottom}>

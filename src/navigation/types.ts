@@ -92,7 +92,7 @@ export type AppStackParams = {
   WhirlpoolConfiguration: undefined;
   CosignerDetails: { signer: Signer };
   AdditionalDetails: { signer: Signer };
-  RemoteSharing: { signer: Signer; signerData: string; isPSBTSharing?: boolean };
+  RemoteSharing: { signer: Signer; signerData: string; isPSBTSharing?: boolean; psbt?: string };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
@@ -128,6 +128,10 @@ export type AppStackParams = {
     addedSigner: Signer;
     addSignerFlow: boolean;
     showModal?: boolean;
+    receivedExternalSigner?: {
+      timeLeft: string;
+      data: string;
+    };
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
