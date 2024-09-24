@@ -21,6 +21,7 @@ import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -199,7 +200,13 @@ function SendScreen({ route }) {
 
   const getWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+      if (wallet.type === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />;
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return <AssistedIcon />;
+      } else {
+        return <VaultIcon />;
+      }
     } else {
       return <WalletIcon />;
     }
