@@ -1,18 +1,51 @@
-import React, { useContext } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 import Text from './KeeperText';
+import { SignerType } from 'src/services/wallets/enums';
 
 const KeyAddedModal = ({ visible, close, signer }) => {
-  const navigtaion = useNavigation();
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslations } = translations;
+
+  const signerTypeConfig = {
+    [SignerType.KEEPER]: {
+      buttonText: 'Add Contact',
+      buttonCallback: () => {
+        navigation.navigate('AssociateContact');
+        close();
+      },
+      secondaryButtonText: 'Skip',
+      content: (
+        <Text color={`${colorMode}.primaryText`} style={styles.externalKeyText}>
+          You can associate a contact with this key if you wish to.
+        </Text>
+      ),
+    },
+  };
+
+  const defaultConfig = {
+    buttonText: 'Add Description',
+    buttonCallback: () => {
+      close();
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'AdditionalDetails',
+          params: { signer },
+        })
+      );
+    },
+    secondaryButtonText: 'Cancel',
+    secondaryButtonCallback: close,
+    content: null,
+  };
+
+  const { buttonText, buttonCallback, secondaryButtonText, content } =
+    signer?.type && signerTypeConfig[signer?.type] ? signerTypeConfig[signer?.type] : defaultConfig;
 
   return (
     <KeeperModal
@@ -24,23 +57,14 @@ const KeyAddedModal = ({ visible, close, signer }) => {
       DarkCloseIcon={colorMode === 'dark'}
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.modalWhiteContent`}
-      buttonTextColor={`${colorMode}.buttonText`}
-      buttonBackground={`${colorMode}.greenButtonBackground`}
-      buttonText="Add Contact"
-      buttonCallback={() => {
-        navigtaion.navigate('AssociateContact', {
-          signer,
-        });
-        close();
-      }}
-      secondaryButtonText="Skip"
+      buttonText={buttonText}
+      buttonCallback={buttonCallback}
+      secondaryButtonText={secondaryButtonText}
       secondaryCallback={close}
       Content={() => (
         <Box style={styles.externalKeyModal}>
           <SuccessCircleIllustration style={styles.externalKeyIllustration} />
-          <Text color={`${colorMode}.primaryText`} style={styles.externalKeyText}>
-            You can associate a contact with this key if you wish to.
-          </Text>
+          {content}
         </Box>
       )}
     />

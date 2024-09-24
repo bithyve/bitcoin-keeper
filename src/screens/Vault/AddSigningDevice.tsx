@@ -1037,10 +1037,9 @@ function AddSigningDevice() {
         showCloseIcon={false}
       />
       <KeyAddedModal
-        visible={keyAddedModalVisible || externalKeyAddedModal}
+        visible={externalKeyAddedModal}
         close={() => {
           setExternalKeyAddedModal(false);
-          setKeyAddedModalVisible(false);
         }}
         signer={addedKey}
       />

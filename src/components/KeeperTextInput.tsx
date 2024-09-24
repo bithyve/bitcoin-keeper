@@ -7,12 +7,15 @@ function KeeperTextInput({
   placeholder,
   placeholderTextColor = null,
   onChangeText,
-  testID,
+  testID = null,
   value = null,
   defaultValue = null,
   maxLength = null,
   inputRef = null,
   height = 55,
+  isError = false,
+  onBlur = () => {},
+  onFocus = () => {},
   ...props
 }) {
   const { colorMode } = useColorMode();
@@ -31,6 +34,7 @@ function KeeperTextInput({
         borderRadius={10}
         h={height}
         maxLength={maxLength}
+        {...props}
         testID={`input_${testID}`}
         _focus={{ borderColor: `${colorMode}.greenText` }}
         InputRightElement={
@@ -42,7 +46,8 @@ function KeeperTextInput({
             </Box>
           ) : null
         }
-        backgroundColor={`${colorMode}.seashellWhite`}
+        backgroundColor={`${colorMode}.ChampagneBliss`}
+        {...props}
       />
     </Box>
   );
