@@ -112,5 +112,7 @@ const Colors = {
   LightCrimson: 'rgba(229, 69, 69, 1)',
   CoralRed: 'rgba(248, 107, 80, 1)',
   MediumGrey: 'rgba(142, 142, 142, 1)',
+  CreamBrown: 'rgba(237, 228, 218, 1)',
+  DullBrown: 'rgba(111, 98, 89, 1)',
 };
 export default Colors;

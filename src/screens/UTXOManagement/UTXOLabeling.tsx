@@ -1,91 +1,106 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ScrollView,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { Box, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-native';
-import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import { hp, windowWidth } from 'src/constants/responsive';
-import { UTXO } from 'src/services/wallets/interfaces';
-import { NetworkType } from 'src/services/wallets/enums';
-import { useDispatch } from 'react-redux';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { useAppSelector } from 'src/store/hooks';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
-import LinkIcon from 'src/assets/images/link.svg';
+import LinkIcon from 'src/assets/images/share-grey.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import config from 'src/utils/service-utilities/config';
-import Done from 'src/assets/images/selected.svg';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/constants/Bitcoin';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import DefaultLabelList from 'src/components/Labels/DefaultLabelList';
+import CustomLabelList from 'src/components/Labels/CustomLabelList';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/constants/Bitcoin';
+import { UTXO } from 'src/services/wallets/interfaces';
+import { NetworkType } from 'src/services/wallets/enums';
 import useLabelsNew from 'src/hooks/useLabelsNew';
+import { useDispatch } from 'react-redux';
 import { resetState } from 'src/store/reducers/utxos';
-import LabelItem from './components/LabelItem';
+import { defaultLabels, MAX_TAGS } from 'src/components/Labels/constants';
 
 function UTXOLabeling() {
-  const processDispatched = useRef(false);
   const navigation = useNavigation();
   const {
     params: { utxo, wallet },
   } = useRoute() as { params: { utxo: UTXO; wallet: any } };
-  const [label, setLabel] = useState('');
+
   const { labels } = useLabelsNew({ utxos: [utxo], wallet });
+  const [selectedDefaultLabels, setSelectedDefaultLabels] = useState<string[]>([]);
+  const [customLabels, setCustomLabels] = useState<string[]>([]);
   const [existingLabels, setExistingLabels] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(-1);
+  const [systemLabelCount, setSystemLabelCount] = useState(0);
+  const [hasChanges, setHasChanges] = useState(false);
+  const processDispatched = useRef(false);
+
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
-  const getSortedNames = (labels) =>
-    labels
-      .sort((a, b) =>
-        a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : a.name > b.name ? 1 : -1
-      )
-      .reduce((a, c) => {
-        a += c.name;
-        return a;
-      }, '');
-  const lablesUpdated =
-    getSortedNames(labels[`${utxo.txId}:${utxo.vout}`]) !== getSortedNames(existingLabels);
-
-  const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-
+  const dispatch = useDispatch();
   const { syncingUTXOs, apiError } = useAppSelector((state) => state.utxos);
 
   useEffect(() => {
-    setExistingLabels(labels ? labels[`${utxo.txId}:${utxo.vout}`] || [] : []);
+    if (labels && labels[`${utxo.txId}:${utxo.vout}`]) {
+      const fetchedLabels = labels[`${utxo.txId}:${utxo.vout}`];
+      setExistingLabels(fetchedLabels);
+
+      const defaultSelected = fetchedLabels
+        .filter((label) => defaultLabels.includes(label.name))
+        .map((label) => label.name);
+      setSelectedDefaultLabels(defaultSelected);
+
+      const customSelected = fetchedLabels
+        .filter((label) => !defaultLabels.includes(label.name) && !label.isSystem)
+        .map((label) => label.name);
+      setCustomLabels(customSelected);
+    }
+
     return () => {
       dispatch(resetState());
     };
   }, []);
 
-  const onCloseClick = (index) => {
-    existingLabels.splice(index, 1);
-    setExistingLabels([...existingLabels]);
-  };
-  const onEditClick = (item, index) => {
-    setLabel(item.name);
-    setEditingIndex(index);
-  };
+  useEffect(() => {
+    const systemLabels = existingLabels.filter((label) => label.isSystem);
+    setSystemLabelCount(systemLabels.length);
+  }, [existingLabels]);
 
-  const onAdd = () => {
-    if (label) {
-      if (editingIndex !== -1) {
-        existingLabels[editingIndex] = { name: label, isSystem: false };
-      } else {
-        existingLabels.push({ name: label, isSystem: false });
-      }
-      setEditingIndex(-1);
-      setExistingLabels(existingLabels);
-      setLabel('');
-    }
-  };
+  useEffect(() => {
+    const initialLabels = existingLabels.filter((label) => !label.isSystem);
+    const initialDefaultLabels = initialLabels
+      .filter((label) => defaultLabels.includes(label.name))
+      .map((label) => label.name);
+    const initialCustomLabels = initialLabels
+      .filter((label) => !defaultLabels.includes(label.name))
+      .map((label) => label.name);
+
+    const defaultLabelsChanged =
+      JSON.stringify(selectedDefaultLabels) !== JSON.stringify(initialDefaultLabels);
+    const customLabelsChanged =
+      JSON.stringify(customLabels) !== JSON.stringify(initialCustomLabels);
+
+    setHasChanges(defaultLabelsChanged || customLabelsChanged);
+    console.log('totalSelectedTags', totalSelectedTags());
+  }, [selectedDefaultLabels, customLabels, existingLabels]);
 
   useEffect(() => {
     if (apiError) {
@@ -98,30 +113,35 @@ function UTXOLabeling() {
     }
   }, [apiError, syncingUTXOs]);
 
-  function getLabelChanges(existingLabels, updatedLabels) {
+  const totalSelectedTags = () => {
+    return systemLabelCount + selectedDefaultLabels.length + customLabels.length;
+  };
+
+  const getLabelChanges = (existingLabels, updatedLabels) => {
     const existingNames = new Set(existingLabels.map((label) => label.name));
     const updatedNames = new Set(updatedLabels.map((label) => label.name));
 
     const addedLabels = updatedLabels.filter((label) => !existingNames.has(label.name));
     const deletedLabels = existingLabels.filter((label) => !updatedNames.has(label.name));
 
-    const labelChanges = {
-      added: addedLabels,
-      deleted: deletedLabels,
-    };
-
-    return labelChanges;
-  }
+    return { added: addedLabels, deleted: deletedLabels };
+  };
 
   const onSaveChangeClick = async () => {
     Keyboard.dismiss();
-    const finalLabels = existingLabels.filter(
-      (label) => !label.isSystem // ignore the system label since they are internal references
-    );
-    const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
-    const labelChanges = getLabelChanges(initialLabels, finalLabels);
-    processDispatched.current = true;
-    dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
+
+    const initialLabels = existingLabels.filter((label) => !label.isSystem);
+    const updatedLabels = [
+      ...selectedDefaultLabels.map((name) => ({ name, isSystem: false })),
+      ...customLabels.map((name) => ({ name, isSystem: false })),
+    ];
+
+    const labelChanges = getLabelChanges(initialLabels, updatedLabels);
+
+    if (labelChanges.added.length > 0 || labelChanges.deleted.length > 0) {
+      processDispatched.current = true;
+      dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
+    }
   };
 
   const redirectToBlockExplorer = () => {
@@ -132,94 +152,112 @@ function UTXOLabeling() {
     );
   };
 
+  const handleSelectDefaultLabel = (label: string) => {
+    if (selectedDefaultLabels.includes(label)) {
+      setSelectedDefaultLabels(selectedDefaultLabels.filter((item) => item !== label));
+    } else if (totalSelectedTags() < MAX_TAGS) {
+      setSelectedDefaultLabels([...selectedDefaultLabels, label]);
+    } else {
+      showToast(`You can only select up to ${MAX_TAGS} tags in total.`);
+    }
+  };
+
+  const handleAddCustomLabel = (label: string) => {
+    if (totalSelectedTags() < MAX_TAGS) {
+      setCustomLabels([...customLabels, label]);
+    } else {
+      showToast(`You can only add up to ${MAX_TAGS} tags in total.`);
+    }
+  };
+
+  const handleDeleteCustomLabel = (label: string) => {
+    setCustomLabels(customLabels.filter((item) => item !== label));
+  };
+
+  const handleEditCustomLabel = (updatedLabel: string, index: number) => {
+    const updatedLabels = [...customLabels];
+    updatedLabels[index] = updatedLabel;
+    setCustomLabels(updatedLabels);
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="UTXO Details"
         subtitle="Easily identify specific aspects of various UTXOs"
       />
-      <ScrollView
-        style={styles.scrollViewWrapper}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="always"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
       >
-        <View style={styles.subHeader} testID="view_utxosLabelSubHeader">
-          <View style={{ flex: 1 }}>
-            <Text style={styles.subHeaderTitle}>Transaction ID</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {utxo.txId}
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+          <View style={styles.subHeader}>
+            <View style={{ width: '50%' }}>
+              <Text style={styles.subHeaderTitle} color={`${colorMode}.greenText`}>
+                Transaction ID
               </Text>
-              <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
-                <LinkIcon />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.subHeaderTitle}>UTXO Value</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Box style={{ marginHorizontal: 5 }}>
-                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
-              </Box>
-              <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                  {getUnit(currentCurrency, satsEnabled)}
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text
+                  style={styles.subHeaderValue}
+                  numberOfLines={1}
+                  color={`${colorMode}.primaryText`}
+                >
+                  {utxo.txId}
                 </Text>
+                <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
+                  <LinkIcon />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{ width: '50%', marginLeft: wp(30) }}>
+              <Text style={styles.subHeaderTitle} color={`${colorMode}.greenText`}>
+                UTXO Value
               </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Box style={{ marginRight: 5 }}>
+                  {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
+                </Box>
+                <Text
+                  style={styles.subHeaderValue}
+                  numberOfLines={1}
+                  color={`${colorMode}.primaryText`}
+                >
+                  {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                  <Text color={`${colorMode}.primaryText`} style={styles.unitText}>
+                    {getUnit(currentCurrency, satsEnabled)}
+                  </Text>
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
-        <Box style={styles.listContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-          <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.listHeader}>Labels</Text>
-          </View>
-          <View style={styles.listSubContainer}>
-            {existingLabels.map((item, index) => (
-              <LabelItem
-                item={item}
-                index={index}
-                key={`${item.name}:${item.isSystem}`}
-                editingIndex={editingIndex}
-                onCloseClick={onCloseClick}
-                onEditClick={onEditClick}
-              />
-            ))}
-          </View>
-          <Box style={styles.inputLabeWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-            <Box style={styles.inputLabelBox}>
-              <Input
-                testID="input_utxoLabel"
-                onChangeText={(text) => {
-                  setLabel(text);
-                }}
-                style={styles.inputLabel}
-                borderWidth={0}
-                height={hp(40)}
-                placeholder="Type to add label or Select to edit"
-                color="#E0B486"
-                value={label}
-                autoCorrect={false}
-                autoCapitalize="characters"
-                backgroundColor={`${colorMode}.seashellWhite`}
-              />
-            </Box>
-            <TouchableOpacity
-              style={styles.addBtnWrapper}
-              onPress={onAdd}
-              testID="btn_addUtxoLabel"
-            >
-              <Done />
-            </TouchableOpacity>
+          <Box style={styles.listHeader}>
+            <Text medium style={styles.listHeaderTitle} color={`${colorMode}.secondaryText`}>
+              Add or Create New Labels
+            </Text>
+            <Text style={styles.listHeaderDesc} color={`${colorMode}.secondaryText`}>
+              {' (Maximum 5 tags)'}
+            </Text>
           </Box>
-        </Box>
-        <View style={{ flex: 1 }} />
-      </ScrollView>
+          <Box style={styles.listHeaderWrapper}>
+            <DefaultLabelList
+              defaultLabels={defaultLabels}
+              selectedLabels={selectedDefaultLabels}
+              onSelect={handleSelectDefaultLabel}
+            />
+            <CustomLabelList
+              customLabels={customLabels}
+              onAdd={handleAddCustomLabel}
+              onDelete={handleDeleteCustomLabel}
+              onEdit={handleEditCustomLabel}
+            />
+          </Box>
+        </ScrollView>
+      </KeyboardAvoidingView>
       <Box style={styles.ctaBtnWrapper}>
         <Box ml={windowWidth * -0.09}>
           <Buttons
             primaryLoading={syncingUTXOs}
-            primaryDisable={!lablesUpdated}
+            primaryDisable={!hasChanges}
             primaryCallback={onSaveChangeClick}
             primaryText="Save Changes"
             secondaryCallback={navigation.goBack}
@@ -235,92 +273,47 @@ const styles = StyleSheet.create({
   scrollViewWrapper: {
     flex: 1,
   },
-  itemWrapper: {
+  subHeader: {
+    width: '100%',
     flexDirection: 'row',
-    backgroundColor: '#FDF7F0',
-    marginVertical: 5,
-    borderRadius: 10,
-    padding: 20,
+    marginHorizontal: wp(10),
+    marginTop: 38,
+    justifyContent: 'space-between',
+  },
+  subHeaderTitle: {
+    fontSize: 14,
+    marginEnd: 5,
+  },
+  subHeaderValue: {
+    fontSize: 12,
+    letterSpacing: 2.4,
+    width: '50%',
+  },
+  listHeaderWrapper: {
+    marginHorizontal: wp(10),
+    marginTop: hp(15),
+    gap: 25,
+  },
+  listHeader: {
+    flexDirection: 'row',
+    marginHorizontal: wp(10),
+    marginTop: hp(32),
+  },
+  listHeaderTitle: {
+    fontSize: 14,
+  },
+  listHeaderDesc: {
+    fontSize: 14,
+    opacity: 0.6,
   },
   ctaBtnWrapper: {
     marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-  addnewWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: hp(30),
-    marginBottom: hp(10),
-  },
-  addNewIcon: {
-    height: 25,
-    width: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  plusText: {
-    fontSize: 18,
-    color: 'white',
-  },
-  inputLabeWrapper: {
-    flexDirection: 'row',
-    height: 50,
-    width: '100%',
-    alignItems: 'center',
-    borderRadius: 10,
-    paddingLeft: 5,
-  },
-  inputLabelBox: {
-    width: '88%',
-  },
-  inputLabel: {
-    fontSize: 13,
-    fontWeight: '900',
-  },
-  addBtnWrapper: {
-    width: '12%',
-    alignItems: 'center',
-  },
   unitText: {
     letterSpacing: 0.6,
     fontSize: hp(12),
-  },
-  subHeader: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 38,
-  },
-  subHeaderTitle: {
-    fontSize: 14,
-    color: '#00715B',
-    marginEnd: 5,
-  },
-  subHeaderValue: {
-    color: '#4F5955',
-    fontSize: 12,
-    marginEnd: 5,
-    letterSpacing: 2.4,
-    width: '50%',
-  },
-  listHeader: {
-    flex: 1,
-    color: '#00715B',
-    fontSize: 14,
-  },
-  listContainer: {
-    marginTop: 18,
-    marginHorizontal: 5,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  listSubContainer: {
-    flexWrap: 'wrap',
-    marginBottom: 20,
-    flexDirection: 'row',
   },
 });
 
