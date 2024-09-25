@@ -53,10 +53,6 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useQuery } from '@realm/react';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { SDIcons } from './SigningDeviceIcons';
-import VaultMigrationController from './VaultMigrationController';
-import SignerCard from '../AddSigner/SignerCard';
-import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { SETUPASSISTEDVAULT, SETUPCOLLABORATIVEWALLET } from 'src/navigation/contants';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -65,6 +61,10 @@ import HWError from 'src/hardware/HWErrorState';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import CautionIllustration from 'src/assets/images/downgradetopleb.svg';
 import Dropdown from 'src/components/Dropdown';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import SignerCard from '../AddSigner/SignerCard';
+import VaultMigrationController from './VaultMigrationController';
+import { SDIcons } from './SigningDeviceIcons';
 import { TIMELOCK_DURATIONS } from './constants';
 
 const { width } = Dimensions.get('screen');
@@ -380,22 +380,26 @@ function Signers({
     let isSigningServerShellCreated = false;
     let isInheritanceKeyShellCreated = false;
 
-    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0)
+    if (shellKeys.filter((signer) => signer.type === SignerType.POLICY_SERVER).length > 0) {
       isSigningServerShellCreated = true;
+    }
 
-    if (shellKeys.filter((signer) => signer.type === SignerType.INHERITANCEKEY).length > 0)
+    if (shellKeys.filter((signer) => signer.type === SignerType.INHERITANCEKEY).length > 0) {
       isInheritanceKeyShellCreated = true;
+    }
 
     for (const signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) hasSigningServer = true;
       else if (signer.type === SignerType.INHERITANCEKEY) hasInheritanceKey = true;
     }
 
-    if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2)
+    if (!isSigningServerShellCreated && !hasSigningServer && level >= AppSubscriptionLevel.L2) {
       shellKeys.push(generateShellAssistedKey(SignerType.POLICY_SERVER));
+    }
 
-    if (!isInheritanceKeyShellCreated && !hasInheritanceKey && level >= AppSubscriptionLevel.L3)
+    if (!isInheritanceKeyShellCreated && !hasInheritanceKey && level >= AppSubscriptionLevel.L3) {
       shellKeys.push(generateShellAssistedKey(SignerType.INHERITANCEKEY));
+    }
 
     const addedSignersTypes = signers.map((signer) => signer.type);
     return shellKeys.filter((shellSigner) => !addedSignersTypes.includes(shellSigner.type));
@@ -622,42 +626,40 @@ function Signers({
             </Box>
           </Box>
         ) : null}
-        {
-          <Box style={styles.gap10}>
-            <Text color={`${colorMode}.headerText`} bold style={styles.title}>
-              {signers.length ? 'or' : ''} add a new key
-            </Text>
-            <AddCard
-              name="Add a key"
-              cardStyles={styles.addCard}
-              callback={
-                !(isCollaborativeFlow || isAssistedWalletFlow)
-                  ? () =>
-                      navigation.dispatch(
-                        CommonActions.navigate('SigningDeviceList', {
-                          scheme,
-                          vaultId,
-                          vaultSigners: vaultKeys,
-                        })
-                      )
-                  : () => {
-                      navigation.dispatch(
-                        CommonActions.navigate({
-                          name: 'ScanQR',
-                          params: {
-                            title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
-                            subtitle: 'Please scan until all the QR data has been retrieved',
-                            onQrScan,
-                            setup: true,
-                            type: SignerType.KEEPER,
-                          },
-                        })
-                      );
-                    }
-              }
-            />
-          </Box>
-        }
+        <Box style={styles.gap10}>
+          <Text color={`${colorMode}.headerText`} bold style={styles.title}>
+            {signers.length ? 'or' : ''} add a new key
+          </Text>
+          <AddCard
+            name="Add a key"
+            cardStyles={styles.addCard}
+            callback={
+              !(isCollaborativeFlow || isAssistedWalletFlow)
+                ? () =>
+                    navigation.dispatch(
+                      CommonActions.navigate('SigningDeviceList', {
+                        scheme,
+                        vaultId,
+                        vaultSigners: vaultKeys,
+                      })
+                    )
+                : () => {
+                    navigation.dispatch(
+                      CommonActions.navigate({
+                        name: 'ScanQR',
+                        params: {
+                          title: `Setting up ${getSignerNameFromType(SignerType.KEEPER)}`,
+                          subtitle: 'Please scan until all the QR data has been retrieved',
+                          onQrScan,
+                          setup: true,
+                          type: SignerType.KEEPER,
+                        },
+                      })
+                    );
+                  }
+            }
+          />
+        </Box>
         <HardwareModalMap
           visible={visible}
           close={close}
@@ -705,6 +707,7 @@ function AddSigningDevice() {
       addSignerFlow?: boolean;
       showModal?: boolean;
       isTimeLock?: boolean;
+      currentBlockHeight?: number;
       signerFilters?: SignerType | Array<SignerType>;
     };
   };
@@ -723,6 +726,7 @@ function AddSigningDevice() {
     addSignerFlow = false,
     showModal = false,
     isTimeLock = false,
+    currentBlockHeight = 0,
     signerFilters = '',
   } = route.params;
   const { showToast } = useToastMessage();
@@ -730,7 +734,7 @@ function AddSigningDevice() {
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common, signer, wallet: walletTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedDuration, setSelectedDuration] = useState('');
 
   const { signers } = useSigners();
   // filter out archived & hidden signers
@@ -774,7 +778,7 @@ function AddSigningDevice() {
   const inheritanceSigner = keys.filter((signer) => signer?.type === SignerType.INHERITANCEKEY)[0];
 
   const handleOptionSelect = useCallback((option) => {
-    setSelectedOption(option);
+    setSelectedDuration(option);
   }, []);
 
   const handleModalClose = () => {
@@ -1041,12 +1045,17 @@ function AddSigningDevice() {
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
         vaultType={
-          isCollaborativeWallet
+          isTimeLock
+            ? VaultType.TIMELOCKED
+            : isCollaborativeWallet
             ? VaultType.COLLABORATIVE
             : isSSAddition
             ? VaultType.SINGE_SIG
             : VaultType.DEFAULT
         }
+        isTimeLock={isTimeLock}
+        currentBlockHeight={currentBlockHeight}
+        selectedDuration={selectedDuration}
       />
       <Signers
         keyToRotate={keyToRotate}
@@ -1193,15 +1202,18 @@ function AddSigningDevice() {
               options={TIMELOCK_DURATIONS}
               label="Choose unlock-time"
               onOptionSelect={handleOptionSelect}
-              selectedOption={selectedOption}
+              selectedOption={selectedDuration}
             />
             <Box style={styles.buttonContainer}>
               <Buttons
                 paddingHorizontal={wp(20)}
                 primaryText={walletTranslation.Createwallet}
+                primaryCallback={() => {
+                  setCreating(true);
+                }}
                 secondaryText={common.cancel}
                 secondaryCallback={() => setSelectDurationModal(false)}
-                primaryDisable={!selectedOption}
+                primaryDisable={!selectedDuration}
               />
             </Box>
           </Box>

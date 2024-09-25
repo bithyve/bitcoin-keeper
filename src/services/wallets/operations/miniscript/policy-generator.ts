@@ -110,8 +110,7 @@ export const generateMiniscriptPolicy = (
         ? `thresh(${phase.requiredPaths}, ${pathPolicies.join(', ')})`
         : pathPolicies[0];
 
-    // add timelock for phases after the initial one
-    if (phaseIndex > 0) {
+    if (phase.timelock) {
       phasePolicyPart = `thresh(2, after(${phase.timelock}), ${phasePolicyPart})`;
     }
 

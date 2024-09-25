@@ -1,5 +1,5 @@
 import { getDerivationPath } from 'src/utils/service-utilities/utils';
-import { MiniscriptElements } from '../../../interfaces/vault';
+import { MiniscriptElements, VaultSigner } from '../../../interfaces/vault';
 import { KeyInfo, Phase } from '../policy-generator';
 
 export const ASSISTED_VAULT_TIMELOCKS_TESTNET = {
@@ -14,7 +14,10 @@ export const ASSISTED_VAULT_TIMELOCKS = {
 
 // contains the defaults for the Assisted Vault
 // these elements are to be provided by the generic user-interface for the miniscript based vaults
-export function generateAssistedVaultElements(signers, timelocks: number[]): MiniscriptElements {
+export function generateAssistedVaultElements(
+  signers: VaultSigner[],
+  timelocks: number[]
+): MiniscriptElements {
   if (signers.length !== 3) throw new Error('Invalid singer count for the Advisor Vault(default)');
 
   enum Identifiers { // these key identifiers/alias should be provided by the user via the interface
