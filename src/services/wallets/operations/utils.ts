@@ -278,7 +278,12 @@ export default class WalletUtilities {
   };
 
   static getFinalScriptsForMyCustomScript(
-    selectedWitness: {
+    scriptWitnesses: {
+      asm: string;
+      nLockTime?: number;
+      nSequence?: number;
+    }[],
+    selectedWitness?: {
       asm: string;
       nLockTime?: number;
       nSequence?: number;
@@ -346,6 +351,18 @@ export default class WalletUtilities {
               break;
             }
           }
+        }
+      }
+
+      // if selectedWitness is empty, find the appropriate witness(case: Timelock vault)
+      if (!selectedWitness) {
+        selectedWitness = scriptWitnesses.find((witness) => {
+          const requiredSignatures = witness.asm.match(/<sig\([^)]+\)>/g) || [];
+          return requiredSignatures.every((sig) => signatureIdentifier[sig]);
+        });
+
+        if (!selectedWitness) {
+          throw new Error('No suitable witness found for the available signatures');
         }
       }
 
