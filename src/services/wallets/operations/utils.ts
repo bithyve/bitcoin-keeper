@@ -265,9 +265,12 @@ export default class WalletUtilities {
     asm = asm
       .split(' ')
       .map((token) => {
-        const num = parseInt(token);
-        if (Number.isNaN(num) === false && num >= 0 && num <= 16) {
-          return `OP_${num}`;
+        if (token.length <= 2) {
+          // prevents the code from attempting to parse longer strings(like public keys) as integers
+          const num = parseInt(token);
+          if (!isNaN(num) && num >= 0 && num <= 16) {
+            return `OP_${num}`;
+          }
         }
         return token;
       })
