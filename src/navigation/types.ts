@@ -130,7 +130,10 @@ export type AppStackParams = {
     showModal?: boolean;
     receivedExternalSigner?: {
       timeLeft: string;
-      data: string;
+      data: {
+        fcmToken: string;
+        signer: Signer & { signerData: string };
+      };
     };
   };
   AppBackupSettings: undefined;

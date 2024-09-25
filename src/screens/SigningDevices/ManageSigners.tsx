@@ -60,137 +60,135 @@ function ManageSigners({ route }: ScreenProps) {
     showModal,
     receivedExternalSigner,
   } = route.params || {};
-  const { activeVault } = useVault({ vaultId });
-  const { signers: vaultKeys } = activeVault || { signers: [] };
-  const { signerMap } = useSignerMap();
-  const { signers } = useSigners();
-  console.log('🚀 ~ ManageSigners ~ signers:', signers);
-  const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
-  const { showToast } = useToastMessage();
-  const dispatch = useDispatch();
-  const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
-  const [timerModal, setTimerModal] = useState(
-    receivedExternalSigner && receivedExternalSigner.timeLeft != '0' ? true : false
-  );
-  const [timerExpiredModal, setTimerExpiredModal] = useState(
-    receivedExternalSigner && receivedExternalSigner.timeLeft == '0' ? true : false
-  );
-  const [isTimerActive, setIsTimerActive] = useState(true);
-  const receivedSignerDetails =
-    (receivedExternalSigner && JSON.parse(receivedExternalSigner?.data)) || {};
-
-  const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation } = translations;
-
-  const { typeBasedIndicator } = useIndicatorHook({
-    types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
-  });
-
-  useEffect(() => {
-    if (showModal) {
-      setKeyAddedModalVisible(true);
-    }
-  }, [showModal]);
-
-  useEffect(() => {
-    if (realySignersUpdateErrorMessage) {
-      showToast(realySignersUpdateErrorMessage, null, IToastCategory.SIGNING_DEVICE);
-      dispatch(resetSignersUpdateState());
-    }
-    return () => {
-      dispatch(resetSignersUpdateState());
-    };
-  }, [realySignersUpdateErrorMessage]);
-
-  const handleTimerEnd = () => {
-    setIsTimerActive(false);
-  };
-
-  const handleCardSelect = (signer, item) => {
-    navigation.dispatch(
-      CommonActions.navigate('SigningDeviceDetails', {
-        signerId: signer.masterFingerprint,
-        vaultId,
-        vaultKey: vaultKeys.length ? item : undefined,
-        vaultSigners: vaultKeys,
-      })
+    const { activeVault } = useVault({ vaultId });
+    const { signers: vaultKeys } = activeVault || { signers: [] };
+    const { signerMap } = useSignerMap();
+    const { signers } = useSigners();
+    console.log('🚀 ~ ManageSigners ~ signers:', signers);
+    const { realySignersUpdateErrorMessage } = useAppSelector((state) => state.bhr);
+    const { showToast } = useToastMessage();
+    const dispatch = useDispatch();
+    const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
+    const [timerModal, setTimerModal] = useState(
+      receivedExternalSigner && receivedExternalSigner.timeLeft != '0' ? true : false
     );
-  };
+    const [timerExpiredModal, setTimerExpiredModal] = useState(
+      receivedExternalSigner && receivedExternalSigner.timeLeft == '0' ? true : false
+    );
+    const [isTimerActive, setIsTimerActive] = useState(true);
 
-  const handleAddSigner = () => {
-    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
-  };
+    const { translations } = useContext(LocalizationContext);
+    const { signer: signerTranslation } = translations;
 
-  const { top } = useSafeAreaInsets();
+    const { typeBasedIndicator } = useIndicatorHook({
+      types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
+    });
 
-  const navigateToSettings = () => {
-    navigation.dispatch(CommonActions.navigate('SignerSettings'));
-  };
-
-  const handleModalClose = () => {
-    setKeyAddedModalVisible(false);
-    navigation.dispatch(CommonActions.setParams({ showModal: false }));
-  };
-
-  const acceptRemoteKey = async () => {
-    try {
-      let hw: { signer: Signer; key: VaultSigner };
-      switch (receivedSignerDetails.signer.type) {
-        case SignerType.PASSPORT:
-          hw = setupPassport(receivedSignerDetails.signer.signerData, true);
-          break;
-        case SignerType.SEEDSIGNER:
-          hw = setupSeedSigner(receivedSignerDetails.signer.signerData, true);
-          break;
-        case SignerType.SPECTER:
-          hw = setupSpecter(receivedSignerDetails.signer.signerData, true);
-          break;
-        case SignerType.KEEPER:
-          hw = setupKeeperSigner(receivedSignerDetails.signer.signerData);
-          break;
-        case SignerType.KEYSTONE:
-          hw = setupKeystone(receivedSignerDetails.signer.signerData, true);
-          break;
-        case SignerType.JADE:
-          hw = setupJade(receivedSignerDetails.signer.signerData, true);
-          break;
-        default:
-          break;
+    useEffect(() => {
+      if (showModal) {
+        setKeyAddedModalVisible(true);
       }
-      dispatch(addSigningDevice([hw.signer]));
+    }, [showModal]);
 
-      // * Send Notification on success
+    useEffect(() => {
+      if (realySignersUpdateErrorMessage) {
+        showToast(realySignersUpdateErrorMessage, null, IToastCategory.SIGNING_DEVICE);
+        dispatch(resetSignersUpdateState());
+      }
+      return () => {
+        dispatch(resetSignersUpdateState());
+      };
+    }, [realySignersUpdateErrorMessage]);
+
+    const handleTimerEnd = () => {
+      setIsTimerActive(false);
+    };
+
+    const handleCardSelect = (signer, item) => {
+      navigation.dispatch(
+        CommonActions.navigate('SigningDeviceDetails', {
+          signerId: signer.masterFingerprint,
+          vaultId,
+          vaultKey: vaultKeys.length ? item : undefined,
+          vaultSigners: vaultKeys,
+        })
+      );
+    };
+
+    const handleAddSigner = () => {
+      navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
+    };
+
+    const { top } = useSafeAreaInsets();
+
+    const navigateToSettings = () => {
+      navigation.dispatch(CommonActions.navigate('SignerSettings'));
+    };
+
+    const handleModalClose = () => {
+      setKeyAddedModalVisible(false);
+      navigation.dispatch(CommonActions.setParams({ showModal: false }));
+    };
+
+    const acceptRemoteKey = async () => {
+      try {
+        let hw: { signer: Signer; key: VaultSigner };
+        switch (receivedExternalSigner?.data?.signer.type) {
+          case SignerType.PASSPORT:
+            hw = setupPassport(receivedExternalSigner?.data.signer.signerData, true);
+            break;
+          case SignerType.SEEDSIGNER:
+            hw = setupSeedSigner(receivedExternalSigner?.data.signer.signerData, true);
+            break;
+          case SignerType.SPECTER:
+            hw = setupSpecter(receivedExternalSigner?.data.signer.signerData, true);
+            break;
+          case SignerType.KEEPER:
+            hw = setupKeeperSigner(receivedExternalSigner?.data.signer.signerData);
+            break;
+          case SignerType.KEYSTONE:
+            hw = setupKeystone(receivedExternalSigner?.data.signer.signerData, true);
+            break;
+          case SignerType.JADE:
+            hw = setupJade(receivedExternalSigner?.data.signer.signerData, true);
+            break;
+          default:
+            break;
+        }
+        dispatch(addSigningDevice([hw.signer]));
+
+        // * Send Notification on success
+        setTimerModal(false);
+        showToast('External Key added Successfully');
+        await Relay.sendSingleNotification({
+          fcm: receivedExternalSigner.data.fcmToken,
+          notification: {
+            title: 'Remote key accepted',
+            body: 'The remote key that you shared has been accepted by the user',
+          },
+          data: {
+            notificationType: notificationType.REMOTE_KEY_SHARE,
+          },
+        });
+      } catch (error) {
+        showToast('Error while adding External Key');
+        console.log('🚀 ~ ManageSigners ~ error:', { error });
+      }
+    };
+
+    const rejectRemoteKey = async () => {
       setTimerModal(false);
-      showToast('External Key added Successfully');
       await Relay.sendSingleNotification({
-        fcm: receivedSignerDetails.fcmToken,
+        fcm: receivedExternalSigner.data.fcmToken,
         notification: {
-          title: 'Remote key accepted',
-          body: 'The remote key that you shared has been accepted by the user',
+          title: 'Remote key rejected',
+          body: 'The remote key that you shared has been rejected by the user',
         },
         data: {
           notificationType: notificationType.REMOTE_KEY_SHARE,
         },
       });
-    } catch (error) {
-      showToast('Error while adding External Key');
-      console.log('🚀 ~ ManageSigners ~ error:', { error });
-    }
-  };
-
-  const rejectRemoteKey = async () => {
-    setTimerModal(false);
-    await Relay.sendSingleNotification({
-      fcm: receivedSignerDetails.fcmToken,
-      notification: {
-        title: 'Remote key rejected',
-        body: 'The remote key that you shared has been rejected by the user',
-      },
-      data: {
-        notificationType: notificationType.REMOTE_KEY_SHARE,
-      },
-    });
-  };
+    };
 
   return (
     <Box

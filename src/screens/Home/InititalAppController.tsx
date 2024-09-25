@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { SignerStorage, SignerType, WalletType, XpubTypes } from 'src/services/wallets/enums';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { resetElectrumNotConnectedErr, setIsInitialLogin } from 'src/store/reducers/login';
-import { urlParamsToObj } from 'src/utils/service-utilities/utils';
+import { createDecipheriv, urlParamsToObj } from 'src/utils/service-utilities/utils';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -23,6 +23,7 @@ import useAsync from 'src/hooks/useAsync';
 import { sentryConfig } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
 import { calculateTimeLeft } from 'src/utils/utilities';
+import config from 'src/utils/service-utilities/config';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -117,9 +118,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         } else if (initialUrl.includes('shareKey/')) {
           const externalKeyId = initialUrl.split('shareKey/')[1];
           if (externalKeyId) {
-            const { createdAt, data: tempData } = await Relay.getRemoteKey(externalKeyId);
-            console.log('🚀 ~ handleDeepLinking ~ createdAt, data:', { createdAt, tempData });
-            // TODO: send this to the validation screen | send notification for accept /reject
+            const { createdAt, data: response } = await Relay.getRemoteKey(externalKeyId);
+            const { iv, encryptedData } = JSON.parse(response);
+            const tempData = createDecipheriv({ encryptedData, iv }, config.REMOTE_KEY_PASSWORD);
             navigation.navigate('ManageSigners', {
               receivedExternalSigner: {
                 timeLeft: calculateTimeLeft(createdAt),

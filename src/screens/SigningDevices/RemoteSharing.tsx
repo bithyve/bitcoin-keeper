@@ -15,6 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { SignerType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
+import { createCipheriv } from 'src/utils/service-utilities/utils';
+import config from 'src/utils/service-utilities/config';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 const RemoteKeyAction = {
@@ -47,8 +49,8 @@ function RemoteSharing({ route }: ScreenProps) {
         type: isPSBTSharing ? RemoteKeyAction.SIGN_PSBT : RemoteKeyAction.SHARE_REMOTE_KEY,
         // DATA to share actionType:[shareRemoteKey, SignPsbt]  fcmToken, signerDetails, psbt
       };
-
-      const res = await Relay.createRemoteKey(JSON.stringify(data));
+      const encryptedData = createCipheriv(JSON.stringify(data), config.REMOTE_KEY_PASSWORD);
+      const res = await Relay.createRemoteKey(JSON.stringify(encryptedData));
       if (res?.id) {
         const result = await Share.share({
           message: `Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.\nkeeperdev://shareKey/${res.id}`,
