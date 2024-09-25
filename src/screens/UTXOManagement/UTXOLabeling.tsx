@@ -99,7 +99,6 @@ function UTXOLabeling() {
       JSON.stringify(customLabels) !== JSON.stringify(initialCustomLabels);
 
     setHasChanges(defaultLabelsChanged || customLabelsChanged);
-    console.log('totalSelectedTags', totalSelectedTags());
   }, [selectedDefaultLabels, customLabels, existingLabels]);
 
   useEffect(() => {
