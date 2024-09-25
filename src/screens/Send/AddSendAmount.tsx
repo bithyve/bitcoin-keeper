@@ -26,6 +26,7 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { Satoshis } from 'src/models/types/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import AddressIcon from 'src/components/AddressIcon';
@@ -332,7 +333,13 @@ function AddSendAmount({ route }) {
   // };
   const getWalletIcon = (wallet) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+      if (wallet.type === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />;
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return <AssistedIcon />;
+      } else {
+        return <VaultIcon />;
+      }
     } else {
       return <WalletIcon />;
     }

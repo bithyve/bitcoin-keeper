@@ -15,9 +15,11 @@ import useTestSats from 'src/hooks/useTestSats';
 import KeeperModal from 'src/components/KeeperModal';
 import EditWalletDetailsModal from '../WalletDetails/EditWalletDetailsModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VaultType, VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Text from 'src/components/KeeperText';
 import { Shadow } from 'react-native-shadow-2';
@@ -59,6 +61,20 @@ function VaultSettings({ route }) {
       navigation.navigate('Home');
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const getWalletIcon = (wallet) => {
+    if (wallet?.entityKind === EntityKind.VAULT) {
+      if (wallet.type === VaultType.COLLABORATIVE) {
+        return <CollaborativeIcon />;
+      } else if (wallet.type === VaultType.ASSISTED) {
+        return <AssistedIcon />;
+      } else {
+        return <VaultIcon />;
+      }
+    } else {
+      return <WalletIcon />;
     }
   };
 
@@ -116,7 +132,7 @@ function VaultSettings({ route }) {
             width={44}
             height={38}
             backgroundColor={Colors.pantoneGreen}
-            icon={isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}
+            icon={getWalletIcon(vault)}
           />
         }
       />

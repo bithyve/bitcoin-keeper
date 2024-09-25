@@ -7,6 +7,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
+import AssistedIcon from 'src/assets/images/assisted-vault-white-icon.svg';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import idx from 'idx';
 import { hp, wp } from 'src/constants/responsive';
@@ -81,11 +82,13 @@ const getWalletTags = (wallet) => {
   if (wallet.entityKind === EntityKind.VAULT) {
     if (wallet.type === VaultType.SINGE_SIG) {
       return ['Single-key', 'Cold'];
-    } else
-      return [
-        `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,
-        `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`,
-      ];
+    } else if (wallet.type === VaultType.COLLABORATIVE) {
+      return ['COLLABORATIVE', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+    } else if (wallet.type === VaultType.ASSISTED) {
+      return ['ASSISTED', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+    } else {
+      return ['VAULT', `${(wallet as Vault).scheme.m} of ${(wallet as Vault).scheme.n}`];
+    }
   } else {
     let walletKind;
     if (wallet.type === WalletType.DEFAULT) walletKind = 'HOT WALLET';
@@ -106,8 +109,15 @@ const getWalletTags = (wallet) => {
 
 const getWalletIcon = (wallet) => {
   if (wallet.entityKind === EntityKind.VAULT) {
-    if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
-    else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    if (wallet.type === VaultType.SINGE_SIG) {
+      return <WalletIcon />;
+    } else if (wallet.type === VaultType.COLLABORATIVE) {
+      return <CollaborativeIcon />;
+    } else if (wallet.type === VaultType.ASSISTED) {
+      return <AssistedIcon />;
+    } else {
+      return <VaultIcon />;
+    }
   } else {
     return <WalletIcon />;
   }
