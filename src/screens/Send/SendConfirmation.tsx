@@ -67,12 +67,13 @@ import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getAvailableMiniscriptSigners } from 'src/services/wallets/factories/VaultFactory';
+import { getAvailableMiniscriptPhase } from 'src/services/wallets/factories/VaultFactory';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
-import KeyDropdown from './KeyDropdown';
+
 import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import SignerCard from '../AddSigner/SignerCard';
+import KeyDropdown from './KeyDropdown';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -905,15 +906,15 @@ function SendConfirmation({ route }) {
   const [externalSigners, setExternalSigners] = useState([]);
   const { signerMap } = useSignerMap();
 
-  const initialiseAvailableSignersForAssistedVault = () => {
-    // specifically initialises signers for the Assisted Vault(to be generalised w/ the UI)
+  const initialiseMiniscriptMultisigPaths = () => {
+    // specifically initialises phases/paths for miniscript Vaults(to be generalised w/ the UI)
     if (!currentBlockHeight) {
       showToast('Failed to sync current block height');
       navigation.goBack();
       return;
     }
 
-    const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptSigners(
+    const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptPhase(
       sender as Vault,
       currentBlockHeight
     ); // provides available phases/signers(generic)
@@ -923,6 +924,11 @@ function SendConfirmation({ route }) {
 
     // currently for Advisor Vault only the latest phase and path are considered and the signers from
     // the latest phase are only available for signing
+    if (!availablePhases || availablePhases.length === 0) {
+      showToast('No spending paths available; timelock is active');
+      navigation.goBack();
+    }
+
     const latestPhase = availablePhases[availablePhases.length - 1];
     const latestSigners = {};
 
@@ -934,22 +940,24 @@ function SendConfirmation({ route }) {
       });
     });
 
-    const latestExtSigners = [];
-    for (const key in latestSigners) {
-      if (key === ASSISTED_VAULT_ENTITIES.AK1 || key === ASSISTED_VAULT_ENTITIES.AK2) {
-        latestExtSigners.push(signerMap[availableSigners[key].masterFingerprint]);
-      }
-    }
-    if (latestExtSigners.length === 2) {
-      // case: UK + AK1/AK2
-      // set: AK1 as default option
-      if (!selectedExternalSigner) setSelectedExternalSigner(latestExtSigners[0]);
-    }
-
     setSelectedPhase(latestPhase.id);
     setAvailablePaths(pathsAvailable);
     setAvailableSigners(latestSigners);
-    setExternalSigners(latestExtSigners);
+
+    if (sender.type === VaultType.ASSISTED) {
+      const latestExtSigners = [];
+      for (const key in latestSigners) {
+        if (key === ASSISTED_VAULT_ENTITIES.AK1 || key === ASSISTED_VAULT_ENTITIES.AK2) {
+          latestExtSigners.push(signerMap[availableSigners[key].masterFingerprint]);
+        }
+      }
+      if (latestExtSigners.length === 2) {
+        // case: UK + AK1/AK2
+        // set: AK1 as default option
+        if (!selectedExternalSigner) setSelectedExternalSigner(latestExtSigners[0]);
+      }
+      setExternalSigners(latestExtSigners);
+    }
   };
 
   useEffect(() => {
@@ -958,7 +966,7 @@ function SendConfirmation({ route }) {
       (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
     ) {
       // to be generalised once the generic UI is available
-      initialiseAvailableSignersForAssistedVault();
+      initialiseMiniscriptMultisigPaths();
     }
   }, []);
 
@@ -1496,7 +1504,8 @@ function SendConfirmation({ route }) {
         />
       </ScrollView>
       {sender.entityKind === EntityKind.VAULT &&
-        (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG && (
+        (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG &&
+        (sender as Vault).type === VaultType.ASSISTED && (
           <Box>
             <Text medium style={styles.signingInfoText} color={`${colorMode}.primaryText`}>
               Signing Info

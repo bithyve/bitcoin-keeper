@@ -1,7 +1,7 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { MultisigScriptType, SignerType, TxPriority } from 'src/services/wallets/enums';
+import { MultisigScriptType, SignerType, TxPriority, VaultType } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
@@ -270,13 +270,11 @@ function SignTransactionScreen() {
       if (envelop.isSigned) signedTxCount += 1;
     });
 
+    const hasThresholdSignatures = signedTxCount >= defaultVault.scheme.m;
     if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-      if (signedTxCount === serializedPSBTEnvelops.length) return true;
-    } else {
-      if (signedTxCount >= defaultVault.scheme.m) return true;
-    }
-
-    return false;
+      if (defaultVault.type === VaultType.TIMELOCKED) return hasThresholdSignatures;
+      else if (signedTxCount === serializedPSBTEnvelops.length) return true;
+    } else return hasThresholdSignatures;
   };
 
   useEffect(() => {
