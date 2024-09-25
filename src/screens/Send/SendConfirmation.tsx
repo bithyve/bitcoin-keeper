@@ -67,7 +67,7 @@ import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getAvailableMiniscriptSigners } from 'src/services/wallets/factories/VaultFactory';
+import { getAvailableMiniscriptPhase } from 'src/services/wallets/factories/VaultFactory';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
 
 import CurrencyInfo from '../Home/components/CurrencyInfo';
@@ -914,7 +914,7 @@ function SendConfirmation({ route }) {
       return;
     }
 
-    const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptSigners(
+    const { phases: availablePhases, signers: availableSigners } = getAvailableMiniscriptPhase(
       sender as Vault,
       currentBlockHeight
     ); // provides available phases/signers(generic)

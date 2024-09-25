@@ -421,7 +421,7 @@ export const generateMiniscriptScheme = (
   return miniscriptScheme;
 };
 
-export const getAvailableMiniscriptSigners = (vault: Vault, currentBlockHeight: number) => {
+export const getAvailableMiniscriptPhase = (vault: Vault, currentBlockHeight: number) => {
   const miniscriptScheme = idx(vault, (_) => _.scheme.miniscriptScheme);
   if (!miniscriptScheme) return {};
 

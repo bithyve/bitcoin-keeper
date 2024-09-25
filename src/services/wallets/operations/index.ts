@@ -40,6 +40,7 @@ import {
   SignerType,
   TransactionType,
   TxPriority,
+  VaultType,
 } from '../enums';
 import {
   MiniscriptScheme,
@@ -1100,10 +1101,13 @@ export default class WalletOperations {
       let miniscriptSelectedSatisfier: MiniscriptTxSelectedSatisfier;
       if (wallet.entityKind === EntityKind.VAULT) {
         const { miniscriptScheme } = (wallet as Vault).scheme;
-        miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
-          miniscriptScheme,
-          miniscriptTxElements
-        );
+        if (miniscriptScheme) {
+          miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+            // note: for Timelocked vault the selectedScriptWitness(which defaults to first) remains irrelevant and the witness script selection happens during input finalisation
+            miniscriptScheme,
+            miniscriptTxElements
+          );
+        }
       }
 
       for (const input of inputs) {
@@ -1617,17 +1621,27 @@ export default class WalletOperations {
         const { multisigScriptType, miniscriptScheme } = (wallet as Vault).scheme;
         if (multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
           if (!miniscriptScheme) throw new Error('miniscriptScheme missing for advisor vault');
-          const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
-            miniscriptScheme,
-            miniscriptTxElements
-          );
 
-          const { selectedScriptWitness } = miniscriptSelectedSatisfier;
+          const { scriptWitnesses } = generateScriptWitnesses(miniscriptScheme.miniscriptPolicy);
+          let selectedScriptWitness: {
+            asm: string;
+            nLockTime?: number;
+            nSequence?: number;
+          };
+          if (wallet.type !== VaultType.TIMELOCKED) {
+            // scriptwitness selection for TIMELOCKED vault is done using the available partial signatures(simplifies UX)
+            const miniscriptSelectedSatisfier = WalletOperations.getSelectedSatisfier(
+              miniscriptScheme,
+              miniscriptTxElements
+            );
+            selectedScriptWitness = miniscriptSelectedSatisfier.selectedScriptWitness;
+          }
 
           for (let index = 0; index < combinedPSBT.txInputs.length; index++) {
             combinedPSBT.finalizeInput(
               index,
               WalletUtilities.getFinalScriptsForMyCustomScript(
+                scriptWitnesses,
                 selectedScriptWitness,
                 miniscriptScheme.keyInfoMap
               )
