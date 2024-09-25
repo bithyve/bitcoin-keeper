@@ -24,7 +24,6 @@ export function WalletsList({
   setIsShowAmount,
   typeBasedIndicator,
 }) {
-  console.log('🚀 ~ allWallets:', allWallets);
   return (
     <Box style={styles.valueWrapper} testID="wallet_list">
       <BalanceComponent

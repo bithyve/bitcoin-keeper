@@ -1,3 +1,4 @@
+import { RKInteractionMode } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
@@ -92,7 +93,13 @@ export type AppStackParams = {
   WhirlpoolConfiguration: undefined;
   CosignerDetails: { signer: Signer };
   AdditionalDetails: { signer: Signer };
-  RemoteSharing: { signer: Signer; signerData: string; isPSBTSharing?: boolean; psbt?: string };
+  RemoteSharing: {
+    signer: Signer;
+    signerData: string;
+    isPSBTSharing?: boolean;
+    psbt?: string;
+    mode: RKInteractionMode;
+  };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
