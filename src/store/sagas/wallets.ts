@@ -1454,11 +1454,9 @@ export function* updateSignerDetailsWorker({ payload }) {
     key: string;
     value: any;
   } = payload;
-  console.log('CALLED');
   yield put(setRelaySignersUpdateLoading(true));
   try {
     const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
-    console.log('PASS1', response);
     if (response.updated) {
       yield call(
         dbManager.updateObjectByPrimaryId,
@@ -1469,11 +1467,8 @@ export function* updateSignerDetailsWorker({ payload }) {
           [key]: value,
         }
       );
-      console.log('PASS2 if');
       yield put(relaySignersUpdateSuccess());
-      console.log('PASS3 relay success');
     } else {
-      console.log('PASS4 else fail');
       yield put(relaySignersUpdateFail(response.error));
     }
   } catch (err) {
