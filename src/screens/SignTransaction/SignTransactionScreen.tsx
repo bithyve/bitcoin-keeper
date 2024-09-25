@@ -270,14 +270,11 @@ function SignTransactionScreen() {
       if (envelop.isSigned) signedTxCount += 1;
     });
 
+    const hasThresholdSignatures = signedTxCount >= defaultVault.scheme.m;
     if (defaultVault.scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
-      if (signedTxCount === serializedPSBTEnvelops.length) return true;
-      // TODO: path/signers selection needs to be present for timelocked vault(streamlines and keep the signing flow consistent for miniscript vaults) or alternatively based on collected signatures we figure out the scriptwitness for the timelocked vault(more user-friendly)
-    } else {
-      if (signedTxCount >= defaultVault.scheme.m) return true;
-    }
-
-    return false;
+      if (defaultVault.type === VaultType.TIMELOCKED) return hasThresholdSignatures;
+      else if (signedTxCount === serializedPSBTEnvelops.length) return true;
+    } else return hasThresholdSignatures;
   };
 
   useEffect(() => {
