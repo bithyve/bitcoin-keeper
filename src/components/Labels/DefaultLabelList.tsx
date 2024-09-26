@@ -38,7 +38,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingLeft: wp(19),
     paddingRight: wp(16),
-    paddingVertical: hp(14),
+    paddingTop: hp(14),
+    paddingBottom: hp(11.5),
   },
 });
 

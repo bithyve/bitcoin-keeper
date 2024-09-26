@@ -15,7 +15,7 @@ import Edit from 'src/assets/images/edit.svg';
 import useBalance from 'src/hooks/useBalance';
 import moment from 'moment';
 import config from 'src/utils/service-utilities/config';
-import { LabelRefType, LabelType, NetworkType } from 'src/services/wallets/enums';
+import { LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import { Transaction } from 'src/services/wallets/interfaces';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import useLabelsNew from 'src/hooks/useLabelsNew';
@@ -26,6 +26,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LabelItem from '../UTXOManagement/components/LabelItem';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -46,6 +47,7 @@ function EditNoteContent({ existingNote, noteRef }: { existingNote: string; note
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
   const { getSatUnit, getBalance } = useBalance();
   const { translations } = useContext(LocalizationContext);
   const { transactions, common } = translations;
@@ -133,7 +135,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };
@@ -189,23 +192,34 @@ function TransactionDetails({ route }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
           {txnLabels.length ? (
-            <InfoCard
-              title={transactions.labels}
-              Content={() => (
-                <View style={styles.listSubContainer}>
-                  {txnLabels.map((item, index) => (
-                    <LabelItem
-                      item={item}
-                      index={index}
-                      key={`${item.name}:${item.isSystem}`}
-                      editable={false}
-                    />
-                  ))}
-                </View>
-              )}
-              showIcon={false}
-              letterSpacing={2.4}
-            />
+            <TouchableOpacity
+              onPress={() => {
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'TransactionLabeling',
+                    params: { transaction, wallet },
+                  })
+                );
+              }}
+            >
+              <InfoCard
+                title={transactions.labels}
+                Content={() => (
+                  <View style={styles.listSubContainer}>
+                    {txnLabels.map((item, index) => (
+                      <LabelItem
+                        item={item}
+                        index={index}
+                        key={`${item.name}:${item.isSystem}`}
+                        editable={false}
+                      />
+                    ))}
+                  </View>
+                )}
+                showIcon={false}
+                letterSpacing={2.4}
+              />
+            </TouchableOpacity>
           ) : null}
           <TouchableOpacity testID="btn_transactionNote" onPress={() => setVisible(true)}>
             <InfoCard

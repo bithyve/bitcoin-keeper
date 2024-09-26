@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: wp(10),
     paddingVertical: hp(5),
-    gap: wp(5),
+    gap: wp(2.5),
+    marginBottom: hp(5),
   },
   labelText: {
     fontSize: 12,

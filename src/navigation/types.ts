@@ -133,6 +133,7 @@ export type AppStackParams = {
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
+  TransactionLabeling: undefined;
 };
 
 // Usage:
