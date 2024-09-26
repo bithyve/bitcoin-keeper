@@ -19,21 +19,16 @@ import { createCipheriv } from 'src/utils/service-utilities/utils';
 import config from 'src/utils/service-utilities/config';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
-const RemoteKeyAction = {
-  SHARE_REMOTE_KEY: 'SHARE_REMOTE_KEY',
-  SIGN_PSBT: 'SIGN_PSBT',
-};
 
 function RemoteSharing({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const fcmToken = useAppSelector((state) => state.notifications.fcmToken);
-  const { signer: signerFromParam, isPSBTSharing = false, psbt, signerData } = route.params;
+  const { signer: signerFromParam, isPSBTSharing = false, psbt, signerData, mode } = route.params;
   const { signerMap } = useSignerMap();
   const signer = signerMap[signerFromParam?.masterFingerprint];
 
   const handleShare = async () => {
-    // TODO: Encryption
     try {
       const data = {
         fcmToken,
@@ -46,14 +41,13 @@ function RemoteSharing({ route }: ScreenProps) {
           signerData,
         },
         psbt: psbt,
-        type: isPSBTSharing ? RemoteKeyAction.SIGN_PSBT : RemoteKeyAction.SHARE_REMOTE_KEY,
-        // DATA to share actionType:[shareRemoteKey, SignPsbt]  fcmToken, signerDetails, psbt
+        type: mode,
       };
       const encryptedData = createCipheriv(JSON.stringify(data), config.REMOTE_KEY_PASSWORD);
       const res = await Relay.createRemoteKey(JSON.stringify(encryptedData));
       if (res?.id) {
         const result = await Share.share({
-          message: `Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.\nkeeperdev://shareKey/${res.id}`,
+          message: `Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}`,
           title: 'Remote Key Sharing',
         });
         if (result.action === Share.sharedAction) {
