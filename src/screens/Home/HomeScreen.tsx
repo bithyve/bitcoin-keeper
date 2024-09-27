@@ -29,7 +29,6 @@ import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { goToConcierge } from 'src/store/sagaActions/concierge';
-import { calculateTimeLeft } from 'src/utils/utilities';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -93,13 +92,6 @@ function NewHomeScreen({ navigation }) {
         navigation.dispatch(
           CommonActions.navigate({
             name: 'ManageSigners',
-            // params: {
-            //   receivedExternalSigner: {
-            //     createdAt: '2024-09-23T10:50:02.614Z',
-            //     timeLeft: calculateTimeLeft('2024-09-23T10:50:02.614Z'),
-            //     data: '{"fcmToken":"fAKHW7Eh6k3JnTbtInTYuu:APA91bHesGV7q5Y3Sz-5HRnqXsTF2Q3ChEy02g7VP6LWNFQs0XzagGxhqJvaoxuEYI4AtuXz4iTV5TtWlydTR6rbFL6VuBiSyP0vo5AFQWCg2vnfLyxbqV2_q7bZVbIZB6Hkp8xctzgK","signer":{"masterFingerprint":"A2A3C05E","signerName":"External Key","type":"KEEPER","storageType":"WARM","signerXpubs":{"AMF":[],"P2PKH":[],"P2SH-P2WPKH":[],"P2SH-P2WSH":[],"P2TR":[],"P2WPKH":[],"P2WSH":[{"xpub":"tpubDF3eqSTxcCft7Qn4gRpARcg6fPWhDR3UCMrKAsYF5Cp1BUT3Kkbpwxs2WqB48EEYwnhcy52QwKSwJAXpFPExqDTHMeW4osq3WVn7CPy22wA","derivationPath":"m/48\'/1\'/0\'/2\'","xpriv":"tprv8iMch2RiTpzDDwkGnn9a2D1z6Mzm45rZd4FXtMVwew1cLzCGhMnEmUFALiaxhvW4LmQM6f8p3Uj8SDfwPwroPxT8Q86vUtCgvzkmzYihCip"}]},"signerData":"[A2A3C05E/48h/1h/0h/2h]tpubDF3eqSTxcCft7Qn4gRpARcg6fPWhDR3UCMrKAsYF5Cp1BUT3Kkbpwxs2WqB48EEYwnhcy52QwKSwJAXpFPExqDTHMeW4osq3WVn7CPy22wA"}}',
-            //   },
-            // },
           })
         ),
     },

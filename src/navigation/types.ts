@@ -99,6 +99,8 @@ export type AppStackParams = {
     isPSBTSharing?: boolean;
     psbt?: string;
     mode: RKInteractionMode;
+    vaultKey?: VaultSigner;
+    vaultId?: string;
   };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
