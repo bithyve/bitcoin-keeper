@@ -14,7 +14,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
-import { InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
+import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { sentryConfig } from 'src/services/sentry';
@@ -202,6 +202,7 @@ function PrivacyAndDisplay({ route }) {
   } = route?.params || {};
 
   const [sensorType, setSensorType] = useState('Biometrics');
+  const [sensorAvailable, setSensorAvailable] = useState(false);
   const [visiblePasscode, setVisiblePassCode] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const [confirmPasscode, setConfirmPasscode] = useState(false);
@@ -294,6 +295,7 @@ function PrivacyAndDisplay({ route }) {
     try {
       const { available, biometryType } = await RNBiometrics.isSensorAvailable();
       if (available) {
+        setSensorAvailable(available);
         const type =
           biometryType === 'TouchID'
             ? 'Touch ID'
@@ -305,6 +307,9 @@ function PrivacyAndDisplay({ route }) {
     } catch (error) {
       console.log(error);
     }
+  };
+  const requestPermission = () => {
+    Linking.openSettings();
   };
 
   const onChangeLoginMethod = async () => {
@@ -348,11 +353,24 @@ function PrivacyAndDisplay({ route }) {
               description={formatString(settings.UseBiometricSubTitle, sensorType)}
               callback={() => onChangeLoginMethod()}
               Icon={
-                <Switch
-                  onValueChange={(value) => onChangeLoginMethod()}
-                  value={loginMethod === LoginMethod.BIOMETRIC}
-                  testID="switch_biometrics"
-                />
+                sensorAvailable ? (
+                  <Switch
+                    onValueChange={onChangeLoginMethod}
+                    value={loginMethod === LoginMethod.BIOMETRIC}
+                    testID="switch_biometrics"
+                  />
+                ) : (
+                  <TouchableOpacity onPress={requestPermission}>
+                    <Box
+                      style={styles.settingsCTA}
+                      backgroundColor={`${colorMode}.learnMoreBorder`}
+                    >
+                      <Text style={styles.settingsCTAText} bold color={`${colorMode}.whiteText`}>
+                        Enable {sensorType}
+                      </Text>
+                    </Box>
+                  </TouchableOpacity>
+                )
               }
             />
             <OptionCard
@@ -566,6 +584,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 30,
+  },
+  settingsCTA: {
+    borderRadius: 10,
+    width: 'auto',
+    marginLeft: wp(15),
+    paddingHorizontal: wp(10),
+    height: hp(20),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  settingsCTAText: {
+    fontSize: 10,
   },
 });
 export default PrivacyAndDisplay;
