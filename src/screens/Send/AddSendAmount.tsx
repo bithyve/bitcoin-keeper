@@ -56,7 +56,7 @@ function AddSendAmount({ route }) {
     transferType,
     selectedUTXOs = [],
     parentScreen,
-    isSendMax = true,
+    isSendMax = false,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -116,7 +116,9 @@ function AddSendAmount({ route }) {
   }, [currentCurrency, satsEnabled, amount]);
 
   useEffect(() => {
-    if (!isNaN(parseFloat(amount))) {
+    if (route.params && route.params.amount && currentCurrency === CurrencyKind.BITCOIN) {
+      setAmount(route.params.amount);
+    } else if (!isNaN(parseFloat(amount))) {
       const amountToSend = getConvertedBalance(parseFloat(amount));
       setAmount(amountToSend.toString());
     }
