@@ -97,8 +97,8 @@ export const generateVault = async ({
 
   if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
 
-  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
-  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH; // TODO: find ways to accomodate P2TR 1-of-1 multisig(derivationConfig is not available on Vaults)
+  const isMultiSig = scheme.n !== 1; // single key Vault is BIP-84 P2WPKH single-sig and not 1-of-1 BIP-48 P2WSH multi-sig
+  const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
 
   const specs: VaultSpecs = {
     xpubs,
