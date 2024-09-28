@@ -37,6 +37,7 @@ import {
   DerivationPurpose,
   EntityKind,
   NetworkType,
+  ScriptTypes,
   SignerType,
   TransactionType,
   TxPriority,
@@ -86,8 +87,12 @@ export default class WalletOperations {
           : (specs as WalletSpecs).xpub;
       const derivationPath = (wallet as Wallet)?.derivationDetails?.xDerivationPath;
 
-      const purpose =
-        entityKind === EntityKind.VAULT ? undefined : WalletUtilities.getPurpose(derivationPath);
+      let purpose;
+      if (entityKind === EntityKind.WALLET) purpose = WalletUtilities.getPurpose(derivationPath);
+      else if (entityKind === EntityKind.VAULT) {
+        if (wallet.scriptType === ScriptTypes.P2WPKH) purpose = DerivationPurpose.BIP84;
+        else if (wallet.scriptType === ScriptTypes.P2WSH) purpose = DerivationPurpose.BIP48;
+      }
 
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
