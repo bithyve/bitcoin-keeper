@@ -1,17 +1,26 @@
 import { Box, useColorMode } from 'native-base';
-import { wp } from 'src/constants/responsive';
+import UpgradeLightIllustration from 'src/assets/images/upgrade-illustration.svg';
+import DowngradeLightIllustration from 'src/assets/images/downgrade-illustration.svg';
+import UpgradeDarkIllustration from 'src/assets/images/upgrade-dark-illustration.svg';
+import DowngradeDarkIllustration from 'src/assets/images/downgrade-dark-illustration.svg.svg';
 
-import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
-import AlertIllustrationDark from 'src/assets/images/upgrade-successfulDark.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import React from 'react';
+import React, { useContext } from 'react';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-function Content() {
+function Content({ isUpgrade }) {
   const { colorMode } = useColorMode();
+  console.log('colorMode', colorMode);
+
+  const UpgradeIllustration =
+    colorMode === 'dark' ? UpgradeDarkIllustration : UpgradeLightIllustration;
+  const DowngradeIllustration =
+    colorMode === 'dark' ? DowngradeDarkIllustration : DowngradeLightIllustration;
+
   return (
-    <Box width={wp(270)}>
+    <Box width="100%">
       <Box alignItems="center">
-        {colorMode === 'light' ? <AlertIllustration /> : <AlertIllustrationDark />}
+        {isUpgrade ? <UpgradeIllustration /> : <DowngradeIllustration />}
       </Box>
     </Box>
   );
@@ -26,10 +35,13 @@ function TierUpgradeModal({
   closeOnOverlayClick = true,
 }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <KeeperModal
       visible={visible}
       close={close}
+      showCloseIcon={false}
       title={isUpgrade ? 'Upgrade Successful' : 'Downgrade Successful'}
       subTitle={
         isUpgrade
@@ -39,12 +51,11 @@ function TierUpgradeModal({
       modalBackground={`${colorMode}.modalWhiteBackground`}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
-      buttonText=""
+      buttonText={common.Okay}
       buttonTextColor={`${colorMode}.white`}
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={onPress}
-      DarkCloseIcon={colorMode === 'dark'}
-      Content={() => <Content />}
+      Content={() => <Content isUpgrade={isUpgrade} />}
       closeOnOverlayClick={closeOnOverlayClick}
     />
   );
