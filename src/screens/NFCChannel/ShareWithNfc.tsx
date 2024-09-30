@@ -27,6 +27,7 @@ function ShareWithNfc({
   psbt,
   vaultKey,
   vaultId,
+  serializedPSBTEnvelop,
 }: {
   data: string;
   signer?: Signer;
@@ -35,6 +36,7 @@ function ShareWithNfc({
   psbt?: string;
   vaultKey?: VaultSigner;
   vaultId?: string;
+  serializedPSBTEnvelop: any;
 }) {
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation<any>();
@@ -144,6 +146,7 @@ function ShareWithNfc({
                 : RKInteractionMode.SHARE_REMOTE_KEY,
               vaultKey,
               vaultId,
+              serializedPSBTEnvelop,
             })
           }
         />

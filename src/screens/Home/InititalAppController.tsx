@@ -34,6 +34,10 @@ import config from 'src/utils/service-utilities/config';
 import { Psbt } from 'bitcoinjs-lib';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
+import { signTransactionWithSeedWords } from '../SignTransaction/signWithSD';
+import { SIGNTRANSACTION } from 'src/navigation/contants';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -86,6 +90,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       const { createdAt, data: response } = await Relay.getRemoteKey(externalKeyId);
       const { iv, encryptedData } = JSON.parse(response);
       const tempData = createDecipheriv({ encryptedData, iv }, config.REMOTE_KEY_PASSWORD);
+      console.log('🚀 ~ handleRemoteKeyDeepLink ~ tempData:', tempData);
       switch (tempData.type) {
         case RKInteractionMode.SHARE_REMOTE_KEY:
           console.log('🚀 ~ handleRemoteKeyDeepLink ~ tempData:', tempData);
@@ -107,18 +112,57 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   (s) => s.masterFingerprint == tempData.signer.masterFingerprint
                 );
                 if (!activeSigner) throw { message: 'Signer not found' };
-                const key = activeSigner.signerXpubs[XpubTypes.P2WSH][0];
-                signedSerializedPSBT = signCosignerPSBT(key.xpriv, tempData.psbt);
-                if (signedSerializedPSBT) {
-                  navigation.navigate('RemoteSharing', {
-                    isPSBTSharing: true,
-                    signerData: {},
-                    signer: activeSigner,
-                    psbt: signedSerializedPSBT,
-                    mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-                    vaultKey: tempData.vaultKey,
-                    vaultId: tempData.vaultId,
-                  });
+                switch (activeSigner.type) {
+                  case SignerType.MOBILE_KEY:
+                    const key = activeSigner.signerXpubs[XpubTypes.P2WSH][0];
+                    signedSerializedPSBT = signCosignerPSBT(key.xpriv, tempData.psbt);
+                    if (signedSerializedPSBT) {
+                      navigation.navigate('RemoteSharing', {
+                        isPSBTSharing: true,
+                        signerData: {},
+                        signer: activeSigner,
+                        psbt: signedSerializedPSBT,
+                        mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+                        vaultKey: tempData.vaultKey,
+                        vaultId: tempData.vaultId,
+                      });
+                    }
+                    break;
+                  case SignerType.SEED_WORDS:
+                    const signTransaction = async ({ seedBasedSingerMnemonic }) => {
+                      const { signedSerializedPSBT } = await signTransactionWithSeedWords({
+                        signingPayload: tempData.serializedPSBTEnvelop.signingPayload,
+                        defaultVault: tempData.vault,
+                        seedBasedSingerMnemonic,
+                        serializedPSBT: tempData.psbt,
+                        xfp: tempData.vaultKey.xfp,
+                        isMultisig: true, // TODO: check this
+                      });
+                      if (signedSerializedPSBT) {
+                        dispatch(
+                          healthCheckStatusUpdate([
+                            {
+                              signerId: activeSigner.masterFingerprint,
+                              status: hcStatusType.HEALTH_CHECK_SIGNING,
+                            },
+                          ])
+                        );
+                        navigation.navigate('RemoteSharing', {
+                          isPSBTSharing: true,
+                          signerData: {},
+                          signer: activeSigner,
+                          psbt: signedSerializedPSBT,
+                          mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+                          vaultKey: tempData.vaultKey,
+                          vaultId: tempData.vaultId,
+                        });
+                      }
+                    };
+                    navigation.navigate('EnterSeedScreen', {
+                      parentScreen: SIGNTRANSACTION,
+                      xfp: tempData.vaultKey.xfp,
+                      onSuccess: signTransaction,
+                    });
                 }
               } catch (e) {
                 showToast(e.message);

@@ -43,9 +43,11 @@ function SignWithQR() {
     vaultKey: VaultSigner;
     vaultId: string;
   } = route.params as any;
-  const { serializedPSBT } = serializedPSBTEnvelops.filter(
+
+  const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
     (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
+  const { serializedPSBT } = serializedPSBTEnvelop;
   const { activeVault } = useVault({ vaultId });
   const isSingleSig = activeVault.scheme.n === 1;
   const { signer } = useSignerFromKey(vaultKey);
@@ -165,7 +167,8 @@ function SignWithQR() {
             <ShareWithNfc
               data={serializedPSBT}
               isPSBTSharing
-              psbt={serializedPSBT}
+              psbt={serializedPSBT} // TODO: check this
+              serializedPSBTEnvelop={serializedPSBTEnvelop}
               signer={signer}
               vaultKey={vaultKey} // required for signing
               vaultId={vaultId} // required for signing

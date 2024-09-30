@@ -17,6 +17,7 @@ import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { createCipheriv } from 'src/utils/service-utilities/utils';
 import config from 'src/utils/service-utilities/config';
+import useVault from 'src/hooks/useVault';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -32,9 +33,11 @@ function RemoteSharing({ route }: ScreenProps) {
     mode,
     vaultKey,
     vaultId,
+    serializedPSBTEnvelop,
   } = route.params;
   const { signerMap } = useSignerMap();
   const signer = signerMap[signerFromParam?.masterFingerprint];
+  const { activeVault } = useVault({ vaultId });
 
   const handleShare = async () => {
     try {
@@ -49,10 +52,18 @@ function RemoteSharing({ route }: ScreenProps) {
           signerXpubs: signer.signerXpubs,
           signerData,
         },
+        serializedPSBTEnvelop,
         psbt: psbt,
         type: mode,
         vaultKey,
         vaultId,
+        vault: activeVault
+          ? {
+              networkType: activeVault.networkType,
+              specs: activeVault.specs,
+              signers: activeVault.signers,
+            }
+          : null,
       };
       const encryptedData = createCipheriv(JSON.stringify(data), config.REMOTE_KEY_PASSWORD);
       const res = await Relay.createRemoteKey(JSON.stringify(encryptedData));

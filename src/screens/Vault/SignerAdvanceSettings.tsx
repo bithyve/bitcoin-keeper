@@ -875,7 +875,7 @@ function SignerAdvanceSettings({ route }: any) {
           description="Associate contact or Edit description"
           callback={navigateToAdditionalDetails}
         />
-        {isMyAppKey && (
+        {(isMyAppKey || true) && (
           <OptionCard
             title="Sign a transaction"
             description="Using a PSBT file"

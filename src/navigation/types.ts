@@ -101,6 +101,7 @@ export type AppStackParams = {
     mode: RKInteractionMode;
     vaultKey?: VaultSigner;
     vaultId?: string;
+    serializedPSBTEnvelop: any;
   };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
