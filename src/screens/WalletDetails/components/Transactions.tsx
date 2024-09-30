@@ -14,6 +14,7 @@ function TransactionItem({ item, wallet, navigation, index }) {
   return (
     <TransactionElement
       transaction={item}
+      wallet={wallet}
       index={index}
       isCached={item?.isCached}
       onPress={

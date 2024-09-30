@@ -165,6 +165,7 @@ function TransactionList({
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
+      wallet={vault}
       isCached={item?.isCached}
       onPress={() => {
         if (item?.isCached) {
