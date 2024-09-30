@@ -228,16 +228,17 @@ export default function CreatePin(props) {
               </Box>
             ) : null}
           </Box>
-          <Box alignSelf="flex-end" mr={5} mt={5}>
-            <CustomButton
-              disabled={isDisabled}
-              testID="button"
-              onPress={() => {
-                setCreatePassword(true);
-              }}
-              value={common.create}
-            />
-          </Box>
+          {!isDisabled && (
+            <Box alignSelf="flex-end" mr={5} mt={5}>
+              <CustomButton
+                testID="button"
+                onPress={() => {
+                  setCreatePassword(true);
+                }}
+                value={common.create}
+              />
+            </Box>
+          )}
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
