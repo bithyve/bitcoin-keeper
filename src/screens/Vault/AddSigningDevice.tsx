@@ -862,7 +862,7 @@ function AddSigningDevice() {
   }
 
   function SingleSigWallet(vault: Vault) {
-    const tags = ['Single-key', 'Cold'];
+    const tags = ['SINGLE-KEY', 'COLD'];
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
