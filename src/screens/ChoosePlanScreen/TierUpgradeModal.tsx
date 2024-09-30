@@ -10,7 +10,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Content({ isUpgrade }) {
   const { colorMode } = useColorMode();
-  console.log('colorMode', colorMode);
 
   const UpgradeIllustration =
     colorMode === 'dark' ? UpgradeDarkIllustration : UpgradeLightIllustration;
