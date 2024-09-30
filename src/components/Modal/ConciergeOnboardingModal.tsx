@@ -125,7 +125,7 @@ function ConciergeOnboardingModal({ visible }) {
       }}
       title={
         pageNo === 1
-          ? 'Welcome to \nKeeper Concierge'
+          ? 'Welcome to Keeper \nConcierge (Beta)'
           : pageNo === 2
           ? 'Cautions and Encouragements'
           : 'Share data for analytics:'
