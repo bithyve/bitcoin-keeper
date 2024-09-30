@@ -45,6 +45,7 @@ export type signerXpubs = {
 
 export type SignerExtraData = {
   instanceNumber?: number;
+  originalType?: string;
 };
 
 export interface HealthCheckDetails {

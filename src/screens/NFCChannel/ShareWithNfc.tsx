@@ -16,6 +16,8 @@ import RNFS from 'react-native-fs';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { Signer } from 'bitcoinjs-lib';
+import { RKInteractionMode } from 'src/services/wallets/enums';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 
 function ShareWithNfc({
   data,
@@ -23,16 +25,19 @@ function ShareWithNfc({
   signer,
   isPSBTSharing = false,
   psbt,
+  vaultKey,
+  vaultId,
 }: {
   data: string;
   signer?: Signer;
   remoteShare?: boolean;
   isPSBTSharing?: boolean;
   psbt?: string;
+  vaultKey?: VaultSigner;
+  vaultId?: string;
 }) {
-  console.log('🚀 ~ signer:', signer);
   const { session } = useContext(HCESessionContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const [visible, setVisible] = React.useState(false);
 
   const { showToast } = useToastMessage();
@@ -129,7 +134,17 @@ function ShareWithNfc({
           icon={<RemoteShareIcon />}
           title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
           callback={() =>
-            navigation.navigate('RemoteSharing', { isPSBTSharing, signerData: data, signer, psbt })
+            navigation.navigate('RemoteSharing', {
+              isPSBTSharing,
+              signerData: data,
+              signer,
+              psbt,
+              mode: isPSBTSharing
+                ? RKInteractionMode.SHARE_PSBT
+                : RKInteractionMode.SHARE_REMOTE_KEY,
+              vaultKey,
+              vaultId,
+            })
           }
         />
       )}

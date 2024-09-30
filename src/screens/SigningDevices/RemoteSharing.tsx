@@ -13,7 +13,7 @@ import { hp, wp } from 'src/constants/responsive';
 import MessagePreview from 'src/components/MessagePreview';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { createCipheriv } from 'src/utils/service-utilities/utils';
 import config from 'src/utils/service-utilities/config';
@@ -24,7 +24,15 @@ function RemoteSharing({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const fcmToken = useAppSelector((state) => state.notifications.fcmToken);
-  const { signer: signerFromParam, isPSBTSharing = false, psbt, signerData, mode } = route.params;
+  const {
+    signer: signerFromParam,
+    isPSBTSharing = false,
+    psbt,
+    signerData,
+    mode,
+    vaultKey,
+    vaultId,
+  } = route.params;
   const { signerMap } = useSignerMap();
   const signer = signerMap[signerFromParam?.masterFingerprint];
 
@@ -33,15 +41,18 @@ function RemoteSharing({ route }: ScreenProps) {
       const data = {
         fcmToken,
         signer: {
-          masterFingerprint: signer?.masterFingerprint,
-          signerName: 'External Key',
-          type: SignerType.KEEPER,
-          storageType: signer?.storageType,
-          signerXpubs: signer?.signerXpubs,
+          extraData: { originalType: signer.type },
+          inheritanceKeyInfo: signer.inheritanceKeyInfo,
+          isBIP85: signer.isBIP85,
+          masterFingerprint: signer.masterFingerprint,
+          signerPolicy: signer.signerPolicy,
+          signerXpubs: signer.signerXpubs,
           signerData,
         },
         psbt: psbt,
         type: mode,
+        vaultKey,
+        vaultId,
       };
       const encryptedData = createCipheriv(JSON.stringify(data), config.REMOTE_KEY_PASSWORD);
       const res = await Relay.createRemoteKey(JSON.stringify(encryptedData));

@@ -161,12 +161,14 @@ function SignWithQR() {
         <Box style={styles.center}>
           <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
           <Box style={styles.fingerprint}>{<WalletFingerprint fingerprint={details} />}</Box>
-          {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
+          {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) || true ? (
             <ShareWithNfc
               data={serializedPSBT}
               isPSBTSharing
               psbt={serializedPSBT}
               signer={signer}
+              vaultKey={vaultKey} // required for signing
+              vaultId={vaultId} // required for signing
             />
           ) : null}
         </Box>
