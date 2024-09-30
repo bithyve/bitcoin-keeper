@@ -39,6 +39,7 @@ function TransactionsAndUTXOs({
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
+      wallet={vault}
       onPress={() => {
         navigation.dispatch(
           CommonActions.navigate('TransactionDetails', {
@@ -53,7 +54,12 @@ function TransactionsAndUTXOs({
     <>
       <VStack>
         <HStack justifyContent="space-between">
-          <Text color={`${colorMode}.textBlack`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text
+            color={`${colorMode}.textBlack`}
+            marginLeft={wp(3)}
+            fontSize={16}
+            letterSpacing={1.28}
+          >
             Transactions
           </Text>
           {transactions.length ? (

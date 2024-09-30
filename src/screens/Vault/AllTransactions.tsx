@@ -29,7 +29,9 @@ function AllTransactions({ route }) {
 
   const vaultTrans: Transaction[] = vault?.specs?.transactions || [];
   const walletTrans: Transaction[] = wallet?.specs.transactions || [];
-  const renderTransactionElement = ({ item }) => <TransactionElement transaction={item} />;
+  const renderTransactionElement = ({ item }) => (
+    <TransactionElement transaction={item} wallet={wallet} />
+  );
 
   const pullDownRefresh = () => {
     setPullRefresh(true);

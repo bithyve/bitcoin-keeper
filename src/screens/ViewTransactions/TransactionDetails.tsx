@@ -133,7 +133,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };
@@ -210,7 +211,10 @@ function TransactionDetails({ route }) {
           <TouchableOpacity testID="btn_transactionNote" onPress={() => setVisible(true)}>
             <InfoCard
               title={common.note}
-              describtion={labels[transaction.txid][0]?.name || 'Add a note'}
+              describtion={
+                labels[transaction.txid][0]?.name ||
+                common.addNote.charAt(0) + common.addNote.slice(1).toLowerCase()
+              }
               showIcon
               letterSpacing={2.4}
               Icon={updatingLabel ? <ActivityIndicator /> : <Edit />}
