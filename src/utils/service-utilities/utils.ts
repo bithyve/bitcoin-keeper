@@ -327,8 +327,6 @@ export const createDecipheriv = (data: { iv: string; encryptedData: string }, pa
   return JSON.parse(decrypted.toString());
 };
 
-
-
 export const createCipherGcm = (data: string, password: string) => {
   const algorithm = 'aes-256-gcm';
   const key = Buffer.from(password, 'hex');
@@ -364,4 +362,15 @@ export const createDecipherGcm = (data: DecryptData, password: string) => {
     throw new Error('Failed to decrypt data: ' + err.message);
   }
   return JSON.parse(decrypted.toString('utf-8'));
+};
+
+export const getArchivedVaults = (allVaults: Vault[], vault: Vault) => {
+  return vault.archived || !vault.archivedId
+    ? []
+    : allVaults.filter(
+        (v) =>
+          v.archived &&
+          // include vaults that have the same parent archived id or the parent vault itself which is archived but does not have an archived id
+          (v.archivedId === vault.archivedId || v.id === vault.archivedId)
+      );
 };

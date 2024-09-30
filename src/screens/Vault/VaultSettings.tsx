@@ -4,7 +4,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { hp, wp } from 'src/constants/responsive';
-import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
+import { genrateOutputDescriptors, getArchivedVaults } from 'src/utils/service-utilities/utils';
 import Colors from 'src/theme/Colors';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -41,18 +41,7 @@ function VaultSettings({ route }) {
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
 
-  const hasArchivedVaults =
-    vault.archived || !vault.archivedId ? false : getArchivedVaults().length > 0;
-
-  // TODO: Move to common place to use also in the ArchivedVault screen
-  function getArchivedVaults() {
-    return allVaults.filter(
-      (v) =>
-        v.archived &&
-        // include vaults that have the same parent archived id or the parent vault itself which is archived but does not have an archived id
-        (v.archivedId === vault.archivedId || v.id === vault.archivedId)
-    );
-  }
+  const hasArchivedVaults = getArchivedVaults(allVaults, vault).length > 0;
 
   const updateWalletVisibility = (checkBalance = true) => {
     if (checkBalance && vault.specs.balances.confirmed + vault.specs.balances.unconfirmed > 0) {
