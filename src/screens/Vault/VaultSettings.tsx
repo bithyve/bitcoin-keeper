@@ -30,7 +30,7 @@ function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { vaultId } = route.params;
-  const { activeVault: vault } = useVault({ vaultId });
+  const { allVaults, activeVault: vault } = useVault({ includeArchived: true, vaultId });
   const descriptorString = genrateOutputDescriptors(vault);
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
@@ -40,6 +40,19 @@ function VaultSettings({ route }) {
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
+
+  const hasArchivedVaults =
+    vault.archived || !vault.archivedId ? false : getArchivedVaults().length > 0;
+
+  // TODO: Move to common place to use also in the ArchivedVault screen
+  function getArchivedVaults() {
+    return allVaults.filter(
+      (v) =>
+        v.archived &&
+        // include vaults that have the same parent archived id or the parent vault itself which is archived but does not have an archived id
+        (v.archivedId === vault.archivedId || v.id === vault.archivedId)
+    );
+  }
 
   const updateWalletVisibility = (checkBalance = true) => {
     if (checkBalance && vault.specs.balances.confirmed + vault.specs.balances.unconfirmed > 0) {
@@ -143,7 +156,7 @@ function VaultSettings({ route }) {
           callback={() => {
             navigation.dispatch(CommonActions.navigate('ArchivedVault', { vaultId }));
           }}
-          visible={!isCanaryWalletType}
+          visible={!isCanaryWalletType && hasArchivedVaults}
         />
         <OptionCard
           title={vaultText.vaultHideTitle}
