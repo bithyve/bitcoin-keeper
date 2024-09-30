@@ -13,13 +13,31 @@ import { hp, wp } from 'src/constants/responsive';
 import MessagePreview from 'src/components/MessagePreview';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
-import { SignerStorage, SignerType } from 'src/services/wallets/enums';
+import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { createCipheriv } from 'src/utils/service-utilities/utils';
 import config from 'src/utils/service-utilities/config';
 import useVault from 'src/hooks/useVault';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
+
+const RemoteShareText = {
+  [RKInteractionMode.SHARE_REMOTE_KEY]: {
+    title: 'Remote Key Sharing',
+    desc: 'Please share this Key-Link with your contact using a secure and private communication medium. The link will be valid for 5 minutes.',
+    cta: 'Share Key',
+  },
+  [RKInteractionMode.SHARE_PSBT]: {
+    title: 'Sign Transaction Remotely',
+    desc: 'Please share the PSBT Link with the key holder for transaction signing. Once generated, the link will be valid for 5 minutes.',
+    cta: 'Share Link',
+  },
+  [RKInteractionMode.SHARE_SIGNED_PSBT]: {
+    title: 'Sign Transaction Remotely',
+    desc: 'Please share back the PSBT link with the transaction creator to complete the signing. Once generated, the link will be valid for 5 minutes.',
+    cta: 'Share Link',
+  },
+};
 
 function RemoteSharing({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
@@ -69,8 +87,8 @@ function RemoteSharing({ route }: ScreenProps) {
       const res = await Relay.createRemoteKey(JSON.stringify(encryptedData));
       if (res?.id) {
         const result = await Share.share({
-          message: `Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}`,
-          title: 'Remote Key Sharing',
+          title: RemoteShareText[mode].title,
+          message: `${RemoteShareText[mode].desc}\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}`,
         });
         if (result.action === Share.sharedAction) {
           if (result.activityType) {
@@ -97,28 +115,24 @@ function RemoteSharing({ route }: ScreenProps) {
         >
           <Box style={styles.descriptionContainer}>
             <Text style={styles.title} medium color={`${colorMode}.headerText`}>
-              {isPSBTSharing ? 'Sign Transaction Remotely' : 'Remote Key Sharing'}
+              {RemoteShareText[mode].title}
             </Text>
-            <Text style={styles.description}>
-              {isPSBTSharing
-                ? 'Please share the PSBT Link with the key holder for transaction signing. Once generated, the link will be valid for 5 minutes.'
-                : 'Please share this Key-Link with your contact using a secure and private communication medium. The link will be valid for 5 minutes.'}
-            </Text>
+            <Text style={styles.description}>{RemoteShareText[mode].desc}</Text>
           </Box>
 
           {!isPSBTSharing && <RemoteShareIllustration style={styles.illustration} />}
 
           <Box style={styles.messagePreview}>
             <MessagePreview
-              title="Remote Key Sharing"
-              description="Hey, I’m sharing a bitcoin key with you. Please click the link to accept it."
-              link="www.sadaigiddfcbr..."
+              title={RemoteShareText[mode].title}
+              description={RemoteShareText[mode].desc}
+              link="www.bitcoinkeeper.app..."
             />
           </Box>
         </ScrollView>
         <Box style={styles.CTAContainer}>
           <Buttons
-            primaryText={!isPSBTSharing ? 'Share Key' : 'Share Link'}
+            primaryText={RemoteShareText[mode].cta}
             primaryCallback={handleShare}
             paddingHorizontal={wp(120)}
           />
