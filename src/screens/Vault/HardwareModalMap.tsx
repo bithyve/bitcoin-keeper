@@ -878,6 +878,7 @@ function HardwareModalMap({
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
+  const { common, settings } = translations;
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
@@ -2107,14 +2108,17 @@ function HardwareModalMap({
       <KeeperModal
         visible={backupModalVisible}
         close={() => setBackupModalVisible(false)}
-        title="Backup Recovery Key"
-        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        title={settings.RKBackupTitle}
+        subTitle={settings.RKBackupSubTitle}
         subTitleWidth={wp(300)}
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
-        buttonText="Backup Now"
+        buttonText={common.backupNow}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setBackupModalVisible(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
         buttonCallback={() => {
           setBackupModalVisible(false);
           navigation.dispatch(
