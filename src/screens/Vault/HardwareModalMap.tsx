@@ -150,7 +150,7 @@ const getSignerContent = (
           'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON.',
           'From here choose the account number and transfer over NFC or via file.',
         ],
-        title: coldcard.SetupTitle,
+        title: isHealthcheck ? 'Verify Coldcard' : coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
         sepInstruction:
           'Make sure you remember the account you had chosen (This is important for vault recovery)',
@@ -483,7 +483,7 @@ const getSignerContent = (
           `Please download the Bitcoin Keeper desktop app from our website (${KEEPER_WEBSITE_BASE_URL}) to connect with Ledger.`,
           'Please Make sure you have the BTC app downloaded on Ledger before this step.',
         ],
-        title: ledger.SetupTitle,
+        title: isHealthcheck ? 'Verify Ledger' : ledger.SetupTitle,
         subTitle: ledger.SetupDescription,
         options: [],
       };
@@ -533,7 +533,7 @@ const getSignerContent = (
           'Provide the Signer details either by entering them or scanning',
           'The hardened part of the derivation path of the xpub has to be denoted with a “h” or “”. Please do not use any other character',
         ],
-        title: 'Setting up Signer',
+        title: isHealthcheck ? 'Verify Signer' : 'Setting up Signer',
         subTitle: 'Keep your Signer ready before proceeding',
         options: [],
       };
