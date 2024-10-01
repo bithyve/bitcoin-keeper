@@ -130,11 +130,11 @@ function VaultInfo({ vault }: { vault: Vault }) {
             vault.type === VaultType.COLLABORATIVE
               ? common.COLLABORATIVE
               : vault.type === VaultType.SINGE_SIG
-              ? 'Single-key'
+              ? 'SINGLE-KEY'
               : common.VAULT
           }`}
         />
-        {vault.type === VaultType.SINGE_SIG && <CardPill heading={'Cold'} />}
+        {vault.type === VaultType.SINGE_SIG && <CardPill heading={'COLD'} />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
       </HStack>

@@ -27,6 +27,7 @@ type Props = {
   marginLeft?: boolean;
   icon?: Element;
 };
+
 function KeeperHeader({
   title = '',
   subtitle = '',
@@ -50,6 +51,7 @@ function KeeperHeader({
   const styles = getStyles(marginLeft);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+
   return (
     <Box style={styles.container}>
       {enableBack && (
@@ -157,16 +159,19 @@ const getStyles = (marginLeft: boolean) =>
       justifyContent: 'space-between',
     },
     headerInfo: {
+      flex: 1,
       paddingLeft: marginLeft ? '10%' : '5%',
       flexDirection: 'row',
       gap: 10,
       alignItems: 'center',
     },
     smallWidth: {
-      width: windowWidth * 0.45,
+      width: windowWidth * 0.5,
+      flexShrink: 1,
     },
     availableBalance: {
       marginLeft: wp(68),
     },
   });
+
 export default KeeperHeader;
