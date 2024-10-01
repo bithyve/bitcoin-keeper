@@ -29,7 +29,7 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import InhertanceKeyIcon from 'src/assets/images/illustration-inheritance-key.svg';
+import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import EmptyState from 'src/assets/images/key-empty-state-illustration.svg';
 import { SignerType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
