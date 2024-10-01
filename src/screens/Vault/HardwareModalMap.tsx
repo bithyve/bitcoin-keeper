@@ -88,7 +88,7 @@ import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { getSpecterDetails } from 'src/hardware/specter';
 import useSignerMap from 'src/hooks/useSignerMap';
-import InhertanceKeyIcon from 'src/assets/images/inheritanceTitleKey.svg';
+import InhertanceKeyIcon from 'src/assets/images/inheritance-key-illustration.svg';
 import Import from 'src/assets/images/import.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
 import QRComms from 'src/assets/images/qr_comms.svg';
