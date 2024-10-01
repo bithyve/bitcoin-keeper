@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Input, useColorMode, Box } from 'native-base';
 import KeeperText from './KeeperText';
+import Colors from 'src/theme/Colors';
 
 function KeeperTextInput({
   placeholder,
@@ -14,8 +15,6 @@ function KeeperTextInput({
   inputRef = null,
   height = 55,
   isError = false,
-  onBlur = () => {},
-  onFocus = () => {},
   ...props
 }) {
   const { colorMode } = useColorMode();
@@ -27,6 +26,8 @@ function KeeperTextInput({
         ref={inputRef}
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor || `${colorMode}.placeHolderTextColor`}
+        borderColor={isError ? Colors.CarmineRed : 'transparent'}
+        color={isError ? Colors.CarmineRed : `${colorMode}.primaryText`}
         value={value}
         onChangeText={onChangeText}
         style={styles.inputField}
@@ -34,7 +35,6 @@ function KeeperTextInput({
         borderRadius={10}
         h={height}
         maxLength={maxLength}
-        {...props}
         testID={`input_${testID}`}
         _focus={{ borderColor: `${colorMode}.greenText` }}
         InputRightElement={
