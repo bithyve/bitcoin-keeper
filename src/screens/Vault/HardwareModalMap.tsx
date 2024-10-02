@@ -181,18 +181,21 @@ const getSignerContent = (
         ],
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+      const jadeUnlockInstructions =
+        'If Jade is locked, unlock it by selecting "QR Mode" > QR PIN Unlock > then open blkstrm.com/pn in your browser and follow the instructions to unlock the Jade.';
+      const jadeInstructions = `When unlocked, export the key by going to Options > Wallet > Export Xpub. Then in Options, make sure Script is set to Native Segwit and Wallet is set to ${
         isMultisig ? 'MultiSig' : 'SingleSig'
-      } and Native Segwit in the options section.`;
+      }.`;
       return {
         type: SignerType.JADE,
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
+              jadeUnlockInstructions,
               jadeInstructions,
-              'Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.',
+              'Make sure you enable Testnet mode on the Jade (Options > Device > Settings > Network) if you are running Keeper in the Testnet mode.',
             ]
-          : [jadeInstructions],
+          : [jadeUnlockInstructions, jadeInstructions],
         title: isHealthcheck
           ? 'Verify Blockstream Jade'
           : isCanaryAddition

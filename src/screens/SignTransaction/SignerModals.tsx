@@ -242,7 +242,7 @@ function JadeContent() {
       <Box marginTop={2}>
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
-            "\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned."
+            "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."
           }
         </Text>
       </Box>
