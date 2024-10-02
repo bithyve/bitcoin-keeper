@@ -13,7 +13,7 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import Buttons from 'src/components/Buttons';
-import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import InvalidSeeds from 'src/assets/images/invalid-seed-illustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -37,6 +37,7 @@ import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import RecoverySuccessModalContent from './RecoverySuccessModalContent';
+import { setAppImageError } from 'src/store/reducers/bhr';
 
 type seedWordItem = {
   id: number;
@@ -96,6 +97,7 @@ function EnterSeedScreen({ route, navigation }) {
     if (!isSignTransaction) setInvalidSeedsModal(true);
   };
   const closeInvalidSeedsModal = () => {
+    dispatch(setAppImageError(false));
     setRecoveryLoading(false);
     setInvalidSeedsModal(false);
   };
@@ -151,12 +153,15 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const onPressNextSeedReocvery = async () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
+    const startIndex = activePage * 6;
+    const endIndex = (activePage + 1) * 6;
+
+    if (isSeedFilled(endIndex)) {
+      if (activePage === 1 && isSeedFilled(12)) {
         const seedWord = getSeedWord();
         setRecoveryLoading(true);
         dispatch(getAppImage(seedWord));
-      } else {
+      } else if (activePage === 0) {
         setActivePage(1);
       }
     } else {
@@ -353,13 +358,15 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   function InValidSeedsScreen() {
+    const { translations } = useContext(LocalizationContext);
+    const { seed } = translations;
     return (
       <View>
-        <Box alignSelf="center">
+        <Box style={styles.invalidSeedsIllustration}>
           <InvalidSeeds />
         </Box>
-        <Text color={`${colorMode}.greenText`} fontSize={13}>
-          Make sure the words are entered in the correct sequence
+        <Text color={`${colorMode}.secondaryText`} fontSize={13}>
+          {seed.InvalidSeedsDesc}
         </Text>
       </View>
     );
@@ -495,6 +502,9 @@ function EnterSeedScreen({ route, navigation }) {
               ? 'To sign transaction'
               : seed.enterRecoveryPhraseSubTitle
           }
+          onPressHandler={
+            activePage >= 0 ? () => setActivePage(activePage - 1) : navigation.goBack()
+          }
           // To-Do-Learn-More
         />
         <Box
@@ -612,8 +622,9 @@ function EnterSeedScreen({ route, navigation }) {
         <KeeperModal
           visible={invalidSeedsModal}
           close={closeInvalidSeedsModal}
+          showCloseIcon={false}
           title={seed.InvalidSeeds}
-          subTitle={seed.seedDescription}
+          subTitle={seed.InvalidSeedsSubtitle}
           buttonText="Retry"
           buttonTextColor={`${colorMode}.white`}
           buttonCallback={closeInvalidSeedsModal}
@@ -693,6 +704,10 @@ const styles = StyleSheet.create({
   },
   dropdownContainer: {
     zIndex: 9999,
+  },
+  invalidSeedsIllustration: {
+    alignSelf: 'center',
+    marginBottom: hp(30),
   },
 });
 
