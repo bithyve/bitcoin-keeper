@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
 } from 'react-native';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
@@ -124,6 +125,9 @@ function KeeperModal(props: ModalProps) {
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   const isKeyboardOpen = useKeyboard();
+  const { height: screenHeight } = useWindowDimensions();
+  const availableHeight = screenHeight - bottom - (isKeyboardOpen ? hp(200) : hp(100));
+  const maxModalHeight = Math.min(availableHeight, screenHeight * 0.85);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
 
@@ -192,7 +196,7 @@ function KeeperModal(props: ModalProps) {
               </Modal.Header>
             ) : null}
             <ScrollView
-              style={{ maxHeight: windowHeight * 0.8 }}
+              style={{ maxHeight: maxModalHeight * 0.85 }}
               showsVerticalScrollIndicator={false}
             >
               <Modal.Body>
@@ -216,7 +220,7 @@ function KeeperModal(props: ModalProps) {
                     <Box />
                   )}
                   {!!secondaryButtonText && (
-                    <TouchableOpacity onPress={secondaryCallback} testID='modal_secondary_btn'>
+                    <TouchableOpacity onPress={secondaryCallback} testID="modal_secondary_btn">
                       <Box style={styles.secCta}>
                         <Text style={styles.ctaText} color={secButtonTextColor} medium>
                           {showButtons ? secondaryButtonText : null}
@@ -225,7 +229,7 @@ function KeeperModal(props: ModalProps) {
                     </TouchableOpacity>
                   )}
                   {!!buttonText && (
-                    <TouchableOpacity onPress={buttonCallback} testID='modal_primary_btn'>
+                    <TouchableOpacity onPress={buttonCallback} testID="modal_primary_btn">
                       <Box backgroundColor={buttonBackground} style={styles.cta}>
                         <Text style={styles.ctaText} color={buttonTextColor} bold>
                           {showButtons ? buttonText : null}

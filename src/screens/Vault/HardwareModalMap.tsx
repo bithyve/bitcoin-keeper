@@ -41,7 +41,7 @@ import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg'
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner-setup-horizontal.svg';
 import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
-import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
+import KeeperSetupImage from 'src/assets/images/mobile-key-illustration.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
@@ -213,11 +213,11 @@ const getSignerContent = (
           'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
         ],
         title: isHealthcheck
-          ? `Verify  ${getSignerNameFromType(type)}`
+          ? `Verify ${getSignerNameFromType(type)}`
           : isCanaryAddition
           ? 'Setting up for Canary'
           : 'Keep your Device Ready',
-        subTitle: `Importing ${getSignerNameFromType(type)}`,
+        subTitle: isHealthcheck ? '' : `Importing ${getSignerNameFromType(type)}`,
         options: [],
       };
     case SignerType.MY_KEEPER:
@@ -881,6 +881,7 @@ function HardwareModalMap({
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
+  const { common, settings } = translations;
   const { createCreateCanaryWallet } = useCanaryWalletSetup({});
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
@@ -2110,14 +2111,17 @@ function HardwareModalMap({
       <KeeperModal
         visible={backupModalVisible}
         close={() => setBackupModalVisible(false)}
-        title="Backup Recovery Key"
-        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        title={settings.RKBackupTitle}
+        subTitle={settings.RKBackupSubTitle}
         subTitleWidth={wp(300)}
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
-        buttonText="Backup Now"
+        buttonText={common.backupNow}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setBackupModalVisible(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
         buttonCallback={() => {
           setBackupModalVisible(false);
           navigation.dispatch(

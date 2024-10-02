@@ -531,6 +531,9 @@ function PrivacyAndDisplay({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setBackupModalVisible(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
         buttonText={common.backupNow}
         buttonCallback={() => {
           setBackupModalVisible(false);
