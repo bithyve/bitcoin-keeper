@@ -8,10 +8,7 @@ export function Instruction({ text }: { text: string }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.bulletContainer}>
-      <Box backgroundColor={`${colorMode}.greenText`} />
-      <Text bold fontSize={24}>
-        •
-      </Text>
+      <Box style={styles.bullet} backgroundColor={`${colorMode}.black`}></Box>
       <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
         {text}
       </Text>
@@ -23,11 +20,19 @@ export default Instruction;
 
 const styles = StyleSheet.create({
   bulletContainer: {
-    marginTop: 4,
+    paddingTop: 4,
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  bullet: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
+    width: 7,
+    height: 7,
+    borderRadius: 10 / 2,
+    marginTop: 11,
   },
   infoText: {
     letterSpacing: 0.65,
