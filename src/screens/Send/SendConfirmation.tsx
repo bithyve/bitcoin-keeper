@@ -1177,6 +1177,21 @@ function SendConfirmation({ route }) {
         title="Send Confirmation"
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
+        onPressHandler={() => {
+          if (navigation.getState().index > 2 && isCachedTransaction) {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 1,
+                routes: [
+                  { name: 'Home' },
+                  { name: 'VaultDetails', params: { vaultId: sender?.id } },
+                ],
+              })
+            );
+          } else {
+            navigation.goBack();
+          }
+        }}
       />
       <ScrollView
         style={styles.container}
