@@ -298,15 +298,18 @@ function Footer({ setConfirmPassVisible }: { setConfirmPassVisible: (value: bool
   return <KeeperFooter items={footerItems} wrappedScreen={true} />;
 }
 
-function TextValue({ amt, getValueIcon, inverted = false }) {
+function TextValue({ amt, getSatUnit, getCurrencyIcon }) {
   return (
-    <Text
-      style={{
-        ...styles.priorityTableText,
-      }}
-    >
-      {getValueIcon() === 'sats' ? `${amt} sats` : `$ ${amt}`}
-    </Text>
+    <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Box style={{ marginRight: 4 }}>{getCurrencyIcon(BTC, 'dark')}</Box>
+      <Text
+        style={{
+          ...styles.priorityTableText,
+        }}
+      >
+        {`${amt} ${getSatUnit()}`}
+      </Text>
+    </Box>
   );
 }
 
@@ -321,6 +324,7 @@ function SendingPriority({
   setVisibleCustomPriorityModal,
   getBalance,
   getSatUnit,
+  getCurrencyIcon,
   networkType,
 }) {
   const { colorMode } = useColorMode();
@@ -371,8 +375,9 @@ function SendingPriority({
                   isFeePriority
                   titleComp={
                     <TextValue
+                      getSatUnit={getSatUnit}
+                      getCurrencyIcon={getCurrencyIcon}
                       amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
-                      getValueIcon={getSatUnit}
                     />
                   }
                   icon={{}}
@@ -387,9 +392,8 @@ function SendingPriority({
                   numberOfLines={2}
                   onCardSelect={() => setTransactionPriority(priority)}
                   customStyle={{
-                    width: wp(96.5),
-                    opacity: transactionPriority === priority ? 1 : 0.5,
                     height: getSatUnit() === 'sats' ? 150 : 135,
+                    opacity: transactionPriority === priority ? 1 : 0.5,
                   }}
                   colorMode={colorMode}
                 />
@@ -1408,6 +1412,7 @@ function SendConfirmation({ route }) {
             availableTransactionPriorities={availableTransactionPriorities}
             getBalance={getBalance}
             getSatUnit={getSatUnit}
+            getCurrencyIcon={getCurrencyIcon}
             customFeePerByte={customFeePerByte}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
