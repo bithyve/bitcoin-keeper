@@ -1,9 +1,9 @@
 import QRCode from 'react-native-qrcode-svg';
 import React, { useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
-import { Dimensions } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
-import { VStack, Slider, useColorMode } from 'native-base';
+import { VStack, Slider, useColorMode, Box } from 'native-base';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
@@ -37,7 +37,9 @@ function DisplayQR({
   });
   return (
     <VStack alignItems="center">
-      <QRCode value={qrData} size={width * 0.85} ecl="L" />
+      <Box style={styles.qrWrapper} borderColor={`${colorMode}.qrBorderColor`}>
+        <QRCode value={qrData} size={width * 0.85} ecl="L" />
+      </Box>
       <Slider
         marginTop={5}
         width={windowWidth * 0.5}
@@ -56,5 +58,11 @@ function DisplayQR({
     </VStack>
   );
 }
+
+const styles = StyleSheet.create({
+  qrWrapper: {
+    borderWidth: 30,
+  },
+});
 
 export default DisplayQR;
