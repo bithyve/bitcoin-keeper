@@ -122,6 +122,7 @@ const getStyles = (marginLeft: boolean) =>
       fontSize: 18,
     },
     addWalletDescription: {
+      marginTop: 10,
       fontSize: 14,
       lineHeight: 18,
       width: windowWidth * 0.8,
