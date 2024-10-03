@@ -133,18 +133,18 @@ function ReceiveScreen({ route }: { route }) {
   const VerifyAddressBtn = () => {
     return (
       <Pressable
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={styles.verifyAddCtr}
-        mb={btmCtrHeight + hp(60)}
+        style={[styles.verifyAddressBtn]}
+        backgroundColor={`${colorMode}.greenButtonBackground`}
         onPress={onVerifyAddress}
       >
-        <ReceiveGreen />
-        <Box>
-          <Text fontSize={13}>Receive</Text>
-          <Text fontSize={12} color={`${colorMode}.GreyText`}>
-            {'Verify the address'}
-          </Text>
-        </Box>
+        <Text
+          numberOfLines={1}
+          style={styles.verifyAddressBtnText}
+          color={`${colorMode}.buttonText`}
+          bold
+        >
+          {'Verify Address on Device'}
+        </Text>
       </Pressable>
     );
   };
@@ -162,7 +162,7 @@ function ReceiveScreen({ route }: { route }) {
           <QRCode
             value={paymentURI || receivingAddress || 'address'}
             logoBackgroundColor="transparent"
-            size={hp(200)}
+            size={hp(175)}
           />
           <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
             <Text
@@ -183,25 +183,29 @@ function ReceiveScreen({ route }: { route }) {
             title={home.AddAmount}
             subTitle={walletTranslation.addSpecificInvoiceAmt}
           />
-          {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 && (
-            <VerifyAddressBtn />
-          )}
         </Box>
       </ScrollView>
       <Box
-        style={styles.Note}
+        style={styles.BottomContainer}
         backgroundColor={`${colorMode}.primaryBackground`}
         onLayout={(event) => setBtmCtrHeight(event.nativeEvent.layout.height)}
       >
-        <Note
-          title={'Note'}
-          subtitle={
-            wallet.entityKind === 'VAULT'
-              ? walletTranslation.addressReceiveDirectly
-              : home.reflectSats
-          }
-          subtitleColor="GreyText"
-        />
+        {
+          <Box>
+            <Note
+              title={'Note'}
+              subtitle={
+                wallet.entityKind === 'VAULT'
+                  ? walletTranslation.addressReceiveDirectly
+                  : home.reflectSats
+              }
+              subtitleColor="GreyText"
+            />
+            {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 && (
+              <VerifyAddressBtn />
+            )}
+          </Box>
+        }
       </Box>
       <KeeperModal
         visible={modalVisible}
@@ -219,18 +223,16 @@ function ReceiveScreen({ route }: { route }) {
 }
 
 const styles = StyleSheet.create({
-  Note: {
-    position: 'absolute',
-    bottom: hp(20),
-    width: '100%',
-    paddingHorizontal: 30,
-    zIndex: 1,
+  BottomContainer: {
+    marginTop: hp(10),
+    width: '95%',
+    alignSelf: 'center',
   },
   qrWrapper: {
     marginTop: 0,
     alignItems: 'center',
     alignSelf: 'center',
-    width: hp(250),
+    width: hp(225),
     borderWidth: 30,
     borderBottomWidth: 15,
   },
@@ -277,15 +279,18 @@ const styles = StyleSheet.create({
   addressContainer: {
     marginHorizontal: wp(20),
   },
-  verifyAddCtr: {
-    marginTop: hp(15),
+  verifyAddressBtn: {
     width: '100%',
-    paddingVertical: 16,
-    paddingHorizontal: 23,
-    gap: 11,
+    paddingHorizontal: wp(35),
+    paddingVertical: hp(15),
     borderRadius: 10,
-    flexDirection: 'row',
     alignItems: 'center',
+    marginTop: hp(15),
+    marginBottom: hp(5),
+  },
+  verifyAddressBtnText: {
+    fontSize: 14,
+    letterSpacing: 0.84,
   },
 });
 

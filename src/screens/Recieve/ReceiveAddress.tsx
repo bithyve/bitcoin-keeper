@@ -40,12 +40,7 @@ function ReceiveAddress({ address }: Props) {
       borderColor={`${colorMode}.greyBorder`}
     >
       <Box style={styles.textContainer}>
-        <Text
-          color={`${colorMode}.secondaryText`}
-          ellipsizeMode="middle"
-          numberOfLines={2}
-          style={styles.value}
-        >
+        <Text color={`${colorMode}.secondaryText`} style={styles.value}>
           {address}
         </Text>
       </Box>
@@ -69,7 +64,6 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 10,
     borderWidth: 1,
-    height: hp(63),
     marginVertical: hp(20),
     paddingVertical: hp(11),
     paddingHorizontal: wp(8),
