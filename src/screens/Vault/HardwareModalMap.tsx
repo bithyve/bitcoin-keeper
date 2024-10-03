@@ -115,6 +115,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import BackupModalContent from '../AppSettings/BackupModal';
 import idx from 'idx';
+import { setLastUsedOption } from 'src/store/reducers/signer';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -1905,7 +1906,15 @@ function HardwareModalMap({
     keyGenerationMode
   );
 
+  const lastUsedOption = useAppSelector(
+    (state) => state.signer.lastUsedOptions[signerType] || KeyGenerationMode.FILE
+  );
+
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+
+  useEffect(() => {
+    setKeyGenerationMode(lastUsedOption);
+  }, [lastUsedOption]);
 
   const onSelect = (option) => {
     switch (signerType) {
@@ -1917,6 +1926,7 @@ function HardwareModalMap({
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
         setKeyGenerationMode(option.name);
+        dispatch(setLastUsedOption({ signerType, option: option.name }));
         break;
       default:
         break;
