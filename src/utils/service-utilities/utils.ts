@@ -78,7 +78,13 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
       derivationDetails: { xDerivationPath },
       specs: { xpub },
     } = wallet as Wallet;
-    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub)})`;
+    const des = `wpkh(${getKeyExpression(
+      wallet.id,
+      xDerivationPath,
+      xpub,
+      true,
+      nextFreeAddressIndex
+    )})`;
     return {
       descriptorString: des,
       receivingAddress,
@@ -90,7 +96,9 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
     const des = `wpkh(${getKeyExpression(
       signer.masterFingerprint,
       signer.derivationPath,
-      signer.xpub
+      signer.xpub,
+      true,
+      nextFreeAddressIndex
     )})`;
     return {
       descriptorString: des,
