@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: hp(250),
     borderWidth: 30,
+    borderBottomWidth: 15,
   },
   receiveAddressWrapper: {
     height: 28,
