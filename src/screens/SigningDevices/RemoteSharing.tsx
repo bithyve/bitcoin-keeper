@@ -9,7 +9,7 @@ import Text from 'src/components/KeeperText';
 import useSignerMap from 'src/hooks/useSignerMap';
 import RemoteShareIllustration from 'src/assets/images/remote-share-illustration.svg';
 import Buttons from 'src/components/Buttons';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import MessagePreview from 'src/components/MessagePreview';
 import { useNavigation } from '@react-navigation/native';
 
@@ -32,12 +32,9 @@ function RemoteSharing({ route }: ScreenProps) {
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          // Add any specific logic if needed for the activity type
         } else {
-          // Shared successfully
         }
       } else if (result.action === Share.dismissedAction) {
-        // Dismissed by user
       }
     } catch (error) {
       console.log(error.message);
@@ -77,14 +74,14 @@ function RemoteSharing({ route }: ScreenProps) {
           <Buttons
             primaryText={!isPSBTSharing ? 'Share Key' : 'Share Link'}
             primaryCallback={handleShare}
-            paddingHorizontal={wp(120)}
+            width={windowWidth * 0.82}
           />
           <Buttons
             secondaryText="Cancel"
             secondaryCallback={() => {
               navigation.goBack();
             }}
-            paddingHorizontal={wp(120)}
+            width={windowWidth * 0.82}
           />
         </Box>
       </VStack>
