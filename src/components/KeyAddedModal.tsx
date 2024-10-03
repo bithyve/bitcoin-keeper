@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
 import moment from 'moment';
 import KeeperModal from 'src/components/KeeperModal';
@@ -35,10 +34,9 @@ function ModalCard({ title, subTitle, icon = null }) {
 }
 
 const KeyAddedModal = ({ visible, close, signer }) => {
-  const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslations } = translations;
+  const { signer: signerTranslations, common } = translations;
 
   return (
     <KeeperModal
@@ -59,14 +57,11 @@ const KeyAddedModal = ({ visible, close, signer }) => {
           <Text style={styles.descText}>{signerTranslations.signerAddedDesc}</Text>
         </Box>
       )}
-      buttonText={signerTranslations.signerDeatils}
+      buttonText={common?.Okay}
       buttonTextColor={`${colorMode}.buttonText`}
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={() => {
         close();
-        navigtaion.navigate('SigningDeviceDetails', {
-          signerId: signer?.masterFingerprint,
-        });
       }}
     />
   );
