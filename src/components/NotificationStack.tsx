@@ -49,6 +49,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import { EntityKind } from 'src/services/wallets/enums';
 import SelectWalletModal from './SelectWalletModal';
+import Instruction from './Instruction';
 
 const { width } = Dimensions.get('window');
 
@@ -511,7 +512,10 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
           setShowModal(false);
           skipUaiHandler(uai);
         }}
+        subTitleColor={`${colorMode}.secondaryText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
         textColor={`${colorMode}.modalWhiteContent`}
         title={uaiConfig?.modalDetails?.heading}
         subTitle={uaiConfig?.modalDetails?.subTitle}
@@ -520,9 +524,8 @@ const Card = memo(({ uai, index, totalLength, activeIndex, skipUaiHandler }: Car
         secondaryButtonText={uaiConfig?.modalDetails?.btnConfig.secondary.text}
         secondaryCallback={uaiConfig?.modalDetails?.btnConfig.secondary.cta}
         buttonTextColor={`${colorMode}.white`}
-        buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
-        Content={() => <Text style={styles.transferText}>{uaiConfig?.modalDetails?.body}</Text>}
+        Content={() => <Instruction text={uaiConfig?.modalDetails?.body} />}
       />
       <PendingHealthCheckModal
         selectedItem={activeVault}
@@ -720,7 +723,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   transferText: {
-    fontWeight: 500,
+    // fontWeight: 500,
     fontSize: 12,
     marginBottom: 5,
     marginLeft: 3,
