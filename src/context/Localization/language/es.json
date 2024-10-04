@@ -640,7 +640,9 @@
   "seed": {
     "EnterSeed": "Enter Seeds",
     "walletBackup": "Recover wallet from Drive",
-    "InvalidSeeds": "Invalid Seeds Entry",
+    "InvalidSeeds": "Oops! The seed you've entered is incorrect.",
+    "InvalidSeedsSubtitle": "Make sure to avoid spelling mistakes and enter the words in the correct sequence.",
+    "InvalidSeedsDesc": "Please use the seedwords privately. Your bitcoin could be stolen if people gain access to your seedwords.",
     "seedDescription": "Make sure to use the Wallet Recovery Phrase (seed words) in private",
     "recoverWallet": "To recover your wallet",
     "ExportSeed": "Seed words",
