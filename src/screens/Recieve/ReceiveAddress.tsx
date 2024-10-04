@@ -37,14 +37,10 @@ function ReceiveAddress({ address }: Props) {
       }}
       backgroundColor={`${colorMode}.seashellWhite`}
       style={styles.container}
+      borderColor={`${colorMode}.greyBorder`}
     >
       <Box style={styles.textContainer}>
-        <Text
-          color={`${colorMode}.secondaryText`}
-          ellipsizeMode="middle"
-          numberOfLines={1}
-          fontSize={13}
-        >
+        <Text color={`${colorMode}.secondaryText`} style={styles.value}>
           {address}
         </Text>
       </Box>
@@ -67,11 +63,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     borderRadius: 10,
-    height: hp(60),
+    borderWidth: 1,
     marginVertical: hp(20),
+    paddingVertical: hp(11),
+    paddingHorizontal: wp(8),
   },
   value: {
     fontSize: 13,
+    lineHeight: 20,
     letterSpacing: 0.39,
   },
   iconContainer: {
@@ -79,8 +78,8 @@ const styles = StyleSheet.create({
     margin: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    width: wp(56),
-    height: '95%',
+    width: wp(42),
+    height: hp(42),
   },
   textContainer: {
     width: '80%',
