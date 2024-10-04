@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
-import { Dimensions, StyleSheet } from 'react-native';
+import { Dimensions } from 'react-native';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
 import { VStack, Slider, useColorMode, Box } from 'native-base';
 import { windowWidth } from 'src/constants/responsive';
@@ -56,11 +56,5 @@ function DisplayQR({
     </VStack>
   );
 }
-
-const styles = StyleSheet.create({
-  qrWrapper: {
-    borderWidth: 30,
-  },
-});
 
 export default DisplayQR;
