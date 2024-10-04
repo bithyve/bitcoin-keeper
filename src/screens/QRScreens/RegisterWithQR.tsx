@@ -12,10 +12,10 @@ import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/services/wallets/enums';
 import { genrateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
-import QRCode from 'react-native-qrcode-svg';
 import DisplayQR from './DisplayQR';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import KeeperQRCode from 'src/components/KeeperQRCode';
 
 const { width } = Dimensions.get('window');
 
@@ -60,7 +60,7 @@ function RegisterWithQR({ route, navigation }: any) {
       />
       <Box style={styles.center}>
         {signer.type === SignerType.SPECTER ? (
-          <QRCode value={walletConfig} size={width * 0.85} ecl="L" />
+          <KeeperQRCode qrData={walletConfig} size={width * 0.85} ecl="L" />
         ) : (
           <DisplayQR qrContents={qrContents} toBytes type="hex" />
         )}
