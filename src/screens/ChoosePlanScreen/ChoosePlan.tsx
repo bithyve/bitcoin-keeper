@@ -173,6 +173,78 @@ function ChoosePlan() {
       }
     }
   }
+  async function loadDiscounted() {
+    // Loads discounted plans
+    let data = [];
+    try {
+      setLoading(true);
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId, true);
+      if (getPlansResponse.plans) {
+        data = getPlansResponse.plans;
+        const skus = [];
+        getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
+        const subscriptions = await getSubscriptions({ skus });
+        subscriptions.forEach((subscription, i) => {
+          const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
+          const monthlyPlans = [];
+          const yearlyPlans = [];
+          if (Platform.OS === 'android') {
+            subscription.subscriptionOfferDetails.forEach((offer) => {
+              const monthly = offer.pricingPhases.pricingPhaseList.filter(
+                (list) => list.billingPeriod === 'P1M' && list.formattedPrice !== 'Free'
+              );
+              const yearly = offer.pricingPhases.pricingPhaseList.filter(
+                (list) => list.billingPeriod === 'P1Y' && list.formattedPrice !== 'Free'
+              );
+              if (monthly.length) monthlyPlans.push(offer);
+              if (yearly.length) yearlyPlans.push(offer);
+            });
+            data[index].monthlyPlanDetails = {
+              ...getPlanData(monthlyPlans),
+              productId: subscription.productId,
+              offers: monthlyPlans,
+            };
+            data[index].yearlyPlanDetails = {
+              ...getPlanData(yearlyPlans),
+              productId: subscription.productId,
+              offers: yearlyPlans,
+            };
+          } else if (Platform.OS === 'ios') {
+            const planDetails = {
+              price: subscription.localizedPrice,
+              currency: subscription.currency,
+              offerToken: null,
+              productId: subscription.productId,
+              trailPeriod: `${
+                subscription.introductoryPriceNumberOfPeriodsIOS
+              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+            };
+            if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
+              data[index].monthlyPlanDetails = planDetails;
+            } else if (subscription.subscriptionPeriodUnitIOS === 'YEAR') {
+              data[index].yearlyPlanDetails = planDetails;
+            }
+          }
+        });
+        data[0].monthlyPlanDetails = { productId: data[0].productIds[0] };
+        data[0].yearlyPlanDetails = { productId: data[0].productIds[0] };
+        setItems(data);
+        setLoading(false);
+        showToast('Subscriptions Prices Updated');
+      }
+    } catch (error) {
+      console.log('error', error);
+      if (error.message.includes('Billing is unavailable.')) {
+        setItems(data);
+        setLoading(false);
+        showToast(error.message);
+        setIsServiceUnavailible(true);
+      } else {
+        navigation.goBack();
+        showToast(error.message);
+      }
+    }
+  }
 
   async function processPurchase(purchase: SubscriptionPurchase) {
     setRequesting(true);
@@ -183,7 +255,7 @@ function ChoosePlan() {
       setRequesting(false);
       if (response.updated) {
         const subscription: SubScription = {
-          productId: purchase.productId,
+          productId: purchase.productId.replace('.30', ''), // To save discounted plan as normal plan in db
           receipt,
           name: plan[0].name,
           level: response.level,
@@ -194,6 +266,8 @@ function ChoosePlan() {
           subscription,
         });
         setShowUpgradeModal(true);
+        setLoading(true);
+        init();
       } else if (response.error) {
         showToast(response.error);
       }
@@ -391,11 +465,7 @@ function ChoosePlan() {
       } else {
         // For iOS
         const offer = await Relay.getOffer(plan.productId, code.trim().toLowerCase());
-        if (offer && offer.signature) {
-          setActiveOffer(offer);
-        } else {
-          setIsInvalidCode(true);
-        }
+        if (offer && offer.signature) setActiveOffer(offer);
       }
     };
 
@@ -412,11 +482,7 @@ function ChoosePlan() {
         });
       } else {
         setShowPromocodeModal(false);
-        requestSubscription({
-          sku: plan.productId,
-          subscriptionOffers: [{ sku: plan.productId, offerToken: activeOffer.offerToken }],
-          withOffer: activeOffer,
-        });
+        loadDiscounted();
       }
     };
 
