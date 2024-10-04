@@ -78,7 +78,13 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
       derivationDetails: { xDerivationPath },
       specs: { xpub },
     } = wallet as Wallet;
-    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub)})`;
+    const des = `wpkh(${getKeyExpression(
+      wallet.id,
+      xDerivationPath,
+      xpub,
+      true,
+      nextFreeAddressIndex
+    )})`;
     return {
       descriptorString: des,
       receivingAddress,
@@ -90,7 +96,9 @@ export const generateVaultAddressDescriptors = (wallet: Vault | Wallet) => {
     const des = `wpkh(${getKeyExpression(
       signer.masterFingerprint,
       signer.derivationPath,
-      signer.xpub
+      signer.xpub,
+      true,
+      nextFreeAddressIndex
     )})`;
     return {
       descriptorString: des,
@@ -151,7 +159,6 @@ const parseKeyExpression = (keyExpression) => {
   // Case 1: If the keyExpression is enclosed in square brackets
   const bracketMatch = keyExpression.match(/\[([^\]]+)\](.*)/);
   if (bracketMatch) {
-    console.log('here');
     const insideBracket = bracketMatch[1];
     masterFingerprint = insideBracket.substring(0, 8).toUpperCase();
     path =
@@ -161,7 +168,6 @@ const parseKeyExpression = (keyExpression) => {
         .replace(/(\d+)h/g, "$1'")
         .replace(/'/g, "'");
     xpub = bracketMatch[2].replace(/[^\w\s]+$/, '').split(/[^\w]+/)[0];
-    console.log({ xpub });
   } else {
     // Case 2: If the keyExpression is not enclosed in square brackets
     const parts = keyExpression.split("'");
@@ -171,9 +177,6 @@ const parseKeyExpression = (keyExpression) => {
       .substring(keyExpression.lastIndexOf("'") + 1)
       .replace(/[^\w\s]+$/, '')
       .split(/[^\w]+/)[0];
-    // xpub = keyExpression.substring(keyExpression.lastIndexOf("'") + 1).split(/[^\w]+/)[0];
-
-    console.log({ xpub });
   }
   if (
     !isValidMasterFingerprint(masterFingerprint) ||
@@ -198,8 +201,6 @@ export const parseTextforVaultConfig = (secret: string) => {
       .substring(start)
       .split(',')
       .map((expression) => expression.trim());
-
-    console.log(keyExpressions);
 
     const signersDetailsList = keyExpressions.map((expression) => parseKeyExpression(expression));
     const parsedResponse: ParsedVauleText = {
@@ -231,10 +232,6 @@ export const parseTextforVaultConfig = (secret: string) => {
     const signersDetailsList = keyExpressions
       .map((expression) => parseKeyExpression(expression))
       .filter((details) => details !== null);
-
-    signersDetailsList.forEach((element) => {
-      console.log({ element });
-    });
 
     const m = parseInt(keyExpressions.splice(0, 1)[0]);
     const n = signersDetailsList.length;
