@@ -104,10 +104,10 @@ function ChoosePlan() {
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
-  async function init() {
+  async function init(discounted = false) {
     let data = [];
     try {
-      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId, discounted);
       if (getPlansResponse.plans) {
         data = getPlansResponse.plans;
         const skus = [];
@@ -159,78 +159,7 @@ function ChoosePlan() {
         data[0].yearlyPlanDetails = { productId: data[0].productIds[0] };
         setItems(data);
         setLoading(false);
-      }
-    } catch (error) {
-      console.log('error', error);
-      if (error.message.includes('Billing is unavailable.')) {
-        setItems(data);
-        setLoading(false);
-        showToast(error.message);
-        setIsServiceUnavailible(true);
-      } else {
-        navigation.goBack();
-        showToast(error.message);
-      }
-    }
-  }
-  async function loadDiscounted() {
-    // Loads discounted plans
-    let data = [];
-    try {
-      setLoading(true);
-      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId, true);
-      if (getPlansResponse.plans) {
-        data = getPlansResponse.plans;
-        const skus = [];
-        getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
-        const subscriptions = await getSubscriptions({ skus });
-        subscriptions.forEach((subscription, i) => {
-          const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
-          const monthlyPlans = [];
-          const yearlyPlans = [];
-          if (Platform.OS === 'android') {
-            subscription.subscriptionOfferDetails.forEach((offer) => {
-              const monthly = offer.pricingPhases.pricingPhaseList.filter(
-                (list) => list.billingPeriod === 'P1M' && list.formattedPrice !== 'Free'
-              );
-              const yearly = offer.pricingPhases.pricingPhaseList.filter(
-                (list) => list.billingPeriod === 'P1Y' && list.formattedPrice !== 'Free'
-              );
-              if (monthly.length) monthlyPlans.push(offer);
-              if (yearly.length) yearlyPlans.push(offer);
-            });
-            data[index].monthlyPlanDetails = {
-              ...getPlanData(monthlyPlans),
-              productId: subscription.productId,
-              offers: monthlyPlans,
-            };
-            data[index].yearlyPlanDetails = {
-              ...getPlanData(yearlyPlans),
-              productId: subscription.productId,
-              offers: yearlyPlans,
-            };
-          } else if (Platform.OS === 'ios') {
-            const planDetails = {
-              price: subscription.localizedPrice,
-              currency: subscription.currency,
-              offerToken: null,
-              productId: subscription.productId,
-              trailPeriod: `${
-                subscription.introductoryPriceNumberOfPeriodsIOS
-              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
-            };
-            if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
-              data[index].monthlyPlanDetails = planDetails;
-            } else if (subscription.subscriptionPeriodUnitIOS === 'YEAR') {
-              data[index].yearlyPlanDetails = planDetails;
-            }
-          }
-        });
-        data[0].monthlyPlanDetails = { productId: data[0].productIds[0] };
-        data[0].yearlyPlanDetails = { productId: data[0].productIds[0] };
-        setItems(data);
-        setLoading(false);
-        showToast('Subscriptions Prices Updated');
+        discounted && showToast('Subscriptions Prices Updated');
       }
     } catch (error) {
       console.log('error', error);
@@ -482,7 +411,7 @@ function ChoosePlan() {
         });
       } else {
         setShowPromocodeModal(false);
-        loadDiscounted();
+        init(true); // load discounted subscriptions
       }
     };
 
