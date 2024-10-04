@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import QRCode from 'react-native-qrcode-svg';
+import KeeperQRCode from 'src/components/KeeperQRCode';
 
 type Props = {
   qrValue: string;
@@ -23,7 +23,11 @@ function ReceiveQR({ qrValue }: Props) {
       borderColor={`${colorMode}.qrBorderColor`}
     >
       {/* Passing 'address' is needed since passing empty string will throw error in QRCode component */}
-      <QRCode value={qrValue || 'address'} logoBackgroundColor="transparent" size={hp(175)} />
+      <KeeperQRCode
+        qrData={qrValue || 'address'}
+        logoBackgroundColor="transparent"
+        size={hp(175)}
+      />
       <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
         <Text
           bold
