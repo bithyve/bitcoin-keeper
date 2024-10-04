@@ -6,14 +6,13 @@ import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
-import QRCode from 'react-native-qrcode-svg';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
@@ -27,6 +26,7 @@ import useSigners from 'src/hooks/useSigners';
 import { SignerType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ReceiveGreen from 'src/assets/images/receive-green.svg';
+import KeeperQRCode from 'src/components/KeeperQRCode';
 const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
 
 function ReceiveScreen({ route }: { route }) {
@@ -157,14 +157,15 @@ function ReceiveScreen({ route }: { route }) {
         <Box
           testID="view_recieveAddressQR"
           style={styles.qrWrapper}
-          borderColor={`${colorMode}.qrBorderColor`}
+          backgroundColor={`${colorMode}.receiveQrBackground`}
+          borderColor={`${colorMode}.receiveQrBackground`}
         >
-          <QRCode
-            value={paymentURI || receivingAddress || 'address'}
+          <KeeperQRCode
+            qrData={paymentURI || receivingAddress || 'address'}
             logoBackgroundColor="transparent"
             size={hp(200)}
           />
-          <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
+          <Box backgroundColor={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
             <Text
               bold
               style={styles.receiveAddressText}
@@ -231,7 +232,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     width: hp(250),
-    borderWidth: 30,
+    borderWidth: 20,
   },
   receiveAddressWrapper: {
     height: 28,
