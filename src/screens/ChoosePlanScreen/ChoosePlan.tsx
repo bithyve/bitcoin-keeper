@@ -106,10 +106,10 @@ function ChoosePlan() {
     setCurrentPosition(initialPosition !== 0 ? initialPosition : subscription.level - 1);
   }, []);
 
-  async function init() {
+  async function init(discounted = false) {
     let data = [];
     try {
-      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId);
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId, discounted);
       if (getPlansResponse.plans) {
         data = getPlansResponse.plans;
         const skus = [];
@@ -161,6 +161,7 @@ function ChoosePlan() {
         data[0].yearlyPlanDetails = { productId: data[0].productIds[0] };
         setItems(data);
         setLoading(false);
+        discounted && showToast('Subscriptions Prices Updated');
       }
     } catch (error) {
       console.log('error', error);
@@ -185,7 +186,7 @@ function ChoosePlan() {
       setRequesting(false);
       if (response.updated) {
         const subscription: SubScription = {
-          productId: purchase.productId,
+          productId: purchase.productId.replace('.30', ''), // To save discounted plan as normal plan in db
           receipt,
           name: plan[0].name,
           level: response.level,
@@ -196,6 +197,8 @@ function ChoosePlan() {
           subscription,
         });
         setShowUpgradeModal(true);
+        setLoading(true);
+        init();
       } else if (response.error) {
         showToast(response.error);
       }
@@ -393,11 +396,7 @@ function ChoosePlan() {
       } else {
         // For iOS
         const offer = await Relay.getOffer(plan.productId, code.trim().toLowerCase());
-        if (offer && offer.signature) {
-          setActiveOffer(offer);
-        } else {
-          setIsInvalidCode(true);
-        }
+        if (offer && offer.signature) setActiveOffer(offer);
       }
     };
 
@@ -414,11 +413,7 @@ function ChoosePlan() {
         });
       } else {
         setShowPromocodeModal(false);
-        requestSubscription({
-          sku: plan.productId,
-          subscriptionOffers: [{ sku: plan.productId, offerToken: activeOffer.offerToken }],
-          withOffer: activeOffer,
-        });
+        init(true); // load discounted subscriptions
       }
     };
 
