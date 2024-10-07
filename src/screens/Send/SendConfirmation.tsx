@@ -1181,6 +1181,7 @@ function SendConfirmation({ route }) {
         title="Send Confirmation"
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
+        rightComponentPadding={10}
         onPressHandler={() => {
           if (navigation.getState().index > 2 && isCachedTransaction) {
             navigation.dispatch(
@@ -1719,7 +1720,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    marginHorizontal: wp(25),
+    marginHorizontal: wp(10),
   },
   contentContainer: {
     paddingBottom: hp(30),

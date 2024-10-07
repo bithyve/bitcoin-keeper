@@ -95,8 +95,9 @@ export function OptionCard({
 const styles = StyleSheet.create({
   iconContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 5,
-    flex: 0.85,
+    paddingRight: 20,
   },
   preTitle: {
     fontSize: 13,
@@ -114,9 +115,10 @@ const styles = StyleSheet.create({
     width: wp(25),
   },
   arrowWrapper: {
-    flex: 0.12,
+    paddingRight: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
 });
+
 export default OptionCard;
