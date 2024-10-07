@@ -196,18 +196,20 @@ function ChangeLanguage() {
         subtitle={settings.CurrencyDefaultsSubtitle}
       />
       <Box style={styles.contentContainer}>
-        <OptionCard
-          title={settings.SatsMode}
-          description={settings.satsModeSubTitle}
-          callback={() => changeSatsMode()}
-          Icon={
-            <Switch
-              value={satsEnabled}
-              onValueChange={() => changeSatsMode()}
-              testID="switch_darkmode"
-            />
-          }
-        />
+        <Box style={styles.satModeContainer}>
+          <OptionCard
+            title={settings.SatsMode}
+            description={settings.satsModeSubTitle}
+            callback={() => changeSatsMode()}
+            Icon={
+              <Switch
+                value={satsEnabled}
+                onValueChange={() => changeSatsMode()}
+                testID="switch_darkmode"
+              />
+            }
+          />
+        </Box>
         <CountrySwitchCard
           title={settings.FiatCurrency}
           description={settings.Seebalance}
@@ -282,7 +284,7 @@ const styles = StyleSheet.create({
     width: '90%',
     height: wp('13%'),
     position: 'relative',
-    marginHorizontal: 12,
+    marginHorizontal: 10,
     borderRadius: 10,
   },
   textCurrency: {
@@ -415,6 +417,9 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     marginTop: 20,
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
+  },
+  satModeContainer: {
+    paddingLeft: 10,
   },
 });
