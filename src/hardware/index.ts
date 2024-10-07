@@ -115,26 +115,18 @@ export const generateSignerFromMetaData = ({
   return { signer, key };
 };
 
-export const getSignerDescription = (
-  signerType: SignerType,
-  instanceNumber: number,
-  signer?: Signer
-) => {
+export const getSignerDescription = (signer: Signer) => {
   if (signer) {
+    if (signer.extraData?.givenName || signer.extraData?.familyName) {
+      const fullName = `${signer.extraData?.givenName || ''} ${
+        signer.extraData?.familyName || ''
+      }`.trim();
+      return fullName || 'Unknown Contact';
+    }
     if (signer.signerDescription) {
       return signer.signerDescription;
-    } else if (signerType === SignerType.MY_KEEPER) {
-      return numberToOrdinal(instanceNumber);
-    } else if (signerType === SignerType.KEEPER) {
-      return 'External';
-    } else {
-      return `Added ${moment(signer.addedOn).calendar().toLowerCase()}`;
     }
-  }
-  if (signerType === SignerType.MY_KEEPER) {
-    return numberToOrdinal(instanceNumber);
-  } else if (signerType === SignerType.KEEPER) {
-    return 'External';
+    return `Added ${moment(signer.addedOn).calendar().toLowerCase()}`;
   }
   return '';
 };

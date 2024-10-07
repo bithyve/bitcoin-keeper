@@ -143,7 +143,6 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
-import { getSignerDescription } from 'src/hardware';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 
 export interface NewVaultDetails {
@@ -652,27 +651,6 @@ export function* addSigningDeviceWorker({
       filteredSigners.map((signer) => [signer.masterFingerprint, signer])
     );
     let signersToUpdate = [];
-
-    try {
-      // update signers with signer count
-      let incrementForCurrentSigners = 0;
-      signers = signers.map((signer) => {
-        if (signer.type === SignerType.MY_KEEPER) {
-          const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
-          const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
-          const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
-          signer.extraData = { instanceNumber: instanceNumberToSet + 1 };
-          signer.signerDescription = getSignerDescription(signer.type, instanceNumberToSet + 1);
-          incrementForCurrentSigners += 1;
-          return signer;
-        } else {
-          return signer;
-        }
-      });
-    } catch (e) {
-      captureError(e);
-      return;
-    }
 
     const keysMatch = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&

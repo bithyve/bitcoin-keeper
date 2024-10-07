@@ -440,7 +440,7 @@ function Signers({
               ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
               : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
           }
-          description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
+          description={getSignerDescription(signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
           image={signer?.extraData?.thumbnailPath}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
@@ -512,11 +512,7 @@ function Signers({
                 ? getSignerNameFromType(signer.type, signer.isMock)
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
-            description={getSignerDescription(
-              signer.type,
-              signer.extraData?.instanceNumber,
-              signer
-            )}
+            description={getSignerDescription(signer)}
             icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}

@@ -322,11 +322,7 @@ function SignersList({
                     ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
                     : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
                 }
-                description={getSignerDescription(
-                  signer.type,
-                  signer.extraData?.instanceNumber,
-                  signer
-                )}
+                description={getSignerDescription(signer)}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
                 image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
