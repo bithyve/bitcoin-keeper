@@ -156,6 +156,7 @@ export type AppStackParams = {
   AddContact: undefined;
   ContactProfile: undefined;
   EditContact: undefined;
+  SignPSBTScreen: any;
 };
 
 // Usage:

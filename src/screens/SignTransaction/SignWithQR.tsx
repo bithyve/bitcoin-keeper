@@ -5,7 +5,7 @@ import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType, XpubTypes } from 'src/services/wallets/enums';
+import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -27,9 +27,11 @@ import idx from 'idx';
 import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 function SignWithQR() {
   const { colorMode } = useColorMode();
+  const { signerMap } = useSignerMap();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
@@ -39,18 +41,24 @@ function SignWithQR() {
   const {
     vaultKey,
     vaultId = '',
+    isRemoteKey,
+    serializedPSBTEnvelopFromProps,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
+    isRemoteKey: boolean;
+    serializedPSBTEnvelopFromProps?: string;
   } = route.params as any;
 
-  const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-    (envelop) => vaultKey.xfp === envelop.xfp
-  )[0];
+  const serializedPSBTEnvelop = isRemoteKey
+    ? serializedPSBTEnvelopFromProps
+    : serializedPSBTEnvelops.filter((envelop) => vaultKey.xfp === envelop.xfp)[0];
   const { serializedPSBT } = serializedPSBTEnvelop;
   const { activeVault } = useVault({ vaultId });
-  const isSingleSig = activeVault.scheme.n === 1;
-  const { signer } = useSignerFromKey(vaultKey);
+  const isSingleSig = isRemoteKey ? false : activeVault.scheme.n === 1; // TODO Need scheme or isMultisig prop aswell
+  const { signer } = isRemoteKey
+    ? { signer: signerMap[vaultKey.masterFingerprint] }
+    : useSignerFromKey(vaultKey);
   const [details, setDetails] = React.useState('');
   const { showToast } = useToastMessage();
 
@@ -111,6 +119,19 @@ function SignWithQR() {
           dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
         }
       } else {
+        if (isRemoteKey) {
+          navigation.replace('RemoteSharing', {
+            isPSBTSharing: true,
+            signerData: {},
+            signer: signer,
+            psbt: signedSerializedPSBT,
+            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+            vaultKey: vaultKey,
+            vaultId: vaultId,
+          });
+          return;
+        }
+
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
         dispatch(
           updateKeyDetails(vaultKey, 'registered', {

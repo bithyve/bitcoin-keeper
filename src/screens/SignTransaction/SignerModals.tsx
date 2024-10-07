@@ -588,6 +588,8 @@ function SignerModals({
   specterModal,
   setSpecterModal,
   onFileSign,
+  isRemoteKey = false,
+  serializedPSBTEnvelopFromProps,
 }: {
   vaultId: string;
   activeXfp: string;
@@ -625,15 +627,17 @@ function SignerModals({
   specterModal: boolean;
   setSpecterModal: any;
   onFileSign: any;
+  isRemoteKey: boolean;
+  serializedPSBTEnvelopFromProps: SerializedPSBTEnvelop;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const serializedPSBTEnvelop: SerializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-    (envelop) => envelop.xfp === activeXfp
-  )[0];
+  const serializedPSBTEnvelop: SerializedPSBTEnvelop = isRemoteKey
+    ? serializedPSBTEnvelopFromProps
+    : serializedPSBTEnvelops?.filter((envelop) => envelop.xfp === activeXfp)[0];
 
   const navigateToQrSigning = (vaultKey: VaultSigner) => {
     setPassportModal(false);
@@ -647,6 +651,8 @@ function SignerModals({
         signTransaction,
         vaultKey,
         vaultId,
+        isRemoteKey: isRemoteKey,
+        serializedPSBTEnvelopFromProps,
       })
     );
   };
@@ -661,6 +667,8 @@ function SignerModals({
         vaultKey,
         vaultId,
         signerType,
+        isRemoteKey: isRemoteKey,
+        serializedPSBTEnvelopFromProps,
       })
     );
   };

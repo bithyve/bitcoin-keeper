@@ -62,7 +62,10 @@ function RemoteSharing({ route }: ScreenProps) {
       const data = {
         fcmToken,
         signer: {
-          extraData: { originalType: signer.type },
+          extraData:
+            mode === RKInteractionMode.SHARE_REMOTE_KEY
+              ? { originalType: signer.type }
+              : signer.extraData,
           inheritanceKeyInfo: signer.inheritanceKeyInfo,
           isBIP85: signer.isBIP85,
           masterFingerprint: signer.masterFingerprint,
@@ -83,6 +86,12 @@ function RemoteSharing({ route }: ScreenProps) {
             }
           : null,
       };
+
+      if (mode === RKInteractionMode.SHARE_PSBT) {
+        data.isMultisig = findIsMultisig(activeVault);
+      }
+
+      console.log('🚀 ~ handleShare ~ data:', data);
       const encryptedData = createCipheriv(JSON.stringify(data), config.REMOTE_KEY_PASSWORD);
       const res = await Relay.createRemoteKey(JSON.stringify(encryptedData));
       if (res?.id) {
@@ -188,3 +197,5 @@ const styles = StyleSheet.create({
     marginBottom: hp(34),
   },
 });
+
+const findIsMultisig = (vault) => (vault.signers.length > 1 ? true : false);

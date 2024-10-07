@@ -52,7 +52,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   function handleDeepLinkEvent(event) {
     console.log('🚀 ~ handleDeepLinkEvent ~ event:', event);
     const { url } = event;
-    console.log('handleDeepLinkEvent', url);
     if (url) {
       if (url.includes('backup')) {
         const splits = url.split('backup/');
@@ -84,7 +83,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    console.log('🚀 ~ handleRemoteKeyDeepLink ~ initialUrl:', initialUrl);
     const externalKeyId = initialUrl.split('shareKey/')[1];
     if (externalKeyId) {
       const { createdAt, data: response } = await Relay.getRemoteKey(externalKeyId);
@@ -93,7 +91,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       console.log('🚀 ~ handleRemoteKeyDeepLink ~ tempData:', tempData);
       switch (tempData.type) {
         case RKInteractionMode.SHARE_REMOTE_KEY:
-          console.log('🚀 ~ handleRemoteKeyDeepLink ~ tempData:', tempData);
           navigation.navigate('ManageSigners', {
             receivedExternalSigner: {
               timeLeft: calculateTimeLeft(createdAt),
@@ -103,7 +100,6 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           break;
 
         case RKInteractionMode.SHARE_PSBT:
-          // # next step: sign the psbt and send.
           if (tempData?.psbt) {
             try {
               let signedSerializedPSBT;
@@ -136,7 +132,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                         seedBasedSingerMnemonic,
                         serializedPSBT: tempData.psbt,
                         xfp: tempData.vaultKey.xfp,
-                        isMultisig: true, // TODO: check this
+                        isMultisig: tempData.isMultisig,
                       });
                       if (signedSerializedPSBT) {
                         dispatch(
@@ -163,6 +159,21 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       xfp: tempData.vaultKey.xfp,
                       onSuccess: signTransaction,
                     });
+                    break;
+                  case SignerType.BITBOX02:
+                  case SignerType.LEDGER:
+                  case SignerType.TREZOR:
+                  case SignerType.COLDCARD:
+                  case SignerType.PASSPORT:
+                  case SignerType.SPECTER:
+                    navigation.navigate('SignPSBTScreen', {
+                      data: tempData,
+                    });
+                    break;
+
+                  default:
+                    console.log('Signer Type Unknown');
+                    break;
                 }
               } catch (e) {
                 showToast(e.message);
@@ -181,7 +192,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           try {
             Psbt.fromBase64(tempData?.psbt); // will throw if not a psbt
             console.log('valid PSBT');
-            if (false) {
+            if (!tempData.isMultiSig) {
               // TODO: handle single sig
               // if (isSingleSig) {
               // if (signer.type === SignerType.SEEDSIGNER) {

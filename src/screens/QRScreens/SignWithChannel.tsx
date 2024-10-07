@@ -16,7 +16,7 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { captureError } from 'src/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
-import { SignerType } from 'src/services/wallets/enums';
+import { RKInteractionMode, SignerType } from 'src/services/wallets/enums';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
@@ -73,19 +73,24 @@ function SignWithChannel() {
     vaultKey,
     vaultId = '',
     signerType,
+    isRemoteKey = false,
+    serializedPSBTEnvelopFromProps,
   } = params as {
     vaultKey: VaultSigner;
     vaultId: string;
     signerType: string;
+    isRemoteKey?: boolean;
+    serializedPSBTEnvelopFromProps?: any;
   };
   const { signer } = useSignerFromKey(vaultKey);
   const { activeVault } = useVault({ vaultId });
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const { serializedPSBT } = serializedPSBTEnvelops.filter(
-    (envelop) => vaultKey.xfp === envelop.xfp
-  )[0];
+
+  const { serializedPSBT } = isRemoteKey
+    ? serializedPSBTEnvelopFromProps
+    : serializedPSBTEnvelops.filter((envelop) => vaultKey.xfp === envelop.xfp)[0];
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
@@ -120,6 +125,19 @@ function SignWithChannel() {
     const onSignedTnx = (data) => {
       try {
         const signedSerializedPSBT = data.data.signedSerializedPSBT;
+        if (isRemoteKey) {
+          navgation.replace('RemoteSharing', {
+            isPSBTSharing: true,
+            signerData: {},
+            signer: signer,
+            psbt: signedSerializedPSBT,
+            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+            vaultKey: vaultKey,
+            vaultId: vaultId,
+          });
+          return;
+        }
+
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
         navgation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
         dispatch(
