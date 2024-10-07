@@ -320,7 +320,7 @@ export default SetupOtherSDScreen;
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
-    marginHorizontal: '5%',
+    marginHorizontal: '2.5%',
   },
   input: {
     margin: '5%',

@@ -555,6 +555,8 @@ const styles = StyleSheet.create({
   wrapper: {
     marginTop: hp(35),
     gap: 50,
+    width: '95%',
+    alignSelf: 'center',
   },
   note: {
     position: 'absolute',
