@@ -38,6 +38,7 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 import RecoverySuccessModalContent from './RecoverySuccessModalContent';
 import { setAppImageError } from 'src/store/reducers/bhr';
+import Fonts from 'src/constants/Fonts';
 
 type seedWordItem = {
   id: number;
@@ -426,6 +427,7 @@ function EnterSeedScreen({ route, navigation }) {
         <Box style={styles.inputListWrapper}>
           <Input
             fontWeight={500}
+            fontFamily={item.name === '' ? 'Arial' : Fonts.FiraSansSemiBold}
             backgroundColor={`${colorMode}.seashellWhite`}
             borderColor={item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.seashellWhite`}
             ref={(el) => (inputRef.current[index] = el)}
