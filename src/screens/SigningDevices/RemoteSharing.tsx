@@ -15,9 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
-import { createCipheriv } from 'src/utils/service-utilities/utils';
-import config from 'src/utils/service-utilities/config';
 import useVault from 'src/hooks/useVault';
+import { encrypt, getRandomBytes } from 'src/utils/service-utilities/encryption';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -90,14 +89,13 @@ function RemoteSharing({ route }: ScreenProps) {
       if (mode === RKInteractionMode.SHARE_PSBT) {
         data.isMultisig = findIsMultisig(activeVault);
       }
-
-      console.log('🚀 ~ handleShare ~ data:', data);
-      const encryptedData = createCipheriv(JSON.stringify(data), config.REMOTE_KEY_PASSWORD);
-      const res = await Relay.createRemoteKey(JSON.stringify(encryptedData));
+      const encryptionKey = getRandomBytes(12);
+      const encryptedData = encrypt(encryptionKey, JSON.stringify(data));
+      const res = await Relay.createRemoteKey(encryptedData);
       if (res?.id) {
         const result = await Share.share({
           title: RemoteShareText[mode].title,
-          message: `${RemoteShareText[mode].desc}\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}`,
+          message: `${RemoteShareText[mode].desc}\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}/${encryptionKey}`,
         });
         if (result.action === Share.sharedAction) {
           if (result.activityType) {

@@ -29,7 +29,6 @@ import useAsync from 'src/hooks/useAsync';
 import { sentryConfig } from 'src/services/sentry';
 import Relay from 'src/services/backend/Relay';
 import { calculateTimeLeft } from 'src/utils/utilities';
-import config from 'src/utils/service-utilities/config';
 
 import { Psbt } from 'bitcoinjs-lib';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
@@ -38,6 +37,7 @@ import { signTransactionWithSeedWords } from '../SignTransaction/signWithSD';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { decrypt } from 'src/utils/service-utilities/encryption';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
   const electrumClientConnectionStatus = useAppSelector(
@@ -83,12 +83,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
-    const externalKeyId = initialUrl.split('shareKey/')[1];
+    const [externalKeyId, encryptionKey] = initialUrl.split('shareKey/')[1].split('/');
     if (externalKeyId) {
       const { createdAt, data: response } = await Relay.getRemoteKey(externalKeyId);
-      const { iv, encryptedData } = JSON.parse(response);
-      const tempData = createDecipheriv({ encryptedData, iv }, config.REMOTE_KEY_PASSWORD);
-      console.log('🚀 ~ handleRemoteKeyDeepLink ~ tempData:', tempData);
+      const tempData = JSON.parse(decrypt(encryptionKey, response));
       switch (tempData.type) {
         case RKInteractionMode.SHARE_REMOTE_KEY:
           navigation.navigate('ManageSigners', {

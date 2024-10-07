@@ -365,3 +365,8 @@ export const createDecipherGcm = (data: DecryptData, password: string) => {
   }
   return JSON.parse(decrypted.toString('utf-8'));
 };
+
+export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterations = 100) {
+  // Derive a 16-byte key from the 12-character password
+  return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256'); // 16 bytes = 128 bits
+}
