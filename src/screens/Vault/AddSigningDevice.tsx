@@ -1210,6 +1210,7 @@ function AddSigningDevice() {
                 primaryText={walletTranslation.Createwallet}
                 primaryCallback={() => {
                   setCreating(true);
+                  setSelectDurationModal(false);
                 }}
                 secondaryText={common.cancel}
                 secondaryCallback={() => setSelectDurationModal(false)}

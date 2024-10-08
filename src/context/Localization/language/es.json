@@ -648,7 +648,7 @@
     "timeLockCreatedSubtitle": "Degrading multi-key wallet for long term stacking",
     "timeLockCautionTitle": "Caution: Time-Lock Wallet",
     "timeLockCautionSubtitle": "Once the timelock is set, funds cannot be accessed until the specified time period has elapsed. In case of an urgent need for funds, there is no way to bypass the timelock.",
-    "timeLockDurationTitle": "Select Recovery Path",
+    "timeLockDurationTitle": "Choose Unlock Time",
     "timeLockDurationSubtitle": "A recovery path provides even more protection against losing coins. It automatically lowers the amount of signatures required if you don’t spend from your wallet for a long time.",
     "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect"
   },
