@@ -191,7 +191,7 @@ function SignWithQR() {
             <ShareWithNfc
               data={serializedPSBT}
               isPSBTSharing
-              psbt={serializedPSBT} // TODO: check this
+              psbt={serializedPSBT}
               serializedPSBTEnvelop={serializedPSBTEnvelop}
               signer={signer}
               vaultKey={vaultKey} // required for signing

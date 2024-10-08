@@ -883,7 +883,6 @@ function SignerAdvanceSettings({ route }: any) {
           description="Associate contact or Edit description"
           callback={navigateToAdditionalDetails}
         />
-        {/* {(isMyAppKey || true) && ( // TODO: check on this */}
         {supportsRKSigning && (
           <OptionCard
             title="Sign a transaction"
