@@ -25,16 +25,23 @@ const RemoteShareText = {
     title: 'Remote Key Sharing',
     desc: 'Please share this Key-Link with your contact using a secure and private communication medium. The link will be valid for 5 minutes.',
     cta: 'Share Key',
+    msgTitle: 'Remote Key Sharing',
+    msgDesc: 'Hey, I’m sharing a bitcoin key with you. Please click the link to accept it.',
   },
   [RKInteractionMode.SHARE_PSBT]: {
     title: 'Sign Transaction Remotely',
     desc: 'Please share the PSBT Link with the key holder for transaction signing. Once generated, the link will be valid for 5 minutes.',
     cta: 'Share Link',
+    msgTitle: 'Transaction Signing Request Received',
+    msgDesc:
+      'Hey, your friend is requesting for your Key to make a transaction. Please click the link to view details',
   },
   [RKInteractionMode.SHARE_SIGNED_PSBT]: {
     title: 'Sign Transaction Remotely',
     desc: 'Please share back the PSBT link with the transaction creator to complete the signing. Once generated, the link will be valid for 5 minutes.',
     cta: 'Share Link',
+    msgTitle: 'Signed Transaction Received',
+    msgDesc: 'Hey, your friend has signed your transaction. Please click the link to accept it.',
   },
 };
 
@@ -94,8 +101,8 @@ function RemoteSharing({ route }: ScreenProps) {
       const res = await Relay.createRemoteKey(encryptedData);
       if (res?.id) {
         const result = await Share.share({
-          title: RemoteShareText[mode].title,
-          message: `${RemoteShareText[mode].desc}\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}/${encryptionKey}`,
+          title: RemoteShareText[mode].msgTitle,
+          message: `${RemoteShareText[mode].msgDesc}\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}/${encryptionKey}`,
         });
         if (result.action === Share.sharedAction) {
           if (result.activityType) {
@@ -131,8 +138,8 @@ function RemoteSharing({ route }: ScreenProps) {
 
           <Box style={styles.messagePreview}>
             <MessagePreview
-              title={RemoteShareText[mode].title}
-              description={RemoteShareText[mode].desc}
+              title={RemoteShareText[mode].msgTitle}
+              description={RemoteShareText[mode].msgDesc}
               link="www.bitcoinkeeper.app..."
             />
           </Box>
