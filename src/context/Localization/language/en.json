@@ -541,7 +541,7 @@
     "lowFee": "Network fee is less than 10% of the amount being sent.",
     "toAssistedWallet": "To Assisted Wallet",
     "assistedVaultHeaderSubtitle": "Creating a time-locked Assisted Wallet",
-    "addUserKeyTitle": "Who will manage the funds?",
+    "addUserKeyTitle": "Add your key to the wallet",
     "addAdvisorKeyTitle": "Add two advisor keys to your wallet",
     "discardTnxTitle": "Invalid UTXO set",
     "discardTnxSubTitle": "This transaction's UTXO has already been used.",

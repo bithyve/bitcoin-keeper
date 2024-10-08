@@ -101,12 +101,12 @@ function SignerItem({
       <Box>
         {index === 0 && (
           <Text color={`${colorMode}.primaryText`} medium style={styles.title}>
-            Who will manage the funds?
+            {wallet.addUserKeyTitle}
           </Text>
         )}
         {index === 1 && (
           <Text color={`${colorMode}.primaryText`} medium style={styles.title}>
-            Add two advisor keys to your wallet
+            {wallet.addAdvisorKeyTitle}
           </Text>
         )}
 
@@ -125,7 +125,7 @@ function SignerItem({
     <Box>
       {index === 0 && (
         <Text color={`${colorMode}.primaryText`} medium style={styles.title}>
-          Who will manage the funds?
+          Add your key to the wallet
         </Text>
       )}
       {index === 1 && (
