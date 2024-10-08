@@ -106,45 +106,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           if (tempData?.serializedPSBTEnvelop) {
             try {
               try {
-                const activeSigner = signers.find((s) => s.masterFingerprint == tempData.signer);
-                if (!activeSigner) throw { message: 'Signer not found' };
-                switch (activeSigner.type) {
+                const signer = signers.find((s) => s.masterFingerprint == tempData.signer);
+                if (!signer) throw { message: 'Signer not found' };
+                switch (signer.type) {
                   case SignerType.SEED_WORDS:
-                    const signTransaction = async ({ seedBasedSingerMnemonic }) => {
-                      const { signedSerializedPSBT } = await signTransactionWithSeedWords({
-                        signingPayload: tempData.serializedPSBTEnvelop.signingPayload,
-                        defaultVault: tempData.vault,
-                        seedBasedSingerMnemonic,
-                        serializedPSBT: tempData.serializedPSBTEnvelop.serializedPSBT,
-                        xfp: tempData.vaultKey.xfp,
-                        isMultisig: tempData.isMultisig,
-                      });
-                      if (signedSerializedPSBT) {
-                        dispatch(
-                          healthCheckStatusUpdate([
-                            {
-                              signerId: activeSigner.masterFingerprint,
-                              status: hcStatusType.HEALTH_CHECK_SIGNING,
-                            },
-                          ])
-                        );
-                        navigation.navigate('RemoteSharing', {
-                          isPSBTSharing: true,
-                          signerData: {},
-                          signer: activeSigner,
-                          psbt: signedSerializedPSBT,
-                          mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-                          vaultKey: tempData.vaultKey,
-                          vaultId: tempData.vaultId,
-                        });
-                      }
-                    };
-                    navigation.navigate('EnterSeedScreen', {
-                      parentScreen: SIGNTRANSACTION,
-                      xfp: tempData.vaultKey.xfp,
-                      onSuccess: signTransaction,
-                    });
-                    break;
                   case SignerType.BITBOX02:
                   case SignerType.LEDGER:
                   case SignerType.TREZOR:
@@ -155,17 +120,15 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   case SignerType.JADE:
                   case SignerType.MY_KEEPER:
                     navigation.navigate('SignPSBTScreen', {
-                      data: { ...tempData, signer: activeSigner },
+                      data: { ...tempData, signer },
                     });
                     break;
-
                   default:
                     console.log('Signer Type Unknown');
                     break;
                 }
               } catch (e) {
                 showToast(e.message);
-                // TODO: error handling
               }
             } catch (e) {
               console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
@@ -179,7 +142,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         case RKInteractionMode.SHARE_SIGNED_PSBT:
           try {
             Psbt.fromBase64(tempData?.psbt); // will throw if not a psbt
-            if (!tempData.isMultisig) {
+            if (false) {
+              // if (!tempData.isMultisig) {
               // TODO: handle single sig
               // if (isSingleSig) {
               // if (signer.type === SignerType.SEEDSIGNER) {

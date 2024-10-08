@@ -3,9 +3,10 @@ import { Text, StyleSheet, SafeAreaView } from 'react-native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from './SignTransaction/SignerModals';
 import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   signTransactionWithColdCard,
+  signTransactionWithSeedWords,
   signTransactionWithTapsigner,
 } from './SignTransaction/signWithSD';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
@@ -16,6 +17,10 @@ import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { useColorMode } from 'native-base';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import { SIGNTRANSACTION } from 'src/navigation/contants';
+import { useDispatch } from 'react-redux';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 export const SignPSBTScreen = ({ route }: any) => {
   const { data } = route.params;
@@ -37,6 +42,7 @@ export const SignPSBTScreen = ({ route }: any) => {
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
+  const dispatch = useDispatch();
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -64,36 +70,41 @@ export const SignPSBTScreen = ({ route }: any) => {
       case SignerType.BITBOX02:
         setBitbox02modal(true);
         break;
-
       case SignerType.KEYSTONE:
         setKeystoneModal(true);
         break;
       case SignerType.JADE:
         setJadeModal(true);
         break;
-
       case SignerType.SEEDSIGNER:
         setSeedSignerModal(true);
         break;
       case SignerType.SPECTER:
         setSpecterModal(true);
         break;
-
       case SignerType.TAPSIGNER:
         setTapSignerModal(true);
         break;
-
       case SignerType.MY_KEEPER:
         setConfirmPassVisible(true);
-
         break;
-
+      case SignerType.SEED_WORDS:
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'EnterSeedScreen',
+            params: {
+              parentScreen: SIGNTRANSACTION,
+              xfp: vaultKey.xfp,
+              onSuccess: signTransaction,
+            },
+          })
+        );
       default:
         break;
     }
   };
 
-  const signTransaction = async () => {
+  const signTransaction = async ({ seedBasedSingerMnemonic }) => {
     try {
       if (SignerType.TAPSIGNER === signerType) {
         const { signingPayload: signedPayload, signedSerializedPSBT } =
@@ -141,6 +152,34 @@ export const SignPSBTScreen = ({ route }: any) => {
             vaultKey: vaultKey,
             vaultId: vaultId,
             isMultisig: isMultisig,
+          });
+        }
+      } else if (SignerType.SEED_WORDS === signerType) {
+        const { signedSerializedPSBT } = await signTransactionWithSeedWords({
+          signingPayload: serializedPSBTEnvelop.signingPayload,
+          defaultVault: vault,
+          seedBasedSingerMnemonic,
+          serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
+          xfp: vaultKey.xfp,
+          isMultisig: isMultisig,
+        });
+        if (signedSerializedPSBT) {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
+          navigation.replace('RemoteSharing', {
+            isPSBTSharing: true,
+            signerData: {},
+            signer: signer,
+            psbt: signedSerializedPSBT,
+            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+            vaultKey: vaultKey,
+            vaultId: vaultId,
           });
         }
       }
