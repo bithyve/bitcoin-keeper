@@ -5,14 +5,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { CKTapCard } from 'cktap-protocol-react-native';
 
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getTapsignerErrorMessage, unlockRateLimit } from 'src/hardware/tapsigner';
+import { handleTapsignerError, unlockRateLimit } from 'src/hardware/tapsigner';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -46,6 +46,7 @@ function UnlockTapsigner() {
       const { authDelay } = await withModal(async () => unlockRateLimit(card))();
       if (authDelay === 0) {
         navigation.dispatch(CommonActions.goBack());
+        if (Platform.OS === 'ios') NFC.showiOSMessage(`Tapsigner unlocked successfully!`);
         showToast('Tapsigner unlocked successfully', <TickIcon />);
       } else {
         if (Platform.OS === 'ios') {
@@ -57,15 +58,11 @@ function UnlockTapsigner() {
         }
       }
     } catch (error) {
-      const errorMessage = getTapsignerErrorMessage(error);
+      const errorMessage = handleTapsignerError(error, navigation);
       if (errorMessage) {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage);
-      } else if (error.toString() === 'Error') {
-        // do nothing when nfc is dismissed by the user
-      } else {
-        showToast('Something went wrong, please try again!');
+        showToast(errorMessage, <ToastErrorIcon />, IToastCategory.DEFAULT, 3000, true);
       }
+    } finally {
       closeNfc();
       card.endNfcSession();
     }

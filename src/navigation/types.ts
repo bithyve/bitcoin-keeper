@@ -5,7 +5,7 @@ export type AppStackParams = {
   Home: undefined;
   Login: undefined;
   SigningDeviceList: undefined;
-  AddTapsigner: undefined;
+  TapsignerAction: undefined;
   SignWithTapsigner: undefined;
   AddColdCard: undefined;
   PassportConfigRecovery: undefined;

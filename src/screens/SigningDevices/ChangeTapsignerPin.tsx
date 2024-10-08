@@ -3,14 +3,14 @@ import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { changePin, getTapsignerErrorMessage } from 'src/hardware/tapsigner';
+import { changePin, handleTapsignerError } from 'src/hardware/tapsigner';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect, useState } from 'react';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
-import useToastMessage from 'src/hooks/useToastMessage';
+import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Text from 'src/components/KeeperText';
@@ -78,33 +78,28 @@ function ChangeTapsignerPin() {
     }
   };
 
-  const onChangePin = React.useCallback(async () => {
+  const activatePinAction = React.useCallback(async () => {
     try {
       const res = await withModal(async () => changePin(card, CVC, newCVC))();
-      console.log('🚀 ~ onChangePin ~ res:', res);
-
       if (res) {
         navigation.dispatch(CommonActions.goBack());
-        showToast('Tapsigner pin changed successfully', <TickIcon />);
+        if (Platform.OS === 'ios') NFC.showiOSMessage(`Changed CVC successfully!`);
+        showToast('Tapsigner CVC changed successfully', <TickIcon />);
       } else {
         if (Platform.OS === 'ios')
-          NFC.showiOSMessage(`Error while changing Tapsigner pin. Please try again`);
+          NFC.showiOSErrorMessage(`Error while changing Tapsigner pin. Please try again`);
         else showToast(`Error while changing Tapsigner pin. Please try again`);
       }
     } catch (error) {
-      const errorMessage = getTapsignerErrorMessage(error);
+      const errorMessage = handleTapsignerError(error, navigation);
       if (errorMessage) {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
-        showToast(errorMessage);
-      } else if (error.toString() === 'Error') {
-        // do nothing when nfc is dismissed by the user
-      } else {
-        showToast('Something went wrong, please try again!');
+        showToast(errorMessage, <ToastErrorIcon />, IToastCategory.DEFAULT, 3000, true);
       }
+    } finally {
       closeNfc();
       card.endNfcSession();
     }
-  }, []);
+  }, [CVC, newCVC]);
 
   function ActivatePinContent() {
     return (
@@ -115,8 +110,7 @@ function ChangeTapsignerPin() {
         <Box style={styles.modalTextCtr}>
           <Box style={styles.dot} backgroundColor={`${colorMode}.primaryText`} />
           <Text color={`${colorMode}.greenText`} style={styles.modalText}>
-            We will scan your TAPSIGNER again to activate your new pin. Click continue to activate
-            your changed pin
+            Click continue and scan your TAPSIGNER to activate the new PIN.
           </Text>
         </Box>
       </>
@@ -129,11 +123,6 @@ function ChangeTapsignerPin() {
       </Box>
     );
   }
-
-  const activatePinAction = async () => {
-    const responseVal = await withModal(async () => onChangePin())();
-    console.log('🚀 ~ activatePinAction ~ responseVal:', responseVal);
-  };
 
   useEffect(() => {
     setCtaDisabled(
@@ -149,33 +138,35 @@ function ChangeTapsignerPin() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Pin Reset" subtitle="Change your TAPSIGNER pin" />
-
+      <KeeperHeader
+        title="Change PIN"
+        subtitle="Make sure to back up your TAPSIGNER before setting a new PIN"
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.btnContainer}>
           <FieldWithLabel
-            label={'Existing CVC'}
-            placeholder="Existing CVC"
+            label={'Existing PIN'}
+            placeholder="Existing PIN"
             value={CVC}
             onPress={() => setActiveInput(INPUTS.CVC)}
             isActive={activeInput === INPUTS.CVC}
           />
           <FieldWithLabel
-            label={'New CVC'}
-            placeholder="New CVC"
+            label={'New PIN'}
+            placeholder="New PIN"
             value={newCVC}
             onPress={() => setActiveInput(INPUTS.NEW_CVC)}
             isActive={activeInput === INPUTS.NEW_CVC}
           />
           <FieldWithLabel
-            label={'Confirm CVC'}
-            placeholder="Confirm CVC"
+            label={'Confirm PIN'}
+            placeholder="Confirm PIN"
             value={confCVC}
             onPress={() => setActiveInput(INPUTS.CONFIRM_CVC)}
             isActive={activeInput === INPUTS.CONFIRM_CVC}
           />
         </Box>
-        <Box marginTop={9} marginBottom={9}>
+        <Box marginTop={5} marginBottom={9}>
           <Buttons
             primaryText="Continue"
             primaryCallback={() => setShowPinModal(true)}
@@ -194,7 +185,7 @@ function ChangeTapsignerPin() {
         visible={showPinModal}
         close={() => setShowPinModal(false)}
         showCloseIcon={false}
-        title="Activate New Pin"
+        title="Activate New PIN"
         subTitle="Keep your TAPSIGNER ready before proceeding"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
@@ -233,7 +224,7 @@ function ChangeTapsignerPin() {
 
 const FieldWithLabel = ({ label, value, onPress, isActive, placeholder }) => {
   return (
-    <Box marginTop={5}>
+    <Box marginTop={4}>
       <Text>{label}</Text>
       <KeeperPasswordInput
         value={value}

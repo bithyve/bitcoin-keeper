@@ -506,6 +506,18 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const onSaveTapsignerBackup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'TapsignerAction',
+        params: {
+          mode: InteracationMode.BACKUP_SIGNER,
+          signer: signer,
+        },
+      })
+    );
+  };
+
   const signPSBT = async (serializedPSBT, resetQR) => {
     try {
       let signedSerialisedPSBT;
@@ -730,11 +742,6 @@ function SignerAdvanceSettings({ route }: any) {
   ];
   const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
-  const isAMF =
-    signer.type === SignerType.TAPSIGNER &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
-    !signer.isMock;
-
   const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
   let disableOneTimeBackup = false; // disables OTB once the user has backed it up
   if (showOneTimeBackup) {
@@ -827,8 +834,8 @@ function SignerAdvanceSettings({ route }: any) {
         title="Settings"
         subtitle={
           !signer.isBIP85
-            ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
-            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`}`
+            ? `for ${getSignerNameFromType(signer.type, signer.isMock, false)}`
+            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, false)} +`}`
         }
         icon={
           <CircleIconWrapper
@@ -885,16 +892,23 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isTapsigner && (
           <OptionCard
-            title="Unlock Card"
-            description="Run the unlock card process if it's rate-limited"
-            callback={navigateToUnlockTapsigner}
+            title="Save Backup"
+            description="Save an encrypted backup"
+            callback={onSaveTapsignerBackup}
           />
         )}
         {isTapsigner && (
           <OptionCard
-            title="Pin Reset"
-            description="Change the pin"
+            title="Change PIN"
+            description="Change the PIN code"
             callback={onChangeTapsignerPin}
+          />
+        )}
+        {isTapsigner && (
+          <OptionCard
+            title="Unlock Card Rate Limit"
+            description="Run the unlock card process if it's rate-limited"
+            callback={navigateToUnlockTapsigner}
           />
         )}
         {(isAppKey || isMyAppKey) && (
