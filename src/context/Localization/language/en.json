@@ -545,7 +545,8 @@
     "addAdvisorKeyTitle": "Add two advisor keys to your wallet",
     "discardTnxTitle": "Invalid UTXO set",
     "discardTnxSubTitle": "This transaction's UTXO has already been used.",
-    "discardTnxDesc": "Please discard this transaction and initiate a new one"
+    "discardTnxDesc": "Please discard this transaction and initiate a new one",
+    "AssistedVaultSubtitle": "An assisted vault with three App Keys on three separate devices."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

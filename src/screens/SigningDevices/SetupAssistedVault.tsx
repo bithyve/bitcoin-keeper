@@ -274,6 +274,7 @@ function SetupAssistedVault() {
       setWalletName(collabWallet && collabWallet.presentationData.name);
       setWalletDescription(collabWallet && collabWallet.presentationData.description);
       setWalletCreatedModal(true);
+      setIsCreating(false);
     }
   }, [
     hasNewVaultGenerationSucceeded,
@@ -369,7 +370,7 @@ function SetupAssistedVault() {
       <WalletVaultCreationModal
         visible={walletCreatedModal}
         title={wallet.WalletCreated}
-        subTitle={wallet.CollaborativeWalletSubtitle}
+        subTitle={wallet.AssistedVaultSubtitle}
         buttonText={wallet.ViewWallet}
         descriptionMessage={wallet.CollaborativeWalletDesc}
         buttonCallback={navigateToNextScreen}

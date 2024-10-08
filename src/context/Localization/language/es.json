@@ -533,7 +533,7 @@
     "Desc2of3": "2-of-3 Multi-key",
     "CollaborativeWalletCreated": "A 2 of 3 collaborative wallet will be created",
     "WalletCreated": "Wallet Created Successfully!",
-    "CollaborativeWalletSubtitle": "A collaborative with three App Keys on three separate devices.",
+    "CollaborativeWalletSubtitle": "An collaborative with three App Keys on three separate devices.",
     "CollaborativeWalletDesc": "You should ensure you have a copy of the wallet configuration file for this vault",
     "highCustom": "Network fee is more than 10% of the amount being sent. Consider using custom fee option.",
     "highWait": "Network fee is 10% higher than usual. If not urgent, consider waiting for the fee to go down.",
@@ -545,7 +545,8 @@
     "addAdvisorKeyTitle": "Add two advisor keys to your wallet",
     "discardTnxTitle": "Invalid UTXO set",
     "discardTnxSubTitle": "This transaction's UTXO has already been used.",
-    "discardTnxDesc": "Please discard this transaction and initiate a new one"
+    "discardTnxDesc": "Please discard this transaction and initiate a new one",
+    "AssistedVaultSubtitle": "An assisted vault with three App Keys on three separate devices."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
