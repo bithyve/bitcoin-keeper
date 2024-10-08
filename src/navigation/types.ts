@@ -102,6 +102,7 @@ export type AppStackParams = {
     vaultKey?: VaultSigner;
     vaultId?: string;
     serializedPSBTEnvelop: any;
+    isMultisig?: boolean;
   };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;

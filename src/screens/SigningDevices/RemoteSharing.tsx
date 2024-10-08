@@ -45,6 +45,19 @@ const RemoteShareText = {
   },
 };
 
+
+type dataProps = {
+  type: RKInteractionMode;
+  fcm?: string;
+  signer?: any;
+  isMultisig?: boolean;
+  psbt?: string;
+  vaultKey?: any;
+  vaultId?: string;
+  serializedPSBTEnvelop?: any;
+  vault: any;
+};
+
 function RemoteSharing({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -58,6 +71,7 @@ function RemoteSharing({ route }: ScreenProps) {
     vaultKey,
     vaultId,
     serializedPSBTEnvelop,
+    isMultisig,
   } = route.params;
   const { signerMap } = useSignerMap();
   const signer = signerMap[signerFromParam?.masterFingerprint];
@@ -65,37 +79,45 @@ function RemoteSharing({ route }: ScreenProps) {
 
   const handleShare = async () => {
     try {
-      const data = {
-        fcmToken,
-        signer: {
-          extraData:
-            mode === RKInteractionMode.SHARE_REMOTE_KEY
-              ? { originalType: signer.type }
-              : signer.extraData,
+      const data: dataProps = {
+        type: mode,
+      };
+
+      if (mode === RKInteractionMode.SHARE_REMOTE_KEY) {
+        data.fcm = fcmToken;
+        data.signer = {
+          extraData: { originalType: signer.type },
           inheritanceKeyInfo: signer.inheritanceKeyInfo,
           isBIP85: signer.isBIP85,
           masterFingerprint: signer.masterFingerprint,
           signerPolicy: signer.signerPolicy,
           signerXpubs: signer.signerXpubs,
           signerData,
-        },
-        serializedPSBTEnvelop,
-        psbt: psbt,
-        type: mode,
-        vaultKey,
-        vaultId,
-        vault: activeVault
+        };
+      }
+
+      if (mode === RKInteractionMode.SHARE_PSBT) {
+        data.signer = signer.masterFingerprint; //
+        data.isMultisig = findIsMultisig(activeVault);
+        data.serializedPSBTEnvelop = serializedPSBTEnvelop;
+        data.vaultKey = vaultKey;
+        data.vaultId = vaultId;
+        data.vault = activeVault
           ? {
               networkType: activeVault.networkType,
               specs: activeVault.specs,
               signers: activeVault.signers,
             }
-          : null,
-      };
-
-      if (mode === RKInteractionMode.SHARE_PSBT) {
-        data.isMultisig = findIsMultisig(activeVault);
+          : null;
       }
+
+      if (mode === RKInteractionMode.SHARE_SIGNED_PSBT) {
+        data.isMultisig = isMultisig;
+        data.vaultKey = vaultKey;
+        data.vaultId = vaultId;
+        data.psbt = psbt;
+      }
+      console.log('🚀 ~ handleShare ~ data:', data);
       const encryptionKey = getRandomBytes(12);
       const encryptedData = encrypt(encryptionKey, JSON.stringify(data));
       const res = await Relay.createRemoteKey(encryptedData);

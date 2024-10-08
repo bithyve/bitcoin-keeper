@@ -102,18 +102,19 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           break;
 
         case RKInteractionMode.SHARE_PSBT:
-          if (tempData?.psbt) {
+          if (tempData?.serializedPSBTEnvelop) {
             try {
               let signedSerializedPSBT;
               try {
-                const activeSigner = signers.find(
-                  (s) => s.masterFingerprint == tempData.signer.masterFingerprint
-                );
+                const activeSigner = signers.find((s) => s.masterFingerprint == tempData.signer);
                 if (!activeSigner) throw { message: 'Signer not found' };
                 switch (activeSigner.type) {
-                  case SignerType.MOBILE_KEY:
+                  case SignerType.MY_KEEPER:
                     const key = activeSigner.signerXpubs[XpubTypes.P2WSH][0];
-                    signedSerializedPSBT = signCosignerPSBT(key.xpriv, tempData.psbt);
+                    signedSerializedPSBT = signCosignerPSBT(
+                      key.xpriv,
+                      tempData.serializedPSBTEnvelop.serializedPSBT
+                    );
                     if (signedSerializedPSBT) {
                       navigation.navigate('RemoteSharing', {
                         isPSBTSharing: true,
@@ -123,6 +124,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                         mode: RKInteractionMode.SHARE_SIGNED_PSBT,
                         vaultKey: tempData.vaultKey,
                         vaultId: tempData.vaultId,
+                        isMultisig: tempData.isMultisig,
                       });
                     }
                     break;
@@ -132,7 +134,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                         signingPayload: tempData.serializedPSBTEnvelop.signingPayload,
                         defaultVault: tempData.vault,
                         seedBasedSingerMnemonic,
-                        serializedPSBT: tempData.psbt,
+                        serializedPSBT: tempData.serializedPSBTEnvelop.serializedPSBT,
                         xfp: tempData.vaultKey.xfp,
                         isMultisig: tempData.isMultisig,
                       });
@@ -195,8 +197,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         case RKInteractionMode.SHARE_SIGNED_PSBT:
           try {
             Psbt.fromBase64(tempData?.psbt); // will throw if not a psbt
-            console.log('valid PSBT');
-            if (!tempData.isMultiSig) {
+            if (!tempData.isMultisig) {
               // TODO: handle single sig
               // if (isSingleSig) {
               // if (signer.type === SignerType.SEEDSIGNER) {
@@ -216,7 +217,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
             } else {
               dispatch(
                 updatePSBTEnvelops({
-                  signedSerializedPSBT: tempData.psbt,
+                  signedSerializedPSBT: tempData?.psbt,
                   xfp: tempData.vaultKey.xfp,
                 })
               );
