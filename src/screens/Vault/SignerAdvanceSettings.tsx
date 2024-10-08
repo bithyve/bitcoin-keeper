@@ -81,6 +81,13 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
 const { width } = Dimensions.get('screen');
 
+const SignersWithoutRKSigningSupport = [
+  SignerType.POLICY_SERVER,
+  SignerType.OTHER_SD,
+  SignerType.UNKOWN_SIGNER,
+  SignerType.INHERITANCEKEY,
+];
+
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
     <Box>
@@ -134,6 +141,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { vault: vaultTranslation, common, signer: signerTranslation, BackupWallet } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const isSmallDevice = useIsSmallDevices();
+  const supportsRKSigning = !SignersWithoutRKSigningSupport.includes(signer.type);
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
@@ -875,7 +883,8 @@ function SignerAdvanceSettings({ route }: any) {
           description="Associate contact or Edit description"
           callback={navigateToAdditionalDetails}
         />
-        {(isMyAppKey || true) && (
+        {/* {(isMyAppKey || true) && ( // TODO: check on this */}
+        {supportsRKSigning && (
           <OptionCard
             title="Sign a transaction"
             description="Using a PSBT file"
