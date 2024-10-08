@@ -16,7 +16,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
 import useSigners from 'src/hooks/useSigners';
-import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -33,10 +33,6 @@ import { calculateTimeLeft } from 'src/utils/utilities';
 import { Psbt } from 'bitcoinjs-lib';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
-import { signTransactionWithSeedWords } from '../SignTransaction/signWithSD';
-import { SIGNTRANSACTION } from 'src/navigation/contants';
-import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
-import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { decrypt } from 'src/utils/service-utilities/encryption';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {

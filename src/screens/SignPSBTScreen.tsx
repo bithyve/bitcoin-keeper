@@ -127,6 +127,7 @@ export const SignPSBTScreen = ({ route }: any) => {
           mode: RKInteractionMode.SHARE_SIGNED_PSBT,
           vaultKey: vaultKey,
           vaultId: vaultId,
+          isMultisig: isMultisig,
         });
       } else if (SignerType.COLDCARD === signerType) {
         console.log('signTransaction CC modal');
@@ -180,6 +181,7 @@ export const SignPSBTScreen = ({ route }: any) => {
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
             vaultKey: vaultKey,
             vaultId: vaultId,
+            isMultisig: isMultisig,
           });
         }
       }
@@ -197,6 +199,7 @@ export const SignPSBTScreen = ({ route }: any) => {
       mode: RKInteractionMode.SHARE_SIGNED_PSBT,
       vaultKey: vaultKey,
       vaultId: vaultId,
+      isMultisig: isMultisig,
     });
   };
 

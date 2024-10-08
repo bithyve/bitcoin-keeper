@@ -653,6 +653,7 @@ function SignerModals({
         vaultId,
         isRemoteKey: isRemoteKey,
         serializedPSBTEnvelopFromProps,
+        isMultisig: isMultisig,
       })
     );
   };
@@ -669,6 +670,7 @@ function SignerModals({
         signerType,
         isRemoteKey: isRemoteKey,
         serializedPSBTEnvelopFromProps,
+        isMultisig: isMultisig,
       })
     );
   };

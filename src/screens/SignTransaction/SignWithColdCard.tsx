@@ -96,6 +96,7 @@ function SignWithColdCard({ route }: { route }) {
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
             vaultKey: vaultKey,
             vaultId: vaultId,
+            isMultisig: isMultisig,
           });
           return;
         }
@@ -119,6 +120,7 @@ function SignWithColdCard({ route }: { route }) {
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
             vaultKey: vaultKey,
             vaultId: vaultId,
+            isMultisig: isMultisig,
           });
           return;
         }

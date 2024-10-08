@@ -43,11 +43,13 @@ function SignWithQR() {
     vaultId = '',
     isRemoteKey,
     serializedPSBTEnvelopFromProps,
+    isMultisig,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
     isRemoteKey: boolean;
     serializedPSBTEnvelopFromProps?: string;
+    isMultisig?: boolean;
   } = route.params as any;
 
   const serializedPSBTEnvelop = isRemoteKey
@@ -55,7 +57,7 @@ function SignWithQR() {
     : serializedPSBTEnvelops.filter((envelop) => vaultKey.xfp === envelop.xfp)[0];
   const { serializedPSBT } = serializedPSBTEnvelop;
   const { activeVault } = useVault({ vaultId });
-  const isSingleSig = isRemoteKey ? false : activeVault.scheme.n === 1; // TODO Need scheme or isMultisig prop aswell
+  const isSingleSig = isRemoteKey ? isMultisig : activeVault.scheme.n === 1;
   const { signer } = isRemoteKey
     ? { signer: signerMap[vaultKey.masterFingerprint] }
     : useSignerFromKey(vaultKey);
@@ -128,6 +130,7 @@ function SignWithQR() {
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
             vaultKey: vaultKey,
             vaultId: vaultId,
+            isMultisig: isMultisig,
           });
           return;
         }

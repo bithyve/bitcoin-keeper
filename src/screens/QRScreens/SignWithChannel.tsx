@@ -75,12 +75,14 @@ function SignWithChannel() {
     signerType,
     isRemoteKey = false,
     serializedPSBTEnvelopFromProps,
+    isMultisig,
   } = params as {
     vaultKey: VaultSigner;
     vaultId: string;
     signerType: string;
     isRemoteKey?: boolean;
     serializedPSBTEnvelopFromProps?: any;
+    isMultisig?: boolean;
   };
   const { signer } = useSignerFromKey(vaultKey);
   const { activeVault } = useVault({ vaultId });
@@ -134,6 +136,7 @@ function SignWithChannel() {
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
             vaultKey: vaultKey,
             vaultId: vaultId,
+            isMultisig: isMultisig,
           });
           return;
         }
