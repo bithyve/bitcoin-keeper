@@ -127,7 +127,9 @@
     "for": "For",
     "goToBackup": "Go to Backup",
     "Advisor": "Advisor",
-    "AssistedWallet": "Assisted Wallet"
+    "AssistedWallet": "Assisted Wallet",
+    "ASSISTED": "ASSISTED",
+    "TIMELOCKED": "TIMELOCKED"
   },
   "noInternet": {
     "no": "No Internet",

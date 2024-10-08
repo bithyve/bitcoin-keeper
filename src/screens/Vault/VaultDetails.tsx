@@ -131,6 +131,10 @@ function VaultInfo({ vault }: { vault: Vault }) {
           heading={`${
             vault.type === VaultType.COLLABORATIVE
               ? common.COLLABORATIVE
+              : vault.type === VaultType.ASSISTED
+              ? common.ASSISTED
+              : vault.type === VaultType.TIMELOCKED
+              ? common.TIMELOCKED
               : vault.type === VaultType.SINGE_SIG
               ? 'Single-key'
               : common.VAULT
