@@ -884,6 +884,22 @@ function SendConfirmation({ route }) {
   }, [OneDayHistoricalFee]);
 
   useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+      if (navigation.getState().index > 2 && isCachedTransaction) {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+          })
+        );
+      } else {
+        navigation.dispatch(e.data.action);
+      }
+    });
+  }, [navigation, isCachedTransaction]);
+
+  useEffect(() => {
     if (isAutoTransfer) {
       setSubTitle('Review auto-transfer transaction details');
     } else if (vaultTransfers.includes(transferType)) {
@@ -1181,21 +1197,7 @@ function SendConfirmation({ route }) {
         title="Send Confirmation"
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
-        onPressHandler={() => {
-          if (navigation.getState().index > 2 && isCachedTransaction) {
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 1,
-                routes: [
-                  { name: 'Home' },
-                  { name: 'VaultDetails', params: { vaultId: sender?.id } },
-                ],
-              })
-            );
-          } else {
-            navigation.goBack();
-          }
-        }}
+        onPressHandler={() => navigation.goBack()}
       />
       <ScrollView
         style={styles.container}
