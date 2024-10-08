@@ -169,6 +169,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   case SignerType.PASSPORT:
                   case SignerType.SPECTER:
                   case SignerType.TAPSIGNER:
+                  case SignerType.JADE:
                     navigation.navigate('SignPSBTScreen', {
                       data: { ...tempData, signer: activeSigner },
                     });
