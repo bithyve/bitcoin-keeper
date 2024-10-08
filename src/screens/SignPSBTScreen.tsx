@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Text, StyleSheet, SafeAreaView } from 'react-native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from './SignTransaction/SignerModals';
-import { RKInteractionMode, SignerType } from 'src/services/wallets/enums';
+import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import {
   signTransactionWithColdCard,
@@ -12,23 +12,27 @@ import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import useNfcModal from 'src/hooks/useNfcModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import KeeperModal from 'src/components/KeeperModal';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { useColorMode } from 'native-base';
+import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 
 export const SignPSBTScreen = ({ route }: any) => {
   const { data } = route.params;
-  const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultiSig } = data;
+  const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultisig } = data;
+  const { colorMode } = useColorMode();
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [passportModal, setPassportModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
   const [trezorModal, setTrezorModal] = useState(false);
   const [bitbox02modal, setBitbox02modal] = useState(false);
-
   const [seedSignerModal, setSeedSignerModal] = useState(false);
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
-
   const [specterModal, setSpecterModal] = useState(false);
   const [tapSignerModal, setTapSignerModal] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
@@ -79,6 +83,11 @@ export const SignPSBTScreen = ({ route }: any) => {
         setTapSignerModal(true);
         break;
 
+      case SignerType.MY_KEEPER:
+        setConfirmPassVisible(true);
+
+        break;
+
       default:
         break;
     }
@@ -116,6 +125,24 @@ export const SignPSBTScreen = ({ route }: any) => {
           serializedPSBTEnvelop,
           closeNfc,
         });
+      } else if (SignerType.MY_KEEPER === signerType) {
+        const key = signer.signerXpubs[XpubTypes.P2WSH][0];
+        const signedSerializedPSBT = signCosignerPSBT(
+          key.xpriv,
+          serializedPSBTEnvelop.serializedPSBT
+        );
+        if (signedSerializedPSBT) {
+          navigation.replace('RemoteSharing', {
+            isPSBTSharing: true,
+            signerData: {},
+            signer: signer,
+            psbt: signedSerializedPSBT,
+            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+            vaultKey: vaultKey,
+            vaultId: vaultId,
+            isMultisig: isMultisig,
+          });
+        }
       }
     } catch (error) {
       console.log('🚀 ~ signTransaction ~ error:', error);
@@ -141,6 +168,26 @@ export const SignPSBTScreen = ({ route }: any) => {
       </Text>
 
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
+      {/* For MK  */}
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title="Enter Passcode"
+        subTitle={'Confirm passcode to sign with mobile key'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics={false}
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={signTransaction}
+          />
+        )}
+      />
       <SignerModals
         vaultId={vaultId}
         vaultKeys={[vaultKey]}
@@ -172,10 +219,10 @@ export const SignPSBTScreen = ({ route }: any) => {
         setLedgerModal={setLedgerModal}
         setPasswordModal={() => {}}
         setTapsignerModal={setTapSignerModal}
-        showOTPModal={false}
+        showOTPModal={() => {}}
         signTransaction={signTransaction}
         textRef={textRef}
-        isMultisig={isMultiSig}
+        isMultisig={isMultisig}
         signerMap={signerMap}
         onFileSign={onFileSign}
         isRemoteKey={true}

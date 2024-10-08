@@ -91,6 +91,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         return;
       }
       const tempData = JSON.parse(decrypt(encryptionKey, response));
+      console.log('🚀 ~ handleRemoteKeyDeepLink ~ tempData:', tempData);
       switch (tempData.type) {
         case RKInteractionMode.SHARE_REMOTE_KEY:
           navigation.navigate('ManageSigners', {
@@ -104,30 +105,10 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         case RKInteractionMode.SHARE_PSBT:
           if (tempData?.serializedPSBTEnvelop) {
             try {
-              let signedSerializedPSBT;
               try {
                 const activeSigner = signers.find((s) => s.masterFingerprint == tempData.signer);
                 if (!activeSigner) throw { message: 'Signer not found' };
                 switch (activeSigner.type) {
-                  case SignerType.MY_KEEPER:
-                    const key = activeSigner.signerXpubs[XpubTypes.P2WSH][0];
-                    signedSerializedPSBT = signCosignerPSBT(
-                      key.xpriv,
-                      tempData.serializedPSBTEnvelop.serializedPSBT
-                    );
-                    if (signedSerializedPSBT) {
-                      navigation.navigate('RemoteSharing', {
-                        isPSBTSharing: true,
-                        signerData: {},
-                        signer: activeSigner,
-                        psbt: signedSerializedPSBT,
-                        mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-                        vaultKey: tempData.vaultKey,
-                        vaultId: tempData.vaultId,
-                        isMultisig: tempData.isMultisig,
-                      });
-                    }
-                    break;
                   case SignerType.SEED_WORDS:
                     const signTransaction = async ({ seedBasedSingerMnemonic }) => {
                       const { signedSerializedPSBT } = await signTransactionWithSeedWords({
@@ -172,6 +153,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   case SignerType.SPECTER:
                   case SignerType.TAPSIGNER:
                   case SignerType.JADE:
+                  case SignerType.MY_KEEPER:
                     navigation.navigate('SignPSBTScreen', {
                       data: { ...tempData, signer: activeSigner },
                     });
