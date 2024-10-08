@@ -4,6 +4,14 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from './SignTransaction/SignerModals';
 import { RKInteractionMode, SignerType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
+import {
+  signTransactionWithColdCard,
+  signTransactionWithTapsigner,
+} from './SignTransaction/signWithSD';
+import useTapsignerModal from 'src/hooks/useTapsignerModal';
+import { CKTapCard } from 'cktap-protocol-react-native';
+import useNfcModal from 'src/hooks/useNfcModal';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
 
 export const SignPSBTScreen = ({ route }: any) => {
   const { data } = route.params;
@@ -20,10 +28,15 @@ export const SignPSBTScreen = ({ route }: any) => {
   const [jadeModal, setJadeModal] = useState(false);
 
   const [specterModal, setSpecterModal] = useState(false);
+  const [tapSignerModal, setTapSignerModal] = useState(false);
+
+  const card = useRef(new CKTapCard()).current;
+  const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
+  const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
-  const signerType = signer.extraData.originalType;
+  const signerType = signer.type;
   const navigation = useNavigation();
 
   React.useEffect(() => {
@@ -62,8 +75,50 @@ export const SignPSBTScreen = ({ route }: any) => {
         setSpecterModal(true);
         break;
 
+      case SignerType.TAPSIGNER:
+        setTapSignerModal(true);
+        break;
+
       default:
         break;
+    }
+  };
+
+  const signTransaction = async () => {
+    try {
+      if (SignerType.TAPSIGNER === signerType) {
+        const { signingPayload: signedPayload, signedSerializedPSBT } =
+          await signTransactionWithTapsigner({
+            setTapsignerModal: setTapSignerModal,
+            signingPayload: serializedPSBTEnvelop.signingPayload,
+            currentKey: vaultKey,
+            withModal,
+            defaultVault: vault,
+            serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
+            card,
+            cvc: textRef.current,
+            signer,
+          });
+        navigation.replace('RemoteSharing', {
+          isPSBTSharing: true,
+          signerData: {},
+          signer: signer,
+          psbt: signedSerializedPSBT || signedPayload,
+          mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+          vaultKey: vaultKey,
+          vaultId: vaultId,
+        });
+      } else if (SignerType.COLDCARD === signerType) {
+        console.log('signTransaction CC modal');
+        await signTransactionWithColdCard({
+          setColdCardModal,
+          withNfcModal,
+          serializedPSBTEnvelop,
+          closeNfc,
+        });
+      }
+    } catch (error) {
+      console.log('🚀 ~ signTransaction ~ error:', error);
     }
   };
 
@@ -85,12 +140,13 @@ export const SignPSBTScreen = ({ route }: any) => {
         Text from SignPSBTScreen component
       </Text>
 
+      <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <SignerModals
         vaultId={vaultId}
         vaultKeys={[vaultKey]}
         activeXfp={vaultKey.xfp}
         coldCardModal={coldCardModal}
-        tapsignerModal={false}
+        tapsignerModal={tapSignerModal}
         ledgerModal={ledgerModal}
         otpModal={false}
         passwordModal={false}
@@ -115,9 +171,9 @@ export const SignPSBTScreen = ({ route }: any) => {
         setColdCardModal={setColdCardModal}
         setLedgerModal={setLedgerModal}
         setPasswordModal={() => {}}
-        setTapsignerModal={() => {}}
+        setTapsignerModal={setTapSignerModal}
         showOTPModal={false}
-        signTransaction={() => {}}
+        signTransaction={signTransaction}
         textRef={textRef}
         isMultisig={isMultiSig}
         signerMap={signerMap}

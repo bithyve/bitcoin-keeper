@@ -732,6 +732,7 @@ function SignerModals({
                 vaultKey,
                 isMultisig,
                 vaultId,
+                isRemoteKey,
               })
             );
           };
