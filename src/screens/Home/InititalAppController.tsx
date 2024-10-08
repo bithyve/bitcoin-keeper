@@ -85,7 +85,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
     const [externalKeyId, encryptionKey] = initialUrl.split('shareKey/')[1].split('/');
     if (externalKeyId) {
-      const { createdAt, data: response } = await Relay.getRemoteKey(externalKeyId);
+      const { createdAt, data: response, err } = await Relay.getRemoteKey(externalKeyId);
+      if (err) {
+        showToast(err);
+        return;
+      }
       const tempData = JSON.parse(decrypt(encryptionKey, response));
       switch (tempData.type) {
         case RKInteractionMode.SHARE_REMOTE_KEY:
