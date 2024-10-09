@@ -120,6 +120,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                       ...sendConfirmationRouteParams,
                       tnxDetails,
                       signingDetails: { ...signingDetails, signer },
+                      timeLeft: calculateTimeLeft(createdAt),
                       isRemoteFlow: true,
                     });
                     break;

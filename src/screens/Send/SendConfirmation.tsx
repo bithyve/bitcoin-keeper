@@ -2,7 +2,7 @@ import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   calculateSendMaxFee,
   crossTransfer,
@@ -771,6 +771,7 @@ export interface SendConfirmationRouteParams {
   isRemoteFlow?: boolean;
   tnxDetails?: tnxDetailsProps;
   signingDetails?: any;
+  timeLeft?: number;
 }
 
 export interface tnxDetailsProps {
@@ -799,6 +800,7 @@ function SendConfirmation({ route }) {
     isRemoteFlow = false,
     tnxDetails,
     signingDetails,
+    timeLeft,
   }: SendConfirmationRouteParams = route.params;
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
@@ -874,9 +876,9 @@ function SendConfirmation({ route }) {
     (state) => state.settings
   );
 
-  const handleTimerEnd = () => {
+  const handleTimerEnd = useCallback(() => {
     setIsTimerActive(false);
-  };
+  }, []);
 
   function checkUsualFee(data: any[]) {
     if (data.length === 0) {
@@ -1221,7 +1223,7 @@ function SendConfirmation({ route }) {
               </Text>
             </Box>
             <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <CountdownTimer initialTime={30} onTimerEnd={handleTimerEnd} />
+              <CountdownTimer initialTime={timeLeft} onTimerEnd={handleTimerEnd} />
             </Box>
           </Box>
         )}
