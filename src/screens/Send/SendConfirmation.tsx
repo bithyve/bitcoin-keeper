@@ -805,11 +805,13 @@ function SendConfirmation({ route }) {
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
-  const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const txFeeInfo = isRemoteFlow
+    ? tnxDetails.txFeeInfo
+    : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
-  const sendMaxFeeEstimatedBlocks = useAppSelector(
-    (state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks
-  );
+  const sendMaxFeeEstimatedBlocks = isRemoteFlow
+    ? tnxDetails.sendMaxFeeEstimatedBlocks
+    : useAppSelector((state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
@@ -862,7 +864,11 @@ function SendConfirmation({ route }) {
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
   const [transactionPriority, setTransactionPriority] = useState(
-    isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
+    isRemoteFlow
+      ? tnxDetails.transactionPriority
+      : isCachedTransaction
+      ? cachedTxPriority || TxPriority.LOW
+      : TxPriority.LOW
   );
   const [usualFee, setUsualFee] = useState(0);
   const [topText, setTopText] = useState('');
@@ -1301,13 +1307,9 @@ function SendConfirmation({ route }) {
           <TransactionPriorityDetails
             isAutoTransfer={isAutoTransfer}
             sendMaxFee={`${getBalance(sendMaxFee)} ${getSatUnit()}`}
-            sendMaxFeeEstimatedBlocks={
-              isRemoteFlow ? tnxDetails.sendMaxFeeEstimatedBlocks : sendMaxFeeEstimatedBlocks
-            }
-            transactionPriority={
-              isRemoteFlow ? tnxDetails.transactionPriority : transactionPriority
-            }
-            txFeeInfo={isRemoteFlow ? tnxDetails.txFeeInfo : txFeeInfo}
+            sendMaxFeeEstimatedBlocks={sendMaxFeeEstimatedBlocks}
+            transactionPriority={transactionPriority}
+            txFeeInfo={txFeeInfo}
             getBalance={getBalance}
             getCurrencyIcon={getCurrencyIcon}
             getSatUnit={getSatUnit}
