@@ -2,7 +2,7 @@ import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   calculateSendMaxFee,
   crossTransfer,
@@ -72,6 +72,7 @@ import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import CountdownTimer from 'src/components/Timer/CountDownTimer';
+import RKSignersModal from '../../components/RKSignersModal';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -768,6 +769,14 @@ export interface SendConfirmationRouteParams {
   date: Date;
   parentScreen: string;
   isRemoteFlow?: boolean;
+  tnxDetails?: tnxDetailsProps;
+  signingDetails?: any;
+}
+
+export interface tnxDetailsProps {
+  sendMaxFeeEstimatedBlocks: number;
+  transactionPriority: string;
+  txFeeInfo: any;
 }
 
 function SendConfirmation({ route }) {
@@ -788,8 +797,9 @@ function SendConfirmation({ route }) {
     isAutoTransfer,
     parentScreen,
     isRemoteFlow = false,
+    tnxDetails,
+    signingDetails,
   }: SendConfirmationRouteParams = route.params;
-
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
@@ -856,6 +866,8 @@ function SendConfirmation({ route }) {
   const [topText, setTopText] = useState('');
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
+
+  const signerModalRef = useRef(null);
 
   const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
@@ -1039,6 +1051,11 @@ function SendConfirmation({ route }) {
           vaultId: sender?.id,
           sender: sender,
           sendConfirmationRouteParams: route.params,
+          tnxDetails: {
+            txFeeInfo,
+            sendMaxFeeEstimatedBlocks,
+            transactionPriority,
+          },
         })
       );
       setProgress(false);
@@ -1277,14 +1294,18 @@ function SendConfirmation({ route }) {
         <TouchableOpacity
           testID="btn_transactionPriority"
           onPress={() => setTransPriorityModalVisible(true)}
-          disabled={isAutoTransfer} // disable change priority for AutoTransfers
+          disabled={isAutoTransfer || isRemoteFlow} // disable change priority for AutoTransfers
         >
           <TransactionPriorityDetails
             isAutoTransfer={isAutoTransfer}
             sendMaxFee={`${getBalance(sendMaxFee)} ${getSatUnit()}`}
-            sendMaxFeeEstimatedBlocks={sendMaxFeeEstimatedBlocks}
-            transactionPriority={transactionPriority}
-            txFeeInfo={txFeeInfo}
+            sendMaxFeeEstimatedBlocks={
+              isRemoteFlow ? tnxDetails.sendMaxFeeEstimatedBlocks : sendMaxFeeEstimatedBlocks
+            }
+            transactionPriority={
+              isRemoteFlow ? tnxDetails.transactionPriority : transactionPriority
+            }
+            txFeeInfo={isRemoteFlow ? tnxDetails.txFeeInfo : txFeeInfo}
             getBalance={getBalance}
             getCurrencyIcon={getCurrencyIcon}
             getSatUnit={getSatUnit}
@@ -1363,7 +1384,11 @@ function SendConfirmation({ route }) {
         ))}
       {isRemoteFlow && (
         <Box style={styles.buttonsContainer}>
-          <Buttons width={wp(285)} primaryText={walletTransactions.SignTransaction} />
+          <Buttons
+            width={wp(285)}
+            primaryText={walletTransactions.SignTransaction}
+            primaryCallback={() => signerModalRef.current.openModal()}
+          />
           <Buttons secondaryText={walletTransactions.DenyTransaction} />
         </Box>
       )}
@@ -1557,6 +1582,7 @@ function SendConfirmation({ route }) {
           }}
         />
       )}
+      {isRemoteFlow && <RKSignersModal data={signingDetails} ref={signerModalRef} />}
     </ScreenWrapper>
   );
 }

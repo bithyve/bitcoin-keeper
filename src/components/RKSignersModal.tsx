@@ -1,14 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { Text, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import useSignerMap from 'src/hooks/useSignerMap';
-import SignerModals from './SignTransaction/SignerModals';
+import SignerModals from '../screens/SignTransaction/SignerModals';
 import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   signTransactionWithColdCard,
   signTransactionWithSeedWords,
   signTransactionWithTapsigner,
-} from './SignTransaction/signWithSD';
+} from '../screens/SignTransaction/signWithSD';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -22,8 +21,7 @@ import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 
-export const SignPSBTScreen = ({ route }: any) => {
-  const { data } = route.params;
+const RKSignersModal = ({ data }, ref) => {
   const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultisig } = data;
   const { colorMode } = useColorMode();
 
@@ -49,9 +47,13 @@ export const SignPSBTScreen = ({ route }: any) => {
   const signerType = signer.type;
   const navigation = useNavigation();
 
-  React.useEffect(() => {
-    selectWalletModal();
-  }, [data]);
+  useImperativeHandle(ref, () => {
+    return {
+      openModal() {
+        selectWalletModal();
+      },
+    };
+  });
 
   const selectWalletModal = () => {
     switch (signerType) {
@@ -204,11 +206,7 @@ export const SignPSBTScreen = ({ route }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text onPress={() => setColdCardModal(!coldCardModal)}>
-        Text from SignPSBTScreen component
-      </Text>
-
+    <>
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       {/* For MK  */}
       <KeeperModal
@@ -270,14 +268,8 @@ export const SignPSBTScreen = ({ route }: any) => {
         isRemoteKey={true}
         serializedPSBTEnvelopFromProps={serializedPSBTEnvelop}
       />
-    </SafeAreaView>
+    </>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default forwardRef(RKSignersModal);

@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Signer } from 'bitcoinjs-lib';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 function ShareWithNfc({
   data,
@@ -28,6 +29,8 @@ function ShareWithNfc({
   vaultKey,
   vaultId,
   serializedPSBTEnvelop,
+  sendConfirmationRouteParams,
+  tnxDetails,
 }: {
   data: string;
   signer?: Signer;
@@ -37,6 +40,8 @@ function ShareWithNfc({
   vaultKey?: VaultSigner;
   vaultId?: string;
   serializedPSBTEnvelop: any;
+  sendConfirmationRouteParams?: SendConfirmationRouteParams;
+  tnxDetails: tnxDetailsProps;
 }) {
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation<any>();
@@ -147,6 +152,8 @@ function ShareWithNfc({
               vaultKey,
               vaultId,
               serializedPSBTEnvelop,
+              sendConfirmationRouteParams,
+              tnxDetails,
             })
           }
         />

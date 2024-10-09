@@ -130,7 +130,7 @@ import AssociateContact from 'src/screens/Contact/AssociateContact';
 import AddContact from 'src/screens/Contact/AddContact';
 import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
-import { SignPSBTScreen } from 'src/screens/SignPSBTScreen';
+
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -309,7 +309,6 @@ function AppStack() {
         <Stack.Screen name="AddContact" component={AddContact} />
         <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
-        <Stack.Screen name="SignPSBTScreen" component={SignPSBTScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

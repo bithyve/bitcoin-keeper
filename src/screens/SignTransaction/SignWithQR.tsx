@@ -28,6 +28,7 @@ import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 function SignWithQR() {
   const { colorMode } = useColorMode();
@@ -44,12 +45,16 @@ function SignWithQR() {
     isRemoteKey,
     serializedPSBTEnvelopFromProps,
     isMultisig,
+    sendConfirmationRouteParams,
+    tnxDetails,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
     isRemoteKey: boolean;
     serializedPSBTEnvelopFromProps?: string;
     isMultisig?: boolean;
+    sendConfirmationRouteParams?: SendConfirmationRouteParams;
+    tnxDetails: tnxDetailsProps;
   } = route.params as any;
 
   const serializedPSBTEnvelop = isRemoteKey
@@ -196,6 +201,8 @@ function SignWithQR() {
               signer={signer}
               vaultKey={vaultKey} // required for signing
               vaultId={vaultId} // required for signing
+              sendConfirmationRouteParams={sendConfirmationRouteParams}
+              tnxDetails={tnxDetails}
             />
           ) : null}
         </Box>

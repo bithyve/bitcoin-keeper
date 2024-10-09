@@ -17,6 +17,7 @@ import { RKInteractionMode } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import useVault from 'src/hooks/useVault';
 import { encrypt, getRandomBytes } from 'src/utils/service-utilities/encryption';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -45,7 +46,6 @@ const RemoteShareText = {
   },
 };
 
-
 type dataProps = {
   type: RKInteractionMode;
   fcm?: string;
@@ -56,6 +56,9 @@ type dataProps = {
   vaultId?: string;
   serializedPSBTEnvelop?: any;
   vault: any;
+  sendConfirmationRouteParams?: SendConfirmationRouteParams;
+  tnxDetails: tnxDetailsProps;
+  signingDetails?: any;
 };
 
 function RemoteSharing({ route }: ScreenProps) {
@@ -72,6 +75,8 @@ function RemoteSharing({ route }: ScreenProps) {
     vaultId,
     serializedPSBTEnvelop,
     isMultisig,
+    sendConfirmationRouteParams,
+    tnxDetails,
   } = route.params;
   const { signerMap } = useSignerMap();
   const signer = signerMap[signerFromParam?.masterFingerprint];
@@ -97,18 +102,22 @@ function RemoteSharing({ route }: ScreenProps) {
       }
 
       if (mode === RKInteractionMode.SHARE_PSBT) {
-        data.signer = signer.masterFingerprint; //
-        data.isMultisig = findIsMultisig(activeVault);
-        data.serializedPSBTEnvelop = serializedPSBTEnvelop;
-        data.vaultKey = vaultKey;
-        data.vaultId = vaultId;
-        data.vault = activeVault
-          ? {
-              networkType: activeVault.networkType,
-              specs: activeVault.specs,
-              signers: activeVault.signers,
-            }
-          : null;
+        data.sendConfirmationRouteParams = sendConfirmationRouteParams;
+        data.tnxDetails = tnxDetails;
+        data.signingDetails = {
+          signer: signer.masterFingerprint,
+          isMultisig: findIsMultisig(activeVault),
+          serializedPSBTEnvelop: serializedPSBTEnvelop,
+          vaultKey: vaultKey,
+          vaultId: vaultId,
+          vault: activeVault
+            ? {
+                networkType: activeVault.networkType,
+                specs: activeVault.specs,
+                signers: activeVault.signers,
+              }
+            : null,
+        };
       }
 
       if (mode === RKInteractionMode.SHARE_SIGNED_PSBT) {

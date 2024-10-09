@@ -99,10 +99,11 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           break;
 
         case RKInteractionMode.SHARE_PSBT:
-          if (tempData?.serializedPSBTEnvelop) {
+          const { sendConfirmationRouteParams, signingDetails, tnxDetails, type } = tempData;
+          if (signingDetails?.serializedPSBTEnvelop) {
             try {
               try {
-                const signer = signers.find((s) => s.masterFingerprint == tempData.signer);
+                const signer = signers.find((s) => s.masterFingerprint == signingDetails.signer);
                 if (!signer) throw { message: 'Signer not found' };
                 switch (signer.type) {
                   case SignerType.SEED_WORDS:
@@ -115,12 +116,15 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                   case SignerType.TAPSIGNER:
                   case SignerType.JADE:
                   case SignerType.MY_KEEPER:
-                    navigation.navigate('SignPSBTScreen', {
-                      data: { ...tempData, signer },
+                    navigation.navigate('SendConfirmation', {
+                      ...sendConfirmationRouteParams,
+                      tnxDetails,
+                      signingDetails: { ...signingDetails, signer },
+                      isRemoteFlow: true,
                     });
                     break;
                   default:
-                    console.log('Signer Type Unknown');
+                    console.log('Signer Type Unknown', signer.type); // TODO: remove this
                     break;
                 }
               } catch (e) {

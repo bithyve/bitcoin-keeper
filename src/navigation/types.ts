@@ -1,3 +1,4 @@
+import { SendConfirmationRouteParams, tnxDetailsProps } from 'src/screens/Send/SendConfirmation';
 import { RKInteractionMode } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -103,6 +104,8 @@ export type AppStackParams = {
     vaultId?: string;
     serializedPSBTEnvelop: any;
     isMultisig?: boolean;
+    sendConfirmationRouteParams?: SendConfirmationRouteParams;
+    tnxDetails?: tnxDetailsProps;
   };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
@@ -157,7 +160,6 @@ export type AppStackParams = {
   AddContact: undefined;
   ContactProfile: undefined;
   EditContact: undefined;
-  SignPSBTScreen: any;
 };
 
 // Usage:
