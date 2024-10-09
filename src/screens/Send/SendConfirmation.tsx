@@ -1389,6 +1389,7 @@ function SendConfirmation({ route }) {
       {isRemoteFlow && (
         <Box style={styles.buttonsContainer}>
           <Buttons
+            primaryDisable={!isTimerActive}
             width={wp(285)}
             primaryText={walletTransactions.SignTransaction}
             primaryCallback={() => signerModalRef.current.openModal()}
