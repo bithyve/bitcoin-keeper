@@ -112,49 +112,49 @@ function SignWithQR() {
   const signTransaction = (signedSerializedPSBT, resetQR) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
-      if (isSingleSig) {
-        if (signer.type === SignerType.SEEDSIGNER) {
-          const { signedPsbt } = updateInputsForSeedSigner({
-            serializedPSBT,
-            signedSerializedPSBT,
-          });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
-        } else if (signer.type === SignerType.KEYSTONE) {
-          const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
-        } else {
-          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
-        }
-      } else {
-        if (isRemoteKey) {
-          navigation.replace('RemoteSharing', {
-            isPSBTSharing: true,
-            signer: signer,
-            psbt: signedSerializedPSBT,
-            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
-            vaultKey: vaultKey,
-            vaultId: vaultId,
-            isMultisig: isMultisig,
-          });
-          return;
-        }
+       dispatch(
+         healthCheckStatusUpdate([
+           {
+             signerId: signer.masterFingerprint,
+             status: hcStatusType.HEALTH_CHECK_SIGNING,
+           },
+         ])
+       );
+       if (isSingleSig) {
+         if (signer.type === SignerType.SEEDSIGNER) {
+           const { signedPsbt } = updateInputsForSeedSigner({
+             serializedPSBT,
+             signedSerializedPSBT,
+           });
+           dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
+         } else if (signer.type === SignerType.KEYSTONE) {
+           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
+           dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
+         } else {
+           dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
+         }
+       } else {
+         if (isRemoteKey) {
+           navigation.replace('RemoteSharing', {
+             isPSBTSharing: true,
+             signer: signer,
+             psbt: signedSerializedPSBT,
+             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+             vaultKey: vaultKey,
+             vaultId: vaultId,
+             isMultisig: isMultisig,
+           });
+           return;
+         }
 
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-        dispatch(
-          updateKeyDetails(vaultKey, 'registered', {
-            registered: true,
-            vaultId: activeVault.id,
-          })
-        );
-      }
-      dispatch(
-        healthCheckStatusUpdate([
-          {
-            signerId: signer.masterFingerprint,
-            status: hcStatusType.HEALTH_CHECK_SIGNING,
-          },
-        ])
-      );
+         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+         dispatch(
+           updateKeyDetails(vaultKey, 'registered', {
+             registered: true,
+             vaultId: activeVault.id,
+           })
+         );
+       }
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
       resetQR();

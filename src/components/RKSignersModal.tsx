@@ -122,6 +122,14 @@ const RKSignersModal = ({ data }, ref) => {
             cvc: textRef.current,
             signer,
           });
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
+        );
         navigation.replace('RemoteSharing', {
           isPSBTSharing: true,
           signer: signer,
@@ -146,6 +154,14 @@ const RKSignersModal = ({ data }, ref) => {
           serializedPSBTEnvelop.serializedPSBT
         );
         if (signedSerializedPSBT) {
+          dispatch(
+            healthCheckStatusUpdate([
+              {
+                signerId: signer.masterFingerprint,
+                status: hcStatusType.HEALTH_CHECK_SIGNING,
+              },
+            ])
+          );
           navigation.replace('RemoteSharing', {
             isPSBTSharing: true,
             signer: signer,
@@ -198,6 +214,14 @@ const RKSignersModal = ({ data }, ref) => {
       );
       signedSerializedPSBT = tx.toHex();
     }
+    dispatch(
+      healthCheckStatusUpdate([
+        {
+          signerId: signer.masterFingerprint,
+          status: hcStatusType.HEALTH_CHECK_SIGNING,
+        },
+      ])
+    );
     navigation.replace('RemoteSharing', {
       isPSBTSharing: true,
       signer: signer,

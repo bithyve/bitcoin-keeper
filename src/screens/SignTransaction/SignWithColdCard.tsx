@@ -85,6 +85,14 @@ function SignWithColdCard({ route }: { route }) {
 
   const receiveFromColdCard = async () =>
     withNfcModal(async () => {
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SIGNING,
+          },
+        ])
+      );
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
         if (isRemoteKey) {
@@ -100,14 +108,6 @@ function SignWithColdCard({ route }: { route }) {
           return;
         }
         dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SIGNING,
-            },
-          ])
-        );
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         if (isRemoteKey) {

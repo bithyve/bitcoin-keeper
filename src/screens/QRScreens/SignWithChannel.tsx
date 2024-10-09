@@ -127,6 +127,14 @@ function SignWithChannel() {
     const onSignedTnx = (data) => {
       try {
         const signedSerializedPSBT = data.data.signedSerializedPSBT;
+        dispatch(
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
+        );
         if (isRemoteKey) {
           navgation.replace('RemoteSharing', {
             isPSBTSharing: true,
@@ -143,14 +151,6 @@ function SignWithChannel() {
 
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
         navgation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SIGNING,
-            },
-          ])
-        );
       } catch (error) {
         captureError(error);
       }
