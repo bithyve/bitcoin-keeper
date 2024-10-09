@@ -34,6 +34,7 @@ import idx from 'idx';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -124,243 +125,242 @@ function ExportSeedScreen({ route, navigation }) {
     <SeedCard item={item} index={index} />
   );
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBarComponent padding={30} />
-      <KeeperHeader
-        title={
-          isFromAssistedKey
-            ? `${BackupWallet.backingUp} ${signer.signerName}`
-            : seedTranslation.walletSeedWords
-        }
-        subtitle={
-          isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedTranslation.SeedDesc
-        }
-      />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
+        <KeeperHeader
+          title={
+            isFromAssistedKey
+              ? `${BackupWallet.backingUp} ${signer.signerName}`
+              : seedTranslation.walletSeedWords
+          }
+          subtitle={
+            isFromAssistedKey ? vaultTranslation.oneTimeBackupTitle : seedTranslation.SeedDesc
+          }
+        />
 
-      <Box style={{ flex: 1, marginTop: 20 }}>
-        <FlatList
-          data={words}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          renderItem={renderSeedCard}
-          keyExtractor={(item) => item}
+        <Box style={{ flex: 1, marginTop: 20 }}>
+          <FlatList
+            data={words}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            renderItem={renderSeedCard}
+            keyExtractor={(item) => item}
+          />
+        </Box>
+        {isFromAssistedKey && derivationPath && (
+          <Box style={styles.derivationContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+            <Text color={`${colorMode}.GreyText`}>{derivationPath}</Text>
+          </Box>
+        )}
+        {isFromAssistedKey ? (
+          <Box m={4}>
+            <Note
+              title={common.note}
+              subtitle={`${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`}
+              subtitleColor="GreyText"
+            />
+          </Box>
+        ) : (
+          <Box m={2}>
+            <Note
+              title={common.note}
+              subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
+              subtitleColor="GreyText"
+            />
+          </Box>
+        )}
+        {!viewRecoveryKeys && !next && !isFromAssistedKey && (
+          <Pressable
+            onPress={() => {
+              // setShowQRVisible(true);
+              navigation.navigate('UpdateWalletDetails', { wallet, isFromSeed: true, words });
+            }}
+          >
+            <Box style={styles.qrItemContainer}>
+              <HStack style={styles.qrItem}>
+                <HStack alignItems="center">
+                  <QR />
+                  <VStack marginX="4" maxWidth="64">
+                    <Text
+                      color={`${colorMode}.primaryText`}
+                      numberOfLines={2}
+                      style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
+                    >
+                      {common.showAsQR}
+                    </Text>
+                  </VStack>
+                </HStack>
+                <Box style={styles.backArrow}>
+                  <IconArrowBlack />
+                </Box>
+              </HStack>
+            </Box>
+          </Pressable>
+        )}
+
+        <Box style={styles.nextButtonWrapper}>
+          {next && (
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  setConfirmSeedModal(true);
+                }}
+                value={login.Next}
+              />
+            </Box>
+          )}
+        </Box>
+
+        {isFromAssistedKey && (
+          <Box style={styles.nextButtonWrapper}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  setConfirmSeedModal(true);
+                }}
+                value={common.proceed}
+              />
+            </Box>
+          </Box>
+        )}
+        {/* Modals */}
+        <Box>
+          <ModalWrapper
+            visible={confirmSeedModal}
+            onSwipeComplete={() => setConfirmSeedModal(false)}
+            position="center"
+          >
+            <ConfirmSeedWord
+              closeBottomSheet={() => {
+                setConfirmSeedModal(false);
+              }}
+              words={words}
+              confirmBtnPress={() => {
+                setConfirmSeedModal(false);
+                if (isHealthCheck) {
+                  if (signer.type === SignerType.MOBILE_KEY) {
+                    dispatch(
+                      healthCheckStatusUpdate([
+                        {
+                          signerId: signer.masterFingerprint,
+                          status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                        },
+                      ])
+                    );
+                    navigation.dispatch(CommonActions.goBack());
+                    showToast(seedTranslation.mobileKeyVerified, <TickIcon />);
+                  }
+                  if (signer.type === SignerType.SEED_WORDS) {
+                    dispatch(
+                      healthCheckStatusUpdate([
+                        {
+                          signerId: signer.masterFingerprint,
+                          status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                        },
+                      ])
+                    );
+                    navigation.dispatch(CommonActions.goBack());
+                    showToast(seedTranslation.seedWordVerified, <TickIcon />);
+                  }
+                  if (signer.type === SignerType.MY_KEEPER) {
+                    dispatch(
+                      healthCheckStatusUpdate([
+                        {
+                          signerId: signer.masterFingerprint,
+                          status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                        },
+                      ])
+                    );
+                    const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
+                    const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
+                    const vaultSigner = WalletUtilities.getKeyForScheme(
+                      true,
+                      signer,
+                      msXpub,
+                      ssXpub,
+                      null
+                    );
+                    dispatch(refillMobileKey(vaultSigner));
+                    navigation.dispatch(CommonActions.goBack());
+                    showToast(seedTranslation.keeperVerified, <TickIcon />);
+                  }
+                } else if (isFromAssistedKey) {
+                  if (isIKS) {
+                    dispatch(setOTBStatusIKS(true));
+                  } else if (isSS) {
+                    dispatch(setOTBStatusSS(true));
+                  }
+                  showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);
+                  navigation.dispatch(
+                    CommonActions.navigate('SigningDeviceDetails', {
+                      signerId: signer.masterFingerprint,
+                      vaultId,
+                      vaultKey,
+                    })
+                  );
+                } else {
+                  dispatch(seedBackedUp());
+                }
+              }}
+            />
+          </ModalWrapper>
+        </Box>
+        <KeeperModal
+          visible={backupSuccessModal}
+          dismissible={false}
+          close={
+            isChangePassword
+              ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
+              : () => {}
+          }
+          title={BackupWallet.backupSuccessTitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          buttonText={common.done}
+          buttonCallback={
+            isChangePassword
+              ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
+              : () => navigation.replace('WalletBackHistory')
+          }
+          Content={() => (
+            <Box>
+              <Box>
+                <Illustration />
+              </Box>
+              <Box>
+                <Text>{BackupWallet.backupSuccessParagraph}</Text>
+              </Box>
+            </Box>
+          )}
+        />
+
+        <KeeperModal
+          visible={showQRVisible}
+          close={() => setShowQRVisible(false)}
+          title={BackupWallet.recoveryPhrase}
+          subTitleWidth={wp(260)}
+          subTitle={BackupWallet.recoveryPhraseSubTitle}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          buttonText={common.done}
+          buttonCallback={() => setShowQRVisible(false)}
+          Content={() => (
+            <ShowXPub
+              data={JSON.stringify(words)}
+              subText={seedTranslation.walletRecoveryPhrase}
+              noteSubText={seedTranslation.showXPubNoteSubText}
+              copyable={false}
+            />
+          )}
         />
       </Box>
-      {isFromAssistedKey && derivationPath && (
-        <Box style={styles.derivationContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text color={`${colorMode}.GreyText`}>{derivationPath}</Text>
-        </Box>
-      )}
-      {isFromAssistedKey ? (
-        <Box m={4}>
-          <Note
-            title={common.note}
-            subtitle={`${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`}
-            subtitleColor="GreyText"
-          />
-        </Box>
-      ) : (
-        <Box m={2}>
-          <Note
-            title={common.note}
-            subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
-            subtitleColor="GreyText"
-          />
-        </Box>
-      )}
-      {!viewRecoveryKeys && !next && !isFromAssistedKey && (
-        <Pressable
-          onPress={() => {
-            // setShowQRVisible(true);
-            navigation.navigate('UpdateWalletDetails', { wallet, isFromSeed: true, words });
-          }}
-        >
-          <Box style={styles.qrItemContainer}>
-            <HStack style={styles.qrItem}>
-              <HStack alignItems="center">
-                <QR />
-                <VStack marginX="4" maxWidth="64">
-                  <Text
-                    color={`${colorMode}.primaryText`}
-                    numberOfLines={2}
-                    style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
-                  >
-                    {common.showAsQR}
-                  </Text>
-                </VStack>
-              </HStack>
-              <Box style={styles.backArrow}>
-                <IconArrowBlack />
-              </Box>
-            </HStack>
-          </Box>
-        </Pressable>
-      )}
-
-      <Box style={styles.nextButtonWrapper}>
-        {next && (
-          <Box>
-            <CustomGreenButton
-              onPress={() => {
-                setConfirmSeedModal(true);
-              }}
-              value={login.Next}
-            />
-          </Box>
-        )}
-      </Box>
-
-      {isFromAssistedKey && (
-        <Box style={styles.nextButtonWrapper}>
-          <Box>
-            <CustomGreenButton
-              onPress={() => {
-                setConfirmSeedModal(true);
-              }}
-              value={common.proceed}
-            />
-          </Box>
-        </Box>
-      )}
-      {/* Modals */}
-      <Box>
-        <ModalWrapper
-          visible={confirmSeedModal}
-          onSwipeComplete={() => setConfirmSeedModal(false)}
-          position="center"
-        >
-          <ConfirmSeedWord
-            closeBottomSheet={() => {
-              setConfirmSeedModal(false);
-            }}
-            words={words}
-            confirmBtnPress={() => {
-              setConfirmSeedModal(false);
-              if (isHealthCheck) {
-                if (signer.type === SignerType.MOBILE_KEY) {
-                  dispatch(
-                    healthCheckStatusUpdate([
-                      {
-                        signerId: signer.masterFingerprint,
-                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
-                      },
-                    ])
-                  );
-                  navigation.dispatch(CommonActions.goBack());
-                  showToast(seedTranslation.mobileKeyVerified, <TickIcon />);
-                }
-                if (signer.type === SignerType.SEED_WORDS) {
-                  dispatch(
-                    healthCheckStatusUpdate([
-                      {
-                        signerId: signer.masterFingerprint,
-                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
-                      },
-                    ])
-                  );
-                  navigation.dispatch(CommonActions.goBack());
-                  showToast(seedTranslation.seedWordVerified, <TickIcon />);
-                }
-                if (signer.type === SignerType.MY_KEEPER) {
-                  dispatch(
-                    healthCheckStatusUpdate([
-                      {
-                        signerId: signer.masterFingerprint,
-                        status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
-                      },
-                    ])
-                  );
-                  const msXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0]);
-                  const ssXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
-                  const vaultSigner = WalletUtilities.getKeyForScheme(
-                    true,
-                    signer,
-                    msXpub,
-                    ssXpub,
-                    null
-                  );
-                  dispatch(refillMobileKey(vaultSigner));
-                  navigation.dispatch(CommonActions.goBack());
-                  showToast(seedTranslation.keeperVerified, <TickIcon />);
-                }
-              } else if (isFromAssistedKey) {
-                if (isIKS) {
-                  dispatch(setOTBStatusIKS(true));
-                } else if (isSS) {
-                  dispatch(setOTBStatusSS(true));
-                }
-                showToast(BackupWallet.OTBSuccessMessage, <TickIcon />);
-                navigation.dispatch(
-                  CommonActions.navigate('SigningDeviceDetails', {
-                    signerId: signer.masterFingerprint,
-                    vaultId,
-                    vaultKey,
-                  })
-                );
-              } else {
-                dispatch(seedBackedUp());
-              }
-            }}
-          />
-        </ModalWrapper>
-      </Box>
-      <KeeperModal
-        visible={backupSuccessModal}
-        dismissible={false}
-        close={
-          isChangePassword
-            ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
-            : () => {}
-        }
-        title={BackupWallet.backupSuccessTitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonText={common.done}
-        buttonCallback={
-          isChangePassword
-            ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
-            : () => navigation.replace('WalletBackHistory')
-        }
-        Content={() => (
-          <Box>
-            <Box>
-              <Illustration />
-            </Box>
-            <Box>
-              <Text>{BackupWallet.backupSuccessParagraph}</Text>
-            </Box>
-          </Box>
-        )}
-      />
-
-      <KeeperModal
-        visible={showQRVisible}
-        close={() => setShowQRVisible(false)}
-        title={BackupWallet.recoveryPhrase}
-        subTitleWidth={wp(260)}
-        subTitle={BackupWallet.recoveryPhraseSubTitle}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonText={common.done}
-        buttonCallback={() => setShowQRVisible(false)}
-        Content={() => (
-          <ShowXPub
-            data={JSON.stringify(words)}
-            subText={seedTranslation.walletRecoveryPhrase}
-            noteSubText={seedTranslation.showXPubNoteSubText}
-            copyable={false}
-          />
-        )}
-      />
-      <SafeAreaView />
-    </Box>
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
   },
   seedCardContainer: {
     width: '50%',

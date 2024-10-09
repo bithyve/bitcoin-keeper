@@ -178,6 +178,7 @@ function ScanQR() {
             automaticallyAdjustKeyboardInsets={true}
             contentContainerStyle={{
               flex: 1,
+              alignItems: 'center',
             }}
           >
             <VStack style={globalStyles.centerColumn}>

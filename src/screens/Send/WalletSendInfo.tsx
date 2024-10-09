@@ -95,13 +95,14 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     flexDirection: 'row',
-    width: '97%',
+    width: '100%',
     borderRadius: 10,
   },
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    margin: 10,
+    marginVertical: 10,
+    marginHorizontal: 8,
     width: '100%',
   },
   walletNameText: {
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   walletSendInfoWrapper: {
-    marginLeft: wp(10),
+    marginLeft: wp(5),
     width: '55%',
   },
 });

@@ -326,7 +326,6 @@ function AddSendAmount({ route }) {
         <KeeperHeader
           title="Sending from"
           subtitle={sender.presentationData.name}
-          marginLeft={false}
           rightComponent={<CurrencyTypeSwitch />}
           icon={
             <HexagonIcon
