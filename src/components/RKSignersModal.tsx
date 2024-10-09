@@ -20,6 +20,7 @@ import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 
 const RKSignersModal = ({ data }, ref) => {
   const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultisig } = data;
@@ -193,9 +194,16 @@ const RKSignersModal = ({ data }, ref) => {
   };
 
   const onFileSign = (signedSerializedPSBT: string) => {
+    if (signerType == SignerType.KEYSTONE) {
+      const tx = getTxHexFromKeystonePSBT(
+        serializedPSBTEnvelop.serializedPSBT,
+        signedSerializedPSBT
+      );
+      signedSerializedPSBT = tx.toHex();
+    }
     navigation.replace('RemoteSharing', {
       isPSBTSharing: true,
-      signerData: {},
+      signerData: {}, // TODO: remove signer data
       signer: signer,
       psbt: signedSerializedPSBT,
       mode: RKInteractionMode.SHARE_SIGNED_PSBT,

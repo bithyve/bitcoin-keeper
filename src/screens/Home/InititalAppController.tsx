@@ -148,9 +148,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
                 (s) => tempData.vaultKey.masterFingerprint == s.masterFingerprint
               );
               if (signer.type === SignerType.KEYSTONE) {
-                // TODO: Single Sig Key Stone
-                // const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-                // dispatch(updatePSBTEnvelops({ xfp: tempData.vaultKey.xfp, txHex: tx.toHex() }));
+                dispatch(updatePSBTEnvelops({ xfp: tempData.vaultKey.xfp, txHex: tempData.psbt }));
               } else {
                 dispatch(
                   updatePSBTEnvelops({
