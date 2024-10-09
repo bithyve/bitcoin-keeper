@@ -1432,7 +1432,6 @@ export function* updateSignerDetailsWorker({ payload }) {
     key: string;
     value: any;
   } = payload;
-
   yield put(setRelaySignersUpdateLoading(true));
   try {
     const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });

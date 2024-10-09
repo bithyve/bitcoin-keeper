@@ -2,7 +2,7 @@ import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   calculateSendMaxFee,
   crossTransfer,
@@ -72,6 +72,7 @@ import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import CountdownTimer from 'src/components/Timer/CountDownTimer';
+import RKSignersModal from '../../components/RKSignersModal';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -768,6 +769,15 @@ export interface SendConfirmationRouteParams {
   date: Date;
   parentScreen: string;
   isRemoteFlow?: boolean;
+  tnxDetails?: tnxDetailsProps;
+  signingDetails?: any;
+  timeLeft?: number;
+}
+
+export interface tnxDetailsProps {
+  sendMaxFeeEstimatedBlocks: number;
+  transactionPriority: string;
+  txFeeInfo: any;
 }
 
 function SendConfirmation({ route }) {
@@ -788,16 +798,20 @@ function SendConfirmation({ route }) {
     isAutoTransfer,
     parentScreen,
     isRemoteFlow = false,
+    tnxDetails,
+    signingDetails,
+    timeLeft,
   }: SendConfirmationRouteParams = route.params;
-
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
-  const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const txFeeInfo = isRemoteFlow
+    ? tnxDetails.txFeeInfo
+    : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
-  const sendMaxFeeEstimatedBlocks = useAppSelector(
-    (state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks
-  );
+  const sendMaxFeeEstimatedBlocks = isRemoteFlow
+    ? tnxDetails.sendMaxFeeEstimatedBlocks
+    : useAppSelector((state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
@@ -850,21 +864,27 @@ function SendConfirmation({ route }) {
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
   const [transactionPriority, setTransactionPriority] = useState(
-    isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
+    isRemoteFlow
+      ? tnxDetails.transactionPriority
+      : isCachedTransaction
+      ? cachedTxPriority || TxPriority.LOW
+      : TxPriority.LOW
   );
   const [usualFee, setUsualFee] = useState(0);
   const [topText, setTopText] = useState('');
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
 
+  const signerModalRef = useRef(null);
+
   const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
 
-  const handleTimerEnd = () => {
+  const handleTimerEnd = useCallback(() => {
     setIsTimerActive(false);
-  };
+  }, []);
 
   function checkUsualFee(data: any[]) {
     if (data.length === 0) {
@@ -1039,6 +1059,11 @@ function SendConfirmation({ route }) {
           vaultId: sender?.id,
           sender: sender,
           sendConfirmationRouteParams: route.params,
+          tnxDetails: {
+            txFeeInfo,
+            sendMaxFeeEstimatedBlocks,
+            transactionPriority,
+          },
         })
       );
       setProgress(false);
@@ -1204,7 +1229,7 @@ function SendConfirmation({ route }) {
               </Text>
             </Box>
             <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <CountdownTimer initialTime={30} onTimerEnd={handleTimerEnd} />
+              <CountdownTimer initialTime={timeLeft} onTimerEnd={handleTimerEnd} />
             </Box>
           </Box>
         )}
@@ -1277,7 +1302,7 @@ function SendConfirmation({ route }) {
         <TouchableOpacity
           testID="btn_transactionPriority"
           onPress={() => setTransPriorityModalVisible(true)}
-          disabled={isAutoTransfer} // disable change priority for AutoTransfers
+          disabled={isAutoTransfer || isRemoteFlow} // disable change priority for AutoTransfers
         >
           <TransactionPriorityDetails
             isAutoTransfer={isAutoTransfer}
@@ -1363,8 +1388,16 @@ function SendConfirmation({ route }) {
         ))}
       {isRemoteFlow && (
         <Box style={styles.buttonsContainer}>
-          <Buttons width={wp(285)} primaryText={walletTransactions.SignTransaction} />
-          <Buttons secondaryText={walletTransactions.DenyTransaction} />
+          <Buttons
+            primaryDisable={!isTimerActive}
+            width={wp(285)}
+            primaryText={walletTransactions.SignTransaction}
+            primaryCallback={() => signerModalRef.current.openModal()}
+          />
+          <Buttons
+            secondaryText={walletTransactions.DenyTransaction}
+            secondaryCallback={() => navigation.goBack()}
+          />
         </Box>
       )}
       <KeeperModal
@@ -1557,6 +1590,7 @@ function SendConfirmation({ route }) {
           }}
         />
       )}
+      {isRemoteFlow && <RKSignersModal data={signingDetails} ref={signerModalRef} />}
     </ScreenWrapper>
   );
 }

@@ -1,3 +1,5 @@
+import { SendConfirmationRouteParams, tnxDetailsProps } from 'src/screens/Send/SendConfirmation';
+import { RKInteractionMode } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
@@ -92,7 +94,18 @@ export type AppStackParams = {
   WhirlpoolConfiguration: undefined;
   CosignerDetails: { signer: Signer };
   AdditionalDetails: { signer: Signer };
-  RemoteSharing: { signer: Signer; signerData: string; isPSBTSharing?: boolean };
+  RemoteSharing: {
+    signer: Signer;
+    isPSBTSharing?: boolean;
+    psbt?: string;
+    mode: RKInteractionMode;
+    vaultKey?: VaultSigner;
+    vaultId?: string;
+    serializedPSBTEnvelop: any;
+    isMultisig?: boolean;
+    sendConfirmationRouteParams?: SendConfirmationRouteParams;
+    tnxDetails?: tnxDetailsProps;
+  };
   GenerateVaultDescriptor: undefined;
   SetupCollaborativeWallet: undefined;
   EnterSeedScreen: undefined;
@@ -128,6 +141,13 @@ export type AppStackParams = {
     addedSigner: Signer;
     addSignerFlow: boolean;
     showModal?: boolean;
+    receivedExternalSigner?: {
+      timeLeft: string;
+      data: {
+        fcmToken: string;
+        signer: Signer;
+      };
+    };
   };
   AppBackupSettings: undefined;
   BuyBitcoin: undefined;
