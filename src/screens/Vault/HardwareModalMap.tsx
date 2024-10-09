@@ -523,10 +523,7 @@ const getSignerContent = (
       return {
         type: SignerType.TAPSIGNER,
         Illustration: <TapsignerSetupImage />,
-        Instructions: [
-          'You will need the Pin/CVC given at\n the back of the TAPSIGNER',
-          'Make sure that the TAPSIGNER has not\n been used as a signer in other apps',
-        ],
+        Instructions: ['You will need the PIN given at\n the back of the TAPSIGNER'],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
         options: [],
