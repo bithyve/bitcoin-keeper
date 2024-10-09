@@ -23,7 +23,6 @@ import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
-  crossTransferReset,
   customPrioritySendPhaseOneReset,
   sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
@@ -54,6 +53,7 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -884,6 +884,23 @@ function SendConfirmation({ route }) {
   }, [OneDayHistoricalFee]);
 
   useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+      if (navigation.getState().index > 2 && isCachedTransaction) {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+          })
+        );
+        showToast('New pending transaction saved successfully', <TickIcon />);
+      } else {
+        navigation.dispatch(e.data.action);
+      }
+    });
+  }, [navigation, isCachedTransaction]);
+
+  useEffect(() => {
     if (isAutoTransfer) {
       setSubTitle('Review auto-transfer transaction details');
     } else if (vaultTransfers.includes(transferType)) {
@@ -1181,21 +1198,7 @@ function SendConfirmation({ route }) {
         title="Send Confirmation"
         subtitle={subTitle}
         rightComponent={<CurrencyTypeSwitch />}
-        onPressHandler={() => {
-          if (navigation.getState().index > 2 && isCachedTransaction) {
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 1,
-                routes: [
-                  { name: 'Home' },
-                  { name: 'VaultDetails', params: { vaultId: sender?.id } },
-                ],
-              })
-            );
-          } else {
-            navigation.goBack();
-          }
-        }}
+        onPressHandler={() => navigation.goBack()}
       />
       <ScrollView
         style={styles.container}
