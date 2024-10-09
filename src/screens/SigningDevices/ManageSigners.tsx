@@ -246,14 +246,13 @@ function SignersList({
 
   const renderAssistedKeysShell = () => {
     return shellAssistedKeys.map((shellSigner) => {
-      const isAMF = false;
       return (
         <SignerCard
           key={shellSigner.masterFingerprint}
           onCardSelect={() => {
             showToast('Please add the key to a Vault in order to use it');
           }}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
           description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           showSelection={false}
@@ -291,11 +290,6 @@ function SignersList({
                 vault.isMultiSig) ||
               typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
 
-            const isAMF =
-              signer.type === SignerType.TAPSIGNER &&
-              config.NETWORK_TYPE === NetworkType.TESTNET &&
-              !signer.isMock;
-
             return (
               <SignerCard
                 key={signer.masterFingerprint}
@@ -304,8 +298,8 @@ function SignersList({
                 }}
                 name={
                   !signer.isBIP85
-                    ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-                    : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
+                    ? getSignerNameFromType(signer.type, signer.isMock, false)
+                    : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 description={getSignerDescription(
                   signer.type,

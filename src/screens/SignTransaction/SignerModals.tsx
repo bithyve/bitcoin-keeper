@@ -40,6 +40,7 @@ import NfcComms from 'src/assets/images/nfc_comms.svg';
 import Import from 'src/assets/images/import.svg';
 import SignerCard from '../AddSigner/SignerCard';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -581,7 +582,6 @@ function SignerModals({
   setPasswordModal,
   showOTPModal,
   signTransaction,
-  textRef,
   vaultKeys,
   isMultisig,
   signerMap,
@@ -618,7 +618,6 @@ function SignerModals({
   setPasswordModal: any;
   showOTPModal: any;
   signTransaction: any;
-  textRef: any;
   vaultKeys: VaultSigner[];
   isMultisig: boolean;
   signerMap: { [key: string]: Signer };
@@ -677,11 +676,11 @@ function SignerModals({
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
             navigation.dispatch(
-              CommonActions.navigate('SignWithTapsigner', {
+              CommonActions.navigate('TapsignerAction', {
+                mode: InteracationMode.SIGN_TRANSACTION,
+                signer,
+                isMultisig,
                 signTransaction,
-                vaultKey,
-                textRef,
-                vaultId,
               })
             );
           };

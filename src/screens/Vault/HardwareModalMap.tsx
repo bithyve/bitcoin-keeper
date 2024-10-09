@@ -128,6 +128,8 @@ export const enum InteracationMode {
   APP_ADDITION = 'APP_ADDITION',
   CANARY_ADDITION = 'CANARY_ADDITION',
   ADDRESS_VERIFICATION = 'ADDRESS_VERIFICATION',
+  SIGN_TRANSACTION = 'SIGN_TRANSACTION',
+  BACKUP_SIGNER = 'BACKUP_SIGNER',
 }
 
 const getSignerContent = (
@@ -928,7 +930,7 @@ function HardwareModalMap({
     }
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'AddTapsigner',
+        name: 'TapsignerAction',
         params: { mode, signer, isMultisig, addSignerFlow },
       })
     );
