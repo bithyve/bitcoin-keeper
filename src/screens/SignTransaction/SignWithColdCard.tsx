@@ -90,7 +90,6 @@ function SignWithColdCard({ route }: { route }) {
         if (isRemoteKey) {
           navigation.replace('RemoteSharing', {
             isPSBTSharing: true,
-            signerData: {},
             signer: signer,
             psbt: txn,
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
@@ -114,7 +113,6 @@ function SignWithColdCard({ route }: { route }) {
         if (isRemoteKey) {
           navigation.replace('RemoteSharing', {
             isPSBTSharing: true,
-            signerData: {},
             signer: signer,
             psbt,
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,

@@ -129,7 +129,6 @@ function SignWithQR() {
         if (isRemoteKey) {
           navigation.replace('RemoteSharing', {
             isPSBTSharing: true,
-            signerData: {},
             signer: signer,
             psbt: signedSerializedPSBT,
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,

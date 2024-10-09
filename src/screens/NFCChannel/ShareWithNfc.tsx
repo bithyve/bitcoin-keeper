@@ -143,7 +143,6 @@ function ShareWithNfc({
           callback={() =>
             navigation.navigate('RemoteSharing', {
               isPSBTSharing,
-              signerData: data,
               signer,
               psbt,
               mode: isPSBTSharing

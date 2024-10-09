@@ -124,7 +124,6 @@ const RKSignersModal = ({ data }, ref) => {
           });
         navigation.replace('RemoteSharing', {
           isPSBTSharing: true,
-          signerData: {},
           signer: signer,
           psbt: signedSerializedPSBT || signedPayload,
           mode: RKInteractionMode.SHARE_SIGNED_PSBT,
@@ -149,7 +148,6 @@ const RKSignersModal = ({ data }, ref) => {
         if (signedSerializedPSBT) {
           navigation.replace('RemoteSharing', {
             isPSBTSharing: true,
-            signerData: {},
             signer: signer,
             psbt: signedSerializedPSBT,
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
@@ -178,7 +176,6 @@ const RKSignersModal = ({ data }, ref) => {
           );
           navigation.replace('RemoteSharing', {
             isPSBTSharing: true,
-            signerData: {},
             signer: signer,
             psbt: signedSerializedPSBT,
             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
@@ -203,7 +200,6 @@ const RKSignersModal = ({ data }, ref) => {
     }
     navigation.replace('RemoteSharing', {
       isPSBTSharing: true,
-      signerData: {}, // TODO: remove signer data
       signer: signer,
       psbt: signedSerializedPSBT,
       mode: RKInteractionMode.SHARE_SIGNED_PSBT,

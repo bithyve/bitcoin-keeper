@@ -69,7 +69,6 @@ function RemoteSharing({ route }: ScreenProps) {
     signer: signerFromParam,
     isPSBTSharing = false,
     psbt,
-    signerData,
     mode,
     vaultKey,
     vaultId,
@@ -97,7 +96,6 @@ function RemoteSharing({ route }: ScreenProps) {
           masterFingerprint: signer.masterFingerprint,
           signerPolicy: signer.signerPolicy,
           signerXpubs: signer.signerXpubs,
-          signerData,
         };
       }
 

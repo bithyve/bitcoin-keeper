@@ -96,7 +96,6 @@ export type AppStackParams = {
   AdditionalDetails: { signer: Signer };
   RemoteSharing: {
     signer: Signer;
-    signerData: string;
     isPSBTSharing?: boolean;
     psbt?: string;
     mode: RKInteractionMode;
@@ -146,7 +145,7 @@ export type AppStackParams = {
       timeLeft: string;
       data: {
         fcmToken: string;
-        signer: Signer & { signerData: string };
+        signer: Signer;
       };
     };
   };
