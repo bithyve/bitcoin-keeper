@@ -103,7 +103,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           if (signingDetails?.serializedPSBTEnvelop) {
             try {
               try {
-                const signer = signers.find((s) => signingDetails.signer == s.masterFingerprint); 
+                const signer = signers.find((s) => signingDetails.signer == s.masterFingerprint);
                 if (!signer) throw { message: 'Signer not found' };
                 switch (signer.type) {
                   case SignerType.SEED_WORDS:
@@ -143,24 +143,22 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
         case RKInteractionMode.SHARE_SIGNED_PSBT:
           try {
             Psbt.fromBase64(tempData?.psbt); // will throw if not a psbt
-            if (false) {
-              // if (!tempData.isMultisig) {
-              // TODO: handle single sig
-              // if (isSingleSig) {
-              // if (signer.type === SignerType.SEEDSIGNER) {
-              //   const { signedPsbt } = updateInputsForSeedSigner({
-              //     serializedPSBT,
-              //     signedSerializedPSBT,
-              //   });
-              //   dispatch(
-              //     updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp })
-              //   );
-              // } else if (signer.type === SignerType.KEYSTONE) {
-              //   const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-              //   dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
-              // } else {
-              //   dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
-              // }
+            if (!tempData.isMultisig) {
+              const signer = signers.find(
+                (s) => tempData.vaultKey.masterFingerprint == s.masterFingerprint
+              );
+              if (signer.type === SignerType.KEYSTONE) {
+                // TODO: Single Sig Key Stone
+                // const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
+                // dispatch(updatePSBTEnvelops({ xfp: tempData.vaultKey.xfp, txHex: tx.toHex() }));
+              } else {
+                dispatch(
+                  updatePSBTEnvelops({
+                    xfp: tempData.vaultKey.xfp,
+                    signedSerializedPSBT: tempData.psbt,
+                  })
+                );
+              }
             } else {
               dispatch(
                 updatePSBTEnvelops({
