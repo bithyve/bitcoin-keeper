@@ -506,14 +506,10 @@ function* recoverApp(
                 }
               }
             });
-            const isAMF =
-              signer.type === SignerType.TAPSIGNER &&
-              config.NETWORK_TYPE === NetworkType.TESTNET &&
-              !signer.isMock;
             const signerObject = {
               masterFingerprint: signer.masterFingerprint,
               type: signer.type,
-              signerName: getSignerNameFromType(signer.type, signer.isMock, isAMF),
+              signerName: getSignerNameFromType(signer.type, signer.isMock, false),
               signerDescription: signer.signerDescription,
               lastHealthCheck: signer.lastHealthCheck,
               addedOn: signer.addedOn,

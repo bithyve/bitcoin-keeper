@@ -23,7 +23,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import Text from 'src/components/KeeperText';
@@ -129,7 +129,6 @@ function SignTransactionScreen() {
   );
   const [broadcasting, setBroadcasting] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
-  const textRef = useRef(null);
   const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
@@ -284,11 +283,13 @@ function SignTransactionScreen() {
       signingServerOTP,
       seedBasedSingerMnemonic,
       inheritanceConfiguration,
+      tapsignerCVC,
     }: {
       xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
       inheritanceConfiguration?: InheritanceConfiguration;
+      tapsignerCVC?: string;
     } = {}) => {
       const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
@@ -309,7 +310,7 @@ function SignTransactionScreen() {
               defaultVault,
               serializedPSBT,
               card,
-              cvc: textRef.current,
+              cvc: tapsignerCVC,
               signer,
             });
           dispatch(
@@ -667,7 +668,6 @@ function SignTransactionScreen() {
                   label,
                 })
               );
-              setBroadcasting(false);
             } else {
               showToast("Sorry there aren't enough signatures!");
             }
@@ -712,7 +712,6 @@ function SignTransactionScreen() {
         setTapsignerModal={setTapsignerModal}
         showOTPModal={showOTPModal}
         signTransaction={signTransaction}
-        textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
         onFileSign={onFileSign}
@@ -720,7 +719,10 @@ function SignTransactionScreen() {
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
         visible={visibleModal}
-        close={() => setVisibleModal(false)}
+        close={() => {
+          setVisibleModal(false);
+          !isMoveAllFunds ? viewDetails() : viewManageWallets();
+        }}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={

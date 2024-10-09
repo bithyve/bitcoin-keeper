@@ -10,6 +10,7 @@ import { isSignerAMF } from 'src/hardware';
 import { EntityKind } from 'src/services/wallets/enums';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import SigningServer from 'src/services/backend/SigningServer';
+import { isTestnet } from 'src/constants/Bitcoin';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -39,7 +40,7 @@ export const signTransactionWithTapsigner = async ({
     return { signedSerializedPSBT, signingPayload: null };
   }
   return withModal(async () => {
-    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentKey);
+    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentKey, isTestnet());
     signingPayload.forEach((payload) => {
       payload.inputsToSign = signedInput;
     });

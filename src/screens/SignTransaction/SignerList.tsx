@@ -39,10 +39,6 @@ function SignerList({
   ).length;
   const signer = signerMap[vaultKey.masterFingerprint];
   const isIKS = signer.type === SignerType.INHERITANCEKEY;
-  const isAMF =
-    signer.type === SignerType.TAPSIGNER &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
-    !signer.isMock;
   const [showIcon, setShowIcon] = useState(null);
 
   const formatDuration = (durationInMilliseconds) => {
@@ -111,7 +107,7 @@ function SignerList({
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
-                {`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} (${
+                {`${getSignerNameFromType(signer.type, signer.isMock, false)} (${
                   signer.masterFingerprint
                 })`}
               </Text>

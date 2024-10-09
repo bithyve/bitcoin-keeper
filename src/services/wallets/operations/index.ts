@@ -1132,7 +1132,7 @@ export default class WalletOperations {
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
       isSigned = true;
     } else if (
-      (signer.type === SignerType.TAPSIGNER && !isSignerAMF(signer)) ||
+      signer.type === SignerType.TAPSIGNER ||
       signer.type === SignerType.LEDGER ||
       signer.type === SignerType.TREZOR ||
       signer.type === SignerType.BITBOX02
@@ -1359,7 +1359,7 @@ export default class WalletOperations {
       for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
         const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
         const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
-        if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
+        if (signerType === SignerType.TAPSIGNER) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
               if (signature) {
