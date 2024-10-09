@@ -81,106 +81,114 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
     const [externalKeyId, encryptionKey] = initialUrl.split('shareKey/')[1].split('/');
     if (externalKeyId) {
-      const { createdAt, data: response, err } = await Relay.getRemoteKey(externalKeyId);
-      if (err) {
-        showToast(err);
-        return;
-      }
-      const tempData = JSON.parse(decrypt(encryptionKey, response));
-      console.log('🚀 ~ handleRemoteKeyDeepLink ~ tempData:', tempData);
-      switch (tempData.type) {
-        case RKInteractionMode.SHARE_REMOTE_KEY:
-          navigation.navigate('ManageSigners', {
-            receivedExternalSigner: {
-              timeLeft: calculateTimeLeft(createdAt),
-              data: tempData,
-            },
-          });
-          break;
+      try {
+        const res = await Relay.getRemoteKey(externalKeyId);
+        if (!res) {
+          showToast('Remote Key link expired');
+          return;
+        }
+        const { createdAt, data: response } = res;
+        const tempData = JSON.parse(decrypt(encryptionKey, response));
+        switch (tempData.type) {
+          case RKInteractionMode.SHARE_REMOTE_KEY:
+            navigation.navigate('ManageSigners', {
+              receivedExternalSigner: {
+                timeLeft: calculateTimeLeft(createdAt),
+                data: tempData,
+              },
+            });
+            break;
 
-        case RKInteractionMode.SHARE_PSBT:
-          const { sendConfirmationRouteParams, signingDetails, tnxDetails, type } = tempData;
-          if (signingDetails?.serializedPSBTEnvelop) {
-            try {
+          case RKInteractionMode.SHARE_PSBT:
+            const { sendConfirmationRouteParams, signingDetails, tnxDetails, type } = tempData;
+            if (signingDetails?.serializedPSBTEnvelop) {
               try {
-                const signer = signers.find((s) => signingDetails.signer == s.masterFingerprint);
-                if (!signer) throw { message: 'Signer not found' };
-                switch (signer.type) {
-                  case SignerType.SEED_WORDS:
-                  case SignerType.BITBOX02:
-                  case SignerType.LEDGER:
-                  case SignerType.TREZOR:
-                  case SignerType.COLDCARD:
-                  case SignerType.PASSPORT:
-                  case SignerType.SPECTER:
-                  case SignerType.TAPSIGNER:
-                  case SignerType.JADE:
-                  case SignerType.MY_KEEPER:
-                    navigation.navigate('SendConfirmation', {
-                      ...sendConfirmationRouteParams,
-                      tnxDetails,
-                      signingDetails: { ...signingDetails, signer },
-                      timeLeft: calculateTimeLeft(createdAt),
-                      isRemoteFlow: true,
-                    });
-                    break;
-                  default:
-                    console.log('Signer Type Unknown', signer.type); // TODO: remove this
-                    break;
+                try {
+                  const signer = signers.find((s) => signingDetails.signer == s.masterFingerprint);
+                  if (!signer) throw { message: 'Signer not found' };
+                  switch (signer.type) {
+                    case SignerType.SEED_WORDS:
+                    case SignerType.BITBOX02:
+                    case SignerType.LEDGER:
+                    case SignerType.TREZOR:
+                    case SignerType.COLDCARD:
+                    case SignerType.PASSPORT:
+                    case SignerType.SPECTER:
+                    case SignerType.TAPSIGNER:
+                    case SignerType.JADE:
+                    case SignerType.MY_KEEPER:
+                      navigation.navigate('SendConfirmation', {
+                        ...sendConfirmationRouteParams,
+                        tnxDetails,
+                        signingDetails: { ...signingDetails, signer },
+                        timeLeft: calculateTimeLeft(createdAt),
+                        isRemoteFlow: true,
+                      });
+                      break;
+                    default:
+                      console.log('Signer Type Unknown', signer.type); // TODO: remove this
+                      break;
+                  }
+                } catch (e) {
+                  showToast(e.message);
                 }
               } catch (e) {
-                showToast(e.message);
+                console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
+                showToast('Please scan a valid PSBT');
               }
-            } catch (e) {
-              console.log('🚀 ~ handleRemoteKeyDeepLink ~ e:', e);
-              showToast('Please scan a valid PSBT');
+            } else {
+              showToast('Invalid deeplink');
             }
-          } else {
-            showToast('Invalid deeplink');
-          }
-          break;
+            break;
 
-        case RKInteractionMode.SHARE_SIGNED_PSBT:
-          try {
-            Psbt.fromBase64(tempData?.psbt); // will throw if not a psbt
-            if (!tempData.isMultisig) {
-              const signer = signers.find(
-                (s) => tempData.vaultKey.masterFingerprint == s.masterFingerprint
-              );
-              if (signer.type === SignerType.KEYSTONE) {
-                dispatch(updatePSBTEnvelops({ xfp: tempData.vaultKey.xfp, txHex: tempData.psbt }));
+          case RKInteractionMode.SHARE_SIGNED_PSBT:
+            try {
+              Psbt.fromBase64(tempData?.psbt); // will throw if not a psbt
+              if (!tempData.isMultisig) {
+                const signer = signers.find(
+                  (s) => tempData.vaultKey.masterFingerprint == s.masterFingerprint
+                );
+                if (signer.type === SignerType.KEYSTONE) {
+                  dispatch(
+                    updatePSBTEnvelops({ xfp: tempData.vaultKey.xfp, txHex: tempData.psbt })
+                  );
+                } else {
+                  dispatch(
+                    updatePSBTEnvelops({
+                      xfp: tempData.vaultKey.xfp,
+                      signedSerializedPSBT: tempData.psbt,
+                    })
+                  );
+                }
               } else {
                 dispatch(
                   updatePSBTEnvelops({
+                    signedSerializedPSBT: tempData?.psbt,
                     xfp: tempData.vaultKey.xfp,
-                    signedSerializedPSBT: tempData.psbt,
+                  })
+                );
+                console.log('Vault ID is :', tempData.vaultId);
+                dispatch(
+                  updateKeyDetails(tempData.vaultKey, 'registered', {
+                    registered: true,
+                    vaultId: tempData.vaultId,
                   })
                 );
               }
-            } else {
-              dispatch(
-                updatePSBTEnvelops({
-                  signedSerializedPSBT: tempData?.psbt,
-                  xfp: tempData.vaultKey.xfp,
-                })
-              );
-              console.log('Vault ID is :', tempData.vaultId);
-              dispatch(
-                updateKeyDetails(tempData.vaultKey, 'registered', {
-                  registered: true,
-                  vaultId: tempData.vaultId,
-                })
-              );
+            } catch (err) {
+              console.log('🚀 ~ handleRemoteKeyDeepLink ~ err:', err);
             }
-          } catch (err) {
-            console.log('🚀 ~ handleRemoteKeyDeepLink ~ err:', err);
-          }
 
-          break;
-
-        default:
-          break;
+            break;
+          default:
+            break;
+        }
+      } catch (error) {
+        console.log('🚀 ~ handleRemoteKeyDeepLink ~ error:', error);
+        showToast('Something went wrong, please try again!');
       }
+    }else{
+      showToast('Invalid Remote Key link');
     }
   };
 
