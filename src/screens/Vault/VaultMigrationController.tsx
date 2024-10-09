@@ -141,8 +141,7 @@ function VaultMigrationController({
       const generatedVaultId = generateVaultId(signers, scheme);
       const deletedVaultIds = archivedVaults.map((vault) => vault.id);
       if (allVaultIds.includes(generatedVaultId) && !deletedVaultIds.includes(generatedVaultId)) {
-        Alert.alert('Vault with this configuration already exists');
-        navigation.goBack();
+        Alert.alert('Vault with this configuration already exists.');
       } else {
         setGeneratedVaultId(generatedVaultId);
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
