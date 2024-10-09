@@ -308,6 +308,7 @@ function ManageWallets() {
         title={settings.ManageWalletsTitle}
         subtitle={settings.ManageWalletsSub}
         rightComponent={<CurrencyTypeSwitch />}
+        rightComponentPadding={10}
       />
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
@@ -534,7 +535,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   walletsContainer: {
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     marginTop: '5%',
   },
   modalContainer: {

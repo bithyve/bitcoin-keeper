@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   fieldContainer: {
-    paddingHorizontal: wp(15),
+    paddingHorizontal: wp(10),
     flex: 1,
   },
 });

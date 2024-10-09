@@ -9,7 +9,8 @@ function CountrySwitchCard(props) {
     <Box
       backgroundColor={`${colorMode}.backgroundColor2`}
       flexDirection="row"
-      padding={4}
+      py={4}
+      px={3}
       {...props}
     >
       <Box flex={1.5}>

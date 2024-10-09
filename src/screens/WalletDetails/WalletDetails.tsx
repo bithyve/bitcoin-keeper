@@ -125,8 +125,8 @@ function WalletDetails({ route }: ScreenProps) {
     } else if (wallet.entityKind === EntityKind.WALLET) {
       return (
         <HexagonIcon
-          width={44}
-          height={38}
+          width={58}
+          height={50}
           backgroundColor={Colors.DarkGreen}
           icon={<WalletIcon />}
         />

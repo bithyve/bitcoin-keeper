@@ -1722,7 +1722,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    marginHorizontal: wp(25),
+    marginHorizontal: wp(10),
   },
   contentContainer: {
     paddingBottom: hp(30),

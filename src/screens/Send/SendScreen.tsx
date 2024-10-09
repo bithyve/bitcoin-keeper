@@ -319,7 +319,6 @@ function SendScreen({ route }) {
         <KeeperHeader
           title="Sending from"
           subtitle={sender.presentationData.name}
-          marginLeft={false}
           icon={
             <HexagonIcon
               width={44}

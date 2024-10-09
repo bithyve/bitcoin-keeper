@@ -164,7 +164,7 @@ function UpdateWalletDetails({ route }) {
           }
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          <Box>
+          <Box style={styles.container}>
             {showPurpose && (
               <ScrollView style={styles.langScrollViewWrapper}>
                 {purposeList.map((item) => (
@@ -232,6 +232,10 @@ function UpdateWalletDetails({ route }) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: '95%',
+    alignSelf: 'center',
+  },
   autoTransferText: {
     fontSize: 12,
     paddingHorizontal: wp(5),

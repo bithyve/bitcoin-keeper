@@ -174,7 +174,10 @@ function DeleteKeys({ route }) {
           />
         }
       />
-      <ScrollView contentContainerStyle={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {hiddenSigners.length === 0 ? (
           <Box style={styles.emptyWrapper}>
             <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
@@ -369,6 +372,10 @@ const styles = StyleSheet.create({
     height: hp(108),
     marginBottom: hp(20),
     borderRadius: 10,
+  },
+  scrollContainer: {
+    flex: 1,
+    paddingVertical: 30,
   },
 });
 
