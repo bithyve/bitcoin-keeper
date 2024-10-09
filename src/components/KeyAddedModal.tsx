@@ -22,7 +22,7 @@ function ModalCard({ title, subTitle, icon = null }) {
         />
       </Box>
       <Box style={styles.textContainer}>
-        <Text style={styles.titleText} color={`${colorMode}.headerText`}>
+        <Text style={styles.titleText} color={`${colorMode}.modalGreenButton`}>
           {title}
         </Text>
         <Text style={styles.subTitleText} color={`${colorMode}.GreyText`}>

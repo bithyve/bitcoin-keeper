@@ -640,6 +640,13 @@ function SignerContent({
           </Text>
         )}
       </Box>
+      {options.length !== 0 && (
+        <Box style={styles.signerOptionTitle}>
+          <Text medium color={`${colorMode}.greenText`}>
+            {mode === InteracationMode.HEALTH_CHECK ? 'Verify Signer Via' : 'Setup Signer Via'}
+          </Text>
+        </Box>
+      )}
       <View
         style={{
           marginVertical: 5,
@@ -2173,6 +2180,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     fontWeight: '500',
     textDecorationLine: 'underline',
+  },
+  signerOptionTitle: {
+    marginTop: hp(10),
   },
 });
 export default HardwareModalMap;

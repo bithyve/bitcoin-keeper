@@ -129,6 +129,8 @@ function TorSettings() {
         close={() => {
           setShowOrbotTorModal(false);
         }}
+        closeOnOverlayClick={true}
+        dismissible={true}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         title={settings.orbotConnection}
@@ -138,6 +140,7 @@ function TorSettings() {
         buttonBackground={`${colorMode}.greenButtonBackground`}
         secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
         secondaryButtonText={common.Later}
+        secondaryCallback={() => setShowOrbotTorModal(false)}
         buttonText={common.connect}
         buttonCallback={handleOrbotTor}
         Content={() => (
