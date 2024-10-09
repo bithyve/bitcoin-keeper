@@ -523,7 +523,7 @@ const getSignerContent = (
       return {
         type: SignerType.TAPSIGNER,
         Illustration: <TapsignerSetupImage />,
-        Instructions: ['You will need the PIN given at\n the back of the TAPSIGNER'],
+        Instructions: ['You will need the PIN (given at the back of the TAPSIGNER).'],
         title: isHealthcheck ? 'Verify TAPSIGNER' : tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
         options: [],
