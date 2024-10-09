@@ -412,7 +412,6 @@ function SigningDeviceDetails({ route }) {
             icon={SDIcons(signer.type, true, 26, 26).Icon}
           />
         }
-        rightComponent={<CurrencyTypeSwitch />}
       />
       <Box>
         <Text style={styles.recentHistoryText}>Recent History</Text>
