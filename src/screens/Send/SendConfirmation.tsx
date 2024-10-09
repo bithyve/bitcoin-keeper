@@ -1394,7 +1394,10 @@ function SendConfirmation({ route }) {
             primaryText={walletTransactions.SignTransaction}
             primaryCallback={() => signerModalRef.current.openModal()}
           />
-          <Buttons secondaryText={walletTransactions.DenyTransaction} />
+          <Buttons
+            secondaryText={walletTransactions.DenyTransaction}
+            secondaryCallback={() => navigation.goBack()}
+          />
         </Box>
       )}
       <KeeperModal

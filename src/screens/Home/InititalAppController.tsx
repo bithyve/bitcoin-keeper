@@ -103,7 +103,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
           if (signingDetails?.serializedPSBTEnvelop) {
             try {
               try {
-                const signer = signers.find((s) => s.masterFingerprint == signingDetails.signer);
+                const signer = signers.find((s) => signingDetails.signer == s.masterFingerprint); 
                 if (!signer) throw { message: 'Signer not found' };
                 switch (signer.type) {
                   case SignerType.SEED_WORDS:
