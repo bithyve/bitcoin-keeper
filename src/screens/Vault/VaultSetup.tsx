@@ -17,7 +17,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import Note from 'src/components/Note/Note';
 
 function NumberInput({ value, onDecrease, onIncrease }) {
   const { colorMode } = useColorMode();
@@ -121,7 +120,7 @@ function VaultSetup({ route }: ScreenProps) {
         // To-Do-Learn-More
       />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <VStack style={{ margin: 20, flex: 1 }}>
+        <VStack style={styles.container}>
           <KeeperTextInput
             placeholder="Name your vault"
             value={vaultName}
@@ -179,6 +178,11 @@ function VaultSetup({ route }: ScreenProps) {
 export default VaultSetup;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginVertical: 20,
+    marginHorizontal: 11,
+  },
   button: {
     paddingVertical: 10,
     paddingHorizontal: 20,

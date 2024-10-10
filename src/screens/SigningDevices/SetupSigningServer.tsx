@@ -16,7 +16,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
@@ -25,6 +24,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import SigningServer from 'src/services/backend/SigningServer';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function SetupSigningServer({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -156,116 +156,121 @@ function SetupSigningServer({ route }: { route }) {
   }, [otp]);
 
   return (
-    <View style={styles.Container} background={`${colorMode}.secondaryBackground`}>
-      <StatusBarComponent padding={50} />
-      <Box>
-        <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
-      </Box>
-      <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
-        {validationKey === '' ? (
-          <Box height={hp(250)} justifyContent="center">
-            <ActivityIndicator animating size="small" />
-          </Box>
-        ) : (
-          <Box
-            alignItems="center"
-            alignSelf="center"
-            width={hp(200)}
-            style={{
-              marginTop: hp(30),
-            }}
-          >
-            <QRCode
-              value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
-              logoBackgroundColor="transparent"
-              size={hp(200)}
-            />
-            <Box background={`${colorMode}.QrCode`} height={6} width="100%" justifyContent="center">
-              <Text
-                textAlign="center"
-                color={`${colorMode}.recieverAddress`}
-                bold
-                fontSize={12}
-                letterSpacing={1.08}
-                width="100%"
-                numberOfLines={1}
-              >
-                2FA signer
-              </Text>
+    <ScreenWrapper backgroundcolor={`${colorMode}.secondaryBackground`}>
+      <View style={styles.Container} background={`${colorMode}.secondaryBackground`}>
+        <Box>
+          <KeeperHeader title="Set up 2FA for signer" subtitle="Scan on any 2FA auth app" />
+        </Box>
+        <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
+          {validationKey === '' ? (
+            <Box height={hp(250)} justifyContent="center">
+              <ActivityIndicator animating size="small" />
             </Box>
-            <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
+          ) : (
+            <Box
+              alignItems="center"
+              alignSelf="center"
+              width={hp(200)}
+              style={{
+                marginTop: hp(30),
+              }}
+            >
+              <QRCode
+                value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
+                logoBackgroundColor="transparent"
+                size={hp(200)}
+              />
               <Box
-                flexDirection="row"
-                width="90%"
-                alignItems="center"
-                justifyContent="space-between"
-                backgroundColor={`${colorMode}.textInputBackground`}
-                borderBottomLeftRadius={10}
-                borderTopLeftRadius={10}
+                background={`${colorMode}.QrCode`}
+                height={6}
+                width="100%"
+                justifyContent="center"
               >
-                <Text width="80%" marginLeft={4} numberOfLines={1}>
-                  {validationKey}
-                </Text>
-                <TouchableOpacity
-                  activeOpacity={0.4}
-                  onPress={() => {
-                    Clipboard.setString(validationKey);
-                    showToast('Address Copied Successfully', <TickIcon />);
-                  }}
+                <Text
+                  textAlign="center"
+                  color={`${colorMode}.recieverAddress`}
+                  bold
+                  fontSize={12}
+                  letterSpacing={1.08}
+                  width="100%"
+                  numberOfLines={1}
                 >
-                  <Box
-                    backgroundColor={`${colorMode}.copyBackground`}
-                    padding={3}
-                    borderTopRightRadius={10}
-                    borderBottomRightRadius={10}
+                  2FA signer
+                </Text>
+              </Box>
+              <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
+                <Box
+                  flexDirection="row"
+                  width="90%"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  backgroundColor={`${colorMode}.textInputBackground`}
+                  borderBottomLeftRadius={10}
+                  borderTopLeftRadius={10}
+                >
+                  <Text width="80%" marginLeft={4} numberOfLines={1}>
+                    {validationKey}
+                  </Text>
+                  <TouchableOpacity
+                    activeOpacity={0.4}
+                    onPress={() => {
+                      Clipboard.setString(validationKey);
+                      showToast('Address Copied Successfully', <TickIcon />);
+                    }}
                   >
-                    <CopyIcon />
-                  </Box>
-                </TouchableOpacity>
+                    <Box
+                      backgroundColor={`${colorMode}.copyBackground`}
+                      padding={3}
+                      borderTopRightRadius={10}
+                      borderBottomRightRadius={10}
+                    >
+                      <CopyIcon />
+                    </Box>
+                  </TouchableOpacity>
+                </Box>
               </Box>
             </Box>
-          </Box>
-        )}
-      </Box>
+          )}
+        </Box>
 
-      {/* {Bottom note} */}
-      <Box position="absolute" bottom={hp(35)} marginX={5} width="100%">
-        <Box marginBottom={hp(30)}>
-          <Note
-            title="Note"
-            subtitle="It is a good idea to have the authenticator app on another device"
-            subtitleColor="GreyText"
+        {/* {Bottom note} */}
+        <Box style={styles.bottomNoteContainer}>
+          <Box marginBottom={hp(30)}>
+            <Note
+              title="Note"
+              subtitle="It is a good idea to have the authenticator app on another device"
+              subtitleColor="GreyText"
+            />
+          </Box>
+          <Buttons
+            primaryCallback={() => {
+              showValidationModal(true);
+            }}
+            primaryText="Next"
+            secondaryText="Cancel"
+            secondaryCallback={() => {
+              navigation.goBack();
+            }}
           />
         </Box>
-        <Buttons
-          primaryCallback={() => {
-            showValidationModal(true);
+        <KeeperModal
+          visible={validationModal}
+          close={() => {
+            showValidationModal(false);
           }}
-          primaryText="Next"
-          secondaryText="Cancel"
-          secondaryCallback={() => {
-            navigation.goBack();
-          }}
+          title="Confirm OTP to setup 2FA"
+          subTitle="To complete setting up the signer"
+          textColor={`${colorMode}.primaryText`}
+          Content={otpContent}
         />
-      </Box>
-      <KeeperModal
-        visible={validationModal}
-        close={() => {
-          showValidationModal(false);
-        }}
-        title="Confirm OTP to setup 2FA"
-        subTitle="To complete setting up the signer"
-        textColor={`${colorMode}.primaryText`}
-        Content={otpContent}
-      />
-    </View>
+      </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: 20,
     position: 'relative',
   },
   title: {
@@ -290,6 +295,13 @@ const styles = StyleSheet.create({
   },
   otpContainer: {
     width: '100%',
+  },
+  bottomNoteContainer: {
+    alignSelf: 'center',
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    marginBottom: hp(10),
   },
 });
 export default SetupSigningServer;

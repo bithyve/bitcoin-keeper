@@ -37,7 +37,7 @@ function VerifyAddressSelectionScreen() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={false} showLoader />
-      <KeeperHeader title="Verify Address" subtitle={`Select a Signer`} />
+      <KeeperHeader title="Verify Address" subtitle={vaultText.SelectSigner} />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
         data={availableSigners}
@@ -51,7 +51,7 @@ function VerifyAddressSelectionScreen() {
                   vaultId,
                   type: signer.type,
                   mode: InteracationMode.ADDRESS_VERIFICATION,
-                  title: `Setting up ${signerName}`,
+                  title: `Connecting to ${signerName}`,
                   subtitle: vaultText.verifyAddDesc,
                 })
               );

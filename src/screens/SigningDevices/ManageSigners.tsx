@@ -11,7 +11,8 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
-import SignerIcon from 'src/assets/images/signer_brown.svg';
+import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
+import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -24,7 +25,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
-import SettingIcon from 'src/assets/images/settings.svg';
+import SettingIcon from 'src/assets/images/settings-gear.svg';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -36,6 +37,8 @@ import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import CountdownTimer from 'src/components/Timer/CountDownTimer';
 import Buttons from 'src/components/Buttons';
+import Text from 'src/components/KeeperText';
+import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -54,9 +57,10 @@ function ManageSigners({ route }: ScreenProps) {
   const [timerModal, setTimerModal] = useState(false);
   const [timerExpiredModal, setTimerExpiredModal] = useState(false);
   const [isTimerActive, setIsTimerActive] = useState(true);
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslation } = translations;
+  const { signer: signerTranslation, common } = translations;
 
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK],
@@ -118,6 +122,9 @@ function ManageSigners({ route }: ScreenProps) {
           title={signerTranslation.ManageKeys}
           subtitle={signerTranslation.ViewAndChangeKeyDetails}
           mediumTitle
+          learnMore
+          learnMorePressed={() => setShowLearnMoreModal(true)}
+          learnTextColor={`${colorMode}.white`}
           titleColor={`${colorMode}.seashellWhite`}
           subTitleColor={`${colorMode}.seashellWhite`}
           rightComponent={
@@ -189,6 +196,36 @@ function ManageSigners({ route }: ScreenProps) {
         )}
       />
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
+      <KeeperModal
+        close={() => {
+          setShowLearnMoreModal(false);
+        }}
+        visible={showLearnMoreModal}
+        title={signerTranslation.ManageKeys}
+        subTitle={signerTranslation.manageKeysModalSubtitle}
+        subTitleColor={`${colorMode}.modalGreenContent`}
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        textColor={`${colorMode}.modalGreenContent`}
+        DarkCloseIcon={colorMode === 'dark' ? true : false}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenContent`}
+        secondaryButtonText={common.needHelp}
+        secondaryCallback={() => {
+          setShowLearnMoreModal(false);
+          dispatch(goToConcierge([ConciergeTag.KEYS], 'manage-keys'));
+        }}
+        buttonText={common.Okay}
+        buttonCallback={() => setShowLearnMoreModal(false)}
+        Content={() => (
+          <Box style={styles.modalContent}>
+            <HardwareIllustration />
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
+              {signerTranslation.manageKeysModalDesc}
+            </Text>
+          </Box>
+        )}
+      />
     </Box>
   );
 }
@@ -261,14 +298,13 @@ function SignersList({
 
   const renderAssistedKeysShell = () => {
     return shellAssistedKeys.map((shellSigner) => {
-      const isAMF = false;
       return (
         <SignerCard
           key={shellSigner.masterFingerprint}
           onCardSelect={() => {
             showToast('Please add the key to a Vault in order to use it');
           }}
-          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, isAMF)}
+          name={getSignerNameFromType(shellSigner.type, shellSigner.isMock, false)}
           description="Setup required"
           icon={SDIcons(shellSigner.type, colorMode !== 'dark').Icon}
           showSelection={false}
@@ -306,11 +342,6 @@ function SignersList({
                 vault.isMultiSig) ||
               typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
 
-            const isAMF =
-              signer.type === SignerType.TAPSIGNER &&
-              config.NETWORK_TYPE === NetworkType.TESTNET &&
-              !signer.isMock;
-
             return (
               <SignerCard
                 key={signer.masterFingerprint}
@@ -319,8 +350,8 @@ function SignersList({
                 }}
                 name={
                   !signer.isBIP85
-                    ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-                    : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
+                    ? getSignerNameFromType(signer.type, signer.isMock, false)
+                    : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
                 description={getSignerDescription(signer)}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
@@ -361,7 +392,7 @@ const styles = StyleSheet.create({
   },
   topSection: {
     height: '35%',
-    paddingLeft: 10,
+    paddingHorizontal: 20,
     paddingTop: 20,
   },
   signersContainer: {
@@ -398,6 +429,16 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 10,
     marginBottom: hp(30),
+    marginTop: hp(5),
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    gap: 30,
+  },
+  modalDesc: {
+    width: '95%',
   },
 });
 

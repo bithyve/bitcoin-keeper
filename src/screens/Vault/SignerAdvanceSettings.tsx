@@ -8,6 +8,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
+  EntityKind,
   NetworkType,
   SignerType,
   VaultType,
@@ -27,7 +28,10 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
-import WalletVault from 'src/assets/images/wallet_vault.svg';
+import WalletVault from 'src/assets/images/vault-hexa-green.svg';
+import WalletIcon from 'src/assets/images/wallet-white.svg';
+import VaultIcon from 'src/assets/images/vault-white.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import DeleteIcon from 'src/assets/images/delete_phone.svg';
 
 import { hp, wp } from 'src/constants/responsive';
@@ -79,6 +83,7 @@ import Note from 'src/components/Note/Note';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import useSigners from 'src/hooks/useSigners';
+import SignerCard from '../AddSigner/SignerCard';
 
 const { width } = Dimensions.get('screen');
 
@@ -491,6 +496,28 @@ function SignerAdvanceSettings({ route }: any) {
       })
     );
   };
+  const onChangeTapsignerPin = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChangeTapsignerPin',
+        params: {
+          signer: signer,
+        },
+      })
+    );
+  };
+
+  const onSaveTapsignerBackup = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'TapsignerAction',
+        params: {
+          mode: InteracationMode.BACKUP_SIGNER,
+          signer: signer,
+        },
+      })
+    );
+  };
 
   const signPSBT = async (serializedPSBT, resetQR) => {
     try {
@@ -725,11 +752,6 @@ function SignerAdvanceSettings({ route }: any) {
   ];
   const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
-  const isAMF =
-    signer.type === SignerType.TAPSIGNER &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
-    !signer.isMock;
-
   const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
   let disableOneTimeBackup = false; // disables OTB once the user has backed it up
   if (showOneTimeBackup) {
@@ -806,6 +828,15 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
+      else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else {
+      return <WalletIcon />;
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
@@ -813,8 +844,8 @@ function SignerAdvanceSettings({ route }: any) {
         title="Settings"
         subtitle={
           !signer.isBIP85
-            ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
-            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`}`
+            ? `for ${getSignerNameFromType(signer.type, signer.isMock, false)}`
+            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, false)} +`}`
         }
         icon={
           <CircleIconWrapper
@@ -864,7 +895,21 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isTapsigner && (
           <OptionCard
-            title="Unlock Card"
+            title="Save Backup"
+            description="Save an encrypted backup"
+            callback={onSaveTapsignerBackup}
+          />
+        )}
+        {isTapsigner && (
+          <OptionCard
+            title="Change PIN"
+            description="Change the PIN code"
+            callback={onChangeTapsignerPin}
+          />
+        )}
+        {isTapsigner && (
+          <OptionCard
+            title="Unlock Card Rate Limit"
             description="Run the unlock card process if it's rate-limited"
             callback={navigateToUnlockTapsigner}
           />
@@ -924,15 +969,30 @@ function SignerAdvanceSettings({ route }: any) {
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
-        <ScrollView horizontal contentContainerStyle={styles.signerVaults}>
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.signerVaults}
+          showsHorizontalScrollIndicator={false}
+        >
           {signerVaults.map((vault) => (
-            <ActionCard
-              key={vault.id}
-              description={vault.presentationData?.description}
-              cardName={vault.presentationData.name}
-              icon={<WalletVault />}
-              callback={() => {}}
-              customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
+            <SignerCard
+              key={vault?.id}
+              name={vault?.presentationData.name}
+              description={vault?.presentationData?.description}
+              icon={
+                <HexagonIcon
+                  width={38}
+                  height={34}
+                  backgroundColor={
+                    colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen
+                  }
+                  icon={getWalletIcon(vault)}
+                />
+              }
+              showSelection={false}
+              colorVarient="transparent"
+              customStyle={styles.signerCard}
+              colorMode={colorMode}
             />
           ))}
         </ScrollView>
@@ -1229,6 +1289,14 @@ const styles = StyleSheet.create({
   signerText: {
     marginVertical: hp(15),
     marginHorizontal: 10,
+  },
+  signerCard: {
+    borderWidth: 1,
+    borderColor: Colors.SilverMist,
+    height: 120,
+    width: wp(105),
+    paddingTop: 5,
+    paddingLeft: 14,
   },
   deleteEmailContent: {
     gap: 60,

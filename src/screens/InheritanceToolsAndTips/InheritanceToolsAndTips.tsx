@@ -111,17 +111,17 @@ function InheritanceToolsAndTips({ navigation }) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={InheritanceModalContent}
-        DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
-        learnMoreCallback={() => {
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
           setInheritanceModal(false);
           dispatch(goToConcierge([ConciergeTag.INHERITANCE], 'inheritance-tools-and-tips'));
         }}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText={common.ok}
         buttonCallback={() => setInheritanceModal(false)}
+        DarkCloseIcon
       />
     </ScreenWrapper>
   );

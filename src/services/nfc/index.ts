@@ -78,7 +78,7 @@ export default class NFC {
       } else {
         captureError(error);
         if (Platform.OS === 'ios') {
-          await NfcManager.setAlertMessageIOS('Something went wrong!');
+          await NfcManager.invalidateSessionWithErrorIOS('Something went wrong!');
         }
         await NfcManager.cancelTechnologyRequest();
         throw error;
@@ -102,7 +102,7 @@ export default class NFC {
     } catch (error) {
       console.log(error);
       if (Platform.OS === 'ios') {
-        await NfcManager.setAlertMessageIOS('Something went wrong!');
+        await NfcManager.invalidateSessionWithErrorIOS('Something went wrong!');
       }
       await NfcManager.cancelTechnologyRequest();
       throw error;
@@ -114,6 +114,9 @@ export default class NFC {
   public static isNFCSupported = async () => NfcManager.isSupported();
 
   public static showiOSMessage = async (message: string) => NfcManager.setAlertMessageIOS(message);
+
+  public static showiOSErrorMessage = async (message: string) =>
+    NfcManager.invalidateSessionWithErrorIOS(message);
 
   public static cancelRequest = async () => {
     const isEnabled = await NfcManager.isEnabled();

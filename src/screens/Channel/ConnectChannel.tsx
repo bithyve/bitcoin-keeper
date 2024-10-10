@@ -5,7 +5,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { windowWidth } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { io } from 'src/services/channel';
 import {
@@ -47,8 +47,10 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import useVault from 'src/hooks/useVault';
 import { updateKeyDetails } from 'src/store/sagaActions/wallets';
+import ReceiveAddress from '../Recieve/ReceiveAddress';
+import ReceiveQR from '../Recieve/ReceiveQR';
 
-function ScanAndInstruct({ onBarCodeRead, mode }) {
+function ScanAndInstruct({ onBarCodeRead, mode, receivingAddress }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
 
@@ -66,6 +68,7 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
     onBarCodeRead(data);
     setChannelCreated(true);
   };
+
   return !channelCreated && isFocused ? (
     <Box style={styles.qrcontainer}>
       <RNCamera
@@ -78,17 +81,19 @@ function ScanAndInstruct({ onBarCodeRead, mode }) {
     </Box>
   ) : (
     <VStack>
-      <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {`\u2022 Please ${
-          mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
-        } from the Keeper Desktop App`}
-      </Text>
-      <Text numberOfLines={4} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {
-          '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
-        }
-      </Text>
-      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+      {mode === InteracationMode.ADDRESS_VERIFICATION ? (
+        <Box style={styles.addressContainer}>
+          <ReceiveQR qrValue={receivingAddress} />
+          <ReceiveAddress address={receivingAddress} />
+        </Box>
+      ) : (
+        <Box>
+          <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+            {`\u2022 Please continue on the Keeper Desktop App`}
+          </Text>
+          <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+        </Box>
+      )}
     </VStack>
   );
 }
@@ -123,6 +128,10 @@ function ConnectChannel() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+
+  const [newTitle, setNewTitle] = useState<string | null>(null);
+  const [newSubtitle, setNewSubtitle] = useState<string | null>(null);
+  const [newNote, setNewNote] = useState<string | null>(null);
 
   let descriptorString;
   let receivingAddress;
@@ -168,6 +177,15 @@ function ConnectChannel() {
     }
     const requestData = createCipherGcm(JSON.stringify(requestBody), decryptionKey.current);
     channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE, requestData });
+    if (mode === InteracationMode.ADDRESS_VERIFICATION) {
+      setNewTitle(`Verify Address on ${signer.signerName}`);
+      setNewSubtitle(
+        'Please follow the instructions on the desktop app. Make sure the address you see here matches the one on your hardware device screen.'
+      );
+      setNewNote(
+        'Only use the address from Keeper mobile app if it matches the address displayed on your device'
+      );
+    }
   };
 
   useEffect(() => {
@@ -388,14 +406,20 @@ function ConnectChannel() {
         mode={mode}
         signerXfp={signer?.masterFingerprint}
       >
-        <KeeperHeader title={title} subtitle={subtitle} />
+        <KeeperHeader title={newTitle ?? title} subtitle={newSubtitle ?? subtitle} />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
-          <ScanAndInstruct onBarCodeRead={onBarCodeRead} mode={mode} />
+          <ScanAndInstruct
+            onBarCodeRead={onBarCodeRead}
+            mode={mode}
+            receivingAddress={receivingAddress}
+          />
         </ScrollView>
         <Box style={styles.noteWrapper}>
           <Note
             title={common.note}
-            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+            subtitle={
+              newNote ?? 'Make sure that the QR is well aligned, focused and visible as a whole'
+            }
             subtitleColor="GreyText"
           />
         </Box>
@@ -436,5 +460,8 @@ const styles = StyleSheet.create({
     padding: '2%',
     letterSpacing: 0.65,
     fontSize: 13,
+  },
+  addressContainer: {
+    marginHorizontal: wp(20),
   },
 });

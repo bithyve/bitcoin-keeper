@@ -40,6 +40,7 @@ import NfcComms from 'src/assets/images/nfc_comms.svg';
 import Import from 'src/assets/images/import.svg';
 import SignerCard from '../AddSigner/SignerCard';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -245,7 +246,7 @@ function JadeContent() {
       <Box marginTop={2}>
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
-            "\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned."
+            "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."
           }
         </Text>
       </Box>
@@ -584,7 +585,6 @@ function SignerModals({
   setPasswordModal,
   showOTPModal,
   signTransaction,
-  textRef,
   vaultKeys,
   isMultisig,
   signerMap,
@@ -621,7 +621,6 @@ function SignerModals({
   setPasswordModal: any;
   showOTPModal: any;
   signTransaction: any;
-  textRef: any;
   vaultKeys: VaultSigner[];
   isMultisig: boolean;
   signerMap: { [key: string]: Signer };
@@ -680,11 +679,11 @@ function SignerModals({
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
             navigation.dispatch(
-              CommonActions.navigate('SignWithTapsigner', {
+              CommonActions.navigate('TapsignerAction', {
+                mode: InteracationMode.SIGN_TRANSACTION,
+                signer,
+                isMultisig,
                 signTransaction,
-                vaultKey,
-                textRef,
-                vaultId,
               })
             );
           };

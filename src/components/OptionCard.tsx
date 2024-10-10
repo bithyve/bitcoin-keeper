@@ -40,7 +40,8 @@ export function OptionCard({
   return (
     <Pressable testID={`btn_${title}`} onPress={callback} disabled={disabled}>
       <HStack
-        padding={3}
+        py={3}
+        px={0.5}
         width={windowWidth * 0.85}
         justifyContent="space-between"
         alignItems="center"
@@ -85,11 +86,7 @@ export function OptionCard({
             )}
           </VStack>
         </HStack>
-        {CardPill || (
-          <Box justifyContent="center" alignItems="flex-end">
-            {Icon || <RightArrowIcon />}
-          </Box>
-        )}
+        {CardPill || <Box style={styles.arrowWrapper}>{Icon || <RightArrowIcon />}</Box>}
       </HStack>
     </Pressable>
   );
@@ -116,6 +113,11 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     width: wp(25),
+  },
+  arrowWrapper: {
+    paddingRight: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

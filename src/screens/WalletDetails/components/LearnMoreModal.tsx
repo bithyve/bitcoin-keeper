@@ -41,16 +41,15 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       textColor={`${colorMode}.modalGreenContent`}
       Content={LinkedWalletContent}
       DarkCloseIcon
-      learnMore
-      learnMoreTitle={common.needHelp}
-      showCloseIcon={false}
-      learnMoreCallback={() => {
+      buttonText={common.Okay}
+      secondaryButtonText={common.needHelp}
+      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
+      secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+      secondaryCallback={() => {
         dispatch(setIntroModal(false));
         dispatch(goToConcierge([ConciergeTag.WALLET], 'wallet-details'));
       }}
-      buttonText={common.ok}
-      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />
   );

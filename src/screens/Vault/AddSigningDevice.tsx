@@ -426,10 +426,6 @@ function Signers({
         (keyToRotate &&
           (keyToRotate.masterFingerprint === signer.masterFingerprint ||
             selectedSigners.get(signer.masterFingerprint)));
-      const isAMF =
-        signer.type === SignerType.TAPSIGNER &&
-        config.NETWORK_TYPE === NetworkType.TESTNET &&
-        !signer.isMock;
       return (
         <SignerCard
           showSelection={showSelection}
@@ -437,8 +433,8 @@ function Signers({
           key={signer.masterFingerprint}
           name={
             !signer.isBIP85
-              ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-              : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
+              ? getSignerNameFromType(signer.type, signer.isMock, false)
+              : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
           }
           description={getSignerDescription(signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
@@ -861,7 +857,7 @@ function AddSigningDevice() {
   }
 
   function SingleSigWallet(vault: Vault) {
-    const tags = ['Single-key', 'Cold'];
+    const tags = ['SINGLE-KEY', 'COLD'];
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>

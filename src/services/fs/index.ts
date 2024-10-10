@@ -22,14 +22,14 @@ const saveToLocal = async (filePath, onError) => {
       RNFS.unlink(filePath);
     });
 };
-export const exportFile = async (fileData, fileName, onError) => {
+export const exportFile = async (fileData, fileName, onError, encoding = 'utf8') => {
   try {
     if (!fileData) {
       return;
     }
     if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + fileName;
-      await RNFS.writeFile(filePath, fileData);
+      await RNFS.writeFile(filePath, fileData, encoding);
       await saveToLocal(filePath, onError);
     } else if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
@@ -45,6 +45,7 @@ export const exportFile = async (fileData, fileName, onError) => {
     }
   } catch (error) {
     captureError(error);
+    onError(error);
   }
 };
 

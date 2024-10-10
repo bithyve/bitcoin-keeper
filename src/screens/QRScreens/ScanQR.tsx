@@ -156,6 +156,7 @@ function ScanQR() {
           <ScrollView
             automaticallyAdjustKeyboardInsets={true}
             contentContainerStyle={{
+              flex: 1,
               alignItems: 'center',
             }}
             showsVerticalScrollIndicator={false}
@@ -236,8 +237,15 @@ function ScanQR() {
             modalBackground={`${colorMode}.modalGreenBackground`}
             textColor={`${colorMode}.modalGreenContent`}
             Content={learnMoreContent}
-            learnMore
-            learnMoreCallback={() => {
+            buttonText={common.Okay}
+            secondaryButtonText={common.needHelp}
+            buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+            buttonBackground={`${colorMode}.modalWhiteButton`}
+            secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+            buttonCallback={() => {
+              setVisibleModal(false);
+            }}
+            secondaryCallback={() => {
               setVisibleModal(false);
               dispatch(goToConcierge([ConciergeTag.COLLABORATIVE_Wallet], 'add-co-signer'));
             }}

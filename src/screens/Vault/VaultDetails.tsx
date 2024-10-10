@@ -130,11 +130,11 @@ function VaultInfo({ vault }: { vault: Vault }) {
             vault.type === VaultType.COLLABORATIVE
               ? common.COLLABORATIVE
               : vault.type === VaultType.SINGE_SIG
-              ? 'Single-key'
+              ? 'SINGLE-KEY'
               : common.VAULT
           }`}
         />
-        {vault.type === VaultType.SINGE_SIG && <CardPill heading={'Cold'} />}
+        {vault.type === VaultType.SINGE_SIG && <CardPill heading={'COLD'} />}
         {vault.type === VaultType.CANARY && <CardPill heading={common.CANARY} />}
         {vault.archived ? <CardPill heading={common.ARCHIVED} backgroundColor="grey" /> : null}
       </HStack>
@@ -165,6 +165,7 @@ function TransactionList({
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
+      wallet={vault}
       isCached={item?.isCached}
       onPress={() => {
         if (item?.isCached) {
@@ -439,16 +440,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText={common.ok}
-        buttonCallback={() => {
-          dispatch(setIntroModal(false));
-        }}
-        DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
-        learnMoreCallback={
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={
           isCollaborativeWallet
             ? () => {
                 dispatch(setIntroModal(false));
@@ -459,6 +456,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 dispatch(goToConcierge([ConciergeTag.VAULT], 'vault-details'));
               }
         }
+        buttonCallback={() => dispatch(setIntroModal(false))}
+        DarkCloseIcon
       />
       <PendingHealthCheckModal
         selectedItem={vault}

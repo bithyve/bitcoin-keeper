@@ -84,11 +84,6 @@ const PendingHealthCheckModal = ({
     return (
       <Box style={styles.addedSignersContainer}>
         {pendingSigners.map(({ item, signer }) => {
-          const isAMF =
-            signer.type === SignerType.TAPSIGNER &&
-            config.NETWORK_TYPE === NetworkType.TESTNET &&
-            !signer.isMock;
-
           return (
             <SignerCard
               key={signer.masterFingerprint}

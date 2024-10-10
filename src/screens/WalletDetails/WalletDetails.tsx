@@ -125,8 +125,8 @@ function WalletDetails({ route }: ScreenProps) {
     } else if (wallet.entityKind === EntityKind.WALLET) {
       return (
         <HexagonIcon
-          width={44}
-          height={38}
+          width={58}
+          height={50}
           backgroundColor={Colors.DarkGreen}
           icon={<WalletIcon />}
         />
@@ -176,8 +176,8 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
-          cardName="Buy Bitcoin"
-          description="into this wallet"
+          cardName={common.buyBitCoin}
+          description={common.inToThisWallet}
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
           }
@@ -187,8 +187,8 @@ function WalletDetails({ route }: ScreenProps) {
           )}`}
         />
         <ActionCard
-          cardName="View All Coins"
-          description="Manage UTXOs"
+          cardName={common.viewAllCoins}
+          description={common.manageUTXO}
           callback={() =>
             navigation.navigate('UTXOManagement', {
               data: wallet,

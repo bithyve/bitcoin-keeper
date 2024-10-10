@@ -217,10 +217,7 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
 
 export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
   const purpose = WalletUtilities.getSignerPurposeFromPath(key.derivationPath);
-  if (
-    signer.isMock ||
-    (signer.type === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.TESTNET) // amf flow
-  ) {
+  if (signer.isMock) {
     return { isSingleSig: true, isMultiSig: true, purpose };
   }
   if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
@@ -426,7 +423,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Use Mobile Key as signer';
     }
     case SignerType.KEEPER: {
-      return 'Another Keeper App';
+      return `From a friend or advisor's Keeper app`;
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot key on this app';
@@ -525,5 +522,56 @@ export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
   } catch (_) {
     captureError(_);
     return { serializedPSBT };
+  }
+};
+
+import * as b58 from 'bs58check';
+
+const prefixes = new Map([
+  ['xpub', '0488b21e'],
+  ['ypub', '049d7cb2'],
+  ['Ypub', '0295b43f'],
+  ['zpub', '04b24746'],
+  ['Zpub', '02aa7ed3'],
+  ['tpub', '043587cf'],
+  ['upub', '044a5262'],
+  ['Upub', '024289ef'],
+  ['vpub', '045f1cf6'],
+  ['Vpub', '02575483'],
+  ['xprv', '0488ade4'],
+  ['yprv', '049d7878'],
+  ['Yprv', '0295b005'],
+  ['zprv', '04b2430c'],
+  ['Zprv', '02aa7a99'],
+  ['tprv', '04358394'],
+  ['uprv', '044a4e28'],
+  ['Uprv', '024285b5'],
+  ['vprv', '045f18bc'],
+  ['Vprv', '02575048'],
+]);
+
+export const xpubToTpub = (xpub: string): string => {
+  const targetFormat = 'tpub';
+  xpub = xpub.trim();
+
+  try {
+    const inType = xpub.substring(0, 4);
+    const outType = targetFormat.substring(0, 4);
+
+    if (inType.charAt(3) !== outType.charAt(3)) {
+      throw new Error(
+        `Input and Output extended key type must match... Found Input Key Type: ${inType}, Output Key Type: ${outType}`
+      );
+    }
+
+    const data = b58.decode(xpub);
+    const slicedData = data.slice(4);
+    const newData = Buffer.concat([Buffer.from(prefixes.get(targetFormat)!, 'hex'), slicedData]);
+    const result = b58.encode(newData);
+
+    return result;
+  } catch (err) {
+    console.error('Error details:', err);
+    throw new Error('Invalid extended public key! Please check your input.');
   }
 };

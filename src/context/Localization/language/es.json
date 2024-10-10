@@ -1,6 +1,7 @@
 {
   "common": {
     "ok": "OK",
+    "Okay": "Okay",
     "proceed": "Proceed",
     "continue": "Continue",
     "done": "Done",
@@ -111,9 +112,9 @@
     "buyBitCoin": "Buy Bitcoin",
     "inToThisWallet": "into this wallet",
     "viewAllCoins": "View All Coins",
-    "manageUTXO": "Manage UTXO",
+    "manageUTXO": "manage UTXO",
     "manageKeys": "Manage Keys",
-    "forThisVault": "For this vault",
+    "forThisVault": "for this vault",
     "saveChanges": "Save Changes",
     "continueToHide": "Continue to Hide",
     "MoveFunds": "Move Funds",
@@ -126,7 +127,8 @@
     "dontShowAgain": "Don’t show me this message again",
     "for": "For",
     "goToBackup": "Go to Backup",
-    "Receipt": "Receipt"
+    "Receipt": "Receipt",
+    "Later": "Later"
   },
   "noInternet": {
     "no": "No Internet",
@@ -645,7 +647,9 @@
   "seed": {
     "EnterSeed": "Enter Seeds",
     "walletBackup": "Recover wallet from Drive",
-    "InvalidSeeds": "Invalid Seeds Entry",
+    "InvalidSeeds": "Oops! The seed you've entered is incorrect.",
+    "InvalidSeedsSubtitle": "Make sure to avoid spelling mistakes and enter the words in the correct sequence.",
+    "InvalidSeedsDesc": "Please use the seedwords privately. Your bitcoin could be stolen if people gain access to your seedwords.",
     "seedDescription": "Make sure to use the Wallet Recovery Phrase (seed words) in private",
     "recoverWallet": "To recover your wallet",
     "ExportSeed": "Seed words",
@@ -868,7 +872,11 @@
     "RKHealthCheckSubtitle": "For the Recovery Phrase",
     "RKHealthCheckDesc": "Please Back up your Recovery Key in order to change your current Passcode",
     "RKBackupTitle": "Backup Recovery Key",
-    "RKBackupSubTitle": "Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+    "RKBackupSubTitle": "Carefully write down the 12-word Recovery Key in a private place and ensure its security",
+    "passcodeHCModalTitle": "Recovery Key Health Check During Passcode Reset",
+    "passcodeHCModalSubTitle": "We request you to enter a few seed words during passcode reset to verify your identity and ownership of the wallet.",
+    "passcodeHCModalDesc": "This ensures that even if a passcode is forgotten, access to the wallet remains secure by confirming the Recovery Key, a critical piece of information that only the legitimate wallet owner should have.",
+    "torDescription": "This will redirect you to the Orbot app and you can configure the connection from there."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -899,7 +907,7 @@
     "noteSubTitle": "Restore Purchases defaults to your previous plans if issue arises*",
     "confirming": "Confirming your subscription",
     "pleaseStay": "Please stay on this screen as it may take a little while...",
-    "youCanChange": "You can change your subscription at anytime from within the app or from your subscription details in your profile",
+    "youCanChange": "You can change your subscription at any time within the app or through your App Store/Play Store subscription details.",
     "restorePurchases": "Restore Purchases",
     "validateSubscriptionTitle": "Failed to validate your subscription",
     "validateSubscriptionSubTitle": "You will continue using the app as a Pleb. You can manage or restore subscriptions from Manage Subscriptions.",
@@ -985,7 +993,7 @@
     "keyDetails": "Key Details",
     "keyDetailsSubtitle": "xPub for adding to another vault",
     "ManageKeys": "Manage Keys",
-    "ViewAndChangeKeyDetails": "View and change key details",
+    "ViewAndChangeKeyDetails": "View key details or add new",
     "changeSignerTitle": "Change Signer",
     "changeSignerSubtitle": "Select a signer to replace the current one",
     "changeSignerNote": "Devices with Register Vault tag provide additional checks when you are sending funds from your Vault",
@@ -1035,7 +1043,9 @@
     "signingRequestExpireMessage": "You had received a signing request. The timer has run out.",
     "signTransaction": "Sign Transaction",
     "reject": "Reject",
-    "acceptKey": "Accept Key"
+    "acceptKey": "Accept Key",
+    "manageKeysModalSubtitle": "All your keys would be visible in this section.",
+    "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change signer type, all from this central location for keys."
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",
@@ -1186,7 +1196,7 @@
     "Balance": "Balance",
     "availableToSpend": "Available to spend",
     "vaultTransferHeading": "Sats ready to be auto-transferred\n",
-    "vaultTransferSubTitle": "Amount of sats in your wallet have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
-    "vaultTransferBody": "\nYou can always change the transfer threshold from Wallet Settings.\n"
+    "vaultTransferSubTitle": "Amount of sats in your wallet ($wallet) have crossed the auto-transfer threshold. Ready to transfer sats to vault.",
+    "vaultTransferBody": "You can always change the transfer threshold from Wallet Settings.\n"
   }
 }

@@ -17,6 +17,7 @@ import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
+import { hash256 } from 'src/utils/service-utilities/encryption';
 import ecc from './taproot-utils/noble_ecc';
 import {
   AverageTxFees,
@@ -36,6 +37,7 @@ import {
   DerivationPurpose,
   EntityKind,
   NetworkType,
+  ScriptTypes,
   SignerType,
   TransactionType,
   TxPriority,
@@ -43,10 +45,10 @@ import {
 import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import { hash256 } from 'src/utils/service-utilities/encryption';
 
 bitcoinJS.initEccLib(ecc);
 const ECPair = ECPairFactory(ecc);
+const TESTNET_FEE_CUTOFF = 10;
 
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);
@@ -85,8 +87,12 @@ export default class WalletOperations {
           : (specs as WalletSpecs).xpub;
       const derivationPath = (wallet as Wallet)?.derivationDetails?.xDerivationPath;
 
-      const purpose =
-        entityKind === EntityKind.VAULT ? undefined : WalletUtilities.getPurpose(derivationPath);
+      let purpose;
+      if (entityKind === EntityKind.WALLET) purpose = WalletUtilities.getPurpose(derivationPath);
+      else if (entityKind === EntityKind.VAULT) {
+        if (wallet.scriptType === ScriptTypes.P2WPKH) purpose = DerivationPurpose.BIP84;
+        else if (wallet.scriptType === ScriptTypes.P2WSH) purpose = DerivationPurpose.BIP48;
+      }
 
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
@@ -435,21 +441,21 @@ export default class WalletOperations {
     // high fee: 10 minutes
     const highFeeBlockEstimate = 1;
     const high = {
-      feePerByte: 50,
+      feePerByte: 5,
       estimatedBlocks: highFeeBlockEstimate,
     };
 
     // medium fee: 30 mins
     const mediumFeeBlockEstimate = 3;
     const medium = {
-      feePerByte: 25,
+      feePerByte: 3,
       estimatedBlocks: mediumFeeBlockEstimate,
     };
 
     // low fee: 60 mins
     const lowFeeBlockEstimate = 6;
     const low = {
-      feePerByte: 12,
+      feePerByte: 1,
       estimatedBlocks: lowFeeBlockEstimate,
     };
     const feeRatesByPriority = { high, medium, low };
@@ -478,6 +484,11 @@ export default class WalletOperations {
         feePerByte: Math.round(await ElectrumClient.estimateFee(lowFeeBlockEstimate)),
         estimatedBlocks: lowFeeBlockEstimate,
       };
+
+      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > TESTNET_FEE_CUTOFF) {
+        // working around testnet fee spikes
+        return WalletOperations.mockFeeRates();
+      }
 
       const feeRatesByPriority = { high, medium, low };
       return feeRatesByPriority;
@@ -529,6 +540,11 @@ export default class WalletOperations {
         feePerByte: mempoolFee.hourFee,
         estimatedBlocks: lowFeeBlockEstimate,
       };
+
+      if (config.NETWORK_TYPE === NetworkType.TESTNET && low.feePerByte > TESTNET_FEE_CUTOFF) {
+        // working around testnet fee spikes
+        return WalletOperations.mockFeeRates();
+      }
 
       const feeRatesByPriority = { high, medium, low };
       return feeRatesByPriority;
@@ -1116,7 +1132,7 @@ export default class WalletOperations {
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
       isSigned = true;
     } else if (
-      (signer.type === SignerType.TAPSIGNER && !isSignerAMF(signer)) ||
+      signer.type === SignerType.TAPSIGNER ||
       signer.type === SignerType.LEDGER ||
       signer.type === SignerType.TREZOR ||
       signer.type === SignerType.BITBOX02
@@ -1343,7 +1359,7 @@ export default class WalletOperations {
       for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
         const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
         const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
-        if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
+        if (signerType === SignerType.TAPSIGNER) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
               if (signature) {

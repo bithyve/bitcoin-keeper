@@ -163,26 +163,25 @@ function CloudBackupScreen() {
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         DarkCloseIcon={colorMode === 'dark'}
-        learnMore
-        learnMoreTitle={common.needHelp}
-        showCloseIcon={true}
-        learnMoreCallback={() => {
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
+        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
           setShowModal(false);
           if (setBackupModal) {
             dispatch(setBackupModal(false));
           }
           dispatch(goToConcierge([ConciergeTag.SETTINGS], 'cloud-backup'));
         }}
-        buttonText={common.ok}
-        Content={() => modalContent()}
-        buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => {
           setShowModal(false);
           if (setBackupModal) {
             dispatch(setBackupModal(false));
           }
         }}
+        Content={() => modalContent()}
       />
     </ScreenWrapper>
   );
