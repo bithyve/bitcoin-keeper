@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
@@ -10,9 +10,14 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
 import HardwareIllustration from 'src/assets/images/diversify-hardware.svg';
+import {
+  UNVERIFYING_SIGNERS,
+  getSignerDescription,
+  getSignerFromRemoteData,
+  getSignerNameFromType,
+} from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -34,15 +39,27 @@ import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import SignerCard from '../AddSigner/SignerCard';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 import KeeperModal from 'src/components/KeeperModal';
+import Note from 'src/components/Note/Note';
+import CountdownTimer from 'src/components/Timer/CountDownTimer';
+import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag, goToConcierge } from 'src/store/sagaActions/concierge';
+import Relay from 'src/services/backend/Relay';
+import { notificationType } from 'src/models/enums/Notifications';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
 function ManageSigners({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { vaultId = '', addedSigner, addSignerFlow, showModal } = route.params || {};
+  const {
+    vaultId = '',
+    addedSigner,
+    addSignerFlow,
+    showModal,
+    receivedExternalSigner,
+  } = route.params || {};
   const { activeVault } = useVault({ vaultId });
   const { signers: vaultKeys } = activeVault || { signers: [] };
   const { signerMap } = useSignerMap();
@@ -51,6 +68,13 @@ function ManageSigners({ route }: ScreenProps) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
+  const [timerModal, setTimerModal] = useState(
+    receivedExternalSigner && receivedExternalSigner.timeLeft != '0' ? true : false
+  );
+  const [timerExpiredModal, setTimerExpiredModal] = useState(
+    receivedExternalSigner && receivedExternalSigner.timeLeft == '0' ? true : false
+  );
+  const [isTimerActive, setIsTimerActive] = useState(true);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
@@ -76,6 +100,10 @@ function ManageSigners({ route }: ScreenProps) {
     };
   }, [realySignersUpdateErrorMessage]);
 
+  const handleTimerEnd = () => {
+    setIsTimerActive(false);
+  };
+
   const handleCardSelect = (signer, item) => {
     navigation.dispatch(
       CommonActions.navigate('SigningDeviceDetails', {
@@ -100,6 +128,43 @@ function ManageSigners({ route }: ScreenProps) {
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
     navigation.dispatch(CommonActions.setParams({ showModal: false }));
+  };
+
+  const acceptRemoteKey = async () => {
+    try {
+      const remoteSigner = getSignerFromRemoteData(receivedExternalSigner?.data?.signer);
+      dispatch(addSigningDevice([remoteSigner]));
+      // * Send Notification on success
+      setTimerModal(false);
+      showToast('External Key added Successfully');
+      await Relay.sendSingleNotification({
+        fcm: receivedExternalSigner.data.fcmToken,
+        notification: {
+          title: 'Remote key accepted',
+          body: 'The remote key that you shared has been accepted by the user',
+        },
+        data: {
+          notificationType: notificationType.REMOTE_KEY_SHARE,
+        },
+      });
+    } catch (error) {
+      console.log('🚀 ~ ManageSigners ~ error:', { error });
+      showToast('Error while adding External Key');
+    }
+  };
+
+  const rejectRemoteKey = async () => {
+    setTimerModal(false);
+    await Relay.sendSingleNotification({
+      fcm: receivedExternalSigner.data.fcmToken,
+      notification: {
+        title: 'Remote key rejected',
+        body: 'The remote key that you shared has been rejected by the user',
+      },
+      data: {
+        notificationType: notificationType.REMOTE_KEY_SHARE,
+      },
+    });
   };
 
   return (
@@ -143,6 +208,53 @@ function ManageSigners({ route }: ScreenProps) {
           typeBasedIndicator={typeBasedIndicator}
         />
       </Box>
+      <KeeperModal
+        title={signerTranslation.keyReceived}
+        subTitle={signerTranslation.keyReceiveMessage}
+        DarkCloseIcon={colorMode === 'dark'}
+        close={() => setTimerModal(false)}
+        visible={timerModal}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonBackground={`${colorMode}.modalGreenButton`}
+        secButtonTextColor={`${colorMode}.modalGreenButton`}
+        buttonText={signerTranslation.addKey}
+        secondaryButtonText={signerTranslation.reject}
+        buttonCallback={acceptRemoteKey}
+        secondaryCallback={rejectRemoteKey}
+        Content={() => (
+          <Box style={styles.modalContent}>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer
+                initialTime={receivedExternalSigner.timeLeft}
+                onTimerEnd={handleTimerEnd}
+              />
+            </Box>
+            <Note subtitle={signerTranslation.remoteKeyReceiveNote} />
+          </Box>
+        )}
+      />
+      <KeeperModal
+        title={signerTranslation.keyExpired}
+        subTitle={signerTranslation.keyExpireMessage}
+        DarkCloseIcon={colorMode === 'dark'}
+        close={() => setTimerExpiredModal(false)}
+        visible={timerExpiredModal}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonTextColor={`${colorMode}.white`}
+        Content={() => (
+          <Box>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer initialTime={0} />
+            </Box>
+            <Buttons primaryText={signerTranslation.acceptKey} primaryDisable />
+          </Box>
+        )}
+      />
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
       <KeeperModal
         close={() => {
@@ -301,12 +413,9 @@ function SignersList({
                     ? getSignerNameFromType(signer.type, signer.isMock, false)
                     : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
                 }
-                description={getSignerDescription(
-                  signer.type,
-                  signer.extraData?.instanceNumber,
-                  signer
-                )}
+                description={getSignerDescription(signer)}
                 icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+                image={signer?.extraData?.thumbnailPath}
                 showSelection={false}
                 showDot={showDot}
                 isFullText
@@ -374,8 +483,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   modalContent: {
-    marginTop: hp(5),
+    marginBottom: hp(40),
+  },
+  timerWrapper: {
     width: '100%',
+    borderRadius: 10,
+    marginBottom: hp(30),
+    marginTop: hp(5),
     justifyContent: 'center',
     alignItems: 'center',
     color: 'white',

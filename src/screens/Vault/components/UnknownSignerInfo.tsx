@@ -27,9 +27,7 @@ function UnknownSignerInfo({ signer }: Props) {
             <Text fontSize={12} medium>
               Unknown Signer
             </Text>
-            <Text fontSize={11}>
-              {getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
-            </Text>
+            <Text fontSize={11}>{getSignerDescription(signer)}</Text>
           </Box>
         </Box>
         <Box style={[styles.marginRight40, styles.flexEnd]}>

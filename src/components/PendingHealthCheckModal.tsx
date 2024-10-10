@@ -87,14 +87,11 @@ const PendingHealthCheckModal = ({
           return (
             <SignerCard
               key={signer.masterFingerprint}
-              name={getSignerNameFromType(signer.type, signer.isMock, false)}
-              description={getSignerDescription(
-                signer.type,
-                signer.extraData?.instanceNumber,
-                signer
-              )}
+              name={getSignerNameFromType(signer.type, signer.isMock, isAMF)}
+              description={getSignerDescription(signer)}
               customStyle={styles.signerCard}
               icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+              image={signer?.extraData?.thumbnailPath}
               showSelection={false}
               showDot={true}
               isFullText

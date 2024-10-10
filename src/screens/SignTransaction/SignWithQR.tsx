@@ -3,9 +3,9 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/services/wallets/enums';
+import { RKInteractionMode, SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
@@ -22,9 +22,17 @@ import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import WalletFingerprint from 'src/components/WalletFingerPrint';
+import idx from 'idx';
+import { getKeyExpression } from 'src/utils/service-utilities/utils';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useSignerMap from 'src/hooks/useSignerMap';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 function SignWithQR() {
   const { colorMode } = useColorMode();
+  const { signerMap } = useSignerMap();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
@@ -34,50 +42,119 @@ function SignWithQR() {
   const {
     vaultKey,
     vaultId = '',
+    isRemoteKey,
+    serializedPSBTEnvelopFromProps,
+    isMultisig,
+    sendConfirmationRouteParams,
+    tnxDetails,
   }: {
     vaultKey: VaultSigner;
     vaultId: string;
+    isRemoteKey: boolean;
+    serializedPSBTEnvelopFromProps?: string;
+    isMultisig?: boolean;
+    sendConfirmationRouteParams?: SendConfirmationRouteParams;
+    tnxDetails: tnxDetailsProps;
   } = route.params as any;
-  const { serializedPSBT } = serializedPSBTEnvelops.filter(
-    (envelop) => vaultKey.xfp === envelop.xfp
-  )[0];
+
+  const serializedPSBTEnvelop = isRemoteKey
+    ? serializedPSBTEnvelopFromProps
+    : serializedPSBTEnvelops.filter((envelop) => vaultKey.xfp === envelop.xfp)[0];
+  const { serializedPSBT } = serializedPSBTEnvelop;
   const { activeVault } = useVault({ vaultId });
-  const isSingleSig = activeVault.scheme.n === 1;
-  const { signer } = useSignerFromKey(vaultKey);
+  const isSingleSig = isRemoteKey ? isMultisig : activeVault.scheme.n === 1;
+  const { signer } = isRemoteKey
+    ? { signer: signerMap[vaultKey.masterFingerprint] }
+    : useSignerFromKey(vaultKey);
+  const [details, setDetails] = React.useState('');
+  const { showToast } = useToastMessage();
+
+  const fetchKeyExpression = (type: XpubTypes) => {
+    try {
+      if (signer.masterFingerprint && signer.signerXpubs[type] && signer.signerXpubs[type]?.[0]) {
+        const keyDescriptor = getKeyExpression(
+          signer.masterFingerprint,
+          idx(signer, (_) => _.signerXpubs[type][0].derivationPath.replaceAll('h', "'")),
+          idx(signer, (_) => _.signerXpubs[type][0].xpub),
+          false
+        );
+        return keyDescriptor;
+      } else {
+        throw new Error(`Missing key details for ${type} type.`);
+      }
+    } catch (error) {
+      throw new Error(`Missing key details for ${type} type.`);
+    }
+  };
+
+  useEffect(() => {
+    if (!details) {
+      setTimeout(() => {
+        try {
+          const keyDescriptor = fetchKeyExpression(XpubTypes.P2WSH);
+          setDetails(keyDescriptor);
+        } catch (error) {
+          captureError(error);
+          try {
+            const keyDescriptor = fetchKeyExpression(XpubTypes.P2WPKH);
+            setDetails(keyDescriptor);
+          } catch (error) {
+            showToast(
+              `We're sorry, but we have trouble retrieving the key information`,
+              <ToastErrorIcon />
+            );
+          }
+        }
+      }, 200);
+    }
+  }, []);
 
   const signTransaction = (signedSerializedPSBT, resetQR) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
-      if (isSingleSig) {
-        if (signer.type === SignerType.SEEDSIGNER) {
-          const { signedPsbt } = updateInputsForSeedSigner({
-            serializedPSBT,
-            signedSerializedPSBT,
-          });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
-        } else if (signer.type === SignerType.KEYSTONE) {
-          const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
-        } else {
-          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
-        }
-      } else {
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
-        dispatch(
-          updateKeyDetails(vaultKey, 'registered', {
-            registered: true,
-            vaultId: activeVault.id,
-          })
-        );
-      }
-      dispatch(
-        healthCheckStatusUpdate([
-          {
-            signerId: signer.masterFingerprint,
-            status: hcStatusType.HEALTH_CHECK_SIGNING,
-          },
-        ])
-      );
+       dispatch(
+         healthCheckStatusUpdate([
+           {
+             signerId: signer.masterFingerprint,
+             status: hcStatusType.HEALTH_CHECK_SIGNING,
+           },
+         ])
+       );
+       if (isSingleSig) {
+         if (signer.type === SignerType.SEEDSIGNER) {
+           const { signedPsbt } = updateInputsForSeedSigner({
+             serializedPSBT,
+             signedSerializedPSBT,
+           });
+           dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
+         } else if (signer.type === SignerType.KEYSTONE) {
+           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
+           dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
+         } else {
+           dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
+         }
+       } else {
+         if (isRemoteKey) {
+           navigation.replace('RemoteSharing', {
+             isPSBTSharing: true,
+             signer: signer,
+             psbt: signedSerializedPSBT,
+             mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+             vaultKey: vaultKey,
+             vaultId: vaultId,
+             isMultisig: isMultisig,
+           });
+           return;
+         }
+
+         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
+         dispatch(
+           updateKeyDetails(vaultKey, 'registered', {
+             registered: true,
+             vaultId: activeVault.id,
+           })
+         );
+       }
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
       resetQR();
@@ -96,6 +173,7 @@ function SignWithQR() {
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: signTransaction,
           type: signer.type,
+          isPSBT: true,
         },
       })
     );
@@ -106,22 +184,36 @@ function SignWithQR() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signer" />
-      <Box style={styles.center}>
-        <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
-        {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) ? (
-          <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-            <ShareWithNfc data={serializedPSBT} />
-          </ScrollView>
-        ) : null}
-      </Box>
-      <Box style={styles.bottom}>
-        <Buttons
-          primaryText="Scan PSBT"
-          primaryCallback={navigateToQrScan}
-          secondaryText="Vault Details"
-          secondaryCallback={navigateToVaultRegistration}
-        />
-      </Box>
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Box style={styles.center}>
+          <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
+          <Box style={styles.fingerprint}>{<WalletFingerprint fingerprint={details} />}</Box>
+          {[SignerType.KEEPER, SignerType.MY_KEEPER].includes(signer.type) || true ? (
+            <ShareWithNfc
+              data={serializedPSBT}
+              isPSBTSharing
+              psbt={serializedPSBT}
+              serializedPSBTEnvelop={serializedPSBTEnvelop}
+              signer={signer}
+              vaultKey={vaultKey} // required for signing
+              vaultId={vaultId} // required for signing
+              sendConfirmationRouteParams={sendConfirmationRouteParams}
+              tnxDetails={tnxDetails}
+            />
+          ) : null}
+        </Box>
+        <Box style={styles.bottom}>
+          <Buttons
+            primaryText="Scan PSBT"
+            primaryCallback={navigateToQrScan}
+            secondaryText="Vault Details"
+            secondaryCallback={navigateToVaultRegistration}
+          />
+        </Box>
+      </ScrollView>
     </ScreenWrapper>
   );
 }
@@ -129,12 +221,20 @@ function SignWithQR() {
 export default SignWithQR;
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   center: {
     alignItems: 'center',
     marginTop: '10%',
     flex: 1,
   },
   bottom: {
-    marginHorizontal: '5%',
+    marginTop: '5%',
+  },
+  fingerprint: {
+    alignItems: 'center',
+    marginHorizontal: '7%',
   },
 });

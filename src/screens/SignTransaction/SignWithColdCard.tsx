@@ -23,6 +23,7 @@ import useVault from 'src/hooks/useVault';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { useNavigation } from '@react-navigation/native';
+import { RKInteractionMode } from 'src/services/wallets/enums';
 
 function Card({ message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -67,12 +68,14 @@ function SignWithColdCard({ route }: { route }) {
   const navigation = useNavigation();
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
-  const { vaultKey, signTransaction, isMultisig, vaultId } = route.params as {
+  const { vaultKey, signTransaction, isMultisig, vaultId, isRemoteKey } = route.params as {
     vaultKey: VaultSigner;
     signTransaction;
     isMultisig: boolean;
     vaultId: string;
+    isRemoteKey: boolean;
   };
+
   const { activeVault } = useVault({ vaultId });
   const { signer } = useSignerFromKey(vaultKey);
 
@@ -82,19 +85,43 @@ function SignWithColdCard({ route }: { route }) {
 
   const receiveFromColdCard = async () =>
     withNfcModal(async () => {
+      dispatch(
+        healthCheckStatusUpdate([
+          {
+            signerId: signer.masterFingerprint,
+            status: hcStatusType.HEALTH_CHECK_SIGNING,
+          },
+        ])
+      );
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
+        if (isRemoteKey) {
+          navigation.replace('RemoteSharing', {
+            isPSBTSharing: true,
+            signer: signer,
+            psbt: txn,
+            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+            vaultKey: vaultKey,
+            vaultId: vaultId,
+            isMultisig: isMultisig,
+          });
+          return;
+        }
         dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
-        dispatch(
-          healthCheckStatusUpdate([
-            {
-              signerId: signer.masterFingerprint,
-              status: hcStatusType.HEALTH_CHECK_SIGNING,
-            },
-          ])
-        );
       } else {
         const { psbt } = await receivePSBTFromColdCard();
+        if (isRemoteKey) {
+          navigation.replace('RemoteSharing', {
+            isPSBTSharing: true,
+            signer: signer,
+            psbt,
+            mode: RKInteractionMode.SHARE_SIGNED_PSBT,
+            vaultKey: vaultKey,
+            vaultId: vaultId,
+            isMultisig: isMultisig,
+          });
+          return;
+        }
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
         dispatch(
           updateKeyDetails(vaultKey, 'registered', {

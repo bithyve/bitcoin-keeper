@@ -1,7 +1,7 @@
 import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
-import { Box, Text, useColorMode } from 'native-base';
+import { Box, Image, Text, useColorMode } from 'native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -77,6 +77,13 @@ const styles = StyleSheet.create({
     marginRight: 20,
     alignSelf: 'center',
   },
+  associatedContactImage: {
+    width: '70%',
+    height: '70%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
 });
 
 const SignerCard = ({ onPress, signer }) => {
@@ -97,7 +104,14 @@ const SignerCard = ({ onPress, signer }) => {
                 alignItems="center"
                 marginX={1}
               >
-                {SDIcons(signer.type).Icon}
+                {signer.extraData.thumbnailPath ? (
+                  <Image
+                    src={signer.extraData.thumbnailPath}
+                    style={styles.associatedContactImage}
+                  />
+                ) : (
+                  SDIcons(signer.type).Icon
+                )}
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>

@@ -15,6 +15,7 @@ function Buttons({
   primaryLoading = false,
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
+  width = null,
 }) {
   const { colorMode } = useColorMode();
   const onPrimaryInteraction = () => {
@@ -24,6 +25,7 @@ function Buttons({
   if (primaryLoading) {
     return <ActivityIndicatorView visible={primaryLoading} />;
   }
+
   const getPrimaryButton = () => (
     <TouchableOpacity
       onPress={onPrimaryInteraction}
@@ -32,7 +34,16 @@ function Buttons({
       testID="btn_primaryText"
     >
       <Box
-        style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
+        style={[
+          styles.createBtn,
+          {
+            opacity: primaryDisable ? 0.5 : 1,
+            paddingHorizontal: width ? 0 : paddingHorizontal,
+            width,
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        ]}
         backgroundColor={`${colorMode}.greenButtonBackground`}
       >
         <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.buttonText`} bold>
@@ -41,6 +52,7 @@ function Buttons({
       </Box>
     </TouchableOpacity>
   );
+
   return (
     <View style={styles.container}>
       {secondaryText !== '' && (
@@ -49,6 +61,7 @@ function Buttons({
             styles.cancelBtn,
             {
               opacity: secondaryDisable ? 0.5 : 1,
+              marginRight: primaryText ? wp(20) : 0,
             },
           ]}
           onPress={secondaryCallback}
@@ -77,7 +90,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   cancelBtn: {
-    marginRight: wp(20),
     borderRadius: 10,
   },
   btnText: {

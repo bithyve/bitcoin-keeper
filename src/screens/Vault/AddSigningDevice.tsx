@@ -327,6 +327,8 @@ function Signers({
   setCreating,
   isCollaborativeFlow,
   coSigners,
+  setExternalKeyAddedModal,
+  setAddedKey,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -434,8 +436,9 @@ function Signers({
               ? getSignerNameFromType(signer.type, signer.isMock, false)
               : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
           }
-          description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
+          description={getSignerDescription(signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+          image={signer?.extraData?.thumbnailPath}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) => {
             onSignerSelect(
@@ -505,12 +508,9 @@ function Signers({
                 ? getSignerNameFromType(signer.type, signer.isMock)
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
-            description={getSignerDescription(
-              signer.type,
-              signer.extraData?.instanceNumber,
-              signer
-            )}
+            description={getSignerDescription(signer)}
             icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+            image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
             onCardSelect={handleCardSelect}
             colorMode={colorMode}
@@ -543,11 +543,8 @@ function Signers({
       hw = setupKeeperSigner(qrData);
       if (hw) {
         dispatch(addSigningDevice([hw.signer]));
-        showToast(
-          `${hw.signer.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        setAddedKey(hw.signer);
+        setExternalKeyAddedModal(true);
         navigation.dispatch(CommonActions.goBack());
       }
     } catch (error) {
@@ -703,6 +700,8 @@ function AddSigningDevice() {
   const { activeVault, allVaults } = useVault({ vaultId });
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
+  const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
+  const [addedKey, setAddedKey] = useState(null);
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
@@ -973,6 +972,8 @@ function AddSigningDevice() {
         setCreating={setCreating}
         isCollaborativeFlow={isCollaborativeFlow}
         coSigners={coSigners}
+        setExternalKeyAddedModal={setExternalKeyAddedModal}
+        setAddedKey={setAddedKey}
       />
       <Footer
         amfSigners={amfSigners}
@@ -1026,6 +1027,13 @@ function AddSigningDevice() {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
+      />
+      <KeyAddedModal
+        visible={externalKeyAddedModal}
+        close={() => {
+          setExternalKeyAddedModal(false);
+        }}
+        signer={addedKey}
       />
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
     </ScreenWrapper>
@@ -1153,6 +1161,15 @@ const styles = StyleSheet.create({
   },
   desc: {
     marginBottom: hp(18),
+  },
+  externalKeyModal: {
+    alignItems: 'center',
+  },
+  externalKeyIllustration: {
+    marginBottom: hp(20),
+  },
+  externalKeyText: {
+    marginBottom: hp(20),
   },
 });
 

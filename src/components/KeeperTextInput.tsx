@@ -35,6 +35,7 @@ function KeeperTextInput({
         borderRadius={10}
         h={height}
         maxLength={maxLength}
+        {...props}
         testID={`input_${testID}`}
         _focus={{ borderColor: `${colorMode}.greenText` }}
         InputRightElement={
