@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { seedWordItem } from 'src/screens/Recovery/constants';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -44,6 +45,8 @@ const initialState: {
 
   deletingKeyModalVisible: boolean;
   keyDeletedSuccessModalVisible: boolean;
+
+  seedWords: Array<seedWordItem>;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -81,6 +84,7 @@ const initialState: {
   encPassword: '',
   deletingKeyModalVisible: false,
   keyDeletedSuccessModalVisible: false,
+  seedWords: [],
 };
 
 const bhrSlice = createSlice({
@@ -225,6 +229,23 @@ const bhrSlice = createSlice({
     hideKeyDeletedSuccessModal: (state) => {
       state.keyDeletedSuccessModalVisible = false;
     },
+    setSeedWord: (state, action: PayloadAction<{ index: number; wordItem: seedWordItem }>) => {
+      const { index, wordItem } = action.payload;
+      if (state.seedWords[index]) {
+        state.seedWords[index] = wordItem;
+        console.log(state.seedWords[index], 'from state');
+      } else {
+        state.seedWords.push(wordItem);
+      }
+    },
+
+    setSeedWords: (state, action: PayloadAction<seedWordItem[]>) => {
+      state.seedWords = action.payload;
+    },
+
+    resetSeedWords: (state) => {
+      state.seedWords = [];
+    },
   },
 });
 
@@ -271,6 +292,9 @@ export const {
   hideDeletingKeyModal,
   showKeyDeletedSuccessModal,
   hideKeyDeletedSuccessModal,
+
+  setSeedWord,
+  resetSeedWords,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -304,6 +328,8 @@ const bhrPersistConfig = {
     'relaySignerUpdateError',
     'realySignersUpdateErrorMessage',
     'cloudBsmsBackupError',
+
+    'seedWords',
   ],
 };
 
