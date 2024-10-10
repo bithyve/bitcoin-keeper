@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   descriptionContainer: {
     marginTop: hp(20),
     gap: hp(5),
-    marginHorizontal: '5%',
+    marginHorizontal: '2.5%',
   },
   inputWrapper: {
     width: '100%',
@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
   },
-  //
   modalContainer: {
     marginTop: hp(20),
   },
