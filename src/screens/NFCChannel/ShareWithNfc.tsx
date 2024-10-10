@@ -16,20 +16,35 @@ import RNFS from 'react-native-fs';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { Signer } from 'bitcoinjs-lib';
+import { RKInteractionMode } from 'src/services/wallets/enums';
+import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 function ShareWithNfc({
   data,
   remoteShare = true,
   signer,
   isPSBTSharing = false,
+  psbt,
+  vaultKey,
+  vaultId,
+  serializedPSBTEnvelop,
+  sendConfirmationRouteParams,
+  tnxDetails,
 }: {
   data: string;
   signer?: Signer;
   remoteShare?: boolean;
   isPSBTSharing?: boolean;
+  psbt?: string;
+  vaultKey?: VaultSigner;
+  vaultId?: string;
+  serializedPSBTEnvelop: any;
+  sendConfirmationRouteParams?: SendConfirmationRouteParams;
+  tnxDetails: tnxDetailsProps;
 }) {
   const { session } = useContext(HCESessionContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const [visible, setVisible] = React.useState(false);
 
   const { showToast } = useToastMessage();
@@ -125,7 +140,21 @@ function ShareWithNfc({
         <OptionCTA
           icon={<RemoteShareIcon />}
           title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
-          callback={() => navigation.navigate('RemoteSharing', { isPSBTSharing, data })}
+          callback={() =>
+            navigation.navigate('RemoteSharing', {
+              isPSBTSharing,
+              signer,
+              psbt,
+              mode: isPSBTSharing
+                ? RKInteractionMode.SHARE_PSBT
+                : RKInteractionMode.SHARE_REMOTE_KEY,
+              vaultKey,
+              vaultId,
+              serializedPSBTEnvelop,
+              sendConfirmationRouteParams,
+              tnxDetails,
+            })
+          }
         />
       )}
       <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />

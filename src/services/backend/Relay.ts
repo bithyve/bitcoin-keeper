@@ -659,4 +659,47 @@ export default class Relay {
       return null;
     }
   };
+
+  public static createRemoteKey = async (data: string) => {
+    try {
+      const response = await RestClient.post(`${RELAY}createRemoteKey`, { data });
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ createRemoteKey= ~ error:', error);
+    }
+  };
+
+  public static getRemoteKey = async (id: string) => {
+    try {
+      const response = await RestClient.get(`${RELAY}getRemoteKey?id=${id}`);
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ getRemoteKey= ~ error:', error);
+    }
+  };
+
+  public static sendSingleNotification = async (data) => {
+    try {
+      const response = await RestClient.post(`${RELAY}sendSingleNotification`, data);
+      const res = (response as AxiosResponse).data || (response as any).json;
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ sendSingleNotification= ~ error:', { error });
+    }
+  };
 }
+  

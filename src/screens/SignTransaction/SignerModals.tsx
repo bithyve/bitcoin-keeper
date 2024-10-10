@@ -41,6 +41,7 @@ import Import from 'src/assets/images/import.svg';
 import SignerCard from '../AddSigner/SignerCard';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { InteracationMode } from '../Vault/HardwareModalMap';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -591,6 +592,10 @@ function SignerModals({
   specterModal,
   setSpecterModal,
   onFileSign,
+  isRemoteKey = false,
+  serializedPSBTEnvelopFromProps,
+  sendConfirmationRouteParams,
+  tnxDetails,
 }: {
   vaultId: string;
   activeXfp: string;
@@ -627,15 +632,19 @@ function SignerModals({
   specterModal: boolean;
   setSpecterModal: any;
   onFileSign: any;
+  isRemoteKey: boolean;
+  serializedPSBTEnvelopFromProps: SerializedPSBTEnvelop;
+  sendConfirmationRouteParams?: SendConfirmationRouteParams;
+  tnxDetails?: tnxDetailsProps;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const serializedPSBTEnvelop: SerializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-    (envelop) => envelop.xfp === activeXfp
-  )[0];
+  const serializedPSBTEnvelop: SerializedPSBTEnvelop = isRemoteKey
+    ? serializedPSBTEnvelopFromProps
+    : serializedPSBTEnvelops?.filter((envelop) => envelop.xfp === activeXfp)[0];
 
   const navigateToQrSigning = (vaultKey: VaultSigner) => {
     setPassportModal(false);
@@ -649,6 +658,11 @@ function SignerModals({
         signTransaction,
         vaultKey,
         vaultId,
+        isRemoteKey: isRemoteKey,
+        serializedPSBTEnvelopFromProps,
+        isMultisig: isMultisig,
+        sendConfirmationRouteParams,
+        tnxDetails,
       })
     );
   };
@@ -663,6 +677,9 @@ function SignerModals({
         vaultKey,
         vaultId,
         signerType,
+        isRemoteKey: isRemoteKey,
+        serializedPSBTEnvelopFromProps,
+        isMultisig: isMultisig,
       })
     );
   };
@@ -726,6 +743,7 @@ function SignerModals({
                 vaultKey,
                 isMultisig,
                 vaultId,
+                isRemoteKey,
               })
             );
           };

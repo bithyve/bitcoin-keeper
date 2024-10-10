@@ -58,28 +58,30 @@ import {
   dropTransactionSnapshot,
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
-import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds } = (route.params || {
-    note: '',
-    label: [],
-    vaultId: '',
-    sendConfirmationRouteParams: null,
-    isMoveAllFunds: false,
-    sender: {},
-  }) as {
-    note: string;
-    label: { name: string; isSystem: boolean }[];
-    vaultId: string;
-    isMoveAllFunds: boolean;
-    sender: Vault;
-    sendConfirmationRouteParams: SendConfirmationRouteParams;
-  };
+  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds, tnxDetails } =
+    (route.params || {
+      note: '',
+      label: [],
+      vaultId: '',
+      sendConfirmationRouteParams: null,
+      isMoveAllFunds: false,
+      sender: {},
+    }) as {
+      note: string;
+      label: { name: string; isSystem: boolean }[];
+      vaultId: string;
+      isMoveAllFunds: boolean;
+      sender: Vault;
+      sendConfirmationRouteParams: SendConfirmationRouteParams;
+      tnxDetails: tnxDetailsProps;
+    };
 
   const { activeVault: defaultVault } = useVault({
     vaultId,
@@ -715,6 +717,8 @@ function SignTransactionScreen() {
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
         onFileSign={onFileSign}
+        sendConfirmationRouteParams={sendConfirmationRouteParams}
+        tnxDetails={tnxDetails}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
