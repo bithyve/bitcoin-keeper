@@ -27,11 +27,7 @@ function Wallets({ navigation }) {
 
   const handleSingleKey = () => {
     setSingleKeyOptions(false);
-    if (selectedSingleKeyOption === SingleKeyOptions.HOT_WALLET) {
-      navigateToWalletCreation();
-    } else {
-      navigation.navigate('AddSigningDevice', { scheme: { m: 1, n: 1 }, isSSAddition: true });
-    }
+    navigateToWalletCreation();
   };
 
   const navigateToVaultSetup = (scheme: VaultScheme) => {
@@ -39,14 +35,16 @@ function Wallets({ navigation }) {
   };
 
   const navigateToWalletCreation = () => {
+    const isHotWallet = selectedSingleKeyOption === SingleKeyOptions.HOT_WALLET;
     navigation.navigate('EnterWalletDetail', {
-      name: `Wallet ${wallets.length + 1}`,
+      name: isHotWallet ? `Wallet ${wallets.length + 1}` : '',
       description: '',
       type: WalletType.DEFAULT,
+      isHotWallet: isHotWallet,
     });
   };
 
-  const handleCollaaborativeWalletCreation = () => {
+  const handleCollaborativeWalletCreation = () => {
     navigation.navigate('SetupCollaborativeWallet');
   };
 
@@ -118,7 +116,7 @@ function Wallets({ navigation }) {
         title="Collaborative"
         description="With contacts/devices"
         LeftIcon={<CollaborativeIcon />}
-        callback={handleCollaaborativeWalletCreation}
+        callback={handleCollaborativeWalletCreation}
       />
       <KeeperModal
         visible={singleKeyOptions}

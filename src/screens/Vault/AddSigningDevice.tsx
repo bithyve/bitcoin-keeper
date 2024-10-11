@@ -943,8 +943,8 @@ function AddSigningDevice() {
         vaultCreating={vaultCreating}
         vaultKeys={vaultKeys}
         scheme={scheme}
-        name={isSSAddition ? 'Air-gapped Wallet' : name}
-        description={isSSAddition ? 'External signing device' : description}
+        name={name}
+        description={description}
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
         vaultType={

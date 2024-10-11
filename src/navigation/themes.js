@@ -91,6 +91,7 @@ export const customTheme = extendTheme({
       textBlack: Colors.DarkGreen,
       greenText: Colors.RichGreen,
       greenText2: Colors.TropicalRainForest,
+      greenWhiteText: Colors.pantoneGreen,
       accent: Colors.MacaroniAndCheese,
       lightAccent: Colors.MacaroniAndCheese,
       QrCode: Colors.WhiteCoffee,
@@ -184,6 +185,7 @@ export const customTheme = extendTheme({
       alertRed: Colors.LightCrimson,
       coralRed: Colors.CoralRed,
       secondaryGrey: Colors.MediumGrey,
+      greenPillBackground: Colors.SmokeGreen,
     },
     dark: {
       navButtonText: Colors.paleWhite,
@@ -231,6 +233,7 @@ export const customTheme = extendTheme({
       textBlack: Colors.DarkGreen,
       greenText: Colors.RichGreenDark,
       greenText2: Colors.TropicalRainForestDark,
+      greenWhiteText: Colors.White,
       accent: Colors.MacaroniAndCheese,
       lightAccent: Colors.GoldCrayola,
       QrCode: Colors.WhiteCoffee,
@@ -322,6 +325,7 @@ export const customTheme = extendTheme({
       alertRed: Colors.LightCrimson,
       coralRed: Colors.CoralRed,
       secondaryGrey: Colors.MediumGrey,
+      greenPillBackground: Colors.SmokeGreen,
     },
   },
   config: {

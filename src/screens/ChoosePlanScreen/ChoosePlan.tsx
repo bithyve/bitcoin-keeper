@@ -115,6 +115,7 @@ function ChoosePlan() {
         const skus = [];
         getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
+        if (!subscriptions.length) throw { message: 'Something went wrong, please try again!' };
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
           const monthlyPlans = [];
