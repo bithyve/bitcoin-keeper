@@ -374,7 +374,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   scrollContainer: {
-    flex: 1,
     paddingVertical: 30,
   },
 });
