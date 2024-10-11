@@ -134,6 +134,7 @@ export type AppStackParams = {
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
+  ManageTapsignerSettings: undefined;
 };
 
 // Usage:
