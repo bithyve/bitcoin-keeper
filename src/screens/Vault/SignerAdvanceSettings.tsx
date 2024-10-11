@@ -488,30 +488,12 @@ function SignerAdvanceSettings({ route }: any) {
       })
     );
   };
-  const navigateToUnlockTapsigner = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'UnlockTapsigner',
-      })
-    );
-  };
-  const onChangeTapsignerPin = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ChangeTapsignerPin',
-        params: {
-          signer: signer,
-        },
-      })
-    );
-  };
 
-  const onSaveTapsignerBackup = () => {
+  const openTapsignerSettings = () => {
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'TapsignerAction',
+        name: 'ManageTapsignerSettings',
         params: {
-          mode: InteracationMode.BACKUP_SIGNER,
           signer: signer,
         },
       })
@@ -892,23 +874,9 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isTapsigner && (
           <OptionCard
-            title="Save Backup"
-            description="Save an encrypted backup"
-            callback={onSaveTapsignerBackup}
-          />
-        )}
-        {isTapsigner && (
-          <OptionCard
-            title="Change PIN"
-            description="Change the PIN code"
-            callback={onChangeTapsignerPin}
-          />
-        )}
-        {isTapsigner && (
-          <OptionCard
-            title="Unlock Card Rate Limit"
-            description="Run the unlock card process if it's rate-limited"
-            callback={navigateToUnlockTapsigner}
+            title="Manage TAPSIGNER"
+            description="Manage your TAPSIGNER card"
+            callback={openTapsignerSettings}
           />
         )}
         {(isAppKey || isMyAppKey) && (

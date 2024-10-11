@@ -124,6 +124,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
 import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
+import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -296,6 +297,7 @@ function AppStack() {
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
+        <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
       </Stack.Navigator>
     </RealmProvider>
   );
