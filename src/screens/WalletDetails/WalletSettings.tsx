@@ -24,6 +24,7 @@ import { captureError } from 'src/services/sentry';
 import Text from 'src/components/KeeperText';
 import { Shadow } from 'react-native-shadow-2';
 import { WALLETSETTINGS } from 'src/navigation/contants';
+import BackupModalContent from '../AppSettings/BackupModal';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -43,6 +44,7 @@ function WalletSettings({ route }) {
   const TestSatsComponent = useTestSats({ wallet });
   const isImported = wallet.type === WalletType.IMPORTED;
   const [showWalletBalanceAlert, setShowWalletBalanceAlert] = useState(false);
+  const [backupModalVisible, setBackupModalVisible] = useState(false);
 
   const updateWalletVisibility = (checkBalance = true) => {
     if (checkBalance && wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed > 0) {
@@ -179,7 +181,10 @@ function WalletSettings({ route }) {
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
         title={walletTranslation?.confirmPassTitle}
-        subTitleWidth={wp(240)}
+        subTitleWidth={wp(300)}
+        showCloseIcon={false}
+        dismissible
+        closeOnOverlayClick
         subTitle={walletTranslation?.confirmPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
@@ -192,16 +197,40 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
-              if (walletMnemonic) {
-                navigation.navigate('ExportSeed', {
-                  seed: walletMnemonic,
-                  next: false,
-                  wallet,
-                });
-              } else showToast(walletTranslation.mnemonicDoesNotExist);
+              setConfirmPassVisible(false);
+              setBackupModalVisible(true);
             }}
           />
         )}
+      />
+      <KeeperModal
+        visible={backupModalVisible}
+        close={() => setBackupModalVisible(false)}
+        title={walletTranslation.walletSeedWord}
+        subTitle={settings.RKBackupSubTitle}
+        subTitleWidth={wp(300)}
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setBackupModalVisible(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        showCloseIcon={false}
+        buttonText={common.backupNow}
+        buttonCallback={() => {
+          if (walletMnemonic) {
+            setBackupModalVisible(false);
+            navigation.navigate('ExportSeed', {
+              seed: walletMnemonic,
+              next: false,
+              wallet,
+            });
+          } else {
+            setBackupModalVisible(false);
+            showToast(walletTranslation.mnemonicDoesNotExist);
+          }
+        }}
+        Content={BackupModalContent}
       />
       <KeeperModal
         visible={xpubVisible}
