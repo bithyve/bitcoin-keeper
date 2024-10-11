@@ -24,11 +24,11 @@ function AdvancedWallets({ navigation }) {
         CardPill={
           <CardPill
             heading="COMING SOON"
-            backgroundColor={`${colorMode}.choosePlanCard`}
+            backgroundColor={`${colorMode}.greenPillBackground`}
             headingColor={`${colorMode}.white`}
           />
         }
-        callback={() => { }}
+        callback={() => {}}
         disabled
       />
       <OptionCard
@@ -40,11 +40,11 @@ function AdvancedWallets({ navigation }) {
         CardPill={
           <CardPill
             heading="COMING SOON"
-            backgroundColor={`${colorMode}.choosePlanCard`}
+            backgroundColor={`${colorMode}.greenPillBackground`}
             headingColor={`${colorMode}.white`}
           />
         }
-        callback={() => { }}
+        callback={() => {}}
         disabled
       />
       <OptionCard
