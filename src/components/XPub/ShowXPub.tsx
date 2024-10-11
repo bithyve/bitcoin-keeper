@@ -44,7 +44,6 @@ function ShowXPub({
             alignItems="center"
             justifyContent="center"
             padding={1}
-            width={hp(200)}
           >
             <Text fontSize={12} bold color={`${colorMode}.BrownNeedHelp`}>
               {subText}
