@@ -15,16 +15,16 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
-import QRCode from 'react-native-qrcode-svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
 import { useDispatch } from 'react-redux';
-import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import SigningServer from 'src/services/backend/SigningServer';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import KeeperQRCode from 'src/components/KeeperQRCode';
 
 function SetupSigningServer({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -175,8 +175,8 @@ function SetupSigningServer({ route }: { route }) {
                 marginTop: hp(30),
               }}
             >
-              <QRCode
-                value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
+              <KeeperQRCode
+                qrData={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
                 logoBackgroundColor="transparent"
                 size={hp(200)}
               />

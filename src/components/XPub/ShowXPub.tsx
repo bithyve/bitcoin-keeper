@@ -4,13 +4,13 @@ import Text from 'src/components/KeeperText';
 import { ActivityIndicator } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { wp, hp } from 'src/constants/responsive';
-import QRCode from 'react-native-qrcode-svg';
 import Note from '../Note/Note';
 import WalletFingerprint from '../WalletFingerPrint';
+import KeeperQRCode from '../KeeperQRCode';
 
 function ShowXPub({
   data,
-  copy = () => { },
+  copy = () => {},
   subText,
   noteSubText,
   copyable = true,
@@ -35,7 +35,7 @@ function ShowXPub({
       <Box testID="view_xPub" justifyContent="center" alignItems="center">
         <Box>
           {details ? (
-            <QRCode value={details} logoBackgroundColor="transparent" size={hp(200)} />
+            <KeeperQRCode qrData={details} logoBackgroundColor="transparent" size={hp(200)} />
           ) : (
             <ActivityIndicator />
           )}

@@ -13,7 +13,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { hp, wp } from 'src/constants/responsive';
-import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
