@@ -417,7 +417,7 @@ PODS:
   - react-native-mmkv (2.11.0):
     - MMKV (>= 1.2.13)
     - React-Core
-  - react-native-nfc-manager (3.13.5):
+  - react-native-nfc-manager (3.14.7):
     - React-Core
   - react-native-pdf (6.7.1):
     - React-Core
@@ -563,7 +563,7 @@ PODS:
   - RNGestureHandler (2.14.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - RNIap (12.10.5):
+  - RNIap (12.15.2):
     - React-Core
   - RNKeychain (8.1.2):
     - React-Core
@@ -576,14 +576,17 @@ PODS:
   - RNScreens (3.25.0):
     - React-Core
     - React-RCTImage
-  - RNSentry (4.15.2):
+  - RNSentry (5.33.1):
+    - hermes-engine
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
-    - Sentry/HybridSDK (= 7.31.5)
+    - React-hermes
+    - Sentry/HybridSDK (= 8.36.0)
   - RNShare (9.2.3):
     - React-Core
   - RNSVG (13.13.0):
     - React-Core
-  - Sentry/HybridSDK (7.31.5)
+  - Sentry/HybridSDK (8.36.0)
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
   - Zendesk (1.13.0):
@@ -924,7 +927,7 @@ SPEC CHECKSUMS:
   react-native-html-to-pdf: 4c5c6e26819fe202971061594058877aa9b25265
   react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
-  react-native-nfc-manager: 42ebc22a04f32c0c2bc63a016ab30fa6486de450
+  react-native-nfc-manager: ca60627c7b9270019b9442d86f9e20fe9cb2ee28
   react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-rsa-native: 12132eb627797529fdb1f0d22fd0f8f9678df64a
@@ -956,15 +959,15 @@ SPEC CHECKSUMS:
   RNFBMessaging: 3e2682ea5e15fe86da24d16d16019395a881f33c
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 32a01c29ecc9bb0b5bf7bc0a33547f61b4dc2741
-  RNIap: c397f49db45af3b10dca64b2325f21bb8078ad21
+  RNIap: 2a3674383dcf383e5b7b3c4680dc87f1b2657326
   RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
   RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
   RNReanimated: fdbaa9c964bbab7fac50c90862b6cc5f041679b9
   RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
-  RNSentry: 4ea90ea061624364637e8077d965bf2e50478066
+  RNSentry: 0744d3c79504bc4778190d047d1b60daf4a378cd
   RNShare: da6d90b6dc332f51f86498041d6e34211f96b630
   RNSVG: ed492aaf3af9ca01bc945f7a149d76d62e73ec82
-  Sentry: 4c9babff9034785067c896fd580b1f7de44da020
+  Sentry: f8374b5415bc38dfb5645941b3ae31230fbeae57
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
   Zendesk: 5e382df2c0034a0df4e43174ecbd7e9bed54b929
