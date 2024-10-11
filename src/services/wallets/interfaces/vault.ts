@@ -45,6 +45,10 @@ export type signerXpubs = {
 
 export type SignerExtraData = {
   instanceNumber?: number;
+  givenName?: string;
+  familyName?: string;
+  recordID?: string;
+  thumbnailPath?: string;
 };
 
 export interface HealthCheckDetails {

@@ -129,11 +129,7 @@ function DeleteKeys({ route }) {
               {getSignerNameFromType(deletedSigner?.type)}
             </Text>
             <Text numberOfLines={1} fontSize={12} color={`${colorMode}.secondaryText`}>
-              {getSignerDescription(
-                deletedSigner?.type,
-                deletedSigner?.extraData?.instanceNumber,
-                deletedSigner
-              )}
+              {getSignerDescription(deletedSigner)}
             </Text>
           </Box>
         </Box>
@@ -205,11 +201,7 @@ function DeleteKeys({ route }) {
                 secondaryIcon={<ShowIcon />}
                 icon={{ element: SDIcons(signer.type, true).Icon, backgroundColor: 'pantoneGreen' }}
                 name={getSignerNameFromType(signer.type)}
-                description={getSignerDescription(
-                  signer.type,
-                  signer.extraData?.instanceNumber,
-                  signer
-                )}
+                description={getSignerDescription(signer)}
                 descriptionTitle={'Description'}
                 dateAdded={`Added ${moment(signer?.addedOn).calendar()}`}
               />
@@ -293,11 +285,7 @@ function DeleteKeys({ route }) {
                     {getSignerNameFromType(signerToDelete.type)}
                   </Text>
                   <Text numberOfLines={1} fontSize={12} color={`${colorMode}.secondaryText`}>
-                    {getSignerDescription(
-                      signerToDelete?.type,
-                      signerToDelete?.extraData?.instanceNumber,
-                      signerToDelete
-                    )}
+                    {getSignerDescription(signerToDelete)}
                   </Text>
                 </Box>
               </Box>

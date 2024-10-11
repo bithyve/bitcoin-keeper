@@ -127,6 +127,7 @@
     "dontShowAgain": "Don’t show me this message again",
     "for": "For",
     "goToBackup": "Go to Backup",
+    "Receipt": "Receipt",
     "Later": "Later"
   },
   "noInternet": {
@@ -539,7 +540,12 @@
     "lowFee": "Network fee is less than 10% of the amount being sent.",
     "discardTnxTitle": "Invalid UTXO set",
     "discardTnxSubTitle": "This transaction's UTXO has already been used.",
-    "discardTnxDesc": "Please discard this transaction and initiate a new one"
+    "discardTnxDesc": "Please discard this transaction and initiate a new one",
+    "transactionDetailsTitle": "Transaction Details",
+    "remoteSigningMessage": "Please sign the transaction with your Key before the timer runs out",
+    "ReviewTransaction": "Review the Transaction",
+    "SignTransaction": "Sign Transaction",
+    "DenyTransaction": "DenyTransaction"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -1033,6 +1039,16 @@
     "thisStepTakesTime": "This step will take a few seconds.",
     "forgot2FA": "Forgot 2FA",
     "forgot2FANote": "If you have lost your 2FA app, it is recommended that you remove SS and add a different key or SS again",
+    "keyReceived": "Key Received",
+    "keyReceiveMessage": "You have received an",
+    "remoteKeyReceiveNote": "Please accept the key before the timer expires. If not accepted in time, you will have to request the key again.",
+    "keyExpired": "Key Expired",
+    "keyExpireMessage": "You had received a Key from your contact. Unfortunately, the timer has run out.",
+    "signingRequestExpired": "Signing Request Expired",
+    "signingRequestExpireMessage": "You had received a signing request. The timer has run out.",
+    "signTransaction": "Sign Transaction",
+    "reject": "Reject",
+    "acceptKey": "Accept Key",
     "manageKeysModalSubtitle": "All your keys would be visible in this section.",
     "manageKeysModalDesc": "You can ensure their accessibility via Health Checks, fund Canary Wallets, view fingerprints and even change signer type, all from this central location for keys.",
     "manageTapsigner": "Manage TAPSIGNER",

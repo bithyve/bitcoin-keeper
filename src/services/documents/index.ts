@@ -22,4 +22,17 @@ const pickDocument = async () => {
   }
 };
 
-export { pickDocument };
+const persistDocument = async (sourcePath: string, desPath?: string) => {
+  try {
+    const ext = sourcePath.split('.').pop();
+    const defaultDestPath =
+      desPath ?? `file://${RNFS.DocumentDirectoryPath}/dp_${Date.now()}.${ext}`;
+    await RNFS.copyFile(sourcePath, desPath ?? defaultDestPath);
+    return defaultDestPath;
+  } catch (error) {
+    console.log('🚀 ~ persistDocument ~ error:', error);
+    return null;
+  }
+};
+
+export { pickDocument, persistDocument };

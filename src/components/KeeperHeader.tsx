@@ -25,6 +25,7 @@ type Props = {
   availableBalance?: Element;
   contrastScreen?: boolean;
   icon?: Element;
+  simple?: boolean;
   rightComponentPadding?: number | `${number}%`;
   headerInfoPadding?: number | `${number}%`;
 };
@@ -110,6 +111,7 @@ const KeeperHeader = ({
   icon = null,
   rightComponentPadding = 0,
   headerInfoPadding = 10,
+  simple = false,
 }: Props) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -120,6 +122,35 @@ const KeeperHeader = ({
     () => getStyles(rightComponentPadding, headerInfoPadding),
     [rightComponentPadding, headerInfoPadding]
   );
+
+  if (simple) {
+    return (
+      <Box style={styles.simpleContainer}>
+        {enableBack && (
+          <TouchableOpacity
+            testID="btn_back"
+            onPress={onPressHandler || navigation.goBack}
+            style={styles.simpleBackButton}
+          >
+            {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
+          </TouchableOpacity>
+        )}
+        <Text
+          style={styles.simpleTitleText}
+          medium
+          color={titleColor || `${colorMode}.headerText`}
+          testID="text_header_title"
+        >
+          {title}
+        </Text>
+        {rightComponent ? (
+          <Box style={styles.rightComponentContainer}>{rightComponent}</Box>
+        ) : (
+          <Box style={styles.placeholder}></Box>
+        )}
+      </Box>
+    );
+  }
 
   return (
     <Box style={styles.container}>
@@ -168,6 +199,31 @@ const getStyles = (
   StyleSheet.create({
     container: {
       backgroundColor: 'transparent',
+    },
+    simpleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+    },
+    simpleTitleText: {
+      fontSize: 20,
+      lineHeight: 24,
+      textAlign: 'center',
+      flex: 1,
+    },
+    simpleBackButton: {
+      width: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 10,
+    },
+    rightComponentContainer: {
+      alignItems: 'flex-end',
+    },
+    placeholder: {
+      width: 5,
     },
     addWalletText: {
       letterSpacing: 0.18,

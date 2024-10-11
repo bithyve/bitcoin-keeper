@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
-import { Dimensions } from 'react-native';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
 import { VStack, Slider, useColorMode, Box } from 'native-base';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import KeeperQRCode from 'src/components/KeeperQRCode';
-
-const { width } = Dimensions.get('window');
 
 DisplayQR.defaultProps = {
   toBytes: true,

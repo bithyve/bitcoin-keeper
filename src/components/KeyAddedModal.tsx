@@ -1,99 +1,85 @@
-import React, { useContext } from 'react';
-import { Box, Text, useColorMode } from 'native-base';
-import moment from 'moment';
+import React from 'react';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Box, useColorMode } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
-import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
-
-function ModalCard({ title, subTitle, icon = null }) {
-  const { colorMode } = useColorMode();
-  return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.cardContainer}>
-      <Box style={styles.iconContainer}>
-        <HexagonIcon
-          width={wp(42.5)}
-          height={hp(38)}
-          icon={icon}
-          backgroundColor={colorMode == 'dark' ? Colors.ForestGreenDark : Colors.pantoneGreen}
-        />
-      </Box>
-      <Box style={styles.textContainer}>
-        <Text style={styles.titleText} color={`${colorMode}.modalGreenButton`}>
-          {title}
-        </Text>
-        <Text style={styles.subTitleText} color={`${colorMode}.GreyText`}>
-          {subTitle}
-        </Text>
-      </Box>
-    </Box>
-  );
-}
+import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
+import Text from './KeeperText';
+import { SignerType } from 'src/services/wallets/enums';
 
 const KeyAddedModal = ({ visible, close, signer }) => {
+  const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslations, common } = translations;
+
+  const signerTypeConfig = {
+    [SignerType.KEEPER]: {
+      buttonText: 'Add Contact',
+      buttonCallback: () => {
+        navigation.navigate('AssociateContact');
+        close();
+      },
+      secondaryButtonText: 'Skip',
+      content: (
+        <Text color={`${colorMode}.primaryText`} style={styles.externalKeyText}>
+          You can associate a contact with this key if you wish to.
+        </Text>
+      ),
+    },
+  };
+
+  const defaultConfig = {
+    buttonText: 'Add Description',
+    buttonCallback: () => {
+      close();
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'AdditionalDetails',
+          params: { signer },
+        })
+      );
+    },
+    secondaryButtonText: 'Cancel',
+    secondaryButtonCallback: close,
+    content: null,
+  };
+
+  const { buttonText, buttonCallback, secondaryButtonText, content } =
+    signer?.type && signerTypeConfig[signer?.type] ? signerTypeConfig[signer?.type] : defaultConfig;
 
   return (
     <KeeperModal
       visible={visible}
+      title="Key added successfully!"
+      subTitle="Access key details from Manage Keys and sign transactions from within wallets."
       close={close}
-      title={signerTranslations.signerAddedSuccessMessage}
-      subTitle={signerTranslations.signerAvailableMessage}
-      showCloseIcon={false}
+      showCloseIcon
+      DarkCloseIcon={colorMode === 'dark'}
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.modalWhiteContent`}
+      buttonText={buttonText}
+      buttonCallback={buttonCallback}
+      secondaryButtonText={secondaryButtonText}
+      secondaryCallback={close}
       Content={() => (
-        <Box style={{ gap: 20 }}>
-          <ModalCard
-            title={signer?.signerName}
-            icon={SDIcons(signer?.type, colorMode !== 'dark').Icon}
-            subTitle={`Added ${moment(signer?.addedOn).calendar().toLowerCase()}`}
-          />
-          <Text style={styles.descText}>{signerTranslations.signerAddedDesc}</Text>
+        <Box style={styles.externalKeyModal}>
+          <SuccessCircleIllustration style={styles.externalKeyIllustration} />
+          {content}
         </Box>
       )}
-      buttonText={common?.Okay}
-      buttonTextColor={`${colorMode}.buttonText`}
-      buttonBackground={`${colorMode}.greenButtonBackground`}
-      buttonCallback={() => {
-        close();
-      }}
     />
   );
 };
 
 const styles = StyleSheet.create({
-  cardContainer: {
+  externalKeyModal: {
     alignItems: 'center',
-    flexDirection: 'row',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 15,
-    minHeight: hp(70),
-    marginBottom: hp(35),
-    marginTop: hp(20),
   },
-  titleText: {
-    fontSize: 14,
-    fontWeight: '500',
+  externalKeyIllustration: {
+    marginBottom: hp(20),
+    marginRight: wp(15),
   },
-  subTitleText: {
-    fontSize: 12,
-    fontWeight: '400',
-  },
-  iconContainer: {
-    marginHorizontal: 10,
-  },
-  textContainer: {},
-  descText: {
-    fontSize: 13,
-    letterSpacing: 0.13,
-    fontWeight: '400',
+  externalKeyText: {
     marginBottom: hp(20),
   },
 });

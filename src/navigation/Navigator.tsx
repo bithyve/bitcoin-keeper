@@ -124,6 +124,12 @@ import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
 import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
+import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
+import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
+import AssociateContact from 'src/screens/Contact/AssociateContact';
+import AddContact from 'src/screens/Contact/AddContact';
+import ContactProfile from 'src/screens/Contact/ContactProfile';
+import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 
 const defaultTheme = {
@@ -272,6 +278,8 @@ function AppStack() {
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
+        <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
+        <Stack.Screen name="RemoteSharing" component={RemoteSharing} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
@@ -297,6 +305,10 @@ function AppStack() {
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
+        <Stack.Screen name="AssociateContact" component={AssociateContact} />
+        <Stack.Screen name="AddContact" component={AddContact} />
+        <Stack.Screen name="ContactProfile" component={ContactProfile} />
+        <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
       </Stack.Navigator>
     </RealmProvider>

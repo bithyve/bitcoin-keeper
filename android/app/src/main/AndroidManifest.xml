@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-feature android:name="android.hardware.nfc.hce" android:required="false" />
     
     <application
@@ -54,6 +55,14 @@
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
              <data android:scheme="@string/backup_with_keeper_scheme" android:host="backup" />
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+            <data android:host="bitcoinkeeper.app" />
         </intent-filter>
       </activity>
       <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />

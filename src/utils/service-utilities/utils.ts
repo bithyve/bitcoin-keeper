@@ -371,3 +371,7 @@ export const getArchivedVaults = (allVaults: Vault[], vault: Vault) => {
           (v.archivedId === vault.archivedId || v.id === vault.archivedId)
       );
 };
+export function generateKeyFromPassword(password, salt = 'ARzDkUmENwt1', iterations = 100) {
+  // Derive a 16-byte key from the 12-character password
+  return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha256'); // 16 bytes = 128 bits
+}

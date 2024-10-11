@@ -74,7 +74,6 @@ import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
-import DescriptionModal from './components/EditDescriptionModal';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
@@ -83,9 +82,17 @@ import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareMo
 import Note from 'src/components/Note/Note';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 
 const { width } = Dimensions.get('screen');
+
+const SignersWithoutRKSigningSupport = [
+  SignerType.POLICY_SERVER,
+  SignerType.OTHER_SD,
+  SignerType.UNKOWN_SIGNER,
+  SignerType.INHERITANCEKEY,
+];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -121,10 +128,13 @@ function SignerAdvanceSettings({ route }: any) {
     signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
-  const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
+  const { signers } = useSigners();
+
+  const signer: Signer = signerFromParam
+    ? signers.find((signer) => signer.masterFingerprint === signerFromParam.masterFingerprint) // to reflect associated contact image in real time
+    : signerMap[vaultKey.masterFingerprint];
 
   const { showToast } = useToastMessage();
-  const [visible, setVisible] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
   const [vaultUsed, setVaultUsed] = React.useState<Vault>();
@@ -141,6 +151,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { vault: vaultTranslation, common, signer: signerTranslation, BackupWallet } = translations;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const isSmallDevice = useIsSmallDevices();
+  const supportsRKSigning = !SignersWithoutRKSigningSupport.includes(signer.type);
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
@@ -157,8 +168,6 @@ function SignerAdvanceSettings({ route }: any) {
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const openDescriptionModal = () => setVisible(true);
-  const closeDescriptionModal = () => setVisible(false);
 
   const { activeVault, allVaults } = useVault({ vaultId, includeArchived: false });
   const allUnhiddenVaults = allVaults.filter((vault) => {
@@ -592,6 +601,15 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const navigateToAdditionalDetails = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AdditionalDetails',
+        params: { signer },
+      })
+    );
+  };
+
   function Card({ title = '', subTitle = '', icon = null }) {
     const { colorMode } = useColorMode();
 
@@ -823,18 +841,11 @@ function SignerAdvanceSettings({ route }: any) {
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
             icon={SDIcons(signer.type, true).Icon}
+            image={signer?.extraData?.thumbnailPath}
           />
         }
       />
-      <ScrollView
-        contentContainerStyle={styles.contentContainerStyle}
-        showsVerticalScrollIndicator={false}
-      >
-        <OptionCard
-          title="Edit Description"
-          description="Short description to help you remember"
-          callback={openDescriptionModal}
-        />
+      <ScrollView contentContainerStyle={styles.contentContainerStyle}>
         {isInheritanceKey && vaultId && (
           <OptionCard
             title="Registered Email"
@@ -879,14 +890,19 @@ function SignerAdvanceSettings({ route }: any) {
             callback={openTapsignerSettings}
           />
         )}
-        {(isAppKey || isMyAppKey) && (
+        {!isAssistedKey && (
           <OptionCard
             title={signerTranslation.keyDetails}
             description={signerTranslation.keyDetailsSubtitle}
             callback={navigateToCosignerDetails}
           />
         )}
-        {isMyAppKey && (
+        <OptionCard
+          title="Additional Info"
+          description="Associate contact or Edit description"
+          callback={navigateToAdditionalDetails}
+        />
+        {supportsRKSigning && (
           <OptionCard
             title="Sign a transaction"
             description="Using a PSBT file"
@@ -961,15 +977,6 @@ function SignerAdvanceSettings({ route }: any) {
         <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
-      <DescriptionModal
-        visible={visible}
-        close={closeDescriptionModal}
-        signer={signer}
-        callback={(value: any) => {
-          navigation.setParams({ signer: { ...signer, signerDescription: value } });
-          dispatch(updateSignerDetails(signer, 'signerDescription', value));
-        }}
-      />
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}
