@@ -232,6 +232,7 @@ function AppSettings({ navigation, route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
+              setConfirmPassVisible(false);
               setBackupModalVisible(true);
             }}
           />
@@ -243,13 +244,15 @@ function AppSettings({ navigation, route }) {
         title={settings.RKBackupTitle}
         subTitle={settings.RKBackupSubTitle}
         subTitleWidth={wp(300)}
+        showCloseIcon={false}
+        dismissible
+        closeOnOverlayClick
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setBackupModalVisible(false)}
         secButtonTextColor={`${colorMode}.greenText`}
-        showCloseIcon={false}
         buttonText={common.backupNow}
         buttonCallback={() => {
           setBackupModalVisible(false);

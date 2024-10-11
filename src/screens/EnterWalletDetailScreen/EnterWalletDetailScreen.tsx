@@ -55,6 +55,7 @@ function EnterWalletDetailScreen({ route }) {
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
+  const [isHotWallet, setIsHotWallet] = useState(route.params?.isHotWallet || false);
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
@@ -106,6 +107,20 @@ function EnterWalletDetailScreen({ route }) {
     }
     dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, path, purpose, transferPolicy]);
+
+  const continueSelectSigner = useCallback(() => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AddSigningDevice',
+        params: {
+          name: walletName,
+          description: walletDescription,
+          scheme: { m: 1, n: 1 },
+          isSSAddition: true,
+        },
+      })
+    );
+  }, [walletName, walletDescription]);
 
   useEffect(() => {
     if (relayWalletUpdate) {
@@ -215,15 +230,17 @@ function EnterWalletDetailScreen({ route }) {
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
         rightComponent={
-          <Pressable
-            style={styles.advancedContainer}
-            onPress={() => setAdvancedSettingsVisible(true)}
-          >
-            <SettingsIcon />
-            <Text color={`${colorMode}.BrownNeedHelp`} bold fontSize={13}>
-              Advanced
-            </Text>
-          </Pressable>
+          isHotWallet && (
+            <Pressable
+              style={styles.advancedContainer}
+              onPress={() => setAdvancedSettingsVisible(true)}
+            >
+              <SettingsIcon />
+              <Text color={`${colorMode}.BrownNeedHelp`} bold fontSize={13}>
+                Advanced
+              </Text>
+            </Pressable>
+          )
         }
         // To-Do-Learn-More
       />
@@ -234,7 +251,7 @@ function EnterWalletDetailScreen({ route }) {
               placeholder={wallet.WalletNamePlaceHolder}
               value={walletName}
               onChangeText={(value) => {
-                if (route.params?.name === walletName) {
+                if (route.params?.name && route.params?.name === walletName) {
                   setWalletName('');
                   return;
                 }
@@ -267,7 +284,7 @@ function EnterWalletDetailScreen({ route }) {
           <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />
           <Buttons
             primaryText={common.proceed}
-            primaryCallback={createNewWallet}
+            primaryCallback={isHotWallet ? createNewWallet : continueSelectSigner}
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
