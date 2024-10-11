@@ -36,7 +36,7 @@
     "@realm/react": "0.5.2",
     "@redux-devtools/extension": "3.2.2",
     "@reduxjs/toolkit": "1.8.2",
-    "@sentry/react-native": "^4.2.4",
+    "@sentry/react-native": "5.33.1",
     "@shipt/segmented-arc-for-react-native": "^1.0.1",
     "@testing-library/react-native": "11.0.0",
     "@types/crypto-js": "4.1.1",
