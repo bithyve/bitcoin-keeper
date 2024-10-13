@@ -10,12 +10,13 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 
 type Props = {
-  fingerprint: string;
+  data: string;
   title?: string;
   copy?: Function;
+  dataType?: 'fingerprint' | 'psbt' | 'xpub';
 };
 
-function WalletFingerprint({ title, fingerprint, copy }: Props) {
+function WalletCopiableData({ title, data, dataType, copy }: Props) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
 
@@ -27,6 +28,7 @@ function WalletFingerprint({ title, fingerprint, copy }: Props) {
       backgroundColor={`${colorMode}.seashellWhite`}
       borderColor={`${colorMode}.greyBorder`}
       style={styles.container}
+      width="90%"
     >
       <Box style={styles.textContainer}>
         {title && (
@@ -35,16 +37,27 @@ function WalletFingerprint({ title, fingerprint, copy }: Props) {
           </Text>
         )}
         <Text color={`${colorMode}.GreyText`} numberOfLines={1} style={styles.value}>
-          {fingerprint}
+          {data}
         </Text>
       </Box>
       <Pressable
-        testID={`btn_copyToClipboard${fingerprint}`}
+        testID={`btn_copyToClipboard${data}`}
         backgroundColor={`${colorMode}.whiteText`}
         style={styles.iconContainer}
         onPress={() => {
-          Clipboard.setString(fingerprint);
-          copy ? copy() : showToast(walletTranslation.walletIdCopied, <TickIcon />);
+          Clipboard.setString(data);
+          let msg = '';
+          switch (dataType) {
+            case 'psbt':
+              msg = walletTranslation.psbtCopied;
+              break;
+            case 'xpub':
+              msg = walletTranslation.xpubCopied;
+              break;
+            default:
+              msg = walletTranslation.walletIdCopied;
+          }
+          copy ? copy() : showToast(msg, <TickIcon />);
         }}
       >
         <CopyIcon />
@@ -58,7 +71,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '90%',
     borderWidth: 1,
     borderRadius: 10,
     height: 55,
@@ -84,4 +96,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WalletFingerprint;
+export default WalletCopiableData;

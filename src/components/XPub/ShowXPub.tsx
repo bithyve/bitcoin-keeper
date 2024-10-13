@@ -5,7 +5,7 @@ import { ActivityIndicator } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { wp, hp } from 'src/constants/responsive';
 import Note from '../Note/Note';
-import WalletFingerprint from '../WalletFingerPrint';
+import WalletCopiableData from '../WalletCopiableData';
 import KeeperQRCode from '../KeeperQRCode';
 
 function ShowXPub({
@@ -51,7 +51,9 @@ function ShowXPub({
             </Text>
           </Box>
         </Box>
-        <Box padding={2}>{copyable && <WalletFingerprint fingerprint={details} copy={copy} />}</Box>
+        <Box padding={2} width="95%">
+          {copyable && <WalletCopiableData data={details} copy={copy} dataType="xpub" />}
+        </Box>
       </Box>
       {noteSubText ? (
         <Box width={wp(280)}>

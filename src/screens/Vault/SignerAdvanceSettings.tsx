@@ -47,7 +47,7 @@ import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import WalletFingerprint from 'src/components/WalletFingerPrint';
+import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
@@ -974,7 +974,11 @@ function SignerAdvanceSettings({ route }: any) {
         </ScrollView>
       </ScrollView>
       <Box style={styles.fingerprint}>
-        <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
+        <WalletCopiableData
+          title={common.signerFingerPrint}
+          data={signer.masterFingerprint}
+          dataType="fingerprint"
+        />
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <KeeperModal
