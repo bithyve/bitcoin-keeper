@@ -1,20 +1,23 @@
 import React from 'react';
-import { Box, Text, useColorMode } from 'native-base';
+import { Box, ScrollView, Text, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/icon_share.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import Note from 'src/components/Note/Note';
-import Colors from 'src/theme/Colors';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useRoute } from '@react-navigation/native';
 import { captureError } from 'src/services/sentry';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+import KeeperQRCode from 'src/components/KeeperQRCode';
+import Note from 'src/components/Note/Note';
 
 function GenerateVaultDescriptor() {
   const route = useRoute();
-  const { descriptorString } = route.params as { descriptorString: string };
+  const { descriptorString, vaultId } = route.params as {
+    descriptorString: string;
+    vaultId: string;
+  };
   const { colorMode } = useColorMode();
   const onShare = async () => {
     try {
@@ -26,37 +29,25 @@ function GenerateVaultDescriptor() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Vault Configuration"
-        subtitle="A descriptor contains sensitive information. Please use with caution"
+        title="Vault Configuration File"
+        subtitle="The vault configuration file is used to restore the vault on other devices."
       />
-      <Box style={styles.container}>
-        <TouchableOpacity onPress={onShare}>
-          <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-            <Text noOfLines={4}>{descriptorString}</Text>
+      <ScrollView>
+        <Box style={styles.container}>
+          <KeeperQRCode size={windowWidth * 0.7} ecl="L" qrData={descriptorString} />
+          <TouchableOpacity onPress={onShare}>
+            <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <Box style={styles.textWrapper}>
+                <Text noOfLines={2}>{descriptorString}</Text>
+              </Box>
+              <IconShare style={styles.iconShare} />
+            </Box>
+          </TouchableOpacity>
+          <Box style={{ paddingBottom: '10%' }}>
+            <ShareWithNfc data={descriptorString} fileName={`wallet-${vaultId}-backup.bsms`} />
           </Box>
-        </TouchableOpacity>
-        <TouchableOpacity
-          testID="btn_shareVaultConfiguration"
-          onPress={onShare}
-          style={styles.buttonContainer}
-        >
-          <Box>
-            <IconShare />
-          </Box>
-          <Text color={`${colorMode}.primaryText`} style={styles.shareText}>
-            Share
-          </Text>
-        </TouchableOpacity>
-        <Box style={{ paddingBottom: '10%' }}>
-          <ShareWithNfc data={descriptorString} />
         </Box>
-      </Box>
-      <Box style={styles.noteContainer}>
-        <Note
-          subtitle="Save the file with .bsms extension to import it in other cordinating apps"
-          subtitleColor="GreyText"
-        />
-      </Box>
+      </ScrollView>
     </ScreenWrapper>
   );
 }
@@ -70,27 +61,21 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   inputWrapper: {
-    borderRadius: 10,
+    borderRadius: 12,
     flexDirection: 'row',
-    height: 150,
-    width: windowWidth * 0.85,
+    height: 75,
+    width: '93%',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 15,
+    alignSelf: 'center',
+    marginTop: hp(30),
+    marginBottom: hp(10),
+    paddingHorizontal: wp(15),
   },
-  buttonContainer: {
-    borderColor: Colors.Seashell,
-    marginVertical: hp(15),
-    borderTopWidth: 0.5,
-    alignItems: 'center',
+  textWrapper: {
+    flex: -1,
   },
-  shareText: {
-    fontSize: 12,
-    letterSpacing: 0.84,
-    marginVertical: 2.5,
-    paddingLeft: 3,
-  },
-  noteContainer: {
-    marginHorizontal: 10,
+  iconShare: {
+    marginLeft: wp(10),
   },
 });

@@ -135,7 +135,7 @@ function VaultSettings({ route }) {
           description={vaultText.vaultConfigurationFileDesc}
           callback={() => {
             navigation.dispatch(
-              CommonActions.navigate('GenerateVaultDescriptor', { descriptorString })
+              CommonActions.navigate('GenerateVaultDescriptor', { descriptorString, vaultId })
             );
           }}
         />
