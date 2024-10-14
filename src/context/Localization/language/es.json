@@ -977,7 +977,14 @@
     "importAWallet": "Import a Wallet",
     "insertTextfromFile": "Insert text from file",
     "watchOnly": "Watch Only",
-    "usingConfigFile": "Using Wallet configuration file"
+    "usingConfigFile": "Using Wallet Configuration File",
+    "usingConfigFileSubtitle": "Import a wallet from descriptor backup",
+    "importXpub": "Import an xPub (Watch Only)",
+    "importXpubSubtitle": "Import an extended public key (xPub)",
+    "recreateWallet": "Recreate a Wallet",
+    "recreateWalletSubtitle": "Recreate an existing wallet or vault",
+    "importVaultFromSigner": "Import Vault From Signer",
+    "importVaultFromSignerSubtitle": "Use a signer with vault registration"
   },
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
