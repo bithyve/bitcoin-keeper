@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   textContainer: {
     paddingLeft: wp(5),
     margin: 10,
+    flex: 1,
   },
 });
 

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { wp, hp } from 'src/constants/responsive';
 import Note from '../Note/Note';
@@ -50,9 +50,11 @@ function ShowXPub({
             </Text>
           </Box>
         </Box>
-        <Box padding={2} width="95%">
-          {copyable && <WalletCopiableData data={details} copy={copy} dataType="xpub" />}
-        </Box>
+        {copyable && (
+          <Box style={styles.center}>
+            <WalletCopiableData data={details} copy={copy} dataType="xpub" />
+          </Box>
+        )}
       </Box>
       {noteSubText ? (
         <Box width={wp(280)}>
@@ -63,3 +65,12 @@ function ShowXPub({
   );
 }
 export default ShowXPub;
+
+const styles = StyleSheet.create({
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2,
+    width: '100%',
+  },
+});
