@@ -149,6 +149,11 @@ function AppSettings({ navigation, route }) {
           }
         />
         <OptionCard
+          title={settings.GeneralPreferences}
+          description={settings.CurrencyDefaultsSubtitle}
+          callback={() => navigation.navigate('ChangeLanguage')}
+        />
+        <OptionCard
           title={settings.SecurityAndLogin}
           description={settings.SecurityAndLoginSubtitle}
           callback={() => navigation.navigate('PrivacyAndDisplay')}
@@ -167,11 +172,6 @@ function AppSettings({ navigation, route }) {
           title={settings.VersionHistory}
           description={settings.VersionHistorySubTitle}
           callback={() => navigation.navigate('AppVersionHistory')}
-        />
-        <OptionCard
-          title={settings.CurrencyDefaults}
-          description={settings.CurrencyDefaultsSubtitle}
-          callback={() => navigation.navigate('ChangeLanguage')}
         />
       </ScrollView>
       <Box backgroundColor={`${colorMode}.primaryBackground`}>

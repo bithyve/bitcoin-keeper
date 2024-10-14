@@ -192,7 +192,7 @@ function ChangeLanguage() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={settings.CurrencyDefaults}
+        title={settings.GeneralPreferences}
         subtitle={settings.CurrencyDefaultsSubtitle}
       />
       <Box style={styles.contentContainer}>
