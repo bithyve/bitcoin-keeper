@@ -638,7 +638,7 @@ function SignerContent({
           </Text>
         )}
       </Box>
-      {options && (
+      {options && options.length > 0 && (
         <Box style={styles.signerOptionTitle}>
           <Text medium color={`${colorMode}.greenText`}>
             {mode === InteracationMode.HEALTH_CHECK ? 'Verify Signer Via' : 'Setup Signer Via'}
