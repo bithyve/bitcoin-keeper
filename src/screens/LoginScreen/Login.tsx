@@ -540,20 +540,22 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         visible={recepitVerificationError}
         title="Something went wrong"
-        subTitle="Please check your internet connection and try again."
+        subTitle="Please check your internet connection and try again. If you continue offline, some features may not be available."
         Content={NoInternetModalContent}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(230)}
         showButtons
+        showCloseIcon={false}
         buttonText={'Retry'}
         buttonCallback={() => {
           setLoginError(false);
           setLogging(true);
           dispatch(setRecepitVerificationError(false));
+          dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
         }}
-        secondaryButtonText={'Continue as Pleb'}
+        secondaryButtonText={'Continue offline'}
         secondaryCallback={() => {
           setLoginError(false);
           setLogging(false);
