@@ -4,25 +4,32 @@ import { captureError } from 'src/services/sentry';
 import DocumentPicker from 'react-native-document-picker';
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
 
-const saveToLocal = async (filePath, onError) => {
-  await Share.open({
-    url: 'file://' + filePath,
-    saveToFiles: true,
-    // @ts-ignore: Property 'useInternalStorage' exists in type 'ShareOptions' but is missing in type 'ShareOptions'.
-    useInternalStorage: Platform.OS === 'android',
-    failOnCancel: false,
-  })
-    .catch((error) => {
-      if (error.message === 'CANCELLED') {
-        return;
-      }
-      onError(error);
-    })
-    .finally(() => {
-      RNFS.unlink(filePath);
+const saveToLocal = async (filePath, saveToFiles, onError) => {
+  try {
+    await Share.open({
+      url: 'file://' + filePath,
+      saveToFiles,
+      // @ts-ignore: Property 'useInternalStorage' exists in type 'ShareOptions' but is missing in type 'ShareOptions'.
+      useInternalStorage: Platform.OS === 'android',
+      failOnCancel: false,
     });
+  } catch (error) {
+    if (error.message === 'CANCELLED') {
+      return;
+    }
+    onError(error);
+  } finally {
+    RNFS.unlink(filePath);
+  }
 };
-export const exportFile = async (fileData, fileName, onError, encoding = 'utf8') => {
+
+export const exportFile = async (
+  fileData,
+  fileName,
+  onError,
+  encoding = 'utf8',
+  saveToFiles = true
+) => {
   try {
     if (!fileData) {
       return;
@@ -30,15 +37,15 @@ export const exportFile = async (fileData, fileName, onError, encoding = 'utf8')
     if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + fileName;
       await RNFS.writeFile(filePath, fileData, encoding);
-      await saveToLocal(filePath, onError);
+      await saveToLocal(filePath, saveToFiles, onError);
     } else if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 30) {
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
-        await RNFS.writeFile(filePath, fileData);
-        await saveToLocal(filePath, onError);
+        await RNFS.writeFile(filePath, fileData, encoding);
+        await saveToLocal(filePath, saveToFiles, onError);
       } else {
         Alert.alert('Permission Denied!', 'You need to give storage permission to save the file');
       }

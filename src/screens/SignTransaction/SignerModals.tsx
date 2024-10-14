@@ -323,7 +323,7 @@ export function KeeperContent(props) {
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
-          {`Open the other Keeper app > Go to Manage Keys > Access the Mobile Key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
+          {`Open the other Keeper app > Go to Manage Keys > Access the key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
         </Text>
       </Box>
     </Box>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
-import { VStack, Slider, useColorMode, Box } from 'native-base';
+import { VStack, Slider, useColorMode } from 'native-base';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import KeeperQRCode from 'src/components/KeeperQRCode';
@@ -34,7 +34,7 @@ function DisplayQR({
   });
   return (
     <VStack alignItems="center">
-      <KeeperQRCode qrData={qrData} size={width * 0.85} ecl="L" />
+      <KeeperQRCode qrData={qrData} size={windowWidth * 0.7} ecl="L" />
       <Slider
         marginTop={5}
         width={windowWidth * 0.5}

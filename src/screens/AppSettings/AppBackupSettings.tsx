@@ -12,7 +12,7 @@ import { wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import WalletFingerprint from 'src/components/WalletFingerPrint';
+import WalletCopiableData from 'src/components/WalletCopiableData';
 import usePlan from 'src/hooks/usePlan';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import idx from 'idx';
@@ -199,7 +199,11 @@ function AppBackupSettings() {
         Content={BackupModalContent}
       />
       <Box style={styles.fingerprint}>
-        <WalletFingerprint title={common.signerFingerPrint} fingerprint={publicId.toString()} />
+        <WalletCopiableData
+          title={common.signerFingerPrint}
+          data={publicId.toString()}
+          dataType="fingerprint"
+        />
       </Box>
     </ScreenWrapper>
   );

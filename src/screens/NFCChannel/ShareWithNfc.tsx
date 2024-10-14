@@ -11,14 +11,13 @@ import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import Share from 'react-native-share';
-import RNFS from 'react-native-fs';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import { Signer } from 'bitcoinjs-lib';
 import { RKInteractionMode } from 'src/services/wallets/enums';
-import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { exportFile } from 'src/services/fs';
 
 function ShareWithNfc({
   data,
@@ -96,31 +95,17 @@ function ShareWithNfc({
   };
 
   const shareWithAirdrop = async () => {
+    const fileName = isPSBTSharing
+      ? `${vaultId}-${vaultKey?.xfp}-${Date.now()}.psbt`
+      : `cosigner-${signer?.masterFingerprint}.txt`;
     try {
-      const path = `${RNFS.CachesDirectoryPath}/cosigner.txt`;
-      RNFS.writeFile(path, data, 'utf8')
-        .then(() => {
-          Share.open({
-            message: '',
-            title: '',
-            url: path,
-            excludedActivityTypes: [
-              'copyToPasteBoard',
-              'markupAsPDF',
-              'addToReadingList',
-              'assignToContact',
-              'mail',
-              'default',
-              'message',
-              'postToFacebook',
-              'print',
-              'saveToCameraRoll',
-            ],
-          });
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
+      await exportFile(
+        data,
+        fileName,
+        (error) => showToast(error.message, <ToastErrorIcon />),
+        'utf8',
+        false
+      );
     } catch (err) {
       console.log(err);
       captureError(err);
@@ -129,13 +114,11 @@ function ShareWithNfc({
   return (
     <Box style={styles.container}>
       <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={shareWithNFC} />
-      {isIos && (
-        <OptionCTA
-          icon={<AirDropIcon />}
-          title="Airdrop/ file export"
-          callback={shareWithAirdrop}
-        />
-      )}
+      <OptionCTA
+        icon={<AirDropIcon />}
+        title={`${isIos ? 'Airdrop / ' : ''}File export`}
+        callback={shareWithAirdrop}
+      />
       {remoteShare && (
         <OptionCTA
           icon={<RemoteShareIcon />}
