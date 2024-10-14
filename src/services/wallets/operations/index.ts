@@ -1203,6 +1203,7 @@ export default class WalletOperations {
       serializedPSBT,
       signingPayload,
       isSigned,
+      isMockSigner: signer.isMock,
     };
     return { serializedPSBTEnvelop };
   };
@@ -1358,9 +1359,9 @@ export default class WalletOperations {
     if (!txHex) {
       // construct the txHex by combining the signed PSBTs
       for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
-        const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
+        const { signerType, serializedPSBT, signingPayload, isMockSigner } = serializedPSBTEnvelop;
         const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
-        if (signerType === SignerType.TAPSIGNER) {
+        if (signerType === SignerType.TAPSIGNER && !isMockSigner) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
               if (signature) {
