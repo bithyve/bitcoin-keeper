@@ -12,20 +12,20 @@ function ImportWallets({ navigation }) {
   return (
     <Box>
       <OptionCard
-        title={importWallet.watchOnly}
-        description={importWallet.usingExternalHardware}
-        LeftIcon={<WatchOnlyIcon />}
-        callback={() => navigation.navigate('ImportWallet')}
-      />
-      <OptionCard
         title={importWallet.usingConfigFile}
-        description={importWallet.insertTextfromFile}
+        description={importWallet.usingConfigFileSubtitle}
         LeftIcon={<ConfigurationIcon />}
         callback={() => navigation.navigate('VaultConfigurationCreation')}
       />
       <OptionCard
-        title="Use signers with vault registration"
-        description="Coldcard, etc."
+        title={importWallet.importXpub}
+        description={importWallet.importXpubSubtitle}
+        LeftIcon={<WatchOnlyIcon />}
+        callback={() => navigation.navigate('ImportWallet')}
+      />
+      <OptionCard
+        title={importWallet.importVaultFromSigner}
+        description={importWallet.importVaultFromSignerSubtitle}
         LeftIcon={<SignerIcon />}
         callback={() => navigation.navigate('SigningDeviceConfigRecovery')}
       />
