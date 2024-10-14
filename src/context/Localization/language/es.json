@@ -986,7 +986,9 @@
     "recreateWallet": "Recreate a Wallet",
     "recreateWalletSubtitle": "Recreate an existing wallet or vault",
     "importVaultFromSigner": "Import Vault From Signer",
-    "importVaultFromSignerSubtitle": "Use a signer with vault registration"
+    "importVaultFromSignerSubtitle": "Use a signer with vault registration",
+    "recreateWalletModalTitle": "Recreate your wallet",
+    "recreateWalletModalSubtitle": "Recreate an existing wallet by selecting its keys. Choose between a single-key wallet and a multi-key vault."
   },
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
