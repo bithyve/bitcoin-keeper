@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import {
   KeyGenerationMode,
   SignerStorage,
@@ -1245,13 +1245,13 @@ function HardwareModalMap({
         dispatch(
           healthCheckStatusUpdate([
             {
-              signerId: signer.masterFingerprint,
+              signerId: hw.signer.masterFingerprint,
               status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
             },
           ])
         );
-        navigation.dispatch(CommonActions.goBack());
-        showToast(`${signer.signerName} verified successfully`, <TickIcon />);
+        navigation.dispatch(StackActions.pop(2));
+        showToast(`${hw.signer.signerName} verified successfully`, <TickIcon />);
       };
 
       const handleFailure = () => {
@@ -1259,12 +1259,12 @@ function HardwareModalMap({
         dispatch(
           healthCheckStatusUpdate([
             {
-              signerId: signer.masterFingerprint,
+              signerId: hw.signer.masterFingerprint,
               status: hcStatusType.HEALTH_CHECK_FAILED,
             },
           ])
         );
-        showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
+        showToast(`${hw.signer.signerName} verification failed`, <ToastErrorIcon />);
       };
 
       if (mode === InteracationMode.RECOVERY) {

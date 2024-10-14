@@ -229,7 +229,7 @@ function SetupTapsigner({ route }) {
       };
 
       if (mode === InteracationMode.IDENTIFICATION) {
-        const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.COLDCARD });
+        const mapped = mapUnknownSigner({ masterFingerprint, type: SignerType.TAPSIGNER });
         if (mapped) {
           handleSuccess();
         } else {
