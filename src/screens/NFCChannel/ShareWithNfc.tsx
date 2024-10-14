@@ -30,6 +30,7 @@ function ShareWithNfc({
   serializedPSBTEnvelop,
   sendConfirmationRouteParams,
   tnxDetails,
+  fileName,
 }: {
   data: string;
   signer?: Signer;
@@ -38,9 +39,10 @@ function ShareWithNfc({
   psbt?: string;
   vaultKey?: VaultSigner;
   vaultId?: string;
-  serializedPSBTEnvelop: any;
+  serializedPSBTEnvelop?: any;
   sendConfirmationRouteParams?: SendConfirmationRouteParams;
-  tnxDetails: tnxDetailsProps;
+  tnxDetails?: tnxDetailsProps;
+  fileName?: string;
 }) {
   const { session } = useContext(HCESessionContext);
   const navigation = useNavigation<any>();
@@ -95,13 +97,15 @@ function ShareWithNfc({
   };
 
   const shareWithAirdrop = async () => {
-    const fileName = isPSBTSharing
+    const shareFileName = fileName
+      ? fileName
+      : isPSBTSharing
       ? `${vaultId}-${vaultKey?.xfp}-${Date.now()}.psbt`
       : `cosigner-${signer?.masterFingerprint}.txt`;
     try {
       await exportFile(
         data,
-        fileName,
+        shareFileName,
         (error) => showToast(error.message, <ToastErrorIcon />),
         'utf8',
         false
