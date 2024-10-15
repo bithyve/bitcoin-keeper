@@ -41,6 +41,7 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -74,9 +75,11 @@ function WalletDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { autoRefresh = false, walletId } = route.params || {};
+  const { common, wallet: walletTranslations } = translations;
+  const { autoRefresh = false, walletId, transactionToast = false } = route.params || {};
+  const [syncingCompleted, setSyncingCompleted] = useState(false);
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -112,6 +115,21 @@ function WalletDetails({ route }: ScreenProps) {
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
+
+  useEffect(() => {
+    if (!syncing && syncingCompleted && transactionToast) {
+      showToast(walletTranslations.transactionToastMessage);
+      navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
+    }
+  }, [syncingCompleted, transactionToast]);
+
+  useEffect(() => {
+    if (!syncing) {
+      setSyncingCompleted(true);
+    } else {
+      setSyncingCompleted(false);
+    }
+  }, [syncing]);
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
