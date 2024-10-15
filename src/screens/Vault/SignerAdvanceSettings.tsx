@@ -361,7 +361,7 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       default:
-        showToast('Comming soon', null, IToastCategory.DEFAULT, 1000);
+        showToast('Coming soon', null, IToastCategory.DEFAULT, 1000);
         break;
     }
   };
@@ -728,11 +728,11 @@ function SignerAdvanceSettings({ route }: any) {
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
   const isAppKey = signer.type === SignerType.KEEPER;
   const isMyAppKey = signer.type === SignerType.MY_KEEPER;
-  const signersWithoutRegistration = isAppKey || isMyAppKey;
+  const isTapsigner = signer.type === SignerType.TAPSIGNER;
+  const signersWithoutRegistration = isAppKey || isMyAppKey || isTapsigner;
   const isAssistedKey = isPolicyServer || isInheritanceKey;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
-  const isTapsigner = signer.type === SignerType.TAPSIGNER;
   const CANARY_NON_SUPPORTED_DEVICES = [
     SignerType.UNKOWN_SIGNER,
     SignerType.INHERITANCEKEY,
