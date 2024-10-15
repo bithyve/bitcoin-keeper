@@ -102,7 +102,7 @@
     "runHealthCheck": "Run Health Check",
     "needMoreHelp": "Need more help?",
     "action": "Action",
-    "commingSoon": "COMING SOON",
+    "comingSoon": "Coming Soon",
     "reinstate": "Reinstate",
     "of": "of",
     "COLLABORATIVE": "COLLABORATIVE",
@@ -1069,7 +1069,6 @@
     "runUnlockCard": "Run the unlock card process if it's rate-limited"
   },
   "inheritancePlanning": {
-    "commingSoon": "COMING SOON",
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
     "BuyNewHardwareSignerDesp": "Overview and discount codes",
     "canaryWallet": "Canary Wallets",
