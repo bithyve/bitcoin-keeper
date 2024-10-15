@@ -33,6 +33,7 @@ export type AppStackParams = {
   CollaborativeWalletSettings: undefined;
   AddAmount: undefined;
   ExportSeed: undefined;
+  SeedDetails: undefined;
   ImportWallet: undefined;
   ImportWalletDetails: undefined;
   AddDetailsFinal: undefined;

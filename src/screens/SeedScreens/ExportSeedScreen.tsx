@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
-import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
@@ -8,12 +8,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import {
-  healthCheckSigner,
-  healthCheckStatusUpdate,
-  seedBackedUp,
-} from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate, seedBackedUp } from 'src/store/sagaActions/bhr';
 import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -56,6 +51,7 @@ function ExportSeedScreen({ route, navigation }) {
     isSS = false,
     parentScreen,
     oldPasscode,
+    isFromMobileKey = false,
   }: {
     vaultKey: string;
     vaultId: string;
@@ -70,6 +66,7 @@ function ExportSeedScreen({ route, navigation }) {
     isSS?: boolean;
     parentScreen?: string;
     oldPasscode?: string;
+    isFromMobileKey: boolean;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -131,6 +128,8 @@ function ExportSeedScreen({ route, navigation }) {
           title={
             isFromAssistedKey
               ? `${BackupWallet.backingUp} ${signer.signerName}`
+              : isFromMobileKey
+              ? 'Mobile Key Seed Words'
               : seedTranslation.walletSeedWords
           }
           subtitle={
@@ -160,6 +159,14 @@ function ExportSeedScreen({ route, navigation }) {
               subtitleColor="GreyText"
             />
           </Box>
+        ) : isFromMobileKey ? (
+          <Box mx={2} my={5}>
+            <Note
+              title={common.note}
+              subtitle={'Write down and store securely.'}
+              subtitleColor="GreyText"
+            />
+          </Box>
         ) : (
           <Box m={2}>
             <Note
@@ -173,7 +180,13 @@ function ExportSeedScreen({ route, navigation }) {
           <Pressable
             onPress={() => {
               // setShowQRVisible(true);
-              navigation.navigate('UpdateWalletDetails', { wallet, isFromSeed: true, words });
+              isFromMobileKey
+                ? navigation.navigate('SeedDetails', { seed: words, isFromMobileKey: true })
+                : navigation.navigate('UpdateWalletDetails', {
+                    wallet,
+                    isFromSeed: true,
+                    words: seed,
+                  });
             }}
           >
             <Box style={styles.qrItemContainer}>

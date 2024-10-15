@@ -9,7 +9,6 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
   EntityKind,
-  NetworkType,
   SignerType,
   VaultType,
   VisibilityType,
@@ -84,6 +83,9 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
+import { setSeed } from 'src/store/reducers/signer';
 
 const { width } = Dimensions.get('screen');
 
@@ -135,23 +137,57 @@ function SignerAdvanceSettings({ route }: any) {
     : signerMap[vaultKey.masterFingerprint];
 
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const {
+    vault: vaultTranslation,
+    common,
+    signer: signerTranslation,
+    BackupWallet,
+    seed: seedTranslation,
+  } = translations;
+  const { allCanaryVaults } = useCanaryVault({ getAll: true });
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const isSmallDevice = useIsSmallDevices();
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
+  const MobileKeySeeds = useAppSelector(
+    (state) => state.signer.seeds[signer?.masterFingerprint] || ''
+  );
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
-  const [vaultUsed, setVaultUsed] = React.useState<Vault>();
-  const [warningEnabled, setHideWarning] = React.useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
   const [OTBLoading, setOTBLoading] = useState(false);
   const [backupModal, setBackupModal] = useState(false);
-  const [canaryWalletId, setCanaryWalletId] = useState<string>();
-  const { allCanaryVaults } = useCanaryVault({ getAll: true });
-  const [otp, setOtp] = useState('');
   const [showOTPModal, setShowOTPModal] = useState(false);
-  const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, common, signer: signerTranslation, BackupWallet } = translations;
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const isSmallDevice = useIsSmallDevices();
+  const [warningEnabled, setHideWarning] = useState(false);
+  const [seeds, setSeeds] = useState(MobileKeySeeds);
+  const [vaultUsed, setVaultUsed] = useState<Vault>();
+  const [canaryWalletId, setCanaryWalletId] = useState<string>();
+  const [otp, setOtp] = useState('');
+  const [actionAfterPasscode, setActionAfterPasscode] = useState<
+    null | 'hideKey' | 'mobileKeySeed'
+  >(null);
   const supportsRKSigning = !SignersWithoutRKSigningSupport.includes(signer.type);
+
+  useEffect(() => {
+    const fetchOrGenerateSeeds = async () => {
+      if (!seeds && signer.type === SignerType.MY_KEEPER) {
+        try {
+          const instanceNumber = signer.extraData?.instanceNumber || 0;
+          const generatedSeeds = await generateMobileKeySeeds(instanceNumber, primaryMnemonic);
+          dispatch(setSeed({ masterFingerprint: signer.masterFingerprint, seed: generatedSeeds }));
+          console.log(generatedSeeds, 'generatedSeeds');
+          setSeeds(generatedSeeds);
+        } catch (error) {
+          console.error('Error generating seeds: ', error);
+        }
+      }
+    };
+
+    fetchOrGenerateSeeds();
+  }, [seeds, signer, primaryMnemonic]);
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
@@ -730,6 +766,7 @@ function SignerAdvanceSettings({ route }: any) {
   const isMyAppKey = signer.type === SignerType.MY_KEEPER;
   const signersWithoutRegistration = isAppKey || isMyAppKey;
   const isAssistedKey = isPolicyServer || isInheritanceKey;
+  const isMobileKey = signer.type === SignerType.MY_KEEPER;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
@@ -749,7 +786,20 @@ function SignerAdvanceSettings({ route }: any) {
     else if (isInheritanceKey) disableOneTimeBackup = oneTimeBackupStatus?.inheritanceKey;
   }
 
-  const onSuccess = () => hideKey();
+  const onSuccess = () => {
+    if (actionAfterPasscode === 'hideKey') {
+      hideKey();
+    } else if (actionAfterPasscode === 'mobileKeySeed') {
+      navigation.dispatch(
+        CommonActions.navigate('ExportSeed', {
+          seed: seeds,
+          isFromMobileKey: true,
+          next: false,
+        })
+      );
+    }
+    setConfirmPassVisible(false);
+  };
 
   const { inheritanceOTBRequestId } = useAppSelector((state) => state.storage);
   const initiateOneTimeBackup = async () => {
@@ -902,6 +952,16 @@ function SignerAdvanceSettings({ route }: any) {
           description="Associate contact or Edit description"
           callback={navigateToAdditionalDetails}
         />
+        {isMobileKey && (
+          <OptionCard
+            title={seedTranslation.mobileKeySeedWordsTitle}
+            description={signerTranslation.linkExternalWallet}
+            callback={() => {
+              setActionAfterPasscode('mobileKeySeed');
+              setConfirmPassVisible(true);
+            }}
+          />
+        )}
         {supportsRKSigning && (
           <OptionCard
             title="Sign a transaction"
@@ -930,6 +990,7 @@ function SignerAdvanceSettings({ route }: any) {
                   return;
                 }
               }
+              setActionAfterPasscode('hideKey');
               setConfirmPassVisible(true);
             }}
           />
@@ -1051,7 +1112,9 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setConfirmPassVisible(false)}
         title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle="To hide the key"
+        subTitle={
+          actionAfterPasscode === 'hideKey' ? 'To hide the key' : 'To view Mobile Key seed words'
+        }
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

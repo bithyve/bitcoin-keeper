@@ -16,7 +16,8 @@ import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
-import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
+import ExportSeedScreen from 'src/screens/SeedScreens/ExportSeedScreen';
+import SeedDetailsScreen from 'src/screens/SeedScreens/SeedDetailsScreen';
 import KeeperLoader from 'src/components/KeeperLoader';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -214,6 +215,7 @@ function AppStack() {
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
+        <Stack.Screen name="SeedDetails" component={SeedDetailsScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
         <Stack.Screen name="ImportWalletDetails" component={ImportWalletDetailsScreen} />
         <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
