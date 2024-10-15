@@ -128,7 +128,12 @@
     "for": "For",
     "goToBackup": "Go to Backup",
     "Receipt": "Receipt",
-    "Later": "Later"
+    "Later": "Later",
+    "noElectrumServerTitle": "No Electrum Server Connected",
+    "noElectrumServerText": "You are not connected to any Electrum Server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. You can select a server to use in the Node Settings.",
+    "electrumServerConnectionFailedTitle": "Server Connection Failed",
+    "electrumServerConnectionFailedText": "Failed to connect to Electrum server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. Check your network connection and try again.",
+    "serverSettings": "Server Settings"
   },
   "noInternet": {
     "no": "No Internet",
@@ -808,7 +813,7 @@
     "SecurityAndLogin": "App Access",
     "SecurityAndLoginSubtitle": "Security, passcode and biometrics",
     "AppLevelSettings": "App-level settings",
-    "nodeSettingUsedSoFar": "Node settings used so far",
+    "manageElectrumServersSubtitle": "Manage your saved Electrum servers",
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
     "nodesUsedPreviously": "Nodes connected previously",

@@ -140,22 +140,25 @@ function NodeSettings() {
   };
 
   const onDisconnectToNode = async (selectedNode: NodeDetail) => {
-    let nodes = [...nodeList];
-
-    setLoading(true);
-    const node = { ...selectedNode };
-    await Node.disconnect(node);
-    node.isConnected = false;
-    Node.update(node, { isConnected: node.isConnected });
-    showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
-
-    nodes = nodes.map((item) => {
-      if (item.id === node.id) return { ...node };
-      return item;
-    });
-    setNodeList(nodes);
-    setCurrentlySelectedNodeItem(null);
-    setLoading(false);
+    try {
+      let nodes = [...nodeList];
+      setLoading(true);
+      const node = { ...selectedNode };
+      Node.disconnect(node);
+      node.isConnected = false;
+      Node.update(node, { isConnected: node.isConnected });
+      showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
+      nodes = nodes.map((item) => {
+        if (item.id === node.id) return { ...node };
+        return item;
+      });
+      setNodeList(nodes);
+      setCurrentlySelectedNodeItem(null);
+      setLoading(false);
+    } catch (error) {
+      console.log('Error disconnecting electrum client', error);
+      showToast(`Failed to disconnect from Electrum server`, <ToastErrorIcon />);
+    }
   };
 
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
@@ -163,7 +166,10 @@ function NodeSettings() {
   };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-      <KeeperHeader title={settings.nodeSettings} subtitle={settings.nodeSettingUsedSoFar} />
+      <KeeperHeader
+        title={settings.nodeSettings}
+        subtitle={settings.manageElectrumServersSubtitle}
+      />
       {nodeList.length > 0 && (
         <Box style={styles.nodesListWrapper}>
           <FlatList
@@ -196,9 +202,9 @@ function NodeSettings() {
                     <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
                       <TouchableOpacity
                         testID="btn_disconnetNode"
-                        onPress={() => {
-                          if (!isConnected) onConnectToNode(item);
-                          else onDisconnectToNode(item);
+                        onPress={async () => {
+                          if (!isConnected) await onConnectToNode(item);
+                          else await onDisconnectToNode(item);
                         }}
                       >
                         <Box
