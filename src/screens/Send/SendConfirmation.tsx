@@ -1087,6 +1087,7 @@ function SendConfirmation({ route }) {
           {
             name: 'VaultDetails',
             params: {
+              transactionToast: true,
               autoRefresh: true,
               vaultId: isAutoTransferFlow ? defaultVault?.id : recipient.id,
             },
@@ -1102,7 +1103,10 @@ function SendConfirmation({ route }) {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender?.id } },
+          {
+            name: 'WalletDetails',
+            params: { autoRefresh: true, walletId: sender?.id, transactionToast: true },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
