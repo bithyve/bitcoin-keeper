@@ -339,6 +339,7 @@ function PrivacyAndDisplay({ route }) {
         );
       }
     } catch (error) {
+      console.log(error);
       setSensorAvailable(false);
     }
   };
