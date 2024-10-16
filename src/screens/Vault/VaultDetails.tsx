@@ -121,10 +121,12 @@ function VaultInfo({ vault }: { vault: Vault }) {
   return (
     <HStack style={styles.vaultInfoContainer}>
       <HStack style={styles.pillsContainer}>
-        <CardPill
-          heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
-          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-        />
+        {vault.scheme.n > 1 && (
+          <CardPill
+            heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
+            backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
+          />
+        )}
         <CardPill
           heading={`${
             vault.type === VaultType.COLLABORATIVE
