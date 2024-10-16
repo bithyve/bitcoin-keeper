@@ -4,7 +4,6 @@ import OptionCard from 'src/components/OptionCard';
 import RecreateWalletIcon from 'src/assets/images/recreate_wallet.svg';
 import WatchOnlyIcon from 'src/assets/images/watch_only.svg';
 import ConfigurationIcon from 'src/assets/images/file.svg';
-import SignerImportIcon from 'src/assets/images/signer_import.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import SingleKey from 'src/assets/images/single_key.svg';
@@ -86,12 +85,6 @@ function ImportWallets({ navigation }) {
         description={importWallet.importXpubSubtitle}
         LeftIcon={<WatchOnlyIcon />}
         callback={() => navigation.navigate('ImportWallet')}
-      />
-      <OptionCard
-        title={importWallet.importVaultFromSigner}
-        description={importWallet.importVaultFromSignerSubtitle}
-        LeftIcon={<SignerImportIcon />}
-        callback={() => navigation.navigate('SigningDeviceConfigRecovery')}
       />
       <KeeperModal
         visible={showRecreateModal}
