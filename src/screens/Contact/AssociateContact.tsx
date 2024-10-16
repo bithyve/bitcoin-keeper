@@ -1,4 +1,4 @@
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -12,23 +12,26 @@ import {
 } from 'react-native';
 import Contacts from 'react-native-contacts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SelectContactIcon from 'src/assets/images/select-contact-icon.svg';
 import ImagePlaceHolder from 'src/assets/images/contact-image-placeholder.svg';
 import SearchIcon from 'src/assets/images/search-icon.svg';
-import AddContactIcon from 'src/assets/images/add-contact-icon.svg';
-import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import { Signer } from 'src/services/wallets/interfaces/vault';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { persistDocument } from 'src/services/documents';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParams } from 'src/navigation/types';
+import TickIcon from 'src/assets/images/tick_icon.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 
-const AssociateContact = ({ route }) => {
+type ScreenProps = NativeStackScreenProps<AppStackParams, 'AssociateContact'>;
+
+const AssociateContact = ({ route }: ScreenProps) => {
   const { signer }: { signer: Signer } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -36,6 +39,7 @@ const AssociateContact = ({ route }) => {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
+  const { showToast } = useToastMessage();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -64,7 +68,7 @@ const AssociateContact = ({ route }) => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('ContactProfile', { contact: item })}>
+    <TouchableOpacity onPress={() => handleContactPress(item)}>
       <Box style={styles.contactItem}>
         {item.thumbnailPath !== '' ? (
           <Image source={{ uri: item.thumbnailPath || '' }} style={styles.avatar} />
@@ -74,9 +78,6 @@ const AssociateContact = ({ route }) => {
         <Text medium style={styles.contactName}>
           {item.givenName} {item.familyName}
         </Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => handleContactPress(item)}>
-          <SelectContactIcon />
-        </TouchableOpacity>
       </Box>
     </TouchableOpacity>
   );
@@ -103,7 +104,8 @@ const AssociateContact = ({ route }) => {
       };
       dispatch(updateSignerDetails(signer, 'extraData', extraData));
       setShowModal(false);
-      navigation.goBack();
+      showToast('Details Updated Successfully', <TickIcon />);
+      navigation.dispatch(StackActions.pop(2));
     } catch (error) {
       console.log('🚀 ~ onAddAssociateContact ~ error:', error);
     }
@@ -111,7 +113,7 @@ const AssociateContact = ({ route }) => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader simple title="Associate Contact" />
+      <KeeperHeader title="Associate Contact" titleColor={`${colorMode}.primaryText`} />
       <Box style={styles.container}>
         <Box
           style={[
@@ -131,21 +133,6 @@ const AssociateContact = ({ route }) => {
             underlineColorAndroid="transparent"
           />
         </Box>
-        <Pressable onPress={() => navigation.navigate('AddContact', { signer })}>
-          <Box
-            style={styles.addContactButton}
-            backgroundColor={`${colorMode}.seashellWhite`}
-            borderColor={`${colorMode}.greyBorder`}
-          >
-            <Box style={styles.iconContainer}>
-              <AddContactIcon width={wp(44)} height={hp(44)} />
-            </Box>
-            <Text medium style={styles.buttonText}>
-              Add Contact
-            </Text>
-            <RightArrowIcon width={wp(7)} height={hp(12)} style={styles.arrowIcon} />
-          </Box>
-        </Pressable>
         <Text medium style={styles.sectionTitle}>
           Your Phonebook
         </Text>
@@ -164,12 +151,10 @@ const AssociateContact = ({ route }) => {
           showCloseIcon={false}
           title="Associated Contact"
           subTitle="The contact you associated with the Key will be displayed here"
-          secondaryButtonText="Cancel"
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.modalWhiteContent`}
           buttonTextColor={`${colorMode}.white`}
           buttonBackground={`${colorMode}.greenButtonBackground`}
-          secButtonTextColor={`${colorMode}.greenButtonBackground`}
           buttonText="Continue"
           buttonCallback={onAddAssociateContact}
           Content={() => (
@@ -233,6 +218,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     paddingHorizontal: 10,
+    marginBottom: hp(24),
   },
   input: {
     flex: 1,

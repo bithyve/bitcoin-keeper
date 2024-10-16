@@ -29,13 +29,13 @@ const KeyAddedModal = ({ visible, close, signer }) => {
   };
 
   const defaultConfig = {
-    buttonText: 'Add Description',
+    buttonText: 'Add details',
     buttonCallback: () => {
       close();
       navigation.dispatch(
         CommonActions.navigate({
-          name: 'AdditionalDetails',
-          params: { signer },
+          name: 'EditContact',
+          params: { signer, isEdit: false },
         })
       );
     },

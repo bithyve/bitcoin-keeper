@@ -127,8 +127,6 @@ import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelec
 import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
 import AssociateContact from 'src/screens/Contact/AssociateContact';
-import AddContact from 'src/screens/Contact/AddContact';
-import ContactProfile from 'src/screens/Contact/ContactProfile';
 import EditContact from 'src/screens/Contact/EditContact';
 import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 
@@ -306,8 +304,6 @@ function AppStack() {
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
         <Stack.Screen name="AssociateContact" component={AssociateContact} />
-        <Stack.Screen name="AddContact" component={AddContact} />
-        <Stack.Screen name="ContactProfile" component={ContactProfile} />
         <Stack.Screen name="EditContact" component={EditContact} />
         <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
       </Stack.Navigator>

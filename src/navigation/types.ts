@@ -156,10 +156,8 @@ export type AppStackParams = {
   EnterWalletPath: undefined;
   DeleteKeys: undefined;
   HandleFile: undefined;
-  AssociateContact: undefined;
-  AddContact: undefined;
-  ContactProfile: undefined;
-  EditContact: undefined;
+  AssociateContact: { signer: Signer };
+  EditContact: { signer: Signer; isEdit?: boolean };
   ManageTapsignerSettings: undefined;
 };
 
