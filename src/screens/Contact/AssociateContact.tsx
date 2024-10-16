@@ -64,7 +64,7 @@ const AssociateContact = ({ route }) => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('ContactProfile', { contact: item })}>
+    <TouchableOpacity onPress={() => handleContactPress(item)}>
       <Box style={styles.contactItem}>
         {item.thumbnailPath !== '' ? (
           <Image source={{ uri: item.thumbnailPath || '' }} style={styles.avatar} />
