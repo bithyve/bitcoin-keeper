@@ -133,7 +133,9 @@
     "noElectrumServerText": "You are not connected to any Electrum Server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. You can select a server to use in the Node Settings.",
     "electrumServerConnectionFailedTitle": "Server Connection Failed",
     "electrumServerConnectionFailedText": "Failed to connect to Electrum server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. Check your network connection and try again.",
-    "serverSettings": "Server Settings"
+    "serverSettings": "Server Settings",
+    "disconnectingFromServer": "Disconnecting from Server",
+    "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server."
   },
   "noInternet": {
     "no": "No Internet",

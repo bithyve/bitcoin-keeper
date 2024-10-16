@@ -25,6 +25,20 @@ import {
 import Node from 'src/services/electrum/node';
 import AddNode from './AddNodeModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
+
+function ElectrumDisconnectWarningContent() {
+  const { colorMode } = useColorMode();
+
+  return (
+    <Box width="100%" alignItems="center" justifyContent="center">
+      <Box marginRight={wp(30)}>
+        {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
+      </Box>
+    </Box>
+  );
+}
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -38,6 +52,8 @@ function NodeSettings() {
   const [visible, setVisible] = useState(false);
   const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [electrumDisconnectWarningVisible, setElectrumDisconnectWarningVisible] = useState(false);
+  const [nodeToDisconnect, setNodeToDisconnect] = useState(null);
 
   useEffect(() => {
     const nodes: NodeDetail[] = Node.getAllNodes();
@@ -204,7 +220,10 @@ function NodeSettings() {
                         testID="btn_disconnetNode"
                         onPress={async () => {
                           if (!isConnected) await onConnectToNode(item);
-                          else await onDisconnectToNode(item);
+                          else {
+                            setNodeToDisconnect(item);
+                            setElectrumDisconnectWarningVisible(true);
+                          }
                         }}
                       >
                         <Box
@@ -263,6 +282,26 @@ function NodeSettings() {
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
+      />
+      <KeeperModal
+        visible={electrumDisconnectWarningVisible}
+        close={() => setElectrumDisconnectWarningVisible(false)}
+        title={common.disconnectingFromServer}
+        subTitle={common.disconnectingFromServerText}
+        buttonText={common.disconnect}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
+        buttonCallback={async () => {
+          setElectrumDisconnectWarningVisible(false);
+          await onDisconnectToNode(nodeToDisconnect);
+          setNodeToDisconnect(null);
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setElectrumDisconnectWarningVisible(false)}
+        Content={ElectrumDisconnectWarningContent}
       />
       <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
