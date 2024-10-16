@@ -26,10 +26,10 @@ const signerSlice = createSlice({
 
 export const { setLastUsedOption } = signerSlice.actions;
 
-const vaultPersistConfig = {
+const signerPersistConfig = {
   key: 'signer',
   storage: reduxStorage,
   blacklist: [],
 };
 
-export default persistReducer(vaultPersistConfig, signerSlice.reducer);
+export default persistReducer(signerPersistConfig, signerSlice.reducer);

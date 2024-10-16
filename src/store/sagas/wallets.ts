@@ -649,6 +649,23 @@ export function* addSigningDeviceWorker({
     );
     let signersToUpdate = [];
 
+    try {
+      // update signers with signer count
+      signers = signers.map((signer) => {
+        if (signer.type === SignerType.MY_KEEPER) {
+          if (!signer.extraData?.instanceNumber) {
+            const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
+            const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+            signer.extraData = { instanceNumber: currentInstanceNumber + 1 };
+          }
+        }
+        return signer;
+      });
+    } catch (e) {
+      captureError(e);
+      return;
+    }
+
     const keysMatch = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&
       !!existingSigner.signerXpubs[type]?.[0] &&
