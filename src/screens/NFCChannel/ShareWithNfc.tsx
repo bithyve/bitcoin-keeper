@@ -119,7 +119,9 @@ function ShareWithNfc({
         title={`${isIos ? 'Airdrop / ' : ''}File export`}
         callback={shareWithAirdrop}
       />
-      {remoteShare && (
+      {/* // ! Hide Remote Key */}
+      {/* {remoteShare && ( */}
+      {false && (
         <OptionCTA
           icon={<RemoteShareIcon />}
           title={!isPSBTSharing ? 'Remote share' : 'Share PSBT Link'}
@@ -148,6 +150,7 @@ function ShareWithNfc({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
+    justifyContent: 'center',
     flex: 1,
     margin: 20,
     gap: 20,
