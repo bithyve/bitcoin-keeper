@@ -225,15 +225,15 @@ function VaultConfigurationCreation() {
                 />
               </Box>
             </Box>
-            <Box style={styles.buttonContainer}>
-              <Buttons
-                primaryCallback={() => initateRecovery(inputText)}
-                primaryText={common.proceed}
-                primaryLoading={recoveryLoading}
-              />
-            </Box>
           </Box>
         </ScrollView>
+        <Box style={styles.buttonContainer}>
+          <Buttons
+            primaryCallback={() => initateRecovery(inputText)}
+            primaryText={common.proceed}
+            primaryLoading={recoveryLoading}
+          />
+        </Box>
       </KeyboardAvoidingView>
       <KeeperModal
         visible={showModal}
