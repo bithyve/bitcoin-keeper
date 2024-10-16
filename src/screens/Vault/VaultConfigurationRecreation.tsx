@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
@@ -229,7 +229,10 @@ function VaultConfigurationCreation() {
         </ScrollView>
         <Box style={styles.buttonContainer}>
           <Buttons
-            primaryCallback={() => initateRecovery(inputText)}
+            primaryCallback={() => {
+              Keyboard.dismiss();
+              initateRecovery(inputText);
+            }}
             primaryText={common.proceed}
             primaryLoading={recoveryLoading}
           />
