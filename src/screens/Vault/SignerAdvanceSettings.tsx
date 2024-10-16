@@ -889,7 +889,7 @@ function SignerAdvanceSettings({ route }: any) {
             callback={openTapsignerSettings}
           />
         )}
-        // ! Hide Remote Key
+        {/* // ! Hide Remote Key */}
         {/* {!isAssistedKey && ( */}
         {(isAssistedKey || isMyAppKey) && (
           <OptionCard
@@ -903,7 +903,7 @@ function SignerAdvanceSettings({ route }: any) {
           description="Associate contact or Edit description"
           callback={navigateToAdditionalDetails}
         />
-        // ! Hide Remote Key
+        {/* // ! Hide Remote Key */}
         {/* {supportsRKSigning && ( */}
         {isMyAppKey && (
           <OptionCard
