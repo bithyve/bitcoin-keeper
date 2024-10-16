@@ -14,9 +14,14 @@ const KeyAddedModal = ({ visible, close, signer }) => {
 
   const signerTypeConfig = {
     [SignerType.KEEPER]: {
-      buttonText: 'Add Contact',
+      buttonText: 'Add Description',
       buttonCallback: () => {
-        navigation.navigate('AssociateContact');
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AdditionalDetails',
+            params: { signer },
+          })
+        );
         close();
       },
       secondaryButtonText: 'Skip',
