@@ -654,18 +654,15 @@ export function* addSigningDeviceWorker({
 
     try {
       // update signers with signer count
-      let incrementForCurrentSigners = 0;
       signers = signers.map((signer) => {
         if (signer.type === SignerType.MY_KEEPER) {
-          const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
-          const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
-          const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
-          signer.extraData = { instanceNumber: instanceNumberToSet + 1 };
-          incrementForCurrentSigners += 1;
-          return signer;
-        } else {
-          return signer;
+          if (!signer.extraData?.instanceNumber) {
+            const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
+            const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+            signer.extraData = { instanceNumber: currentInstanceNumber + 1 };
+          }
         }
+        return signer;
       });
     } catch (e) {
       captureError(e);

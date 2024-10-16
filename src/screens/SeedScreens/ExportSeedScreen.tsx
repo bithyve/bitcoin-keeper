@@ -83,6 +83,16 @@ function ExportSeedScreen({ route, navigation }) {
     }
   }, [backupMethod]);
 
+  const getNoteSubtitle = () => {
+    if (isFromAssistedKey) {
+      return `${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`;
+    }
+    if (isFromMobileKey) {
+      return seedTranslation.storeSecurely;
+    }
+    return next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote;
+  };
+
   function SeedCard({ item, index }: { item; index }) {
     return (
       <TouchableOpacity
@@ -129,7 +139,7 @@ function ExportSeedScreen({ route, navigation }) {
             isFromAssistedKey
               ? `${BackupWallet.backingUp} ${signer.signerName}`
               : isFromMobileKey
-              ? 'Mobile Key Seed Words'
+              ? seedTranslation.mobileKeySeedWordsTitle
               : seedTranslation.walletSeedWords
           }
           subtitle={
@@ -151,41 +161,19 @@ function ExportSeedScreen({ route, navigation }) {
             <Text color={`${colorMode}.GreyText`}>{derivationPath}</Text>
           </Box>
         )}
-        {isFromAssistedKey ? (
-          <Box m={4}>
-            <Note
-              title={common.note}
-              subtitle={`${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`}
-              subtitleColor="GreyText"
-            />
-          </Box>
-        ) : isFromMobileKey ? (
-          <Box mx={2} my={5}>
-            <Note
-              title={common.note}
-              subtitle={'Write down and store securely.'}
-              subtitleColor="GreyText"
-            />
-          </Box>
-        ) : (
-          <Box m={2}>
-            <Note
-              title={common.note}
-              subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
-              subtitleColor="GreyText"
-            />
-          </Box>
-        )}
+        <Box m={2}>
+          <Note title={common.note} subtitle={getNoteSubtitle()} subtitleColor="GreyText" />
+        </Box>
+
         {!viewRecoveryKeys && !next && !isFromAssistedKey && (
           <Pressable
             onPress={() => {
-              // setShowQRVisible(true);
               isFromMobileKey
-                ? navigation.navigate('SeedDetails', { seed: words, isFromMobileKey: true })
+                ? navigation.navigate('SeedDetails', { seed, isFromMobileKey: true })
                 : navigation.navigate('UpdateWalletDetails', {
                     wallet,
                     isFromSeed: true,
-                    words: seed,
+                    seed,
                   });
             }}
           >

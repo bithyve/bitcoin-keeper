@@ -5,12 +5,10 @@ import { reduxStorage } from 'src/storage';
 
 interface SignerState {
   lastUsedOptions: Record<string, KeyGenerationMode>;
-  seeds: Record<string, string>;
 }
 
 const initialState: SignerState = {
   lastUsedOptions: {},
-  seeds: {},
 };
 
 const signerSlice = createSlice({
@@ -23,17 +21,10 @@ const signerSlice = createSlice({
     ) {
       state.lastUsedOptions[action.payload.signerType] = action.payload.option;
     },
-    setSeed: (state, action) => {
-      const { masterFingerprint, seed } = action.payload;
-      if (!state.seeds) {
-        state.seeds = {};
-      }
-      state.seeds[masterFingerprint] = seed;
-    },
   },
 });
 
-export const { setLastUsedOption, setSeed } = signerSlice.actions;
+export const { setLastUsedOption } = signerSlice.actions;
 
 const signerPersistConfig = {
   key: 'signer',

@@ -85,7 +85,6 @@ import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
-import { setSeed } from 'src/store/reducers/signer';
 
 const { width } = Dimensions.get('screen');
 
@@ -151,9 +150,6 @@ function SignerAdvanceSettings({ route }: any) {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const MobileKeySeeds = useAppSelector(
-    (state) => state.signer.seeds[signer?.masterFingerprint] || ''
-  );
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -162,7 +158,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [backupModal, setBackupModal] = useState(false);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [warningEnabled, setHideWarning] = useState(false);
-  const [seeds, setSeeds] = useState(MobileKeySeeds);
+  const [seeds, setSeeds] = useState('');
   const [vaultUsed, setVaultUsed] = useState<Vault>();
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
   const [otp, setOtp] = useState('');
@@ -173,21 +169,23 @@ function SignerAdvanceSettings({ route }: any) {
 
   useEffect(() => {
     const fetchOrGenerateSeeds = async () => {
-      if (!seeds && signer.type === SignerType.MY_KEEPER) {
+      if (isMobileKey) {
         try {
-          const instanceNumber = signer.extraData?.instanceNumber || 0;
+          if (!signer?.extraData?.instanceNumber) {
+            throw new Error('Instance number is not available or invalid.');
+          }
+          const instanceNumber = signer?.extraData?.instanceNumber - 1;
           const generatedSeeds = await generateMobileKeySeeds(instanceNumber, primaryMnemonic);
-          dispatch(setSeed({ masterFingerprint: signer.masterFingerprint, seed: generatedSeeds }));
-          console.log(generatedSeeds, 'generatedSeeds');
           setSeeds(generatedSeeds);
         } catch (error) {
           console.error('Error generating seeds: ', error);
         }
       }
     };
-
-    fetchOrGenerateSeeds();
-  }, [seeds, signer, primaryMnemonic]);
+    setTimeout(() => {
+      fetchOrGenerateSeeds();
+    }, 100);
+  }, [signer, primaryMnemonic]);
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
