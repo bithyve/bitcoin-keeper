@@ -102,7 +102,7 @@
     "runHealthCheck": "Run Health Check",
     "needMoreHelp": "Need more help?",
     "action": "Action",
-    "commingSoon": "COMING SOON",
+    "comingSoon": "Coming Soon",
     "reinstate": "Reinstate",
     "of": "of",
     "COLLABORATIVE": "COLLABORATIVE",
@@ -128,7 +128,14 @@
     "for": "For",
     "goToBackup": "Go to Backup",
     "Receipt": "Receipt",
-    "Later": "Later"
+    "Later": "Later",
+    "noElectrumServerTitle": "No Electrum Server Connected",
+    "noElectrumServerText": "You are not connected to any Electrum Server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. You can select a server to use in the Node Settings.",
+    "electrumServerConnectionFailedTitle": "Server Connection Failed",
+    "electrumServerConnectionFailedText": "Failed to connect to Electrum server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. Check your network connection and try again.",
+    "serverSettings": "Server Settings",
+    "disconnectingFromServer": "Disconnecting from Server",
+    "disconnectingFromServerText": "You are about to disconnect from the current Electrum server. Fetching your balances, receiving incoming transactions, and broadcasting new transactions will not be possible until you connect to another server."
   },
   "noInternet": {
     "no": "No Internet",
@@ -547,7 +554,8 @@
     "remoteSigningMessage": "Please sign the transaction with your Key before the timer runs out",
     "ReviewTransaction": "Review the Transaction",
     "SignTransaction": "Sign Transaction",
-    "DenyTransaction": "DenyTransaction"
+    "DenyTransaction": "DenyTransaction",
+    "transactionToastMessage": "If the transaction isn’t visible, wait a moment and refresh."
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -644,7 +652,8 @@
     "archivedVaultsNote": "These are previous versions of this vault for reference or withdrawn if funds remaining.",
     "archivedVaultEmptyTitle": "View Archived Vaults",
     "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here.",
-    "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect"
+    "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect",
+    "transactionToastMessage": "If the transaction isn’t visible, wait a moment and refresh."
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -813,7 +822,7 @@
     "SecurityAndLogin": "App Access",
     "SecurityAndLoginSubtitle": "Security, passcode and biometrics",
     "AppLevelSettings": "App-level settings",
-    "nodeSettingUsedSoFar": "Node settings used so far",
+    "manageElectrumServersSubtitle": "Manage your saved Electrum servers",
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
     "nodesUsedPreviously": "Nodes connected previously",
@@ -994,7 +1003,9 @@
     "recreateWallet": "Recreate a Wallet",
     "recreateWalletSubtitle": "Recreate an existing wallet or vault",
     "importVaultFromSigner": "Import Vault From Signer",
-    "importVaultFromSignerSubtitle": "Use a signer with vault registration"
+    "importVaultFromSignerSubtitle": "Use a signer with vault registration",
+    "recreateWalletModalTitle": "Recreate your wallet",
+    "recreateWalletModalSubtitle": "Recreate an existing wallet by selecting its keys. Choose between a single-key wallet and a multi-key vault."
   },
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
@@ -1076,7 +1087,6 @@
     "mobileKeySeedOptionSubtitle": "Use to backup/ export mobile key"
   },
   "inheritancePlanning": {
-    "commingSoon": "COMING SOON",
     "BuyNewHardwareSigner": "Buy new Hardware Signers",
     "BuyNewHardwareSignerDesp": "Overview and discount codes",
     "canaryWallet": "Canary Wallets",
