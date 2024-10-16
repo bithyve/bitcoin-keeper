@@ -49,7 +49,7 @@ jest.setTimeout(20000);
 
 const connectToElectrumClient = async () => {
   try {
-    ElectrumClient.setActivePeer(predefinedTestnetNodes, []);
+    ElectrumClient.setActivePeer(predefinedTestnetNodes);
     await ElectrumClient.connect();
     console.log('Electrum connected');
   } catch (err) {
