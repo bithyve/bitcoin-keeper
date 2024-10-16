@@ -207,6 +207,7 @@ function SignTransactionScreen() {
             name: 'VaultDetails',
             params: {
               vaultTransferSuccessful: true,
+              transactionToast: true,
               autoRefresh: true,
               vaultId: intrimVault?.id || '',
             },
@@ -228,6 +229,7 @@ function SignTransactionScreen() {
         dispatch(finaliseVaultMigration(vaultId));
       }
     } else if (sendSuccessful) {
+      setBroadcasting(false);
       setVisibleModal(true);
     }
   }, [sendSuccessful, isMigratingNewVault]);
@@ -592,6 +594,7 @@ function SignTransactionScreen() {
 
   const viewDetails = () => {
     setVisibleModal(false);
+    showToast('If the transaction isn’t visible, wait a moment and refresh.');
     navigation.dispatch(
       CommonActions.reset({
         index: 1,

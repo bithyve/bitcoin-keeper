@@ -639,10 +639,7 @@ export function* addSigningDeviceWorker({
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {
     const signer = signers[i];
-    const updatedExisting = yield call(mergeSimilarKeysWorker, { payload: { signer } });
-    if (updatedExisting) {
-      return;
-    }
+    yield call(mergeSimilarKeysWorker, { payload: { signer } });
   }
   try {
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);

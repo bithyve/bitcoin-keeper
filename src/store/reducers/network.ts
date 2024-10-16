@@ -5,12 +5,12 @@ import { HistoricalInisightData } from 'src/nativemodules/interface';
 const initialState: {
   exchangeRates: ExchangeRates;
   averageTxFees: AverageTxFeesByNetwork;
-  defaultNodesSaved: Boolean;
+  initialNodesSaved: Boolean;
   oneDayInsight: HistoricalInisightData[];
 } = {
   exchangeRates: null,
   averageTxFees: null,
-  defaultNodesSaved: false,
+  initialNodesSaved: false,
   oneDayInsight: [],
 };
 
@@ -26,8 +26,8 @@ const networkSlice = createSlice({
       state.averageTxFees = action.payload;
     },
 
-    setDefaultNodesSaved: (state, action: PayloadAction<Boolean>) => {
-      state.defaultNodesSaved = action.payload;
+    setInitialNodesSaved: (state, action: PayloadAction<Boolean>) => {
+      state.initialNodesSaved = action.payload;
     },
     setOneDayInsight: (state, action: PayloadAction<HistoricalInisightData[]>) => {
       state.oneDayInsight = action.payload;
@@ -35,7 +35,7 @@ const networkSlice = createSlice({
   },
 });
 
-export const { setExchangeRates, setAverageTxFee, setDefaultNodesSaved, setOneDayInsight } =
+export const { setExchangeRates, setAverageTxFee, setInitialNodesSaved, setOneDayInsight } =
   networkSlice.actions;
 
 export default networkSlice.reducer;

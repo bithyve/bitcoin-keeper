@@ -395,7 +395,7 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       default:
-        showToast('Comming soon', null, IToastCategory.DEFAULT, 1000);
+        showToast('Coming soon', null, IToastCategory.DEFAULT, 1000);
         break;
     }
   };
@@ -762,12 +762,12 @@ function SignerAdvanceSettings({ route }: any) {
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
   const isAppKey = signer.type === SignerType.KEEPER;
   const isMyAppKey = signer.type === SignerType.MY_KEEPER;
-  const signersWithoutRegistration = isAppKey || isMyAppKey;
+  const isTapsigner = signer.type === SignerType.TAPSIGNER;
+  const signersWithoutRegistration = isAppKey || isMyAppKey || isTapsigner;
   const isAssistedKey = isPolicyServer || isInheritanceKey;
   const isMobileKey = signer.type === SignerType.MY_KEEPER;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
-  const isTapsigner = signer.type === SignerType.TAPSIGNER;
   const CANARY_NON_SUPPORTED_DEVICES = [
     SignerType.UNKOWN_SIGNER,
     SignerType.INHERITANCEKEY,
@@ -910,7 +910,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={registerSigner}
           />
         )}
-
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
@@ -938,7 +937,9 @@ function SignerAdvanceSettings({ route }: any) {
             callback={openTapsignerSettings}
           />
         )}
-        {!isAssistedKey && (
+        {/* // ! Hide Remote Key */}
+        {/* {!isAssistedKey && ( */}
+        {(isAssistedKey || isMyAppKey) && (
           <OptionCard
             title={signerTranslation.keyDetails}
             description={signerTranslation.keyDetailsSubtitle}
@@ -960,7 +961,9 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-        {supportsRKSigning && (
+        {/* // ! Hide Remote Key */}
+        {/* {supportsRKSigning && ( */}
+        {isMyAppKey && (
           <OptionCard
             title="Sign a transaction"
             description="Using a PSBT file"
@@ -993,7 +996,6 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-
         {isCanaryWalletAllowed && (
           <OptionCard
             title="Canary Wallet"
