@@ -122,11 +122,12 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType, is
         <OptionCTA icon={<NFCIcon />} title="NFC on Tap" callback={readFromNFC} />
         <OptionCTA icon={<AirDropIcon />} title={`Upload File`} callback={selectFile} />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
-        <OptionCTA
+        {/* // ! Hide Remote Key */}
+        {/* <OptionCTA
           icon={<RemoteShareIcon />}
           title={isPSBT ? 'Share PSBT Link' : 'Remote Share'}
           callback={() => setRemoteShareModal(true)}
-        />
+        /> */}
       </Box>
       <KeeperModal
         close={() => setRemoteShareModal(false)}

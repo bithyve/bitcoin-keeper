@@ -862,7 +862,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={registerSigner}
           />
         )}
-
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
@@ -890,7 +889,9 @@ function SignerAdvanceSettings({ route }: any) {
             callback={openTapsignerSettings}
           />
         )}
-        {!isAssistedKey && (
+        {/* // ! Hide Remote Key */}
+        {/* {!isAssistedKey && ( */}
+        {(isAssistedKey || isMyAppKey) && (
           <OptionCard
             title={signerTranslation.keyDetails}
             description={signerTranslation.keyDetailsSubtitle}
@@ -902,7 +903,9 @@ function SignerAdvanceSettings({ route }: any) {
           description="Associate contact or Edit description"
           callback={navigateToAdditionalDetails}
         />
-        {supportsRKSigning && (
+        {/* // ! Hide Remote Key */}
+        {/* {supportsRKSigning && ( */}
+        {isMyAppKey && (
           <OptionCard
             title="Sign a transaction"
             description="Using a PSBT file"
@@ -934,7 +937,6 @@ function SignerAdvanceSettings({ route }: any) {
             }}
           />
         )}
-
         {isCanaryWalletAllowed && (
           <OptionCard
             title="Canary Wallet"
