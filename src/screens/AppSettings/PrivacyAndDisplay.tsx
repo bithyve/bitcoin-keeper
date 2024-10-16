@@ -318,27 +318,28 @@ function PrivacyAndDisplay({ route }) {
       if (available) {
         if (loginMethod === LoginMethod.PIN) {
           const { keysExist } = await RNBiometrics.biometricKeysExist();
-          if (keysExist) {
+          if (!keysExist) {
             await RNBiometrics.createKeys();
           }
-          const { publicKey } = await RNBiometrics.createKeys();
           const { success } = await RNBiometrics.simplePrompt({
             promptMessage: 'Confirm your identity',
           });
           if (success) {
+            const { publicKey } = await RNBiometrics.createKeys();
             dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
           }
         } else {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
+        setSensorAvailable(false);
         showToast(
           'Biometrics not enabled.\nPlease go to setting and enable it',
           <ToastErrorIcon />
         );
       }
     } catch (error) {
-      console.log(error);
+      setSensorAvailable(false);
     }
   };
 
