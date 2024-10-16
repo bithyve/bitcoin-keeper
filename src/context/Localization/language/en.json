@@ -1072,7 +1072,8 @@
     "saveBackupDesc": "Save an encrypted backup",
     "changeCardPIN": "Change the card's PIN code",
     "runUnlockCard": "Run the unlock card process if it's rate-limited",
-    "linkExternalWallet": "Use to link external wallet to keeper"
+    "linkExternalWallet": "Use to link external wallet to keeper",
+    "mobileKeySeedOptionSubtitle": "Use to backup/ export mobile key"
   },
   "inheritancePlanning": {
     "commingSoon": "COMING SOON",

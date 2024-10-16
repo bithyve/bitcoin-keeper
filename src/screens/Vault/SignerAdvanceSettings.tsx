@@ -953,7 +953,7 @@ function SignerAdvanceSettings({ route }: any) {
         {isMobileKey && (
           <OptionCard
             title={seedTranslation.mobileKeySeedWordsTitle}
-            description={signerTranslation.linkExternalWallet}
+            description={signerTranslation.mobileKeySeedOptionSubtitle}
             callback={() => {
               setActionAfterPasscode('mobileKeySeed');
               setConfirmPassVisible(true);
