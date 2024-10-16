@@ -678,7 +678,7 @@
     "mobileKeySeedWordsTitle": "Mobile Key Seed Words",
     "mobileKeySeedNoteSubTitle": "The QR below comprises of your 12-word Mobile Key",
     "mobileKeySeedNote": "Losing your Mobile Key may compromise a hot wallet and potential vaults. Store securely and never share.",
-    "storeSecurely": "Write down and store securely."
+    "storeSecurely": "Write down these words and store them securely."
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signer",

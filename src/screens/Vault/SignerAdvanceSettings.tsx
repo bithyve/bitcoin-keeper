@@ -158,7 +158,7 @@ function SignerAdvanceSettings({ route }: any) {
   const [backupModal, setBackupModal] = useState(false);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [warningEnabled, setHideWarning] = useState(false);
-  const [seeds, setSeeds] = useState('');
+  const [seed, setSeed] = useState('');
   const [vaultUsed, setVaultUsed] = useState<Vault>();
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
   const [otp, setOtp] = useState('');
@@ -176,7 +176,7 @@ function SignerAdvanceSettings({ route }: any) {
           }
           const instanceNumber = signer?.extraData?.instanceNumber - 1;
           const generatedSeeds = await generateMobileKeySeeds(instanceNumber, primaryMnemonic);
-          setSeeds(generatedSeeds);
+          setSeed(generatedSeeds);
         } catch (error) {
           console.error('Error generating seeds: ', error);
         }
@@ -790,7 +790,7 @@ function SignerAdvanceSettings({ route }: any) {
     } else if (actionAfterPasscode === 'mobileKeySeed') {
       navigation.dispatch(
         CommonActions.navigate('ExportSeed', {
-          seed: seeds,
+          seed,
           isFromMobileKey: true,
           next: false,
         })
