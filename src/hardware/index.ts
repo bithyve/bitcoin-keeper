@@ -136,20 +136,25 @@ export const getSignerFromRemoteData = (signer) => {
   };
 };
 
-export const getSignerDescription = (signer: Signer) => {
-  if (signer) {
-    if (signer.extraData?.givenName || signer.extraData?.familyName) {
-      const fullName = `${signer.extraData?.givenName || ''} ${
-        signer.extraData?.familyName || ''
-      }`.trim();
-      return fullName || 'Unknown Contact';
-    }
-    if (signer.signerDescription) {
-      return signer.signerDescription;
-    }
-    return `Added ${moment(signer.addedOn).calendar().toLowerCase()}`;
+export const getSignerDescription = (signer?: Signer) => {
+  const fullName = `${signer?.extraData?.givenName || ''} ${
+    signer?.extraData?.familyName || ''
+  }`.trim();
+
+  if (fullName) {
+    return fullName;
   }
-  return '';
+
+  if (signer?.signerDescription) {
+    return signer.signerDescription;
+  }
+
+  if (signer?.type === SignerType.MY_KEEPER) {
+    const instanceNumber = signer?.extraData?.instanceNumber;
+    return instanceNumber !== undefined ? numberToOrdinal(instanceNumber) : 'Unknown Instance';
+  }
+
+  return signer?.addedOn ? `Added ${moment(signer.addedOn).calendar().toLowerCase()}` : '';
 };
 
 export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
