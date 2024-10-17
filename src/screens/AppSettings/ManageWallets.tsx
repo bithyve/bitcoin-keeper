@@ -24,7 +24,6 @@ import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
 import { setNetBalance } from 'src/store/reducers/wallets';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -304,12 +303,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title={settings.ManageWalletsTitle}
-        subtitle={settings.ManageWalletsSub}
-        rightComponent={<CurrencyTypeSwitch />}
-        rightComponentPadding={10}
-      />
+      <KeeperHeader title={settings.ManageWalletsTitle} subtitle={settings.ManageWalletsSub} />
       {!showAll && visibleWallets.length === 0 ? (
         <Box style={styles.emptyWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.emptyText} semiBold>
@@ -396,7 +390,7 @@ function ManageWallets() {
         buttonTextColor={`${colorMode}.white`}
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
-        closeOnOverlayClick={false}
+        closeOnOverlayClick={true}
         showButtons
         showCloseIcon={false}
       />
@@ -421,7 +415,7 @@ function ManageWallets() {
       />
       <KeeperModal
         visible={confirmPassVisible}
-        closeOnOverlayClick={false}
+        closeOnOverlayClick={true}
         close={() => setConfirmPassVisible(false)}
         showCloseIcon={false}
         title="Enter Passcode"
@@ -444,7 +438,7 @@ function ManageWallets() {
       />
       <KeeperModal
         visible={confirmPasscodeVisible}
-        closeOnOverlayClick={false}
+        closeOnOverlayClick={true}
         close={() => setConfirmPasscodeVisible(false)}
         title="Enter Passcode"
         subTitleWidth={wp(240)}
@@ -537,6 +531,7 @@ const styles = StyleSheet.create({
   walletsContainer: {
     marginHorizontal: 10,
     marginTop: '5%',
+    paddingVertical: hp(20),
   },
   modalContainer: {
     gap: 40,

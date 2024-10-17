@@ -81,7 +81,11 @@ function CosignerDetails({ route }: ScreenProps) {
               copyable
             />
           </Box>
-          {details ? <ShareWithNfc data={details} signer={signer} /> : null}
+          {details ? (
+            <Box style={styles.centerBottom}>
+              <ShareWithNfc data={details} signer={signer} />
+            </Box>
+          ) : null}
         </Box>
       </ScrollView>
     </ScreenWrapper>
@@ -97,13 +101,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    marginHorizontal: '5%',
+    marginHorizontal: '10%',
   },
   center: {
     marginHorizontal: '5%',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: '10%',
+  },
+  centerBottom: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bottom: {
     marginHorizontal: '5%',

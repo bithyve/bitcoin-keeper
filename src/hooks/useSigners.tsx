@@ -13,7 +13,9 @@ const useSigners = (vaultId = ''): { vaultSigners: Signer[]; signers: Signer[] }
     const vaultKeys = (currentVault as Vault)?.signers;
     vaultKeys?.forEach((key) => {
       const signer = signers.filtered(`masterFingerprint == "${key.masterFingerprint}"`)[0];
-      vaultSigners.push(signer.toJSON());
+      if (signer) {
+        vaultSigners.push(signer.toJSON());
+      }
     });
     return { vaultSigners, signers: signers.map(getJSONFromRealmObject) };
   }

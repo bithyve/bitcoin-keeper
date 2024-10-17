@@ -6,6 +6,7 @@ export function HomeModals({ electrumErrorVisible, setElectrumErrorVisible, navi
     <>
       <DowngradeModal navigation={navigation} />
       <ElectrumDisconnectModal
+        navigation={navigation}
         electrumErrorVisible={electrumErrorVisible}
         setElectrumErrorVisible={setElectrumErrorVisible}
       />

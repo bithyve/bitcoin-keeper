@@ -11,20 +11,5 @@ export const NodeConnectSchema: ObjectSchema = {
     useKeeperNode: 'bool',
     isConnected: 'bool',
     useSSL: 'bool',
-    isDefault: 'bool?',
-  },
-};
-
-// hosts default nodes
-export const DefaultNodeConnectSchema: ObjectSchema = {
-  name: RealmSchema.DefaultNodeConnect,
-  properties: {
-    id: 'int',
-    host: 'string',
-    port: 'string',
-    useKeeperNode: 'bool',
-    isConnected: 'bool',
-    useSSL: 'bool',
-    isDefault: 'bool',
   },
 };

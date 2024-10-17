@@ -125,7 +125,7 @@ function TorSettings() {
       </Box>
       <TorModalMap visible={showTorModal} close={() => setShowTorModal(false)} />
       <KeeperModal
-        visible={true}
+        visible={showOrbotTorModal}
         close={() => {
           setShowOrbotTorModal(false);
         }}
@@ -138,7 +138,7 @@ function TorSettings() {
         showCloseIcon={false}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secButtonTextColor={`${colorMode}.greenButtonBackground`}
         secondaryButtonText={common.Later}
         secondaryCallback={() => setShowOrbotTorModal(false)}
         buttonText={common.connect}

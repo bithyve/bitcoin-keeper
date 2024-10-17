@@ -639,10 +639,7 @@ export function* addSigningDeviceWorker({
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {
     const signer = signers[i];
-    const updatedExisting = yield call(mergeSimilarKeysWorker, { payload: { signer } });
-    if (updatedExisting) {
-      return;
-    }
+    yield call(mergeSimilarKeysWorker, { payload: { signer } });
   }
   try {
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
@@ -651,6 +648,23 @@ export function* addSigningDeviceWorker({
       filteredSigners.map((signer) => [signer.masterFingerprint, signer])
     );
     let signersToUpdate = [];
+
+    try {
+      // update signers with signer count
+      signers = signers.map((signer) => {
+        if (signer.type === SignerType.MY_KEEPER) {
+          if (!signer.extraData?.instanceNumber) {
+            const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
+            const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+            signer.extraData = { instanceNumber: currentInstanceNumber + 1 };
+          }
+        }
+        return signer;
+      });
+    } catch (e) {
+      captureError(e);
+      return;
+    }
 
     const keysMatch = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&

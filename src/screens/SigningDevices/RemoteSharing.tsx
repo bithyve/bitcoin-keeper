@@ -18,6 +18,7 @@ import Relay from 'src/services/backend/Relay';
 import useVault from 'src/hooks/useVault';
 import { encrypt, getRandomBytes } from 'src/utils/service-utilities/encryption';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
+import config, { APP_STAGE } from 'src/utils/service-utilities/config';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -44,6 +45,11 @@ const RemoteShareText = {
     msgTitle: 'Signed Transaction Received',
     msgDesc: 'Hey, your friend has signed your transaction. Please click the link to accept it.',
   },
+};
+
+const DeepLinkIdentifier = {
+  [APP_STAGE.DEVELOPMENT]: 'dev',
+  [APP_STAGE.PRODUCTION]: 'prod',
 };
 
 type dataProps = {
@@ -131,7 +137,9 @@ function RemoteSharing({ route }: ScreenProps) {
       if (res?.id) {
         const result = await Share.share({
           title: RemoteShareText[mode].msgTitle,
-          message: `${RemoteShareText[mode].msgDesc}\nhttps://bitcoinkeeper.app/dev/shareKey/${res.id}/${encryptionKey}`,
+          message: `${RemoteShareText[mode].msgDesc}\nhttps://bitcoinkeeper.app/${
+            DeepLinkIdentifier[config.ENVIRONMENT]
+          }/shareKey/${res.id}/${encryptionKey}`,
         });
         if (result.action === Share.sharedAction) {
           if (result.activityType) {

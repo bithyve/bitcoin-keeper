@@ -14,7 +14,7 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import Relay from 'src/services/backend/Relay';
 import semver from 'semver';
-import { UAI, uaiType } from 'src/models/interfaces/Uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from 'src/storage/secure-store';
 
 import dbManager from 'src/storage/realm/dbManager';
@@ -45,7 +45,7 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import { fetchExchangeRates, fetchOneDayInsight } from '../sagaActions/send_and_receive';
+import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
@@ -53,7 +53,6 @@ import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { resetSyncing } from '../reducers/wallets';
 import { connectToNode } from '../sagaActions/network';
-import { createUaiMap } from '../reducers/uai';
 import SubScription from 'src/models/interfaces/Subscription';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 

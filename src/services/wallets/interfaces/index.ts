@@ -185,6 +185,7 @@ export interface SerializedPSBTEnvelop {
   signingPayload?: SigningPayload[];
   isSigned: boolean;
   txHex?: string;
+  isMockSigner?: boolean;
 }
 
 export interface NodeDetail {
@@ -194,5 +195,4 @@ export interface NodeDetail {
   isConnected: boolean;
   useKeeperNode: boolean;
   useSSL: boolean;
-  isDefault?: boolean;
 }

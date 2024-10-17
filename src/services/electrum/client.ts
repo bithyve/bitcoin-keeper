@@ -21,13 +21,9 @@ function shufflePeers(peers) {
 }
 
 const ELECTRUM_CLIENT_CONFIG: {
-  predefinedTestnetPeers: NodeDetail[];
-  predefinedPeers: NodeDetail[];
   maxConnectionAttempt: number;
   reconnectDelay: number;
 } = {
-  predefinedTestnetPeers: null,
-  predefinedPeers: null,
   maxConnectionAttempt: 2,
   reconnectDelay: 500, // retry after half a second
 };
@@ -38,6 +34,7 @@ const ELECTRUM_CLIENT_DEFAULTS = {
   currentPeerIndex: -1,
   connectionAttempt: 0,
   activePeer: null,
+  peers: [],
 };
 
 // eslint-disable-next-line import/no-mutable-exports
@@ -47,6 +44,7 @@ export let ELECTRUM_CLIENT: {
   currentPeerIndex: number;
   connectionAttempt: number;
   activePeer: NodeDetail;
+  peers: NodeDetail[];
 } = ELECTRUM_CLIENT_DEFAULTS;
 
 export const ELECTRUM_NOT_CONNECTED_ERR =
@@ -148,7 +146,7 @@ export default class ElectrumClient {
     if (ELECTRUM_CLIENT.electrumClient?.close) ELECTRUM_CLIENT.electrumClient.close();
 
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
-      const nextPeer = ElectrumClient.getNextDefaultPeer();
+      const nextPeer = ElectrumClient.getNextPeer();
       if (!nextPeer) {
         console.log(
           'Unable to connect to any electrum server. Please switch network and try again!'
@@ -169,6 +167,17 @@ export default class ElectrumClient {
       setTimeout(resolve, ELECTRUM_CLIENT_CONFIG.reconnectDelay); // attempts reconnection after 1 second
     });
     return ElectrumClient.connect();
+  }
+
+  public static getNextPeer() {
+    ELECTRUM_CLIENT.currentPeerIndex += 1;
+
+    if (
+      !ELECTRUM_CLIENT.peers ||
+      ELECTRUM_CLIENT.currentPeerIndex > ELECTRUM_CLIENT.peers.length - 1
+    )
+      return null; // exhuasted all available peers
+    return ELECTRUM_CLIENT.peers[ELECTRUM_CLIENT.currentPeerIndex];
   }
 
   public static forceDisconnect() {
@@ -211,28 +220,13 @@ export default class ElectrumClient {
     return ELECTRUM_CLIENT.activePeer;
   }
 
-  public static getNextDefaultPeer() {
-    ELECTRUM_CLIENT.currentPeerIndex += 1;
-    const peers =
-      config.NETWORK_TYPE === NetworkType.TESTNET
-        ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers
-        : ELECTRUM_CLIENT_CONFIG.predefinedPeers;
-
-    if (!peers || ELECTRUM_CLIENT.currentPeerIndex > peers.length - 1) return null; // exhuasted all available peers
-    return peers[ELECTRUM_CLIENT.currentPeerIndex];
-  }
-
   public static resetCurrentPeerIndex() {
     ELECTRUM_CLIENT.currentPeerIndex = -1;
   }
 
-  // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
+  // if current peer to use is not provided, it will try to get the active peer from the saved list of nodes
   // if current peer to use is provided, it will use that peer
-  public static setActivePeer(
-    defaultNodes: NodeDetail[],
-    privateNodes: NodeDetail[],
-    currentPeerToUse?: NodeDetail
-  ) {
+  public static setActivePeer(nodes: NodeDetail[], currentPeerToUse?: NodeDetail) {
     // close previous connection
     if (ELECTRUM_CLIENT.isClientConnected && ELECTRUM_CLIENT.electrumClient?.close) {
       ELECTRUM_CLIENT.electrumClient.close();
@@ -240,14 +234,14 @@ export default class ElectrumClient {
 
     // set defaults
     ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS;
-    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers = shufflePeers(defaultNodes);
-    } else ELECTRUM_CLIENT_CONFIG.predefinedPeers = shufflePeers(defaultNodes);
 
     // set active node
-    let activeNode = currentPeerToUse || privateNodes.filter((node) => node.isConnected)[0];
-    if (!activeNode && defaultNodes.length) activeNode = ElectrumClient.getNextDefaultPeer(); // pick one of the default nodes
+    let activeNode = currentPeerToUse || nodes.filter((node) => node.isConnected)[0];
     ELECTRUM_CLIENT.activePeer = activeNode;
+
+    if (nodes) {
+      ELECTRUM_CLIENT.peers = nodes;
+    }
   }
 
   public static splitIntoChunks(arr, chunkSize) {

@@ -121,10 +121,12 @@ function VaultInfo({ vault }: { vault: Vault }) {
   return (
     <HStack style={styles.vaultInfoContainer}>
       <HStack style={styles.pillsContainer}>
-        <CardPill
-          heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
-          backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
-        />
+        {vault.scheme.n > 1 && (
+          <CardPill
+            heading={`${vault.scheme.m} ${common.of} ${vault.scheme.n}`}
+            backgroundColor={`${colorMode}.SignleSigCardPillBackColor`}
+          />
+        )}
         <CardPill
           heading={`${
             vault.type === VaultType.COLLABORATIVE
@@ -221,8 +223,14 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
-  const { vaultTransferSuccessful = false, autoRefresh = false, vaultId = '' } = route.params || {};
+  const {
+    vaultTransferSuccessful = false,
+    autoRefresh = false,
+    vaultId = '',
+    transactionToast = false,
+  } = route.params || {};
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { activeVault: vault } = useVault({ vaultId });
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -275,6 +283,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   useEffect(() => {
     if (autoRefresh) syncVault();
   }, [autoRefresh]);
+
+  useEffect(() => {
+    if (transactionToast) {
+      showToast(vaultTranslation.transactionToastMessage);
+      navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
+    }
+  }, [transactionToast]);
 
   const syncVault = () => {
     setPullRefresh(true);

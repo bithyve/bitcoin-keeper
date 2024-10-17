@@ -73,11 +73,10 @@ function SplashScreen({ navigation }) {
     const width = interpolate(progress.value, inputRange, widthRange);
     const borderRadius = interpolate(progress.value, inputRange, radiusRange);
     return {
+      position: 'absolute',
       height,
       width,
       borderRadius,
-      alignItems: 'center',
-      justifyContent: 'center',
       backgroundColor: '#2D6759',
     };
   });
@@ -101,7 +100,6 @@ function SplashScreen({ navigation }) {
     return {
       marginVertical: 10,
       opacity,
-      addingLeft: '5%',
     };
   });
 
@@ -115,16 +113,15 @@ function SplashScreen({ navigation }) {
 
   return (
     <Animated.View style={styles.center}>
-      <Animated.View style={animatedBackground}>
-        <Animated.View style={animatedLogo}>
-          <KeeperLogo />
-        </Animated.View>
-        <Animated.View style={animatedTagline}>
-          <Tagline />
-        </Animated.View>
-        <Animated.View style={animatedTeam}>
-          <TeamBithyve />
-        </Animated.View>
+      <Animated.View style={animatedBackground} />
+      <Animated.View style={animatedLogo}>
+        <KeeperLogo />
+      </Animated.View>
+      <Animated.View style={animatedTagline}>
+        <Tagline />
+      </Animated.View>
+      <Animated.View style={animatedTeam}>
+        <TeamBithyve />
       </Animated.View>
     </Animated.View>
   );

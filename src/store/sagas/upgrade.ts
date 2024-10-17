@@ -389,19 +389,21 @@ function updateSignerDetails(signers: Signer[], extendedKeyMap) {
         signerXpubs: updateSignerXpubs(signer, extendedKeyMap[signer.masterFingerprint].xpriv),
       }
     );
-    try {
-      // Update the signer instance number for MY_KEEPER
-      dbManager.updateObjectByPrimaryId(
-        RealmSchema.Signer,
-        'masterFingerprint',
-        signer.masterFingerprint,
-        {
-          extraData: { instanceNumber: i + 1 },
-        }
-      );
-    } catch (err) {
-      captureError(err);
-      // ignore since instance number is not mandatory
+    if (!signer.extraData?.instanceNumber) {
+      try {
+        // Update the signer instance number for MY_KEEPER
+        dbManager.updateObjectByPrimaryId(
+          RealmSchema.Signer,
+          'masterFingerprint',
+          signer.masterFingerprint,
+          {
+            extraData: { instanceNumber: i + 1 },
+          }
+        );
+      } catch (err) {
+        captureError(err);
+        // ignore since instance number is not mandatory
+      }
     }
   }
 }

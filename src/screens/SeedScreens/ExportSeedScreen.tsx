@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
-import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
@@ -8,12 +8,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import {
-  healthCheckSigner,
-  healthCheckStatusUpdate,
-  seedBackedUp,
-} from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate, seedBackedUp } from 'src/store/sagaActions/bhr';
 import { CommonActions } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -56,6 +51,7 @@ function ExportSeedScreen({ route, navigation }) {
     isSS = false,
     parentScreen,
     oldPasscode,
+    isFromMobileKey = false,
   }: {
     vaultKey: string;
     vaultId: string;
@@ -70,6 +66,7 @@ function ExportSeedScreen({ route, navigation }) {
     isSS?: boolean;
     parentScreen?: string;
     oldPasscode?: string;
+    isFromMobileKey: boolean;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -85,6 +82,16 @@ function ExportSeedScreen({ route, navigation }) {
       setBackupSuccessModal(true);
     }
   }, [backupMethod]);
+
+  const getNoteSubtitle = () => {
+    if (isFromAssistedKey) {
+      return `${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`;
+    }
+    if (isFromMobileKey) {
+      return seedTranslation.storeSecurely;
+    }
+    return next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote;
+  };
 
   function SeedCard({ item, index }: { item; index }) {
     return (
@@ -131,6 +138,8 @@ function ExportSeedScreen({ route, navigation }) {
           title={
             isFromAssistedKey
               ? `${BackupWallet.backingUp} ${signer.signerName}`
+              : isFromMobileKey
+              ? seedTranslation.mobileKeySeedWordsTitle
               : seedTranslation.walletSeedWords
           }
           subtitle={
@@ -152,28 +161,20 @@ function ExportSeedScreen({ route, navigation }) {
             <Text color={`${colorMode}.GreyText`}>{derivationPath}</Text>
           </Box>
         )}
-        {isFromAssistedKey ? (
-          <Box m={4}>
-            <Note
-              title={common.note}
-              subtitle={`${BackupWallet.writeSeed} ${signer.signerName}. ${BackupWallet.doItPrivately}`}
-              subtitleColor="GreyText"
-            />
-          </Box>
-        ) : (
-          <Box m={2}>
-            <Note
-              title={common.note}
-              subtitle={next ? BackupWallet.recoveryKeyNote : BackupWallet.recoveryPhraseNote}
-              subtitleColor="GreyText"
-            />
-          </Box>
-        )}
+        <Box m={2}>
+          <Note title={common.note} subtitle={getNoteSubtitle()} subtitleColor="GreyText" />
+        </Box>
+
         {!viewRecoveryKeys && !next && !isFromAssistedKey && (
           <Pressable
             onPress={() => {
-              // setShowQRVisible(true);
-              navigation.navigate('UpdateWalletDetails', { wallet, isFromSeed: true, words });
+              isFromMobileKey
+                ? navigation.navigate('SeedDetails', { seed, isFromMobileKey: true })
+                : navigation.navigate('UpdateWalletDetails', {
+                    wallet,
+                    isFromSeed: true,
+                    seed,
+                  });
             }}
           >
             <Box style={styles.qrItemContainer}>

@@ -7,7 +7,7 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { NetworkType, WalletType } from 'src/services/wallets/enums';
+import { WalletType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -70,13 +70,14 @@ export function* setupKeeperAppWorker({ payload }) {
         backup: {},
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
+        enableAnalytics: false,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
 
       const defaultWallet: NewWalletInfo = {
         walletType: WalletType.DEFAULT,
         walletDetails: {
-          name: 'Wallet 1',
+          name: 'Mobile Wallet',
           description: '',
           transferPolicy: {
             id: uuidv4(),
@@ -134,6 +135,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
+      enableAnalytics: false,
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
 

@@ -5,10 +5,9 @@ export const predefinedTestnetNodes: NodeDetail[] = [
     id: 333, // sequence 3-x-x; avoids collision w/ own node
     host: 'testnet.qtornado.com',
     port: '51002',
-    isConnected: false,
+    isConnected: true,
     useKeeperNode: false,
     useSSL: true,
-    isDefault: true,
   },
 ];
 
@@ -20,7 +19,6 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
-    isDefault: true,
   },
   {
     id: 445,
@@ -29,16 +27,14 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
-    isDefault: true,
   },
   {
     id: 446,
     host: 'ecdsa.net',
     port: '110',
-    isConnected: false,
+    isConnected: true,
     useKeeperNode: false,
     useSSL: true,
-    isDefault: true,
   },
   {
     id: 447,
@@ -47,6 +43,5 @@ export const predefinedMainnetNodes: NodeDetail[] = [
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
-    isDefault: true,
   },
 ];

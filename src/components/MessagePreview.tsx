@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(5),
   },
   linkIconContainer: {
+    marginLeft: wp(5),
     marginRight: wp(8),
     borderRadius: 5,
     padding: 5,

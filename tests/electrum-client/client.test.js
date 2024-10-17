@@ -14,7 +14,7 @@ beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
   try {
-    ElectrumClient.setActivePeer(predefinedTestnetNodes, []);
+    ElectrumClient.setActivePeer(predefinedTestnetNodes);
     await ElectrumClient.connect();
     console.log('Electrum connected');
   } catch (err) {

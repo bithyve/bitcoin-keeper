@@ -573,7 +573,7 @@ function ChoosePlan() {
             </Box>
             {items?.[currentPosition]?.comingSoon && (
               <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
-                * {common.commingSoon}
+                * {common.comingSoon}
               </Text>
             )}
           </Box>

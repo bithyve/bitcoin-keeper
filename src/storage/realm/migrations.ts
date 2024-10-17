@@ -170,4 +170,23 @@ export const runRealmMigrations = ({
       });
     });
   }
+
+  if (oldRealm.schemaVersion < 78) {
+    const oldNodeConnects = oldRealm.objects(RealmSchema.NodeConnect);
+    const newNodeConnects = newRealm.objects(RealmSchema.NodeConnect);
+
+    for (let i = 0; i < oldNodeConnects.length; i++) {
+      const oldNodeConnect = oldNodeConnects[i];
+      const newNodeConnect = newNodeConnects[i];
+
+      // Remove the 'isDefault' property
+      if ('isDefault' in oldNodeConnect) {
+        newRealm.write(() => {
+          if ('isDefault' in newNodeConnect) {
+            delete (newNodeConnect as any).isDefault;
+          }
+        });
+      }
+    }
+  }
 };

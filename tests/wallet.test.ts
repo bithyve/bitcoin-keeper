@@ -20,7 +20,7 @@ describe('Wallet primitives', () => {
       'duty burger portion domain athlete sweet birth impact miss shield help peanut';
 
     try {
-      ElectrumClient.setActivePeer(predefinedTestnetNodes, []);
+      ElectrumClient.setActivePeer(predefinedTestnetNodes);
       await ElectrumClient.connect();
       // console.log('Electrum connected');
     } catch (err) {
