@@ -22,7 +22,7 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 
-const RKSignersModal = ({ data }, ref) => {
+const RKSignersModal = ({ data, activeVault }, ref) => {
   const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultisig } = data;
   const { colorMode } = useColorMode();
 
@@ -295,6 +295,7 @@ const RKSignersModal = ({ data }, ref) => {
         onFileSign={onFileSign}
         isRemoteKey={true}
         serializedPSBTEnvelopFromProps={serializedPSBTEnvelop}
+        activeVault={activeVault}
       />
     </>
   );

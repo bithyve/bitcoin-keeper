@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
-import { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { hp, wp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/rightarrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -68,17 +68,26 @@ function SignWithColdCard({ route }: { route }) {
   const navigation = useNavigation();
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
-  const { vaultKey, signTransaction, isMultisig, vaultId, isRemoteKey } = route.params as {
+  const {
+    vaultKey,
+    signTransaction,
+    isMultisig,
+    vaultId,
+    isRemoteKey,
+    signer: signerRK,
+    activeVault: activeVaultRK,
+  } = route.params as {
     vaultKey: VaultSigner;
     signTransaction;
     isMultisig: boolean;
     vaultId: string;
     isRemoteKey: boolean;
+    signer?: Signer;
+    activeVault?: Vault;
   };
 
-  const { activeVault } = useVault({ vaultId });
-  const { signer } = useSignerFromKey(vaultKey);
-
+  const { activeVault } = isRemoteKey ? { activeVault: activeVaultRK } : useVault({ vaultId });
+  const { signer } = isRemoteKey ? { signer: signerRK } : useSignerFromKey(vaultKey);
   const { registered = false } =
     vaultKey.registeredVaults.find((info) => info.vaultId === activeVault.id) || {};
   const dispatch = useDispatch();

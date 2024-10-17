@@ -28,7 +28,7 @@ import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as SecureStore from 'src/storage/secure-store';
 import Buttons from 'src/components/Buttons';
 import useAsync from 'src/hooks/useAsync';
@@ -596,6 +596,7 @@ function SignerModals({
   serializedPSBTEnvelopFromProps,
   sendConfirmationRouteParams,
   tnxDetails,
+  activeVault,
 }: {
   vaultId: string;
   activeXfp: string;
@@ -636,6 +637,7 @@ function SignerModals({
   serializedPSBTEnvelopFromProps: SerializedPSBTEnvelop;
   sendConfirmationRouteParams?: SendConfirmationRouteParams;
   tnxDetails?: tnxDetailsProps;
+  activeVault?: Vault;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -744,6 +746,8 @@ function SignerModals({
                 isMultisig,
                 vaultId,
                 isRemoteKey,
+                signer,
+                activeVault,
               })
             );
           };
