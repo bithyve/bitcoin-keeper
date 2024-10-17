@@ -14,12 +14,16 @@ const KeyAddedModal = ({ visible, close, signer }) => {
 
   const signerTypeConfig = {
     [SignerType.KEEPER]: {
-      buttonText: 'Add Contact',
+      buttonText: 'Add Description',
       buttonCallback: () => {
-        navigation.navigate('AssociateContact');
-        close();
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AdditionalDetails',
+            params: { signer },
+          })
+        );
       },
-      secondaryButtonText: 'Skip',
+      secondaryButtonText: 'Cancel',
       content: (
         <Text color={`${colorMode}.primaryText`} style={styles.externalKeyText}>
           You can associate a contact with this key if you wish to.
