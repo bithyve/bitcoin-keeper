@@ -1590,7 +1590,9 @@ function SendConfirmation({ route }) {
           }}
         />
       )}
-      {isRemoteFlow && <RKSignersModal data={signingDetails} ref={signerModalRef} />}
+      {isRemoteFlow && (
+        <RKSignersModal data={signingDetails} activeVault={sender} ref={signerModalRef} />
+      )}
     </ScreenWrapper>
   );
 }
