@@ -1,13 +1,6 @@
 import * as bip39 from 'bip39';
 import { Box, Input, Pressable, ScrollView, View, useColorMode } from 'native-base';
-import {
-  Alert,
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from 'react-native';
+import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -77,7 +70,7 @@ function EnterSeedScreen({ route, navigation }) {
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
   const [selectedNumberOfWords, setSelectedNumberOfWords] = useState(
-    SEED_WORDS_12 || selectedNumberOfWordsFromParams
+    selectedNumberOfWordsFromParams || SEED_WORDS_12
   );
   const [unsavedIndexes, setUnsavedIndexes] = useState(new Set());
 
@@ -96,7 +89,7 @@ function EnterSeedScreen({ route, navigation }) {
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
-    if (!isSignTransaction) setInvalidSeedsModal(true);
+    setInvalidSeedsModal(true);
   };
   const closeInvalidSeedsModal = () => {
     dispatch(setAppImageError(false));
@@ -245,7 +238,7 @@ function EnterSeedScreen({ route, navigation }) {
         importSeedCta(mnemonic);
         dispatch(resetSeedWords());
       } else {
-        showToast(seed.SeedErrorToast, <ToastErrorIcon />);
+        openInvalidSeedsModal();
       }
     };
 
@@ -264,7 +257,7 @@ function EnterSeedScreen({ route, navigation }) {
         dispatch(resetSeedWords());
         navigateBack(step);
       } else {
-        Alert.alert('Invalid Mnemonic');
+        openInvalidSeedsModal();
       }
     };
 
@@ -329,13 +322,13 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const handleHealthCheckError = (err) => {
+    openInvalidSeedsModal();
     console.error('Health check error:', err);
-    showToast(seed.SeedErrorToast, <ToastErrorIcon />);
   };
 
   const handleIdentificationError = (err) => {
+    openInvalidSeedsModal();
     console.error('Identification error:', err);
-    showToast(seed.SeedErrorToast, <ToastErrorIcon />);
   };
 
   function InValidSeedsScreen() {
@@ -361,7 +354,11 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const getPosition = (index: number) => {
-    return Math.floor(index / 2) + 1;
+    if (step === 1) {
+      return Math.floor(index / 2);
+    } else {
+      return Math.floor((index - 16) / 2 + 1);
+    }
   };
 
   const selectNumberOfWords = (option: string) => {

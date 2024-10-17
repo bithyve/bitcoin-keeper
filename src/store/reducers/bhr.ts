@@ -233,7 +233,6 @@ const bhrSlice = createSlice({
       const { index, wordItem } = action.payload;
       if (state.seedWords[index]) {
         state.seedWords[index] = wordItem;
-        console.log(state.seedWords[index], 'from state');
       } else {
         state.seedWords.push(wordItem);
       }
