@@ -125,11 +125,7 @@ function VaultSetup({ route }: ScreenProps) {
             placeholder="Name your vault"
             value={vaultName}
             onChangeText={(value) => {
-              if (vaultName === 'Vault') {
-                setVaultName('');
-              } else {
-                setVaultName(value);
-              }
+              setVaultName(value);
             }}
             testID="vault_name"
             maxLength={18}
