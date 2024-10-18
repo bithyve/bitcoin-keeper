@@ -318,8 +318,8 @@ function PrivacyAndDisplay({ route }) {
       if (available) {
         if (loginMethod === LoginMethod.PIN) {
           const { keysExist } = await RNBiometrics.biometricKeysExist();
-          if (!keysExist) {
-            await RNBiometrics.createKeys();
+          if (keysExist) {
+            await RNBiometrics.deleteKeys();
           }
           const { success } = await RNBiometrics.simplePrompt({
             promptMessage: 'Confirm your identity',
