@@ -149,9 +149,8 @@ export const getSignerDescription = (signer?: Signer) => {
     return signer.signerDescription;
   }
 
-  if (signer?.type === SignerType.MY_KEEPER) {
-    const instanceNumber = signer?.extraData?.instanceNumber;
-    return instanceNumber !== undefined ? numberToOrdinal(instanceNumber) : 'Unknown Instance';
+  if (signer?.type === SignerType.MY_KEEPER && signer?.extraData?.instanceNumber !== undefined) {
+    return numberToOrdinal(signer.extraData.instanceNumber);
   }
 
   return signer?.addedOn ? `Added ${moment(signer.addedOn).calendar().toLowerCase()}` : '';
