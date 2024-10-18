@@ -55,6 +55,7 @@ function EnterWalletDetailScreen({ route }) {
   const { wallet, choosePlan, common, importWallet } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [walletName, setWalletName] = useState(route.params?.name);
+
   const [isHotWallet, setIsHotWallet] = useState(route.params?.isHotWallet || false);
   const [walletCreatedModal, setWalletCreatedModal] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
@@ -251,10 +252,6 @@ function EnterWalletDetailScreen({ route }) {
               placeholder={wallet.WalletNamePlaceHolder}
               value={walletName}
               onChangeText={(value) => {
-                if (route.params?.name && route.params?.name === walletName) {
-                  setWalletName('');
-                  return;
-                }
                 setWalletName(value);
               }}
               maxLength={18}
