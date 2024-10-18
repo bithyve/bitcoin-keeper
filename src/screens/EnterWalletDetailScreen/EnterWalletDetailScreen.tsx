@@ -251,10 +251,6 @@ function EnterWalletDetailScreen({ route }) {
               placeholder={wallet.WalletNamePlaceHolder}
               value={walletName}
               onChangeText={(value) => {
-                if (route.params?.name && route.params?.name === walletName) {
-                  setWalletName('');
-                  return;
-                }
                 setWalletName(value);
               }}
               maxLength={18}
@@ -266,13 +262,6 @@ function EnterWalletDetailScreen({ route }) {
               placeholder={wallet.WalletDescriptionPlaceholder}
               value={walletDescription}
               onChangeText={(value) => {
-                if (
-                  route.params?.description === walletDescription &&
-                  walletDescription.length > 0
-                ) {
-                  setWalletDescription('');
-                  return;
-                }
                 setWalletDescription(value);
               }}
               maxLength={20}
