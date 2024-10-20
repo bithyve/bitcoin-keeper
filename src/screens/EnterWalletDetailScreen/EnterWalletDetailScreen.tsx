@@ -263,13 +263,6 @@ function EnterWalletDetailScreen({ route }) {
               placeholder={wallet.WalletDescriptionPlaceholder}
               value={walletDescription}
               onChangeText={(value) => {
-                if (
-                  route.params?.description === walletDescription &&
-                  walletDescription.length > 0
-                ) {
-                  setWalletDescription('');
-                  return;
-                }
                 setWalletDescription(value);
               }}
               maxLength={20}
