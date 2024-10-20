@@ -381,6 +381,14 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
+  const handleInputFocus = (index) => {
+    const data = [...seedData];
+    data[index].invalid = false;
+    setSeedData(data);
+    setSuggestedWords([]);
+    setOnChangeIndex(index);
+  };
+
   const handleInputBlur = (index) => {
     const data = [...seedData];
     if (!bip39.wordlists.english.includes(data[index].name)) {
@@ -411,6 +419,7 @@ function EnterSeedScreen({ route, navigation }) {
             fontFamily={item.name === '' ? 'Arial' : Fonts.FiraSansSemiBold}
             backgroundColor={`${colorMode}.seashellWhite`}
             borderColor={item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.seashellWhite`}
+            _focus={{ borderColor: `${colorMode}.pantoneGreen` }}
             ref={(el) => (inputRef.current[index] = el)}
             style={styles.input}
             placeholder={`Enter ${getPlaceholderSuperScripted(index)} word`}
@@ -425,15 +434,10 @@ function EnterSeedScreen({ route, navigation }) {
             onChangeText={(text) => handleInputChange(text, index)}
             onBlur={() => handleInputBlur(index)}
             onFocus={() => {
-              const data = [...seedData];
-              data[index].invalid = false;
-              setSeedData(data);
-              setSuggestedWords([]);
-              setOnChangeIndex(index);
+              handleInputFocus(index);
             }}
             onSubmitEditing={() => {
               dispatch(setSeedWord({ index, wordItem: seedData[index] }));
-
               setSuggestedWords([]);
               Keyboard.dismiss();
             }}
@@ -522,6 +526,11 @@ function EnterSeedScreen({ route, navigation }) {
             }}
             pagingEnabled
             renderItem={({ item, index }) => seedItem(item, index)}
+            ListFooterComponent={() =>
+              Platform.OS === 'android' && step !== 1 && <View style={{ height: hp(10) }} />
+            }
+            keyboardShouldPersistTaps="handled"
+            removeClippedSubviews={false}
           />
           {suggestedWords?.length > 0 ? (
             <ScrollView
