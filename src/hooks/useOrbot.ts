@@ -18,10 +18,10 @@ const useOrbot = () => {
       .then((connected) => {
         if (connected) {
           setGlobalStatus(TorStatus.CONNECTED);
-          console.log('Tor is not connected.');
+          console.log('Tor is connected.');
         } else {
           setGlobalStatus(TorStatus.OFF);
-          console.log('Tor is connected.');
+          console.log('Tor is not connected.');
         }
       })
       .catch((_) => {
