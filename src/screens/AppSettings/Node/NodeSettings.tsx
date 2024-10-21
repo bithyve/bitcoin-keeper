@@ -89,8 +89,12 @@ function NodeSettings() {
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
-      // dispatch(updateAppImage(null));
-      // setCurrentlySelectedNodeItem(node);
+      const newNode = updatedNodeList.find(
+        (node) => node.host === nodeDetail.host && node.port === nodeDetail.port
+      );
+      if (newNode) {
+        onConnectToNode(newNode);
+      }
     } else {
       showToast(`Failed to save, unable to connect to: ${nodeDetail.host} `, <ToastErrorIcon />);
     }
@@ -125,7 +129,7 @@ function NodeSettings() {
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
-    let nodes = [...nodeList];
+    let nodes = Node.getAllNodes();
     if (
       currentlySelectedNode &&
       selectedNode.id !== currentlySelectedNode.id &&
@@ -159,7 +163,6 @@ function NodeSettings() {
         if (item.id === node.id) return { ...node };
         return item;
       });
-      // dispatch(updateAppImage(null));
     } else dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
 
     setCurrentlySelectedNodeItem(node);
