@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import { Box, Input, Pressable, ScrollView, View, useColorMode } from 'native-base';
-import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -61,7 +61,6 @@ function EnterSeedScreen({ route, navigation }) {
   const dispatch = useDispatch();
   const seedWords = useAppSelector((state) => state.bhr.seedWords);
 
-  const ref = useRef<FlatList>(null);
   const [seedData, setSeedData] = useState<seedWordItem[]>();
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
@@ -69,12 +68,10 @@ function EnterSeedScreen({ route, navigation }) {
   const [hcLoading, setHcLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [inputPositions, setInputPositions] = useState({});
   const [selectedNumberOfWords, setSelectedNumberOfWords] = useState(
     selectedNumberOfWordsFromParams || SEED_WORDS_12
   );
-  const [unsavedIndexes, setUnsavedIndexes] = useState(new Set());
-
   const options = [SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24];
   const numberOfWordsToScreensMap = {
     [SEED_WORDS_12]: 1,
@@ -82,7 +79,7 @@ function EnterSeedScreen({ route, navigation }) {
     [SEED_WORDS_24]: 2,
   };
 
-  const inputRef = useRef<(typeof Input | null)[]>([]);
+  const inputRef = useRef([]);
 
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const isSignTransaction = parentScreen === SIGNTRANSACTION;
@@ -157,12 +154,9 @@ function EnterSeedScreen({ route, navigation }) {
   const handleNext = async () => {
     const mnemonic = seedWords.map((word) => word.name).join(' ');
 
-    unsavedIndexes.forEach((index) => {
-      inputRef.current[index]?.blur();
-    });
-
-    setUnsavedIndexes(new Set());
-
+    if (onChangeIndex !== -1 && inputRef.current[onChangeIndex]) {
+      inputRef.current[onChangeIndex].blur();
+    }
     const areInputsFilled = () => {
       const requiredWordsCount = getRequiredWordsCount();
       return seedData.slice(0, requiredWordsCount).every((word) => word.name !== '');
@@ -363,41 +357,17 @@ function EnterSeedScreen({ route, navigation }) {
     setSuggestedWords(filteredData);
   };
 
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
-
-  const getSuggestionPosition = (index: number) => {
-    const OFFSET = 3;
-    const basePosition = getPosition(index);
-
-    if (isKeyboardVisible && ((index >= 9 && index <= 12) || (index >= 21 && index <= 24))) {
-      return basePosition - OFFSET;
-    }
-
-    return basePosition;
-  };
-
-  const getPosition = (index: number) => {
-    if (step === 1) {
-      return Math.floor(index / 2);
-    } else {
-      return Math.floor((index - 16) / 2 + 1);
-    }
-  };
-
   const selectNumberOfWords = (option: string) => {
     setSelectedNumberOfWords(option);
+  };
+
+  const handleLayout = (index: number) => {
+    inputRef.current[index]?.measureInWindow((y: number) => {
+      setInputPositions((prev) => ({
+        ...prev,
+        [index]: { y },
+      }));
+    });
   };
 
   const handleInputChange = (text, index) => {
@@ -406,7 +376,7 @@ function EnterSeedScreen({ route, navigation }) {
     data[index].invalid = false;
     setSeedData(data);
 
-    setUnsavedIndexes((prev) => new Set(prev).add(index));
+    dispatch(setSeedWord({ index, wordItem: data[index] }));
 
     if (text.length > 1) {
       setOnChangeIndex(index);
@@ -431,6 +401,29 @@ function EnterSeedScreen({ route, navigation }) {
     }
     setSeedData(data);
     dispatch(setSeedWord({ index, wordItem: seedData[index] }));
+  };
+
+  const getRequiredWordsCount = () => {
+    const wordsMap = {
+      [SEED_WORDS_12]: 12,
+      [SEED_WORDS_18]: step === 1 ? 12 : 18,
+      [SEED_WORDS_24]: step === 1 ? 12 : 24,
+    };
+    return wordsMap[selectedNumberOfWordsFromParams || selectedNumberOfWords] || 0;
+  };
+
+  const requiredWordsCount = getRequiredWordsCount();
+
+  const getPosition = (index: number) => {
+    if ([0, 1, 12, 13, 18, 19, 20, 21].includes(index)) {
+      return 1;
+    } else if ([2, 3, 6, 7, 8, 9, 10, 11, 14, 15, 22, 23].includes(index)) {
+      return 2;
+    } else if ([4, 5, 16, 17].includes(index)) {
+      return 3;
+    } else {
+      return 1;
+    }
   };
 
   const seedItem = (item: seedWordItem, index: number) => {
@@ -466,6 +459,7 @@ function EnterSeedScreen({ route, navigation }) {
             autoCapitalize="none"
             blurOnSubmit={false}
             keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
+            onLayout={() => handleLayout(index)}
             onChangeText={(text) => handleInputChange(text, index)}
             onBlur={() => handleInputBlur(index)}
             onFocus={() => {
@@ -485,16 +479,47 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
-  const getRequiredWordsCount = () => {
-    const wordsMap = {
-      [SEED_WORDS_12]: 12,
-      [SEED_WORDS_18]: step === 1 ? 12 : 18,
-      [SEED_WORDS_24]: step === 1 ? 12 : 24,
-    };
-    return wordsMap[selectedNumberOfWordsFromParams || selectedNumberOfWords] || 0;
-  };
+  const renderSuggestions = () => {
+    if (suggestedWords.length === 0 || onChangeIndex === -1) return null;
 
-  const requiredWordsCount = getRequiredWordsCount();
+    const position = inputPositions[onChangeIndex];
+    if (!position) return null;
+    return (
+      <ScrollView
+        style={[
+          styles.suggestionScrollView,
+          {
+            marginTop: getPosition(onChangeIndex) * hp(60),
+            height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
+          },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
+        testID="view_suggestionView"
+      >
+        <Box style={styles.suggestionWrapper}>
+          {suggestedWords.map((word, wordIndex) => (
+            <Pressable
+              testID={`btn_suggested_${word}`}
+              key={word ? `${word + wordIndex}` : wordIndex}
+              style={styles.suggestionTouchView}
+              onPress={() => {
+                const updatedSeedData = [...seedData];
+                updatedSeedData[onChangeIndex].name = word.trim();
+                setSeedData(updatedSeedData);
+                setSuggestedWords([]);
+                if (onChangeIndex < (step === 1 ? 11 : requiredWordsCount - 1)) {
+                  inputRef.current[onChangeIndex + 1]?.focus();
+                }
+              }}
+            >
+              <Text>{word}</Text>
+            </Pressable>
+          ))}
+        </Box>
+      </ScrollView>
+    );
+  };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -547,61 +572,18 @@ function EnterSeedScreen({ route, navigation }) {
               />
             </Box>
           )}
-          <FlatList
-            ref={ref}
-            keyExtractor={(item) => item.id}
-            data={seedData}
-            extraData={seedData}
-            showsVerticalScrollIndicator={false}
-            numColumns={2}
+          <ScrollView
             contentContainerStyle={{
               flexDirection: 'row',
               flexWrap: 'wrap',
               gap: 10,
             }}
-            pagingEnabled
-            renderItem={({ item, index }) => seedItem(item, index)}
-            ListFooterComponent={() =>
-              Platform.OS === 'android' && step !== 1 && <View style={{ height: hp(10) }} />
-            }
+            showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            removeClippedSubviews={false}
-          />
-          {suggestedWords?.length > 0 ? (
-            <ScrollView
-              style={[
-                styles.suggestionScrollView,
-                {
-                  marginTop: getSuggestionPosition(onChangeIndex) * hp(60),
-                  height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
-                },
-              ]}
-              keyboardShouldPersistTaps="handled"
-              nestedScrollEnabled
-              testID="view_suggestionView"
-            >
-              <Box style={styles.suggestionWrapper}>
-                {suggestedWords.map((word, wordIndex) => (
-                  <Pressable
-                    testID={`btn_suggested_${word}`}
-                    key={word ? `${word + wordIndex}` : wordIndex}
-                    style={styles.suggestionTouchView}
-                    onPress={() => {
-                      const updatedSeedData = [...seedData];
-                      updatedSeedData[onChangeIndex].name = word.trim();
-                      setSeedData(updatedSeedData);
-                      setSuggestedWords([]);
-                      if (onChangeIndex < (step === 1 ? 11 : requiredWordsCount - 1)) {
-                        inputRef.current[onChangeIndex + 1]?.focus();
-                      }
-                    }}
-                  >
-                    <Text>{word}</Text>
-                  </Pressable>
-                ))}
-              </Box>
-            </ScrollView>
-          ) : null}
+          >
+            {seedData?.map((item, index) => seedItem(item, index))}
+          </ScrollView>
+          {renderSuggestions()}
         </Box>
         <Box style={styles.bottomContainerView}>
           <Breadcrumbs
@@ -672,7 +654,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   inputListWrapper: {
-    width: '50%',
+    width: '48%',
     paddingHorizontal: 10,
   },
   bottomContainerView: {
@@ -685,7 +667,7 @@ const styles = StyleSheet.create({
   suggestionScrollView: {
     zIndex: 99999,
     position: 'absolute',
-    height: hp(150),
+    maxHeight: hp(100),
     width: '100%',
     alignSelf: 'center',
   },
