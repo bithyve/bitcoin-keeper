@@ -93,6 +93,7 @@ function ImportWallets({ navigation }) {
         subTitle={importWallet.recreateWalletModalSubtitle}
         buttonText={'Proceed'}
         buttonCallback={() => {
+          setShowRecreateModal(false);
           switch (selectedRecreateOption) {
             case RecreateOptions.SINGLE_KEY:
               navigation.navigate('EnterWalletDetail', {
