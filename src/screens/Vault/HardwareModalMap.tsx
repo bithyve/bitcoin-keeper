@@ -1184,6 +1184,7 @@ function HardwareModalMap({
             signer,
             isMultisig,
             setupSeedWordsBasedSigner: setupSeedWordsBasedKey,
+            mapUnknownSigner,
           },
         })
       );
