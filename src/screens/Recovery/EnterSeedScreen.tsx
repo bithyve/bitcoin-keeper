@@ -1,13 +1,6 @@
 import * as bip39 from 'bip39';
 import { Box, Input, Pressable, ScrollView, View, useColorMode } from 'native-base';
-import {
-  Alert,
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from 'react-native';
+import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -76,8 +69,9 @@ function EnterSeedScreen({ route, navigation }) {
   const [hcLoading, setHcLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [selectedNumberOfWords, setSelectedNumberOfWords] = useState(
-    SEED_WORDS_12 || selectedNumberOfWordsFromParams
+    selectedNumberOfWordsFromParams || SEED_WORDS_12
   );
   const [unsavedIndexes, setUnsavedIndexes] = useState(new Set());
 
@@ -96,7 +90,7 @@ function EnterSeedScreen({ route, navigation }) {
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
-    if (!isSignTransaction) setInvalidSeedsModal(true);
+    setInvalidSeedsModal(true);
   };
   const closeInvalidSeedsModal = () => {
     dispatch(setAppImageError(false));
@@ -254,7 +248,7 @@ function EnterSeedScreen({ route, navigation }) {
         importSeedCta(mnemonic);
         dispatch(resetSeedWords());
       } else {
-        showToast(seed.SeedErrorToast, <ToastErrorIcon />);
+        openInvalidSeedsModal();
       }
     };
 
@@ -273,7 +267,7 @@ function EnterSeedScreen({ route, navigation }) {
         dispatch(resetSeedWords());
         navigateBack(step);
       } else {
-        Alert.alert('Invalid Mnemonic');
+        openInvalidSeedsModal();
       }
     };
 
@@ -338,13 +332,13 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const handleHealthCheckError = (err) => {
+    openInvalidSeedsModal();
     console.error('Health check error:', err);
-    showToast(seed.SeedErrorToast, <ToastErrorIcon />);
   };
 
   const handleIdentificationError = (err) => {
+    openInvalidSeedsModal();
     console.error('Identification error:', err);
-    showToast(seed.SeedErrorToast, <ToastErrorIcon />);
   };
 
   function InValidSeedsScreen() {
@@ -369,8 +363,37 @@ function EnterSeedScreen({ route, navigation }) {
     setSuggestedWords(filteredData);
   };
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const getSuggestionPosition = (index: number) => {
+    const OFFSET = 3;
+    const basePosition = getPosition(index);
+
+    if (isKeyboardVisible && ((index >= 9 && index <= 12) || (index >= 21 && index <= 24))) {
+      return basePosition - OFFSET;
+    }
+
+    return basePosition;
+  };
+
   const getPosition = (index: number) => {
-    return Math.floor(index / 2) + 1;
+    if (step === 1) {
+      return Math.floor(index / 2);
+    } else {
+      return Math.floor((index - 16) / 2 + 1);
+    }
   };
 
   const selectNumberOfWords = (option: string) => {
@@ -391,6 +414,14 @@ function EnterSeedScreen({ route, navigation }) {
     } else {
       setSuggestedWords([]);
     }
+  };
+
+  const handleInputFocus = (index) => {
+    const data = [...seedData];
+    data[index].invalid = false;
+    setSeedData(data);
+    setSuggestedWords([]);
+    setOnChangeIndex(index);
   };
 
   const handleInputBlur = (index) => {
@@ -423,6 +454,7 @@ function EnterSeedScreen({ route, navigation }) {
             fontFamily={item.name === '' ? 'Arial' : Fonts.FiraSansSemiBold}
             backgroundColor={`${colorMode}.seashellWhite`}
             borderColor={item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.seashellWhite`}
+            _focus={{ borderColor: `${colorMode}.pantoneGreen` }}
             ref={(el) => (inputRef.current[index] = el)}
             style={styles.input}
             placeholder={`Enter ${getPlaceholderSuperScripted(index)} word`}
@@ -437,15 +469,10 @@ function EnterSeedScreen({ route, navigation }) {
             onChangeText={(text) => handleInputChange(text, index)}
             onBlur={() => handleInputBlur(index)}
             onFocus={() => {
-              const data = [...seedData];
-              data[index].invalid = false;
-              setSeedData(data);
-              setSuggestedWords([]);
-              setOnChangeIndex(index);
+              handleInputFocus(index);
             }}
             onSubmitEditing={() => {
               dispatch(setSeedWord({ index, wordItem: seedData[index] }));
-
               setSuggestedWords([]);
               Keyboard.dismiss();
             }}
@@ -534,13 +561,18 @@ function EnterSeedScreen({ route, navigation }) {
             }}
             pagingEnabled
             renderItem={({ item, index }) => seedItem(item, index)}
+            ListFooterComponent={() =>
+              Platform.OS === 'android' && step !== 1 && <View style={{ height: hp(10) }} />
+            }
+            keyboardShouldPersistTaps="handled"
+            removeClippedSubviews={false}
           />
           {suggestedWords?.length > 0 ? (
             <ScrollView
               style={[
                 styles.suggestionScrollView,
                 {
-                  marginTop: getPosition(onChangeIndex) * hp(60),
+                  marginTop: getSuggestionPosition(onChangeIndex) * hp(60),
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
