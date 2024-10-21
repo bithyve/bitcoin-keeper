@@ -5,32 +5,10 @@ import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
-import Text from './KeeperText';
-import { SignerType } from 'src/services/wallets/enums';
 
 const KeyAddedModal = ({ visible, close, signer }) => {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-
-  const signerTypeConfig = {
-    [SignerType.KEEPER]: {
-      buttonText: 'Add Description',
-      buttonCallback: () => {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'AdditionalDetails',
-            params: { signer },
-          })
-        );
-      },
-      secondaryButtonText: 'Cancel',
-      content: (
-        <Text color={`${colorMode}.primaryText`} style={styles.externalKeyText}>
-          You can associate a contact with this key if you wish to.
-        </Text>
-      ),
-    },
-  };
 
   const defaultConfig = {
     buttonText: 'Add Description',
@@ -48,8 +26,7 @@ const KeyAddedModal = ({ visible, close, signer }) => {
     content: null,
   };
 
-  const { buttonText, buttonCallback, secondaryButtonText, content } =
-    signer?.type && signerTypeConfig[signer?.type] ? signerTypeConfig[signer?.type] : defaultConfig;
+  const { buttonText, buttonCallback, secondaryButtonText, content } = defaultConfig;
 
   return (
     <KeeperModal
