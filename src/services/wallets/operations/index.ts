@@ -1136,7 +1136,7 @@ export default class WalletOperations {
       signer.type === SignerType.LEDGER ||
       signer.type === SignerType.TREZOR ||
       signer.type === SignerType.BITBOX02 ||
-      SignerType.KEEPER // for external key since it can be of any signer type
+      signer.type === SignerType.KEEPER // for external key since it can be of any signer type
     ) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
