@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -16,10 +16,16 @@ function Buttons({
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
   width = null,
+  fullWidth = false,
 }) {
   const { colorMode } = useColorMode();
+
   const onPrimaryInteraction = () => {
     primaryCallback();
+  };
+
+  const onSecondaryInteraction = () => {
+    secondaryCallback();
   };
 
   if (primaryLoading) {
@@ -32,6 +38,9 @@ function Buttons({
       disabled={primaryDisable}
       activeOpacity={activeOpacity}
       testID="btn_primaryText"
+      style={{
+        width: fullWidth ? '100%' : width,
+      }}
     >
       <Box
         style={[
@@ -64,7 +73,7 @@ function Buttons({
               marginRight: primaryText ? wp(20) : 0,
             },
           ]}
-          onPress={secondaryCallback}
+          onPress={onSecondaryInteraction}
           disabled={secondaryDisable}
           activeOpacity={0.5}
           testID="btn_secondaryText"
