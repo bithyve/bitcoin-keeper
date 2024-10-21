@@ -84,6 +84,7 @@ function Card({
   isVault = false,
   showFullAddress = false,
   isAddress = false,
+  isRemoteFlow = false,
 }) {
   const { colorMode } = useColorMode();
   return (
@@ -106,13 +107,22 @@ function Card({
         />
       )}
       <Box style={styles.ml10}>
-        <Text
-          numberOfLines={showFullAddress ? 2 : 1}
-          style={styles.cardTitle}
-          ellipsizeMode="middle"
-        >
-          {title}
-        </Text>
+        {isRemoteFlow ? (
+          title.map((add) => (
+            <Text numberOfLines={1} style={styles.cardTitle} ellipsizeMode="middle">
+              {add}
+            </Text>
+          ))
+        ) : (
+          <Text
+            numberOfLines={showFullAddress ? 2 : 1}
+            style={styles.cardTitle}
+            ellipsizeMode="middle"
+          >
+            {title}
+          </Text>
+        )}
+
         {!showFullAddress && (
           <Text numberOfLines={1} style={styles.cardSubtitle}>
             {subTitle}
@@ -135,6 +145,7 @@ function SendingCard({
   getBalance,
   getSatUnit,
   isAddress,
+  isRemoteFlow = false,
 }) {
   const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
@@ -145,10 +156,11 @@ function SendingCard({
   };
 
   const getCardDetails = () => {
-    const availableBalance =
-      sender.networkType === NetworkType.MAINNET
-        ? sender.specs.balances.confirmed
-        : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+    const availableBalance = isRemoteFlow
+      ? amount
+      : sender.networkType === NetworkType.MAINNET
+      ? sender.specs.balances.confirmed
+      : sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
 
     switch (transferType) {
       case TransferType.VAULT_TO_VAULT:
@@ -190,13 +202,15 @@ function SendingCard({
               availableBalance || 0
             )} ${getSatUnit()}`}
             isVault
+            isRemoteFlow
           />
         ) : (
           <Card
             title={address}
             subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
-            showFullAddress={true}
+            showFullAddress={!isRemoteFlow}
             isAddress={isAddress}
+            isRemoteFlow
           />
         );
       case TransferType.WALLET_TO_WALLET:
@@ -798,19 +812,23 @@ function SendConfirmation({ route }) {
     isAutoTransfer,
     parentScreen,
     isRemoteFlow = false,
-    tnxDetails,
-    signingDetails,
-    timeLeft,
-  }: SendConfirmationRouteParams = route.params;
+    fees: remoteTnxFees,
+    signer,
+    psbt,
+  }: // tnxDetails,
+  // signingDetails,
+  // timeLeft,
+  SendConfirmationRouteParams = route.params;
+  console.log('🚀 ~ SendConfirmation ~ psbt:', psbt);
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
   const txFeeInfo = isRemoteFlow
-    ? tnxDetails.txFeeInfo
+    ? { txFeeInfo: 'tnxDetails.txFeeInfo' }
     : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendMaxFeeEstimatedBlocks = isRemoteFlow
-    ? tnxDetails.sendMaxFeeEstimatedBlocks
+    ? { sendMaxFeeEstimatedBlocks: 'tnxDetails.sendMaxFeeEstimatedBlocks' }
     : useAppSelector((state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
@@ -865,7 +883,7 @@ function SendConfirmation({ route }) {
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
   const [transactionPriority, setTransactionPriority] = useState(
     isRemoteFlow
-      ? tnxDetails.transactionPriority
+      ? TxPriority.LOW // !!!!!!
       : isCachedTransaction
       ? cachedTxPriority || TxPriority.LOW
       : TxPriority.LOW
@@ -927,12 +945,11 @@ function SendConfirmation({ route }) {
   }, []);
 
   useEffect(() => {
+    if (isRemoteFlow) return; // !!! check this
     let hasHighFee = false;
     const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
     if (selectedFee > amount / 10) hasHighFee = true; // if fee is greater than 10% of the amount being sent
-
     setFeePercentage(Math.trunc((selectedFee / amount) * 100));
-
     if (hasHighFee) {
       setIsFeeHigh(true);
       setHighFeeAlertVisible(true);
@@ -1095,7 +1112,7 @@ function SendConfirmation({ route }) {
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
-    } else if (whirlPoolWalletTypes.includes(sender.type)) {
+    } else if (whirlPoolWalletTypes.includes(sender?.type)) {
       const popAction = StackActions.pop(3);
       navigation.dispatch(popAction);
     } else {
@@ -1222,7 +1239,7 @@ function SendConfirmation({ route }) {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {isRemoteFlow && (
+        {false && (
           <Box style={styles.timerContainer}>
             <Box style={styles.timerTextContainer}>
               <Text fontSize={20} color={`${colorMode}.greenText`}>
@@ -1233,7 +1250,7 @@ function SendConfirmation({ route }) {
               </Text>
             </Box>
             <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <CountdownTimer initialTime={timeLeft} onTimerEnd={handleTimerEnd} />
+              <CountdownTimer initialTime={0} onTimerEnd={handleTimerEnd} />
             </Box>
           </Box>
         )}
@@ -1252,7 +1269,39 @@ function SendConfirmation({ route }) {
             </Box>
           </Box>
         )}
-        {!isAutoTransferFlow ? (
+        {isRemoteFlow ? (
+          <>
+            {/* Remote Tnx */}
+            <SendingCard
+              isSend
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+              sender={sender}
+              recipient={recipient}
+              address={sender}
+              amount={amount}
+              transferType={TransferType.VAULT_TO_ADDRESS}
+              getBalance={getBalance}
+              getSatUnit={getSatUnit}
+              isAddress={isAddress}
+              isRemoteFlow
+            />
+            <SendingCard
+              isSend={false}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+              sender={sender}
+              recipient={recipient}
+              address={address}
+              amount={amount}
+              transferType={TransferType.VAULT_TO_ADDRESS}
+              getBalance={getBalance}
+              getSatUnit={getSatUnit}
+              isAddress={isAddress}
+              isRemoteFlow
+            />
+          </>
+        ) : !isAutoTransferFlow ? (
           <>
             <SendingCard
               isSend
@@ -1301,24 +1350,27 @@ function SendConfirmation({ route }) {
             />
           </>
         )}
+
         {/* Custom priority diabled for auto transfer  */}
 
-        <TouchableOpacity
-          testID="btn_transactionPriority"
-          onPress={() => setTransPriorityModalVisible(true)}
-          disabled={isAutoTransfer || isRemoteFlow} // disable change priority for AutoTransfers
-        >
-          <TransactionPriorityDetails
-            isAutoTransfer={isAutoTransfer}
-            sendMaxFee={`${getBalance(sendMaxFee)} ${getSatUnit()}`}
-            sendMaxFeeEstimatedBlocks={sendMaxFeeEstimatedBlocks}
-            transactionPriority={transactionPriority}
-            txFeeInfo={txFeeInfo}
-            getBalance={getBalance}
-            getCurrencyIcon={getCurrencyIcon}
-            getSatUnit={getSatUnit}
-          />
-        </TouchableOpacity>
+        {!isRemoteFlow && (
+          <TouchableOpacity
+            testID="btn_transactionPriority"
+            onPress={() => setTransPriorityModalVisible(true)}
+            disabled={isAutoTransfer || isRemoteFlow} // disable change priority for AutoTransfers
+          >
+            <TransactionPriorityDetails
+              isAutoTransfer={isAutoTransfer}
+              sendMaxFee={`${getBalance(sendMaxFee)} ${getSatUnit()}`}
+              sendMaxFeeEstimatedBlocks={sendMaxFeeEstimatedBlocks}
+              transactionPriority={transactionPriority}
+              txFeeInfo={txFeeInfo}
+              getBalance={getBalance}
+              getCurrencyIcon={getCurrencyIcon}
+              getSatUnit={getSatUnit}
+            />
+          </TouchableOpacity>
+        )}
 
         {OneDayHistoricalFee.length > 0 && (
           <Box style={styles.feeStatContainer}>
@@ -1334,7 +1386,9 @@ function SendConfirmation({ route }) {
         <AmountDetails
           title={walletTransactions.totalAmount}
           satsAmount={
-            isAutoTransferFlow
+            isRemoteFlow
+              ? ` ${getBalance(amount - remoteTnxFees)} ${getSatUnit()}`
+              : isAutoTransferFlow
               ? `${getBalance(sourceWalletAmount)} ${getSatUnit()}`
               : ` ${getBalance(amount)} ${getSatUnit()}`
           }
@@ -1342,7 +1396,9 @@ function SendConfirmation({ route }) {
         <AmountDetails
           title={walletTransactions.totalFees}
           satsAmount={
-            isAutoTransferFlow
+            isRemoteFlow
+              ? `${getBalance(remoteTnxFees)} ${getSatUnit()}`
+              : isAutoTransferFlow
               ? `${getBalance(sendMaxFee)} ${getSatUnit()}`
               : `${getBalance(
                   txFeeInfo[transactionPriority?.toLowerCase()]?.amount
@@ -1353,7 +1409,9 @@ function SendConfirmation({ route }) {
         <AmountDetails
           title={walletTransactions.total}
           satsAmount={
-            isAutoTransferFlow
+            isRemoteFlow
+              ? `${getBalance(amount)} ${getSatUnit()}`
+              : isAutoTransferFlow
               ? `${addNumbers(getBalance(sourceWalletAmount), getBalance(sendMaxFee)).toFixed(
                   satsEnabled ? 2 : 8
                 )} ${getSatUnit()}`
@@ -1594,7 +1652,7 @@ function SendConfirmation({ route }) {
           }}
         />
       )}
-      {isRemoteFlow && <RKSignersModal data={signingDetails} ref={signerModalRef} />}
+      {isRemoteFlow && <RKSignersModal ref={signerModalRef} signer={signer} psbt={psbt} />}
     </ScreenWrapper>
   );
 }

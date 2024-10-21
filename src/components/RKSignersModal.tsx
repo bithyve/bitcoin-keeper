@@ -22,8 +22,11 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 
-const RKSignersModal = ({ data }, ref) => {
-  const { serializedPSBTEnvelop, signer, vault, vaultId, vaultKey, isMultisig } = data;
+const RKSignersModal = ({ signer, psbt }, ref) => {
+  console.log('🚀 ~ RKSignersModal ~ signer:', signer);
+  const isMultisig = true;
+
+  // const { serializedPSBTEnvelop, vault, vaultId, vaultKey } = data;
   const { colorMode } = useColorMode();
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -151,7 +154,8 @@ const RKSignersModal = ({ data }, ref) => {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
         const signedSerializedPSBT = signCosignerPSBT(
           key.xpriv,
-          serializedPSBTEnvelop.serializedPSBT
+          // serializedPSBTEnvelop.serializedPSBT
+          psbt
         );
         if (signedSerializedPSBT) {
           dispatch(
@@ -177,7 +181,7 @@ const RKSignersModal = ({ data }, ref) => {
           signingPayload: serializedPSBTEnvelop.signingPayload,
           defaultVault: vault,
           seedBasedSingerMnemonic,
-          serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
+          serializedPSBT: psbt,
           xfp: vaultKey.xfp,
           isMultisig: isMultisig,
         });
@@ -209,7 +213,8 @@ const RKSignersModal = ({ data }, ref) => {
   const onFileSign = (signedSerializedPSBT: string) => {
     if (signerType == SignerType.KEYSTONE) {
       const tx = getTxHexFromKeystonePSBT(
-        serializedPSBTEnvelop.serializedPSBT,
+        // serializedPSBTEnvelop.serializedPSBT,
+        psbt,
         signedSerializedPSBT
       );
       signedSerializedPSBT = tx.toHex();
@@ -257,7 +262,7 @@ const RKSignersModal = ({ data }, ref) => {
         )}
       />
       <SignerModals
-        vaultId={vaultId}
+        vaultId={'000000'}
         vaultKeys={[vaultKey]}
         activeXfp={vaultKey.xfp}
         coldCardModal={coldCardModal}

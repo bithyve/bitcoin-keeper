@@ -85,8 +85,10 @@ import useSigners from 'src/hooks/useSigners';
 import SignerCard from '../AddSigner/SignerCard';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
-
+import * as bitcoin from 'bitcoinjs-lib';
 const { width } = Dimensions.get('screen');
+import crypto from 'crypto';
+import { TransferType } from 'src/models/enums/TransferType';
 
 const SignersWithoutRKSigningSupport = [
   SignerType.POLICY_SERVER,
@@ -544,7 +546,40 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const signPSBT = async (serializedPSBT, resetQR) => {
+    const { senderAddresses, receiverAddresses, fees, sendAmount, totalAmount, signerFingerPrint } =
+      dataFromPSBT(serializedPSBT, signer);
+    // if (!signerFingerPrint.includes(signer.masterFingerprint)) {
+    //   showToast('Signer not match');
+    //   return;
+    // }
+
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'SendConfirmation',
+        params: {
+          sender: senderAddresses,
+          receiver: null,
+          address: receiverAddresses,
+          amount: totalAmount,
+          fees: fees,
+          data: serializedPSBT,
+          isRemoteFlow: true,
+          signingDetails: signer,
+          //
+          timeLeft: 400,
+          transferType: TransferType.VAULT_TO_ADDRESS,
+          //
+          signer,
+          psbt: serializedPSBT,
+        },
+      })
+    );
+
+    return;
+
     try {
+      console.log('🚀 ~ signPSBT ~ serializedPSBT:', serializedPSBT);
+      throw 'Error';
       let signedSerialisedPSBT;
       try {
         const key = signer.signerXpubs[XpubTypes.P2WSH][0];
@@ -574,6 +609,11 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const navigateToScanPSBT = () => {
+    const psbt =
+      'cHNidP8BAH0CAAAAAbgTt/Ylc8e1xm/EWAj7GcYBP2lR8hg6r65SEVwKm+hCAAAAAAD/////AhqxAAAAAAAAIgAgjay+Hh/8R0hEztGVyPvjdM6J+BVdtKnP0tzNbHTYTwboAwAAAAAAABYAFEhGwCegbmrmaUnk4Vy4K0YSQ3uSAAAAAAABASu4vgAAAAAAACIAIM+PWgPYOeE+OWpfKn65+qVOsJ8cHfVTAMAxH88CSYgzAQVHUSEDDxTUKqKP8ByS4+31VIs3WDnqZyn/vfdf23Y1ROQQ4uQhAzzn1qpnDKnUt3OjWUHdzCJb4aNe4O15v+qwt6fTh0IBUq4iBgMPFNQqoo/wHJLj7fVUizdYOepnKf+991/bdjVE5BDi5BzhjRqfMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYDPOfWqmcMqdS3c6NZQd3MIlvho17g7Xm/6rC3p9OHQgEc+dJ9LzAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAABACIAII2svh4f/EdIRM7Rlcj743TOifgVXbSpz9LczWx02E8GAQFHUSECc3bROdJqw0mW+5wWlLaj1yEvhU/hCINUGZP2C0IoTS4hA3EBYd/pQlXduYXeoYPtB/FTHnhnf98LblcJiREtPR9uUq4iAgJzdtE50mrDSZb7nBaUtqPXIS+FT+EIg1QZk/YLQihNLhzhjRqfMAAAgAEAAIAAAACAAgAAgAEAAAAAAAAAIgIDcQFh3+lCVd25hd6hg+0H8VMeeGd/3wtuVwmJES09H24c+dJ9LzAAAIABAACAAAAAgAIAAIABAAAAAAAAAAAA';
+    console.log(dataFromPSBT(psbt, signer));
+    // signPSBT(psbt, () => {});
+    return;
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ScanQR',
@@ -1416,3 +1456,90 @@ const styles = StyleSheet.create({
     marginBottom: hp(15),
   },
 });
+
+const dataFromPSBT = (base64Str: string, signer: Signer) => {
+  try {
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    console.log('🚀 ~ dataFromPSBT ~ network:', network);
+    const psbt = bitcoin.Psbt.fromBase64(base64Str);
+    console.log('🚀 ~ dataFromPSBT ~ psbt:', psbt);
+
+    const signerFingerPrint = [];
+
+    psbt.data.inputs.forEach((input) => {
+      if (input.bip32Derivation) {
+        // Loop through all derivations (in case there are multiple keys)
+        input.bip32Derivation.forEach((derivation) => {
+          const data = {
+            derivationPath: shortDerivationPath(derivation.path),
+            masterFingerprint: derivation.masterFingerprint.toString('hex'),
+            xpriv: '',
+            xpub: derivation.pubkey.toString('hex'),
+          };
+          signerFingerPrint.push(data);
+
+          const val = WalletUtilities.getFingerprintFromExtendedKey(
+            derivation.pubkey.toString('hex'),
+            network
+          );
+          console.log('🚀 val:', val);
+        });
+      }
+    });
+
+    // Extract input addresses
+    const senderAddresses = psbt.txInputs.map((input) => input.hash.toString('hex'));
+
+    // Extract outputs (receiver information)
+    const outputs = psbt.txOutputs.map((output) => {
+      return {
+        address: bitcoin.address.fromOutputScript(output.script), // Receiver address
+        amount: output.value, // Amount in satoshis
+      };
+    });
+
+    // Calculate the total input and output amounts
+    let totalInput = 0;
+    let totalOutput = 0;
+
+    psbt.data.inputs.forEach((input, index) => {
+      if (input.witnessUtxo) {
+        totalInput += input.witnessUtxo.value;
+      } else if (input.nonWitnessUtxo) {
+        const tx = bitcoin.Transaction.fromBuffer(input.nonWitnessUtxo);
+        const voutIndex = psbt.txInputs[index].index;
+        totalInput += tx.outs[voutIndex].value;
+      }
+    });
+
+    outputs.forEach((output) => (totalOutput += output.amount));
+    const receiverAddresses = outputs.map((op) => op.address);
+
+    // Calculate transaction fees
+    const fees = totalInput - totalOutput;
+    return {
+      senderAddresses: senderAddresses,
+      receiverAddresses: receiverAddresses,
+      fees,
+      sendAmount: totalOutput,
+      totalAmount: totalInput,
+      signerFingerPrint,
+    };
+  } catch (error) {
+    console.log('🚀 ~ dataFromPSBT ~ error:', error);
+    throw 'Something went wrong';
+  }
+};
+
+function shortDerivationPath(longerPath) {
+  // Split the path by '/'
+  const parts = longerPath.split('/');
+
+  // Remove the last two components (address index and chain index)
+  const shorterPath = parts.slice(0, -2).join('/');
+
+  return shorterPath;
+}
+
+
+
