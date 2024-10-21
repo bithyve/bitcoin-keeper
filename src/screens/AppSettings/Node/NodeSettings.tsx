@@ -73,12 +73,18 @@ function NodeSettings() {
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
     setLoading(true);
     await closeAddNodeModal();
-    // Sanitize host for .onion addresses
-    if (nodeDetail.host.endsWith('.onion') || nodeDetail.host.endsWith('.onion/')) {
-      nodeDetail.host = nodeDetail.host.replace('.onion/', '.onion');
+
+    // Sanitize host
+    if (nodeDetail.host.endsWith('/')) {
+      nodeDetail.host = nodeDetail.host.slice(0, -1);
+    }
+
+    if (nodeDetail.host.startsWith('http://')) {
       nodeDetail.host = nodeDetail.host.replace('http://', '');
+    } else if (nodeDetail.host.startsWith('https://')) {
       nodeDetail.host = nodeDetail.host.replace('https://', '');
     }
+
     const { saved } = await Node.save(nodeDetail, nodeList);
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
