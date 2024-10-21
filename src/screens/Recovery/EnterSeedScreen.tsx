@@ -69,6 +69,7 @@ function EnterSeedScreen({ route, navigation }) {
   const [hcLoading, setHcLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [selectedNumberOfWords, setSelectedNumberOfWords] = useState(
     selectedNumberOfWordsFromParams || SEED_WORDS_12
   );
@@ -353,6 +354,31 @@ function EnterSeedScreen({ route, navigation }) {
     setSuggestedWords(filteredData);
   };
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const getSuggestionPosition = (index: number) => {
+    const OFFSET = 3;
+    const basePosition = getPosition(index);
+
+    if (isKeyboardVisible && ((index >= 9 && index <= 12) || (index >= 21 && index <= 24))) {
+      return basePosition - OFFSET;
+    }
+
+    return basePosition;
+  };
+
   const getPosition = (index: number) => {
     if (step === 1) {
       return Math.floor(index / 2);
@@ -537,7 +563,7 @@ function EnterSeedScreen({ route, navigation }) {
               style={[
                 styles.suggestionScrollView,
                 {
-                  marginTop: getPosition(onChangeIndex) * hp(60),
+                  marginTop: getSuggestionPosition(onChangeIndex) * hp(60),
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
