@@ -295,7 +295,7 @@ function Footer({
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
           primaryCallback={() => setCreating(true)}
-          paddingHorizontal={wp(30)}
+          fullWidth
         />
       ) : (
         <Buttons
@@ -303,7 +303,7 @@ function Footer({
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
           primaryCallback={() => handleProceedButtonClick()}
-          paddingHorizontal={wp(30)}
+          fullWidth
         />
       )}
     </Box>
@@ -1064,7 +1064,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottomContainer: {
-    paddingHorizontal: 15,
     gap: 20,
   },
   noteContainer: {

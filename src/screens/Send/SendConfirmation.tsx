@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
@@ -23,7 +23,6 @@ import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
-  crossTransferReset,
   customPrioritySendPhaseOneReset,
   sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
@@ -54,6 +53,7 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -906,6 +906,23 @@ function SendConfirmation({ route }) {
       checkUsualFee(OneDayHistoricalFee);
     }
   }, [OneDayHistoricalFee]);
+
+  useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+      if (navigation.getState().index > 2 && isCachedTransaction) {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+          })
+        );
+        showToast('New pending transaction saved successfully', <TickIcon />);
+      } else {
+        navigation.dispatch(e.data.action);
+      }
+    });
+  }, [navigation, isCachedTransaction]);
 
   useEffect(() => {
     if (isAutoTransfer) {

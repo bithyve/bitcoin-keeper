@@ -54,6 +54,7 @@ function NodeSettings() {
   const [loading, setLoading] = useState(false);
   const [electrumDisconnectWarningVisible, setElectrumDisconnectWarningVisible] = useState(false);
   const [nodeToDisconnect, setNodeToDisconnect] = useState(null);
+  const [nodeToDelete, setNodeToDelete] = useState(null);
 
   useEffect(() => {
     const nodes: NodeDetail[] = Node.getAllNodes();
@@ -73,12 +74,28 @@ function NodeSettings() {
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
     setLoading(true);
     await closeAddNodeModal();
+
+    // Sanitize host
+    if (nodeDetail.host.endsWith('/')) {
+      nodeDetail.host = nodeDetail.host.slice(0, -1);
+    }
+
+    if (nodeDetail.host.startsWith('http://')) {
+      nodeDetail.host = nodeDetail.host.replace('http://', '');
+    } else if (nodeDetail.host.startsWith('https://')) {
+      nodeDetail.host = nodeDetail.host.replace('https://', '');
+    }
+
     const { saved } = await Node.save(nodeDetail, nodeList);
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
-      // dispatch(updateAppImage(null));
-      // setCurrentlySelectedNodeItem(node);
+      const newNode = updatedNodeList.find(
+        (node) => node.host === nodeDetail.host && node.port === nodeDetail.port
+      );
+      if (newNode) {
+        onConnectToNode(newNode);
+      }
     } else {
       showToast(`Failed to save, unable to connect to: ${nodeDetail.host} `, <ToastErrorIcon />);
     }
@@ -113,7 +130,7 @@ function NodeSettings() {
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
-    let nodes = [...nodeList];
+    let nodes = Node.getAllNodes();
     if (
       currentlySelectedNode &&
       selectedNode.id !== currentlySelectedNode.id &&
@@ -147,7 +164,6 @@ function NodeSettings() {
         if (item.id === node.id) return { ...node };
         return item;
       });
-      // dispatch(updateAppImage(null));
     } else dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
 
     setCurrentlySelectedNodeItem(node);
@@ -239,7 +255,16 @@ function NodeSettings() {
                         </Box>
                       </TouchableOpacity>
                       <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
-                      <TouchableOpacity testID="btn_deleteNode" onPress={() => onDelete(item)}>
+                      <TouchableOpacity
+                        testID="btn_deleteNode"
+                        onPress={() => {
+                          if (!isConnected) onDelete(item);
+                          else {
+                            setNodeToDelete(item);
+                            setElectrumDisconnectWarningVisible(true);
+                          }
+                        }}
+                      >
                         <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                           <DeleteIcon />
                           <Text style={[styles.actionText, { paddingTop: 2 }]}>
@@ -285,7 +310,11 @@ function NodeSettings() {
       />
       <KeeperModal
         visible={electrumDisconnectWarningVisible}
-        close={() => setElectrumDisconnectWarningVisible(false)}
+        close={() => {
+          setNodeToDisconnect(null);
+          setNodeToDelete(null);
+          setElectrumDisconnectWarningVisible(false);
+        }}
         title={common.disconnectingFromServer}
         subTitle={common.disconnectingFromServerText}
         buttonText={common.disconnect}
@@ -296,8 +325,13 @@ function NodeSettings() {
         DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={async () => {
           setElectrumDisconnectWarningVisible(false);
-          await onDisconnectToNode(nodeToDisconnect);
-          setNodeToDisconnect(null);
+          if (nodeToDisconnect) {
+            await onDisconnectToNode(nodeToDisconnect);
+            setNodeToDisconnect(null);
+          } else if (nodeToDelete) {
+            await onDelete(nodeToDelete);
+            setNodeToDelete(null);
+          }
         }}
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setElectrumDisconnectWarningVisible(false)}

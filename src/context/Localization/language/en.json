@@ -653,7 +653,12 @@
     "archivedVaultEmptyTitle": "View Archived Vaults",
     "archivedVaultEmptySubtitle": "All archived vaults for this vault would be available here.",
     "verifyAddDesc": "Please download the Bitcoin Keeper desktop app from our website to connect",
-    "transactionToastMessage": "If the transaction isn’t visible, wait a moment and refresh."
+    "transactionToastMessage": "If the transaction isn’t visible, wait a moment and refresh.",
+    "totalKeysForVaultConfiguration": "Total Keys for Vault Configuration",
+    "selectTheTotalNumberOfKeys": "Select the total number of keys",
+    "requiredKeys": "Required Keys",
+    "minimumNumberOfKeysToSignATransaction": "Minimum number of keys to sign a transaction",
+    "pleaseEnterVaultName": "Please enter a name for your vault"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

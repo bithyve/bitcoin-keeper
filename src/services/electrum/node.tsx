@@ -20,8 +20,8 @@ export default class Node {
 
     const node = { ...nodeDetail };
     if (node.id === null) {
-      // case: save new node
-      node.id = nodeList.length + 1;
+      // case: save new node (first 1000 IDs reserved to predefined nodes)
+      node.id = nodeList.length + 1001;
       dbManager.createObject(RealmSchema.NodeConnect, node);
     } else {
       // case: update existing node

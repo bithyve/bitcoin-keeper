@@ -189,12 +189,18 @@ function EnterSeedScreen({ route, navigation }) {
           const isHealthy = await healthCheckSigner(derivedSigner);
 
           if (isHealthy) {
-            updateHealthCheckStatus(hcStatusType.HEALTH_CHECK_SUCCESSFULL);
+            updateHealthCheckStatus(
+              derivedSigner.masterFingerprint,
+              hcStatusType.HEALTH_CHECK_SUCCESSFULL
+            );
             showToast('Health check successful!', <TickIcon />);
             dispatch(resetSeedWords());
             navigateBack(step);
           } else {
-            updateHealthCheckStatus(hcStatusType.HEALTH_CHECK_FAILED);
+            updateHealthCheckStatus(
+              derivedSigner.masterFingerprint,
+              hcStatusType.HEALTH_CHECK_FAILED
+            );
             showToast('Health check failed');
           }
         }
@@ -210,11 +216,14 @@ function EnterSeedScreen({ route, navigation }) {
         const derivedSigner = await generateDerivedSigner(mnemonic, signer, isMultisig);
         const mapped = mapUnknownSigner({
           masterFingerprint: derivedSigner.masterFingerprint,
-          type: SignerType.COLDCARD,
+          type: SignerType.SEED_WORDS,
         });
 
         if (mapped) {
-          updateHealthCheckStatus(hcStatusType.HEALTH_CHECK_SUCCESSFULL);
+          updateHealthCheckStatus(
+            derivedSigner.masterFingerprint,
+            hcStatusType.HEALTH_CHECK_SUCCESSFULL
+          );
           showToast('Identification successful!', <TickIcon />);
           dispatch(resetSeedWords());
           navigateBack(step);
@@ -305,8 +314,8 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
-  const updateHealthCheckStatus = (status) => {
-    dispatch(healthCheckStatusUpdate([{ signerId: signer.masterFingerprint, status }]));
+  const updateHealthCheckStatus = (signerMasterFingerprint, status) => {
+    dispatch(healthCheckStatusUpdate([{ signerId: signerMasterFingerprint, status }]));
   };
 
   const navigateBack = (step) => {

@@ -19,7 +19,11 @@ function KeeperTextInput({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={styles.container}
+      borderColor={`${colorMode}.greyBorder`}
+    >
       <Input
         variant={'unstyled'}
         defaultValue={defaultValue}
@@ -60,6 +64,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 10,
     marginVertical: 10,
+    borderWidth: 1,
   },
   inputField: {
     fontSize: 12,
