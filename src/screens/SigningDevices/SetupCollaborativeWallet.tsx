@@ -6,10 +6,9 @@ import { Signer, VaultSigner, signerXpubs } from 'src/services/wallets/interface
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/utils/utilities';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { SignerType, VaultType, XpubTypes } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -114,7 +113,7 @@ function SignerItem({
     <SignerCard
       key={signer.masterFingerprint}
       name={getSignerNameFromType(signer.type, signer.isMock, false)}
-      description={`${common.added} ${moment(signer.addedOn).calendar()}`}
+      description={getSignerDescription(signer)}
       icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
       image={signer?.extraData?.thumbnailPath}
       isSelected={false}
