@@ -62,23 +62,17 @@ const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
   config.NETWORK_TYPE === NetworkType.TESTNET && wallet.entityKind === EntityKind.VAULT ? 1 : 0;
 
 export default class WalletOperations {
-  public static getNextFreeExternalAddress = (
-    wallet: Wallet | Vault
-  ): { receivingAddress: string } => {
+  public static getExternalAddressAtIdx = (wallet: Wallet | Vault, index: number): string => {
     let receivingAddress;
     const { entityKind, specs, networkType } = wallet;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const cached = idx(specs, (_) => _.addresses.external[specs.nextFreeAddressIndex]); // address cache hit
-    if (cached) return { receivingAddress: cached };
+    const cached = idx(specs, (_) => _.addresses.external[index]); // address cache hit
+    if (cached) return cached;
 
     if ((wallet as Vault).isMultiSig) {
       // case: multi-sig vault
-      receivingAddress = WalletUtilities.createMultiSig(
-        wallet as Vault,
-        specs.nextFreeAddressIndex,
-        false
-      ).address;
+      receivingAddress = WalletUtilities.createMultiSig(wallet as Vault, index, false).address;
     } else {
       // case: single-sig vault/wallet
       const xpub =
@@ -94,17 +88,20 @@ export default class WalletOperations {
         else if (wallet.scriptType === ScriptTypes.P2WSH) purpose = DerivationPurpose.BIP48;
       }
 
-      receivingAddress = WalletUtilities.getAddressByIndex(
-        xpub,
-        false,
-        specs.nextFreeAddressIndex,
-        network,
-        purpose
-      );
+      receivingAddress = WalletUtilities.getAddressByIndex(xpub, false, index, network, purpose);
     }
 
+    return receivingAddress;
+  };
+
+  public static getNextFreeExternalAddress = (
+    wallet: Wallet | Vault
+  ): { receivingAddress: string } => {
     return {
-      receivingAddress,
+      receivingAddress: WalletOperations.getExternalAddressAtIdx(
+        wallet,
+        wallet.specs.nextFreeAddressIndex
+      ),
     };
   };
 
@@ -194,6 +191,7 @@ export default class WalletOperations {
     const transactions = wallet.specs.transactions;
     let lastUsedAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
     let lastUsedChangeAddressIndex = wallet.specs.nextFreeChangeAddressIndex - 1;
+    let totalExternalAddresses = wallet.specs.totalExternalAddresses;
 
     const txidToIndex = {}; // transaction-id to index mapping(assists transaction updation)
     for (let index = 0; index < transactions.length; index++) {
@@ -225,6 +223,9 @@ export default class WalletOperations {
       const address = txidToAddress[tx.txid];
       if (externalAddresses[address] !== undefined) {
         if (externalAddresses[address] > lastUsedAddressIndex) {
+          if (externalAddresses[address] >= wallet.specs.totalExternalAddresses - 1) {
+            totalExternalAddresses = externalAddresses[address] + 2;
+          }
           lastUsedAddressIndex = externalAddresses[address];
           hasNewUpdates = true;
         }
@@ -264,6 +265,7 @@ export default class WalletOperations {
       hasNewUpdates,
       lastUsedAddressIndex,
       lastUsedChangeAddressIndex,
+      totalExternalAddresses,
     };
   };
 
@@ -286,7 +288,7 @@ export default class WalletOperations {
 
       // collect external(receive) chain addresses
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT; itr++) {
+      for (let itr = 0; itr < wallet.specs.totalExternalAddresses - 1 + config.GAP_LIMIT; itr++) {
         let address: string;
         let pubsToCache: string[];
         if (addressCache.external[itr]) address = addressCache.external[itr]; // cache hit
@@ -381,18 +383,24 @@ export default class WalletOperations {
       }
 
       // sync & populate transactionsInfo
-      const { transactions, lastUsedAddressIndex, lastUsedChangeAddressIndex, hasNewUpdates } =
-        await WalletOperations.fetchTransactions(
-          wallet,
-          addresses,
-          externalAddresses,
-          internalAddresses,
-          network
-        );
+      const {
+        transactions,
+        lastUsedAddressIndex,
+        lastUsedChangeAddressIndex,
+        totalExternalAddresses,
+        hasNewUpdates,
+      } = await WalletOperations.fetchTransactions(
+        wallet,
+        addresses,
+        externalAddresses,
+        internalAddresses,
+        network
+      );
 
       // update wallet w/ latest utxos, balances and transactions
       wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
       wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
+      wallet.specs.totalExternalAddresses = totalExternalAddresses;
       wallet.specs.addresses = addressCache;
       wallet.specs.addressPubs = addressPubs;
       wallet.specs.receivingAddress =

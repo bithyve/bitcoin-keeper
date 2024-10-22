@@ -189,4 +189,16 @@ export const runRealmMigrations = ({
       }
     }
   }
+
+  if (oldRealm.schemaVersion < 79) {
+    const vaults = newRealm.objects(RealmSchema.Vault) as any;
+    const wallets = newRealm.objects(RealmSchema.Wallet) as any;
+
+    [...vaults, ...wallets].forEach((wallet) => {
+      console.log(wallet.specs);
+      if (wallet.specs) {
+        wallet.specs.totalExternalAddresses = wallet.specs.nextFreeAddressIndex + 1;
+      }
+    });
+  }
 };
