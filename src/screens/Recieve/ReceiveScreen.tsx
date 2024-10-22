@@ -2,7 +2,7 @@
 import Text from 'src/components/KeeperText';
 
 import { Box, Input, useColorMode, Pressable, HStack, Center } from 'native-base';
-import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, Vibration, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
@@ -62,6 +62,7 @@ function ReceiveScreen({ route }: { route }) {
 
   const generateNewReceiveAddress = () => {
     dispatch(generateNewAddress(wallet));
+    Vibration.vibrate(50);
     const newTotalAddressesCount = totalAddressesCount + 1;
     setTotalAddressesCount(newTotalAddressesCount);
     setCurrentAddressIdx(newTotalAddressesCount);
@@ -213,7 +214,11 @@ function ReceiveScreen({ route }: { route }) {
         <HStack style={styles.addressPagesBar}>
           <TouchableOpacity
             onPress={() => {
-              setCurrentAddressIdx(Math.max(1, currentAddressIdx - 1));
+              const newIdx = Math.max(1, currentAddressIdx - 1);
+              if (newIdx !== currentAddressIdx) {
+                Vibration.vibrate(50);
+                setCurrentAddressIdx(newIdx);
+              }
             }}
             style={styles.addressPageBtn}
           >
@@ -250,9 +255,13 @@ function ReceiveScreen({ route }: { route }) {
             of {totalAddressesCount}
           </Text>
           <TouchableOpacity
-            onPress={() =>
-              setCurrentAddressIdx(Math.min(totalAddressesCount, currentAddressIdx + 1))
-            }
+            onPress={() => {
+              const newIdx = Math.min(totalAddressesCount, currentAddressIdx + 1);
+              if (newIdx !== currentAddressIdx) {
+                Vibration.vibrate(50);
+                setCurrentAddressIdx(newIdx);
+              }
+            }}
             style={styles.addressPageBtn}
           >
             <NavRight width={wp(22)} height={hp(22)} />
