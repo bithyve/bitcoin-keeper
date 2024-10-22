@@ -29,7 +29,7 @@ function WalletBackHistoryScreen({ route }) {
         //   setIsLearnMore(true);
         // }}
       />
-      <Box mx={wp(5)}>
+      <Box mx={2}>
         <BackupHealthCheckList isUaiFlow={isUaiFlow} />
       </Box>
       <KeeperModal
