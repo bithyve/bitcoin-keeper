@@ -27,14 +27,24 @@ export function* connectToNodeWorker() {
     const areInitialNodesSaved = yield select(
       (state: RootState) => state.network.initialNodesSaved
     );
-    const savedNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
 
-    if (!areInitialNodesSaved && !savedNodes?.length) {
-      const hardcodedInitialNodes =
-        config.NETWORK_TYPE === NetworkType.TESTNET
-          ? predefinedTestnetNodes
-          : predefinedMainnetNodes;
-      dbManager.createObjectBulk(RealmSchema.NodeConnect, hardcodedInitialNodes);
+    if (!areInitialNodesSaved) {
+      let addInitialNode = true;
+      try {
+        const defaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
+        addInitialNode = defaultNodes && defaultNodes.length != 0;
+      } catch {
+        // New app installation, just has to continue adding initial nodes
+      }
+
+      if (addInitialNode) {
+        const hardcodedInitialNodes =
+          config.NETWORK_TYPE === NetworkType.TESTNET
+            ? predefinedTestnetNodes
+            : predefinedMainnetNodes;
+        dbManager.createObjectBulk(RealmSchema.NodeConnect, hardcodedInitialNodes);
+      }
+
       yield put(setInitialNodesSaved(true));
     }
 
