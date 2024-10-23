@@ -340,34 +340,6 @@ function SetupTapsigner({ route }) {
           <Text style={styles.heading} color={`${colorMode}.greenText`}>
             You will be scanning the TAPSIGNER after this step
           </Text>
-          <Box style={styles.btnContainer}>
-            <Buttons
-              primaryText={(() => {
-                switch (mode) {
-                  case InteracationMode.SIGN_TRANSACTION:
-                    return 'Sign';
-                  case InteracationMode.BACKUP_SIGNER:
-                    return 'Save Backup';
-                  default:
-                    return 'Proceed';
-                }
-              })()}
-              primaryCallback={() => {
-                switch (mode) {
-                  case InteracationMode.HEALTH_CHECK:
-                    return verifyTapsginer();
-                  case InteracationMode.SIGN_TRANSACTION:
-                    return signWithTapsigner();
-                  case InteracationMode.BACKUP_SIGNER:
-                    return downloadTapsignerBackup();
-                  default:
-                    return addTapsignerWithProgress();
-                }
-              }}
-              primaryDisable={cvc.length < 6}
-              primaryLoading={inProgress}
-            />
-          </Box>
         </ScrollView>
       </MockWrapper>
       <KeyPadView
@@ -376,6 +348,35 @@ function SetupTapsigner({ route }) {
         keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
         ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
       />
+      <Box style={styles.btnContainer}>
+        <Buttons
+          fullWidth
+          primaryText={(() => {
+            switch (mode) {
+              case InteracationMode.SIGN_TRANSACTION:
+                return 'Sign';
+              case InteracationMode.BACKUP_SIGNER:
+                return 'Save Backup';
+              default:
+                return 'Proceed';
+            }
+          })()}
+          primaryCallback={() => {
+            switch (mode) {
+              case InteracationMode.HEALTH_CHECK:
+                return verifyTapsginer();
+              case InteracationMode.SIGN_TRANSACTION:
+                return signWithTapsigner();
+              case InteracationMode.BACKUP_SIGNER:
+                return downloadTapsignerBackup();
+              default:
+                return addTapsignerWithProgress();
+            }
+          }}
+          primaryDisable={cvc.length < 6}
+          primaryLoading={inProgress}
+        />
+      </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
@@ -390,7 +391,8 @@ const styles = StyleSheet.create({
     marginBottom: windowHeight > 850 ? 0 : '25%',
   },
   input: {
-    margin: '5%',
+    marginVertical: '5%',
+    marginHorizontal: '3%',
     paddingHorizontal: 15,
     width: wp(305),
     height: 50,
@@ -409,9 +411,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   btnContainer: {
-    flex: 1,
     justifyContent: 'flex-end',
     flexDirection: 'row',
-    margin: 15,
+    paddingHorizontal: '3%',
+    paddingTop: '5%',
   },
 });

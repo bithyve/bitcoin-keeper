@@ -4,7 +4,6 @@ import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
@@ -30,6 +29,7 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { setOTBStatusIKS, setOTBStatusSS } from 'src/store/reducers/settings';
 import { PRIVACYANDDISPLAY } from 'src/navigation/contants';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import Buttons from 'src/components/Buttons';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -200,30 +200,19 @@ function ExportSeedScreen({ route, navigation }) {
         )}
 
         <Box style={styles.nextButtonWrapper}>
-          {next && (
+          {(next || isFromAssistedKey) && (
             <Box>
-              <CustomGreenButton
-                onPress={() => {
+              <Buttons
+                primaryCallback={() => {
                   setConfirmSeedModal(true);
                 }}
-                value={login.Next}
+                primaryText={next ? login.Next : common.proceed}
+                fullWidth
               />
             </Box>
           )}
         </Box>
 
-        {isFromAssistedKey && (
-          <Box style={styles.nextButtonWrapper}>
-            <Box>
-              <CustomGreenButton
-                onPress={() => {
-                  setConfirmSeedModal(true);
-                }}
-                value={common.proceed}
-              />
-            </Box>
-          </Box>
-        )}
         {/* Modals */}
         <Box>
           <ModalWrapper
@@ -386,6 +375,8 @@ const styles = StyleSheet.create({
   },
   nextButtonWrapper: {
     alignItems: 'flex-end',
+    paddingHorizontal: '3%',
+    paddingTop: '3%',
     marginBottom: 5,
   },
   seedDescParagraph: {

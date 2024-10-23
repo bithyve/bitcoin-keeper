@@ -35,7 +35,6 @@ import Text from 'src/components/KeeperText';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import Breadcrumbs from 'src/components/Breadcrumbs';
 import SettingsIcon from 'src/assets/images/settings_brown.svg';
 import WalletVaultCreationModal from 'src/components/Modal/WalletVaultCreationModal';
 import useWallets from 'src/hooks/useWallets';
@@ -271,12 +270,12 @@ function EnterWalletDetailScreen({ route }) {
           </Box>
         </Box>
         <Box style={styles.footer}>
-          <Breadcrumbs totalScreens={walletType === WalletType.DEFAULT ? 3 : 4} currentScreen={2} />
           <Buttons
             primaryText={common.proceed}
             primaryCallback={isHotWallet ? createNewWallet : continueSelectSigner}
             primaryDisable={!walletName}
             primaryLoading={walletLoading || relayWalletUpdateLoading}
+            fullWidth
           />
         </Box>
       </Box>
