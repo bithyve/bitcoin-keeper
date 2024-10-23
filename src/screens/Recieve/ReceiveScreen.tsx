@@ -11,7 +11,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
 import Fonts from 'src/constants/Fonts';
@@ -187,13 +187,19 @@ function ReceiveScreen({ route }: { route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={common.receive} titleColor={`${colorMode}.primaryText`} />
-      <TouchableOpacity onPress={generateNewReceiveAddress} style={styles.getNewAddressContainer}>
-        <Text color={`${colorMode}.pantoneGreen`} style={styles.getNewAddressText} semiBold>
-          {home.GetNewAddress}
-        </Text>
-        <NewQR color={`${colorMode}.pantoneGreen`} size={wp(20)} style={styles.getNewAddressIcon} />
-      </TouchableOpacity>
+      <Box style={{ flexDirection: 'row' }}>
+        <KeeperHeader title={common.receive} titleColor={`${colorMode}.primaryText`} />
+        <TouchableOpacity onPress={generateNewReceiveAddress} style={styles.getNewAddressContainer}>
+          <Text color={`${colorMode}.pantoneGreen`} style={styles.getNewAddressText} semiBold>
+            {home.GetNewAddress}
+          </Text>
+          <NewQR
+            color={`${colorMode}.pantoneGreen`}
+            size={wp(20)}
+            style={styles.getNewAddressIcon}
+          />
+        </TouchableOpacity>
+      </Box>
       <ScrollView
         automaticallyAdjustKeyboardInsets={true}
         style={{ flex: 1 }}
@@ -205,7 +211,7 @@ function ReceiveScreen({ route }: { route }) {
           borderColor={`${colorMode}.greyBorder`}
         >
           <AddressUsageBadge used={addressUsed} />
-          <ReceiveQR qrValue={paymentURI || receivingAddress} />
+          <ReceiveQR qrValue={paymentURI || receivingAddress} qrSize={wp(windowWidth * 0.5)} />
           <Box style={styles.addressContainer}>
             <ReceiveAddress address={paymentURI || receivingAddress} />
           </Box>
@@ -267,18 +273,19 @@ function ReceiveScreen({ route }: { route }) {
             <NavRight width={wp(22)} height={hp(22)} />
           </TouchableOpacity>
         </HStack>
-
+      </ScrollView>
+      <Box style={styles.BottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Text color={`${colorMode}.pantoneGreen`} style={styles.addAmountText} semiBold>
             {home.requestSpecificAmount}
           </Text>
         </TouchableOpacity>
-      </ScrollView>
-      <Box style={styles.BottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
         {
           <Box>
-            {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 && (
+            {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 ? (
               <VerifyAddressBtn />
+            ) : (
+              <Box marginBottom={hp(84)}></Box>
             )}
           </Box>
         }
@@ -339,7 +346,7 @@ const styles = StyleSheet.create({
   verifyAddressBtn: {
     width: '100%',
     paddingHorizontal: wp(35),
-    paddingVertical: hp(15),
+    paddingVertical: hp(14),
     borderRadius: 10,
     alignItems: 'center',
     marginTop: hp(15),
@@ -350,19 +357,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
   },
   receiveDataContainer: {
-    paddingTop: hp(20),
-    paddingBottom: hp(10),
-    borderRadius: 20,
+    paddingTop: hp(17),
+    paddingBottom: hp(15),
+    borderRadius: 10,
     borderWidth: 1,
   },
   addAmountText: {
     fontSize: 14,
     width: '100%',
     textAlign: 'center',
-    marginTop: hp(25),
+    marginVertical: hp(20),
   },
   addressPagesBar: {
-    marginTop: hp(10),
+    marginTop: hp(5),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -381,14 +388,11 @@ const styles = StyleSheet.create({
     height: hp(22),
   },
   getNewAddressContainer: {
-    width: '100%',
+    marginTop: hp(20),
     flexDirection: 'row',
-    marginBottom: hp(16),
   },
   getNewAddressText: {
     fontSize: 14,
-    textAlign: 'right',
-    flex: 1,
   },
   getNewAddressIcon: {
     marginLeft: wp(9),

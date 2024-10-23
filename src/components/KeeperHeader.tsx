@@ -80,7 +80,7 @@ const HeaderInfo = ({
           {title}
         </Text>
       )}
-      {subtitle && (
+      {subtitle ? (
         <Text
           style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
           color={subTitleColor || `${colorMode}.black`}
@@ -88,6 +88,8 @@ const HeaderInfo = ({
         >
           {subtitle}
         </Text>
+      ) : (
+        <Box style={{ marginBottom: hp(8) }} />
       )}
     </Box>
   </Box>
@@ -199,6 +201,7 @@ const getStyles = (
   StyleSheet.create({
     container: {
       backgroundColor: 'transparent',
+      flex: -1,
     },
     simpleContainer: {
       flexDirection: 'row',

@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     marginVertical: hp(20),
-    paddingVertical: hp(11),
-    paddingHorizontal: wp(8),
+    paddingVertical: hp(5),
+    paddingHorizontal: wp(6),
   },
   value: {
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 18,
     letterSpacing: 0.39,
   },
   iconContainer: {

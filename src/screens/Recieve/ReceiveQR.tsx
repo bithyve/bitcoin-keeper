@@ -6,9 +6,10 @@ import KeeperQRCode from 'src/components/KeeperQRCode';
 
 type Props = {
   qrValue: string;
+  qrSize?: number;
 };
 
-function ReceiveQR({ qrValue }: Props) {
+function ReceiveQR({ qrValue, qrSize }: Props) {
   const { colorMode } = useColorMode();
 
   return (
@@ -22,7 +23,7 @@ function ReceiveQR({ qrValue }: Props) {
       <KeeperQRCode
         qrData={qrValue || 'address'}
         logoBackgroundColor="transparent"
-        size={wp(205)}
+        size={qrSize || wp(205)}
         showLogo
       />
     </Box>
