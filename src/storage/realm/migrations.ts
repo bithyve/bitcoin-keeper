@@ -181,11 +181,9 @@ export const runRealmMigrations = ({
 
       // Remove the 'isDefault' property
       if ('isDefault' in oldNodeConnect) {
-        newRealm.write(() => {
-          if ('isDefault' in newNodeConnect) {
-            delete (newNodeConnect as any).isDefault;
-          }
-        });
+        if ('isDefault' in newNodeConnect) {
+          delete (newNodeConnect as any).isDefault;
+        }
       }
     }
   }
