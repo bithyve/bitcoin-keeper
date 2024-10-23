@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Vibration } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -17,6 +17,9 @@ function Buttons({
   activeOpacity = 0.5,
   width = null,
   fullWidth = false,
+  primaryBackgroundColor = null,
+  primaryTextColor = null,
+  secondaryTextColor = null,
 }) {
   const { colorMode } = useColorMode();
 
@@ -53,9 +56,14 @@ function Buttons({
             alignItems: 'center',
           },
         ]}
-        backgroundColor={`${colorMode}.greenButtonBackground`}
+        backgroundColor={primaryBackgroundColor || `${colorMode}.greenButtonBackground`}
       >
-        <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.buttonText`} bold>
+        <Text
+          numberOfLines={1}
+          style={styles.btnText}
+          color={primaryTextColor || `${colorMode}.buttonText`}
+          bold
+        >
           {primaryText}
         </Text>
       </Box>
@@ -78,7 +86,12 @@ function Buttons({
           activeOpacity={0.5}
           testID="btn_secondaryText"
         >
-          <Text numberOfLines={1} medium style={styles.btnText} color={`${colorMode}.greenText`}>
+          <Text
+            numberOfLines={1}
+            medium
+            style={styles.btnText}
+            color={secondaryTextColor || `${colorMode}.greenText`}
+          >
             {secondaryText}
           </Text>
         </TouchableOpacity>
@@ -106,4 +119,5 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
   },
 });
+
 export default Buttons;
