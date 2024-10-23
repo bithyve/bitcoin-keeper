@@ -31,6 +31,7 @@ export enum RealmSchema {
   TriggerPolicy = 'TriggerPolicy',
   Backup = 'Backup',
   NodeConnect = 'NodeConnect',
+  DefaultNodeConnect = 'DefaultNodeConnect',
   UAI = 'UAI',
   UAIDetails = 'UAIDetails',
   AdditionalNotes = 'AdditionalNotes',
