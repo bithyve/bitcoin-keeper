@@ -22,11 +22,13 @@ import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
   const { colorMode } = useColorMode();
+  const isSmallDevice = useIsSmallDevices();
   const onboardingSlideRef = useRef(null);
   const { translations } = useContext(LocalizationContext);
   const { onboarding } = translations;
@@ -67,7 +69,7 @@ function OnBoardingSlides({ navigation }) {
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
-          <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
+          <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 5 : 2} height={10}>
             {currentPosition !== 2 && (
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
@@ -105,24 +107,15 @@ function OnBoardingSlides({ navigation }) {
               )}
             />
           </Box>
-          <Box style={styles.bottomBtnWrapper}>
-            <Box width="70%">
-              <TouchableOpacity
-                testID="btn_FAQ"
-                onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}
-              >
-                <Box
-                  borderColor={`${colorMode}.lightAccent`}
-                  backgroundColor={`${colorMode}.modalGreenLearnMore`}
-                  style={styles.seeFAQWrapper}
-                >
-                  <Text color={`${colorMode}.accent`} bold style={styles.seeFAQText}>
-                    {common.seeFAQs}
-                  </Text>
-                </Box>
-              </TouchableOpacity>
-            </Box>
-            <Box alignItems="center" flexDirection="row" height={5}>
+          <Box style={styles.bottomBtnWrapper} bottom={isSmallDevice ? hp(25) : hp(37)}>
+            <TouchableOpacity testID="btn_FAQ" onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}>
+              <Box style={styles.seeFAQWrapper}>
+                <Text color={`${colorMode}.white`} bold style={styles.seeFAQText}>
+                  {common.seeFAQs}
+                </Text>
+              </Box>
+            </TouchableOpacity>
+            <Box style={styles.dotsWrapper}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => (
                   <Box
@@ -131,27 +124,25 @@ function OnBoardingSlides({ navigation }) {
                   />
                 ))
               ) : (
-                <Box alignSelf="center" backgroundColor="transparent">
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (currentPosition < items.length - 1) {
-                        onboardingSlideRef.current.scrollToIndex({
-                          animated: true,
-                          index: currentPosition + 1,
-                        });
-                      } else {
-                        navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
-                      }
-                    }}
-                    testID="btn_startApp"
-                  >
-                    <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
-                      <Text bold color={`${colorMode}.greenText`} style={styles.startAppText}>
-                        Start App
-                      </Text>
-                    </Box>
-                  </TouchableOpacity>
-                </Box>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (currentPosition < items.length - 1) {
+                      onboardingSlideRef.current.scrollToIndex({
+                        animated: true,
+                        index: currentPosition + 1,
+                      });
+                    } else {
+                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
+                    }
+                  }}
+                  testID="btn_startApp"
+                >
+                  <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
+                    <Text bold color={`${colorMode}.greenText`} style={styles.startAppText}>
+                      Start App
+                    </Text>
+                  </Box>
+                </TouchableOpacity>
               )}
             </Box>
           </Box>
@@ -172,10 +163,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   selectedDot: {
-    width: 25,
+    width: 26,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#E3BE96',
+    backgroundColor: '#89AEA7',
     marginEnd: 5,
   },
   unSelectedDot: {
@@ -187,8 +178,8 @@ const styles = StyleSheet.create({
   },
   cta: {
     borderRadius: 10,
-    width: wp(120),
-    height: hp(50),
+    width: wp(142),
+    height: hp(42),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -196,15 +187,15 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   bottomBtnWrapper: {
+    alignSelf: 'center',
     position: 'absolute',
-    flex: 0.2,
     flexDirection: 'row',
     margin: 5,
     alignItems: 'center',
-    bottom: hp(20),
     justifyContent: 'space-between',
-    width: wp(350),
-    paddingHorizontal: wp(20),
+    width: '100%',
+    paddingLeft: wp(28),
+    paddingRight: wp(22),
   },
   skipTextWrapper: {
     flexDirection: 'row',
@@ -222,9 +213,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.78,
   },
   seeFAQWrapper: {
-    borderWidth: 0.5,
-    borderRadius: 30,
-    width: 120,
     alignItems: 'center',
     justifyContent: 'center',
     height: hp(40),
@@ -232,5 +220,11 @@ const styles = StyleSheet.create({
   seeFAQText: {
     fontSize: 13,
     letterSpacing: 0.26,
+  },
+  dotsWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: hp(20),
   },
 });
