@@ -42,7 +42,7 @@ function Buttons({
       activeOpacity={activeOpacity}
       testID="btn_primaryText"
       style={{
-        width: fullWidth ? '100%' : width,
+        width: secondaryText ? width : fullWidth ? '100%' : width,
       }}
     >
       <Box
