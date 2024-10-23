@@ -4,6 +4,7 @@ import { Image, StyleSheet, ViewStyle } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';
+import { getPersistedDocument } from 'src/services/documents';
 
 type SignerCardProps = {
   name: string;
@@ -73,7 +74,11 @@ function SignerCard({
       <Box style={styles.detailContainer}>
         {!isFeePriority ? (
           <Box backgroundColor={backgroundColor} style={styles.iconWrapper}>
-            {image ? <Image src={image} style={styles.associatedContactImage} /> : icon}
+            {image ? (
+              <Image src={getPersistedDocument(image)} style={styles.associatedContactImage} />
+            ) : (
+              icon
+            )}
             {showDot ? <Box style={styles.redDot} /> : null}
           </Box>
         ) : (

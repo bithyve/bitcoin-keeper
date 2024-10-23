@@ -16,7 +16,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { persistDocument } from 'src/services/documents';
+import { getPersistedDocument, persistDocument } from 'src/services/documents';
 
 const EditContact = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -24,7 +24,7 @@ const EditContact = ({ route }) => {
   const { signer } = route.params;
   const fullName = signer.extraData.givenName + ' ' + signer.extraData.familyName;
   const [defaultName, setDefaultName] = useState(fullName);
-  const [userImage] = useState(signer.extraData.thumbnailPath);
+  const [userImage] = useState(getPersistedDocument(signer.extraData.thumbnailPath));
   const [selectedImage, setSelectedImage] = useState(null);
   const [disableSave, setDisableSave] = useState(true);
   const { showToast } = useToastMessage();

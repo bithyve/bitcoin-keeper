@@ -35,4 +35,9 @@ const persistDocument = async (sourcePath: string, desPath?: string) => {
   }
 };
 
-export { pickDocument, persistDocument };
+const getPersistedDocument = (sourcePath: string) => {
+  if (!sourcePath) return sourcePath;
+  return `file://${RNFS.DocumentDirectoryPath}/dp_${sourcePath.split('dp_')[1]}`;
+};
+
+export { pickDocument, persistDocument, getPersistedDocument };

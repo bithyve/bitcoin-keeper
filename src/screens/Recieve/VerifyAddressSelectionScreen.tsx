@@ -14,6 +14,7 @@ import moment from 'moment';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
+import { getPersistedDocument } from 'src/services/documents';
 
 const { width } = Dimensions.get('screen');
 
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
 const SignerCard = ({ onPress, signer }) => {
   const { colorMode } = useColorMode();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, false);
+  console.log('==>', getPersistedDocument(signer.extraData.thumbnailPath));
   return (
     <TouchableOpacity testID={`btn_transactionSigner`} onPress={() => onPress(signer, signerName)}>
       <Box margin={5}>
@@ -106,7 +108,7 @@ const SignerCard = ({ onPress, signer }) => {
               >
                 {signer.extraData.thumbnailPath ? (
                   <Image
-                    src={signer.extraData.thumbnailPath}
+                    src={getPersistedDocument(signer.extraData.thumbnailPath)}
                     style={styles.associatedContactImage}
                   />
                 ) : (

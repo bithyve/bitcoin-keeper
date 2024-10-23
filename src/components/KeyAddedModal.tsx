@@ -7,6 +7,7 @@ import { StyleSheet } from 'react-native';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
 
 const KeyAddedModal = ({ visible, close, signer }) => {
+  console.log('🚀 ~ KeyAddedModal ~ signer:', signer);
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
 
@@ -14,12 +15,13 @@ const KeyAddedModal = ({ visible, close, signer }) => {
     buttonText: 'Add Description',
     buttonCallback: () => {
       close();
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'AdditionalDetails',
-          params: { signer },
-        })
-      );
+      signer &&
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AdditionalDetails',
+            params: { signer },
+          })
+        );
     },
     secondaryButtonText: 'Cancel',
     secondaryButtonCallback: close,
