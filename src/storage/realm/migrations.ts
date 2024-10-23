@@ -181,16 +181,19 @@ export const runRealmMigrations = ({
       const oldNodeConnect = oldNodeConnects[i];
       const newNodeConnect = newNodeConnects[i];
 
-      const oldDefaultNodeConnect = oldDefaultNodeConnects[i];
-      const newDefaultNodeConnect = newDefaultNodeConnects[i];
-
       // Remove the 'isDefault' property
       if ('isDefault' in oldNodeConnect) {
         if ('isDefault' in newNodeConnect) {
           delete (newNodeConnect as any).isDefault;
         }
       }
+    }
 
+    for (let i = 0; i < oldDefaultNodeConnects.length; i++) {
+      const oldDefaultNodeConnect = oldDefaultNodeConnects[i];
+      const newDefaultNodeConnect = newDefaultNodeConnects[i];
+
+      // Remove the 'isDefault' property
       if ('isDefault' in oldDefaultNodeConnect) {
         if ('isDefault' in newDefaultNodeConnect) {
           delete (newDefaultNodeConnect as any).isDefault;
