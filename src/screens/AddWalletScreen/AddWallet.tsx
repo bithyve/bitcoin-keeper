@@ -16,9 +16,9 @@ import AdvancedWallets from './AdvancedWallets';
 import ImportWallets from './ImportWallets';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
-import WatchOnlyIcon from 'src/assets/images/watchonly.svg';
-import SignersIcon from 'src/assets/images/signers.svg';
-import WalletfileIcon from 'src/assets/images/walletfile.svg';
+import KeyIcon from 'src/assets/images/multi-or-single-key.svg';
+import ImportWalletIcon from 'src/assets/images/importing-wallet.svg';
+import AdvanceCustomizationIcon from 'src/assets/images/advanced-customization.svg';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import { hp } from 'src/constants/responsive';
 import { useDispatch } from 'react-redux';
@@ -29,47 +29,42 @@ function AddWalletContent() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
+
+  const walletOptions = [
+    {
+      icon: KeyIcon,
+      title: wallet.addWalletOption1Title,
+      desc: wallet.addWalletOption1Description,
+    },
+    {
+      icon: ImportWalletIcon,
+      title: wallet.addWalletOption2Title,
+      desc: wallet.addWalletOption2Description,
+    },
+    {
+      icon: AdvanceCustomizationIcon,
+      title: wallet.addWalletOption3Title,
+      desc: wallet.addWalletOption3Description,
+    },
+  ];
+
   return (
     <Box>
-      <Box style={styles.addWalletContainer}>
-        <Box style={styles.addWalletIconWrapper}>
-          <WatchOnlyIcon />
+      {walletOptions.map((option, index) => (
+        <Box key={index} style={styles.addWalletContainer}>
+          <Box style={styles.addWalletIconWrapper}>
+            <option.icon />
+          </Box>
+          <Box style={styles.addWalletContentWrapper}>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
+              {option.title}
+            </Text>
+            <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
+              {option.desc}
+            </Text>
+          </Box>
         </Box>
-        <Box style={styles.addWalletContentWrapper}>
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
-            {wallet.watchOnly}
-          </Text>
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
-            {wallet.watchOnlyDesc}
-          </Text>
-        </Box>
-      </Box>
-      <Box style={styles.addWalletContainer}>
-        <Box style={styles.addWalletIconWrapper}>
-          <WalletfileIcon />
-        </Box>
-        <Box style={styles.addWalletContentWrapper}>
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
-            {wallet.walletConfigurationFile}
-          </Text>
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
-            {wallet.walletConfigurationFileDesc}
-          </Text>
-        </Box>
-      </Box>
-      <Box style={styles.addWalletContainer}>
-        <Box style={styles.addWalletIconWrapper}>
-          <SignersIcon />
-        </Box>
-        <Box style={styles.addWalletContentWrapper}>
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletTitleText}>
-            {wallet.useSignersVaultRegistration}
-          </Text>
-          <Text color={`${colorMode}.modalGreenContent`} style={styles.addWalletDescText}>
-            {wallet.useSignersVaultRegistrationDesc}
-          </Text>
-        </Box>
-      </Box>
+      ))}
     </Box>
   );
 }
@@ -98,7 +93,7 @@ function AddWallet({ navigation }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={wallet.AddWallet}
-        subtitle={wallet.chooseFromTemplate}
+        subtitle={wallet.addWalletHeaderSubtitle}
         learnMore
         learnMorePressed={() => {
           setVisibleModal(true);
@@ -145,12 +140,13 @@ function AddWallet({ navigation }) {
         close={() => {
           setVisibleModal(false);
         }}
-        title={wallet.AddWallet}
+        title={wallet.walletSetupModalTitle}
         subTitle={''}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={AddWalletContent}
-        showCloseIcon={false}
+        showCloseIcon={true}
+        DarkCloseIcon
         secondaryButtonText={common.needHelp}
         secondaryCallback={() => {
           setVisibleModal(false);
@@ -182,25 +178,24 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   addWalletContainer: {
-    flexDirection: 'row',
     width: '100%',
+    gap: 10,
   },
   addWalletIconWrapper: {
     width: '15%',
   },
   addWalletContentWrapper: {
-    width: '85%',
+    width: '97%',
   },
   addWalletDescText: {
     fontSize: 13,
-    letterSpacing: 0.65,
     padding: 1,
-    marginBottom: 5,
+    marginBottom: 25,
   },
   addWalletTitleText: {
     fontSize: 14,
     fontWeight: 'bold',
-    letterSpacing: 0.65,
+    letterSpacing: 0.5,
     padding: 1,
   },
 });
