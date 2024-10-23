@@ -908,7 +908,7 @@ function SendConfirmation({ route }) {
   }, [OneDayHistoricalFee]);
 
   useEffect(() => {
-    navigation.addListener('beforeRemove', (e) => {
+    const remove = navigation.addListener('beforeRemove', (e) => {
       e.preventDefault();
       if (navigation.getState().index > 2 && isCachedTransaction) {
         navigation.dispatch(
@@ -922,6 +922,7 @@ function SendConfirmation({ route }) {
         navigation.dispatch(e.data.action);
       }
     });
+    return remove;
   }, [navigation, isCachedTransaction]);
 
   useEffect(() => {
