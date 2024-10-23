@@ -204,6 +204,9 @@ function ReceiveScreen({ route }: { route }) {
         automaticallyAdjustKeyboardInsets={true}
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
+        alwaysBounceHorizontal={false}
+        alwaysBounceVertical={false}
+        bounces={false}
       >
         <Box
           style={styles.receiveDataContainer}
