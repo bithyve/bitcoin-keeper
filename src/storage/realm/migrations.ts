@@ -174,15 +174,26 @@ export const runRealmMigrations = ({
   if (oldRealm.schemaVersion < 78) {
     const oldNodeConnects = oldRealm.objects(RealmSchema.NodeConnect);
     const newNodeConnects = newRealm.objects(RealmSchema.NodeConnect);
+    const oldDefaultNodeConnects = oldRealm.objects(RealmSchema.DefaultNodeConnect);
+    const newDefaultNodeConnects = newRealm.objects(RealmSchema.DefaultNodeConnect);
 
     for (let i = 0; i < oldNodeConnects.length; i++) {
       const oldNodeConnect = oldNodeConnects[i];
       const newNodeConnect = newNodeConnects[i];
 
+      const oldDefaultNodeConnect = oldDefaultNodeConnects[i];
+      const newDefaultNodeConnect = newDefaultNodeConnects[i];
+
       // Remove the 'isDefault' property
       if ('isDefault' in oldNodeConnect) {
         if ('isDefault' in newNodeConnect) {
           delete (newNodeConnect as any).isDefault;
+        }
+      }
+
+      if ('isDefault' in oldDefaultNodeConnect) {
+        if ('isDefault' in newDefaultNodeConnect) {
+          delete (newDefaultNodeConnect as any).isDefault;
         }
       }
     }
