@@ -25,7 +25,9 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import ReceiveQR from './ReceiveQR';
 import AddressUsageBadge from './AddressUsageBadge';
 import NavLeft from 'src/assets/images/nav-left.svg';
+import NavLeftWhite from 'src/assets/images/nav-left-white.svg';
 import NavRight from 'src/assets/images/nav-right.svg';
+import NavRightWhite from 'src/assets/images/nav-right-white.svg';
 import NewQR from 'src/assets/images/qr-new.svg';
 import NewQRWhite from 'src/assets/images/qr-new-white.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -232,7 +234,11 @@ function ReceiveScreen({ route }: { route }) {
             }}
             style={styles.addressPageBtn}
           >
-            <NavLeft width={wp(22)} height={hp(22)} />
+            {colorMode === 'light' ? (
+              <NavLeft width={wp(22)} height={hp(22)} />
+            ) : (
+              <NavLeftWhite width={wp(22)} height={hp(22)} />
+            )}
           </TouchableOpacity>
           <KeeperTextInput
             placeholder=""
@@ -274,13 +280,17 @@ function ReceiveScreen({ route }: { route }) {
             }}
             style={styles.addressPageBtn}
           >
-            <NavRight width={wp(22)} height={hp(22)} />
+            {colorMode === 'light' ? (
+              <NavRight width={wp(22)} height={hp(22)} />
+            ) : (
+              <NavRightWhite width={wp(22)} height={hp(22)} />
+            )}
           </TouchableOpacity>
         </HStack>
       </ScrollView>
       <Box style={styles.BottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text color={`${colorMode}.pantoneGreen`} style={styles.addAmountText} semiBold>
+          <Text color={`${colorMode}.textGreen`} style={styles.addAmountText} semiBold>
             {home.requestSpecificAmount}
           </Text>
         </TouchableOpacity>
