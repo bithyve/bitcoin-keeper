@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, Input, useColorMode, Pressable, HStack, Center } from 'native-base';
+import { Box, Input, useColorMode, Pressable, HStack, Center, theme } from 'native-base';
 import { Keyboard, ScrollView, StyleSheet, Vibration, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
@@ -27,6 +27,7 @@ import AddressUsageBadge from './AddressUsageBadge';
 import NavLeft from 'src/assets/images/nav-left.svg';
 import NavRight from 'src/assets/images/nav-right.svg';
 import NewQR from 'src/assets/images/qr-new.svg';
+import NewQRWhite from 'src/assets/images/qr-new-white.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
@@ -190,14 +191,14 @@ function ReceiveScreen({ route }: { route }) {
       <Box style={{ flexDirection: 'row' }}>
         <KeeperHeader title={common.receive} titleColor={`${colorMode}.primaryText`} />
         <TouchableOpacity onPress={generateNewReceiveAddress} style={styles.getNewAddressContainer}>
-          <Text color={`${colorMode}.pantoneGreen`} style={styles.getNewAddressText} semiBold>
+          <Text color={`${colorMode}.textGreen`} style={styles.getNewAddressText} semiBold>
             {home.GetNewAddress}
           </Text>
-          <NewQR
-            color={`${colorMode}.pantoneGreen`}
-            size={wp(20)}
-            style={styles.getNewAddressIcon}
-          />
+          {colorMode === 'light' ? (
+            <NewQR size={wp(20)} style={styles.getNewAddressIcon} />
+          ) : (
+            <NewQRWhite size={wp(20)} style={styles.getNewAddressIcon} />
+          )}
         </TouchableOpacity>
       </Box>
       <ScrollView

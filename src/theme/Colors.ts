@@ -112,5 +112,10 @@ const Colors = {
   LightCrimson: 'rgba(229, 69, 69, 1)',
   CoralRed: 'rgba(248, 107, 80, 1)',
   MediumGrey: 'rgba(142, 142, 142, 1)',
+  AlertRed: 'rgba(249, 89, 89, 1)',
+  AlertRedDark: 'rgba(187, 73, 73, 1)',
+  NewBadgeGreen: 'rgba(210, 237, 231, 1)',
+  NewBadgeGreenDark: 'rgba(65, 89, 76, 1)',
+  TextWhite: 'rgba(231,231,231,1)',
 };
 export default Colors;

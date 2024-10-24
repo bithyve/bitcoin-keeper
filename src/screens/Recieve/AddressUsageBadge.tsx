@@ -17,16 +17,20 @@ function AddressUsageBadge({ used }: Props) {
 
   return (
     // TODO: Export colors to theme file
-    <Badge bgColor={used ? '#F95959' : '#D2EDE7'} rounded="full" style={styles.addressTypeBadge}>
+    <Badge
+      bgColor={used ? `${colorMode}.alertRed` : `${colorMode}.newBadgeGreen`}
+      rounded="full"
+      style={styles.addressTypeBadge}
+    >
       <Box flexDirection="row">
         <Text
-          color={used ? `${colorMode}.seashellWhite` : `${colorMode}.pantoneGreen`}
+          color={used ? `${colorMode}.textWhite` : `${colorMode}.textGreen`}
           style={styles.addressTypePoint}
         >
           .
         </Text>
         <Text
-          color={used ? `${colorMode}.seashellWhite` : `${colorMode}.pantoneGreen`}
+          color={used ? `${colorMode}.textWhite` : `${colorMode}.textGreen`}
           style={styles.addressTypeText}
         >
           {used ? walletTranslation.UsedAddress : walletTranslation.NewAddress}
