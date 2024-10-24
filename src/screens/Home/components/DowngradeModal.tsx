@@ -61,7 +61,6 @@ export function DowngradeModal() {
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
       subTitleWidth={wp(210)}
-      showButtons
       showCloseIcon={false}
     />
   );

@@ -1019,7 +1019,6 @@ function AddSigningDevice() {
         buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
         secondaryButtonText={inheritanceSigner && common.cancel}
         secondaryCallback={viewVault}
-        showButtons
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.buttonText`}

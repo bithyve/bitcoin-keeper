@@ -22,7 +22,7 @@ export const KeeperPasswordInput = ({
   return (
     <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
       <Box
-        height={10}
+        height={50}
         backgroundColor={`${colorMode}.seashellWhite`}
         borderWidth={1}
         borderColor={isActive ? `${colorMode}.textColor` : 'transparent'}

@@ -396,16 +396,14 @@ function SendScreen({ route }) {
                     }
                   />
                 </View>
-                <Box style={styles.proceedButton}>
-                  <Buttons primaryCallback={handleProceed} primaryText="Proceed" />
-                </Box>
               </View>
             </Box>
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
-      {showNote && (
-        <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+
+      <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+        {showNote && (
           <Note
             title={sender.entityKind === EntityKind.VAULT ? 'Security Tip' : common.note}
             subtitle={
@@ -415,8 +413,12 @@ function SendScreen({ route }) {
             }
             subtitleColor="GreyText"
           />
+        )}
+        <Box style={styles.proceedButton}>
+          <Buttons primaryCallback={handleProceed} primaryText={common.proceed} fullWidth />
         </Box>
-      )}
+      </Box>
+
       <PendingHealthCheckModal
         selectedItem={selectedItem}
         vaultKeys={vaultKeys}
@@ -497,6 +499,7 @@ const styles = StyleSheet.create({
   },
   noteWrapper: {
     marginLeft: wp(20),
+    marginBottom: hp(10),
     position: 'absolute',
     bottom: windowHeight > 680 ? hp(15) : hp(8),
     width: '100%',

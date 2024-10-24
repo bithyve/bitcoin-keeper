@@ -1,19 +1,21 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
-import VaultSetupIcon from 'src/assets/images/pull-down-wallet.svg';
 import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/check';
 import { hideOnboarding } from 'src/store/reducers/concierge';
 import { openConcierge } from 'src/store/sagaActions/concierge';
-import CustomButton from '../CustomButton/CustomButton';
+import Buttons from '../Buttons';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ConciergeOnboardingModal({ visible }) {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const [pageNo, setPageNo] = useState(1);
 
   function Check({ checked = false }) {
@@ -40,8 +42,14 @@ function ConciergeOnboardingModal({ visible }) {
             Get all your queries answered with Keeper Concierge. Upgrade to Hodler to chat with a
             support executive and Diamond Hands to schedule calls.
           </Text>
-          <Box marginTop={4} alignSelf="flex-end">
-            <CustomButton value="Next" disabled={false} onPress={() => setPageNo(2)} />
+          <Box marginTop={4}>
+            <Buttons
+              primaryText={common.next}
+              primaryCallback={() => setPageNo(2)}
+              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
+              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              fullWidth
+            />
           </Box>
         </View>
       );
@@ -51,8 +59,14 @@ function ConciergeOnboardingModal({ visible }) {
           <Text style={styles.contentText}>
             {`Test your multi-key setups and backups atleast once every few months.\n\nRegularly update your signing devices’ firmwares/softwares.\n\nPlease ensure that your backups are updated if you change one or more of the signers.`}
           </Text>
-          <Box marginTop={4} alignSelf="flex-end">
-            <CustomButton value="Next" disabled={false} onPress={() => setPageNo(3)} />
+          <Box marginTop={4}>
+            <Buttons
+              primaryText={common.next}
+              primaryCallback={() => setPageNo(3)}
+              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
+              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              fullWidth
+            />
           </Box>
         </View>
       );
@@ -100,15 +114,18 @@ function ConciergeOnboardingModal({ visible }) {
               I agree for these to be shared
             </Text>
           </TouchableOpacity>
-          <Box marginTop={4} alignSelf="flex-end">
-            <CustomButton
-              value="Continue"
-              disabled={!agree}
-              onPress={() => {
+          <Box marginTop={4}>
+            <Buttons
+              primaryText={common.continue}
+              primaryDisable={!agree}
+              primaryCallback={() => {
                 setPageNo(1);
                 dispatch(hideOnboarding());
                 dispatch(openConcierge(dontShow));
               }}
+              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
+              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              fullWidth
             />
           </Box>
         </View>
@@ -134,11 +151,7 @@ function ConciergeOnboardingModal({ visible }) {
       modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={LinkedWalletContent}
-      DarkCloseIcon
       showCloseIcon={false}
-      buttonText=""
-      buttonTextColor={`${colorMode}.modalWhiteButtonText`}
-      buttonBackground={`${colorMode}.modalWhiteButton`}
     />
   );
 }

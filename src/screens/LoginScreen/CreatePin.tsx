@@ -9,7 +9,6 @@ import {
 import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
@@ -23,6 +22,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { setEnableAnalyticsLogin } from 'src/store/reducers/settings';
 import { setIsInitialLogin } from 'src/store/reducers/login';
 import { throttle } from 'src/utils/utilities';
+import Buttons from 'src/components/Buttons';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -228,22 +228,23 @@ export default function CreatePin(props) {
               </Box>
             ) : null}
           </Box>
-          {!isDisabled && (
-            <Box alignSelf="flex-end" mr={5} mt={5}>
-              <CustomButton
-                testID="button"
-                onPress={() => {
-                  setCreatePassword(true);
-                }}
-                value={common.create}
-              />
-            </Box>
-          )}
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
             ClearIcon={<DeleteIcon />}
           />
+          <Box style={styles.btnWrapper}>
+            <Buttons
+              primaryCallback={() => {
+                setCreatePassword(true);
+              }}
+              primaryText={common.create}
+              primaryDisable={isDisabled}
+              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
+              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              fullWidth
+            />
+          </Box>
         </Box>
       </Box>
       <KeeperModal
@@ -266,7 +267,6 @@ export default function CreatePin(props) {
           setCreatePassword(false);
         }}
         Content={CreatePassModalContent}
-        showButtons
         subTitleWidth={wp(80)}
       />
       <KeeperModal
@@ -287,7 +287,6 @@ export default function CreatePin(props) {
           handleShareAnalytics(false);
         }}
         Content={ShareAnalyticsModalContent}
-        showButtons
         subTitleWidth={wp(80)}
       />
     </Box>
@@ -336,5 +335,11 @@ const styles = StyleSheet.create({
   passImg: {
     alignItems: 'center',
     paddingVertical: 20,
+  },
+  btnWrapper: {
+    marginTop: 25,
+    marginBottom: 30,
+    alignSelf: 'center',
+    width: '90%',
   },
 });

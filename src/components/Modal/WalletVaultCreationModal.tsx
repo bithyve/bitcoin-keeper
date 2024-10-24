@@ -92,7 +92,6 @@ function WalletVaultCreationModal(props) {
       buttonCallback={() => {
         props.buttonCallback();
       }}
-      showButtons
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
