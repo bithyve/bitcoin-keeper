@@ -315,7 +315,6 @@ function EnterWalletDetailScreen({ route }) {
         buttonCallback={() => {
           // setInitiating(true)
         }}
-        showButtons
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}

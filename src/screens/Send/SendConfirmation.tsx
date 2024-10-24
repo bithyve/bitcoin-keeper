@@ -1582,7 +1582,6 @@ function SendConfirmation({ route }) {
         buttonText={'Discard'}
         buttonCallback={discardCachedTransaction}
         buttonTextColor={`${colorMode}.white`}
-        showButtons
         secondaryButtonText={'Cancel'}
         secondaryCallback={() => {
           setProgress(false);
