@@ -39,7 +39,6 @@ type ModalProps = {
   DarkCloseIcon?: any;
   Content?: any;
   dismissible?: boolean;
-  showButtons?: boolean;
   learnMoreButton?: boolean;
   learnMoreButtonPressed?: () => void;
   learnButtonBackgroundColor?: string;
@@ -68,7 +67,6 @@ KeeperModal.defaultProps = {
   DarkCloseIcon: false,
   Content: () => null,
   dismissible: true,
-  showButtons: true,
   learnMoreButton: false,
   learnMoreButtonPressed: () => {},
   learnButtonBackgroundColor: 'light.BrownNeedHelp',
@@ -99,7 +97,6 @@ function KeeperModal(props: ModalProps) {
     DarkCloseIcon,
     Content,
     dismissible,
-    showButtons,
     learnMoreButton,
     learnMoreButtonPressed,
     learnButtonTextColor,
@@ -192,7 +189,7 @@ function KeeperModal(props: ModalProps) {
               <Modal.Body>
                 <Content />
               </Modal.Body>
-              {(showButtons || buttonText) && (
+              {buttonText && (
                 <Box
                   style={[
                     styles.footerContainer,
