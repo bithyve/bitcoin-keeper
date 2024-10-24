@@ -49,7 +49,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { Signer, VaultSigner, XpubDetailsType } from 'src/services/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
@@ -68,17 +68,15 @@ import { useDispatch } from 'react-redux';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
-import { HWErrorType } from 'src/models/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { crossInteractionHandler } from 'src/utils/utilities';
 import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/services/backend/SigningServer';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import {
   setInheritanceKeyExistingEmailCount,
@@ -144,7 +142,7 @@ const getSignerContent = (
   isNfcSupported: boolean,
   keyGenerationMode: KeyGenerationMode
 ) => {
-  const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
+  const { tapsigner, coldcard, ledger, bitbox, trezor, externalKey, common } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       return {
@@ -212,16 +210,13 @@ const getSignerContent = (
       return {
         type: SignerType.KEEPER,
         Illustration: <ExternalKeySetupImage />,
-        Instructions: [
-          'Choose a Mobile Key from another Keeper app',
-          'For Importing, go to settings of the Mobile Key and choose Key Details to scan the QR code presented',
-        ],
+        Instructions: [externalKey.modalInstruction1, externalKey.modalInstruction2],
         title: isHealthcheck
-          ? `Verify ${getSignerNameFromType(type)}`
+          ? `${common.verify} ${getSignerNameFromType(type)}`
           : isCanaryAddition
-          ? 'Setting up for Canary'
-          : 'Keep your Device Ready',
-        subTitle: isHealthcheck ? '' : `Importing ${getSignerNameFromType(type)}`,
+          ? externalKey.setupCanaryTitle
+          : `${common.importing} ${getSignerNameFromType(type)}`,
+        subTitle: isHealthcheck ? '' : externalKey.modalSubtitle,
         options: [],
       };
     case SignerType.MY_KEEPER:
