@@ -155,6 +155,14 @@ android {
     }
 }
 
+
+    repositories{
+        mavenLocal()
+         flatDir {
+        dirs '../../modules'  // Points to the module directory from the Android app folder
+    }
+    }
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
@@ -179,7 +187,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
+    // implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
     implementation "androidx.work:work-runtime:2.7.0"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

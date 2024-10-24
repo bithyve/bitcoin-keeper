@@ -120,7 +120,8 @@
     "stream": "0.0.2",
     "stream-browserify": "1.0.0",
     "url": "0.10.1",
-    "uuid": "8.3.2"
+    "uuid": "8.3.2",
+    "libportal-react-native": "link:./modules/libportal-react-native"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
