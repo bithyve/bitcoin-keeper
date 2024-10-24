@@ -129,6 +129,8 @@
     "goToBackup": "Go to Backup",
     "Receipt": "Receipt",
     "Later": "Later",
+    "importing": "Importing",
+    "verify": "Verify",
     "noElectrumServerTitle": "No Electrum Server Connected",
     "noElectrumServerText": "You are not connected to any Electrum Server. Fetching your balances, receiving incoming transactions, and sending new transactions may not work. You can select a server to use in the Node Settings.",
     "electrumServerConnectionFailedTitle": "Server Connection Failed",
@@ -555,7 +557,7 @@
     "ReviewTransaction": "Review the Transaction",
     "SignTransaction": "Sign Transaction",
     "DenyTransaction": "DenyTransaction",
-    "transactionToastMessage": "If the transaction isn’t visible, wait a moment and refresh.",
+    "transactionToastMessage": "Transaction sent successfully! If the transaction isn’t visible, wait a moment and refresh.",
     "walletSetupModalTitle": "About Wallet Setup",
     "addWalletOption1Title": "Single or Multi-Key Wallets",
     "addWalletOption1Description": "Create a wallet that suits your needs. Opt for a Single-Key Wallet for simplicity, or choose advanced setups like 2-of-3 Vaults for occasional use or 3-of-5 Vaults for secure, cold storage.",
@@ -749,6 +751,12 @@
     "maxAllowedAmt": "Max allowed amount",
     "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the signer will not sign it. You will have to use other devices for it"
   },
+  "externalKey": {
+    "modalInstruction1": "Choose a Key from another Keeper app",
+    "modalInstruction2": "To import an external key here, go to the Settings of the key in the other Keeper app, click on Key Details, and scan the QR code presented there.",
+    "setupCanaryTitle": "Setting up for Canary",
+    "modalSubtitle": "Keep the other Keeper App ready"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
@@ -914,7 +922,7 @@
   "onboarding": {
     "Comprehensive": "Comprehensive",
     "security": "security",
-    "slide01Title": "for\n your bitcoin",
+    "slide01Title": "for\n your Bitcoin",
     "privacy": "privacy",
     "slide01Paragraph": "Create single or multi-key wallets using popular signing devices. Perform air-gapped signing. Conduct regular health checks for keys.",
     "slide02Title": "Security should not come at the\ncost of",

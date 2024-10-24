@@ -142,7 +142,7 @@ const getSignerContent = (
   isNfcSupported: boolean,
   keyGenerationMode: KeyGenerationMode
 ) => {
-  const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
+  const { tapsigner, coldcard, ledger, bitbox, trezor, externalKey, common } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       return {
@@ -210,16 +210,13 @@ const getSignerContent = (
       return {
         type: SignerType.KEEPER,
         Illustration: <ExternalKeySetupImage />,
-        Instructions: [
-          'Choose a Key from another Keeper app',
-          'To import an external key here, go to the Settings of the key in the other Keeper app, click on Key Details, and scan the QR code presented there.',
-        ],
+        Instructions: [externalKey.modalInstruction1, externalKey.modalInstruction2],
         title: isHealthcheck
-          ? `Verify ${getSignerNameFromType(type)}`
+          ? `${common.verify} ${getSignerNameFromType(type)}`
           : isCanaryAddition
-          ? 'Setting up for Canary'
-          : `Importing ${getSignerNameFromType(type)}`,
-        subTitle: isHealthcheck ? '' : 'Keep the other Keeper App ready',
+          ? externalKey.setupCanaryTitle
+          : `${common.importing} ${getSignerNameFromType(type)}`,
+        subTitle: isHealthcheck ? '' : externalKey.modalSubtitle,
         options: [],
       };
     case SignerType.MY_KEEPER:
