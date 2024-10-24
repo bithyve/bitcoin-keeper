@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBarStyle, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Box, StatusBar, useColorMode } from 'native-base';
+import { hp } from 'src/constants/responsive';
 
 function ScreenWrapper({
   children,
@@ -31,7 +32,8 @@ export default ScreenWrapper;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 15,
+    paddingTop: hp(15),
+    paddingBottom: hp(5),
     paddingHorizontal: 20,
     position: 'relative',
   },

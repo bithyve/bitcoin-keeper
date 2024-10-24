@@ -105,6 +105,7 @@ import {
   INCREMENT_ADDRESS_INDEX,
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
+  GENERATE_NEW_ADDRESS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -1749,3 +1750,29 @@ function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
 }
 
 export const mergeSimilarKeysWatcher = createWatcher(mergeSimilarKeysWorker, MERGER_SIMILAR_KEYS);
+
+function* generateNewExternalAddressWorker({
+  payload,
+}: {
+  payload: {
+    wallet: Wallet | Vault;
+  };
+}) {
+  const { wallet } = payload;
+  wallet.specs.totalExternalAddresses += 1;
+
+  if (wallet.entityKind === EntityKind.VAULT) {
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
+      specs: wallet.specs,
+    });
+  } else {
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+      specs: wallet.specs,
+    });
+  }
+}
+
+export const generateNewExternalAddressWatcher = createWatcher(
+  generateNewExternalAddressWorker,
+  GENERATE_NEW_ADDRESS
+);

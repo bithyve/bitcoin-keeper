@@ -15,6 +15,8 @@ function KeeperTextInput({
   inputRef = null,
   height = 55,
   isError = false,
+  onBlur = (_) => {},
+  onFocus = (_) => {},
   ...props
 }) {
   const { colorMode } = useColorMode();
@@ -42,6 +44,8 @@ function KeeperTextInput({
         {...props}
         testID={`input_${testID}`}
         _focus={{ borderColor: `${colorMode}.greenText` }}
+        onBlur={onBlur}
+        onFocus={onFocus}
         InputRightElement={
           maxLength ? (
             <Box>

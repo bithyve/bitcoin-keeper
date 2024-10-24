@@ -182,6 +182,7 @@ export const VaultSpecsSchema: ObjectSchema = {
     xpubs: 'string[]',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
+    totalExternalAddresses: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
     addressPubs: '{}?',

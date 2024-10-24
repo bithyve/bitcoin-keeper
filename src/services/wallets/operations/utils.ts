@@ -397,7 +397,7 @@ export default class WalletUtilities {
     subPath: number[];
   } => {
     const { networkType } = wallet;
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    const { totalExternalAddresses, nextFreeChangeAddressIndex } = wallet.specs;
     let xpub = null;
 
     if (wallet.entityKind === EntityKind.VAULT) {
@@ -411,8 +411,8 @@ export default class WalletUtilities {
     const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
     const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
 
-    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
-    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+    const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
+    for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
         if (addressPubs[address]) {
           return {
@@ -445,14 +445,14 @@ export default class WalletUtilities {
     keyPair: BIP32Interface;
   } => {
     const { networkType } = wallet;
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    const { totalExternalAddresses, nextFreeChangeAddressIndex } = wallet.specs;
     const xpriv = (wallet as Wallet).specs.xpriv;
 
     const network = WalletUtilities.getNetworkByType(networkType);
     const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
-    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
-    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+    const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
+    for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
         return { keyPair: WalletUtilities.getKeyPairByIndex(xpriv, false, itr, network) };
       }
@@ -556,11 +556,11 @@ export default class WalletUtilities {
     subPath: number[];
     signerPubkeyMap: Map<string, Buffer>;
   } => {
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    const { totalExternalAddresses, nextFreeChangeAddressIndex } = wallet.specs;
     const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
-    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
-    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+    const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
+    for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
         const multiSig = WalletUtilities.createMultiSig(wallet, itr, false);
         return multiSig;
@@ -584,11 +584,11 @@ export default class WalletUtilities {
   ): {
     subPath: number[];
   } => {
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    const { totalExternalAddresses, nextFreeChangeAddressIndex } = wallet.specs;
     const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
-    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
-    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+    const closingExtIndex = totalExternalAddresses - 1 + config.GAP_LIMIT;
+    for (let itr = 0; itr <= totalExternalAddresses - 1 + closingExtIndex; itr++) {
       if (addressCache.external[itr] === address) {
         return { subPath: [0, itr] };
       }

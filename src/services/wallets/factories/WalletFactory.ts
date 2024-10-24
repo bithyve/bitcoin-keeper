@@ -49,6 +49,7 @@ export const generateWalletSpecsFromMnemonic = (
     xpriv,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
+    totalExternalAddresses: 1,
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
     balances: {
@@ -85,6 +86,7 @@ export const generateWalletSpecsFromExtendedKeys = (
     xpriv,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
+    totalExternalAddresses: 1,
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
     balances: {

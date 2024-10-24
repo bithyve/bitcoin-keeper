@@ -1,20 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
-import Text from 'src/components/KeeperText';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 
 type Props = {
   qrValue: string;
+  qrSize?: number;
 };
 
-function ReceiveQR({ qrValue }: Props) {
+function ReceiveQR({ qrValue, qrSize }: Props) {
   const { colorMode } = useColorMode();
-
-  const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation } = translations;
 
   return (
     <Box
@@ -27,41 +23,18 @@ function ReceiveQR({ qrValue }: Props) {
       <KeeperQRCode
         qrData={qrValue || 'address'}
         logoBackgroundColor="transparent"
-        size={hp(175)}
+        size={qrSize || wp(205)}
+        showLogo
       />
-      <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
-        <Text
-          bold
-          style={styles.receiveAddressText}
-          color={`${colorMode}.recieverAddress`}
-          numberOfLines={1}
-        >
-          {walletTranslation.receiveAddress}
-        </Text>
-      </Box>
     </Box>
   );
 }
 
 const styles = StyleSheet.create({
   qrWrapper: {
-    marginTop: 0,
+    marginTop: hp(20),
     alignItems: 'center',
     alignSelf: 'center',
-    width: wp(225),
-    borderWidth: 30,
-    borderBottomWidth: 15,
-  },
-  receiveAddressWrapper: {
-    height: hp(28),
-    width: wp(185),
-    justifyContent: 'center',
-  },
-  receiveAddressText: {
-    textAlign: 'center',
-    fontSize: 12,
-    letterSpacing: 1.08,
-    width: '100%',
   },
 });
 
