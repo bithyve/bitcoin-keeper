@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import CopyIcon from 'src/assets/images/copy.svg';
+import CopyIconWhite from 'src/assets/images/copy-white.svg';
 import { Share, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -46,11 +47,10 @@ function ReceiveAddress({ address }: Props) {
       </Box>
       <Pressable
         testID={`btn_copyToClipboard${address}`}
-        backgroundColor={`${colorMode}.whiteText`}
         style={styles.iconContainer}
         onPress={shareAddress}
       >
-        <CopyIcon />
+        {colorMode === 'light' ? <CopyIcon /> : <CopyIconWhite />}
       </Pressable>
     </Pressable>
   );
