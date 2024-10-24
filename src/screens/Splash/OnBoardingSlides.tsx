@@ -120,6 +120,7 @@ function OnBoardingSlides({ navigation }) {
                 items.map((item, index) => (
                   <Box
                     key={item.id.toString()}
+                    backgroundColor={`${colorMode}.sliderStep`}
                     style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                   />
                 ))
@@ -166,14 +167,12 @@ const styles = StyleSheet.create({
     width: 26,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#89AEA7',
     marginEnd: 5,
   },
   unSelectedDot: {
     width: 6,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#89AEA7',
     marginEnd: 5,
   },
   cta: {
