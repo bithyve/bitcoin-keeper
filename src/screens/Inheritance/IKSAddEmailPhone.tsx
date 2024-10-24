@@ -123,7 +123,7 @@ function IKSAddEmailPhone({ route }) {
             marginLeft={3}
             value={email}
             onChangeText={(text) => {
-              setEmail(text);
+              setEmail(text.trim());
               emailStatusFail && setEmailStatusFail(false);
             }}
           />
