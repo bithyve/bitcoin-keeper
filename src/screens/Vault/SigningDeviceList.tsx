@@ -210,7 +210,7 @@ function SigningDeviceList() {
         subtitle={vault.SelectSignerSubtitle}
         learnMore
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}

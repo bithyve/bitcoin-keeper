@@ -288,7 +288,7 @@ function SetupCollaborativeWallet() {
         subtitle={wallet.CollaborativeWalletCreated}
         learnMore
         learnMorePressed={() => dispatch(setCosginerModal(true))}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
       />
       <FlatList
         horizontal

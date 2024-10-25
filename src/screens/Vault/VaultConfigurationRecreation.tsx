@@ -176,7 +176,7 @@ function VaultConfigurationCreation() {
           title={importWallet.usingConfigFile}
           subtitle={importWallet.insertTextfromFile}
           learnMore
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>

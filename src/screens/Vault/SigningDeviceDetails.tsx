@@ -398,7 +398,7 @@ function SigningDeviceDetails({ route }) {
         <KeeperHeader
           learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
           learnMorePressed={() => setDetailModal(true)}
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           title={signerTranslations.keyDetails}
           subtitle={
             !signer.isBIP85

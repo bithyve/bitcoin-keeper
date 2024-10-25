@@ -151,7 +151,7 @@ function ScanQR() {
             learnMorePressed={() => {
               setVisibleModal(true);
             }}
-            learnTextColor={`${colorMode}.white`}
+            learnTextColor={`${colorMode}.buttonText`}
           />
           <ScrollView
             automaticallyAdjustKeyboardInsets={true}

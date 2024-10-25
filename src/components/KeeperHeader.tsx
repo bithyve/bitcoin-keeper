@@ -51,7 +51,11 @@ const LearnMoreButton = ({
           ? 'light.white'
           : `${colorMode}.learnMoreBorder`
       }
-      backgroundColor={learnBackgroundColor}
+      backgroundColor={
+        learnBackgroundColor == 'BrownNeedHelp'
+          ? `${colorMode}.BrownNeedHelp`
+          : learnBackgroundColor
+      }
       style={styles.learnMoreContainer}
     >
       <Text color={learnTextColor || `${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
@@ -110,7 +114,7 @@ const KeeperHeader = ({
   enableBack = true,
   learnMore = false,
   learnMorePressed = () => {},
-  learnBackgroundColor = 'light.BrownNeedHelp',
+  learnBackgroundColor = 'BrownNeedHelp',
   learnTextColor,
   rightComponent = null,
   availableBalance = null,
@@ -173,7 +177,7 @@ const KeeperHeader = ({
             <LearnMoreButton
               onPress={learnMorePressed}
               learnBackgroundColor={learnBackgroundColor}
-              learnTextColor={learnTextColor || `${colorMode}.learnMoreBorder`}
+              learnTextColor={learnTextColor}
               common={common}
               styles={styles}
               colorMode={colorMode}

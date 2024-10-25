@@ -62,7 +62,7 @@ function InheritanceToolsAndTips({ navigation }) {
         subtitle={inheritanceTranslation.SecurityAndInheritanceDescp}
         learnMore={true}
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => setInheritanceModal(true)}
       />
       <HStack style={[styles.container, { paddingBottom: setPadding }]}>

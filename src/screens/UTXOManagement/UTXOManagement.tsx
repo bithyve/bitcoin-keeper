@@ -260,7 +260,7 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
         <KeeperHeader
           // learnMore
           learnMorePressed={() => setLearnModalVisible(true)}
-          learnTextColor={`${colorMode}.white`}
+          learnTextColor={`${colorMode}.buttonText`}
           title={wallet?.presentationData?.name}
           subtitle={wallet?.presentationData?.description}
           icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}

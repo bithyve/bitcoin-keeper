@@ -42,7 +42,7 @@ function WalletCard({
         <Box style={styles.detailContainer}>
           <Box
             backgroundColor={
-              isSelected ? `${colorMode}.seashellWhite` : `${colorMode}.BrownNeedHelp`
+              isSelected ? `${colorMode}.seashellWhiteText` : `${colorMode}.BrownNeedHelp`
             }
             style={styles.circle}
           >

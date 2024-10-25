@@ -90,7 +90,7 @@ function CloudBackupScreen() {
         subtitle={`On your ${cloudName}`}
         learnMore={true}
         learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
         learnMorePressed={() => setShowModal(true)}
         icon={
           <CircleIconWrapper

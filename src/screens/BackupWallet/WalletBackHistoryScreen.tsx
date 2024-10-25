@@ -24,7 +24,7 @@ function WalletBackHistoryScreen({ route }) {
         title={seed.backupPhrase}
         //-----TODO LEARN MORE------
         // learnMore
-        // learnTextColor={`${colorMode}.white`}
+        // learnTextColor={`${colorMode}.buttonText`}
         // learnMorePressed={() => {
         //   setIsLearnMore(true);
         // }}

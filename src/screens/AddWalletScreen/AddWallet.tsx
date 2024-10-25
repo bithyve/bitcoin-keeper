@@ -103,7 +103,7 @@ function AddWallet({ navigation }) {
         learnMorePressed={() => {
           setVisibleModal(true);
         }}
-        learnTextColor={`${colorMode}.white`}
+        learnTextColor={`${colorMode}.buttonText`}
       />
       <HStack style={[styles.container, { paddingBottom: setPadding }]}>
         <WalletCard
