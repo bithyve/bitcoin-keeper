@@ -36,6 +36,8 @@ import {
   credentialsAuthWatcher,
   resetPinCredWatcher,
   generateSeedHashWatcher,
+  switchAppStatusWorker,
+  switchAppStatusWatcher,
 } from './login';
 import {
   backupWarningWatcher,
@@ -78,6 +80,7 @@ const rootSaga = function* () {
     generateSeedHashWatcher,
     changeLoginMethodWatcher,
     credentialStorageWatcher,
+    switchAppStatusWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
 

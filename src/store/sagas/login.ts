@@ -25,6 +25,7 @@ import {
   GENERATE_SEED_HASH,
   RESET_PIN,
   STORE_CREDS,
+  SWITCH_APP_STATUS,
 } from '../sagaActions/login';
 import {
   credsAuthenticated,
@@ -35,6 +36,7 @@ import {
   setupLoading,
   setRecepitVerificationError,
   setRecepitVerificationFailed,
+  setOfflineStatus,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -234,6 +236,51 @@ async function downgradeToPleb() {
   });
 }
 
+async function updateSubscription(level: AppSubscriptionLevel) {
+  const app: KeeperApp = await dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+
+  const subscriptionDetails = {
+    [AppSubscriptionLevel.L1]: {
+      productId: SubscriptionTier.L1,
+      name: SubscriptionTier.L1,
+      icon: 'assets/ic_pleb.svg',
+    },
+    [AppSubscriptionLevel.L2]: {
+      productId: SubscriptionTier.L2,
+      name: SubscriptionTier.L2,
+      icon: 'assets/ic_hodler.svg',
+    },
+    [AppSubscriptionLevel.L3]: {
+      productId: SubscriptionTier.L3,
+      name: SubscriptionTier.L3,
+      icon: 'assets/ic_diamond.svg',
+    },
+  };
+
+  const selectedSubscription = subscriptionDetails[level];
+
+  if (!selectedSubscription) {
+    console.error('Invalid subscription level:', level);
+    return;
+  }
+
+  const updatedSubscription: SubScription = {
+    receipt: '',
+    productId: selectedSubscription.productId,
+    name: selectedSubscription.name,
+    level: level,
+    icon: selectedSubscription.icon,
+  };
+
+  await dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+    subscription: updatedSubscription,
+  });
+
+  await Relay.updateSubscription(app.id, app.publicId, {
+    productId: selectedSubscription.productId.toLowerCase(),
+  });
+}
+
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
 
 function* changeAuthCredWorker({ payload }) {
@@ -329,3 +376,37 @@ function* changeLoginMethodWorker({
 }
 
 export const changeLoginMethodWatcher = createWatcher(changeLoginMethodWorker, CHANGE_LOGIN_METHOD);
+
+export function* switchAppStatusWorker() {
+  const appId = yield select((state: RootState) => state.storage.appId);
+
+  if (appId) {
+    try {
+      const { id, publicId }: KeeperApp = yield call(
+        dbManager.getObjectByIndex,
+        RealmSchema.KeeperApp
+      );
+
+      const response = yield call(Relay.verifyReceipt, id, publicId);
+
+      if (response.isValid) {
+        yield call(updateSubscription, response.level);
+        yield put(setOfflineStatus(false));
+      } else {
+        yield put(setOfflineStatus(true));
+      }
+
+      yield put(setRecepitVerificationFailed(!response.isValid));
+      yield put(connectToNode());
+    } catch (error) {
+      yield put(setRecepitVerificationError(true));
+      yield put(setOfflineStatus(true));
+      console.error('App status update error:', error);
+    }
+  } else {
+    yield put(setRecepitVerificationFailed(true));
+    yield put(setRecepitVerificationError(true));
+  }
+}
+
+export const switchAppStatusWatcher = createWatcher(switchAppStatusWorker, SWITCH_APP_STATUS);
