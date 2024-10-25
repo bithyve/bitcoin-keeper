@@ -25,7 +25,7 @@ export function KeeperFooter({
   const itemWidth = (windowWidth * 0.9) / footerItemsToRender.length - marginX * 2; // Ensure each item fits within the screen width
 
   return (
-    <Box bottom={wrappedScreen ? -10 : undefined}>
+    <Box bottom={wrappedScreen ? -10 : undefined} style={styles.container}>
       <Box style={styles.border} borderColor={`${colorMode}.separator`} />
       <Box
         flexDirection="row"
@@ -67,6 +67,9 @@ export function KeeperFooter({
 export default KeeperFooter;
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: hp(10),
+  },
   footerText: {
     fontSize: 14,
     letterSpacing: 0.36,
