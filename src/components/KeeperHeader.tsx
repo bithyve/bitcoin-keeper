@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
-import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -80,7 +80,7 @@ const HeaderInfo = ({
           {title}
         </Text>
       )}
-      {subtitle && (
+      {subtitle ? (
         <Text
           style={[styles.addWalletDescription, rightComponent && styles.smallWidth]}
           color={subTitleColor || `${colorMode}.black`}
@@ -88,6 +88,8 @@ const HeaderInfo = ({
         >
           {subtitle}
         </Text>
+      ) : (
+        <Box style={{ marginBottom: hp(8) }} />
       )}
     </Box>
   </Box>
@@ -199,6 +201,7 @@ const getStyles = (
   StyleSheet.create({
     container: {
       backgroundColor: 'transparent',
+      flex: -1,
     },
     simpleContainer: {
       flexDirection: 'row',
@@ -227,7 +230,7 @@ const getStyles = (
     },
     addWalletText: {
       letterSpacing: 0.18,
-      fontSize: 18,
+      fontSize: 20,
     },
     addWalletDescription: {
       fontSize: 14,
@@ -261,7 +264,7 @@ const getStyles = (
       alignSelf: 'center',
     },
     headerContainer: {
-      paddingTop: 20,
+      paddingTop: hp(25),
       width: windowWidth * 0.9,
       flexDirection: 'row',
       alignItems: 'center',
