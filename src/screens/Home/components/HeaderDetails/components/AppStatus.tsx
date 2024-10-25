@@ -9,6 +9,7 @@ import { hp, wp } from 'src/constants/responsive';
 import { switchAppStatus } from 'src/store/sagaActions/login';
 import { useDispatch } from 'react-redux';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Buttons from 'src/components/Buttons';
 
 const AppStatus = () => {
   const { colorMode } = useColorMode();
@@ -17,19 +18,21 @@ const AppStatus = () => {
   const { login, common } = translations;
   const [showModal, setShowModal] = useState(false);
   return (
-    <Pressable onPress={() => setShowModal(true)}>
-      <Box
-        style={styles.statusContainer}
-        backgroundColor={`${colorMode}.appStatusButtonBackground`}
-        borderColor={`${colorMode}.greyBorderTranslucent`}
-      >
-        <HStack style={styles.contentContainer}>
-          <DotIcon />
-          <Text color={`${colorMode}.appStatusTextColor`} style={styles.textStyle}>
-            {common.offline}
-          </Text>
-        </HStack>
-      </Box>
+    <Box>
+      <Pressable onPress={() => setShowModal(true)}>
+        <Box
+          style={styles.statusContainer}
+          backgroundColor={`${colorMode}.appStatusButtonBackground`}
+          borderColor={`${colorMode}.greyBorderTranslucent`}
+        >
+          <HStack style={styles.contentContainer}>
+            <DotIcon />
+            <Text color={`${colorMode}.appStatusTextColor`} style={styles.textStyle}>
+              {common.offline}
+            </Text>
+          </HStack>
+        </Box>
+      </Pressable>
       <KeeperModal
         visible={showModal}
         close={() => setShowModal(false)}
@@ -44,24 +47,25 @@ const AppStatus = () => {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         buttonTextColor={`${colorMode}.white`}
         buttonBackground={`${colorMode}.greenButtonBackground`}
-        buttonCallback={() => {
-          dispatch(switchAppStatus());
-        }}
-        buttonText={common.retry}
-        secondaryButtonText={login.continueOffline}
-        secondaryCallback={() => {
-          setShowModal(false);
-        }}
         Content={() => (
           <Box>
             <Box style={styles.illustration}>
               <OfflineIllustration />
             </Box>
             <Text color={`${colorMode}.secondaryText`}>{login.offlineModalDesc}</Text>
+            <Box style={styles.CTAWrapper}>
+              <Buttons
+                primaryText={login.retryConnection}
+                primaryCallback={() => dispatch(switchAppStatus())}
+                secondaryText={login.continueOffline}
+                secondaryCallback={() => setShowModal(false)}
+                width={wp(150)}
+              />
+            </Box>
           </Box>
         )}
       />
-    </Pressable>
+    </Box>
   );
 };
 
@@ -89,6 +93,9 @@ const styles = StyleSheet.create({
     marginBottom: hp(30),
     marginRight: wp(25),
     alignSelf: 'center',
+  },
+  CTAWrapper: {
+    marginTop: hp(30),
   },
 });
 

@@ -238,7 +238,8 @@
     "offlineModalTitle": "Keeper is Offline",
     "offlineModalSubTitle": "It seems there is a network issue. Please check your connection and try again",
     "offlineModalDesc": "Some functionalities requiring internet connection, may not work",
-    "continueOffline": "Continue offline"
+    "continueOffline": "Continue offline",
+    "retryConnection": "Retry Connection"
   },
   "home": {
     "Hello": "Hello,",
