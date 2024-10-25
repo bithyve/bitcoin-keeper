@@ -193,3 +193,9 @@ export enum SigningMode {
   FILE = 'FILE',
   QR = 'QR',
 }
+
+export enum RKInteractionMode {
+  SHARE_REMOTE_KEY = 'SHARE_REMOTE_KEY',
+  SHARE_PSBT = 'SHARE_PSBT',
+  SHARE_SIGNED_PSBT = 'SHARE_SIGNED_PSBT',
+}

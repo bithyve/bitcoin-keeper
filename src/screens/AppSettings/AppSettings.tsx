@@ -149,6 +149,11 @@ function AppSettings({ navigation, route }) {
           }
         />
         <OptionCard
+          title={settings.GeneralPreferences}
+          description={settings.CurrencyDefaultsSubtitle}
+          callback={() => navigation.navigate('ChangeLanguage')}
+        />
+        <OptionCard
           title={settings.SecurityAndLogin}
           description={settings.SecurityAndLoginSubtitle}
           callback={() => navigation.navigate('PrivacyAndDisplay')}
@@ -167,11 +172,6 @@ function AppSettings({ navigation, route }) {
           title={settings.VersionHistory}
           description={settings.VersionHistorySubTitle}
           callback={() => navigation.navigate('AppVersionHistory')}
-        />
-        <OptionCard
-          title={settings.CurrencyDefaults}
-          description={settings.CurrencyDefaultsSubtitle}
-          callback={() => navigation.navigate('ChangeLanguage')}
         />
       </ScrollView>
       <Box backgroundColor={`${colorMode}.primaryBackground`}>
@@ -232,6 +232,7 @@ function AppSettings({ navigation, route }) {
               setConfirmPassVisible(false);
             }}
             onSuccess={() => {
+              setConfirmPassVisible(false);
               setBackupModalVisible(true);
             }}
           />
@@ -240,14 +241,19 @@ function AppSettings({ navigation, route }) {
       <KeeperModal
         visible={backupModalVisible}
         close={() => setBackupModalVisible(false)}
-        title="Backup Recovery Key"
-        subTitle="Carefully write down the 12-word Recovery Key in a private place and ensure its security"
+        title={settings.RKBackupTitle}
+        subTitle={settings.RKBackupSubTitle}
         subTitleWidth={wp(300)}
+        showCloseIcon={false}
+        dismissible
+        closeOnOverlayClick
         modalBackground={`${colorMode}.primaryBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
-        showCloseIcon={false}
-        buttonText="Backup Now"
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setBackupModalVisible(false)}
+        secButtonTextColor={`${colorMode}.greenText`}
+        buttonText={common.backupNow}
         buttonCallback={() => {
           setBackupModalVisible(false);
           navigation.dispatch(

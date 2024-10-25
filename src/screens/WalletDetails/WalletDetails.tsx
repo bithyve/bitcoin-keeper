@@ -41,6 +41,7 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -74,9 +75,11 @@ function WalletDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { autoRefresh = false, walletId } = route.params || {};
+  const { common, wallet: walletTranslations } = translations;
+  const { autoRefresh = false, walletId, transactionToast = false } = route.params || {};
+  const [syncingCompleted, setSyncingCompleted] = useState(false);
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -113,6 +116,21 @@ function WalletDetails({ route }: ScreenProps) {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
 
+  useEffect(() => {
+    if (!syncing && syncingCompleted && transactionToast) {
+      showToast(walletTranslations.transactionToastMessage);
+      navigation.dispatch(CommonActions.setParams({ transactionToast: false }));
+    }
+  }, [syncingCompleted, transactionToast]);
+
+  useEffect(() => {
+    if (!syncing) {
+      setSyncingCompleted(true);
+    } else {
+      setSyncingCompleted(false);
+    }
+  }, [syncing]);
+
   const pullDownRefresh = () => {
     setPullRefresh(true);
     dispatch(refreshWallets([wallet], { hardRefresh: true }));
@@ -125,8 +143,8 @@ function WalletDetails({ route }: ScreenProps) {
     } else if (wallet.entityKind === EntityKind.WALLET) {
       return (
         <HexagonIcon
-          width={44}
-          height={38}
+          width={58}
+          height={50}
           backgroundColor={Colors.DarkGreen}
           icon={<WalletIcon />}
         />
@@ -176,8 +194,8 @@ function WalletDetails({ route }: ScreenProps) {
       </Box>
       <Box style={styles.actionCard}>
         <ActionCard
-          cardName="Buy Bitcoin"
-          description="into this wallet"
+          cardName={common.buyBitCoin}
+          description={common.inToThisWallet}
           callback={() =>
             navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
           }
@@ -187,8 +205,8 @@ function WalletDetails({ route }: ScreenProps) {
           )}`}
         />
         <ActionCard
-          cardName="View All Coins"
-          description="Manage UTXOs"
+          cardName={common.viewAllCoins}
+          description={common.manageUTXO}
           callback={() =>
             navigation.navigate('UTXOManagement', {
               data: wallet,

@@ -15,6 +15,8 @@ import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import IconRefresh from 'src/assets/images/icon_refresh.svg';
 import TorModalMap from './TorModalMap';
+import Instruction from 'src/components/Instruction';
+import { hp, wp } from 'src/constants/responsive';
 
 function TorSettings() {
   const { colorMode } = useColorMode();
@@ -127,19 +129,23 @@ function TorSettings() {
         close={() => {
           setShowOrbotTorModal(false);
         }}
+        closeOnOverlayClick={true}
+        dismissible={true}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         title={settings.orbotConnection}
         subTitle={settings.orbotConnectionSubTitle}
+        showCloseIcon={false}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
+        secButtonTextColor={`${colorMode}.greenButtonBackground`}
+        secondaryButtonText={common.Later}
+        secondaryCallback={() => setShowOrbotTorModal(false)}
         buttonText={common.connect}
         buttonCallback={handleOrbotTor}
         Content={() => (
-          <Box alignItems="center">
-            <Box marginTop={2}>
-              <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
-                {
-                  '\u2022 This will redirect you to the Orbot app and you can configure the connection from there.'
-                }
-              </Text>
-            </Box>
+          <Box style={styles.orbotContent}>
+            <Instruction text={settings.torDescription} textWidth={wp(275)} />
           </Box>
         )}
       />
@@ -175,6 +181,10 @@ const styles = StyleSheet.create({
   },
   checkStatusBtnTitle: {
     fontSize: 13,
+  },
+  orbotContent: {
+    alignItems: 'flex-start',
+    marginBottom: hp(10),
   },
 });
 

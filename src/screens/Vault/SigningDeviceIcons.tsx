@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
@@ -49,31 +48,29 @@ import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 import { useColorMode } from 'native-base';
 
-const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
-  if (isLight) {
-    return LightComponent;
-  }
-  return DarkComponent;
+const getColouredIcon = (LightComponent, DarkComponent, isLight, width, height) => {
+  const component = isLight ? LightComponent : DarkComponent;
+  return React.cloneElement(component, { width, height });
 };
 
-export const SDIcons = (type: SignerType, light = false) => {
+export const SDIcons = (type: SignerType, light = false, width = 20, height = 20) => {
   const { colorMode } = useColorMode();
   switch (type) {
     case SignerType.COLDCARD:
       return {
-        Icon: getColouredIcon(<COLDCARDICONLIGHT />, <COLDCARDICON />, light),
+        Icon: getColouredIcon(<COLDCARDICONLIGHT />, <COLDCARDICON />, light, width, height),
         Logo: <COLDCARDLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.JADE:
       return {
-        Icon: getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light),
+        Icon: getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light, width, height),
         Logo: <JADELOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.MY_KEEPER:
       return {
-        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
+        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Mobile Key
@@ -82,7 +79,7 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.KEEPER:
       return {
-        Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
+        Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             External Key
@@ -91,19 +88,19 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.KEYSTONE:
       return {
-        Icon: getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light),
+        Icon: getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light, width, height),
         Logo: <KEYSTONELOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.LEDGER:
       return {
-        Icon: getColouredIcon(<LEDGERICONLIGHT />, <LEDGERICON />, light),
+        Icon: getColouredIcon(<LEDGERICONLIGHT />, <LEDGERICON />, light, width, height),
         Logo: <LEDGERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.MOBILE_KEY:
       return {
-        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
+        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Mobile Key
@@ -113,13 +110,13 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.PASSPORT:
       return {
-        Icon: getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light),
+        Icon: getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light, width, height),
         Logo: <PASSPORTLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.POLICY_SERVER:
       return {
-        Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light),
+        Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Signing Server +
@@ -129,37 +126,37 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.TAPSIGNER:
       return {
-        Icon: getColouredIcon(<TAPSIGNERICONLIGHT />, <TAPSIGNERICON />, light),
+        Icon: getColouredIcon(<TAPSIGNERICONLIGHT />, <TAPSIGNERICON />, light, width, height),
         Logo: <TAPSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.TREZOR:
       return {
-        Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light),
+        Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light, width, height),
         Logo: <TREZORLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEEDSIGNER:
       return {
-        Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light),
+        Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light, width, height),
         Logo: <SEEDSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SPECTER:
       return {
-        Icon: getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light),
+        Icon: getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light, width, height),
         Logo: <SPECTERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.BITBOX02:
       return {
-        Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light),
+        Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light, width, height),
         Logo: <BITBOXLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.OTHER_SD:
       return {
-        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
+        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Other signer
@@ -167,20 +164,19 @@ export const SDIcons = (type: SignerType, light = false) => {
         ),
         type: SignerStorage.COLD,
       };
-
     case SignerType.UNKOWN_SIGNER:
       return {
-        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
+        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
-            Unknonw Signer
+            Unknown Signer
           </Text>
         ),
         type: SignerStorage.COLD,
       };
     case SignerType.SEED_WORDS:
       return {
-        Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
+        Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light, width, height),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Seed Key
@@ -190,7 +186,13 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.INHERITANCEKEY:
       return {
-        Icon: getColouredIcon(<INHERITANCEKEYLIGHT />, <INHERITANCEKEYDARK />, light),
+        Icon: getColouredIcon(
+          <INHERITANCEKEYLIGHT />,
+          <INHERITANCEKEYDARK />,
+          light,
+          width,
+          height
+        ),
         Logo: (
           <Text style={styles.text} color={`${colorMode}.secondaryText`}>
             Inheritance Key +

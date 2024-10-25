@@ -1,10 +1,10 @@
-import { Box, Modal, Pressable, useColorMode } from 'native-base';
+import { Box, Modal } from 'native-base';
 import {
-  ActivityIndicator,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
 } from 'react-native';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 
@@ -18,6 +18,7 @@ import Text from 'src/components/KeeperText';
 import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Buttons from './Buttons';
 
 type ModalProps = {
   visible: boolean;
@@ -38,10 +39,6 @@ type ModalProps = {
   DarkCloseIcon?: any;
   Content?: any;
   dismissible?: boolean;
-  showButtons?: boolean;
-  learnMore?: boolean;
-  learnMoreTitle?: string;
-  learnMoreCallback?: any;
   learnMoreButton?: boolean;
   learnMoreButtonPressed?: () => void;
   learnButtonBackgroundColor?: string;
@@ -70,10 +67,6 @@ KeeperModal.defaultProps = {
   DarkCloseIcon: false,
   Content: () => null,
   dismissible: true,
-  showButtons: true,
-  learnMore: false,
-  learnMoreTitle: 'Need more help?',
-  learnMoreCallback: () => {},
   learnMoreButton: false,
   learnMoreButtonPressed: () => {},
   learnButtonBackgroundColor: 'light.BrownNeedHelp',
@@ -104,10 +97,6 @@ function KeeperModal(props: ModalProps) {
     DarkCloseIcon,
     Content,
     dismissible,
-    showButtons,
-    learnMore,
-    learnMoreTitle,
-    learnMoreCallback,
     learnMoreButton,
     learnMoreButtonPressed,
     learnButtonTextColor,
@@ -119,11 +108,13 @@ function KeeperModal(props: ModalProps) {
     justifyContent,
     loading,
   } = props;
-  const { colorMode } = useColorMode();
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   const isKeyboardOpen = useKeyboard();
+  const { height: screenHeight } = useWindowDimensions();
+  const availableHeight = screenHeight - bottom - (isKeyboardOpen ? hp(200) : hp(100));
+  const maxModalHeight = Math.min(availableHeight, screenHeight * 0.85);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
 
@@ -192,47 +183,33 @@ function KeeperModal(props: ModalProps) {
               </Modal.Header>
             ) : null}
             <ScrollView
-              style={{ maxHeight: windowHeight * 0.8 }}
+              style={{ maxHeight: maxModalHeight * 0.85 }}
               showsVerticalScrollIndicator={false}
             >
               <Modal.Body>
                 <Content />
               </Modal.Body>
-              {((showButtons && learnMore) || !!buttonText) && (
-                <Box style={[styles.footerContainer, learnMore && styles.spaceBetween]}>
-                  {learnMore ? (
-                    <Box
-                      borderColor={`${colorMode}.lightAccent`}
-                      backgroundColor={`${colorMode}.modalGreenLearnMore`}
-                      style={styles.learnMoreContainer}
-                    >
-                      <Pressable onPress={learnMoreCallback}>
-                        <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
-                          {learnMoreTitle}
-                        </Text>
-                      </Pressable>
-                    </Box>
-                  ) : (
-                    <Box />
-                  )}
-                  {!!secondaryButtonText && (
-                    <TouchableOpacity onPress={secondaryCallback} testID='modal_secondary_btn'>
-                      <Box style={styles.secCta}>
-                        <Text style={styles.ctaText} color={secButtonTextColor} medium>
-                          {showButtons ? secondaryButtonText : null}
-                        </Text>
-                      </Box>
-                    </TouchableOpacity>
-                  )}
-                  {!!buttonText && (
-                    <TouchableOpacity onPress={buttonCallback} testID='modal_primary_btn'>
-                      <Box backgroundColor={buttonBackground} style={styles.cta}>
-                        <Text style={styles.ctaText} color={buttonTextColor} bold>
-                          {showButtons ? buttonText : null}
-                        </Text>
-                        {loading ? <ActivityIndicator /> : null}
-                      </Box>
-                    </TouchableOpacity>
+              {buttonText && (
+                <Box
+                  style={[
+                    styles.footerContainer,
+                    secondaryButtonText
+                      ? { marginRight: 10, alignSelf: 'flex-end', paddingHorizontal: 0 }
+                      : { alignSelf: 'center', paddingHorizontal: '3%' },
+                  ]}
+                >
+                  {buttonText && (
+                    <Buttons
+                      primaryLoading={loading}
+                      primaryText={buttonText}
+                      primaryCallback={buttonCallback}
+                      primaryBackgroundColor={buttonBackground}
+                      primaryTextColor={buttonTextColor}
+                      secondaryCallback={secondaryCallback}
+                      secondaryText={secondaryButtonText}
+                      secondaryTextColor={secButtonTextColor}
+                      fullWidth={!secondaryButtonText}
+                    />
                   )}
                 </Box>
               )}
@@ -269,17 +246,6 @@ const getStyles = (subTitleWidth) =>
       height: hp(45),
       justifyContent: 'center',
       alignItems: 'flex-end',
-    },
-    cta: {
-      borderRadius: 10,
-      width: wp(120),
-      height: hp(50),
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    ctaText: {
-      fontSize: 13,
-      letterSpacing: 1,
     },
     close: {
       position: 'absolute',
@@ -334,14 +300,11 @@ const getStyles = (subTitleWidth) =>
       width: '80%',
     },
     footerContainer: {
+      paddingTop: '3%',
       flexDirection: 'row',
       justifyContent: 'flex-end',
       gap: 30,
       alignItems: 'center',
       marginBottom: 20,
-      marginRight: 10,
-    },
-    spaceBetween: {
-      justifyContent: 'space-between',
     },
   });

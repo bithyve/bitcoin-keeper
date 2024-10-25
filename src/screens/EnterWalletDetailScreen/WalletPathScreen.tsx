@@ -33,7 +33,7 @@ function WalletPathScreen({ route }) {
       />
       <Box style={{ flex: 1, justifyContent: 'space-between' }}>
         <Box style={styles.fieldsContainer}>
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
+          <Box style={styles.inputFieldWrapper}>
             <KeeperTextInput
               placeholder="Paste Wallet Path"
               placeholderTextColor={`${colorMode}.SlateGreen`}

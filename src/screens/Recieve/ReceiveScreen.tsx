@@ -1,23 +1,19 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, Input, useColorMode, Pressable } from 'native-base';
-import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
+import { Box, Input, useColorMode, Pressable, HStack, Center, theme } from 'native-base';
+import { Keyboard, ScrollView, StyleSheet, Vibration, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
-import QRCode from 'react-native-qrcode-svg';
 
-import BtcGreen from 'src/assets/images/btc_round_green.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
-import Note from 'src/components/Note/Note';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
-import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
@@ -26,7 +22,19 @@ import ReceiveAddress from './ReceiveAddress';
 import useSigners from 'src/hooks/useSigners';
 import { SignerType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import ReceiveGreen from 'src/assets/images/receive-green.svg';
+import ReceiveQR from './ReceiveQR';
+import AddressUsageBadge from './AddressUsageBadge';
+import NavLeft from 'src/assets/images/nav-left.svg';
+import NavLeftWhite from 'src/assets/images/nav-left-white.svg';
+import NavRight from 'src/assets/images/nav-right.svg';
+import NavRightWhite from 'src/assets/images/nav-right-white.svg';
+import NewQR from 'src/assets/images/qr-new.svg';
+import NewQRWhite from 'src/assets/images/qr-new-white.svg';
+import KeeperTextInput from 'src/components/KeeperTextInput';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { generateNewAddress } from 'src/store/sagaActions/wallets';
+import { useAppDispatch } from 'src/store/hooks';
+
 const AddressVerifiableSigners = [SignerType.BITBOX02, SignerType.LEDGER, SignerType.TREZOR];
 
 function ReceiveScreen({ route }: { route }) {
@@ -43,15 +51,46 @@ function ReceiveScreen({ route }: { route }) {
   const { translations } = useContext(LocalizationContext);
   const { common, home, wallet: walletTranslation } = translations;
 
-  const [btmCtrHeight, setBtmCtrHeight] = useState(0);
   const navigation = useNavigation();
   const { vaultSigners } = useSigners(wallet.id);
   const [addVerifiableSigners, setAddVerifiableSigners] = useState([]);
 
+  const [currentAddressIdx, setCurrentAddressIdx] = useState(0);
+  const [currentAddressIdxTempText, setCurrentAddressIdxTempText] = useState('');
+  const [totalAddressesCount, setTotalAddressesCount] = useState(0);
+
+  const [addressUsed, setAddressUsed] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  const generateNewReceiveAddress = () => {
+    dispatch(generateNewAddress(wallet));
+    Vibration.vibrate(50);
+    const newTotalAddressesCount = totalAddressesCount + 1;
+    setTotalAddressesCount(newTotalAddressesCount);
+    setCurrentAddressIdx(newTotalAddressesCount);
+  };
+
   useEffect(() => {
-    const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
-    setReceivingAddress(receivingAddress);
-  }, []);
+    setCurrentAddressIdxTempText(currentAddressIdx.toString());
+    if (totalAddressesCount == 0) {
+      const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
+      setReceivingAddress(receivingAddress);
+      setTotalAddressesCount(wallet.specs.totalExternalAddresses);
+      setCurrentAddressIdx(wallet.specs.nextFreeAddressIndex + 1);
+    } else {
+      const receivingAddress = WalletOperations.getExternalAddressAtIdx(
+        wallet,
+        currentAddressIdx - 1
+      );
+      setReceivingAddress(receivingAddress);
+      setAddressUsed(
+        wallet.specs.transactions.some(
+          (tx) => tx.recipientAddresses && tx.recipientAddresses.includes(receivingAddress)
+        )
+      );
+    }
+  }, [currentAddressIdx]);
 
   useEffect(() => {
     if (amount) {
@@ -133,75 +172,137 @@ function ReceiveScreen({ route }: { route }) {
   const VerifyAddressBtn = () => {
     return (
       <Pressable
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={styles.verifyAddCtr}
-        mb={btmCtrHeight + hp(60)}
+        style={[styles.verifyAddressBtn]}
+        backgroundColor={`${colorMode}.greenButtonBackground`}
         onPress={onVerifyAddress}
       >
-        <ReceiveGreen />
-        <Box>
-          <Text fontSize={13}>Receive</Text>
-          <Text fontSize={12} color={`${colorMode}.GreyText`}>
-            {'Verify the address'}
-          </Text>
-        </Box>
+        <Text
+          numberOfLines={1}
+          style={styles.verifyAddressBtnText}
+          color={`${colorMode}.buttonText`}
+          bold
+        >
+          {'Verify Address on Device'}
+        </Text>
       </Pressable>
     );
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={common.receive} subtitle={walletTranslation.receiveSubTitle} />
-      <Box height={hp(10)} />
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+      <Box style={{ flexDirection: 'row' }}>
+        <KeeperHeader title={common.receive} titleColor={`${colorMode}.primaryText`} />
+        <TouchableOpacity onPress={generateNewReceiveAddress} style={styles.getNewAddressContainer}>
+          <Text color={`${colorMode}.textGreen`} style={styles.getNewAddressText} semiBold>
+            {home.GetNewAddress}
+          </Text>
+          {colorMode === 'light' ? (
+            <NewQR size={wp(20)} style={styles.getNewAddressIcon} />
+          ) : (
+            <NewQRWhite size={wp(20)} style={styles.getNewAddressIcon} />
+          )}
+        </TouchableOpacity>
+      </Box>
+      <ScrollView
+        automaticallyAdjustKeyboardInsets={true}
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        alwaysBounceHorizontal={false}
+        alwaysBounceVertical={false}
+        bounces={false}
+      >
         <Box
-          testID="view_recieveAddressQR"
-          style={styles.qrWrapper}
-          borderColor={`${colorMode}.qrBorderColor`}
+          style={styles.receiveDataContainer}
+          backgroundColor={`${colorMode}.seashellWhite`}
+          borderColor={`${colorMode}.greyBorder`}
         >
-          <QRCode
-            value={paymentURI || receivingAddress || 'address'}
-            logoBackgroundColor="transparent"
-            size={hp(200)}
-          />
-          <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
-            <Text
-              bold
-              style={styles.receiveAddressText}
-              color={`${colorMode}.recieverAddress`}
-              numberOfLines={1}
-            >
-              {walletTranslation.receiveAddress}
-            </Text>
+          <AddressUsageBadge used={addressUsed} />
+          <ReceiveQR qrValue={paymentURI || receivingAddress} qrSize={wp(windowWidth * 0.5)} />
+          <Box style={styles.addressContainer}>
+            <ReceiveAddress address={paymentURI || receivingAddress} />
           </Box>
         </Box>
-        <Box style={styles.addressContainer}>
-          <ReceiveAddress address={paymentURI || receivingAddress} />
-          <MenuItemButton
-            onPress={() => setModalVisible(true)}
-            icon={<BtcGreen />}
-            title={home.AddAmount}
-            subTitle={walletTranslation.addSpecificInvoiceAmt}
+
+        <HStack style={styles.addressPagesBar}>
+          <TouchableOpacity
+            onPress={() => {
+              const newIdx = Math.max(1, currentAddressIdx - 1);
+              if (newIdx !== currentAddressIdx) {
+                Vibration.vibrate(50);
+                setCurrentAddressIdx(newIdx);
+              }
+            }}
+            style={styles.addressPageBtn}
+          >
+            {colorMode === 'light' ? (
+              <NavLeft width={wp(22)} height={hp(22)} />
+            ) : (
+              <NavLeftWhite width={wp(22)} height={hp(22)} />
+            )}
+          </TouchableOpacity>
+          <KeeperTextInput
+            placeholder=""
+            value={currentAddressIdxTempText}
+            onChangeText={(text) => {
+              setCurrentAddressIdxTempText(text);
+            }}
+            onBlur={() => {
+              if (
+                parseInt(currentAddressIdxTempText) &&
+                !Number.isNaN(parseInt(currentAddressIdxTempText)) &&
+                !(
+                  currentAddressIdxTempText.includes('.') || currentAddressIdxTempText.includes(',')
+                )
+              ) {
+                setCurrentAddressIdx(
+                  Math.min(totalAddressesCount, parseInt(currentAddressIdxTempText))
+                );
+              } else {
+                setCurrentAddressIdxTempText(currentAddressIdx.toString());
+              }
+            }}
+            width={currentAddressIdx < 100 ? wp(40) : wp(45)}
+            height={hp(35)}
+            keyboardType="numeric"
+            style={styles.addressPageInput}
+            fontWeight="200"
           />
-          {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 && (
-            <VerifyAddressBtn />
-          )}
-        </Box>
+          <Text color={`${colorMode}.black`} style={styles.totalAddressesText}>
+            of {totalAddressesCount}
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              const newIdx = Math.min(totalAddressesCount, currentAddressIdx + 1);
+              if (newIdx !== currentAddressIdx) {
+                Vibration.vibrate(50);
+                setCurrentAddressIdx(newIdx);
+              }
+            }}
+            style={styles.addressPageBtn}
+          >
+            {colorMode === 'light' ? (
+              <NavRight width={wp(22)} height={hp(22)} />
+            ) : (
+              <NavRightWhite width={wp(22)} height={hp(22)} />
+            )}
+          </TouchableOpacity>
+        </HStack>
       </ScrollView>
-      <Box
-        style={styles.Note}
-        backgroundColor={`${colorMode}.primaryBackground`}
-        onLayout={(event) => setBtmCtrHeight(event.nativeEvent.layout.height)}
-      >
-        <Note
-          title={'Note'}
-          subtitle={
-            wallet.entityKind === 'VAULT'
-              ? walletTranslation.addressReceiveDirectly
-              : home.reflectSats
-          }
-          subtitleColor="GreyText"
-        />
+      <Box style={styles.BottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Text color={`${colorMode}.textGreen`} style={styles.addAmountText} semiBold>
+            {home.requestSpecificAmount}
+          </Text>
+        </TouchableOpacity>
+        {
+          <Box>
+            {wallet.entityKind === 'VAULT' && addVerifiableSigners?.length > 0 ? (
+              <VerifyAddressBtn />
+            ) : (
+              <Box marginBottom={hp(84)}></Box>
+            )}
+          </Box>
+        }
       </Box>
       <KeeperModal
         visible={modalVisible}
@@ -219,30 +320,10 @@ function ReceiveScreen({ route }: { route }) {
 }
 
 const styles = StyleSheet.create({
-  Note: {
-    position: 'absolute',
-    bottom: hp(20),
-    width: '100%',
-    paddingHorizontal: 30,
-    zIndex: 1,
-  },
-  qrWrapper: {
-    marginTop: 0,
-    alignItems: 'center',
+  BottomContainer: {
+    marginTop: hp(10),
+    width: '95%',
     alignSelf: 'center',
-    width: hp(250),
-    borderWidth: 30,
-  },
-  receiveAddressWrapper: {
-    height: 28,
-    width: '100%',
-    justifyContent: 'center',
-  },
-  receiveAddressText: {
-    textAlign: 'center',
-    fontSize: 12,
-    letterSpacing: 1.08,
-    width: '100%',
   },
   Container: {
     padding: 10,
@@ -276,15 +357,61 @@ const styles = StyleSheet.create({
   addressContainer: {
     marginHorizontal: wp(20),
   },
-  verifyAddCtr: {
-    marginTop: hp(15),
+  verifyAddressBtn: {
     width: '100%',
-    paddingVertical: 16,
-    paddingHorizontal: 23,
-    gap: 11,
+    paddingHorizontal: wp(35),
+    paddingVertical: hp(14),
     borderRadius: 10,
-    flexDirection: 'row',
     alignItems: 'center',
+    marginTop: hp(15),
+    marginBottom: hp(20),
+  },
+  verifyAddressBtnText: {
+    fontSize: 14,
+    letterSpacing: 0.84,
+  },
+  receiveDataContainer: {
+    paddingTop: hp(17),
+    paddingBottom: hp(15),
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  addAmountText: {
+    fontSize: 14,
+    width: '100%',
+    textAlign: 'center',
+    marginVertical: hp(20),
+  },
+  addressPagesBar: {
+    marginTop: hp(5),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addressPageInput: {
+    textAlign: 'center',
+    fontSize: 14,
+    marginTop: hp(3),
+  },
+  totalAddressesText: {
+    fontSize: 14,
+    marginLeft: wp(8),
+  },
+  addressPageBtn: {
+    marginHorizontal: wp(10),
+    width: wp(22),
+    height: hp(22),
+  },
+  getNewAddressContainer: {
+    marginTop: hp(20),
+    flexDirection: 'row',
+  },
+  getNewAddressText: {
+    fontSize: 14,
+  },
+  getNewAddressIcon: {
+    marginLeft: wp(9),
+    marginRight: wp(10),
+    marginTop: hp(1),
   },
 });
 

@@ -105,6 +105,7 @@ import {
   INCREMENT_ADDRESS_INDEX,
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
+  GENERATE_NEW_ADDRESS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -143,7 +144,6 @@ import {
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
-import { getSignerDescription } from 'src/hardware';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 
 export interface NewVaultDetails {
@@ -640,10 +640,7 @@ export function* addSigningDeviceWorker({
   if (!signers.length) return;
   for (let i = 0; i < signers.length; i++) {
     const signer = signers[i];
-    const updatedExisting = yield call(mergeSimilarKeysWorker, { payload: { signer } });
-    if (updatedExisting) {
-      return;
-    }
+    yield call(mergeSimilarKeysWorker, { payload: { signer } });
   }
   try {
     const existingSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
@@ -655,19 +652,15 @@ export function* addSigningDeviceWorker({
 
     try {
       // update signers with signer count
-      let incrementForCurrentSigners = 0;
       signers = signers.map((signer) => {
         if (signer.type === SignerType.MY_KEEPER) {
-          const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
-          const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
-          const instanceNumberToSet = currentInstanceNumber + incrementForCurrentSigners;
-          signer.extraData = { instanceNumber: instanceNumberToSet + 1 };
-          signer.signerDescription = getSignerDescription(signer.type, instanceNumberToSet + 1);
-          incrementForCurrentSigners += 1;
-          return signer;
-        } else {
-          return signer;
+          if (!signer.extraData?.instanceNumber) {
+            const myAppKeys = filteredSigners.filter((s) => s.type === SignerType.MY_KEEPER);
+            const currentInstanceNumber = WalletUtilities.getInstanceNumberForSigners(myAppKeys);
+            signer.extraData = { instanceNumber: currentInstanceNumber + 1 };
+          }
         }
+        return signer;
       });
     } catch (e) {
       captureError(e);
@@ -1454,7 +1447,6 @@ export function* updateSignerDetailsWorker({ payload }) {
     key: string;
     value: any;
   } = payload;
-
   yield put(setRelaySignersUpdateLoading(true));
   try {
     const response = yield call(updateAppImageWorker, { payload: { signers: [signer] } });
@@ -1758,3 +1750,29 @@ function* mergeSimilarKeysWorker({ payload }: { payload: { signer: Signer } }) {
 }
 
 export const mergeSimilarKeysWatcher = createWatcher(mergeSimilarKeysWorker, MERGER_SIMILAR_KEYS);
+
+function* generateNewExternalAddressWorker({
+  payload,
+}: {
+  payload: {
+    wallet: Wallet | Vault;
+  };
+}) {
+  const { wallet } = payload;
+  wallet.specs.totalExternalAddresses += 1;
+
+  if (wallet.entityKind === EntityKind.VAULT) {
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
+      specs: wallet.specs,
+    });
+  } else {
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+      specs: wallet.specs,
+    });
+  }
+}
+
+export const generateNewExternalAddressWatcher = createWatcher(
+  generateNewExternalAddressWorker,
+  GENERATE_NEW_ADDRESS
+);

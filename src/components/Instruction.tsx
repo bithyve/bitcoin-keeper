@@ -1,17 +1,21 @@
-import { StyleSheet } from 'react-native';
+import { DimensionValue, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 
-export function Instruction({ text }: { text: string }) {
+export function Instruction({
+  text,
+  textWidth = wp(285),
+}: {
+  text: string;
+  textWidth?: DimensionValue;
+}) {
   const { colorMode } = useColorMode();
+  const styles = getStyles(textWidth);
   return (
     <Box style={styles.bulletContainer}>
-      <Box backgroundColor={`${colorMode}.greenText`} />
-      <Text bold fontSize={24}>
-        •
-      </Text>
+      <Box style={styles.bullet} backgroundColor={`${colorMode}.black`}></Box>
       <Text color={`${colorMode}.secondaryText`} style={styles.infoText}>
         {text}
       </Text>
@@ -21,18 +25,27 @@ export function Instruction({ text }: { text: string }) {
 
 export default Instruction;
 
-const styles = StyleSheet.create({
-  bulletContainer: {
-    marginTop: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-  },
-  infoText: {
-    letterSpacing: 0.65,
-    padding: 3,
-    fontSize: 13,
-    width: wp(285),
-  },
-});
+const getStyles = (textWidth: DimensionValue) =>
+  StyleSheet.create({
+    bulletContainer: {
+      paddingTop: 4,
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      gap: 12,
+    },
+    bullet: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 7,
+      height: 7,
+      borderRadius: 10 / 2,
+      marginTop: 11,
+    },
+    infoText: {
+      letterSpacing: 0.65,
+      padding: 3,
+      fontSize: 13,
+      width: textWidth,
+    },
+  });

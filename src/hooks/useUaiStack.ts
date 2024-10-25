@@ -21,8 +21,9 @@ const priorityMap: PriorityMap = {
   [uaiType.DEFAULT]: 0,
 };
 
-const useUaiStack = (): { uaiStack: UAI[] } => {
-  const [uaiStack, setUaiStack] = useState<UAI[]>([]); // sorted uai for UI consumtions
+const useUaiStack = (): { uaiStack: UAI[]; isLoading: boolean } => {
+  const [uaiStack, setUaiStack] = useState<UAI[]>([]); // Sorted UAI for UI consumption
+  const [isLoading, setIsLoading] = useState(true);
   const UAIcollection: UAI[] = useQuery(RealmSchema.UAI).map(getJSONFromRealmObject);
   const refreshUai = useAppSelector((state) => state.uai.refreshUai);
   const uaiActionMap = useAppSelector((state) => state.uai.uaiActionMap);
@@ -44,11 +45,15 @@ const useUaiStack = (): { uaiStack: UAI[] } => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
+
     const sortedStack = sortUAIsByPriorityAndLastActioned(nonActionedUais);
     setUaiStack(sortedStack);
+
+    setIsLoading(false);
   }, [refreshUai]);
 
-  return { uaiStack };
+  return { uaiStack, isLoading };
 };
 
 export default useUaiStack;

@@ -23,7 +23,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { healthCheckSigner, healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import { signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
 import Text from 'src/components/KeeperText';
@@ -58,28 +58,30 @@ import {
   dropTransactionSnapshot,
   setTransactionSnapshot,
 } from 'src/store/reducers/cachedTxn';
-import { SendConfirmationRouteParams } from '../Send/SendConfirmation';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 
 function SignTransactionScreen() {
   const route = useRoute();
   const { colorMode } = useColorMode();
 
-  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds } = (route.params || {
-    note: '',
-    label: [],
-    vaultId: '',
-    sendConfirmationRouteParams: null,
-    isMoveAllFunds: false,
-    sender: {},
-  }) as {
-    note: string;
-    label: { name: string; isSystem: boolean }[];
-    vaultId: string;
-    isMoveAllFunds: boolean;
-    sender: Vault;
-    sendConfirmationRouteParams: SendConfirmationRouteParams;
-  };
+  const { note, label, vaultId, sendConfirmationRouteParams, isMoveAllFunds, tnxDetails } =
+    (route.params || {
+      note: '',
+      label: [],
+      vaultId: '',
+      sendConfirmationRouteParams: null,
+      isMoveAllFunds: false,
+      sender: {},
+    }) as {
+      note: string;
+      label: { name: string; isSystem: boolean }[];
+      vaultId: string;
+      isMoveAllFunds: boolean;
+      sender: Vault;
+      sendConfirmationRouteParams: SendConfirmationRouteParams;
+      tnxDetails: tnxDetailsProps;
+    };
 
   const { activeVault: defaultVault } = useVault({
     vaultId,
@@ -129,7 +131,6 @@ function SignTransactionScreen() {
   );
   const [broadcasting, setBroadcasting] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
-  const textRef = useRef(null);
   const card = useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
@@ -206,6 +207,7 @@ function SignTransactionScreen() {
             name: 'VaultDetails',
             params: {
               vaultTransferSuccessful: true,
+              transactionToast: true,
               autoRefresh: true,
               vaultId: intrimVault?.id || '',
             },
@@ -227,6 +229,7 @@ function SignTransactionScreen() {
         dispatch(finaliseVaultMigration(vaultId));
       }
     } else if (sendSuccessful) {
+      setBroadcasting(false);
       setVisibleModal(true);
     }
   }, [sendSuccessful, isMigratingNewVault]);
@@ -284,11 +287,13 @@ function SignTransactionScreen() {
       signingServerOTP,
       seedBasedSingerMnemonic,
       inheritanceConfiguration,
+      tapsignerCVC,
     }: {
       xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
       inheritanceConfiguration?: InheritanceConfiguration;
+      tapsignerCVC?: string;
     } = {}) => {
       const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
@@ -309,7 +314,7 @@ function SignTransactionScreen() {
               defaultVault,
               serializedPSBT,
               card,
-              cvc: textRef.current,
+              cvc: tapsignerCVC,
               signer,
             });
           dispatch(
@@ -589,6 +594,7 @@ function SignTransactionScreen() {
 
   const viewDetails = () => {
     setVisibleModal(false);
+    showToast('If the transaction isn’t visible, wait a moment and refresh.');
     navigation.dispatch(
       CommonActions.reset({
         index: 1,
@@ -667,7 +673,6 @@ function SignTransactionScreen() {
                   label,
                 })
               );
-              setBroadcasting(false);
             } else {
               showToast("Sorry there aren't enough signatures!");
             }
@@ -712,15 +717,19 @@ function SignTransactionScreen() {
         setTapsignerModal={setTapsignerModal}
         showOTPModal={showOTPModal}
         signTransaction={signTransaction}
-        textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}
         onFileSign={onFileSign}
+        sendConfirmationRouteParams={sendConfirmationRouteParams}
+        tnxDetails={tnxDetails}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
         visible={visibleModal}
-        close={() => setVisibleModal(false)}
+        close={() => {
+          setVisibleModal(false);
+          !isMoveAllFunds ? viewDetails() : viewManageWallets();
+        }}
         title={walletTransactions.SendSuccess}
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={

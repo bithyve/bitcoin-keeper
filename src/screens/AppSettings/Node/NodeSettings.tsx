@@ -25,6 +25,20 @@ import {
 import Node from 'src/services/electrum/node';
 import AddNode from './AddNodeModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
+
+function ElectrumDisconnectWarningContent() {
+  const { colorMode } = useColorMode();
+
+  return (
+    <Box width="100%" alignItems="center" justifyContent="center">
+      <Box marginRight={wp(30)}>
+        {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
+      </Box>
+    </Box>
+  );
+}
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -38,6 +52,9 @@ function NodeSettings() {
   const [visible, setVisible] = useState(false);
   const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [electrumDisconnectWarningVisible, setElectrumDisconnectWarningVisible] = useState(false);
+  const [nodeToDisconnect, setNodeToDisconnect] = useState(null);
+  const [nodeToDelete, setNodeToDelete] = useState(null);
 
   useEffect(() => {
     const nodes: NodeDetail[] = Node.getAllNodes();
@@ -57,12 +74,28 @@ function NodeSettings() {
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
     setLoading(true);
     await closeAddNodeModal();
+
+    // Sanitize host
+    if (nodeDetail.host.endsWith('/')) {
+      nodeDetail.host = nodeDetail.host.slice(0, -1);
+    }
+
+    if (nodeDetail.host.startsWith('http://')) {
+      nodeDetail.host = nodeDetail.host.replace('http://', '');
+    } else if (nodeDetail.host.startsWith('https://')) {
+      nodeDetail.host = nodeDetail.host.replace('https://', '');
+    }
+
     const { saved } = await Node.save(nodeDetail, nodeList);
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
-      // dispatch(updateAppImage(null));
-      // setCurrentlySelectedNodeItem(node);
+      const newNode = updatedNodeList.find(
+        (node) => node.host === nodeDetail.host && node.port === nodeDetail.port
+      );
+      if (newNode) {
+        onConnectToNode(newNode);
+      }
     } else {
       showToast(`Failed to save, unable to connect to: ${nodeDetail.host} `, <ToastErrorIcon />);
     }
@@ -97,7 +130,7 @@ function NodeSettings() {
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
-    let nodes = [...nodeList];
+    let nodes = Node.getAllNodes();
     if (
       currentlySelectedNode &&
       selectedNode.id !== currentlySelectedNode.id &&
@@ -131,7 +164,6 @@ function NodeSettings() {
         if (item.id === node.id) return { ...node };
         return item;
       });
-      // dispatch(updateAppImage(null));
     } else dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
 
     setCurrentlySelectedNodeItem(node);
@@ -140,22 +172,25 @@ function NodeSettings() {
   };
 
   const onDisconnectToNode = async (selectedNode: NodeDetail) => {
-    let nodes = [...nodeList];
-
-    setLoading(true);
-    const node = { ...selectedNode };
-    await Node.disconnect(node);
-    node.isConnected = false;
-    Node.update(node, { isConnected: node.isConnected });
-    showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
-
-    nodes = nodes.map((item) => {
-      if (item.id === node.id) return { ...node };
-      return item;
-    });
-    setNodeList(nodes);
-    setCurrentlySelectedNodeItem(null);
-    setLoading(false);
+    try {
+      let nodes = [...nodeList];
+      setLoading(true);
+      const node = { ...selectedNode };
+      Node.disconnect(node);
+      node.isConnected = false;
+      Node.update(node, { isConnected: node.isConnected });
+      showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
+      nodes = nodes.map((item) => {
+        if (item.id === node.id) return { ...node };
+        return item;
+      });
+      setNodeList(nodes);
+      setCurrentlySelectedNodeItem(null);
+      setLoading(false);
+    } catch (error) {
+      console.log('Error disconnecting electrum client', error);
+      showToast(`Failed to disconnect from Electrum server`, <ToastErrorIcon />);
+    }
   };
 
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
@@ -163,7 +198,10 @@ function NodeSettings() {
   };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-      <KeeperHeader title={settings.nodeSettings} subtitle={settings.nodeSettingUsedSoFar} />
+      <KeeperHeader
+        title={settings.nodeSettings}
+        subtitle={settings.manageElectrumServersSubtitle}
+      />
       {nodeList.length > 0 && (
         <Box style={styles.nodesListWrapper}>
           <FlatList
@@ -196,9 +234,12 @@ function NodeSettings() {
                     <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
                       <TouchableOpacity
                         testID="btn_disconnetNode"
-                        onPress={() => {
-                          if (!isConnected) onConnectToNode(item);
-                          else onDisconnectToNode(item);
+                        onPress={async () => {
+                          if (!isConnected) await onConnectToNode(item);
+                          else {
+                            setNodeToDisconnect(item);
+                            setElectrumDisconnectWarningVisible(true);
+                          }
                         }}
                       >
                         <Box
@@ -214,7 +255,16 @@ function NodeSettings() {
                         </Box>
                       </TouchableOpacity>
                       <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
-                      <TouchableOpacity testID="btn_deleteNode" onPress={() => onDelete(item)}>
+                      <TouchableOpacity
+                        testID="btn_deleteNode"
+                        onPress={() => {
+                          if (!isConnected) onDelete(item);
+                          else {
+                            setNodeToDelete(item);
+                            setElectrumDisconnectWarningVisible(true);
+                          }
+                        }}
+                      >
                         <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                           <DeleteIcon />
                           <Text style={[styles.actionText, { paddingTop: 2 }]}>
@@ -257,6 +307,35 @@ function NodeSettings() {
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
+      />
+      <KeeperModal
+        visible={electrumDisconnectWarningVisible}
+        close={() => {
+          setNodeToDisconnect(null);
+          setNodeToDelete(null);
+          setElectrumDisconnectWarningVisible(false);
+        }}
+        title={common.disconnectingFromServer}
+        subTitle={common.disconnectingFromServerText}
+        buttonText={common.disconnect}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
+        buttonCallback={async () => {
+          setElectrumDisconnectWarningVisible(false);
+          if (nodeToDisconnect) {
+            await onDisconnectToNode(nodeToDisconnect);
+            setNodeToDisconnect(null);
+          } else if (nodeToDelete) {
+            await onDelete(nodeToDelete);
+            setNodeToDelete(null);
+          }
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setElectrumDisconnectWarningVisible(false)}
+        Content={ElectrumDisconnectWarningContent}
       />
       <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>

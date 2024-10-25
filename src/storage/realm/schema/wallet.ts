@@ -140,6 +140,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     xpriv: 'string?',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
+    totalExternalAddresses: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
     addressPubs: '{}?',

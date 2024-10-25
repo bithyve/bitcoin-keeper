@@ -17,12 +17,13 @@ import { CommonActions } from '@react-navigation/native';
 import InheritanceIcon from 'src/assets/images/inheri.svg';
 import FaqIcon from 'src/assets/images/faq.svg';
 import SignerIcon from 'src/assets/images/signer_white.svg';
+import SignerDarkIcon from 'src/assets/images/signer_dark.svg';
+import InheritanceDarkIcon from 'src/assets/images/inheri_dark.svg';
+import FaqDarkIcon from 'src/assets/images/faq_dark.svg';
 import { HomeModals } from './components/HomeModals';
 import { TopSection } from './components/TopSection';
 import { WalletsList } from './components/WalletList';
 import InititalAppController from './InititalAppController';
-import openLink from 'src/utils/OpenLink';
-import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import * as Sentry from '@sentry/react-native';
 import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
@@ -87,12 +88,12 @@ function NewHomeScreen({ navigation }) {
   const cardsData = [
     {
       name: homeTranslation.ManageKeys,
-      icon: <SignerIcon />,
+      icon: colorMode === 'dark' ? <SignerDarkIcon /> : <SignerIcon />,
       callback: () => navigation.dispatch(CommonActions.navigate({ name: 'ManageSigners' })),
     },
     {
       name: homeTranslation.InheritancePlanning,
-      icon: <InheritanceIcon />,
+      icon: colorMode === 'dark' ? <InheritanceDarkIcon /> : <InheritanceIcon />,
       callback: () => {
         //-----FOR Futhure use------
         // const eligible = plan === SubscriptionTier.L3.toUpperCase();
@@ -118,7 +119,7 @@ function NewHomeScreen({ navigation }) {
     },
     {
       name: homeTranslation.KeeperConcierge,
-      icon: <FaqIcon />,
+      icon: colorMode === 'dark' ? <FaqDarkIcon /> : <FaqIcon />,
       callback: () => dispatch(goToConcierge([], 'home-screen')),
     },
   ];

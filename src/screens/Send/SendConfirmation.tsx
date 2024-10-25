@@ -1,8 +1,8 @@
-import { Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, View, useColorMode, HStack } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   calculateSendMaxFee,
   crossTransfer,
@@ -23,7 +23,6 @@ import AddressIcon from 'src/components/AddressIcon';
 import BTC from 'src/assets/images/btc_grey.svg';
 import LabelImg from 'src/assets/images/labels.svg';
 import {
-  crossTransferReset,
   customPrioritySendPhaseOneReset,
   sendPhaseTwoReset,
 } from 'src/store/reducers/send_and_receive';
@@ -54,6 +53,7 @@ import { errorBourndaryOptions } from 'src/screens/ErrorHandler';
 import Fonts from 'src/constants/Fonts';
 import SendIcon from 'src/assets/images/icon_sent_footer.svg';
 import InvalidUTXO from 'src/assets/images/invalidUTXO.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -71,6 +71,8 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import KeeperFooter from 'src/components/KeeperFooter';
 import idx from 'idx';
 import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import CountdownTimer from 'src/components/Timer/CountDownTimer';
+import RKSignersModal from '../../components/RKSignersModal';
 
 const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
@@ -766,6 +768,16 @@ export interface SendConfirmationRouteParams {
   selectedUTXOs: UTXO[];
   date: Date;
   parentScreen: string;
+  isRemoteFlow?: boolean;
+  tnxDetails?: tnxDetailsProps;
+  signingDetails?: any;
+  timeLeft?: number;
+}
+
+export interface tnxDetailsProps {
+  sendMaxFeeEstimatedBlocks: number;
+  transactionPriority: string;
+  txFeeInfo: any;
 }
 
 function SendConfirmation({ route }) {
@@ -785,16 +797,21 @@ function SendConfirmation({ route }) {
     selectedUTXOs,
     isAutoTransfer,
     parentScreen,
+    isRemoteFlow = false,
+    tnxDetails,
+    signingDetails,
+    timeLeft,
   }: SendConfirmationRouteParams = route.params;
-
   const isAddress =
     transferType === TransferType.VAULT_TO_ADDRESS ||
     transferType === TransferType.WALLET_TO_ADDRESS;
-  const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const txFeeInfo = isRemoteFlow
+    ? tnxDetails.txFeeInfo
+    : useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
-  const sendMaxFeeEstimatedBlocks = useAppSelector(
-    (state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks
-  );
+  const sendMaxFeeEstimatedBlocks = isRemoteFlow
+    ? tnxDetails.sendMaxFeeEstimatedBlocks
+    : useAppSelector((state) => state.sendAndReceive.setSendMaxFeeEstimatedBlocks);
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { isSuccessful: crossTransferSuccess } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
@@ -825,6 +842,7 @@ function SendConfirmation({ route }) {
   const [feeInsightVisible, setFeeInsightVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
   const [discardUTXOVisible, setDiscardUTXOVisible] = useState(false);
+  const [isTimerActive, setIsTimerActive] = useState(true);
   const [feePercentage, setFeePercentage] = useState(0);
   const OneDayHistoricalFee = useOneDayInsight();
   const isMoveAllFunds =
@@ -846,17 +864,27 @@ function SendConfirmation({ route }) {
   const isCachedTransaction = !!snapshot;
   const cachedTxPrerequisites = idx(snapshot, (_) => _.state.sendPhaseOne.outputs.txPrerequisites);
   const [transactionPriority, setTransactionPriority] = useState(
-    isCachedTransaction ? cachedTxPriority || TxPriority.LOW : TxPriority.LOW
+    isRemoteFlow
+      ? tnxDetails.transactionPriority
+      : isCachedTransaction
+      ? cachedTxPriority || TxPriority.LOW
+      : TxPriority.LOW
   );
   const [usualFee, setUsualFee] = useState(0);
   const [topText, setTopText] = useState('');
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
 
+  const signerModalRef = useRef(null);
+
   const navigation = useNavigation();
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
+
+  const handleTimerEnd = useCallback(() => {
+    setIsTimerActive(false);
+  }, []);
 
   function checkUsualFee(data: any[]) {
     if (data.length === 0) {
@@ -878,6 +906,24 @@ function SendConfirmation({ route }) {
       checkUsualFee(OneDayHistoricalFee);
     }
   }, [OneDayHistoricalFee]);
+
+  useEffect(() => {
+    const remove = navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+      if (navigation.getState().index > 2 && isCachedTransaction) {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{ name: 'Home' }, { name: 'VaultDetails', params: { vaultId: sender?.id } }],
+          })
+        );
+        showToast('New pending transaction saved successfully', <TickIcon />);
+      } else {
+        navigation.dispatch(e.data.action);
+      }
+    });
+    return remove;
+  }, [navigation, isCachedTransaction]);
 
   useEffect(() => {
     if (isAutoTransfer) {
@@ -1031,6 +1077,11 @@ function SendConfirmation({ route }) {
           vaultId: sender?.id,
           sender: sender,
           sendConfirmationRouteParams: route.params,
+          tnxDetails: {
+            txFeeInfo,
+            sendMaxFeeEstimatedBlocks,
+            transactionPriority,
+          },
         })
       );
       setProgress(false);
@@ -1054,6 +1105,7 @@ function SendConfirmation({ route }) {
           {
             name: 'VaultDetails',
             params: {
+              transactionToast: true,
               autoRefresh: true,
               vaultId: isAutoTransferFlow ? defaultVault?.id : recipient.id,
             },
@@ -1069,7 +1121,10 @@ function SendConfirmation({ route }) {
         index: 1,
         routes: [
           { name: 'Home' },
-          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender?.id } },
+          {
+            name: 'WalletDetails',
+            params: { autoRefresh: true, walletId: sender?.id, transactionToast: true },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -1173,16 +1228,48 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        title="Send Confirmation"
-        subtitle={subTitle}
-        rightComponent={<CurrencyTypeSwitch />}
-      />
+      {!isRemoteFlow && (
+        <KeeperHeader
+          title="Send Confirmation"
+          subtitle={subTitle}
+          rightComponent={<CurrencyTypeSwitch />}
+        />
+      )}
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {isRemoteFlow && (
+          <Box style={styles.timerContainer}>
+            <Box style={styles.timerTextContainer}>
+              <Text fontSize={20} color={`${colorMode}.greenText`}>
+                {walletTransactions.transactionDetailsTitle}
+              </Text>
+              <Text fontSize={14} color={`${colorMode}.primaryText`}>
+                {walletTransactions.remoteSigningMessage}
+              </Text>
+            </Box>
+            <Box style={styles.timerWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <CountdownTimer initialTime={timeLeft} onTimerEnd={handleTimerEnd} />
+            </Box>
+          </Box>
+        )}
+        {isRemoteFlow && (
+          <Box style={styles.remoteFlowHeading}>
+            <Box style={styles.remoteTextContainer}>
+              <Text fontSize={20} color={`${colorMode}.greenText`}>
+                {common.Receipt}
+              </Text>
+              <Text fontSize={14} color={`${colorMode}.primaryText`}>
+                {walletTransactions.ReviewTransaction}
+              </Text>
+            </Box>
+            <Box style={styles.switchContainer}>
+              <CurrencyTypeSwitch />
+            </Box>
+          </Box>
+        )}
         {!isAutoTransferFlow ? (
           <>
             <SendingCard
@@ -1237,7 +1324,7 @@ function SendConfirmation({ route }) {
         <TouchableOpacity
           testID="btn_transactionPriority"
           onPress={() => setTransPriorityModalVisible(true)}
-          disabled={isAutoTransfer} // disable change priority for AutoTransfers
+          disabled={isAutoTransfer || isRemoteFlow} // disable change priority for AutoTransfers
         >
           <TransactionPriorityDetails
             isAutoTransfer={isAutoTransfer}
@@ -1300,25 +1387,40 @@ function SendConfirmation({ route }) {
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note title={common.note} subtitle={vault.signingOldVault} />
       ) : null}
-      {!isAutoTransferFlow ? (
-        <Buttons
-          primaryText={common.confirmProceed}
-          secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
-          secondaryCallback={() => {
-            if (isCachedTransaction) discardCachedTransaction();
-            else navigation.goBack();
-          }}
-          primaryCallback={() => setConfirmPassVisible(true)}
-          primaryLoading={inProgress}
-        />
-      ) : (
-        <Buttons
-          primaryText={common.confirmProceed}
-          secondaryText={common.cancel}
-          secondaryCallback={() => navigation.goBack()}
-          primaryCallback={() => setConfirmPassVisible(true)}
-          primaryLoading={inProgress}
-        />
+      {!isRemoteFlow &&
+        (!isAutoTransferFlow ? (
+          <Buttons
+            primaryText={common.confirmProceed}
+            secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
+            secondaryCallback={() => {
+              if (isCachedTransaction) discardCachedTransaction();
+              else navigation.goBack();
+            }}
+            primaryCallback={() => setConfirmPassVisible(true)}
+            primaryLoading={inProgress}
+          />
+        ) : (
+          <Buttons
+            primaryText={common.confirmProceed}
+            secondaryText={common.cancel}
+            secondaryCallback={() => navigation.goBack()}
+            primaryCallback={() => setConfirmPassVisible(true)}
+            primaryLoading={inProgress}
+          />
+        ))}
+      {isRemoteFlow && (
+        <Box style={styles.buttonsContainer}>
+          <Buttons
+            primaryDisable={!isTimerActive}
+            width={wp(285)}
+            primaryText={walletTransactions.SignTransaction}
+            primaryCallback={() => signerModalRef.current.openModal()}
+          />
+          <Buttons
+            secondaryText={walletTransactions.DenyTransaction}
+            secondaryCallback={() => navigation.goBack()}
+          />
+        </Box>
       )}
       <KeeperModal
         visible={visibleModal}
@@ -1480,7 +1582,6 @@ function SendConfirmation({ route }) {
         buttonText={'Discard'}
         buttonCallback={discardCachedTransaction}
         buttonTextColor={`${colorMode}.white`}
-        showButtons
         secondaryButtonText={'Cancel'}
         secondaryCallback={() => {
           setProgress(false);
@@ -1510,6 +1611,7 @@ function SendConfirmation({ route }) {
           }}
         />
       )}
+      {isRemoteFlow && <RKSignersModal data={signingDetails} ref={signerModalRef} />}
     </ScreenWrapper>
   );
 }
@@ -1767,5 +1869,37 @@ const styles = StyleSheet.create({
   imgCtr: {
     alignItems: 'center',
     paddingVertical: 20,
+  },
+  timerWrapper: {
+    width: '100%',
+    borderRadius: 10,
+    marginTop: hp(20),
+    marginBottom: hp(10),
+  },
+  timerContainer: {
+    width: '100%',
+  },
+  timerTextContainer: {
+    marginTop: hp(20),
+    gap: 5,
+  },
+  remoteFlowHeading: {
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: hp(20),
+    marginTop: hp(20),
+  },
+  remoteTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  switchContainer: {
+    marginBottom: hp(10),
+  },
+  buttonsContainer: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 20,
   },
 });
