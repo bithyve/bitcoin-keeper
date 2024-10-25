@@ -43,7 +43,6 @@ export function DowngradeModal() {
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
       subTitleWidth={wp(210)}
-      showButtons
       showCloseIcon={false}
       buttonText={common.continue}
       buttonCallback={dispatch(setRecepitVerificationFailed(false))}

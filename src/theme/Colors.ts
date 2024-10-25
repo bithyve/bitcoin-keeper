@@ -108,8 +108,8 @@ const Colors = {
   Periwinkle: 'rgba(184, 182, 208, 1)',
   Purple: 'rgba(204, 184, 214, 1)',
   ChampagneBliss: 'rgba(253, 247, 240, 1)',
-  SilverMist: 'rgba(212, 212, 212, 1)',
-  SilverMistTransparent: 'rgba(212, 212, 212, 0.2)',
+  SilverMist: 'rgba(212, 212, 212, 0.6)',
+  SilverMistTransparent: 'rgba(212, 212, 212, 0.1)',
   Graphite: 'rgba(135, 135, 135, 1)',
   GraphiteLight: 'rgba(165, 165, 165, 1)',
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
@@ -127,5 +127,9 @@ const Colors = {
   BoxGolden: 'rgba(237, 228, 218, 1)',
   SecondaryBackgroundDark: 'rgba(31, 31, 31, 1)',
   separator: 'rgba(65, 65, 65, 0.1)',
+  AlertRed: 'rgba(249, 89, 89, 1)',
+  AlertRedDark: 'rgba(187, 73, 73, 1)',
+  NewBadgeGreen: 'rgba(210, 237, 231, 1)',
+  NewBadgeGreenDark: 'rgba(65, 89, 76, 1)',
 };
 export default Colors;

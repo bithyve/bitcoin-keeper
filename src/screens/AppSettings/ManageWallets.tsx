@@ -401,7 +401,6 @@ function ManageWallets() {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={true}
-        showButtons
         showCloseIcon={false}
       />
       <KeeperModal
@@ -420,7 +419,6 @@ function ManageWallets() {
         buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={isWallet ? false : true}
-        showButtons
         showCloseIcon={false}
       />
       <KeeperModal

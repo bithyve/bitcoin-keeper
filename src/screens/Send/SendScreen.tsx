@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 // libraries
 import { Box, useColorMode, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -62,6 +62,7 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import useSignerMap from 'src/hooks/useSignerMap';
 import useSigners from 'src/hooks/useSigners';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
+import Clipboard from '@react-native-community/clipboard';
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -82,13 +83,11 @@ function SendScreen({ route }) {
   const network = WalletUtilities.getNetworkByType(sender.networkType);
   const { wallets } = useWallets({ getAll: true });
   const { allVaults } = useVault({ includeArchived: false });
-  const nonHiddenWallets = wallets.filter(
-    (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
+  const otherWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter(
+    (item) =>
+      item && item.presentationData.visibility !== VisibilityType.HIDDEN && item.id !== sender.id
   );
-  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
-    (item) => item !== null
-  );
-  const otherWallets = allWallets.filter((existingWallet) => existingWallet?.id !== sender.id);
+
   const { satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } = useAppSelector(
     (state) => state.settings
   );
@@ -100,6 +99,7 @@ function SendScreen({ route }) {
   );
   const [isFocused, setIsFocused] = useState(false);
   const [pendingHealthCheckCount, setPendingHealthCheckCount] = useState(0);
+  const prevTextRef = useRef('');
 
   useFocusEffect(
     useCallback(() => {
@@ -164,7 +164,7 @@ function SendScreen({ route }) {
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
-            handleTextChange(data);
+            validateAddress(data);
           })
           .catch((err) => {
             showToast('Invalid or No related QR code');
@@ -205,17 +205,31 @@ function SendScreen({ route }) {
     }
   };
 
-  const handleTextChange = (info: string) => {
+  const handleChangeText = async (text: string) => {
+    setPaymentInfo(text);
+
+    if (Math.abs(text.length - prevTextRef.current.length) > 1) {
+      const clipboardContent = await Clipboard.getString();
+      if (text === clipboardContent) {
+        validateAddress(text);
+      }
+    }
+
+    prevTextRef.current = text;
+  };
+
+  const validateAddress = (info: string) => {
     info = info.trim();
     let { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
     amount = satsEnabled ? Math.trunc(amount * 1e8) : amount;
-    setPaymentInfo(address);
+
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         const type =
           sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
+        setPaymentInfo('');
         navigateToNext(address, type, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
@@ -223,13 +237,14 @@ function SendScreen({ route }) {
           sender?.entityKind === EntityKind.VAULT
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
+        setPaymentInfo('');
         navigateToNext(address, transferType, amount ? amount.toString() : null, null);
         break;
       default:
+        Keyboard.dismiss();
         showToast('Invalid bitcoin address', <ToastErrorIcon />);
     }
   };
-
   const handleProceed = (skipHealthCheck = false) => {
     if (selectedItem) {
       if (selectedItem.entityKind === EntityKind.VAULT) {
@@ -350,7 +365,7 @@ function SendScreen({ route }) {
                   style={styles.cameraView}
                   captureAudio={false}
                   onBarCodeRead={(data) => {
-                    handleTextChange(data.data);
+                    validateAddress(data.data);
                   }}
                   notAuthorizedView={<CameraUnauthorized />}
                 />
@@ -364,7 +379,9 @@ function SendScreen({ route }) {
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}
                 value={paymentInfo}
-                onChangeText={handleTextChange}
+                onChangeText={handleChangeText}
+                onSubmitEditing={() => validateAddress(paymentInfo)}
+                blurOnSubmit={true}
               />
             </Box>
             <Box style={styles.sendToWalletWrapper}>
@@ -396,16 +413,14 @@ function SendScreen({ route }) {
                     }
                   />
                 </View>
-                <Box style={styles.proceedButton}>
-                  <Buttons primaryCallback={handleProceed} primaryText="Proceed" />
-                </Box>
               </View>
             </Box>
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
-      {showNote && (
-        <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+
+      <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+        {showNote && (
           <Note
             title={sender.entityKind === EntityKind.VAULT ? 'Security Tip' : common.note}
             subtitle={
@@ -415,8 +430,12 @@ function SendScreen({ route }) {
             }
             subtitleColor="GreyText"
           />
+        )}
+        <Box style={styles.proceedButton}>
+          <Buttons primaryCallback={handleProceed} primaryText={common.proceed} fullWidth />
         </Box>
-      )}
+      </Box>
+
       <PendingHealthCheckModal
         selectedItem={selectedItem}
         vaultKeys={vaultKeys}
@@ -497,6 +516,7 @@ const styles = StyleSheet.create({
   },
   noteWrapper: {
     marginLeft: wp(20),
+    marginBottom: hp(10),
     position: 'absolute',
     bottom: windowHeight > 680 ? hp(15) : hp(8),
     width: '100%',
