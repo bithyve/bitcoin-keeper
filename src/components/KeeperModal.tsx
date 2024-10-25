@@ -1,4 +1,4 @@
-import { Box, Modal } from 'native-base';
+import { Box, Modal, useColorMode } from 'native-base';
 import {
   Platform,
   ScrollView,
@@ -62,7 +62,7 @@ KeeperModal.defaultProps = {
   buttonCallback: () => {},
   secondaryButtonText: null,
   secondaryCallback: () => {},
-  textColor: '#000',
+  textColor: 'black',
   subTitleColor: null,
   DarkCloseIcon: false,
   Content: () => null,
@@ -117,6 +117,7 @@ function KeeperModal(props: ModalProps) {
   const maxModalHeight = Math.min(availableHeight, screenHeight * 0.85);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { colorMode } = useColorMode();
 
   if (!visible) {
     return null;
@@ -171,7 +172,7 @@ function KeeperModal(props: ModalProps) {
                   backgroundColor={
                     learnButtonBackgroundColor == 'BrownNeedHelp'
                       ? `${colorMode}.BrownNeedHelp`
-                      : buttonBackground
+                      : learnButtonBackgroundColor
                   }
                   style={styles.learnMoreButtonContainer}
                 >
@@ -183,7 +184,11 @@ function KeeperModal(props: ModalProps) {
             )}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
-                <Text testID="text_modal_title" style={styles.title} color={textColor}>
+                <Text
+                  testID="text_modal_title"
+                  style={styles.title}
+                  color={textColor === 'black' ? `${colorMode}.black` : textColor}
+                >
                   {title}
                 </Text>
                 {subTitle ? (
@@ -214,11 +219,23 @@ function KeeperModal(props: ModalProps) {
                       primaryLoading={loading}
                       primaryText={buttonText}
                       primaryCallback={buttonCallback}
-                      primaryBackgroundColor={buttonBackground}
-                      primaryTextColor={buttonTextColor}
+                      primaryBackgroundColor={
+                        buttonBackground == 'greenButtonBackground'
+                          ? `${colorMode}.greenButtonBackground`
+                          : buttonBackground
+                      }
+                      primaryTextColor={
+                        buttonTextColor == 'buttonText'
+                          ? `${colorMode}.buttonText`
+                          : buttonTextColor
+                      }
                       secondaryCallback={secondaryCallback}
                       secondaryText={secondaryButtonText}
-                      secondaryTextColor={secButtonTextColor}
+                      secondaryTextColor={
+                        secButtonTextColor == 'headerText'
+                          ? `${colorMode}.headerText`
+                          : secButtonTextColor
+                      }
                       fullWidth={!secondaryButtonText}
                     />
                   )}

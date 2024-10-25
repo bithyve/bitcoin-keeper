@@ -231,7 +231,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           >
             <AppIcon />
             <Box>
-              <Text fontSize={13}>Start New</Text>
+              <Text fontSize={13} color={`${colorMode}.black`}>
+                Start New
+              </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.newWalletsAndVaults}
               </Text>
@@ -247,7 +249,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           >
             <Recover />
             <Box>
-              <Text fontSize={13}>Recover an existing app</Text>
+              <Text fontSize={13} color={`${colorMode}.black`}>
+                Recover an existing app
+              </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.Enter12WordsRecovery}
               </Text>

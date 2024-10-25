@@ -382,7 +382,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.content} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+    <Box style={styles.content} backgroundColor={`${colorMode}.pantoneGreen`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -474,8 +474,8 @@ function LoginScreen({ navigation, route }) {
               primaryLoading={loggingIn}
               primaryText={common.proceed}
               primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
-              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              primaryBackgroundColor={`${colorMode}.buttonText`}
+              primaryTextColor={`${colorMode}.pantoneGreen`}
               fullWidth
             />
           </Box>
