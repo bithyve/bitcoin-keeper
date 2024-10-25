@@ -191,6 +191,9 @@ export const customTheme = extendTheme({
       labelColor1: Colors.LabelLight1,
       labelColor2: Colors.LabelLight2,
       labelColor3: Colors.LabelLight3,
+      boxBackground: Colors.BoxGolden,
+      borderBrown: Colors.brownColor,
+      separator: Colors.separator,
     },
     dark: {
       navButtonText: Colors.paleWhite,
@@ -232,7 +235,7 @@ export const customTheme = extendTheme({
       yellowButtonTextColor: Colors.White,
       btcLabelBack: Colors.Periwinkle,
       white: Colors.Black,
-      primaryText: Colors.RichBlackDark,
+      primaryText: Colors.SecondaryWhite,
       secondaryText: Colors.GraniteGrayDark,
       learnMoreBorder: Colors.GoldCrayola,
       textBlack: Colors.DarkGreen,
@@ -336,6 +339,9 @@ export const customTheme = extendTheme({
       labelColor1: Colors.LabelDark1,
       labelColor2: Colors.LabelDark2,
       labelColor3: Colors.LabelDark3,
+      boxBackground: Colors.SecondaryBackgroundDark,
+      borderBrown: Colors.SilverMistTransparent,
+      separator: Colors.separator,
     },
   },
   config: {

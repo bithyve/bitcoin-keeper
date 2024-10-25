@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 type FooterItem = {
   Icon: any;
@@ -22,11 +22,11 @@ export function KeeperFooter({
 }) {
   const { colorMode } = useColorMode();
   const footerItemsToRender = items.filter((item) => !item.hideItem);
-  const itemWidth = windowWidth / footerItemsToRender.length - marginX * 2; // Ensure each item fits within the screen width
+  const itemWidth = (windowWidth * 0.9) / footerItemsToRender.length - marginX * 2; // Ensure each item fits within the screen width
 
   return (
     <Box bottom={wrappedScreen ? -10 : undefined}>
-      <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
+      <Box style={styles.border} borderColor={`${colorMode}.separator`} />
       <Box
         flexDirection="row"
         justifyContent="center"
@@ -44,14 +44,17 @@ export function KeeperFooter({
               onPress={item.onPress}
               disabled={item.disabled}
             >
-              <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.circle}>
-                <item.Icon />
+              <Box style={styles.icon}>
+                <item.Icon size={24} />
               </Box>
               <Text
                 color={`${colorMode}.primaryText`}
-                style={[styles.footerText, { maxWidth: windowWidth / footerItemsToRender.length }]}
+                style={[
+                  styles.footerText,
+                  { maxWidth: (windowWidth * 0.9) / footerItemsToRender.length },
+                ]}
                 numberOfLines={2}
-                medium
+                semiBold
               >
                 {item.text}
               </Text>
@@ -67,7 +70,7 @@ export default KeeperFooter;
 
 const styles = StyleSheet.create({
   footerText: {
-    fontSize: 12,
+    fontSize: 14,
     letterSpacing: 0.36,
     textAlign: 'center',
     paddingHorizontal: 5,
@@ -78,9 +81,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   border: {
-    borderWidth: 0.5,
-    opacity: 0.2,
-    marginBottom: 10,
+    borderTopWidth: 1,
+    paddingTop: hp(15),
   },
   circle: {
     width: 38,
@@ -88,5 +90,9 @@ const styles = StyleSheet.create({
     borderRadius: 38 / 2,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  icon: {
+    width: wp(24),
+    height: hp(24),
   },
 });

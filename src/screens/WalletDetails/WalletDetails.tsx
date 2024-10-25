@@ -14,7 +14,8 @@ import TribeWalletIcon from 'src/assets/images/hexagontile_wallet.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import { wp } from 'src/constants/responsive';
+import SettingIcon from 'src/assets/images/settings_footer.svg';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -42,6 +43,7 @@ import LearnMoreModal from './components/LearnMoreModal';
 import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -172,6 +174,16 @@ function WalletDetails({ route }: ScreenProps) {
           subtitle={walletType === 'IMPORTED' ? 'Imported wallet' : description}
           subTitleColor={`${colorMode}.seashellWhite`}
           icon={getWalletIcon(wallet)}
+          rightComponent={
+            <TouchableOpacity
+              style={styles.settingBtn}
+              onPress={() =>
+                navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
+              }
+            >
+              <SettingIcon width={24} height={24} />
+            </TouchableOpacity>
+          }
         />
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
@@ -341,6 +353,11 @@ const styles = StyleSheet.create({
   transactionHeading: {
     fontSize: 16,
     letterSpacing: 0.16,
+  },
+  settingBtn: {
+    width: wp(24),
+    height: hp(24),
+    marginRight: wp(7),
   },
 });
 export default Sentry.withErrorBoundary(WalletDetails, errorBourndaryOptions);

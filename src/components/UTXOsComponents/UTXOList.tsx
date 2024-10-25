@@ -20,47 +20,8 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { sha256 } from 'bitcoinjs-lib/src/crypto';
+import LabelItem from 'src/screens/UTXOManagement/components/LabelItem';
 
-function Label({ name, isSystem, onLayout, onUnmount, index }) {
-  const { colorMode } = useColorMode();
-  const [labelColor, setLabelColor] = useState('');
-
-  useEffect(() => {
-    setLabelColor(getLabelColor(name));
-  }, [name]);
-
-  useEffect(() => {
-    return () => {
-      onUnmount(index);
-    };
-  }, []);
-
-  function getLabelColor(label) {
-    const labelHash = sha256(label).toString('hex');
-    const num = parseInt(labelHash.slice(0, 8), 16);
-    // Update when adding more label colors
-    const labelColorsCount = 3;
-    const colorIndex = (num % labelColorsCount) + 1;
-    return `${colorMode}.labelColor${colorIndex}`;
-  }
-
-  return (
-    <Box
-      key={name}
-      onLayout={(event) => onLayout(event, index)}
-      style={styles.utxoLabelView}
-      backgroundColor={labelColor}
-    >
-      <Text
-        style={styles.labelText}
-        color={`${colorMode}.labelText`}
-        testID={`text_${name.replace(/ /g, '_')}`}
-      >
-        {name}
-      </Text>
-    </Box>
-  );
-}
 function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }) {
   const { colorMode } = useColorMode();
   const { labels } = props;
@@ -69,7 +30,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
 
   const onLayout = (event, index) => {
     const { y } = event.nativeEvent.layout;
-    if (y > 9) {
+    if (y > wp(9)) {
       extraLabelMap.set(`${index}`, true);
       setExtraLabelMap(extraLabelMap);
     } else {
@@ -83,7 +44,6 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
   const onUnmount = (index) => {
     extraLabelMap.delete(`${index}`);
     setExtraLabelMap(extraLabelMap);
-    console.log(extraLabelMap.size);
     setExtraLabelCount(extraLabelMap.size);
   };
 
@@ -93,19 +53,27 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
         {labels
           .sort((a, b) => (a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : 0))
           .map((item, index) => (
-            <Label
+            <LabelItem
               key={`${item.name + index}`}
-              name={item.name}
-              isSystem={item.isSystem}
+              item={item}
               onLayout={onLayout}
               onUnmount={onUnmount}
               index={index}
+              editable={false}
             />
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box style={[styles.utxoExtraLabel]} backgroundColor={`${colorMode}.accent`}>
-          <Text style={styles.labelText} testID="text_extraLabelCount">
+        <Box
+          style={[styles.utxoExtraLabel]}
+          color={`${colorMode}.labelText`}
+          backgroundColor={`${colorMode}.brownColor`}
+        >
+          <Text
+            style={styles.labelText}
+            color={`${colorMode}.labelText`}
+            testID="text_extraLabelCount"
+          >
             +{extraLabelCount}
           </Text>
         </Box>
@@ -137,116 +105,119 @@ function UTXOElement({
   const hasTransactionNote = txNoteLabels && txNoteLabels[item.txId]?.[0]?.name;
 
   return (
-    <TouchableOpacity
-      style={styles.utxoCardContainer}
-      onPress={() => {
-        if (enableSelection && !item.confirmed) {
-          showToast(walletTranslation.intiatePremixToastMsg, <ToastErrorIcon />);
-          return;
-        }
-        if (allowSelection) {
-          const mapToUpdate = selectedUTXOMap;
-          if (selectedUTXOMap[utxoId]) {
-            delete mapToUpdate[utxoId];
-          } else {
-            if (
-              (selectedAccount === WalletType.PRE_MIX || selectedAccount === WalletType.POST_MIX) &&
-              Object.keys(selectedUTXOMap).length >= 1 &&
-              initateWhirlpoolMix
-            ) {
-              showToast(walletTranslation.utxoAllowedTime);
-              return;
-            }
-            mapToUpdate[utxoId] = true;
+    <Box style={styles.utxoElementWrapper} borderBottomColor={`${colorMode}.separator`}>
+      <TouchableOpacity
+        style={styles.utxoCardContainer}
+        onPress={() => {
+          if (enableSelection && !item.confirmed) {
+            showToast(walletTranslation.intiatePremixToastMsg, <ToastErrorIcon />);
+            return;
           }
-          setSelectedUTXOMap(mapToUpdate);
-          let utxoSum = 0;
-          utxoState.forEach((utxo) => {
-            const utxoId = `${utxo.txId}${utxo.vout}`;
-            if (mapToUpdate[utxoId]) {
-              utxoSum += utxo.value;
+          if (allowSelection) {
+            const mapToUpdate = selectedUTXOMap;
+            if (selectedUTXOMap[utxoId]) {
+              delete mapToUpdate[utxoId];
+            } else {
+              if (
+                (selectedAccount === WalletType.PRE_MIX ||
+                  selectedAccount === WalletType.POST_MIX) &&
+                Object.keys(selectedUTXOMap).length >= 1 &&
+                initateWhirlpoolMix
+              ) {
+                showToast(walletTranslation.utxoAllowedTime);
+                return;
+              }
+              mapToUpdate[utxoId] = true;
             }
-          });
-          setSelectionTotal(utxoSum);
-        } else {
-          navigation.dispatch(
-            CommonActions.navigate('UTXOLabeling', { utxo: item, wallet: currentWallet })
-          );
-        }
-      }}
-      testID="btn_selectUtxos"
-    >
-      <Box style={styles.utxoInnerView}>
-        {allowSelection ? (
-          <Box style={{ width: '7%', paddingHorizontal: 15 }}>
-            <Box style={styles.selectionViewWrapper}>
-              {selectedUTXOMap[utxoId] ? (
-                <Selected />
-              ) : (
-                <Box style={[styles.selectionView, { backgroundColor: 'transparent' }]} />
-              )}
+            setSelectedUTXOMap(mapToUpdate);
+            let utxoSum = 0;
+            utxoState.forEach((utxo) => {
+              const utxoId = `${utxo.txId}${utxo.vout}`;
+              if (mapToUpdate[utxoId]) {
+                utxoSum += utxo.value;
+              }
+            });
+            setSelectionTotal(utxoSum);
+          } else {
+            navigation.dispatch(
+              CommonActions.navigate('UTXOLabeling', { utxo: item, wallet: currentWallet })
+            );
+          }
+        }}
+        testID="btn_selectUtxos"
+      >
+        <Box style={styles.utxoInnerView}>
+          {allowSelection ? (
+            <Box style={{ width: '7%', paddingHorizontal: 15 }}>
+              <Box style={styles.selectionViewWrapper}>
+                {selectedUTXOMap[utxoId] ? (
+                  <Selected />
+                ) : (
+                  <Box style={[styles.selectionView, { backgroundColor: 'transparent' }]} />
+                )}
+              </Box>
             </Box>
-          </Box>
-        ) : null}
-        <Box style={{ width: allowSelection ? '46%' : '55%' }}>
-          <Box style={styles.rowCenter}>
-            <Box style={{ width: '100%' }}>
-              <Text
-                color={`${colorMode}.primaryText`}
-                style={styles.transactionIdText}
-                numberOfLines={1}
-                testID={`text_${item.txId}`}
-                semiBold
-              >
-                {item.txId}
-              </Text>
-            </Box>
-          </Box>
-          {hasTransactionNote ? (
+          ) : null}
+          <Box style={{ width: allowSelection ? '46%' : '55%' }}>
             <Box style={styles.rowCenter}>
               <Box style={{ width: '100%' }}>
                 <Text
                   color={`${colorMode}.primaryText`}
-                  style={styles.transactionNoteText}
+                  style={styles.transactionIdText}
                   numberOfLines={1}
                   testID={`text_${item.txId}`}
+                  semiBold
                 >
-                  {txNoteLabels[item.txId]?.[0]?.name}
+                  {item.txId}
                 </Text>
               </Box>
             </Box>
-          ) : null}
-          {labels.length === 0 ? (
-            <Box style={styles.utxoLabelView} backgroundColor={`${colorMode}.gray`}>
-              <Text color={`${colorMode}.placeHolderTextColor`} style={styles.addLabelsText}>
-                + Add Labels
-              </Text>
-            </Box>
-          ) : (
-            <UTXOLabel labels={labels} />
-          )}
+            {hasTransactionNote ? (
+              <Box style={styles.rowCenter}>
+                <Box style={{ width: '100%' }}>
+                  <Text
+                    color={`${colorMode}.primaryText`}
+                    style={styles.transactionNoteText}
+                    numberOfLines={1}
+                    testID={`text_${item.txId}`}
+                  >
+                    {txNoteLabels[item.txId]?.[0]?.name}
+                  </Text>
+                </Box>
+              </Box>
+            ) : null}
+            {labels.length === 0 ? (
+              <Box style={styles.utxoLabelView} backgroundColor={`${colorMode}.gray`}>
+                <Text color={`${colorMode}.placeHolderTextColor`} style={styles.addLabelsText}>
+                  + Add Labels
+                </Text>
+              </Box>
+            ) : (
+              <UTXOLabel labels={labels} />
+            )}
+          </Box>
+          <Box
+            style={[
+              styles.amountWrapper,
+              { width: '45%', marginTop: hasTransactionNote ? wp(5) : wp(30) },
+            ]}
+          >
+            {item.confirmed ? null : (
+              <Box paddingX={3} testID="view_unconfirmIcon">
+                <UnconfirmedIcon />
+              </Box>
+            )}
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={item.value}
+              fontSize={18}
+              color={`${colorMode}.textDarkGreen`}
+              variation={colorMode === 'light' ? 'dark' : 'light'}
+            />
+          </Box>
         </Box>
-        <Box
-          style={[
-            styles.amountWrapper,
-            { width: '45%', marginTop: hasTransactionNote ? wp(5) : wp(30) },
-          ]}
-        >
-          {item.confirmed ? null : (
-            <Box paddingX={3} testID="view_unconfirmIcon">
-              <UnconfirmedIcon />
-            </Box>
-          )}
-          <CurrencyInfo
-            hideAmounts={false}
-            amount={item.value}
-            fontSize={18}
-            color={`${colorMode}.textDarkGreen`}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
-          />
-        </Box>
-      </Box>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Box>
   );
 }
 
@@ -315,6 +286,13 @@ const styles = StyleSheet.create({
     padding: 6,
     paddingVertical: 5,
     width: '100%',
+    paddingTop: hp(15),
+    paddingBottom: hp(22),
+    paddingHorizontal: wp(20),
+  },
+  utxoElementWrapper: {
+    borderBottomWidth: 1,
+    width: '100%',
   },
   utxoCardWrapper: {},
   utxoInnerView: {
@@ -361,7 +339,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     overflow: 'hidden',
-    flex: 1,
     maxHeight: 28,
     marginLeft: 3,
     marginTop: hp(13),
@@ -392,7 +369,7 @@ const styles = StyleSheet.create({
     marginTop: hp(10),
   },
   utxoExtraLabel: {
-    paddingHorizontal: wp(10),
+    paddingHorizontal: wp(6),
     paddingVertical: wp(2),
     borderRadius: 20,
     alignItems: 'center',

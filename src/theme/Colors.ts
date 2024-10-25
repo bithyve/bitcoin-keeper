@@ -1,6 +1,7 @@
 const Colors = {
   // Light
   White: 'rgba(255,255,255,1)',
+  SecondaryWhite: 'rgba(231, 231, 231,1)',
   paleWhite: 'rgba(248, 255, 254, 1)',
   disabledGrey: 'rgba(248,242,234,1)',
   // Glass: 'rgba(255,255,255,2)',
@@ -105,7 +106,7 @@ const Colors = {
   Purple: 'rgba(204, 184, 214, 1)',
   ChampagneBliss: 'rgba(253, 247, 240, 1)',
   SilverMist: 'rgba(212, 212, 212, 1)',
-  SilverMistTransparent: 'rgba(212, 212, 212, 0.1)',
+  SilverMistTransparent: 'rgba(212, 212, 212, 0.2)',
   Graphite: 'rgba(135, 135, 135, 1)',
   GraphiteLight: 'rgba(165, 165, 165, 1)',
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
@@ -120,5 +121,8 @@ const Colors = {
   LabelDark1: 'rgba(148, 139, 96, 1)',
   LabelDark2: 'rgba(163, 152, 140, 1)',
   LabelDark3: 'rgba(113, 146, 138, 1)',
+  BoxGolden: 'rgba(237, 228, 218, 1)',
+  SecondaryBackgroundDark: 'rgba(31, 31, 31, 1)',
+  separator: 'rgba(65, 65, 65, 0.1)',
 };
 export default Colors;

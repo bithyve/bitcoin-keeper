@@ -5,7 +5,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-native';
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import { hp, windowWidth } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { UTXO } from 'src/services/wallets/interfaces';
 import { NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
@@ -15,7 +15,8 @@ import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import config from 'src/utils/service-utilities/config';
-import Done from 'src/assets/images/selected.svg';
+import ConfirmSquare from 'src/assets/images/confirm-square.svg';
+import ConfirmSquareGreen from 'src/assets/images/confirm-square-green.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
@@ -135,8 +136,8 @@ function UTXOLabeling() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="UTXO Details"
-        subtitle="Easily identify specific aspects of various UTXOs"
+        title="UTXO Details" // TODO: Move to translations
+        subtitle="See your UTXO details and its manage labels" // TODO: Move to translations
       />
       <ScrollView
         style={styles.scrollViewWrapper}
@@ -170,23 +171,18 @@ function UTXOLabeling() {
             </View>
           </View>
         </View>
-        <Box style={styles.listContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-          <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.listHeader}>Labels</Text>
-          </View>
-          <View style={styles.listSubContainer}>
-            {existingLabels.map((item, index) => (
-              <LabelItem
-                item={item}
-                index={index}
-                key={`${item.name}:${item.isSystem}`}
-                editingIndex={editingIndex}
-                onCloseClick={onCloseClick}
-                onEditClick={onEditClick}
-              />
-            ))}
-          </View>
-          <Box style={styles.inputLabeWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+        <Box
+          style={[
+            styles.listContainer,
+            colorMode === 'dark' && { borderWidth: 1, borderColor: 'rgba(31, 31, 31, 0.2)' },
+          ]}
+          backgroundColor={`${colorMode}.boxBackground`}
+        >
+          <Box
+            style={styles.inputLabeWrapper}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderColor={`${colorMode}.borderBrown`}
+          >
             <Box style={styles.inputLabelBox}>
               <Input
                 testID="input_utxoLabel"
@@ -194,13 +190,11 @@ function UTXOLabeling() {
                   setLabel(text);
                 }}
                 style={styles.inputLabel}
+                height={hp(38)}
                 borderWidth={0}
-                height={hp(40)}
-                placeholder="Type to add label or Select to edit"
-                color="#E0B486"
+                placeholder="+ Add Labels" // TODO: Move to translations
                 value={label}
                 autoCorrect={false}
-                autoCapitalize="characters"
                 backgroundColor={`${colorMode}.seashellWhite`}
               />
             </Box>
@@ -209,9 +203,23 @@ function UTXOLabeling() {
               onPress={onAdd}
               testID="btn_addUtxoLabel"
             >
-              <Done />
+              {label && label !== '' ? <ConfirmSquareGreen /> : <ConfirmSquare />}
             </TouchableOpacity>
           </Box>
+          {existingLabels && existingLabels.length > 0 && (
+            <View style={styles.listSubContainer}>
+              {existingLabels.map((item, index) => (
+                <LabelItem
+                  item={item}
+                  index={index}
+                  key={`${item.name}:${item.isSystem}`}
+                  editingIndex={editingIndex}
+                  onCloseClick={onCloseClick}
+                  onEditClick={onEditClick}
+                />
+              ))}
+            </View>
+          )}
         </Box>
         <View style={{ flex: 1 }} />
       </ScrollView>
@@ -234,13 +242,6 @@ function UTXOLabeling() {
 const styles = StyleSheet.create({
   scrollViewWrapper: {
     flex: 1,
-  },
-  itemWrapper: {
-    flexDirection: 'row',
-    backgroundColor: '#FDF7F0',
-    marginVertical: 5,
-    borderRadius: 10,
-    padding: 20,
   },
   ctaBtnWrapper: {
     marginBottom: hp(5),
@@ -267,21 +268,22 @@ const styles = StyleSheet.create({
   },
   inputLabeWrapper: {
     flexDirection: 'row',
-    height: 50,
+    height: hp(40),
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
     paddingLeft: 5,
+    borderWidth: 1,
   },
   inputLabelBox: {
     width: '88%',
   },
   inputLabel: {
     fontSize: 13,
-    fontWeight: '900',
   },
   addBtnWrapper: {
-    width: '12%',
+    width: wp(32),
+    height: hp(32),
     alignItems: 'center',
   },
   unitText: {
@@ -314,12 +316,14 @@ const styles = StyleSheet.create({
     marginTop: 18,
     marginHorizontal: 5,
     paddingHorizontal: 15,
-    paddingVertical: 12,
+    paddingTop: hp(26),
+    paddingBottom: hp(21),
     borderRadius: 10,
   },
   listSubContainer: {
     flexWrap: 'wrap',
-    marginBottom: 20,
+    marginTop: hp(15),
+    marginBottom: hp(5),
     flexDirection: 'row',
   },
 });

@@ -254,16 +254,18 @@ function UTXOManagement({ route, navigation }: ScreenProps) {
   );
 
   return (
-    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+    <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <KeeperHeader
-        // learnMore
-        learnMorePressed={() => setLearnModalVisible(true)}
-        learnTextColor={`${colorMode}.white`}
-        title={wallet?.presentationData?.name}
-        subtitle={wallet?.presentationData?.description}
-        icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
-      />
+      <Box marginLeft={5}>
+        <KeeperHeader
+          // learnMore
+          learnMorePressed={() => setLearnModalVisible(true)}
+          learnTextColor={`${colorMode}.white`}
+          title={wallet?.presentationData?.name}
+          subtitle={wallet?.presentationData?.description}
+          icon={routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
+        />
+      </Box>
       <Box style={styles.contentContainer}>
         {/* {isWhirlpoolWallet && (
           <AccountSelectionTab
@@ -418,6 +420,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     marginTop: hp(30),
+    marginBottom: hp(15),
   },
 });
 
