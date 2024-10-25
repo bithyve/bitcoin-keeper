@@ -15,18 +15,24 @@ import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import Text from 'src/components/KeeperText';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import Colors from 'src/theme/Colors';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { Vault } from 'src/services/wallets/interfaces/vault';
 
 function TransactionElement({
   transaction,
+  wallet,
   onPress = () => {},
   index,
   isCached,
 }: {
   transaction: Transaction;
+  wallet: Wallet | Vault;
   onPress?: () => void;
   index?: number;
   isCached: boolean;
 }) {
+  const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  •  HH:mm A');
 
@@ -68,7 +74,7 @@ function TransactionElement({
               numberOfLines={1}
               style={styles.transactionDate}
             >
-              {transaction?.txid}
+              {labels[transaction.txid]?.[0]?.name || transaction?.txid}
             </Text>
           </Box>
         </Box>

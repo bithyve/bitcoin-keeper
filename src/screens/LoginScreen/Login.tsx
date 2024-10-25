@@ -1,13 +1,12 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, StatusBar, Switch, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import TorAsset from 'src/components/Loader';
-import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -39,6 +38,7 @@ import FogotPassword from './components/FogotPassword';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
 import { PasswordTimeout } from 'src/utils/PasswordTimeout';
+import Buttons from 'src/components/Buttons';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -456,21 +456,6 @@ function LoginScreen({ navigation, route }) {
             ) : (
               <Box />
             )} */}
-          <Box style={styles.btnWrapper}>
-            {passcode.length === 4 && (
-              <Box>
-                <CustomButton
-                  testID="btn_login"
-                  onPress={() => {
-                    setLoginError(false);
-                    setLogging(true);
-                  }}
-                  loading={loggingIn}
-                  value={common.proceed}
-                />
-              </Box>
-            )}
-          </Box>
           {/* </Box> */}
 
           {/* keyboardview start */}
@@ -480,6 +465,20 @@ function LoginScreen({ navigation, route }) {
             onPressNumber={onPressNumber}
             ClearIcon={<DeleteIcon />}
           />
+          <Box style={styles.btnWrapper}>
+            <Buttons
+              primaryCallback={() => {
+                setLoginError(false);
+                setLogging(true);
+              }}
+              primaryLoading={loggingIn}
+              primaryText={common.proceed}
+              primaryDisable={passcode.length !== 4}
+              primaryBackgroundColor={`${colorMode}.modalWhiteButton`}
+              primaryTextColor={`${colorMode}.modalWhiteButtonText`}
+              fullWidth
+            />
+          </Box>
         </Box>
         {/* forgot modal */}
         {forgotVisible && (
@@ -530,7 +529,6 @@ function LoginScreen({ navigation, route }) {
         buttonCallback={loginModalAction}
         // buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
         buttonTextColor={`${colorMode}.white`}
-        showButtons
         Content={LoginModalContent}
         subTitleWidth={wp(280)}
       />
@@ -540,20 +538,21 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         visible={recepitVerificationError}
         title="Something went wrong"
-        subTitle="Please check your internet connection and try again."
+        subTitle="Please check your internet connection and try again. If you continue offline, some features may not be available."
         Content={NoInternetModalContent}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(230)}
-        showButtons
+        showCloseIcon={false}
         buttonText={'Retry'}
         buttonCallback={() => {
           setLoginError(false);
           setLogging(true);
           dispatch(setRecepitVerificationError(false));
+          dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
         }}
-        secondaryButtonText={'Continue as Pleb'}
+        secondaryButtonText={'Continue offline'}
         secondaryCallback={() => {
           setLoginError(false);
           setLogging(false);
@@ -572,7 +571,6 @@ function LoginScreen({ navigation, route }) {
         showCloseIcon={false}
         buttonText="Retry"
         buttonCallback={() => setIncorrectPassword(false)}
-        showButtons
         subTitleWidth={wp(250)}
       />
     </Box>
@@ -633,10 +631,10 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   btnWrapper: {
-    flex: 1,
     marginTop: 25,
-    alignItems: 'flex-end',
-    width: '92%',
+    marginBottom: 30,
+    alignSelf: 'center',
+    width: '90%',
   },
   createBtn: {
     paddingVertical: hp(15),

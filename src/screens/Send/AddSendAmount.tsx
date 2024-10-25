@@ -47,7 +47,7 @@ function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation } = translations;
+  const { wallet: walletTranslation, common } = translations;
   const {
     sender,
     recipient,
@@ -56,7 +56,7 @@ function AddSendAmount({ route }) {
     transferType,
     selectedUTXOs = [],
     parentScreen,
-    isSendMax = true,
+    isSendMax = false,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -116,7 +116,9 @@ function AddSendAmount({ route }) {
   }, [currentCurrency, satsEnabled, amount]);
 
   useEffect(() => {
-    if (!isNaN(parseFloat(amount))) {
+    if (route.params && route.params.amount && currentCurrency === CurrencyKind.BITCOIN) {
+      setAmount(route.params.amount);
+    } else if (!isNaN(parseFloat(amount))) {
       const amountToSend = getConvertedBalance(parseFloat(amount));
       setAmount(amountToSend.toString());
     }
@@ -324,7 +326,6 @@ function AddSendAmount({ route }) {
         <KeeperHeader
           title="Sending from"
           subtitle={sender.presentationData.name}
-          marginLeft={false}
           rightComponent={<CurrencyTypeSwitch />}
           icon={
             <HexagonIcon
@@ -512,20 +513,19 @@ function AddSendAmount({ route }) {
               />
             </VStack> */}
             <Box style={styles.ctaBtnWrapper}>
-              <Box ml={windowWidth * -0.09}>
-                <Buttons
-                  // secondaryText="Select UTXOs"
-                  // secondaryCallback={() => {
-                  //   navigation.dispatch(
-                  //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
-                  //   );
-                  // }}
-                  // secondaryDisable={Boolean(!amount || errorMessage)}
-                  primaryText="Send"
-                  primaryDisable={Boolean(!amount || errorMessage)}
-                  primaryCallback={executeSendPhaseOne}
-                />
-              </Box>
+              <Buttons
+                // secondaryText="Select UTXOs"
+                // secondaryCallback={() => {
+                //   navigation.dispatch(
+                //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                //   );
+                // }}
+                // secondaryDisable={Boolean(!amount || errorMessage)}
+                primaryText={common.send}
+                primaryDisable={Boolean(!amount || errorMessage)}
+                primaryCallback={executeSendPhaseOne}
+                fullWidth
+              />
             </Box>
           </Box>
         </ScrollView>
@@ -595,8 +595,6 @@ const styles = StyleSheet.create({
   },
   ctaBtnWrapper: {
     marginTop: hp(10),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
   },
   appNumPadWrapper: {
     width: '110%',

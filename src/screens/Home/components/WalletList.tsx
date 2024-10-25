@@ -80,7 +80,7 @@ const handleWalletPress = (wallet, navigation) => {
 const getWalletTags = (wallet) => {
   if (wallet.entityKind === EntityKind.VAULT) {
     if (wallet.type === VaultType.SINGE_SIG) {
-      return ['Single-key', 'Cold'];
+      return ['SINGLE-KEY', 'COLD'];
     } else
       return [
         `${wallet.type === VaultType.COLLABORATIVE ? 'COLLABORATIVE' : 'VAULT'}`,

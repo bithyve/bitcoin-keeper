@@ -259,18 +259,26 @@ function SetupOtherSDScreen({ route }) {
         subtitle="Manually provide the signer details"
       />
       <Box style={styles.flex}>
-        <KeeperTextInput placeholder="xPub" value={xpub} onChangeText={setXpub} testID="xPub" />
+        <KeeperTextInput
+          placeholder="xPub"
+          value={xpub}
+          onChangeText={setXpub}
+          testID="xPub"
+          placeholderTextColor={`${colorMode}.SlateGreen`}
+        />
         <KeeperTextInput
           placeholder="Derivation path (m/84h/0h/0h)"
           value={derivationPath}
           onChangeText={setDerivationPath}
           testID="derivationPath"
+          placeholderTextColor={`${colorMode}.SlateGreen`}
         />
         <KeeperTextInput
           placeholder="Master fingerprint"
           value={masterFingerprint}
           onChangeText={setMasterFingerprint}
           testID="masterFingerprint"
+          placeholderTextColor={`${colorMode}.SlateGreen`}
         />
         <OptionCard
           title="Pick a file"
@@ -312,7 +320,7 @@ export default SetupOtherSDScreen;
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
-    marginHorizontal: '5%',
+    marginHorizontal: '2.5%',
   },
   input: {
     margin: '5%',

@@ -39,7 +39,7 @@ import { CloudBackupHistorySchema } from './cloudBackupHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
-import { NodeConnectSchema, DefaultNodeConnectSchema } from './nodeConnect';
+import { DefualtNodeConnectSchema, NodeConnectSchema } from './nodeConnect';
 
 export default [
   KeeperAppSchema,
@@ -77,8 +77,8 @@ export default [
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
-  DefaultNodeConnectSchema,
   NodeConnectSchema,
+  DefualtNodeConnectSchema,
   WhirlpoolConfigSchema,
   WhirlpoolWalletDetailsSchema,
   CloudBackupHistorySchema,

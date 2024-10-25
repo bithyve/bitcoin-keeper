@@ -1,13 +1,10 @@
-import QRCode from 'react-native-qrcode-svg';
 import React, { useState } from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
-import { Dimensions } from 'react-native';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
 import { VStack, Slider, useColorMode } from 'native-base';
 import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-
-const { width } = Dimensions.get('window');
+import KeeperQRCode from 'src/components/KeeperQRCode';
 
 DisplayQR.defaultProps = {
   toBytes: true,
@@ -37,7 +34,7 @@ function DisplayQR({
   });
   return (
     <VStack alignItems="center">
-      <QRCode value={qrData} size={width * 0.85} ecl="L" />
+      <KeeperQRCode qrData={qrData} size={windowWidth * 0.7} ecl="L" />
       <Slider
         marginTop={5}
         width={windowWidth * 0.5}

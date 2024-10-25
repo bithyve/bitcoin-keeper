@@ -20,6 +20,22 @@ export default [
     symbol: '$',
   },
   {
+    code: 'AED',
+    symbol: 'د.إ',
+  },
+  {
+    code: 'ARS',
+    symbol: '$',
+  },
+  {
+    code: 'BDT',
+    symbol: '৳',
+  },
+  {
+    code: 'BHD',
+    symbol: '.د.ب',
+  },
+  {
     code: 'BRL',
     symbol: 'R$',
   },
@@ -40,12 +56,32 @@ export default [
     symbol: '¥',
   },
   {
+    code: 'CZK',
+    symbol: 'Kč',
+  },
+  {
     code: 'DKK',
     symbol: 'kr',
   },
   {
+    code: 'GEL',
+    symbol: '₾',
+  },
+  {
     code: 'HKD',
     symbol: '$',
+  },
+  {
+    code: 'HUF',
+    symbol: 'Ft',
+  },
+  {
+    code: 'IDR',
+    symbol: 'Rp',
+  },
+  {
+    code: 'ILS',
+    symbol: '₪',
   },
   {
     code: 'ISK',
@@ -60,8 +96,36 @@ export default [
     symbol: '₩',
   },
   {
+    code: 'KWD',
+    symbol: 'د.ك',
+  },
+  {
+    code: 'LKR',
+    symbol: 'Rs',
+  },
+  {
+    code: 'MXN',
+    symbol: '$',
+  },
+  {
+    code: 'MYR',
+    symbol: 'RM',
+  },
+  {
+    code: 'NGN',
+    symbol: '₦',
+  },
+  {
     code: 'NZD',
     symbol: '$',
+  },
+  {
+    code: 'PHP',
+    symbol: '₱',
+  },
+  {
+    code: 'PKR',
+    symbol: 'Rs',
   },
   {
     code: 'PLN',
@@ -70,6 +134,10 @@ export default [
   {
     code: 'RUB',
     symbol: '₽',
+  },
+  {
+    code: 'SAR',
+    symbol: 'ر.س',
   },
   {
     code: 'SEK',
@@ -90,5 +158,9 @@ export default [
   {
     code: 'TWD',
     symbol: '$',
+  },
+  {
+    code: 'ZAR',
+    symbol: 'R',
   },
 ];

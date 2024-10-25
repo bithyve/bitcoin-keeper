@@ -295,7 +295,7 @@ function Footer({
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
           primaryCallback={() => setCreating(true)}
-          paddingHorizontal={wp(30)}
+          fullWidth
         />
       ) : (
         <Buttons
@@ -303,7 +303,7 @@ function Footer({
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Proceed"
           primaryCallback={() => handleProceedButtonClick()}
-          paddingHorizontal={wp(30)}
+          fullWidth
         />
       )}
     </Box>
@@ -327,6 +327,8 @@ function Signers({
   setCreating,
   isCollaborativeFlow,
   coSigners,
+  setExternalKeyAddedModal,
+  setAddedKey,
 }) {
   const { level } = useSubscriptionLevel();
   const dispatch = useDispatch();
@@ -424,10 +426,6 @@ function Signers({
         (keyToRotate &&
           (keyToRotate.masterFingerprint === signer.masterFingerprint ||
             selectedSigners.get(signer.masterFingerprint)));
-      const isAMF =
-        signer.type === SignerType.TAPSIGNER &&
-        config.NETWORK_TYPE === NetworkType.TESTNET &&
-        !signer.isMock;
       return (
         <SignerCard
           showSelection={showSelection}
@@ -435,11 +433,12 @@ function Signers({
           key={signer.masterFingerprint}
           name={
             !signer.isBIP85
-              ? getSignerNameFromType(signer.type, signer.isMock, isAMF)
-              : `${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`
+              ? getSignerNameFromType(signer.type, signer.isMock, false)
+              : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
           }
-          description={getSignerDescription(signer.type, signer.extraData?.instanceNumber, signer)}
+          description={getSignerDescription(signer)}
           icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+          image={signer?.extraData?.thumbnailPath}
           isSelected={!!selectedSigners.get(signer.masterFingerprint)}
           onCardSelect={(selected) => {
             onSignerSelect(
@@ -509,12 +508,9 @@ function Signers({
                 ? getSignerNameFromType(signer.type, signer.isMock)
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
-            description={getSignerDescription(
-              signer.type,
-              signer.extraData?.instanceNumber,
-              signer
-            )}
+            description={getSignerDescription(signer)}
             icon={SDIcons(signer.type, colorMode !== 'dark').Icon}
+            image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(signer.masterFingerprint) || isCoSigner}
             onCardSelect={handleCardSelect}
             colorMode={colorMode}
@@ -547,11 +543,8 @@ function Signers({
       hw = setupKeeperSigner(qrData);
       if (hw) {
         dispatch(addSigningDevice([hw.signer]));
-        showToast(
-          `${hw.signer.signerName} added successfully`,
-          <TickIcon />,
-          IToastCategory.SIGNING_DEVICE
-        );
+        setAddedKey(hw.signer);
+        setExternalKeyAddedModal(true);
         navigation.dispatch(CommonActions.goBack());
       }
     } catch (error) {
@@ -707,6 +700,8 @@ function AddSigningDevice() {
   const { activeVault, allVaults } = useVault({ vaultId });
   const isCollaborativeWallet = activeVault?.type == VaultType.COLLABORATIVE;
   const isCollaborativeFlow = parentScreen === SETUPCOLLABORATIVEWALLET;
+  const [externalKeyAddedModal, setExternalKeyAddedModal] = useState(false);
+  const [addedKey, setAddedKey] = useState(null);
 
   const { areSignersValid, amfSigners, invalidSS, invalidIKS, invalidMessage } = useSignerIntel({
     scheme,
@@ -862,7 +857,7 @@ function AddSigningDevice() {
   }
 
   function SingleSigWallet(vault: Vault) {
-    const tags = ['Single-key', 'Cold'];
+    const tags = ['SINGLE-KEY', 'COLD'];
     return (
       <Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletVaultInfoContainer}>
@@ -948,8 +943,8 @@ function AddSigningDevice() {
         vaultCreating={vaultCreating}
         vaultKeys={vaultKeys}
         scheme={scheme}
-        name={isSSAddition ? 'Air-gapped Wallet' : name}
-        description={isSSAddition ? 'External signing device' : description}
+        name={name}
+        description={description}
         vaultId={vaultId}
         setGeneratedVaultId={setGeneratedVaultId}
         vaultType={
@@ -977,6 +972,8 @@ function AddSigningDevice() {
         setCreating={setCreating}
         isCollaborativeFlow={isCollaborativeFlow}
         coSigners={coSigners}
+        setExternalKeyAddedModal={setExternalKeyAddedModal}
+        setAddedKey={setAddedKey}
       />
       <Footer
         amfSigners={amfSigners}
@@ -1022,7 +1019,6 @@ function AddSigningDevice() {
         buttonCallback={inheritanceSigner ? viewAddEmail : viewVault}
         secondaryButtonText={inheritanceSigner && common.cancel}
         secondaryCallback={viewVault}
-        showButtons
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.buttonText`}
@@ -1030,6 +1026,13 @@ function AddSigningDevice() {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
+      />
+      <KeyAddedModal
+        visible={externalKeyAddedModal}
+        close={() => {
+          setExternalKeyAddedModal(false);
+        }}
+        signer={addedKey}
       />
       <KeyAddedModal visible={keyAddedModalVisible} close={handleModalClose} signer={addedSigner} />
     </ScreenWrapper>
@@ -1060,7 +1063,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottomContainer: {
-    paddingHorizontal: 15,
     gap: 20,
   },
   noteContainer: {
@@ -1157,6 +1159,15 @@ const styles = StyleSheet.create({
   },
   desc: {
     marginBottom: hp(18),
+  },
+  externalKeyModal: {
+    alignItems: 'center',
+  },
+  externalKeyIllustration: {
+    marginBottom: hp(20),
+  },
+  externalKeyText: {
+    marginBottom: hp(20),
   },
 });
 

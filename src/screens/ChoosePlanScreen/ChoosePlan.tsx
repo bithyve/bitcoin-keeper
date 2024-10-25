@@ -48,12 +48,14 @@ import TierUpgradeModal from './TierUpgradeModal';
 import PlanCheckMark from 'src/assets/images/planCheckMark.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Buttons from 'src/components/Buttons';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 const { width } = Dimensions.get('window');
 
 function ChoosePlan() {
   const inset = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
+  const isSmallDevices = useIsSmallDevices();
   const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
@@ -113,6 +115,7 @@ function ChoosePlan() {
         const skus = [];
         getPlansResponse.plans.forEach((plan) => skus.push(...plan.productIds));
         const subscriptions = await getSubscriptions({ skus });
+        if (!subscriptions.length) throw { message: 'Something went wrong, please try again!' };
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex((plan) => plan.productIds.includes(subscription.productId));
           const monthlyPlans = [];
@@ -350,7 +353,7 @@ function ChoosePlan() {
     return (
       <Box>
         <LoadingAnimation />
-        <Text color={`${colorMode}.greenText`} fontSize={13}>
+        <Text color={`${colorMode}.greenText`} style={styles.infoText}>
           {choosePlan.youCanChange}
         </Text>
       </Box>
@@ -420,11 +423,14 @@ function ChoosePlan() {
         <Text>Enter Code</Text>
         <KeeperTextInput
           onBlur={validateOnFocusLost}
+          autoCapitalize="characters"
+          keyboardType={Platform.OS == 'android' ? 'visible-password' : "'ascii-capable'"} // To fix duplicate issue with toUpperCase()
           placeholder="Promo Code"
           value={code}
           isError={isInvalidCode}
           onChangeText={(value) => {
-            setcode(value.trim());
+            const filteredInput = value.trim().toUpperCase();
+            setcode(filteredInput);
             setIsInvalidCode(false);
             setActiveOffer(null);
           }}
@@ -511,7 +517,8 @@ function ChoosePlan() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ height: '100%', marginVertical: 0 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: isSmallDevices ? hp(220) : 0 }}
+          style={{ flex: 1 }}
         >
           <ChoosePlanCarousel
             data={items}
@@ -566,7 +573,7 @@ function ChoosePlan() {
             </Box>
             {items?.[currentPosition]?.comingSoon && (
               <Text style={styles.comingSoonText} color={`${colorMode}.secondaryText`}>
-                * {common.commingSoon}
+                * {common.comingSoon}
               </Text>
             )}
           </Box>
@@ -579,7 +586,10 @@ function ChoosePlan() {
         items &&
         !items[currentPosition].productIds.includes(subscription.productId.toLowerCase()) && (
           <>
-            <Box style={[styles.noteWrapper, { paddingBottom: inset.bottom }]}>
+            <Box
+              backgroundColor={`${colorMode}.primaryBackground`}
+              style={[styles.noteWrapper, { paddingBottom: inset.bottom }]}
+            >
               <Text style={{ fontSize: 11, marginLeft: 20 }} color={`${colorMode}.GreyText`}>
                 {formatString(choosePlan.noteSubTitle)}
               </Text>
@@ -670,6 +680,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.GrayX11,
     alignSelf: 'center',
     marginTop: 20,
+  },
+  infoText: {
+    fontSize: 13,
+    marginTop: hp(20),
   },
 });
 export default ChoosePlan;

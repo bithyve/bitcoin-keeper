@@ -8,7 +8,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
-  NetworkType,
+  EntityKind,
   SignerType,
   VaultType,
   VisibilityType,
@@ -27,7 +27,10 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import OptionCard from 'src/components/OptionCard';
-import WalletVault from 'src/assets/images/wallet_vault.svg';
+import WalletVault from 'src/assets/images/vault-hexa-green.svg';
+import WalletIcon from 'src/assets/images/wallet-white.svg';
+import VaultIcon from 'src/assets/images/vault-white.svg';
+import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import DeleteIcon from 'src/assets/images/delete_phone.svg';
 
 import { hp, wp } from 'src/constants/responsive';
@@ -43,7 +46,7 @@ import InheritanceKeyServer from 'src/services/backend/InheritanceKey';
 import { captureError } from 'src/services/sentry';
 import { emailCheck } from 'src/utils/utilities';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
-import WalletFingerprint from 'src/components/WalletFingerPrint';
+import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import config from 'src/utils/service-utilities/config';
@@ -70,7 +73,6 @@ import SigningServer from 'src/services/backend/SigningServer';
 import { generateKey } from 'src/utils/service-utilities/encryption';
 import { setInheritanceOTBRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from './SigningDeviceIcons';
-import DescriptionModal from './components/EditDescriptionModal';
 import InhertanceKeyIcon from 'src/assets/images/icon_ik.svg';
 import { resetKeyHealthState } from 'src/store/reducers/vaults';
 import moment from 'moment';
@@ -79,8 +81,19 @@ import HardwareModalMap, { formatDuration, InteracationMode } from './HardwareMo
 import Note from 'src/components/Note/Note';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import useSigners from 'src/hooks/useSigners';
+import SignerCard from '../AddSigner/SignerCard';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { generateMobileKeySeeds } from 'src/hardware/signerSeeds';
 
 const { width } = Dimensions.get('screen');
+
+const SignersWithoutRKSigningSupport = [
+  SignerType.POLICY_SERVER,
+  SignerType.OTHER_SD,
+  SignerType.UNKOWN_SIGNER,
+  SignerType.INHERITANCEKEY,
+];
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
   return (
@@ -116,26 +129,63 @@ function SignerAdvanceSettings({ route }: any) {
     signerId: string;
   } = route.params;
   const { signerMap } = useSignerMap();
-  const signer: Signer = signerFromParam || signerMap[vaultKey.masterFingerprint];
+  const { signers } = useSigners();
+
+  const signer: Signer = signerFromParam
+    ? signers.find((signer) => signer.masterFingerprint === signerFromParam.masterFingerprint) // to reflect associated contact image in real time
+    : signerMap[vaultKey.masterFingerprint];
 
   const { showToast } = useToastMessage();
-  const [visible, setVisible] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const {
+    vault: vaultTranslation,
+    common,
+    signer: signerTranslation,
+    BackupWallet,
+    seed: seedTranslation,
+  } = translations;
+  const { allCanaryVaults } = useCanaryVault({ getAll: true });
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const isSmallDevice = useIsSmallDevices();
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [deleteEmailModal, setDeleteEmailModal] = useState(false);
-  const [vaultUsed, setVaultUsed] = React.useState<Vault>();
-  const [warningEnabled, setHideWarning] = React.useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
   const [OTBLoading, setOTBLoading] = useState(false);
   const [backupModal, setBackupModal] = useState(false);
-  const [canaryWalletId, setCanaryWalletId] = useState<string>();
-  const { allCanaryVaults } = useCanaryVault({ getAll: true });
-  const [otp, setOtp] = useState('');
   const [showOTPModal, setShowOTPModal] = useState(false);
-  const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, common, signer: signerTranslation, BackupWallet } = translations;
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const isSmallDevice = useIsSmallDevices();
+  const [warningEnabled, setHideWarning] = useState(false);
+  const [seed, setSeed] = useState('');
+  const [vaultUsed, setVaultUsed] = useState<Vault>();
+  const [canaryWalletId, setCanaryWalletId] = useState<string>();
+  const [otp, setOtp] = useState('');
+  const [actionAfterPasscode, setActionAfterPasscode] = useState<
+    null | 'hideKey' | 'mobileKeySeed'
+  >(null);
+  const supportsRKSigning = !SignersWithoutRKSigningSupport.includes(signer.type);
+
+  useEffect(() => {
+    const fetchOrGenerateSeeds = async () => {
+      if (isMobileKey) {
+        try {
+          if (!signer?.extraData?.instanceNumber) {
+            throw new Error('Instance number is not available or invalid.');
+          }
+          const instanceNumber = signer?.extraData?.instanceNumber - 1;
+          const generatedSeeds = await generateMobileKeySeeds(instanceNumber, primaryMnemonic);
+          setSeed(generatedSeeds);
+        } catch (error) {
+          console.error('Error generating seeds: ', error);
+        }
+      }
+    };
+    setTimeout(() => {
+      fetchOrGenerateSeeds();
+    }, 100);
+  }, [signer, primaryMnemonic]);
 
   const CANARY_SCHEME = { m: 1, n: 1 };
 
@@ -152,8 +202,6 @@ function SignerAdvanceSettings({ route }: any) {
 
   const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
-  const openDescriptionModal = () => setVisible(true);
-  const closeDescriptionModal = () => setVisible(false);
 
   const { activeVault, allVaults } = useVault({ vaultId, includeArchived: false });
   const allUnhiddenVaults = allVaults.filter((vault) => {
@@ -161,7 +209,7 @@ function SignerAdvanceSettings({ route }: any) {
   });
   const signerVaults: Vault[] = [];
 
-  allVaults.forEach((vault) => {
+  allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
     for (const key of keys) {
       if (signer.masterFingerprint === key.masterFingerprint) {
@@ -347,7 +395,7 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey, vaultId }));
         break;
       default:
-        showToast('Comming soon', null, IToastCategory.DEFAULT, 1000);
+        showToast('Coming soon', null, IToastCategory.DEFAULT, 1000);
         break;
     }
   };
@@ -394,7 +442,7 @@ function SignerAdvanceSettings({ route }: any) {
             placeholder="pleb@bitcoin.com"
             value={email}
             onChangeText={(value) => {
-              setEmail(value);
+              setEmail(value.trim());
               emailStatusFail && setEmailStatusFail(false);
             }}
           />
@@ -483,10 +531,14 @@ function SignerAdvanceSettings({ route }: any) {
       })
     );
   };
-  const navigateToUnlockTapsigner = () => {
+
+  const openTapsignerSettings = () => {
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'UnlockTapsigner',
+        name: 'ManageTapsignerSettings',
+        params: {
+          signer: signer,
+        },
       })
     );
   };
@@ -578,6 +630,15 @@ function SignerAdvanceSettings({ route }: any) {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'CosignerDetails',
+        params: { signer },
+      })
+    );
+  };
+
+  const navigateToAdditionalDetails = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AdditionalDetails',
         params: { signer },
       })
     );
@@ -701,11 +762,12 @@ function SignerAdvanceSettings({ route }: any) {
   const isInheritanceKey = signer.type === SignerType.INHERITANCEKEY;
   const isAppKey = signer.type === SignerType.KEEPER;
   const isMyAppKey = signer.type === SignerType.MY_KEEPER;
-  const signersWithoutRegistration = isAppKey || isMyAppKey;
+  const isTapsigner = signer.type === SignerType.TAPSIGNER;
+  const signersWithoutRegistration = isAppKey || isMyAppKey || isTapsigner;
   const isAssistedKey = isPolicyServer || isInheritanceKey;
+  const isMobileKey = signer.type === SignerType.MY_KEEPER;
 
   const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
-  const isTapsigner = signer.type === SignerType.TAPSIGNER;
   const CANARY_NON_SUPPORTED_DEVICES = [
     SignerType.UNKOWN_SIGNER,
     SignerType.INHERITANCEKEY,
@@ -715,11 +777,6 @@ function SignerAdvanceSettings({ route }: any) {
   ];
   const isCanaryWalletAllowed = isOnL2Above && !CANARY_NON_SUPPORTED_DEVICES.includes(signer.type);
 
-  const isAMF =
-    signer.type === SignerType.TAPSIGNER &&
-    config.NETWORK_TYPE === NetworkType.TESTNET &&
-    !signer.isMock;
-
   const showOneTimeBackup = (isPolicyServer || isInheritanceKey) && vaultId && signer?.isBIP85;
   let disableOneTimeBackup = false; // disables OTB once the user has backed it up
   if (showOneTimeBackup) {
@@ -727,7 +784,20 @@ function SignerAdvanceSettings({ route }: any) {
     else if (isInheritanceKey) disableOneTimeBackup = oneTimeBackupStatus?.inheritanceKey;
   }
 
-  const onSuccess = () => hideKey();
+  const onSuccess = () => {
+    if (actionAfterPasscode === 'hideKey') {
+      hideKey();
+    } else if (actionAfterPasscode === 'mobileKeySeed') {
+      navigation.dispatch(
+        CommonActions.navigate('ExportSeed', {
+          seed,
+          isFromMobileKey: true,
+          next: false,
+        })
+      );
+    }
+    setConfirmPassVisible(false);
+  };
 
   const { inheritanceOTBRequestId } = useAppSelector((state) => state.storage);
   const initiateOneTimeBackup = async () => {
@@ -796,6 +866,15 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
+  const getWalletIcon = (wallet) => {
+    if (wallet.entityKind === EntityKind.VAULT) {
+      if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
+      else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else {
+      return <WalletIcon />;
+    }
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={canaryVaultLoading || OTBLoading} showLoader={true} />
@@ -803,22 +882,18 @@ function SignerAdvanceSettings({ route }: any) {
         title="Settings"
         subtitle={
           !signer.isBIP85
-            ? `for ${getSignerNameFromType(signer.type, signer.isMock, isAMF)}`
-            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, isAMF)} +`}`
+            ? `for ${getSignerNameFromType(signer.type, signer.isMock, false)}`
+            : `for ${`${getSignerNameFromType(signer.type, signer.isMock, false)} +`}`
         }
         icon={
           <CircleIconWrapper
             backgroundColor={`${colorMode}.primaryGreenBackground`}
             icon={SDIcons(signer.type, true).Icon}
+            image={signer?.extraData?.thumbnailPath}
           />
         }
       />
       <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-        <OptionCard
-          title="Edit Description"
-          description="Short description to help you remember"
-          callback={openDescriptionModal}
-        />
         {isInheritanceKey && vaultId && (
           <OptionCard
             title="Registered Email"
@@ -835,7 +910,6 @@ function SignerAdvanceSettings({ route }: any) {
             callback={registerSigner}
           />
         )}
-
         {isPolicyServer && vaultId && (
           <OptionCard
             title="Change Verification & Policy"
@@ -858,18 +932,37 @@ function SignerAdvanceSettings({ route }: any) {
         )}
         {isTapsigner && (
           <OptionCard
-            title="Unlock Card"
-            description="Run the unlock card process if it's rate-limited"
-            callback={navigateToUnlockTapsigner}
+            title="Manage TAPSIGNER"
+            description="Manage your TAPSIGNER card"
+            callback={openTapsignerSettings}
           />
         )}
-        {(isAppKey || isMyAppKey) && (
+        {/* // ! Hide Remote Key */}
+        {/* {!isAssistedKey && ( */}
+        {(isAssistedKey || isMyAppKey) && (
           <OptionCard
             title={signerTranslation.keyDetails}
             description={signerTranslation.keyDetailsSubtitle}
             callback={navigateToCosignerDetails}
           />
         )}
+        <OptionCard
+          title="Additional Info"
+          description="Associate contact or Edit description"
+          callback={navigateToAdditionalDetails}
+        />
+        {isMobileKey && (
+          <OptionCard
+            title={seedTranslation.mobileKeySeedWordsTitle}
+            description={signerTranslation.mobileKeySeedOptionSubtitle}
+            callback={() => {
+              setActionAfterPasscode('mobileKeySeed');
+              setConfirmPassVisible(true);
+            }}
+          />
+        )}
+        {/* // ! Hide Remote Key */}
+        {/* {supportsRKSigning && ( */}
         {isMyAppKey && (
           <OptionCard
             title="Sign a transaction"
@@ -898,11 +991,11 @@ function SignerAdvanceSettings({ route }: any) {
                   return;
                 }
               }
+              setActionAfterPasscode('hideKey');
               setConfirmPassVisible(true);
             }}
           />
         )}
-
         {isCanaryWalletAllowed && (
           <OptionCard
             title="Canary Wallet"
@@ -913,32 +1006,42 @@ function SignerAdvanceSettings({ route }: any) {
         <Box style={styles.signerText}>
           {`Signer used in ${signerVaults.length} wallet${signerVaults.length > 1 ? 's' : ''}`}
         </Box>
-        <ScrollView horizontal contentContainerStyle={styles.signerVaults}>
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.signerVaults}
+          showsHorizontalScrollIndicator={false}
+        >
           {signerVaults.map((vault) => (
-            <ActionCard
-              key={vault.id}
-              description={vault.presentationData?.description}
-              cardName={vault.presentationData.name}
-              icon={<WalletVault />}
-              callback={() => {}}
-              customStyle={!isSmallDevice ? { height: hp(125) } : { height: hp(150) }}
+            <SignerCard
+              key={vault?.id}
+              name={vault?.presentationData.name}
+              description={vault?.presentationData?.description}
+              icon={
+                <HexagonIcon
+                  width={38}
+                  height={34}
+                  backgroundColor={
+                    colorMode === 'dark' ? Colors.pantoneGreenDark : Colors.pantoneGreen
+                  }
+                  icon={getWalletIcon(vault)}
+                />
+              }
+              showSelection={false}
+              colorVarient="transparent"
+              customStyle={styles.signerCard}
+              colorMode={colorMode}
             />
           ))}
         </ScrollView>
       </ScrollView>
       <Box style={styles.fingerprint}>
-        <WalletFingerprint title="Signer Fingerprint" fingerprint={signer.masterFingerprint} />
+        <WalletCopiableData
+          title={common.signerFingerPrint}
+          data={signer.masterFingerprint}
+          dataType="fingerprint"
+        />
       </Box>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
-      <DescriptionModal
-        visible={visible}
-        close={closeDescriptionModal}
-        signer={signer}
-        callback={(value: any) => {
-          navigation.setParams({ signer: { ...signer, signerDescription: value } });
-          dispatch(updateSignerDetails(signer, 'signerDescription', value));
-        }}
-      />
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}
@@ -1009,7 +1112,9 @@ function SignerAdvanceSettings({ route }: any) {
         close={() => setConfirmPassVisible(false)}
         title="Confirm Passcode"
         subTitleWidth={wp(240)}
-        subTitle="To hide the key"
+        subTitle={
+          actionAfterPasscode === 'hideKey' ? 'To hide the key' : 'To view Mobile Key seed words'
+        }
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -1227,6 +1332,14 @@ const styles = StyleSheet.create({
   signerText: {
     marginVertical: hp(15),
     marginHorizontal: 10,
+  },
+  signerCard: {
+    borderWidth: 1,
+    borderColor: Colors.SilverMist,
+    height: 120,
+    width: wp(105),
+    paddingTop: 5,
+    paddingLeft: 14,
   },
   deleteEmailContent: {
     gap: 60,

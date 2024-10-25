@@ -40,6 +40,8 @@ import NfcComms from 'src/assets/images/nfc_comms.svg';
 import Import from 'src/assets/images/import.svg';
 import SignerCard from '../AddSigner/SignerCard';
 import { SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -89,6 +91,7 @@ function ColdCardContent({
               isFullText={true}
               name={option.title}
               icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
@@ -134,6 +137,7 @@ function PassportContent({
               isFullText={true}
               name={option.title}
               icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
@@ -223,6 +227,7 @@ function KeystoneContent({
               isFullText={true}
               name={option.title}
               icon={option.icon}
+              image={option?.extraData?.thumbnailPath}
               onCardSelect={() => {
                 onSelect(option.name);
               }}
@@ -242,7 +247,7 @@ function JadeContent() {
       <Box marginTop={2}>
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
           {
-            "\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned."
+            "\u2022 On the Jade main menu, choose the 'Scan QR' option and wait for the QR to be scanned."
           }
         </Text>
       </Box>
@@ -318,7 +323,7 @@ export function KeeperContent(props) {
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
-          {`Open the other Keeper app > Go to Manage Keys > Access the Mobile Key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
+          {`Open the other Keeper app > Go to Manage Keys > Access the key with the fingerprint ${props.masterFingerPrint} > Go to Settings > Sign a transaction > Scan the QR using the scanner`}
         </Text>
       </Box>
     </Box>
@@ -581,13 +586,16 @@ function SignerModals({
   setPasswordModal,
   showOTPModal,
   signTransaction,
-  textRef,
   vaultKeys,
   isMultisig,
   signerMap,
   specterModal,
   setSpecterModal,
   onFileSign,
+  isRemoteKey = false,
+  serializedPSBTEnvelopFromProps,
+  sendConfirmationRouteParams,
+  tnxDetails,
 }: {
   vaultId: string;
   activeXfp: string;
@@ -618,22 +626,25 @@ function SignerModals({
   setPasswordModal: any;
   showOTPModal: any;
   signTransaction: any;
-  textRef: any;
   vaultKeys: VaultSigner[];
   isMultisig: boolean;
   signerMap: { [key: string]: Signer };
   specterModal: boolean;
   setSpecterModal: any;
   onFileSign: any;
+  isRemoteKey: boolean;
+  serializedPSBTEnvelopFromProps: SerializedPSBTEnvelop;
+  sendConfirmationRouteParams?: SendConfirmationRouteParams;
+  tnxDetails?: tnxDetailsProps;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const serializedPSBTEnvelop: SerializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-    (envelop) => envelop.xfp === activeXfp
-  )[0];
+  const serializedPSBTEnvelop: SerializedPSBTEnvelop = isRemoteKey
+    ? serializedPSBTEnvelopFromProps
+    : serializedPSBTEnvelops?.filter((envelop) => envelop.xfp === activeXfp)[0];
 
   const navigateToQrSigning = (vaultKey: VaultSigner) => {
     setPassportModal(false);
@@ -647,6 +658,11 @@ function SignerModals({
         signTransaction,
         vaultKey,
         vaultId,
+        isRemoteKey: isRemoteKey,
+        serializedPSBTEnvelopFromProps,
+        isMultisig: isMultisig,
+        sendConfirmationRouteParams,
+        tnxDetails,
       })
     );
   };
@@ -661,6 +677,9 @@ function SignerModals({
         vaultKey,
         vaultId,
         signerType,
+        isRemoteKey: isRemoteKey,
+        serializedPSBTEnvelopFromProps,
+        isMultisig: isMultisig,
       })
     );
   };
@@ -677,11 +696,11 @@ function SignerModals({
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);
             navigation.dispatch(
-              CommonActions.navigate('SignWithTapsigner', {
+              CommonActions.navigate('TapsignerAction', {
+                mode: InteracationMode.SIGN_TRANSACTION,
+                signer,
+                isMultisig,
                 signTransaction,
-                vaultKey,
-                textRef,
-                vaultId,
               })
             );
           };
@@ -724,6 +743,7 @@ function SignerModals({
                 vaultKey,
                 isMultisig,
                 vaultId,
+                isRemoteKey,
               })
             );
           };

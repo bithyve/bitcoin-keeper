@@ -18,6 +18,7 @@ export interface VaultSpecs {
   xpubs: string[]; // signers' xpubs
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  totalExternalAddresses: number; // total number of external addresses the user generated (starts at 1)
   receivingAddress?: string; // current receiving address(external chain)
   addresses?: AddressCache; // cached addresses
   addressPubs?: AddressPubs; // cached pubs
@@ -45,6 +46,10 @@ export type signerXpubs = {
 
 export type SignerExtraData = {
   instanceNumber?: number;
+  givenName?: string;
+  familyName?: string;
+  recordID?: string;
+  thumbnailPath?: string;
 };
 
 export interface HealthCheckDetails {

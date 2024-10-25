@@ -134,7 +134,7 @@ export const getBackupDuration = () =>
   config.ENVIRONMENT === APP_STAGE.PRODUCTION ? 1.555e7 : 1800;
 
 export const emailCheck = (email) => {
-  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+  const reg = /^\w+([.\-+]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
   return reg.test(email);
 };
 
@@ -211,4 +211,30 @@ export const trimCWDefaultName = (wallet) => {
     return tempWallet;
   }
   return wallet;
+};
+
+export const throttle = (func, limit) => {
+  let lastFunc;
+  let lastRan;
+  return function (...args) {
+    const context = this;
+    if (!lastRan) {
+      func.apply(context, args);
+      lastRan = Date.now();
+    } else {
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(function () {
+        if (Date.now() - lastRan >= limit) {
+          func.apply(context, args);
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
+    }
+  };
+};
+export const calculateTimeLeft = (createdAt: string) => {
+  const targetTime = new Date(new Date(createdAt).getTime() + 5 * 60000); // Add 5 minutes
+  const currentTime = new Date();
+  // @ts-ignore
+  return Math.max(0, Math.floor((targetTime - currentTime) / 1000));
 };

@@ -16,7 +16,8 @@ import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
-import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
+import ExportSeedScreen from 'src/screens/SeedScreens/ExportSeedScreen';
+import SeedDetailsScreen from 'src/screens/SeedScreens/SeedDetailsScreen';
 import KeeperLoader from 'src/components/KeeperLoader';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -38,7 +39,6 @@ import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConf
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
-import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
@@ -83,6 +83,7 @@ import SetupOtherSDScreen from 'src/screens/SigningDevices/SetupOtherSDScreen';
 import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
+import ChangeTapsignerPin from 'src/screens/SigningDevices/ChangeTapsignerPin';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
@@ -124,6 +125,13 @@ import { useAppSelector } from 'src/store/hooks';
 import { AppStackParams } from './types';
 import Login from '../screens/LoginScreen/Login';
 import VerifyAddressSelectionScreen from 'src/screens/Recieve/VerifyAddressSelectionScreen';
+import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
+import RemoteSharing from 'src/screens/SigningDevices/RemoteSharing';
+import AssociateContact from 'src/screens/Contact/AssociateContact';
+import AddContact from 'src/screens/Contact/AddContact';
+import ContactProfile from 'src/screens/Contact/ContactProfile';
+import EditContact from 'src/screens/Contact/EditContact';
+import ManageTapsignerSettings from 'src/screens/Vault/ManageTapsignerSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -179,8 +187,7 @@ function AppStack() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
-        <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
-        <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
+        <Stack.Screen name="TapsignerAction" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="PassportConfigRecovery" component={PassportConfigRecovery} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
@@ -208,6 +215,7 @@ function AppStack() {
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
+        <Stack.Screen name="SeedDetails" component={SeedDetailsScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
         <Stack.Screen name="ImportWalletDetails" component={ImportWalletDetailsScreen} />
         <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
@@ -272,10 +280,13 @@ function AppStack() {
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
+        <Stack.Screen name="AdditionalDetails" component={AdditionalDetails} />
+        <Stack.Screen name="RemoteSharing" component={RemoteSharing} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
+        <Stack.Screen name="ChangeTapsignerPin" component={ChangeTapsignerPin} />
         <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
         <Stack.Screen name="VaultCreationOptions" component={VaultCreationOptions} />
         <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
@@ -296,6 +307,11 @@ function AppStack() {
         <Stack.Screen name="SignerSettings" component={SignerSettings} />
         <Stack.Screen name="DeleteKeys" component={DeleteKeys} />
         <Stack.Screen name="HandleFile" component={HandleFileScreen} />
+        <Stack.Screen name="AssociateContact" component={AssociateContact} />
+        <Stack.Screen name="AddContact" component={AddContact} />
+        <Stack.Screen name="ContactProfile" component={ContactProfile} />
+        <Stack.Screen name="EditContact" component={EditContact} />
+        <Stack.Screen name="ManageTapsignerSettings" component={ManageTapsignerSettings} />
       </Stack.Navigator>
     </RealmProvider>
   );

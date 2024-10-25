@@ -5,8 +5,6 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Buttons from 'src/components/Buttons';
-import { useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getKeyExpression } from 'src/utils/service-utilities/utils';
 import { XpubTypes } from 'src/services/wallets/enums';
@@ -22,7 +20,6 @@ function CosignerDetails({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
-  const navgation = useNavigation();
   const { signer } = route.params;
 
   const fetchKeyExpression = (type: XpubTypes) => {
@@ -68,23 +65,29 @@ function CosignerDetails({ route }: ScreenProps) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Co-signer Details"
-        subtitle="Scan the co-signer details from another app in order to add this as a signer"
+        title="Share Key Details"
+        subtitle="Scan the key details from another app to add on that app"
       />
-      <Box style={styles.center}>
-        <ShowXPub
-          data={details}
-          copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
-          subText="Co-signer Details"
-          copyable={false}
-        />
-      </Box>
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-        {details ? <ShareWithNfc data={details} /> : null}
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Box style={styles.container}>
+          <Box style={styles.center}>
+            <ShowXPub
+              data={details}
+              copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
+              subText="Co-signer Details"
+              copyable
+            />
+          </Box>
+          {details ? (
+            <Box style={styles.centerBottom}>
+              <ShareWithNfc data={details} signer={signer} />
+            </Box>
+          ) : null}
+        </Box>
       </ScrollView>
-      <Box style={styles.bottom}>
-        <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
-      </Box>
     </ScreenWrapper>
   );
 }
@@ -92,9 +95,23 @@ function CosignerDetails({ route }: ScreenProps) {
 export default CosignerDetails;
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+    marginHorizontal: '10%',
+  },
   center: {
+    marginHorizontal: '5%',
+    justifyContent: 'center',
     alignItems: 'center',
     marginTop: '10%',
+  },
+  centerBottom: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bottom: {
     marginHorizontal: '5%',

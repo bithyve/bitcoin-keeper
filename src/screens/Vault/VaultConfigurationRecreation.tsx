@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
@@ -225,15 +225,18 @@ function VaultConfigurationCreation() {
                 />
               </Box>
             </Box>
-            <Box style={styles.buttonContainer}>
-              <Buttons
-                primaryCallback={() => initateRecovery(inputText)}
-                primaryText={common.proceed}
-                primaryLoading={recoveryLoading}
-              />
-            </Box>
           </Box>
         </ScrollView>
+        <Box style={styles.buttonContainer}>
+          <Buttons
+            primaryCallback={() => {
+              Keyboard.dismiss();
+              initateRecovery(inputText);
+            }}
+            primaryText={common.proceed}
+            primaryLoading={recoveryLoading}
+          />
+        </Box>
       </KeyboardAvoidingView>
       <KeeperModal
         visible={showModal}
@@ -245,16 +248,16 @@ function VaultConfigurationCreation() {
         textColor={`${colorMode}.modalGreenContent`}
         Content={ImportVaultContent}
         DarkCloseIcon
-        learnMore
-        learnMoreTitle={common.needHelp}
-        buttonText={common.ok}
+        buttonText={common.Okay}
+        secondaryButtonText={common.needHelp}
         buttonTextColor={`${colorMode}.modalWhiteButtonText`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonCallback={() => setShowModal(false)}
-        learnMoreCallback={() => {
+        secButtonTextColor={`${colorMode}.modalGreenSecButtonText`}
+        secondaryCallback={() => {
           setShowModal(false);
           dispatch(goToConcierge([ConciergeTag.WALLET], 'import-wallet-config-file'));
         }}
+        buttonCallback={() => setShowModal(false)}
       />
     </ScreenWrapper>
   );

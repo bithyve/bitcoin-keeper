@@ -71,6 +71,7 @@ const HandleFileScreen = ({ route, navigation }) => {
               }}
               primaryText={ctaText}
               primaryDisable={!inputText}
+              fullWidth
             />
           </Box>
         </View>
@@ -107,5 +108,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
+    paddingHorizontal: '3%',
   },
 });

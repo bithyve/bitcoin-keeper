@@ -11,7 +11,6 @@ const useTapsignerModal = (card: CKTapCard) => {
         setNfcVisible(true);
         const resp = await card.nfcWrapper(callback);
         setNfcVisible(false);
-        await card.endNfcSession();
         return resp;
       },
       ios: async () => card.nfcWrapper(callback),

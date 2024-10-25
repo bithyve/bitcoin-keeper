@@ -13,7 +13,7 @@ function BackupModalContent() {
         <SeedwordsIllustration />
       </Box>
       <Text color={`${colorMode}.headerText`} medium style={styles.modalHeading}>
-        Be aware
+        Beware
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
         Anyone with access to the Recovery Key can access and withdraw your funds. Losing them means

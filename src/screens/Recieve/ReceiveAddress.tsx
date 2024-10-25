@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import CopyIcon from 'src/assets/images/copy.svg';
+import CopyIconWhite from 'src/assets/images/copy-white.svg';
 import { Share, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -37,24 +38,19 @@ function ReceiveAddress({ address }: Props) {
       }}
       backgroundColor={`${colorMode}.seashellWhite`}
       style={styles.container}
+      borderColor={`${colorMode}.greyBorder`}
     >
       <Box style={styles.textContainer}>
-        <Text
-          color={`${colorMode}.secondaryText`}
-          ellipsizeMode="middle"
-          numberOfLines={1}
-          fontSize={13}
-        >
+        <Text color={`${colorMode}.textGreenGrey`} style={styles.value}>
           {address}
         </Text>
       </Box>
       <Pressable
         testID={`btn_copyToClipboard${address}`}
-        backgroundColor={`${colorMode}.whiteText`}
         style={styles.iconContainer}
         onPress={shareAddress}
       >
-        <CopyIcon />
+        {colorMode === 'light' ? <CopyIcon /> : <CopyIconWhite />}
       </Pressable>
     </Pressable>
   );
@@ -67,11 +63,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     borderRadius: 10,
-    height: hp(60),
+    borderWidth: 1,
     marginVertical: hp(20),
+    paddingVertical: hp(5),
+    paddingHorizontal: wp(6),
   },
   value: {
-    fontSize: 13,
+    fontSize: 12,
+    lineHeight: 18,
     letterSpacing: 0.39,
   },
   iconContainer: {
@@ -79,8 +78,8 @@ const styles = StyleSheet.create({
     margin: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    width: wp(56),
-    height: '95%',
+    width: wp(42),
+    height: hp(42),
   },
   textContainer: {
     width: '80%',
