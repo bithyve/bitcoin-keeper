@@ -18,23 +18,25 @@ function CurrentPlanView({ plan }) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.planContianer}>
-        <TouchableOpacity
-          testID={`btn_choosePlan`}
-          style={styles.plan}
-          onPress={() => navigation.navigate('ChoosePlan')}
-        >
-          {plan === 'Pleb'.toUpperCase() && <PlebIcon />}
-          {plan === 'Hodler'.toUpperCase() && <HodlerIcon />}
-          {plan === 'Diamond Hands'.toUpperCase() && <DiamondIcon />}
-          <Text
-            testID="text_home_current_plan"
-            style={styles.currentPlanText}
-            color={`${colorMode}.choosePlanHome`}
-            bold
+        {!isOffline && (
+          <TouchableOpacity
+            testID={`btn_choosePlan`}
+            style={styles.plan}
+            onPress={() => navigation.navigate('ChoosePlan')}
           >
-            {plan}
-          </Text>
-        </TouchableOpacity>
+            {plan === 'Pleb'.toUpperCase() && <PlebIcon />}
+            {plan === 'Hodler'.toUpperCase() && <HodlerIcon />}
+            {plan === 'Diamond Hands'.toUpperCase() && <DiamondIcon />}
+            <Text
+              testID="text_home_current_plan"
+              style={styles.currentPlanText}
+              color={`${colorMode}.choosePlanHome`}
+              bold
+            >
+              {plan}
+            </Text>
+          </TouchableOpacity>
+        )}
         {isOffline && (
           <Box style={styles.appStatus}>
             <AppStatus />
