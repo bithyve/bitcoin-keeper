@@ -394,28 +394,28 @@ function SigningDeviceDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
-        learnMorePressed={() => setDetailModal(true)}
-        learnTextColor={`${colorMode}.white`}
-        title={signerTranslations.keyDetails}
-        subtitle={
-          !signer.isBIP85
-            ? `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
-              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
-            : `For ${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}` ||
-              `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
-        }
-        icon={
-          <CircleIconWrapper
-            backgroundColor={`${colorMode}.primaryGreenBackground`}
-            icon={SDIcons(signer.type, true, 26, 26).Icon}
-          />
-        }
-      />
-      <Box>
-        <Text style={styles.recentHistoryText}>Recent History</Text>
+      <Box width={'100%'}>
+        <KeeperHeader
+          learnMore={signer.type !== SignerType.UNKOWN_SIGNER}
+          learnMorePressed={() => setDetailModal(true)}
+          learnTextColor={`${colorMode}.white`}
+          title={signerTranslations.keyDetails}
+          subtitle={
+            !signer.isBIP85
+              ? `For ${getSignerNameFromType(signer.type, signer.isMock, false)}` ||
+                `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+              : `For ${getSignerNameFromType(signer.type, signer.isMock, false) + ' +'}` ||
+                `Added on ${moment(signer.addedOn).calendar().toLowerCase()}`
+          }
+          icon={
+            <CircleIconWrapper
+              backgroundColor={`${colorMode}.primaryGreenBackground`}
+              icon={SDIcons(signer.type, true, 26, 26).Icon}
+            />
+          }
+        />
       </Box>
+      <Text style={styles.recentHistoryText}>Recent History</Text>
       <ScrollView contentContainerStyle={styles.flex1}>
         <Box style={styles.healthCheckContainer}>
           {showLoader ? (

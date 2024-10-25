@@ -267,7 +267,6 @@ function WalletSettings({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         subTitleWidth={wp(240)}
         closeOnOverlayClick={true}
-        showButtons
         showCloseIcon={false}
       />
     </ScreenWrapper>

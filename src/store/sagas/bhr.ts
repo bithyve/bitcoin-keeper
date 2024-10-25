@@ -448,85 +448,100 @@ function* recoverApp(
   // Wallet recreation
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
-      const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
-      yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-      if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
-        yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+      try {
+        const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
+        yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+        if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+          yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+        }
+        yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+      } catch (err) {
+        console.log('Error recovering a wallet: ', err);
+        continue;
       }
-      yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
     }
   }
 
   // Signers recreatin
   if (appImage.signers) {
     for (const [key, value] of Object.entries(appImage.signers)) {
-      const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
-      yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
+      try {
+        const decrytpedSigner: Signer = JSON.parse(decrypt(encryptionKey, value));
+        yield call(dbManager.createObject, RealmSchema.Signer, decrytpedSigner);
+      } catch (err) {
+        console.log('Error recovering a signer: ', err);
+        continue;
+      }
     }
   }
 
   // Vault recreation
   if (allVaultImages.length > 0) {
     for (const vaultImage of allVaultImages) {
-      const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+      try {
+        const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
 
-      if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
-        if (vault?.signers?.length) {
-          vault.signers.forEach((signer, index) => {
-            signer.xfp = signer.signerId;
-            signer.registeredVaults = [
-              {
-                vaultId: vault.id,
-                registered: signer.registered,
-                registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
-              },
-            ];
-          });
-        }
+        if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
+          if (vault?.signers?.length) {
+            vault.signers.forEach((signer, index) => {
+              signer.xfp = signer.signerId;
+              signer.registeredVaults = [
+                {
+                  vaultId: vault.id,
+                  registered: signer.registered,
+                  registrationInfo: signer.deviceInfo ? JSON.stringify(signer.deviceInfo) : '',
+                },
+              ];
+            });
+          }
 
-        if (vault.signers.length) {
-          for (const signer of vault.signers) {
-            const signerXpubs = {};
-            Object.keys(signer.xpubDetails).forEach((type) => {
-              if (signer.xpubDetails[type].xpub) {
-                if (signerXpubs[type]) {
-                  signerXpubs[type].push({
-                    xpub: signer.xpubDetails[type].xpub,
-                    xpriv: signer.xpubDetails[type].xpriv,
-                    derivationPath: signer.xpubDetails[type].derivationPath,
-                  });
-                } else {
-                  signerXpubs[type] = [
-                    {
+          if (vault.signers.length) {
+            for (const signer of vault.signers) {
+              const signerXpubs = {};
+              Object.keys(signer.xpubDetails).forEach((type) => {
+                if (signer.xpubDetails[type].xpub) {
+                  if (signerXpubs[type]) {
+                    signerXpubs[type].push({
                       xpub: signer.xpubDetails[type].xpub,
                       xpriv: signer.xpubDetails[type].xpriv,
                       derivationPath: signer.xpubDetails[type].derivationPath,
-                    },
-                  ];
+                    });
+                  } else {
+                    signerXpubs[type] = [
+                      {
+                        xpub: signer.xpubDetails[type].xpub,
+                        xpriv: signer.xpubDetails[type].xpriv,
+                        derivationPath: signer.xpubDetails[type].derivationPath,
+                      },
+                    ];
+                  }
                 }
-              }
-            });
-            const signerObject = {
-              masterFingerprint: signer.masterFingerprint,
-              type: signer.type,
-              signerName: getSignerNameFromType(signer.type, signer.isMock, false),
-              signerDescription: signer.signerDescription,
-              lastHealthCheck: signer.lastHealthCheck,
-              addedOn: signer.addedOn,
-              isMock: signer.isMock,
-              storageType: signer.storageType,
-              signerPolicy: signer.signerPolicy,
-              inheritanceKeyInfo: signer.inheritanceKeyInfo,
-              hidden: false,
-              signerXpubs,
-            };
-            yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+              });
+              const signerObject = {
+                masterFingerprint: signer.masterFingerprint,
+                type: signer.type,
+                signerName: getSignerNameFromType(signer.type, signer.isMock, false),
+                signerDescription: signer.signerDescription,
+                lastHealthCheck: signer.lastHealthCheck,
+                addedOn: signer.addedOn,
+                isMock: signer.isMock,
+                storageType: signer.storageType,
+                signerPolicy: signer.signerPolicy,
+                inheritanceKeyInfo: signer.inheritanceKeyInfo,
+                hidden: false,
+                signerXpubs,
+              };
+              yield call(dbManager.createObject, RealmSchema.Signer, signerObject);
+            }
           }
-        }
 
+          yield call(dbManager.createObject, RealmSchema.Vault, vault);
+        }
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
+      } catch (err) {
+        console.log('Error recovering a vault: ', err);
+        continue;
       }
-      yield call(dbManager.createObject, RealmSchema.Vault, vault);
     }
   }
 
@@ -560,8 +575,13 @@ function* recoverApp(
 
   if (appImage.nodes) {
     for (const node of appImage.nodes) {
-      const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
-      yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+      try {
+        const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+        yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+      } catch (err) {
+        console.log('Error recovering a node: ', err);
+        continue;
+      }
     }
   }
 }
