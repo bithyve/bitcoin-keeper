@@ -87,6 +87,7 @@ const Colors = {
   Taupe: 'rgba(189, 183, 177, 1)',
   LightSkin: 'rgba(238, 231, 224, 1)',
   DarkSkin: 'rgba(143, 138, 133, 1)',
+
   // Crayola: 'rgba(227, 190, 150, 1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
@@ -106,11 +107,18 @@ const Colors = {
   SilverMist: 'rgba(212, 212, 212, 1)',
   SilverMistTransparent: 'rgba(212, 212, 212, 0.1)',
   Graphite: 'rgba(135, 135, 135, 1)',
+  GraphiteLight: 'rgba(165, 165, 165, 1)',
   SeaShellBeige: 'rgba(242, 237, 230, 1)',
   LimeYellow: 'rgba(248, 241, 178, 1)',
   SeaweedGreen: 'rgba(45, 103, 89, 1)',
   LightCrimson: 'rgba(229, 69, 69, 1)',
   CoralRed: 'rgba(248, 107, 80, 1)',
   MediumGrey: 'rgba(142, 142, 142, 1)',
+  LabelLight1: 'rgba(199, 182, 100, 1)',
+  LabelLight2: 'rgba(222, 166, 109, 1)',
+  LabelLight3: 'rgba(91, 191, 168, 1)',
+  LabelDark1: 'rgba(148, 139, 96, 1)',
+  LabelDark2: 'rgba(163, 152, 140, 1)',
+  LabelDark3: 'rgba(113, 146, 138, 1)',
 };
 export default Colors;

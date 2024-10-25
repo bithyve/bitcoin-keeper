@@ -3,7 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { hp, windowHeight } from 'src/constants/responsive';
+import { hp, wp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/services/wallets/interfaces';
@@ -19,34 +19,44 @@ import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { sha256 } from 'bitcoinjs-lib/src/crypto';
 
-function Label({
-  name,
-  isSystem,
-  onLayout,
-  index,
-  setExtraLabelMap,
-  extraLabelMap,
-  setExtraLabelCount,
-}) {
+function Label({ name, isSystem, onLayout, onUnmount, index }) {
   const { colorMode } = useColorMode();
-  useEffect(
-    () => () => {
-      extraLabelMap.delete(`${index}`);
-      setExtraLabelMap(extraLabelMap);
-      setExtraLabelCount(extraLabelMap.size);
-    },
-    []
-  );
+  const [labelColor, setLabelColor] = useState('');
+
+  useEffect(() => {
+    setLabelColor(getLabelColor(name));
+  }, [name]);
+
+  useEffect(() => {
+    return () => {
+      onUnmount(index);
+    };
+  }, []);
+
+  function getLabelColor(label) {
+    const labelHash = sha256(label).toString('hex');
+    const num = parseInt(labelHash.slice(0, 8), 16);
+    // Update when adding more label colors
+    const labelColorsCount = 3;
+    const colorIndex = (num % labelColorsCount) + 1;
+    return `${colorMode}.labelColor${colorIndex}`;
+  }
+
   return (
     <Box
       key={name}
       onLayout={(event) => onLayout(event, index)}
       style={styles.utxoLabelView}
-      backgroundColor={isSystem ? `${colorMode}.forestGreen` : `${colorMode}.accent`}
+      backgroundColor={labelColor}
     >
-      <Text style={styles.labelText} bold testID={`text_${name.replace(/ /g, '_')}`}>
-        {name.toUpperCase()}
+      <Text
+        style={styles.labelText}
+        color={`${colorMode}.labelText`}
+        testID={`text_${name.replace(/ /g, '_')}`}
+      >
+        {name}
       </Text>
     </Box>
   );
@@ -56,6 +66,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
   const { labels } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
   const [extraLabelMap, setExtraLabelMap] = useState(new Map());
+
   const onLayout = (event, index) => {
     const { y } = event.nativeEvent.layout;
     if (y > 9) {
@@ -65,8 +76,17 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
       extraLabelMap.delete(`${index}`);
       setExtraLabelMap(extraLabelMap);
     }
+    console.log(extraLabelMap.size);
     setExtraLabelCount(extraLabelMap.size);
   };
+
+  const onUnmount = (index) => {
+    extraLabelMap.delete(`${index}`);
+    setExtraLabelMap(extraLabelMap);
+    console.log(extraLabelMap.size);
+    setExtraLabelCount(extraLabelMap.size);
+  };
+
   return (
     <Box style={{ flexDirection: 'row' }}>
       <Box style={styles.labelList}>
@@ -78,18 +98,13 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
               name={item.name}
               isSystem={item.isSystem}
               onLayout={onLayout}
+              onUnmount={onUnmount}
               index={index}
-              setExtraLabelMap={setExtraLabelMap}
-              extraLabelMap={extraLabelMap}
-              setExtraLabelCount={setExtraLabelCount}
             />
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box
-          style={[styles.utxoLabelView, { maxHeight: 19 }]}
-          backgroundColor={`${colorMode}.accent`}
-        >
+        <Box style={[styles.utxoExtraLabel]} backgroundColor={`${colorMode}.accent`}>
           <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>
@@ -118,6 +133,8 @@ function UTXOElement({
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
+  const { labels: txNoteLabels } = useLabelsNew({ txid: item.txId, wallet: currentWallet });
+  const hasTransactionNote = txNoteLabels && txNoteLabels[item.txId]?.[0]?.name;
 
   return (
     <TouchableOpacity
@@ -175,18 +192,46 @@ function UTXOElement({
           <Box style={styles.rowCenter}>
             <Box style={{ width: '100%' }}>
               <Text
-                color={`${colorMode}.GreyText`}
+                color={`${colorMode}.primaryText`}
                 style={styles.transactionIdText}
                 numberOfLines={1}
                 testID={`text_${item.txId}`}
+                semiBold
               >
                 {item.txId}
               </Text>
             </Box>
           </Box>
-          <UTXOLabel labels={labels} />
+          {hasTransactionNote ? (
+            <Box style={styles.rowCenter}>
+              <Box style={{ width: '100%' }}>
+                <Text
+                  color={`${colorMode}.primaryText`}
+                  style={styles.transactionNoteText}
+                  numberOfLines={1}
+                  testID={`text_${item.txId}`}
+                >
+                  {txNoteLabels[item.txId]?.[0]?.name}
+                </Text>
+              </Box>
+            </Box>
+          ) : null}
+          {labels.length === 0 ? (
+            <Box style={styles.utxoLabelView} backgroundColor={`${colorMode}.gray`}>
+              <Text color={`${colorMode}.placeHolderTextColor`} style={styles.addLabelsText}>
+                + Add Labels
+              </Text>
+            </Box>
+          ) : (
+            <UTXOLabel labels={labels} />
+          )}
         </Box>
-        <Box style={[styles.amountWrapper, { width: '45%' }]}>
+        <Box
+          style={[
+            styles.amountWrapper,
+            { width: '45%', marginTop: hasTransactionNote ? wp(5) : wp(30) },
+          ]}
+        >
           {item.confirmed ? null : (
             <Box paddingX={3} testID="view_unconfirmIcon">
               <UnconfirmedIcon />
@@ -195,8 +240,8 @@ function UTXOElement({
           <CurrencyInfo
             hideAmounts={false}
             amount={item.value}
-            fontSize={17}
-            color={`${colorMode}.GreyText`}
+            fontSize={18}
+            color={`${colorMode}.textDarkGreen`}
             variation={colorMode === 'light' ? 'dark' : 'light'}
           />
         </Box>
@@ -304,7 +349,7 @@ const styles = StyleSheet.create({
     marginRight: 3,
   },
   transactionIdText: {
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 0.6,
     marginLeft: 7,
   },
@@ -316,20 +361,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     overflow: 'hidden',
-    width: '85%',
+    flex: 1,
     maxHeight: 28,
+    marginLeft: 3,
+    marginTop: hp(13),
   },
   utxoLabelView: {
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    marginHorizontal: 3,
-    marginTop: 5,
+    paddingHorizontal: wp(10),
+    paddingVertical: wp(2),
+    borderRadius: 20,
+    marginHorizontal: wp(3),
+    marginTop: hp(5),
     alignItems: 'center',
     justifyContent: 'center',
   },
   labelText: {
-    color: Colors.White,
     fontSize: 11,
     lineHeight: 18,
+  },
+  addLabelsText: {
+    fontSize: 13,
+    textAlign: 'left',
+    width: '100%',
+    marginTop: hp(13),
+  },
+  transactionNoteText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    marginLeft: 7,
+    marginTop: hp(10),
+  },
+  utxoExtraLabel: {
+    paddingHorizontal: wp(10),
+    paddingVertical: wp(2),
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: hp(18),
   },
 });

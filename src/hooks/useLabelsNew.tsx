@@ -56,9 +56,6 @@ const useLabelsNew = ({
           name: wallet.presentationData.name.replace('Wallet', '').trim(),
           isSystem: true,
         });
-      } else {
-        labelMap[key].push({ name: wallet.presentationData.name, isSystem: true });
-        labelMap[key].push({ name: 'DEPOSIT', isSystem: true });
       }
     });
   }
