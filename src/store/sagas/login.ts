@@ -37,6 +37,8 @@ import {
   setRecepitVerificationError,
   setRecepitVerificationFailed,
   setOfflineStatus,
+  setStatusLoading,
+  setStatusMessage,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -378,6 +380,7 @@ function* changeLoginMethodWorker({
 export const changeLoginMethodWatcher = createWatcher(changeLoginMethodWorker, CHANGE_LOGIN_METHOD);
 
 export function* switchAppStatusWorker() {
+  yield put(setStatusLoading(true));
   const appId = yield select((state: RootState) => state.storage.appId);
 
   if (appId) {
@@ -392,21 +395,31 @@ export function* switchAppStatusWorker() {
       if (response.isValid) {
         yield call(updateSubscription, response.level);
         yield put(setOfflineStatus(false));
+        yield put(setStatusMessage('Connection successful! Keeper is online now.'));
       } else {
         yield put(setOfflineStatus(true));
+        yield put(setStatusMessage('App status update failed: Invalid receipt'));
       }
 
       yield put(setRecepitVerificationFailed(!response.isValid));
       yield put(connectToNode());
     } catch (error) {
+      yield put(
+        setStatusMessage(
+          'It seems there’s a network issue. Please check your connection and try again.'
+        )
+      );
       yield put(setRecepitVerificationError(true));
       yield put(setOfflineStatus(true));
+      yield put(setStatusLoading(false));
       console.error('App status update error:', error);
     }
   } else {
     yield put(setRecepitVerificationFailed(true));
     yield put(setRecepitVerificationError(true));
+    yield put(setStatusMessage('App ID not found. Verification failed.'));
   }
+  yield put(setStatusLoading(false));
 }
 
 export const switchAppStatusWatcher = createWatcher(switchAppStatusWorker, SWITCH_APP_STATUS);

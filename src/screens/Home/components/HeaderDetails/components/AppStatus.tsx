@@ -17,6 +17,7 @@ const AppStatus = () => {
   const { translations } = useContext(LocalizationContext);
   const { login, common } = translations;
   const [showModal, setShowModal] = useState(false);
+
   return (
     <Box>
       <Pressable onPress={() => setShowModal(true)}>
@@ -56,7 +57,10 @@ const AppStatus = () => {
             <Box style={styles.CTAWrapper}>
               <Buttons
                 primaryText={login.retryConnection}
-                primaryCallback={() => dispatch(switchAppStatus())}
+                primaryCallback={() => {
+                  dispatch(switchAppStatus());
+                  setShowModal(false);
+                }}
                 secondaryText={login.continueOffline}
                 secondaryCallback={() => setShowModal(false)}
                 width={wp(150)}

@@ -27,6 +27,8 @@ export const initialState: {
   recepitVerificationError: boolean;
   recepitVerificationFailed: boolean;
   isOffline: boolean;
+  isLoading: boolean;
+  statusMessage: string | null;
   electrumClientConnectionStatus: {
     inProgress: boolean;
     success: boolean;
@@ -56,6 +58,8 @@ export const initialState: {
   recepitVerificationError: false,
   recepitVerificationFailed: false,
   isOffline: false,
+  isLoading: false,
+  statusMessage: null,
   electrumClientConnectionStatus: {
     inProgress: false,
     success: false,
@@ -148,6 +152,12 @@ const loginSlice = createSlice({
     setOfflineStatus: (state, action: PayloadAction<boolean>) => {
       state.isOffline = action.payload;
     },
+    setStatusLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
+    setStatusMessage: (state, action: PayloadAction<string | null>) => {
+      state.statusMessage = action.payload;
+    },
   },
 });
 
@@ -163,6 +173,8 @@ export const {
   setRecepitVerificationError,
   setRecepitVerificationFailed,
   setOfflineStatus,
+  setStatusLoading,
+  setStatusMessage,
   electrumClientConnectionInitiated,
   electrumClientConnectionExecuted,
   setElectrumNotConnectedErr,

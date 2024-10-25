@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -10,11 +10,25 @@ import DiamondIcon from 'src/assets/images/diamond_hands.svg';
 import SettingIcon from 'src/assets/images/settings.svg';
 import AppStatus from './AppStatus';
 import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { useDispatch } from 'react-redux';
+import { setStatusMessage } from 'src/store/reducers/login';
 
 function CurrentPlanView({ plan }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const isOffline = useAppSelector((state) => state?.login?.isOffline);
+  const { showToast } = useToastMessage();
+  const dispatch = useDispatch();
+
+  const { statusMessage, isOffline } = useAppSelector((state) => state?.login);
+
+  useEffect(() => {
+    if (statusMessage) {
+      showToast(statusMessage);
+      dispatch(setStatusMessage(null));
+    }
+  }, [statusMessage, isOffline]);
+
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.planContianer}>
