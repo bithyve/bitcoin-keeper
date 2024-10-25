@@ -164,6 +164,7 @@ function PasscodeVerifyModal({
             primaryText={primaryText ? primaryText : common.proceed}
             activeOpacity={0.5}
             primaryDisable={btnDisable}
+            fullWidth
           />
         )}
       </Box>
