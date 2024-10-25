@@ -36,7 +36,6 @@ import {
   credentialsAuthWatcher,
   resetPinCredWatcher,
   generateSeedHashWatcher,
-  switchAppStatusWorker,
   switchAppStatusWatcher,
 } from './login';
 import {
