@@ -37,6 +37,7 @@ export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
 export const ADD_WHIRLPOOL_WALLETS_LOCAL = 'ADD_WHIRLPOOL_WALLETS_LOCAL';
 export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_PATH_PURPOSE_DETAILS';
 export const UPDATE_SIGNER_POLICY_ERROR = 'UPDATE_SIGNER_POLICY_ERROR';
+export const GENERATE_NEW_ADDRESS = 'GENERATE_NEW_ADDRESS';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -354,4 +355,9 @@ export const updateKeyDetails = (signer: VaultSigner, key: string, value: any) =
     key,
     value,
   },
+});
+
+export const generateNewAddress = (wallet: Wallet | Vault) => ({
+  type: GENERATE_NEW_ADDRESS,
+  payload: { wallet },
 });

@@ -138,19 +138,25 @@ function CloudBackupScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      <Buttons
-        primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
-        primaryCallback={() => {
-          if (allVaults.length === 0) {
-            showToast('No vaults found.', <ToastErrorIcon />);
-          } else {
-            setShowPasswordModal(true);
-          }
-        }}
-        primaryLoading={loading}
-        secondaryText={isBackupAllowed ? strings.healthCheck : ''}
-        secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
-      />
+      <Box
+        alignSelf={!isBackupAllowed ? 'center' : 'flex-end'}
+        width={!isBackupAllowed ? '93%' : '100%'}
+      >
+        <Buttons
+          primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
+          primaryCallback={() => {
+            if (allVaults.length === 0) {
+              showToast('No vaults found.', <ToastErrorIcon />);
+            } else {
+              setShowPasswordModal(true);
+            }
+          }}
+          primaryLoading={loading}
+          secondaryText={isBackupAllowed ? strings.healthCheck : ''}
+          secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
+          fullWidth
+        />
+      </Box>
       <KeeperModal
         visible={showModal}
         close={() => {

@@ -290,7 +290,10 @@
     "InheritancePlanning": "Inheritance\nPlanning",
     "NeedHelp": "Need\nHelp?",
     "KeeperConcierge": "Keeper\nConcierge",
-    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed"
+    "RelayWalletErrorMessage": "Something went wrong - Wallet creation failed",
+    "Balance": "Balance",
+    "requestSpecificAmount": "Request specific amount",
+    "GetNewAddress": "Get New Address"
   },
   "transactions": {
     "HexaPay": "Hexa Pay",
@@ -558,6 +561,8 @@
     "SignTransaction": "Sign Transaction",
     "DenyTransaction": "DenyTransaction",
     "transactionToastMessage": "Transaction sent successfully! If the transaction isn’t visible, wait a moment and refresh.",
+    "NewAddress": "New Address",
+    "UsedAddress": "Used Address",
     "walletSetupModalTitle": "About Wallet Setup",
     "addWalletOption1Title": "Single or Multi-Key Wallets",
     "addWalletOption1Description": "Create a wallet that suits your needs. Opt for a Single-Key Wallet for simplicity, or choose advanced setups like 2-of-3 Vaults for occasional use or 3-of-5 Vaults for secure, cold storage.",

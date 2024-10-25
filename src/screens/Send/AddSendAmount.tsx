@@ -47,7 +47,7 @@ function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation } = translations;
+  const { wallet: walletTranslation, common } = translations;
   const {
     sender,
     recipient,
@@ -513,20 +513,19 @@ function AddSendAmount({ route }) {
               />
             </VStack> */}
             <Box style={styles.ctaBtnWrapper}>
-              <Box ml={windowWidth * -0.09}>
-                <Buttons
-                  // secondaryText="Select UTXOs"
-                  // secondaryCallback={() => {
-                  //   navigation.dispatch(
-                  //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
-                  //   );
-                  // }}
-                  // secondaryDisable={Boolean(!amount || errorMessage)}
-                  primaryText="Send"
-                  primaryDisable={Boolean(!amount || errorMessage)}
-                  primaryCallback={executeSendPhaseOne}
-                />
-              </Box>
+              <Buttons
+                // secondaryText="Select UTXOs"
+                // secondaryCallback={() => {
+                //   navigation.dispatch(
+                //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                //   );
+                // }}
+                // secondaryDisable={Boolean(!amount || errorMessage)}
+                primaryText={common.send}
+                primaryDisable={Boolean(!amount || errorMessage)}
+                primaryCallback={executeSendPhaseOne}
+                fullWidth
+              />
             </Box>
           </Box>
         </ScrollView>
@@ -596,8 +595,6 @@ const styles = StyleSheet.create({
   },
   ctaBtnWrapper: {
     marginTop: hp(10),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
   },
   appNumPadWrapper: {
     width: '110%',
