@@ -8,10 +8,13 @@ import PlebIcon from 'src/assets/images/pleb_white.svg';
 import HodlerIcon from 'src/assets/images/hodler.svg';
 import DiamondIcon from 'src/assets/images/diamond_hands.svg';
 import SettingIcon from 'src/assets/images/settings.svg';
+import AppStatus from './AppStatus';
+import { useAppSelector } from 'src/store/hooks';
 
 function CurrentPlanView({ plan }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
+  const isOffline = useAppSelector((state) => state?.login?.isOffline);
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.planContianer}>
@@ -32,6 +35,13 @@ function CurrentPlanView({ plan }) {
             {plan}
           </Text>
         </TouchableOpacity>
+        {isOffline && (
+          <Box style={styles.appStatus}>
+            <AppStatus />
+          </Box>
+        )}
+      </Box>
+      <Box style={styles.settings}>
         <TouchableOpacity
           style={{ padding: 5 }}
           onPress={() => navigation.navigate('AppSettings')}
@@ -46,15 +56,24 @@ function CurrentPlanView({ plan }) {
 const styles = StyleSheet.create({
   wrapper: {
     paddingVertical: 10,
-  },
-  planContianer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  planContianer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 10,
+  },
   plan: {
     flexDirection: 'row',
     gap: 5,
+  },
+  appStatus: {
+    alignItems: 'center',
+  },
+  settings: {
+    alignItems: 'center',
   },
   titleTxet: {
     fontSize: 12,
