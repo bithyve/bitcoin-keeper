@@ -209,7 +209,7 @@ function SignerAdvanceSettings({ route }: any) {
   });
   const signerVaults: Vault[] = [];
 
-  allVaults.forEach((vault) => {
+  allUnhiddenVaults.forEach((vault) => {
     const keys = vault.signers;
     for (const key of keys) {
       if (signer.masterFingerprint === key.masterFingerprint) {
